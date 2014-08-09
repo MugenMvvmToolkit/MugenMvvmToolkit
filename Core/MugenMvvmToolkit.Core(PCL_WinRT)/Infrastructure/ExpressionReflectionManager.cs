@@ -1,0 +1,621 @@
+﻿#region Copyright
+// ****************************************************************************
+// <copyright file="ExpressionReflectionManager.cs">
+// Copyright © Vyacheslav Volkov 2012-2014
+// </copyright>
+// ****************************************************************************
+// <author>Vyacheslav Volkov</author>
+// <email>vvs0205@outlook.com</email>
+// <project>MugenMvvmToolkit</project>
+// <web>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</web>
+// <license>
+// See license.txt in this solution or http://opensource.org/licenses/MS-PL
+// </license>
+// ****************************************************************************
+#endregion
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Models;
+
+namespace MugenMvvmToolkit.Infrastructure
+{
+    /// <summary>
+    ///     Represents the reflection access provider that uses the <see cref="Expression" />.
+    /// </summary>
+    public class ExpressionReflectionManager : IReflectionManager
+    {
+        #region Nested types
+
+#if PCL_Silverlight
+        private static class Assigner<T>
+        {
+            // ReSharper disable once UnusedMember.Local
+            public static T Assign(ref T left, T right)
+            {
+                return (left = right);
+            }
+        }
+#endif
+
+        /// <summary>
+        /// Represents the key cache comparer.
+        /// </summary>
+        protected sealed class MethodDelegateCacheKeyComparer : IEqualityComparer<MethodDelegateCacheKey>
+        {
+            #region Fields
+
+            public static readonly MethodDelegateCacheKeyComparer Instance = new MethodDelegateCacheKeyComparer();
+
+            #endregion
+
+            #region Constructors
+
+            private MethodDelegateCacheKeyComparer()
+            {
+            }
+
+            #endregion
+
+            #region Implementation of IEqualityComparer<in MethodDelegateCacheKey>
+
+            /// <summary>
+            /// Determines whether the specified objects are equal.
+            /// </summary>
+            /// <returns>
+            /// true if the specified objects are equal; otherwise, false.
+            /// </returns>
+            public bool Equals(MethodDelegateCacheKey x, MethodDelegateCacheKey y)
+            {
+                return x.DelegateType.Equals(y.DelegateType) && x.Method.Equals(y.Method);
+            }
+
+            /// <summary>
+            /// Returns a hash code for the specified object.
+            /// </summary>
+            /// <returns>
+            /// A hash code for the specified object.
+            /// </returns>
+            /// <param name="obj">The <see cref="T:System.Object"/> for which a hash code is to be returned.</param><exception cref="T:System.ArgumentNullException">The type of <paramref name="obj"/> is a reference type and <paramref name="obj"/> is null.</exception>
+            public int GetHashCode(MethodDelegateCacheKey obj)
+            {
+                unchecked
+                {
+                    return (obj.DelegateType.GetHashCode() * 397) ^ obj.Method.GetHashCode();
+                }
+            }
+
+            #endregion
+        }
+
+        /// <summary>
+        /// Represents the key cache structure.
+        /// </summary>
+        protected struct MethodDelegateCacheKey
+        {
+            #region Fields
+
+            public readonly MethodInfo Method;
+            public readonly Type DelegateType;
+
+            #endregion
+
+            #region Constructors
+
+            /// <summary>
+            ///     Initializes a new instance of the <see cref="MethodDelegateCacheKey" /> class.
+            /// </summary>
+            public MethodDelegateCacheKey(MethodInfo method, Type delegateType)
+            {
+                Method = method;
+                DelegateType = delegateType;
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region Fields
+
+        private static readonly Dictionary<MethodDelegateCacheKey, MethodInfo> CachedDelegates;
+        private static readonly Dictionary<ConstructorInfo, Func<object[], object>> ActivatorCache;
+        private static readonly Dictionary<MethodInfo, Func<object, object[], object>> InvokeMethodCache;
+        private static readonly Dictionary<MemberInfo, Delegate> MemberAccessCache;
+        private static readonly Dictionary<MemberInfo, Delegate> MemberSetterCache;
+        private static readonly Dictionary<MethodDelegateCacheKey, Delegate> InvokeMethodCacheDelegate;
+        private static Func<Type, Expression, IEnumerable<ParameterExpression>, LambdaExpression> _createLambdaExpressionByType;
+        private static Func<Expression, ParameterExpression[], LambdaExpression> _createLambdaExpression;
+
+        #endregion
+
+        #region Constructors
+
+        static ExpressionReflectionManager()
+        {
+            _createLambdaExpression = Expression.Lambda;
+            _createLambdaExpressionByType = Expression.Lambda;
+            CachedDelegates = new Dictionary<MethodDelegateCacheKey, MethodInfo>(MethodDelegateCacheKeyComparer.Instance);
+            ActivatorCache = new Dictionary<ConstructorInfo, Func<object[], object>>();
+            InvokeMethodCache = new Dictionary<MethodInfo, Func<object, object[], object>>();
+            MemberAccessCache = new Dictionary<MemberInfo, Delegate>();
+            MemberSetterCache = new Dictionary<MemberInfo, Delegate>();
+            InvokeMethodCacheDelegate = new Dictionary<MethodDelegateCacheKey, Delegate>(MethodDelegateCacheKeyComparer.Instance);
+        }
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Gets or sets the delegate that allows to create an instance of <see cref="LambdaExpression"/>.
+        /// </summary>
+        public static Func<Type, Expression, IEnumerable<ParameterExpression>, LambdaExpression> CreateLambdaExpressionByType
+        {
+            get { return _createLambdaExpressionByType; }
+            set
+            {
+                Should.PropertyBeNotNull(value, "CreateLambdaExpressionByType");
+                _createLambdaExpressionByType = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the delegate that allows to create an instance of <see cref="LambdaExpression"/>.
+        /// </summary>
+        public static Func<Expression, ParameterExpression[], LambdaExpression> CreateLambdaExpression
+        {
+            get { return _createLambdaExpression; }
+            set
+            {
+                Should.PropertyBeNotNull(value, "CreateLambdaExpression");
+                _createLambdaExpression = value;
+            }
+        }
+
+        #endregion
+
+        #region Implementation of IReflectionProvider
+
+        /// <summary>
+        ///    Tries to creates a delegate of the specified type that represents the specified static or instance method, with the specified first argument.
+        /// </summary>
+        /// <returns>
+        ///     A delegate of the specified type that represents the specified static method of the specified class.
+        /// </returns>
+        /// <param name="delegateType">The <see cref="T:System.Type" /> of delegate to create. </param>
+        /// <param name="target">
+        ///     The <see cref="T:System.Type" /> representing the class that implements <paramref name="method" />
+        ///     .
+        /// </param>
+        /// <param name="method">The name of the static method that the delegate is to represent. </param>
+        public virtual Delegate TryCreateDelegate(Type delegateType, object target, MethodInfo method)
+        {
+            MethodInfo result;
+            lock (CachedDelegates)
+            {
+                var cacheKey = new MethodDelegateCacheKey(method, delegateType);
+                if (!CachedDelegates.TryGetValue(cacheKey, out result))
+                {
+                    result = TryCreateMethodDelegate(delegateType, method);
+                    CachedDelegates[cacheKey] = result;
+                }
+                if (result == null)
+                    return null;
+            }
+#if PCL_WINRT
+            if (target == null)
+                return result.CreateDelegate(delegateType);
+            return result.CreateDelegate(delegateType, target);
+#else
+            if (target == null)
+                return Delegate.CreateDelegate(delegateType, result);
+            return Delegate.CreateDelegate(delegateType, target, result);
+#endif
+
+        }
+
+        /// <summary>
+        ///     Gets a delegate to create an object using a <see cref="ConstructorInfo" />.
+        /// </summary>
+        /// <param name="constructor">
+        ///     The specified <see cref="ConstructorInfo" />.
+        /// </param>
+        /// <returns>
+        ///     An instance of <see cref="Func{TParams,TResult}" />
+        /// </returns>
+        public virtual Func<object[], object> GetActivatorDelegate(ConstructorInfo constructor)
+        {
+            Should.NotBeNull(constructor, "constructor");
+            lock (ActivatorCache)
+            {
+                Func<object[], object> value;
+                if (!ActivatorCache.TryGetValue(constructor, out value))
+                {
+                    ParameterExpression parameterExpression;
+                    Expression[] expressions = GetParametersExpression(constructor, out parameterExpression);
+                    Expression newExpression = ConvertIfNeed(Expression.New(constructor, expressions), typeof(object), false);
+                    value = Expression.Lambda<Func<object[], object>>(newExpression, parameterExpression).Compile();
+                }
+                ActivatorCache[constructor] = value;
+                return value;
+            }
+        }
+
+        /// <summary>
+        ///     Gets a delegate to call the specified <see cref="MethodInfo" />.
+        /// </summary>
+        /// <param name="method">
+        ///     The specified <see cref="MethodInfo" />
+        /// </param>
+        /// <returns>
+        ///     An instance of <see cref="Func{TOwner,TParams,TResult}" />
+        /// </returns>
+        public virtual Func<object, object[], object> GetMethodDelegate(MethodInfo method)
+        {
+            Should.NotBeNull(method, "method");
+            lock (InvokeMethodCache)
+            {
+                Func<object, object[], object> value;
+                if (!InvokeMethodCache.TryGetValue(method, out value))
+                {
+                    value = CreateMethodInvoke(method);
+                    InvokeMethodCache[method] = value;
+                }
+                return value;
+            }
+        }
+
+        /// <summary>
+        ///     Gets a delegate to call the specified <see cref="MethodInfo" />.
+        /// </summary>
+        /// <param name="delegateType">The type of delegate.</param>
+        /// <param name="method">
+        ///     The specified <see cref="MethodInfo" />
+        /// </param>
+        /// <returns>
+        ///     An instance of delegate.
+        /// </returns>
+        public virtual Delegate GetMethodDelegate(Type delegateType, MethodInfo method)
+        {
+            Should.NotBeNull(delegateType, "delegateType");
+            Should.BeOfType<Delegate>(delegateType, "delegateType");
+            Should.NotBeNull(method, "method");
+            lock (InvokeMethodCacheDelegate)
+            {
+                var cacheKey = new MethodDelegateCacheKey(method, delegateType);
+                Delegate value;
+                if (!InvokeMethodCacheDelegate.TryGetValue(cacheKey, out value))
+                {
+                    MethodInfo delegateMethod = delegateType.GetMethodEx("Invoke");
+                    var delegateParams = delegateMethod.GetParameters().ToList();
+                    ParameterInfo[] methodParams = method.GetParameters();
+                    var expressions = new List<Expression>();
+                    var parameters = new List<ParameterExpression>();
+                    if (!method.IsStatic)
+                    {
+                        var thisParam = Expression.Parameter(delegateParams[0].ParameterType, "@this");
+                        parameters.Add(thisParam);
+                        expressions.Add(ConvertIfNeed(thisParam, GetDeclaringType(method), false));
+                        delegateParams.RemoveAt(0);
+                    }
+                    Should.BeValid("delegateType", delegateParams.Count == methodParams.Length);
+                    for (int i = 0; i < methodParams.Length; i++)
+                    {
+                        ParameterExpression parameter = Expression.Parameter(delegateParams[i].ParameterType, i.ToString());
+                        parameters.Add(parameter);
+                        expressions.Add(ConvertIfNeed(parameter, methodParams[i].ParameterType, false));
+                    }
+
+                    Expression callExpression;
+                    if (method.IsStatic)
+                        callExpression = Expression.Call(null, method, expressions.ToArrayFast());
+                    else
+                    {
+                        Expression @this = expressions[0];
+                        expressions.RemoveAt(0);
+                        callExpression = Expression.Call(@this, method, expressions.ToArrayFast());
+                    }
+
+                    if (delegateMethod.ReturnType != typeof(void))
+                        callExpression = ConvertIfNeed(callExpression, delegateMethod.ReturnType, false);
+                    var lambdaExpression = CreateLambdaExpressionByType(delegateType, callExpression, parameters);
+                    value = lambdaExpression.Compile();
+                    InvokeMethodCacheDelegate[cacheKey] = value;
+                }
+                return value;
+            }
+        }
+
+        /// <summary>
+        ///     Gets a delegate to get a value in the specified <see cref="MemberInfo" />
+        /// </summary>
+        /// <typeparam name="TType">Type of the value.</typeparam>
+        /// <param name="member">
+        ///     The specified <see cref="MemberInfo" />.
+        /// </param>
+        public virtual Func<object, TType> GetMemberGetter<TType>(MemberInfo member)
+        {
+            Should.NotBeNull(member, "member");
+            lock (MemberAccessCache)
+            {
+                Delegate value;
+                if (!MemberAccessCache.TryGetValue(member, out value) || !(value is Func<object, TType>))
+                {
+                    if (IsStatic(member))
+                    {
+                        MemberExpression accessExp = Expression.MakeMemberAccess(null, member);
+                        Func<TType> func = Expression
+                            .Lambda<Func<TType>>(ConvertIfNeed(accessExp, typeof(TType), false))
+                            .Compile();
+                        value = new Func<object, TType>(o => func());
+                    }
+                    else
+                    {
+                        ParameterExpression target = Expression.Parameter(typeof(object), "instance");
+                        Type declaringType = GetDeclaringType(member);
+                        MemberExpression accessExp = Expression.MakeMemberAccess(ConvertIfNeed(target, declaringType, false), member);
+                        value = Expression
+                            .Lambda<Func<object, TType>>(ConvertIfNeed(accessExp, typeof(TType), false), target)
+                            .Compile();
+                    }
+                    MemberAccessCache[member] = value;
+                }
+                return (Func<object, TType>)value;
+            }
+        }
+
+        /// <summary>
+        ///     Gets a delegate to set specified value in the specified <see cref="MemberInfo" /> in a value type target, can be
+        ///     used with reference type.
+        /// </summary>
+        /// <typeparam name="TType">Type of the value.</typeparam>
+        /// <param name="member">
+        ///     The specified <see cref="MemberInfo" />.
+        /// </param>
+        /// <returns>
+        ///     An instance of <see cref="Action{TOwner,TType}" />
+        /// </returns>
+        public virtual Action<object, TType> GetMemberSetter<TType>(MemberInfo member)
+        {
+            Should.NotBeNull(member, "member");
+            lock (MemberSetterCache)
+            {
+                Delegate action;
+                if (!MemberAccessCache.TryGetValue(member, out action) || !(action is Action<object, TType>))
+                {
+                    var declaringType = GetDeclaringType(member);
+                    var fieldInfo = member as FieldInfo;
+#if PCL_WINRT
+                    if (declaringType.GetTypeInfo().IsValueType)
+#else
+                    if (declaringType.IsValueType)
+#endif
+                    {
+                        Action<object, TType> result;
+                        if (fieldInfo == null)
+                        {
+                            var propertyInfo = (PropertyInfo)member;
+                            result = (o, type) => propertyInfo.SetValue(o, type, EmptyValue<object>.ArrayInstance);
+                        }
+                        else
+                            result = (o, type) => fieldInfo.SetValue(o, type);
+                        MemberAccessCache[member] = result;
+                        return result;
+                    }
+
+                    Expression expression;
+                    var targetParameter = Expression.Parameter(typeof(object), "instance");
+                    var valueParameter = Expression.Parameter(typeof(TType), "value");
+                    var target = ConvertIfNeed(targetParameter, declaringType, false);
+                    if (fieldInfo == null)
+                    {
+                        var propertyInfo = member as PropertyInfo;
+                        MethodInfo setMethod = null;
+                        if (propertyInfo != null)
+                            setMethod = propertyInfo.GetSetMethod(true);
+                        Should.MethodBeSupported(propertyInfo != null && setMethod != null,
+                            "supports only properties(non-readonly) and fields");
+                        var valueExpression = ConvertIfNeed(valueParameter, propertyInfo.PropertyType, false);
+                        expression =
+                            Expression.Call(setMethod.IsStatic ? null : ConvertIfNeed(target, declaringType, false),
+                                setMethod, valueExpression);
+                    }
+                    else
+                    {
+                        expression = Expression.Field(fieldInfo.IsStatic ? null : ConvertIfNeed(target, declaringType, false), fieldInfo);
+                        expression = Assign(expression, ConvertIfNeed(valueParameter, fieldInfo.FieldType, false));
+                    }
+                    if (target == null)
+                    {
+                        Action<TType> stAction = Expression
+                            .Lambda<Action<TType>>(expression, valueParameter)
+                            .Compile();
+                        action = new Action<object, TType>((o, arg2) => stAction(arg2));
+                    }
+                    else
+                    {
+                        action = Expression
+                            .Lambda<Action<object, TType>>(expression, targetParameter, valueParameter)
+                            .Compile();
+                    }
+                    MemberAccessCache[member] = action;
+                }
+                return (Action<object, TType>)action;
+            }
+        }
+
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Creates the binary expression that represents an assign statement.
+        /// </summary>
+        public static Expression Assign(Expression left, Expression right)
+        {
+#if PCL_Silverlight
+            var assign = typeof(Assigner<>).MakeGenericType(left.Type).GetMethod("Assign");
+            return Expression.Call(null, assign, left, right);
+#else
+            return Expression.Assign(left, right);
+#endif
+        }
+
+        /// <summary>
+        /// Tries to create method delegate.
+        /// </summary>
+        protected static MethodInfo TryCreateMethodDelegate(Type eventHandlerType, MethodInfo method)
+        {
+            if (!typeof(Delegate).IsAssignableFrom(eventHandlerType))
+                return null;
+
+            ParameterInfo[] mParameters = method.GetParameters();
+            ParameterInfo[] eParameters = eventHandlerType.GetMethodEx("Invoke").GetParameters();
+            if (mParameters.Length != eParameters.Length)
+                return null;
+            if (method.IsGenericMethodDefinition && method.GetGenericArguments().Length == eParameters.Length)
+            {
+                try
+                {
+                    method = method.MakeGenericMethod(eParameters.ToArrayFast(info => info.ParameterType));
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+                mParameters = method.GetParameters();
+            }
+            for (int i = 0; i < mParameters.Length; i++)
+            {
+#if PCL_WINRT
+                var mParameter = mParameters[i].ParameterType.GetTypeInfo();
+                var eParameter = eParameters[i].ParameterType.GetTypeInfo();
+                if (!mParameter.IsAssignableFrom(eParameter) || mParameter.IsValueType != eParameter.IsValueType)
+                    return null;
+#else
+                Type mParameter = mParameters[i].ParameterType;
+                Type eParameter = eParameters[i].ParameterType;
+                if (!mParameter.IsAssignableFrom(eParameter) || mParameter.IsValueType != eParameter.IsValueType)
+                    return null;
+#endif
+            }
+            return method;
+        }
+
+        private static Func<object, object[], object> CreateMethodInvoke(MethodInfo methodInfo)
+        {
+            bool isVoid = methodInfo.ReturnType.Equals(typeof(void));
+            ParameterExpression parameterExpression;
+            var expressions = GetParametersExpression(methodInfo, out parameterExpression);
+            Expression callExpression;
+            if (methodInfo.IsStatic)
+            {
+                callExpression = Expression.Call(null, methodInfo, expressions);
+                if (isVoid)
+                {
+                    var action = Expression
+                        .Lambda<Action<object[]>>(callExpression, parameterExpression)
+                        .Compile();
+                    return (o, objects) =>
+                    {
+                        action(objects);
+                        return null;
+                    };
+                }
+                callExpression = ConvertIfNeed(callExpression, typeof(object), false);
+                var func = Expression
+                    .Lambda<Func<object[], object>>(callExpression, parameterExpression)
+                    .Compile();
+                return (o, objects) => func(objects);
+            }
+            Type declaringType = GetDeclaringType(methodInfo);
+            var targetExp = Expression.Parameter(typeof(object), "target");
+            callExpression = Expression.Call(ConvertIfNeed(targetExp, declaringType, false), methodInfo, expressions);
+            if (isVoid)
+            {
+                var action = Expression
+                    .Lambda<Action<object, object[]>>(callExpression, targetExp, parameterExpression)
+                    .Compile();
+                return (o, objects) =>
+                {
+                    action(o, objects);
+                    return null;
+                };
+            }
+            callExpression = ConvertIfNeed(callExpression, typeof(object), false);
+            return Expression
+                .Lambda<Func<object, object[], object>>(callExpression, targetExp, parameterExpression)
+                .Compile();
+        }
+
+        private static bool IsStatic(MemberInfo member)
+        {
+            var propertyInfo = member as PropertyInfo;
+            if (propertyInfo != null)
+            {
+                MethodInfo method = propertyInfo.CanRead
+                    ? propertyInfo.GetGetMethod(true)
+                    : propertyInfo.GetSetMethod(true);
+                return method == null || method.IsStatic;
+            }
+            var methodInfo = member as MethodInfo;
+            if (methodInfo != null)
+                return methodInfo.IsStatic;
+            var fieldInfo = member as FieldInfo;
+            return fieldInfo == null || fieldInfo.IsStatic;
+        }
+
+        private static Expression[] GetParametersExpression(MethodBase methodBase,
+            out ParameterExpression parameterExpression)
+        {
+            ParameterInfo[] paramsInfo = methodBase.GetParameters();
+            //create a single param of type object[]
+            parameterExpression = Expression.Parameter(typeof(object[]), "args");
+            var argsExp = new Expression[paramsInfo.Length];
+
+            //pick each arg from the params array 
+            //and create a typed expression of them
+            for (int i = 0; i < paramsInfo.Length; i++)
+            {
+                Expression index = Expression.Constant(i);
+                Type paramType = paramsInfo[i].ParameterType;
+                Expression paramAccessorExp = Expression.ArrayIndex(parameterExpression, index);
+                Expression paramCastExp = ConvertIfNeed(paramAccessorExp, paramType, false);
+                argsExp[i] = paramCastExp;
+            }
+            return argsExp;
+        }
+
+        internal static Type GetDeclaringType(MemberInfo member)
+        {
+#if PCL_WINRT
+            return member.DeclaringType;
+#else
+            return member.DeclaringType ?? member.ReflectedType;
+#endif
+        }
+
+        internal static Expression ConvertIfNeed(Expression expression, Type type, bool exactly)
+        {
+            if (type.Equals(typeof(void)) || type.Equals(expression.Type))
+                return expression;
+
+#if PCL_WINRT
+            var typeInfo = type.GetTypeInfo();
+            if (!exactly && !expression.Type.GetTypeInfo().IsValueType && !typeInfo.IsValueType && type.IsAssignableFrom(expression.Type))
+                return expression;
+#else
+            if (!exactly && !expression.Type.IsValueType && !type.IsValueType && type.IsAssignableFrom(expression.Type))
+                return expression;
+#endif
+
+            return Expression.Convert(expression, type);
+        }
+
+        #endregion
+    }
+}

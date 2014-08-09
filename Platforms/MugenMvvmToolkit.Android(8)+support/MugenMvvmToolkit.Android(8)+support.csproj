@@ -1,0 +1,349 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{67A42A24-569A-4794-B55E-46191949EA1A}</ProjectGuid>
+    <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MugenMvvmToolkit</RootNamespace>
+    <AssemblyName>MugenMvvmToolkit.Android</AssemblyName>
+    <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
+    <FileAlignment>512</FileAlignment>
+    <AndroidResgenFile>Resources\Resource.Designer.cs</AndroidResgenFile>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <AndroidUseLatestPlatformSdk />
+    <TargetFrameworkVersion>v2.2</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;ANDROID;API8SUPPORT</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\bin\Platforms\Android\API8_Support\</OutputPath>
+    <DefineConstants>TRACE;ANDROID;API8SUPPORT</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\..\bin\Platforms\Android\API8_Support\MugenMvvmToolkit.Android.XML</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="JetBrains.Annotations">
+      <HintPath>..\..\packages\JetBrainsAnnotations.Fody.1.0.2\Lib\JetBrains.Annotations.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Mono.Android" />
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Xamarin.Android.Support.v4">
+      <HintPath>..\..\Components\xamandroidsupportv7appcompat-20.0.0\lib\android\Xamarin.Android.Support.v4.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Xamarin.Android.Support.v7.AppCompat">
+      <HintPath>..\..\Components\xamandroidsupportv7appcompat-20.0.0\lib\android\Xamarin.Android.Support.v7.AppCompat.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\AttachedValueProvider.cs">
+      <Link>Infrastructure\AttachedValueProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\attributes\BootstrapperAttribute.cs">
+      <Link>Attributes\BootstrapperAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\DataConstants\ViewFactoryConstants.cs">
+      <Link>DataConstants\ViewFactoryConstants.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\ActionBarTabItemsSourceGenerator.cs">
+      <Link>Infrastructure\ActionBarTabItemsSourceGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\AndroidBootstrapperBase.cs">
+      <Link>Infrastructure\AndroidBootstrapperBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\ApplicationStateManager.cs">
+      <Link>Infrastructure\ApplicationStateManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\AttachedMembers\AttachedMembersModule.cs">
+      <Link>Infrastructure\AttachedMembers\AttachedMembersModule.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\AttachedMembers\AttachedMembersModuleActionBar.cs">
+      <Link>Infrastructure\AttachedMembers\AttachedMembersModuleActionBar.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\AttachedMembers\AttachedMembersModuleMenu.cs">
+      <Link>Infrastructure\AttachedMembers\AttachedMembersModuleMenu.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\AttachedMembers\AttachedMembersModuleView.cs">
+      <Link>Infrastructure\AttachedMembers\AttachedMembersModuleView.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\BindableMenuInflater.cs">
+      <Link>Infrastructure\BindableMenuInflater.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs">
+      <Link>Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\DebugTracer.cs">
+      <Link>Infrastructure\DebugTracer.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\GlobalViewParentListener.cs">
+      <Link>Infrastructure\GlobalViewParentListener.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\InitializationModule.cs">
+      <Link>Infrastructure\InitializationModule.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\ItemsSourceAdapter.cs">
+      <Link>Infrastructure\ItemsSourceAdapter.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\ItemsSourceGeneratorBase.cs">
+      <Link>Infrastructure\ItemsSourceGeneratorBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Mediators\MediatorBase.cs">
+      <Link>Infrastructure\Mediators\MediatorBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Mediators\MvvmActivityMediator.cs">
+      <Link>Infrastructure\Mediators\MvvmActivityMediator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Mediators\MvvmFragmentMediator.cs">
+      <Link>Infrastructure\Mediators\MvvmFragmentMediator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Mediators\WindowViewMediator.cs">
+      <Link>Infrastructure\Mediators\WindowViewMediator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\MenuItemsSourceGenerator.cs">
+      <Link>Infrastructure\MenuItemsSourceGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Navigation\EmptyNavigationCachePolicy.cs">
+      <Link>Infrastructure\Navigation\EmptyNavigationCachePolicy.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Navigation\NavigationService.cs">
+      <Link>Infrastructure\Navigation\NavigationService.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Presenters\MessagePresenter.cs">
+      <Link>Infrastructure\Presenters\MessagePresenter.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Presenters\ToastPresenterBase.cs">
+      <Link>Infrastructure\Presenters\ToastPresenterBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\TabHostItemsSourceGenerator.cs">
+      <Link>Infrastructure\TabHostItemsSourceGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\TypeCache.cs">
+      <Link>Infrastructure\TypeCache.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\ValueTemplateManager.cs">
+      <Link>Infrastructure\ValueTemplateManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\ViewFactory.cs">
+      <Link>Infrastructure\ViewFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\ViewGroupItemsSourceGenerator.cs">
+      <Link>Infrastructure\ViewGroupItemsSourceGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\XmlPropertySetter.cs">
+      <Link>Infrastructure\XmlPropertySetter.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\IApplicationStateManager.cs">
+      <Link>Interfaces\IApplicationStateManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\IBindableMenuInflater.cs">
+      <Link>Interfaces\IBindableMenuInflater.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\IDataTemplateSelector.cs">
+      <Link>Interfaces\IDataTemplateSelector.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\IManualBindings.cs">
+      <Link>Interfaces\IManualBindings.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\IViewFactory.cs">
+      <Link>Interfaces\IViewFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\Mediators\IMvvmActivityMediator.cs">
+      <Link>Interfaces\Mediators\IMvvmActivityMediator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\Mediators\IMvvmFragmentMediator.cs">
+      <Link>Interfaces\Mediators\IMvvmFragmentMediator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\Views\IActivityView.cs">
+      <Link>Interfaces\Views\IActivityView.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\Views\IWindowView.cs">
+      <Link>Interfaces\Views\IWindowView.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\InternalExtensions.cs">
+      <Link>InternalExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\LinkerInclude.cs">
+      <Link>LinkerInclude.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Models\ActionBarTabTemplate.cs">
+      <Link>Models\ActionBarTabTemplate.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Models\ActionBarTemplate.cs">
+      <Link>Models\ActionBarTemplate.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Models\AttachedMemberNames.cs">
+      <Link>Models\AttachedMemberNames.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Models\Enums.cs">
+      <Link>Models\Enums.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Models\EventArg\NavigatingCancelEventArgs.cs">
+      <Link>Models\EventArg\NavigatingCancelEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Models\EventArg\NavigationEventArgs.cs">
+      <Link>Models\EventArg\NavigationEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Models\JavaObjectWeakReference.cs">
+      <Link>Models\JavaObjectWeakReference.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Models\MenuItemTemplate.cs">
+      <Link>Models\MenuItemTemplate.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Models\MenuTemplate.cs">
+      <Link>Models\MenuTemplate.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Models\ViewResult.cs">
+      <Link>Models\ViewResult.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\PlatformExtensions.cs">
+      <Link>PlatformExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\ActionBarView.cs">
+      <Link>Views\ActionBarView.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\Activities\MvvmActivity.cs">
+      <Link>Views\Activities\MvvmActivity.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\Activities\MvvmListActivity.cs">
+      <Link>Views\Activities\MvvmListActivity.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\Activities\MvvmPreferenceActivity.cs">
+      <Link>Views\Activities\MvvmPreferenceActivity.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\Activities\MvvmTabActivity.cs">
+      <Link>Views\Activities\MvvmTabActivity.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\Activities\SplashScreenActivityBase.cs">
+      <Link>Views\Activities\SplashScreenActivityBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\Fragments\MvvmDialogFragment.cs">
+      <Link>Views\Fragments\MvvmDialogFragment.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\Fragments\MvvmFragment.cs">
+      <Link>Views\Fragments\MvvmFragment.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\Fragments\MvvmListFragment.cs">
+      <Link>Views\Fragments\MvvmListFragment.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\ListItemView.cs">
+      <Link>Views\ListItemView.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\OptionsMenu.cs">
+      <Link>Views\OptionsMenu.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.winforms%284.5%29\infrastructure\ThreadManager.cs">
+      <Link>Infrastructure\ThreadManager.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\converters\ViewModelToViewConverter.cs">
+      <Link>Converters\ViewModelToViewConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\ExpressionReflectionManagerEx.cs">
+      <Link>Infrastructure\ExpressionReflectionManagerEx.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\navigation\NavigationProvider.cs">
+      <Link>Infrastructure\Navigation\NavigationProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\DynamicViewModelWindowPresenter.cs">
+      <Link>Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\ViewManagerEx.cs">
+      <Link>Infrastructure\ViewManagerEx.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Interfaces\Navigation\INavigationProviderEx.cs">
+      <Link>Interfaces\Navigation\INavigationProviderEx.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Interfaces\Navigation\INavigationService.cs">
+      <Link>Interfaces\Navigation\INavigationService.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\models\eventarg\NavigatingCancelEventArgsBase.cs">
+      <Link>Models\EventArg\NavigatingCancelEventArgsBase.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\models\eventarg\NavigationEventArgsBase.cs">
+      <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
+    </Compile>
+    <Compile Include="Resources\Resource.Designer.cs" />
+    <Compile Include="Views\Activities\MvvmActionBarActivity.cs" />
+    <Compile Include="Views\Activities\MvvmFragmentActivity.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="..\MugenMvvmToolkit.Android%2817%29\Resources\Values\BindingResources.xml">
+      <Link>Resources\Values\BindingResources.xml</Link>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\Solution Items\licence.txt">
+      <Link>licence.txt</Link>
+    </Content>
+    <Content Include="FodyWeavers.xml" />
+    <None Include="..\..\Solution Items\MugenMvvmToolkit.licenseheader">
+      <Link>MugenMvvmToolkit.licenseheader</Link>
+    </None>
+    <None Include="Properties\AndroidManifest.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Binding%28PCL_WinRT%29\MugenMvvmToolkit.Binding%28PCL_WinRT%29.csproj">
+      <Project>{bd7749ab-822f-4ed2-bb75-0fef2b9ad453}</Project>
+      <Name>MugenMvvmToolkit.Binding%28PCL_WinRT%29</Name>
+      <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\MugenMvvmToolkit.Core%28PCL_WinRT%29.csproj">
+      <Project>{f4323e9e-1608-429b-83dc-6a3670761850}</Project>
+      <Name>MugenMvvmToolkit.Core%28PCL_WinRT%29</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <XamarinComponentReference Include="xamandroidsupportv7appcompat">
+      <Visible>False</Visible>
+      <Version>20.0.0</Version>
+    </XamarinComponentReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Fody.1.24.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.24.0\build\Fody.targets'))" />
+  </Target>
+  <Import Project="..\..\packages\Fody.1.24.0\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.24.0\build\Fody.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

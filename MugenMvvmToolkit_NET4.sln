@@ -1,0 +1,86 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Core(4.0)", "Core\MugenMvvmToolkit.Core(4.0)\MugenMvvmToolkit.Core(4.0).csproj", "{A2D15B14-F23E-46DE-9165-AB1D9104B978}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Binding(4.0)", "Core\MugenMvvmToolkit.Binding(4.0)\MugenMvvmToolkit.Binding(4.0).csproj", "{A9FAE2BB-BBE7-4675-92F3-DCDDEBD70999}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.AutofacContainer(NET4.0)", "IocContainers\MugenMvvmToolkit.AutofacContainer(NET4.0)\MugenMvvmToolkit.AutofacContainer(NET4.0).csproj", "{4B2877EA-DE1D-4CE0-984B-E285354011F2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.MugenContainer(NET4.0)", "IocContainers\MugenMvvmToolkit.MugenContainer(NET4.0)\MugenMvvmToolkit.MugenContainer(NET4.0).csproj", "{048706A3-6AB2-47B3-9649-AD9D4F2B15BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.NinjectContainer(NET4)", "IocContainers\MugenMvvmToolkit.NinjectContainer(NET4)\MugenMvvmToolkit.NinjectContainer(NET4).csproj", "{1EB1A717-7102-4138-8A37-42DFD943E0F9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IocContainers", "IocContainers", "{641D889D-D51B-486C-99E1-CD13E1B33EFC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{71BE1650-F9E4-422C-826A-4A3D0EDF964D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Platforms", "Platforms", "{8F12DA7E-338C-4129-A95B-4EE867A6B3E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WPF", "WPF", "{19A9F9D5-6680-4B80-A70B-18CCD53F9E57}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WinForms", "WinForms", "{585C3D41-71E6-4E0B-BE0D-A21FCAFF3065}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinForms(4.0)", "Platforms\MugenMvvmToolkit.WinForms(4.0)\MugenMvvmToolkit.WinForms(4.0).csproj", "{6CC70590-B95D-4A10-9304-89C3BA27AB32}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WPF(4.0)", "Platforms\MugenMvvmToolkit.WPF(4.0)\MugenMvvmToolkit.WPF(4.0).csproj", "{767BA920-CF3A-4894-8382-2DE780D398E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Binding.WPF(4.0)", "Platforms\MugenMvvmToolkit.Binding.WPF(4.0)\MugenMvvmToolkit.Binding.WPF(4.0).csproj", "{627042AA-2DA6-4744-982A-E6BA58D9421A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A2D15B14-F23E-46DE-9165-AB1D9104B978}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2D15B14-F23E-46DE-9165-AB1D9104B978}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2D15B14-F23E-46DE-9165-AB1D9104B978}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2D15B14-F23E-46DE-9165-AB1D9104B978}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9FAE2BB-BBE7-4675-92F3-DCDDEBD70999}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9FAE2BB-BBE7-4675-92F3-DCDDEBD70999}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9FAE2BB-BBE7-4675-92F3-DCDDEBD70999}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9FAE2BB-BBE7-4675-92F3-DCDDEBD70999}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B2877EA-DE1D-4CE0-984B-E285354011F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B2877EA-DE1D-4CE0-984B-E285354011F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B2877EA-DE1D-4CE0-984B-E285354011F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B2877EA-DE1D-4CE0-984B-E285354011F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{048706A3-6AB2-47B3-9649-AD9D4F2B15BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{048706A3-6AB2-47B3-9649-AD9D4F2B15BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{048706A3-6AB2-47B3-9649-AD9D4F2B15BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{048706A3-6AB2-47B3-9649-AD9D4F2B15BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EB1A717-7102-4138-8A37-42DFD943E0F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EB1A717-7102-4138-8A37-42DFD943E0F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EB1A717-7102-4138-8A37-42DFD943E0F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EB1A717-7102-4138-8A37-42DFD943E0F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CC70590-B95D-4A10-9304-89C3BA27AB32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CC70590-B95D-4A10-9304-89C3BA27AB32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CC70590-B95D-4A10-9304-89C3BA27AB32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CC70590-B95D-4A10-9304-89C3BA27AB32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{767BA920-CF3A-4894-8382-2DE780D398E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{767BA920-CF3A-4894-8382-2DE780D398E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{767BA920-CF3A-4894-8382-2DE780D398E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{767BA920-CF3A-4894-8382-2DE780D398E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{627042AA-2DA6-4744-982A-E6BA58D9421A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{627042AA-2DA6-4744-982A-E6BA58D9421A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{627042AA-2DA6-4744-982A-E6BA58D9421A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{627042AA-2DA6-4744-982A-E6BA58D9421A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A2D15B14-F23E-46DE-9165-AB1D9104B978} = {71BE1650-F9E4-422C-826A-4A3D0EDF964D}
+		{A9FAE2BB-BBE7-4675-92F3-DCDDEBD70999} = {71BE1650-F9E4-422C-826A-4A3D0EDF964D}
+		{4B2877EA-DE1D-4CE0-984B-E285354011F2} = {641D889D-D51B-486C-99E1-CD13E1B33EFC}
+		{048706A3-6AB2-47B3-9649-AD9D4F2B15BB} = {641D889D-D51B-486C-99E1-CD13E1B33EFC}
+		{1EB1A717-7102-4138-8A37-42DFD943E0F9} = {641D889D-D51B-486C-99E1-CD13E1B33EFC}
+		{19A9F9D5-6680-4B80-A70B-18CCD53F9E57} = {8F12DA7E-338C-4129-A95B-4EE867A6B3E8}
+		{585C3D41-71E6-4E0B-BE0D-A21FCAFF3065} = {8F12DA7E-338C-4129-A95B-4EE867A6B3E8}
+		{6CC70590-B95D-4A10-9304-89C3BA27AB32} = {585C3D41-71E6-4E0B-BE0D-A21FCAFF3065}
+		{767BA920-CF3A-4894-8382-2DE780D398E3} = {19A9F9D5-6680-4B80-A70B-18CCD53F9E57}
+		{627042AA-2DA6-4744-982A-E6BA58D9421A} = {19A9F9D5-6680-4B80-A70B-18CCD53F9E57}
+	EndGlobalSection
+EndGlobal

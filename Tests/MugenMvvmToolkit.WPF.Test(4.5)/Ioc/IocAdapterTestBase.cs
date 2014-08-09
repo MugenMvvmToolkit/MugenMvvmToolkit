@@ -1,0 +1,447 @@
+﻿using System;
+using System.Linq;
+using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Models.IoC;
+using Should;
+
+namespace MugenMvvmToolkit.Test.Ioc
+{
+    [TestClass]
+    public abstract class IocContainerTestBase<T> where T : IIocContainer
+    {
+        #region Fields
+
+        protected readonly Func<T> GetIocContainer;
+
+        #endregion
+
+        #region Constructors
+
+        protected IocContainerTestBase(Func<T> getIocContainer)
+        {
+            GetIocContainer = getIocContainer;
+        }
+
+        #endregion
+
+        #region Test methods
+
+        [TestMethod]
+        public virtual void TestCreateChildAndGetRoot()
+        {
+            using (var iocContainer = GetIocContainer())
+            {
+                iocContainer.ShouldEqual(iocContainer.GetRoot());
+
+                var child = iocContainer.CreateChild();
+                iocContainer.ShouldNotEqual(child);
+                child.Container.ShouldNotBeNull();
+                child.GetRoot().ShouldEqual(iocContainer);
+            }
+        }
+
+        [TestMethod]
+        public virtual void TestSelfBindable()
+        {
+            using (var iocContainer = GetIocContainer())
+            {
+                var o = iocContainer.Get(typeof(Simple));
+                o.ShouldNotBeNull();
+                var simple = iocContainer.Get<Simple>();
+                simple.ShouldNotBeNull();
+                simple.ShouldNotEqual(o);
+            }
+        }
+
+        [TestMethod]
+        public virtual void TestBindToType()
+        {
+            using (var iocContainer = GetIocContainer())
+            {
+                iocContainer.Bind<ISimple, Simple>(DependencyLifecycle.SingleInstance);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple));
+                simple.ShouldNotBeNull();
+                iocContainer.Get<ISimple>().ShouldEqual(simple);
+                iocContainer.Get(typeof(ISimple)).ShouldEqual(simple);
+            }
+
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                iocContainer.Bind(typeof(ISimple), typeof(Simple), DependencyLifecycle.SingleInstance);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple));
+                simple.ShouldNotBeNull();
+                iocContainer.Get<ISimple>().ShouldEqual(simple);
+                iocContainer.Get(typeof(ISimple)).ShouldEqual(simple);
+            }
+
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                iocContainer.Bind<ISimple, Simple>(DependencyLifecycle.TransientInstance);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple));
+                simple.ShouldNotBeNull();
+                iocContainer.Get<ISimple>().ShouldNotEqual(simple);
+                iocContainer.Get(typeof(ISimple)).ShouldNotEqual(simple);
+            }
+
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                iocContainer.Bind(typeof(ISimple), typeof(Simple), DependencyLifecycle.TransientInstance);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple));
+                simple.ShouldNotBeNull();
+                iocContainer.Get<ISimple>().ShouldNotEqual(simple);
+                iocContainer.Get(typeof(ISimple)).ShouldNotEqual(simple);
+            }
+        }
+
+        [TestMethod]
+        public virtual void TestBindToMethod()
+        {
+            var parameters = new IIocParameter[] { new IocParameter("test", "Test", new IocParameterType("Test")) };
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                iocContainer.BindToMethod<ISimple>((adapter, list) =>
+                {
+                    list.SequenceEqual(parameters).ShouldBeTrue();
+                    return new Simple();
+                }, DependencyLifecycle.SingleInstance);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple), null, parameters);
+                simple.ShouldNotBeNull();
+                iocContainer.Get<ISimple>(null, parameters).ShouldEqual(simple);
+                iocContainer.Get(typeof(ISimple), null, parameters).ShouldEqual(simple);
+            }
+
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                iocContainer.BindToMethod(typeof(ISimple), (adapter, list) =>
+                {
+                    list.SequenceEqual(parameters).ShouldBeTrue();
+                    return new Simple();
+                }, DependencyLifecycle.SingleInstance);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple), null, parameters);
+                simple.ShouldNotBeNull();
+                iocContainer.Get<ISimple>(null, parameters).ShouldEqual(simple);
+                iocContainer.Get(typeof(ISimple), null, parameters).ShouldEqual(simple);
+            }
+
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                iocContainer.BindToMethod<ISimple>((adapter, list) =>
+                {
+                    list.SequenceEqual(parameters).ShouldBeTrue();
+                    return new Simple();
+                }, DependencyLifecycle.TransientInstance);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple), null, parameters);
+                simple.ShouldNotBeNull();
+                iocContainer.Get<ISimple>(null, parameters).ShouldNotEqual(simple);
+                iocContainer.Get(typeof(ISimple), null, parameters).ShouldNotEqual(simple);
+            }
+
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                iocContainer.BindToMethod(typeof(ISimple), (adapter, list) =>
+                {
+                    list.SequenceEqual(parameters).ShouldBeTrue();
+                    return new Simple();
+                }, DependencyLifecycle.TransientInstance);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple), null, parameters);
+                simple.ShouldNotBeNull();
+                iocContainer.Get<ISimple>(null, parameters).ShouldNotEqual(simple);
+                iocContainer.Get(typeof(ISimple), null, parameters).ShouldNotEqual(simple);
+            }
+        }
+
+
+        [TestMethod]
+        public virtual void TestBindToConstant()
+        {
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                var constValue = new Simple();
+                iocContainer.BindToConstant<ISimple>(constValue);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple));
+                simple.ShouldNotBeNull();
+                simple.ShouldEqual(constValue);
+                iocContainer.Get<ISimple>().ShouldEqual(simple);
+                iocContainer.Get(typeof(ISimple)).ShouldEqual(simple);
+            }
+
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                var constValue = new Simple();
+                iocContainer.BindToConstant(typeof(ISimple), constValue);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple));
+                simple.ShouldNotBeNull();
+                simple.ShouldEqual(constValue);
+                iocContainer.Get<ISimple>().ShouldEqual(simple);
+                iocContainer.Get(typeof(ISimple)).ShouldEqual(simple);
+            }
+        }
+
+        [TestMethod]
+        public virtual void TestBindToTypeNamed()
+        {
+            const string named = "named";
+
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                iocContainer.Bind<ISimple, Simple>(DependencyLifecycle.SingleInstance, named);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple), named);
+                simple.ShouldNotBeNull();
+                iocContainer.Get<ISimple>(named).ShouldEqual(simple);
+                iocContainer.Get(typeof(ISimple), named).ShouldEqual(simple);
+
+                Action action = () => iocContainer.Get<ISimple>();
+                action.ShouldThrow();
+            }
+
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                iocContainer.Bind(typeof(ISimple), typeof(Simple), DependencyLifecycle.SingleInstance, named);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple), named);
+                simple.ShouldNotBeNull();
+                iocContainer.Get<ISimple>(named).ShouldEqual(simple);
+                iocContainer.Get(typeof(ISimple), named).ShouldEqual(simple);
+
+                Action action = () => iocContainer.Get<ISimple>();
+                action.ShouldThrow();
+            }
+
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                iocContainer.Bind<ISimple, Simple>(DependencyLifecycle.TransientInstance, named);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple), named);
+                simple.ShouldNotBeNull();
+                iocContainer.Get<ISimple>(named).ShouldNotEqual(simple);
+                iocContainer.Get(typeof(ISimple), named).ShouldNotEqual(simple);
+
+                Action action = () => iocContainer.Get<ISimple>();
+                action.ShouldThrow();
+            }
+
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                iocContainer.Bind(typeof(ISimple), typeof(Simple), DependencyLifecycle.TransientInstance, named);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple), named);
+                simple.ShouldNotBeNull();
+                iocContainer.Get<ISimple>(named).ShouldNotEqual(simple);
+                iocContainer.Get(typeof(ISimple), named).ShouldNotEqual(simple);
+
+                Action action = () => iocContainer.Get<ISimple>();
+                action.ShouldThrow();
+            }
+        }
+
+        [TestMethod]
+        public virtual void TestBindToMethodNamed()
+        {
+            const string named = "named";
+            var parameters = new IIocParameter[] { new IocParameter("test", "Test", IocParameterType.Property) };
+
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                iocContainer.BindToMethod<ISimple>((adapter, list) =>
+                {
+                    list.SequenceEqual(parameters).ShouldBeTrue();
+                    return new Simple();
+                }, DependencyLifecycle.SingleInstance, named);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple), named, parameters);
+                simple.ShouldNotBeNull();
+                iocContainer.Get<ISimple>(named, parameters).ShouldEqual(simple);
+                iocContainer.Get(typeof(ISimple), named, parameters).ShouldEqual(simple);
+
+                Action action = () => iocContainer.Get<ISimple>();
+                action.ShouldThrow();
+            }
+
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                iocContainer.BindToMethod(typeof(ISimple), (adapter, list) =>
+                {
+                    list.SequenceEqual(parameters).ShouldBeTrue();
+                    return new Simple();
+                }, DependencyLifecycle.SingleInstance, named);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple), named, parameters);
+                simple.ShouldNotBeNull();
+                iocContainer.Get<ISimple>(named, parameters).ShouldEqual(simple);
+                iocContainer.Get(typeof(ISimple), named, parameters).ShouldEqual(simple);
+
+                Action action = () => iocContainer.Get<ISimple>();
+                action.ShouldThrow();
+            }
+
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                iocContainer.BindToMethod<ISimple>((adapter, list) =>
+                {
+                    list.SequenceEqual(parameters).ShouldBeTrue();
+                    return new Simple();
+                }, DependencyLifecycle.TransientInstance, named);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple), named, parameters);
+                simple.ShouldNotBeNull();
+                iocContainer.Get<ISimple>(named, parameters).ShouldNotEqual(simple);
+                iocContainer.Get(typeof(ISimple), named, parameters).ShouldNotEqual(simple);
+
+                Action action = () => iocContainer.Get<ISimple>();
+                action.ShouldThrow();
+            }
+
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                iocContainer.BindToMethod(typeof(ISimple), (adapter, list) =>
+                {
+                    list.SequenceEqual(parameters).ShouldBeTrue();
+                    return new Simple();
+                }, DependencyLifecycle.TransientInstance, named);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple), named, parameters);
+                simple.ShouldNotBeNull();
+                iocContainer.Get<ISimple>(named, parameters).ShouldNotEqual(simple);
+                iocContainer.Get(typeof(ISimple), named, parameters).ShouldNotEqual(simple);
+
+                Action action = () => iocContainer.Get<ISimple>();
+                action.ShouldThrow();
+            }
+        }
+
+        [TestMethod]
+        public virtual void TestBindToConstantNamed()
+        {
+            const string named = "named";
+
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                var constValue = new Simple();
+                iocContainer.BindToConstant<ISimple>(constValue, named);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple), named);
+                simple.ShouldNotBeNull();
+                simple.ShouldEqual(constValue);
+                iocContainer.Get<ISimple>(named).ShouldEqual(simple);
+                iocContainer.Get(typeof(ISimple), named).ShouldEqual(simple);
+
+                Action action = () => iocContainer.Get<ISimple>();
+                action.ShouldThrow();
+            }
+
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                var constValue = new Simple();
+                iocContainer.BindToConstant(typeof(ISimple), constValue, named);
+
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple), named);
+                simple.ShouldNotBeNull();
+                simple.ShouldEqual(constValue);
+                iocContainer.Get<ISimple>(named).ShouldEqual(simple);
+                iocContainer.Get(typeof(ISimple), named).ShouldEqual(simple);
+
+                Action action = () => iocContainer.Get<ISimple>();
+                action.ShouldThrow();
+            }
+        }
+
+        [TestMethod]
+        public virtual void TestUnbind()
+        {
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                var constValue = new Simple();
+                iocContainer.BindToConstant<ISimple>(constValue);
+                iocContainer.Get<ISimple>().ShouldEqual(constValue);
+
+                iocContainer.Unbind(typeof(ISimple));
+                Action action = () => iocContainer.Get<ISimple>().ShouldEqual(constValue);
+                action.ShouldThrow();
+            }
+        }
+
+        [TestMethod]
+        public virtual void TestCanResolve()
+        {
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                iocContainer.CanResolve(typeof(ISimple)).ShouldBeFalse();
+                iocContainer.CanResolve<ISimple>().ShouldBeFalse();
+
+                iocContainer.BindToConstant<ISimple>(new Simple());
+
+                iocContainer.CanResolve(typeof(ISimple)).ShouldBeTrue();
+                iocContainer.CanResolve<ISimple>().ShouldBeTrue();
+            }
+        }
+
+        [TestMethod]
+        public virtual void TestCanResolveNamed()
+        {
+            const string name = "name";
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                iocContainer.CanResolve(typeof(ISimple), name).ShouldBeFalse();
+                iocContainer.CanResolve<ISimple>(name).ShouldBeFalse();
+
+                iocContainer.BindToConstant<ISimple>(new Simple());
+
+                iocContainer.CanResolve(typeof(ISimple), name).ShouldBeFalse();
+                iocContainer.CanResolve<ISimple>(name).ShouldBeFalse();
+
+                iocContainer.BindToConstant<ISimple>(new Simple(), name);
+
+                iocContainer.CanResolve(typeof(ISimple), name).ShouldBeTrue();
+                iocContainer.CanResolve<ISimple>(name).ShouldBeTrue();
+            }
+        }
+
+        #endregion
+    }
+
+    public interface ISimple
+    {
+    }
+
+    public class Simple : ISimple
+    {
+        public Guid Guid = Guid.NewGuid();
+    }
+
+    public class IntoClass
+    {
+        public IntoClass(Simple simple)
+        {
+            Simple = simple;
+        }
+
+        public Simple Simple { get; set; }
+    }
+
+    public class IntoClass1
+    {
+        public IntoClass1(Simple simple)
+        {
+            Simple = simple;
+        }
+
+        public Simple Simple { get; set; }
+    }
+
+    public class GenericViewModel<T>
+    {
+    }
+}

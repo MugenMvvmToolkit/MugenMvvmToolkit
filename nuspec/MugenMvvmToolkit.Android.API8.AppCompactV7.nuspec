@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>MugenMvvmToolkit.Android.API8.AppCompactV7</id>
+    <version>1.0.0</version>
+    <title>MugenMvvmToolkit - Android API8+ AppCompactV7</title>
+    <authors>Vyacheslav Volkov</authors>
+    <description>
+      This package contains the Android assemblies for Android with API >= 8 with Support Library AppCompact V7.
+      Mugen MVVM Toolkit makes it easier to develop cross-platform application using the Model-View-ViewModel design pattern.
+      The Mugen MVVM Toolkit provides a cross-platform MVVM development framework built on top of:
+      - WinForms
+      - WPF
+      - Silverlight 5
+      - Silverlight for WP7.1, WP8, WP8.1
+      - Mono for Android
+      - WinRT XAML framework for Windows 8 Store apps
+      The Mugen MVVM Toolkit makes extensive use of Portable Class Libraries to provide maintainable cross platform C# native applications.
+      The core of toolkit contains a navigation system, windows management system, IocContainer, validation, etc.
+      The Mugen MVVM Toolkit provides a powerful bindings that you can use on any platform, here are some features:
+      - All of the features available for WPF platform available on all platforms and even more
+      - Binding supports C# language expressions like Linq, Extension methods, method call, etc. example: (Text Items.Where(x => x == Name)), (Text $string.Format('{0} {1}', Prop1, Prop2))
+      - Supports subscription to any control event. (TextChanged ViewModelMethod($args))
+      - Built-in support for validation example: (Text Prop1, Validate=True), (Text $GetErrors(Prop1).FirstOrDefault())
+      - You can easily write their own extensions for bindings, example: (Text $i18.MyLocalizableString), (Text $MyCustomMethod(Prop1))
+      - Supports attached members (properties, events, methods), you can extend any object as you want.
+      - Special editor for WinForms, you do not need to write code to create bindings
+      - Supports fluent syntax
+      - Excellent performance
+    </description>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <iconUrl>http://vvson.net/Content/img/mugenlogo.png</iconUrl>
+    <projectUrl>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</projectUrl>
+    <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
+    <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform</tags>
+    <dependencies>
+      <dependency id="MugenMvvmToolkit" version="[3.0.0, 3.1.0)" />
+    </dependencies>
+  </metadata>
+  <files>
+    <!-- Android -->
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\monoandroid\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\monoandroid\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\monoandroid\MugenMvvmToolkit.Binding.xml" />
+    <file src="..\bin\Platforms\Android\API8_Support\MugenMvvmToolkit.Android.dll" target="lib\monoandroid\MugenMvvmToolkit.Android.dll" />
+    <file src="..\bin\Platforms\Android\API8_Support\MugenMvvmToolkit.Android.pdb" target="lib\monoandroid\MugenMvvmToolkit.Android.pdb" />
+    <file src="..\bin\Platforms\Android\API8_Support\MugenMvvmToolkit.Android.xml" target="lib\monoandroid\MugenMvvmToolkit.Android.xml" />
+
+    <file src="AndroidContent\Setup.cs.pp" target="content\monoandroid\Setup.cs.pp" />
+    <file src="AndroidContent\SplashScreenActivity.cs.pp" target="content\monoandroid\Views\SplashScreenActivity.cs.pp" />
+  </files>
+</package>

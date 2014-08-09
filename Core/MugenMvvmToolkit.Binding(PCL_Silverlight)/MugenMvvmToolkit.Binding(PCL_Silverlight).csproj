@@ -1,0 +1,505 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D51E91AC-5351-4DB6-8007-A85B7F9B0EAC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MugenMvvmToolkit.Binding</RootNamespace>
+    <AssemblyName>MugenMvvmToolkit.Binding</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile104</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\bin\Core\PCL_Silverlight\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.Binding.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\Solution Items\sigkey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Accessors\BindingSourceAccessor.cs">
+      <Link>Accessors\BindingSourceAccessor.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Accessors\BindingSourceAccessorBase.cs">
+      <Link>Accessors\BindingSourceAccessorBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Accessors\MultiBindingSourceAccessor.cs">
+      <Link>Accessors\MultiBindingSourceAccessor.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\AttachedMemberConstants.cs">
+      <Link>AttachedMemberConstants.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\BindingBehaviorBase.cs">
+      <Link>Behaviors\BindingBehaviorBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\BindingModeBase.cs">
+      <Link>Behaviors\BindingModeBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\DefaultValueOnExceptionBehavior.cs">
+      <Link>Behaviors\DefaultValueOnExceptionBehavior.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\DelayBindingBehavior.cs">
+      <Link>Behaviors\DelayBindingBehavior.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\LostFocusUpdateSourceBehavior.cs">
+      <Link>Behaviors\LostFocusUpdateSourceBehavior.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\NoneBindingMode.cs">
+      <Link>Behaviors\NoneBindingMode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\NotifyDataErrorsAggregatorBehavior.cs">
+      <Link>Behaviors\NotifyDataErrorsAggregatorBehavior.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\OneTimeBindingMode.cs">
+      <Link>Behaviors\OneTimeBindingMode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\OneWayBindingMode.cs">
+      <Link>Behaviors\OneWayBindingMode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\OneWayToSourceBindingMode.cs">
+      <Link>Behaviors\OneWayToSourceBindingMode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\TwoWayBindingMode.cs">
+      <Link>Behaviors\TwoWayBindingMode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\ValidatesOnExceptionsBehavior.cs">
+      <Link>Behaviors\ValidatesOnExceptionsBehavior.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\ValidatesOnNotifyDataErrorsBehavior.cs">
+      <Link>Behaviors\ValidatesOnNotifyDataErrorsBehavior.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\BindingBuilderExtensions.cs">
+      <Link>BindingBuilderExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\BindingExceptionManager.cs">
+      <Link>BindingExceptionManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\BindingExtensions.cs">
+      <Link>BindingExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\BindingReflectionExtensions.cs">
+      <Link>BindingReflectionExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Builders\BindingBuilder.cs">
+      <Link>Builders\BindingBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Builders\BindingSet.cs">
+      <Link>Builders\BindingSet.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Builders\SyntaxBuilder.cs">
+      <Link>Builders\SyntaxBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Converters\InverseBooleanConverter.cs">
+      <Link>Converters\InverseBooleanConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Converters\ValueConverterBase.cs">
+      <Link>Converters\ValueConverterBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Core\BindingContextManager.cs">
+      <Link>Core\BindingContextManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Core\BindingManager.cs">
+      <Link>Core\BindingManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Core\BindingProvider.cs">
+      <Link>Core\BindingProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Core\DataBinding.cs">
+      <Link>Core\DataBinding.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Core\InvalidDataBinding.cs">
+      <Link>Core\InvalidDataBinding.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\DataBindingModule.cs">
+      <Link>DataBindingModule.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\DataConstants\BindingBuilderConstants.cs">
+      <Link>DataConstants\BindingBuilderConstants.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\DataConstants\BindingConstants.cs">
+      <Link>DataConstants\BindingConstants.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\BindingMemberProvider.cs">
+      <Link>Infrastructure\BindingMemberProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\BindingResourceResolver.cs">
+      <Link>Infrastructure\BindingResourceResolver.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\EmptyPathObserver.cs">
+      <Link>Infrastructure\EmptyPathObserver.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\MultiPathObserver.cs">
+      <Link>Infrastructure\MultiPathObserver.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\ObserverBase.cs">
+      <Link>Infrastructure\ObserverBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\ObserverProvider.cs">
+      <Link>Infrastructure\ObserverProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\SinglePathObserver.cs">
+      <Link>Infrastructure\SinglePathObserver.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\VisualTreeManager.cs">
+      <Link>Infrastructure\VisualTreeManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\WeakEventManager.cs">
+      <Link>Infrastructure\WeakEventManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Accessors\IBindingSourceAccessor.cs">
+      <Link>Interfaces\Accessors\IBindingSourceAccessor.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Accessors\ISingleBindingSourceAccessor.cs">
+      <Link>Interfaces\Accessors\ISingleBindingSourceAccessor.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IBindingBehavior.cs">
+      <Link>Interfaces\IBindingBehavior.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IBindingBuilder.cs">
+      <Link>Interfaces\IBindingBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IBindingContextManager.cs">
+      <Link>Interfaces\IBindingContextManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IBindingManager.cs">
+      <Link>Interfaces\IBindingManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IBindingMemberProvider.cs">
+      <Link>Interfaces\IBindingMemberProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IBindingProvider.cs">
+      <Link>Interfaces\IBindingProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IBindingResourceResolver.cs">
+      <Link>Interfaces\IBindingResourceResolver.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IBindingSourceDecorator.cs">
+      <Link>Interfaces\IBindingSourceDecorator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IBindingValueConverter.cs">
+      <Link>Interfaces\IBindingValueConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IDataBinding.cs">
+      <Link>Interfaces\IDataBinding.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IObserver.cs">
+      <Link>Interfaces\IObserver.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IObserverProvider.cs">
+      <Link>Interfaces\IObserverProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IVisualTreeManager.cs">
+      <Link>Interfaces\IVisualTreeManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IWeakEventManager.cs">
+      <Link>Interfaces\IWeakEventManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Models\IAttachedBindingMemberInfo.cs">
+      <Link>Interfaces\Models\IAttachedBindingMemberInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Models\IBindingContext.cs">
+      <Link>Interfaces\Models\IBindingContext.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Models\IBindingMemberInfo.cs">
+      <Link>Interfaces\Models\IBindingMemberInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Models\IBindingPath.cs">
+      <Link>Interfaces\Models\IBindingPath.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Models\IBindingPathMembers.cs">
+      <Link>Interfaces\Models\IBindingPathMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Models\IBindingResourceMethod.cs">
+      <Link>Interfaces\Models\IBindingResourceMethod.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Models\IBindingResourceObject.cs">
+      <Link>Interfaces\Models\IBindingResourceObject.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Models\IDynamicObject.cs">
+      <Link>Interfaces\Models\IDynamicObject.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Models\IEventListener.cs">
+      <Link>Interfaces\Models\IEventListener.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Models\IHasSelfWeakReference.cs">
+      <Link>Interfaces\Models\IHasSelfWeakReference.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Parse\IBindingParser.cs">
+      <Link>Interfaces\Parse\IBindingParser.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Parse\IBindingParserHandler.cs">
+      <Link>Interfaces\Parse\IBindingParserHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Parse\IExpressionInvoker.cs">
+      <Link>Interfaces\Parse\IExpressionInvoker.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Parse\IExpressionVisitor.cs">
+      <Link>Interfaces\Parse\IExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Parse\ITokenizer.cs">
+      <Link>Interfaces\Parse\ITokenizer.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Parse\Nodes\IBinaryExpressionNode.cs">
+      <Link>Interfaces\Parse\Nodes\IBinaryExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Parse\Nodes\IConditionExpressionNode.cs">
+      <Link>Interfaces\Parse\Nodes\IConditionExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Parse\Nodes\IConstantExpressionNode.cs">
+      <Link>Interfaces\Parse\Nodes\IConstantExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Parse\Nodes\IExpressionNode.cs">
+      <Link>Interfaces\Parse\Nodes\IExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Parse\Nodes\IIndexExpressionNode.cs">
+      <Link>Interfaces\Parse\Nodes\IIndexExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Parse\Nodes\ILambdaExpressionNode.cs">
+      <Link>Interfaces\Parse\Nodes\ILambdaExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Parse\Nodes\IMemberExpressionNode.cs">
+      <Link>Interfaces\Parse\Nodes\IMemberExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Parse\Nodes\IMethodCallExpressionNode.cs">
+      <Link>Interfaces\Parse\Nodes\IMethodCallExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Parse\Nodes\IRelativeSourceExpressionNode.cs">
+      <Link>Interfaces\Parse\Nodes\IRelativeSourceExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Parse\Nodes\IUnaryExressionNode.cs">
+      <Link>Interfaces\Parse\Nodes\IUnaryExressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Sources\IBindingSource.cs">
+      <Link>Interfaces\Sources\IBindingSource.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Sources\IBindingTarget.cs">
+      <Link>Interfaces\Sources\IBindingTarget.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Syntax\IBindingBehaviorSyntax.cs">
+      <Link>Interfaces\Syntax\IBindingBehaviorSyntax.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Syntax\IBindingInfoBehaviorSyntax.cs">
+      <Link>Interfaces\Syntax\IBindingInfoBehaviorSyntax.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Syntax\IBindingInfoSyntax.cs">
+      <Link>Interfaces\Syntax\IBindingInfoSyntax.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Syntax\IBindingModeInfoBehaviorSyntax.cs">
+      <Link>Interfaces\Syntax\IBindingModeInfoBehaviorSyntax.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Syntax\IBindingModeSyntax.cs">
+      <Link>Interfaces\Syntax\IBindingModeSyntax.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Syntax\IBindingToSyntax.cs">
+      <Link>Interfaces\Syntax\IBindingToSyntax.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Syntax\IBuilderSyntax.cs">
+      <Link>Interfaces\Syntax\IBuilderSyntax.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\ArgumentData.cs">
+      <Link>Models\ArgumentData.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\AttachedBindingMember.cs">
+      <Link>Models\AttachedBindingMember.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\BindingMemberInfo.cs">
+      <Link>Models\BindingMemberInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\BindingMemberType.cs">
+      <Link>Models\BindingMemberType.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\BindingMemberValue.cs">
+      <Link>Models\BindingMemberValue.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\BindingPath.cs">
+      <Link>Models\BindingPath.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\BindingResourceMethod.cs">
+      <Link>Models\BindingResourceMethod.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\BindingResourceObject.cs">
+      <Link>Models\BindingResourceObject.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\Delegates.cs">
+      <Link>Models\Delegates.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\Enums.cs">
+      <Link>Models\Enums.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\EventArg\AttachedMemberChangedEventArgs.cs">
+      <Link>Models\EventArg\AttachedMemberChangedEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\EventArg\BindingEventArgs.cs">
+      <Link>Models\EventArg\BindingEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\EventArg\BindingExceptionEventArgs.cs">
+      <Link>Models\EventArg\BindingExceptionEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\EventArg\MemberAttachedEventArgs.cs">
+      <Link>Models\EventArg\MemberAttachedEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\EventArg\ValueAccessorChangedEventArgs.cs">
+      <Link>Models\EventArg\ValueAccessorChangedEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\EventArg\ValueAccessorChangingEventArgs.cs">
+      <Link>Models\EventArg\ValueAccessorChangingEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\EventArg\ValueChangedEventArgs.cs">
+      <Link>Models\EventArg\ValueChangedEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\Exceptions\ParseException.cs">
+      <Link>Models\Exceptions\ParseException.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\ExpressionNodeType.cs">
+      <Link>Models\ExpressionNodeType.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\MethodData.cs">
+      <Link>Models\MethodData.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\RelativeSource.cs">
+      <Link>Models\RelativeSource.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\SenderType.cs">
+      <Link>Models\SenderType.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\TokenType.cs">
+      <Link>Models\TokenType.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\UnsetBindingPathMembers.cs">
+      <Link>Models\UnsetBindingPathMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\BindingMemberVisitor.cs">
+      <Link>Parse\BindingMemberVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\BindingParser.cs">
+      <Link>Parse\BindingParser.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\CompileExpressionInvoker.cs">
+      <Link>Parse\CompileExpressionInvoker.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\DefaultBindingParserHandler.cs">
+      <Link>Parse\DefaultBindingParserHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\ExpressionCounterVisitor.cs">
+      <Link>Parse\ExpressionCounterVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\Nodes\BinaryExpressionNode.cs">
+      <Link>Parse\Nodes\BinaryExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\Nodes\BindingMemberExpressionNode.cs">
+      <Link>Parse\Nodes\BindingMemberExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\Nodes\ConditionExpressionNode.cs">
+      <Link>Parse\Nodes\ConditionExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\Nodes\ConstantExpressionNode.cs">
+      <Link>Parse\Nodes\ConstantExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\Nodes\ExpressionNode.cs">
+      <Link>Parse\Nodes\ExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\Nodes\IndexExpressionNode.cs">
+      <Link>Parse\Nodes\IndexExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\Nodes\LambdaExpressionNode.cs">
+      <Link>Parse\Nodes\LambdaExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\Nodes\MemberExpressionNode.cs">
+      <Link>Parse\Nodes\MemberExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\Nodes\MethodCallExpressionNode.cs">
+      <Link>Parse\Nodes\MethodCallExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\Nodes\RelativeSourceExpressionNode.cs">
+      <Link>Parse\Nodes\RelativeSourceExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\Nodes\ResourceExpressionNode.cs">
+      <Link>Parse\Nodes\ResourceExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\Nodes\UnaryExressionNode.cs">
+      <Link>Parse\Nodes\UnaryExressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\RelativeSourcePathMergerVisitor.cs">
+      <Link>Parse\RelativeSourcePathMergerVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\Tokenizer.cs">
+      <Link>Parse\Tokenizer.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Sources\BindingSource.cs">
+      <Link>Sources\BindingSource.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Sources\BindingTarget.cs">
+      <Link>Sources\BindingTarget.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\Solution Items\licence.txt">
+      <Link>licence.txt</Link>
+    </Content>
+    <Content Include="FodyWeavers.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Solution Items\MugenMvvmToolkit.licenseheader">
+      <Link>MugenMvvmToolkit.licenseheader</Link>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="JetBrains.Annotations">
+      <HintPath>..\..\packages\JetBrainsAnnotations.Fody.1.0.2\Lib\JetBrains.Annotations.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MugenMvvmToolkit.Core%28PCL_Silverlight%29\MugenMvvmToolkit.Core%28PCL_Silverlight%29.csproj">
+      <Project>{74d0561d-14ce-4bb7-911e-4f8ec86b203c}</Project>
+      <Name>MugenMvvmToolkit.Core%28PCL_Silverlight%29</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Fody.1.24.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.24.0\build\Fody.targets'))" />
+  </Target>
+  <Import Project="..\..\packages\Fody.1.24.0\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.24.0\build\Fody.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>MugenMvvmToolkit.Binding</id>
+    <version>1.0.0</version>
+    <title>MugenMvvmToolkit - Binding Extensions</title>
+    <authors>Vyacheslav Volkov</authors>
+    <description>
+      This package contains the binding extensions for Windows Phone, WPF, Silverlight, WinRT.
+      Mugen MVVM Toolkit makes it easier to develop cross-platform application using the Model-View-ViewModel design pattern.
+      The Mugen MVVM Toolkit provides a cross-platform MVVM development framework built on top of:
+      - WinForms
+      - WPF
+      - Silverlight 5
+      - Silverlight for WP7.1, WP8, WP8.1
+      - Mono for Android
+      - WinRT XAML framework for Windows 8 Store apps
+      The Mugen MVVM Toolkit makes extensive use of Portable Class Libraries to provide maintainable cross platform C# native applications.
+      The core of toolkit contains a navigation system, windows management system, IocContainer, validation, etc.
+      The Mugen MVVM Toolkit provides a powerful bindings that you can use on any platform, here are some features:
+      - All of the features available for WPF platform available on all platforms and even more
+      - Binding supports C# language expressions like Linq, Extension methods, method call, etc. example: (Text Items.Where(x => x == Name)), (Text $string.Format('{0} {1}', Prop1, Prop2))
+      - Supports subscription to any control event. (TextChanged ViewModelMethod($args))
+      - Built-in support for validation example: (Text Prop1, Validate=True), (Text $GetErrors(Prop1).FirstOrDefault())
+      - You can easily write their own extensions for bindings, example: (Text $i18.MyLocalizableString), (Text $MyCustomMethod(Prop1))
+      - Supports attached members (properties, events, methods), you can extend any object as you want.
+      - Special editor for WinForms, you do not need to write code to create bindings
+      - Supports fluent syntax
+      - Excellent performance
+    </description>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <iconUrl>http://vvson.net/Content/img/mugenlogo.png</iconUrl>
+    <projectUrl>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</projectUrl>
+    <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
+    <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform</tags>
+    <dependencies>
+      <dependency id="MugenMvvmToolkit" version="[3.0.0, 3.1.0)" />
+    </dependencies>
+  </metadata>
+  <files>
+    <!-- CORE PCL WINRT -->
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.Binding.xml" />
+    
+    <!-- CORE PCL SILVERLIGHT -->
+    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.Binding.dll" target="lib\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.Binding.pdb" target="lib\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.Binding.xml" target="lib\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.Binding.xml" />
+
+    <!-- NET 4.0 WPF -->
+    <file src="..\bin\Core\NET4.0\MugenMvvmToolkit.Binding.dll" target="lib\net40-client\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\NET4.0\MugenMvvmToolkit.Binding.pdb" target="lib\net40-client\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\NET4.0\MugenMvvmToolkit.Binding.xml" target="lib\net40-client\MugenMvvmToolkit.Binding.xml" />
+    <file src="..\bin\Platforms\WPF\4.0\MugenMvvmToolkit.Binding.WPF.dll" target="lib\net40-client\MugenMvvmToolkit.Binding.WPF.dll" />
+    <file src="..\bin\Platforms\WPF\4.0\MugenMvvmToolkit.Binding.WPF.pdb" target="lib\net40-client\MugenMvvmToolkit.Binding.WPF.pdb" />
+    <file src="..\bin\Platforms\WPF\4.0\MugenMvvmToolkit.Binding.WPF.xml" target="lib\net40-client\MugenMvvmToolkit.Binding.WPF.xml" />
+
+    <!-- NET 4.5 WPF -->
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\net45\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\net45\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\net45\MugenMvvmToolkit.Binding.xml" />
+    <file src="..\bin\Platforms\WPF\4.5\MugenMvvmToolkit.Binding.WPF.dll" target="lib\net45\MugenMvvmToolkit.Binding.WPF.dll" />
+    <file src="..\bin\Platforms\WPF\4.5\MugenMvvmToolkit.Binding.WPF.pdb" target="lib\net45\MugenMvvmToolkit.Binding.WPF.pdb" />
+    <file src="..\bin\Platforms\WPF\4.5\MugenMvvmToolkit.Binding.WPF.xml" target="lib\net45\MugenMvvmToolkit.Binding.WPF.xml" />
+
+    <!-- SILVERLIGHT 5 -->
+    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.Binding.dll" target="lib\sl5\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.Binding.pdb" target="lib\sl5\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.Binding.xml" target="lib\sl5\MugenMvvmToolkit.Binding.xml" />
+    <file src="..\bin\Platforms\Silverlight\MugenMvvmToolkit.Binding.Silverlight.dll" target="lib\sl5\MugenMvvmToolkit.Binding.Silverlight.dll" />
+    <file src="..\bin\Platforms\Silverlight\MugenMvvmToolkit.Binding.Silverlight.pdb" target="lib\sl5\MugenMvvmToolkit.Binding.Silverlight.pdb" />
+    <file src="..\bin\Platforms\Silverlight\MugenMvvmToolkit.Binding.Silverlight.xml" target="lib\sl5\MugenMvvmToolkit.Binding.Silverlight.xml" />
+
+    <!-- WINRT PCL -->
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\portable-win81+wpa81\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\portable-win81+wpa81\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\portable-win81+wpa81\MugenMvvmToolkit.Binding.xml" />
+    <file src="..\bin\Platforms\WinRT\PCL\MugenMvvmToolkit.Binding.WinRT.dll" target="lib\portable-win81+wpa81\MugenMvvmToolkit.Binding.WinRT.dll" />
+    <file src="..\bin\Platforms\WinRT\PCL\MugenMvvmToolkit.Binding.WinRT.pdb" target="lib\portable-win81+wpa81\MugenMvvmToolkit.Binding.WinRT.pdb" />
+    <file src="..\bin\Platforms\WinRT\PCL\MugenMvvmToolkit.Binding.WinRT.xml" target="lib\portable-win81+wpa81\MugenMvvmToolkit.Binding.WinRT.xml" />
+
+    <!-- WINRT 8.1 -->
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\win81\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\win81\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\win81\MugenMvvmToolkit.Binding.xml" />
+    <file src="..\bin\Platforms\WinRT\PCL\MugenMvvmToolkit.Binding.WinRT.dll" target="lib\win81\MugenMvvmToolkit.Binding.WinRT.dll" />
+    <file src="..\bin\Platforms\WinRT\PCL\MugenMvvmToolkit.Binding.WinRT.pdb" target="lib\win81\MugenMvvmToolkit.Binding.WinRT.pdb" />
+    <file src="..\bin\Platforms\WinRT\PCL\MugenMvvmToolkit.Binding.WinRT.xml" target="lib\win81\MugenMvvmToolkit.Binding.WinRT.xml" />
+
+    <!-- WINRT 8.0 -->
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\win8\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\win8\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\win8\MugenMvvmToolkit.Binding.xml" />
+    <file src="..\bin\Platforms\WinRT\8.0\MugenMvvmToolkit.Binding.WinRT.dll" target="lib\win8\MugenMvvmToolkit.Binding.WinRT.dll" />
+    <file src="..\bin\Platforms\WinRT\8.0\MugenMvvmToolkit.Binding.WinRT.pdb" target="lib\win8\MugenMvvmToolkit.Binding.WinRT.pdb" />
+    <file src="..\bin\Platforms\WinRT\8.0\MugenMvvmToolkit.Binding.WinRT.xml" target="lib\win8\MugenMvvmToolkit.Binding.WinRT.xml" />
+
+    <!-- WP 8.1 SILVERLIGHT -->
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\wp81\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\wp81\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\wp81\MugenMvvmToolkit.Binding.xml" />
+    <file src="..\bin\Platforms\WinPhone\8.1\MugenMvvmToolkit.Binding.WinPhone.dll" target="lib\wp81\MugenMvvmToolkit.Binding.WinPhone.dll" />
+    <file src="..\bin\Platforms\WinPhone\8.1\MugenMvvmToolkit.Binding.WinPhone.pdb" target="lib\wp81\MugenMvvmToolkit.Binding.WinPhone.pdb" />
+    <file src="..\bin\Platforms\WinPhone\8.1\MugenMvvmToolkit.Binding.WinPhone.xml" target="lib\wp81\MugenMvvmToolkit.Binding.WinPhone.xml" />
+
+    <!-- WP 8.0 -->
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\wp8\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\wp8\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\wp8\MugenMvvmToolkit.Binding.xml" />
+    <file src="..\bin\Platforms\WinPhone\8.0\MugenMvvmToolkit.Binding.WinPhone.dll" target="lib\wp8\MugenMvvmToolkit.Binding.WinPhone.dll" />
+    <file src="..\bin\Platforms\WinPhone\8.0\MugenMvvmToolkit.Binding.WinPhone.pdb" target="lib\wp8\MugenMvvmToolkit.Binding.WinPhone.pdb" />
+    <file src="..\bin\Platforms\WinPhone\8.0\MugenMvvmToolkit.Binding.WinPhone.xml" target="lib\wp8\MugenMvvmToolkit.Binding.WinPhone.xml" />
+
+    <!-- WP 7.1 -->
+    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.Binding.dll" target="lib\sl4-windowsphone71\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.Binding.pdb" target="lib\sl4-windowsphone71\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.Binding.xml" target="lib\sl4-windowsphone71\MugenMvvmToolkit.Binding.xml" />
+    <file src="..\bin\Platforms\WinPhone\7.1\MugenMvvmToolkit.Binding.WinPhone.dll" target="lib\sl4-windowsphone71\MugenMvvmToolkit.Binding.WinPhone.dll" />
+    <file src="..\bin\Platforms\WinPhone\7.1\MugenMvvmToolkit.Binding.WinPhone.pdb" target="lib\sl4-windowsphone71\MugenMvvmToolkit.Binding.WinPhone.pdb" />
+    <file src="..\bin\Platforms\WinPhone\7.1\MugenMvvmToolkit.Binding.WinPhone.xml" target="lib\sl4-windowsphone71\MugenMvvmToolkit.Binding.WinPhone.xml" />
+
+    <!-- Android -->
+    <file src="_._" target="lib\monoandroid\_._" />
+  </files>
+</package>

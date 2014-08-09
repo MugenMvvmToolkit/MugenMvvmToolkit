@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>MugenMvvmToolkit.MugenInjectionContainer</id>
+    <version>1.0.0</version>
+    <title>MugenMvvmToolkit - MugenInjection</title>
+    <authors>Vyacheslav Volkov</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</projectUrl>
+    <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
+    <iconUrl>http://vvson.net/Content/img/mugenlogo.png</iconUrl>
+    <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ioc di</tags>
+    <description>Extension for Mugen Injection providing integration with Mugen MVVM Toolkit.</description>
+    <dependencies>
+      <dependency id="MugenMvvmToolkit" version="[3.0.0, 3.1.0)" />
+      <dependency id="MugenInjection" version="[3.5.0, 3.6.0)" />
+    </dependencies>
+  </metadata>
+  <files>
+    <!-- NET 4.0 -->
+    <file src="..\bin\IocContainers\Mugen\NET4.0\MugenMvvmToolkit.MugenContainer.dll" target="lib\net40\MugenMvvmToolkit.MugenContainer.dll" />
+    <file src="..\bin\IocContainers\Mugen\NET4.0\MugenMvvmToolkit.MugenContainer.pdb" target="lib\net40\MugenMvvmToolkit.MugenContainer.pdb" />
+    <file src="..\bin\IocContainers\Mugen\NET4.0\MugenMvvmToolkit.MugenContainer.xml" target="lib\net40\MugenMvvmToolkit.MugenContainer.xml" />
+
+    <!-- SILVERLIGHT 5 -->
+    <file src="..\bin\IocContainers\Mugen\SL5\MugenMvvmToolkit.MugenContainer.dll" target="lib\sl5\MugenMvvmToolkit.MugenContainer.dll" />
+    <file src="..\bin\IocContainers\Mugen\SL5\MugenMvvmToolkit.MugenContainer.pdb" target="lib\sl5\MugenMvvmToolkit.MugenContainer.pdb" />
+    <file src="..\bin\IocContainers\Mugen\SL5\MugenMvvmToolkit.MugenContainer.xml" target="lib\sl5\MugenMvvmToolkit.MugenContainer.xml" />
+
+    <!-- WINRT 8.0 -->
+    <file src="..\bin\IocContainers\Mugen\WinRT8.0\MugenMvvmToolkit.MugenContainer.dll" target="lib\win8\MugenMvvmToolkit.MugenContainer.dll" />
+    <file src="..\bin\IocContainers\Mugen\WinRT8.0\MugenMvvmToolkit.MugenContainer.pdb" target="lib\win8\MugenMvvmToolkit.MugenContainer.pdb" />
+    <file src="..\bin\IocContainers\Mugen\WinRT8.0\MugenMvvmToolkit.MugenContainer.xml" target="lib\win8\MugenMvvmToolkit.MugenContainer.xml" />
+
+    <!-- WP 8.0 -->
+    <file src="..\bin\IocContainers\Mugen\WP8.0\MugenMvvmToolkit.MugenContainer.dll" target="lib\wp8\MugenMvvmToolkit.MugenContainer.dll" />
+    <file src="..\bin\IocContainers\Mugen\WP8.0\MugenMvvmToolkit.MugenContainer.pdb" target="lib\wp8\MugenMvvmToolkit.MugenContainer.pdb" />
+    <file src="..\bin\IocContainers\Mugen\WP8.0\MugenMvvmToolkit.MugenContainer.xml" target="lib\wp8\MugenMvvmToolkit.MugenContainer.xml" />    
+
+    <!-- WP 7.1 -->
+    <file src="..\bin\IocContainers\Mugen\WP7.1\MugenMvvmToolkit.MugenContainer.dll" target="lib\sl4-windowsphone71\MugenMvvmToolkit.MugenContainer.dll" />
+    <file src="..\bin\IocContainers\Mugen\WP7.1\MugenMvvmToolkit.MugenContainer.pdb" target="lib\sl4-windowsphone71\MugenMvvmToolkit.MugenContainer.pdb" />
+    <file src="..\bin\IocContainers\Mugen\WP7.1\MugenMvvmToolkit.MugenContainer.xml" target="lib\sl4-windowsphone71\MugenMvvmToolkit.MugenContainer.xml" />    
+  </files>
+</package>

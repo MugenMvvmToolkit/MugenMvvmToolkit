@@ -1,0 +1,184 @@
+#region Copyright
+// ****************************************************************************
+// <copyright file="MenuItemTemplate.cs">
+// Copyright © Vyacheslav Volkov 2012-2014
+// </copyright>
+// ****************************************************************************
+// <author>Vyacheslav Volkov</author>
+// <email>vvs0205@outlook.com</email>
+// <project>MugenMvvmToolkit</project>
+// <web>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</web>
+// <license>
+// See license.txt in this solution or http://opensource.org/licenses/MS-PL
+// </license>
+// ****************************************************************************
+#endregion
+using System.Collections.Generic;
+using System.Xml.Serialization;
+using Android.Content;
+using Android.Views;
+using MugenMvvmToolkit.Binding.Core;
+using MugenMvvmToolkit.Infrastructure;
+
+namespace MugenMvvmToolkit.Models
+{
+    public sealed class MenuItemTemplate
+    {
+        #region Properties
+
+        [XmlAttribute("DATACONTEXT")]
+        public string DataContext { get; set; }
+
+        [XmlAttribute("ALPHABETICSHORTCUT")]
+        public string AlphabeticShortcut { get; set; }
+
+        [XmlAttribute("ICON")]
+        public string Icon { get; set; }
+
+        [XmlAttribute("ISCHECKABLE")]
+        public string IsCheckable { get; set; }
+
+        [XmlAttribute("ISCHECKED")]
+        public string IsChecked { get; set; }
+
+        [XmlAttribute("ISENABLED")]
+        public string IsEnabled { get; set; }
+
+        [XmlAttribute("ISVISIBLE")]
+        public string IsVisible { get; set; }
+
+        [XmlAttribute("NUMERICSHORTCUT")]
+        public string NumericShortcut { get; set; }
+
+        [XmlAttribute("TITLE")]
+        public string Title { get; set; }
+
+        [XmlAttribute("CLICK")]
+        public string Click { get; set; }
+
+        [XmlAttribute("COMMANDPARAMETER")]
+        public string CommandParameter { get; set; }
+
+        [XmlAttribute("ITEMSSOURCE")]
+        public string ItemsSource { get; set; }
+
+        [XmlAttribute("SHOWASACTION")]
+        public string ShowAsAction { get; set; }
+
+        [XmlAttribute("ISACTIONVIEWEXPANDED")]
+        public string IsActionViewExpanded { get; set; }
+
+        [XmlAttribute("ACTIONVIEW")]
+        public string ActionView { get; set; }
+
+        [XmlAttribute("ACTIONVIEWTEMPLATESELECTOR")]
+        public string ActionViewTemplateSelector { get; set; }
+
+        [XmlAttribute("ACTIONVIEWBIND")]
+        public string ActionViewBind { get; set; }
+
+        [XmlAttribute("ACTIONPROVIDER")]
+        public string ActionProvider { get; set; }
+
+        [XmlAttribute("ACTIONPROVIDERTEMPLATESELECTOR")]
+        public string ActionProviderTemplateSelector { get; set; }
+
+        [XmlAttribute("ACTIONPROVIDERBIND")]
+        public string ActionProviderBind { get; set; }
+
+        [XmlElement("ITEMTEMPLATE")]
+        public MenuItemTemplate ItemTemplate { get; set; }
+
+        [XmlElement("MENUITEM")]
+        public List<MenuItemTemplate> Items { get; set; }
+
+        #endregion
+
+        #region Methods
+
+        public void Apply(IMenu menu, Context context, object dataContext, int id, int order)
+        {
+            ApplyInternal(menu, context, id, order, dataContext, true);
+        }
+
+        public void Apply(IMenu menu, Context context, int id, int order)
+        {
+            ApplyInternal(menu, context, id, order, null, false);
+        }
+
+        private void ApplyInternal(IMenu menu, Context context, int id, int order, object dataContext, bool useContext)
+        {
+            PlatformExtensions.ValidateTemplate(ItemsSource, Items);
+            bool isSubMenu = !string.IsNullOrEmpty(ItemsSource) || (Items != null && Items.Count > 0);
+            if (isSubMenu)
+            {
+                ISubMenu subMenu = menu.AddSubMenu(0, id, order, string.Empty);
+                AttachedMembersModule.MenuParentMember.SetValue(subMenu, new object[] { menu });
+                AttachedMembersModule.MenuParentMember.SetValue(subMenu.Item, new object[] { subMenu });
+                SetDataContext(subMenu, context, dataContext, useContext);
+
+                ApplySelf(subMenu.Item, context);
+                if (string.IsNullOrEmpty(ItemsSource))
+                {
+                    for (int index = 0; index < Items.Count; index++)
+                        Items[index].Apply(subMenu, context, index, index);
+                }
+                else
+                {
+                    AttachedMembersModule.MenuItemsSourceGeneratorMember.SetValue(subMenu,
+                        new object[] { new MenuItemsSourceGenerator(subMenu, context, ItemTemplate) });
+                    new XmlPropertySetter<MenuItemTemplate, ISubMenu>(subMenu, context)
+                        .SetBinding(template => template.ItemsSource, ItemsSource, true);
+                }
+            }
+            else
+            {
+                var menuItem = menu.Add(0, id, order, string.Empty);
+                AttachedMembersModule.MenuParentMember.SetValue(menuItem, new object[] { menu });
+                SetDataContext(menuItem, context, dataContext, useContext);
+                ApplySelf(menuItem, context);
+            }
+        }
+
+        private void ApplySelf(IMenuItem menuItem, Context context)
+        {
+            var setter = new XmlPropertySetter<MenuItemTemplate, IMenuItem>(menuItem, context);
+            setter.SetStringProperty(template => template.AlphabeticShortcut, AlphabeticShortcut);
+            setter.SetStringProperty(template => template.NumericShortcut, NumericShortcut);
+            setter.SetProperty(template => template.Icon, Icon);
+            setter.SetBoolProperty(template => template.IsCheckable, IsCheckable);
+            setter.SetBoolProperty(template => template.IsChecked, IsChecked);
+            setter.SetBoolProperty(template => template.IsEnabled, IsEnabled);
+            setter.SetBoolProperty(template => template.IsVisible, IsVisible);
+            setter.SetBoolProperty(template => template.IsActionViewExpanded, IsActionViewExpanded);
+            setter.SetStringProperty(template => template.Title, Title);
+            setter.SetStringProperty(template => template.CommandParameter, CommandParameter);
+            setter.SetBinding(template => template.Click, Click, false);            
+#if !API8
+            setter.SetEnumProperty<ShowAsAction>(template => template.ShowAsAction, ShowAsAction);
+
+            if (!string.IsNullOrEmpty(ActionViewBind))
+                AttachedMembersModule.MenuItemActionViewBindMember.SetValue(menuItem, new object[] { ActionViewBind });
+            if (!string.IsNullOrEmpty(ActionProviderBind))
+                AttachedMembersModule.MenuItemActionProviderBindMember.SetValue(menuItem,
+                    new object[] { ActionProviderBind });
+#endif
+
+            setter.SetBinding(template => template.ActionViewTemplateSelector, ActionViewTemplateSelector, false);
+            setter.SetBinding(template => template.ActionProviderTemplateSelector, ActionProviderTemplateSelector, false);
+            setter.SetProperty(template => template.ActionView, ActionView);
+            setter.SetStringProperty(template => template.ActionProvider, ActionProvider);
+        }
+
+        private void SetDataContext<T>(T target, Context context, object dataContext, bool useContext)
+        {
+            if (useContext)
+                BindingProvider.Instance.ContextManager.GetBindingContext(target).DataContext = dataContext;
+            else
+                new XmlPropertySetter<MenuItemTemplate, T>(target, context)
+                    .SetBinding(template => template.DataContext, DataContext, false);
+        }
+
+        #endregion
+    }
+}
