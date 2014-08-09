@@ -28,7 +28,7 @@
       - Excellent performance
     </description>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <iconUrl>http://vvson.net/Content/img/mugenlogo.png</iconUrl>
+    <iconUrl>https://raw.githubusercontent.com/MugenMvvmToolkit/MugenMvvmToolkit/master/logo128_128.png</iconUrl>
     <projectUrl>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</projectUrl>
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform</tags>

@@ -189,7 +189,7 @@ namespace MugenMvvmToolkit
         {
             get
             {
-#if PCL
+#if PCL_Silverlight
                 return _attachedValueProvider != null;
 #else
                 return true;

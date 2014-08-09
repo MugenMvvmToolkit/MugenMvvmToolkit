@@ -9,7 +9,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <projectUrl>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</projectUrl>
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
-    <iconUrl>http://vvson.net/Content/img/mugenlogo.png</iconUrl>
+    <iconUrl>https://raw.githubusercontent.com/MugenMvvmToolkit/MugenMvvmToolkit/master/logo128_128.png</iconUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ioc di</tags>
     <description>Extension for Mugen Injection providing integration with Mugen MVVM Toolkit.</description>
     <dependencies>
