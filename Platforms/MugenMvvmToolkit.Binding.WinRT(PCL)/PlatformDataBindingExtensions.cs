@@ -25,6 +25,8 @@ namespace MugenMvvmToolkit.Binding
     /// </summary>
     public static class PlatformDataBindingExtensions
     {
+        #region Methods
+
         /// <summary>
         ///     Shows the flyout placed in relation to the specified element, and use this element as parent for content items.
         /// </summary>
@@ -45,5 +47,8 @@ namespace MugenMvvmToolkit.Binding
             }
             flyoutBase.ShowAt(placementTarget);
         }
+
+        #endregion
+
     }
 }

@@ -56,6 +56,7 @@
     <Compile Include="Converters\NullToVisibilityConverter.cs" />
     <Compile Include="Infrastructure\BindingContextManagerEx.cs" />
     <Compile Include="Infrastructure\BindingMemberProviderEx.cs" />
+    <Compile Include="Infrastructure\BindingResourceResolverEx.cs" />
     <Compile Include="MarkupExtensions\BindingResourceExtension.cs" />
     <Compile Include="Models\ValidationBinder.cs" />
     <Compile Include="MarkupExtensions\DataBindingExtension.cs" />

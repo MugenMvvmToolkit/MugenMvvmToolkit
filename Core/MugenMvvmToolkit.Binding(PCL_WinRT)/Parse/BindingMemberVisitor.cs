@@ -52,6 +52,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         private BindingMemberVisitor(BindingMemberVisitor innerVisitor, IEnumerable<string> lambdaParameters)
             : this()
         {
+            _members = innerVisitor._members;
             _staticNodes = innerVisitor._staticNodes;
             if (innerVisitor._lamdaParameters != null)
                 _lamdaParameters.AddRange(innerVisitor._lamdaParameters);
@@ -169,8 +170,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             if (dynMember.Dynamic && !path.IsSingle && type == null)
             {
                 memberName = BindingExtensions.MergePath(path.Parts.Skip(1).ToArray());
-                return GetOrAddBindingMember(memberName,
-                    (s, i) => new BindingMemberExpressionNode(firstMember, memberName, s, i));
+                return GetOrAddBindingMember(memberName, (s, i) => new BindingMemberExpressionNode(firstMember, memberName, s, i));
             }
 
             bool dynamicMember = false;

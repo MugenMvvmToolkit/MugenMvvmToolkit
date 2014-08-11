@@ -30,6 +30,28 @@ namespace MugenMvvmToolkit
     /// </summary>
     public abstract class UnitTestBase
     {
+        #region Nested types
+
+        /// <summary>
+        /// Represents the default unit test module.
+        /// </summary>
+        public sealed class DefaultUnitTestModule : InitializationModuleBase
+        {
+            #region Constructors
+
+            /// <summary>
+            ///     Initializes a new instance of the <see cref="DefaultUnitTestModule" /> class.
+            /// </summary>
+            public DefaultUnitTestModule(int priority = InitializationModulePriority)
+                : base(LoadMode.UnitTest, priority)
+            {
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         private IIocContainer _iocContainer;

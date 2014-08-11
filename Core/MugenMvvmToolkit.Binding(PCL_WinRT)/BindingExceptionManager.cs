@@ -34,6 +34,13 @@ namespace MugenMvvmToolkit.Binding
     {
         #region Methods
 
+        public static Exception CannotResolveInstanceByName(object sender, string instanceName, string name)
+        {
+            return
+                new InvalidOperationException(string.Format(
+                    "The {0} with name '{1}' is not registered in the '{2}'", instanceName, name, sender));
+        }
+
         internal static Exception ExpressionNodeCannotBeNull(Type ownerType)
         {
             throw new InvalidOperationException(string.Format("The expression node on type '{0}' cannot be null",
@@ -104,13 +111,6 @@ namespace MugenMvvmToolkit.Binding
                     string.Format(
                         "The binding behavior with id '{0}' is already in the collection, old value '{1}', new value '{2}'",
                         oldBehavior.Id, oldBehavior, newBehavior));
-        }
-
-        internal static Exception CannotResolveInstanceByName(object sender, string instanceName, string name)
-        {
-            return
-                new InvalidOperationException(string.Format(
-                    "The {0} with name '{1}' is not registered in the '{2}'", instanceName, name, sender));
         }
 
         internal static Exception BindingSourceNotFound(BindingMemberExpressionNode node)

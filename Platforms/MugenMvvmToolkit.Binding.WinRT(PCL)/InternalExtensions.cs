@@ -20,11 +20,15 @@ namespace MugenMvvmToolkit.Binding
 {
     internal static class InternalExtensions
     {
+        #region Methods
+
         public static bool IsAssignableFrom(this Type type, Type c)
         {
             if (c == null)
                 return false;
             return type.GetTypeInfo().IsAssignableFrom(c.GetTypeInfo());
         }
+
+        #endregion
     }
 }

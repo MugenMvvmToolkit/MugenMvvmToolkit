@@ -56,7 +56,7 @@ namespace $rootnamespace$
                 // and consume battery power when the user is not using the phone.
                 PhoneApplicationService.Current.UserIdleDetectionMode = IdleDetectionMode.Disabled;
             }
-			var bootstrapper = new Bootstrapper<MainViewModel>(new IIocContainer());
+			var bootstrapper = new Bootstrapper<MainViewModel>(RootFrame, new IIocContainer());
             bootstrapper.Initialize();
         }
 

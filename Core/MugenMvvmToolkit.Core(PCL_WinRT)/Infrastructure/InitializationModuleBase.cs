@@ -46,8 +46,8 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="InitializationModuleBase" /> class.
         /// </summary>
-        protected InitializationModuleBase()
-            : base(false, LoadMode.All, InitializationModulePriority)
+        protected InitializationModuleBase(LoadMode mode = LoadMode.All, int priority = InitializationModulePriority)
+            : base(false, mode, priority)
         {
         }
 

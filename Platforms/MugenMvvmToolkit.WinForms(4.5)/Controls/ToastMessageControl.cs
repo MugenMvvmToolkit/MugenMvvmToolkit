@@ -97,13 +97,10 @@ namespace MugenMvvmToolkit.Controls
             {
                 if (IsTransparent)
                 {
-                    int childIndex = Parent.Controls.GetChildIndex(this);
-                    int count = Parent.Controls.Count - 1;
-                    int num = childIndex + 1;
-                    for (int i = count; i >= num; i -= 1)
+                    for (int index = 0; index < Parent.Controls.Count; index++)
                     {
-                        Control ctrl = Parent.Controls[i];
-                        if (!ctrl.Bounds.IntersectsWith(Bounds) || !ctrl.Visible)
+                        var ctrl = Parent.Controls[index];
+                        if (ctrl == this || !ctrl.Bounds.IntersectsWith(Bounds) || !ctrl.Visible)
                             continue;
                         using (var bmp = new Bitmap(ctrl.Width, ctrl.Height))
                         {

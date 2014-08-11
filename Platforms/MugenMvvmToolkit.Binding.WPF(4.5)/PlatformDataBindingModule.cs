@@ -56,7 +56,7 @@ namespace MugenMvvmToolkit.Binding
 #if WINDOWS_PHONE || WINDOWSCOMMON || NETFX_CORE
         private sealed class ParentListener
         {
-            #region Fields
+        #region Fields
 
             private readonly FrameworkElement _view;
             private WeakReference _parentReference;
@@ -64,7 +64,7 @@ namespace MugenMvvmToolkit.Binding
 
             #endregion
 
-            #region Constructors
+        #region Constructors
 
             public ParentListener(FrameworkElement view)
             {
@@ -77,7 +77,7 @@ namespace MugenMvvmToolkit.Binding
 
             #endregion
 
-            #region Properties
+        #region Properties
 
             public DependencyObject Parent
             {
@@ -91,7 +91,7 @@ namespace MugenMvvmToolkit.Binding
 
             #endregion
 
-            #region Events
+        #region Events
 
             public event EventHandler Changed;
 
@@ -397,6 +397,10 @@ namespace MugenMvvmToolkit.Binding
                 ? new BindingMemberProviderEx()
                 : new BindingMemberProviderEx(oldMember);
             BindingProvider.Instance.ContextManager = new BindingContextManagerEx();
+            var resolver = BindingProvider.Instance.ResourceResolver as BindingResourceResolver;
+            BindingProvider.Instance.ResourceResolver = resolver == null
+                ? new BindingResourceResolverEx()
+                : new BindingResourceResolverEx(resolver);
             Register(BindingProvider.Instance.MemberProvider);
             var resourceResolver = BindingProvider.Instance.ResourceResolver;
             resourceResolver.AddObject("Visible", new BindingResourceObject(Visibility.Visible), true);

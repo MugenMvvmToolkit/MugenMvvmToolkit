@@ -46,7 +46,7 @@ namespace $rootnamespace$
         /// search results, and so forth.
         /// </summary>
         /// <param name="e">Details about the launch request and process.</param>
-        protected override void OnLaunched(LaunchActivatedEventArgs e)
+        protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
 #if DEBUG
             if (System.Diagnostics.Debugger.IsAttached)
@@ -79,16 +79,16 @@ namespace $rootnamespace$
 
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
                 {
-                    //// Restore the saved session state only when appropriate
-                    //try
-                    //{
-                    //    await SuspensionManager.RestoreAsync();
-                    //}
-                    //catch (SuspensionManagerException)
-                    //{
-                    //    // Something went wrong restoring state.
-                    //    // Assume there is no state and continue
-                    //}
+                    // Restore the saved session state only when appropriate
+                    try
+                    {
+                        await SuspensionManager.RestoreAsync();
+                    }
+                    catch (SuspensionManagerException)
+                    {
+                        // Something went wrong restoring state.
+                        // Assume there is no state and continue
+                    }
                 }
 
                 // Place the frame in the current Window
@@ -135,17 +135,17 @@ namespace $rootnamespace$
 #endif
 
         /// <summary>
-        /// Invoked when application execution is being suspended.  Application state is saved
-        /// without knowing whether the application will be terminated or resumed with the contents
-        /// of memory still intact.
+        ///     Invoked when application execution is being suspended.  Application state is saved
+        ///     without knowing whether the application will be terminated or resumed with the contents
+        ///     of memory still intact.
         /// </summary>
         /// <param name="sender">The source of the suspend request.</param>
         /// <param name="e">Details about the suspend request.</param>
-        private void OnSuspending(object sender, SuspendingEventArgs e)
+        private async void OnSuspending(object sender, SuspendingEventArgs e)
         {
             var deferral = e.SuspendingOperation.GetDeferral();
             // TODO: Save application state and stop any background activity
-            //            await SuspensionManager.SaveAsync();
+            await SuspensionManager.SaveAsync();
             deferral.Complete();
         }
     }

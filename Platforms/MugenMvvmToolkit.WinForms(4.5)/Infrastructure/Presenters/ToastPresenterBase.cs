@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
     {
         #region Fields
 
-        private const int TimerInterval = 15;
+        private const int TimerInterval = 25;
         private static readonly string ControlName = Guid.NewGuid().ToString("n");
         private readonly IThreadManager _threadManager;
 
