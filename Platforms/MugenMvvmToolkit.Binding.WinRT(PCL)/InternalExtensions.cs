@@ -15,6 +15,7 @@
 #endregion
 using System;
 using System.Reflection;
+using Windows.UI.Xaml;
 
 namespace MugenMvvmToolkit.Binding
 {
@@ -27,6 +28,11 @@ namespace MugenMvvmToolkit.Binding
             if (c == null)
                 return false;
             return type.GetTypeInfo().IsAssignableFrom(c.GetTypeInfo());
+        }
+
+        internal static bool Contains(this ResourceDictionary dictionary, string key)
+        {
+            return dictionary.ContainsKey(key);
         }
 
         #endregion

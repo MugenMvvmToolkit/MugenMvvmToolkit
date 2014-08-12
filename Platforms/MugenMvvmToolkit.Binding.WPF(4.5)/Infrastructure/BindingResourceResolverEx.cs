@@ -14,6 +14,9 @@
 // ****************************************************************************
 #endregion
 
+using MugenMvvmToolkit.Binding.DataConstants;
+using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 #if WINDOWSCOMMON || NETFX_CORE
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
@@ -59,21 +62,22 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         ///     Gets an instance of <see cref="IBindingValueConverter" /> by the specified name.
         /// </summary>
         /// <param name="name">The specified name.</param>
+        /// <param name="context">The specified data context, if any.</param>
         /// <param name="throwOnError">
         ///     true to throw an exception if the type cannot be found; false to return null. Specifying
         ///     false also suppresses some other exception conditions, but not all of them.
         /// </param>
         /// <returns>An instance of <see cref="IBindingValueConverter" />.</returns>
-        public override IBindingValueConverter ResolveConverter(string name, bool throwOnError)
+        public override IBindingValueConverter ResolveConverter(string name, IDataContext context, bool throwOnError)
         {
-            var result = base.ResolveConverter(name, false);
+            var result = base.ResolveConverter(name, context, false);
             if (result != null)
                 return result;
 
             var application = Application.Current;
             if (application != null)
             {
-                var item = TryFindResource(application, name);
+                var item = TryFindResource(application, name, context ?? DataContext.Empty);
                 if (item != null)
                 {
                     var valueConverter = item as IBindingValueConverter;
@@ -93,20 +97,21 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         ///     Gets an instance of <see cref="IBindingResourceObject" /> by the specified name.
         /// </summary>
         /// <param name="name">The specified name.</param>
+        /// <param name="context">The specified data context, if any.</param>
         /// <param name="throwOnError">
         ///     true to throw an exception if the type cannot be found; false to return null. Specifying
         ///     false also suppresses some other exception conditions, but not all of them.
         /// </param>
         /// <returns>An instance of <see cref="IBindingResourceMethod" />.</returns>
-        public override IBindingResourceObject ResolveObject(string name, bool throwOnError)
+        public override IBindingResourceObject ResolveObject(string name, IDataContext context, bool throwOnError)
         {
-            var result = base.ResolveObject(name, false);
+            var result = base.ResolveObject(name, context, false);
             if (result != null)
                 return result;
             var application = Application.Current;
             if (application != null)
             {
-                var item = TryFindResource(application, name);
+                var item = TryFindResource(application, name, context ?? DataContext.Empty);
                 if (item != null)
                     return new BindingResourceObject(item);
             }
@@ -119,17 +124,32 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Methods
 
-        private static object TryFindResource(Application application, string key)
+        /// <summary>
+        /// Tries to find a resource by key.
+        /// </summary>
+        protected virtual object TryFindResource([NotNull]Application application, [NotNull] string resourceKey, [NotNull] IDataContext context)
         {
+            object target;
+            if (!context.TryGetData(BindingBuilderConstants.Target, out target))
+            {
+                IDataBinding data;
+                if (context.TryGetData(BindingConstants.Binding, out data))
+                    target = data.TargetAccessor.Source.GetSource(false);
+            }
+            var currentElement = target as FrameworkElement;
 #if WPF
-            return application.TryFindResource(key);
-#elif WINDOWSCOMMON || NETFX_CORE
-            object value;
-            application.Resources.TryGetValue(key, out value);
-            return value;
-#elif SILVERLIGHT
-            if (application.Resources.Contains(key))
-                return application.Resources[key];
+            if (currentElement == null)
+                return application.TryFindResource(resourceKey);
+            return currentElement.TryFindResource(resourceKey);
+#else
+            while (currentElement != null)
+            {
+                if (currentElement.Resources.Contains(resourceKey))
+                    return currentElement.Resources[resourceKey];
+                currentElement = currentElement.Parent as FrameworkElement;
+            }
+            if (application.Resources.Contains(resourceKey))
+                return application.Resources[resourceKey];
             return null;
 #endif
         }

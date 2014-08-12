@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
                 BindingFlags.Public | BindingFlags.Instance);
             private readonly DependencyProperty _property;
 
-            #endregion
+        #endregion
 
         #region Constructors
 
@@ -54,7 +54,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
                 _property = property;
             }
 
-            #endregion
+        #endregion
 
         #region Methods
 
@@ -66,7 +66,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
                     bindingExpression.UpdateSource();
             }
 
-            #endregion
+        #endregion
         }
 #endif
 
@@ -295,7 +295,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
         private static void OnBindChangedCallback(DependencyObject sender, DependencyPropertyChangedEventArgs args)
         {
             var bindChanged = OnBindChanged;
-            Should.MethodBeSupported(ApplicationSettings.IsDesignMode || DesignTimeManagerBase.GetIsDesignModeStatic() || bindChanged != null, "OnBindChanged");
+            Should.MethodBeSupported(DesignTimeManagerBase.GetIsDesignModeStatic() || bindChanged != null, "OnBindChanged");
             if (bindChanged != null)
                 bindChanged(sender, (string)args.NewValue);
         }

@@ -165,11 +165,11 @@ namespace MugenMvvmToolkit.Binding.Parse
 
             IBindingPath path = BindingPath.Create(memberName);
             string firstMember = path.Parts[0];
-            Type type = BindingProvider.Instance.ResourceResolver.ResolveType(firstMember, false);
+            Type type = BindingProvider.Instance.ResourceResolver.ResolveType(firstMember, DataContext.Empty, false);
             var dynMember = (ResourceExpressionNode)nodes[0];
-            if (dynMember.Dynamic && !path.IsSingle && type == null)
+            if (dynMember.Dynamic && type == null)
             {
-                memberName = BindingExtensions.MergePath(path.Parts.Skip(1).ToArray());
+                memberName = path.IsEmpty ? string.Empty : BindingExtensions.MergePath(path.Parts.Skip(1).ToArray());
                 return GetOrAddBindingMember(memberName, (s, i) => new BindingMemberExpressionNode(firstMember, memberName, s, i));
             }
 
@@ -182,7 +182,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                     IBindingResourceObject resourceObject = BindingProvider
                         .Instance
                         .ResourceResolver
-                        .ResolveObject(firstMember, true);
+                        .ResolveObject(firstMember, DataContext.Empty, true);
                     var dynamicObject = resourceObject.Value as IDynamicObject;
                     if (dynamicObject == null || path.Parts.Count <= 1)
                         staticValue = new ConstantExpressionNode(resourceObject.Value, resourceObject.Type);

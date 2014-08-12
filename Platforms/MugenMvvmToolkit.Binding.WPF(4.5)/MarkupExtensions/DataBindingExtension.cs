@@ -31,11 +31,14 @@ using MugenMvvmToolkit.Models.Exceptions;
 
 namespace MugenMvvmToolkit.Binding.MarkupExtensions
 {
+    /// <summary>
+    ///     Provides high-level access to the definition of a binding, which connects the properties of binding target objects.
+    /// </summary>
     public class DataBindingExtension : MarkupExtension
     {
         #region Fields
 
-        private static readonly Func<object> NoDo = () => null;
+        private static readonly Func<object> NoDoFunc = () => null;
         private static readonly Dictionary<EventInfo, Delegate> CachedDelegates;
 
         private bool _defaultValueOnException;
@@ -473,7 +476,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
 #if WPF
             return DependencyProperty.UnsetValue;
 #else
-            //NOTE Сannot set property values ​​in the designer, this error will handled in MS code.
+            //NOTE Сannot set property values ​​in the designer, this error will handled by MS code.
             if (ApplicationSettings.IsDesignMode)
                 throw new InvalidOperationException();
             return DependencyProperty.UnsetValue;
@@ -489,7 +492,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
             if (!string.IsNullOrWhiteSpace(ResourceMemberName))
                 return BindingProvider.Instance
                                       .ResourceResolver
-                                      .ResolveObject(ResourceMemberName, true)
+                                      .ResolveObject(ResourceMemberName, DataContext.Empty, true)
                                       .Value;
             if (string.IsNullOrWhiteSpace(ElementName))
                 return null;
@@ -608,7 +611,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
                    .ToArrayFast(parameter => System.Linq.Expressions.Expression.Parameter(parameter.ParameterType));
 
                 var callExpression = System.Linq.Expressions.Expression
-                    .Call(System.Linq.Expressions.Expression.Constant(NoDo, typeof(Func<object>)), "Invoke", EmptyValue<Type>.ArrayInstance);
+                    .Call(System.Linq.Expressions.Expression.Constant(NoDoFunc, typeof(Func<object>)), "Invoke", EmptyValue<Type>.ArrayInstance);
                 value = System.Linq.Expressions.Expression
                     .Lambda(eventInfo.EventHandlerType, callExpression, parameters)
                     .Compile();

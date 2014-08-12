@@ -50,7 +50,6 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         protected const string PathName = "Path";
         protected const string LevelName = "Level";
-        protected const string RelativeSourceName = "RelativeSource";
         protected const string TrueLiteral = "true";
         protected const string FalseLiteral = "false";
         protected const string NullLiteral = "null";
@@ -210,14 +209,16 @@ namespace MugenMvvmToolkit.Binding.Parse
 
             _relativeSourceAliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
+                RelativeSourceExpressionNode.RelativeSourceType,
                 "Relative",
                 "Rel"
             };
 
             _elementSourceAliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
+                RelativeSourceExpressionNode.ElementSourceType,
                 "Element",
-                "Elm"
+                "El"
             };
         }
 
@@ -589,19 +590,19 @@ namespace MugenMvvmToolkit.Binding.Parse
             ValidateToken(TokenType.OpenBrace);
             NextToken(true);
             string sourceName = Tokenizer.Value;
-            if (sourceName != RelativeSourceName && sourceName != RelativeSourceExpressionNode.ElementSourceType &&
+            if (sourceName != RelativeSourceExpressionNode.RelativeSourceType && sourceName != RelativeSourceExpressionNode.ElementSourceType &&
                 !RelativeSourceAliases.Contains(sourceName) && !ElementSourceAliases.Contains(sourceName))
             {
                 IExpressionNode node = ParsePrimary();
                 string memberName = node.TryGetMemberName(true, false);
                 if (string.IsNullOrEmpty(memberName))
                     throw BindingExceptionManager.UnknownIdentifierParser(sourceName, Tokenizer, Expression,
-                        RelativeSourceName, RelativeSourceExpressionNode.ElementSourceType);
+                        RelativeSourceExpressionNode.RelativeSourceType, RelativeSourceExpressionNode.ElementSourceType);
                 ValidateToken(TokenType.CloseBrace);
                 NextToken(true);
                 return new RelativeSourceExpressionNode(memberName, false);
             }
-            bool isRelativeSource = sourceName == RelativeSourceName || RelativeSourceAliases.Contains(sourceName);
+            bool isRelativeSource = sourceName == RelativeSourceExpressionNode.RelativeSourceType || RelativeSourceAliases.Contains(sourceName);
             int position = Tokenizer.Position;
             NextToken(true);
             ValidateToken(TokenType.Identifier);
@@ -1109,8 +1110,8 @@ namespace MugenMvvmToolkit.Binding.Parse
                         {
                             if (converter == null)
                                 converter = BindingProvider.Instance
-                                    .ResourceResolver
-                                    .ResolveConverter(converterName, false);
+                                                           .ResourceResolver
+                                                           .ResolveConverter(converterName, context, false);
                             if (converter != null)
                                 context.Add(BindingBuilderConstants.Converter, d => converter);
                             else if (invoker != null)
@@ -1264,15 +1265,15 @@ namespace MugenMvvmToolkit.Binding.Parse
                 if (resourceExpression != null)
                 {
                     if (isSourceValue)
-                        return context => setSimpleValue(context, new InternalFunc(d => GetResourceObject(memberName)));
+                        return context => setSimpleValue(context, new InternalFunc(d => GetResourceObject(memberName, d)));
 
                     if (resourceExpression.Dynamic)
-                        return context => setComplexValue(context, d => GetResourceObject(memberName));
-                    return context => setSimpleValue(context, GetResourceObject(memberName));
+                        return context => setComplexValue(context, d => GetResourceObject(memberName, d));
+                    return context => setSimpleValue(context, GetResourceObject(memberName, context));
                 }
                 if (!useBindingForMember)
                     return context => setSimpleValue(context, memberName);
-                
+
                 node = new RelativeSourceExpressionNode(memberName, false);
             }
 
@@ -1308,14 +1309,14 @@ namespace MugenMvvmToolkit.Binding.Parse
             return context => setSimpleValue(context, InvokeMethod(context, method, args, memberPath));
         }
 
-        private static object GetResourceObject(string name)
+        private static object GetResourceObject(string name, IDataContext context)
         {
-            return BindingProvider.Instance.ResourceResolver.ResolveObject(name, true).Value;
+            return BindingProvider.Instance.ResourceResolver.ResolveObject(name, context, true).Value;
         }
 
         private static object InvokeMethod(IDataContext context, string methodName, object[] args, string memberPath)
         {
-            var method = BindingProvider.Instance.ResourceResolver.ResolveMethod(methodName, true);
+            var method = BindingProvider.Instance.ResourceResolver.ResolveMethod(methodName, context, true);
             var result = method.Invoke(EmptyValue<Type>.ListInstance, args, context);
             if (memberPath == null)
                 return result;
@@ -1331,9 +1332,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             return GetBindingValueSetter((context, o) =>
             {
-                IBindingValueConverter converter = o as IBindingValueConverter ??
-                                                BindingProvider.Instance.ResourceResolver.ResolveConverter((string)o,
-                                                    true);
+                var converter = o as IBindingValueConverter ?? BindingProvider.Instance.ResourceResolver.ResolveConverter((string)o, context, true);
                 context.Add(BindingBuilderConstants.Converter, d => converter);
             }, (context, func) => context.Add(BindingBuilderConstants.Converter, d => (IBindingValueConverter)func(d)), false, false);
         }
@@ -1384,8 +1383,8 @@ namespace MugenMvvmToolkit.Binding.Parse
                 string resourceName = node.ResourceName;
                 return (provider, context) =>
                 {
-                    IBindingResourceObject resolveObject = provider.ResourceResolver.ResolveObject(resourceName, true);
-                    return new BindingSource(provider.ObserverProvider.Observe(resolveObject.Value, path, false));
+                    var item = GetResourceObject(resourceName, context);
+                    return new BindingSource(provider.ObserverProvider.Observe(item, path, false));
                 };
             }
             if (node.IsRelativeSource)

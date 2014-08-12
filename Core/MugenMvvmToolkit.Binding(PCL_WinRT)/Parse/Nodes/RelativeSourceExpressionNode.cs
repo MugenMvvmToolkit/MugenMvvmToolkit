@@ -27,6 +27,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
     {
         #region Fields
 
+        public const string RelativeSourceType = "RelativeSource";
         public const string ElementSourceType = "ElementSource";
         public const string SelfType = "Self";
         public const string MemberSourceType = "MemberSource";

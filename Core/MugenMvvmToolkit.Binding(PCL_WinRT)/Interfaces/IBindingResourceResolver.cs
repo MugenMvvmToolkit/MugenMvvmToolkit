@@ -36,51 +36,55 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         ///     Gets an instance of <see cref="IBindingValueConverter" /> by the specified name.
         /// </summary>
         /// <param name="name">The specified name.</param>
+        /// <param name="context">The specified data context, if any.</param>
         /// <param name="throwOnError">
         ///     true to throw an exception if the converter cannot be found; false to return null. Specifying
         ///     false also suppresses some other exception conditions, but not all of them.
         /// </param>
         /// <returns>An instance of <see cref="IBindingValueConverter" />.</returns>
-        IBindingValueConverter ResolveConverter([NotNull] string name, bool throwOnError);
+        IBindingValueConverter ResolveConverter([NotNull] string name, IDataContext context, bool throwOnError);
 
         /// <summary>
         ///     Gets an instance of <see cref="Type" /> by the specified name.
         /// </summary>
         /// <param name="typeName">The specified name.</param>
+        /// <param name="context">The specified data context, if any.</param>
         /// <param name="throwOnError">
         ///     true to throw an exception if the type cannot be found; false to return null. Specifying
         ///     false also suppresses some other exception conditions, but not all of them.
         /// </param>
         /// <returns>An instance of <see cref="Type" />.</returns>
-        Type ResolveType([NotNull] string typeName, bool throwOnError);
+        Type ResolveType([NotNull] string typeName, IDataContext context, bool throwOnError);
 
         /// <summary>
         ///     Gets an instance of <see cref="IBindingResourceMethod" /> by the specified name.
         /// </summary>
         /// <param name="name">The specified name.</param>
+        /// <param name="context">The specified data context, if any.</param>
         /// <param name="throwOnError">
         ///     true to throw an exception if the method cannot be found; false to return null. Specifying
         ///     false also suppresses some other exception conditions, but not all of them.
         /// </param>
         /// <returns>An instance of <see cref="IBindingResourceMethod" />.</returns>
-        IBindingResourceMethod ResolveMethod([NotNull] string name, bool throwOnError);
+        IBindingResourceMethod ResolveMethod([NotNull] string name, IDataContext context, bool throwOnError);
 
         /// <summary>
         ///     Gets an instance of <see cref="IBindingResourceObject" /> by the specified name.
         /// </summary>
         /// <param name="name">The specified name.</param>
+        /// <param name="context">The specified data context, if any.</param>
         /// <param name="throwOnError">
         ///     true to throw an exception if the object cannot be found; false to return null. Specifying
         ///     false also suppresses some other exception conditions, but not all of them.
         /// </param>
         /// <returns>An instance of <see cref="IBindingResourceMethod" />.</returns>
-        IBindingResourceObject ResolveObject([NotNull] string name, bool throwOnError);
+        IBindingResourceObject ResolveObject([NotNull] string name, IDataContext context, bool throwOnError);
 
         /// <summary>
         ///     Gets an instance of <see cref="IBindingBehavior" /> by the specified name.
         /// </summary>
         /// <param name="name">The specified name.</param>
-        /// <param name="context">The specified data context.</param>
+        /// <param name="context">The specified data context, if any.</param>
         /// <param name="args">The specified args to create behavior.</param>
         /// <param name="throwOnError">
         ///     true to throw an exception if the object cannot be found; false to return null. Specifying

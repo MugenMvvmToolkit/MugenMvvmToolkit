@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
     {
         #region Fields
 
-        private const int TimerInterval = 25;
+        private const int TimerInterval = 45;
         private static readonly string ControlName = Guid.NewGuid().ToString("n");
         private readonly IThreadManager _threadManager;
 
@@ -62,6 +62,8 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         public Color Background { get; set; }
 
         public Color Foreground { get; set; }
+
+        public Font Font { get; set; }
 
         #endregion
 
@@ -97,7 +99,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             }
             foreach (var result in activeForm.Controls.Find(ControlName, false).OfType<ToastMessageControl>())
             {
-                if (duration > result.Duration)
+                if (duration >= result.Duration)
                     ClearControl(result);
             }
             var control = GetToastControl(activeForm, content, duration, tcs);
@@ -119,9 +121,14 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             {
                 IsTransparent = true
             };
+            Font font = Font;
+            if (font == null)
+                font = form.Font;
+            else
+                control.Font = font;
             using (Graphics gr = control.CreateGraphics())
             {
-                SizeF textSize = gr.MeasureString(msg, form.Font);
+                SizeF textSize = gr.MeasureString(msg, font);
                 control.Height = (int)textSize.Height + 25;
                 control.Width = (int)textSize.Width + 35;
                 if (textSize.Width > form.Width - 100)

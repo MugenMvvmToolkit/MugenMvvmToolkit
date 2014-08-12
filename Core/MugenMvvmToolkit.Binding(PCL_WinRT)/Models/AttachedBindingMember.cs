@@ -573,7 +573,6 @@ namespace MugenMvvmToolkit.Binding.Models
                 observableProperty.ObserveMember, getValue, observableProperty.SetValue, member);
         }
 
-
         private static TType GetValueThrow<TType, TTarget>(IBindingMemberInfo member, TTarget source, object[] args)
         {
             throw BindingExceptionManager.BindingMemberMustBeReadable(member);

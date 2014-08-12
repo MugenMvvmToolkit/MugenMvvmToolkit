@@ -216,7 +216,7 @@ namespace MugenMvvmToolkit.Binding
         public static bool TryAddConverter([NotNull]this IBindingResourceResolver resourceResolver, [NotNull] string name, [NotNull] IBindingValueConverter converter)
         {
             Should.NotBeNull(resourceResolver, "resourceResolver");
-            if (resourceResolver.ResolveConverter(name, false) != null)
+            if (resourceResolver.ResolveConverter(name, DataContext.Empty, false) != null)
                 return false;
             resourceResolver.AddConverter(name, converter, true);
             return true;

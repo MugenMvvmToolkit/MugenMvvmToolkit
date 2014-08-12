@@ -140,7 +140,6 @@ namespace MugenMvvmToolkit.Infrastructure
             }
 
             #endregion
-
         }
 
         private sealed class PopupMenuPresenter : IEventListener

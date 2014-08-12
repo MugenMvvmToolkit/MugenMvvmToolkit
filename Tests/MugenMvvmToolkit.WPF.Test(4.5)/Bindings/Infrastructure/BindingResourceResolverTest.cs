@@ -26,9 +26,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var source = new InverseBooleanConverterCore();
             var resolver = CreateBindingResourceResolver();
 
-            resolver.ResolveConverter(name, false).ShouldBeNull();
+            resolver.ResolveConverter(name, EmptyContext, false).ShouldBeNull();
             resolver.AddConverter(name, source, true);
-            resolver.ResolveConverter(name, true).ShouldEqual(source);
+            resolver.ResolveConverter(name, EmptyContext, true).ShouldEqual(source);
         }
 
         [TestMethod]
@@ -39,17 +39,17 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var resolver = CreateBindingResourceResolver();
 
             resolver.AddConverter(name, source, true);
-            resolver.ResolveConverter(name, true).ShouldEqual(source);
+            resolver.ResolveConverter(name, EmptyContext, true).ShouldEqual(source);
 
             resolver.RemoveConverter(name).ShouldBeTrue();
-            resolver.ResolveConverter(name, false).ShouldBeNull();
+            resolver.ResolveConverter(name, EmptyContext, false).ShouldBeNull();
         }
 
         [TestMethod]
         public void ResolverShouldThrowExceptionIfConverterIsNotRegistered()
         {
             var resolver = CreateBindingResourceResolver();
-            ShouldThrow(() => resolver.ResolveConverter("test", true));
+            ShouldThrow(() => resolver.ResolveConverter("test", EmptyContext, true));
         }
 
         [TestMethod]
@@ -71,7 +71,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var resolver = CreateBindingResourceResolver();
             resolver.AddConverter(name, source, true);
             resolver.AddConverter(name, source2, true);
-            resolver.ResolveConverter(name, true).ShouldEqual(source2);
+            resolver.ResolveConverter(name, EmptyContext, true).ShouldEqual(source2);
         }
 
         [TestMethod]
@@ -81,9 +81,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var source = new BindingResourceObject("test");
             var resolver = CreateBindingResourceResolver();
 
-            resolver.ResolveObject(name, false).ShouldBeNull();
+            resolver.ResolveObject(name, EmptyContext, false).ShouldBeNull();
             resolver.AddObject(name, source, true);
-            resolver.ResolveObject(name, true).ShouldEqual(source);
+            resolver.ResolveObject(name, EmptyContext, true).ShouldEqual(source);
         }
 
         [TestMethod]
@@ -94,17 +94,17 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var resolver = CreateBindingResourceResolver();
 
             resolver.AddObject(name, source, true);
-            resolver.ResolveObject(name, true).ShouldEqual(source);
+            resolver.ResolveObject(name, EmptyContext, true).ShouldEqual(source);
 
             resolver.RemoveObject(name).ShouldBeTrue();
-            resolver.ResolveObject(name, false).ShouldBeNull();
+            resolver.ResolveObject(name, EmptyContext, false).ShouldBeNull();
         }
 
         [TestMethod]
         public void ResolverShouldThrowExceptionIfObjectIsNotRegistered()
         {
             var resolver = CreateBindingResourceResolver();
-            ShouldThrow(() => resolver.ResolveObject("test", true));
+            ShouldThrow(() => resolver.ResolveObject("test", EmptyContext, true));
         }
 
         [TestMethod]
@@ -126,7 +126,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var resolver = CreateBindingResourceResolver();
             resolver.AddObject(name, source, false);
             resolver.AddObject(name, source2, true);
-            resolver.ResolveObject(name, true).ShouldEqual(source2);
+            resolver.ResolveObject(name, EmptyContext, true).ShouldEqual(source2);
         }
 
         [TestMethod]
@@ -136,9 +136,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var source = new BindingResourceMethod((list, objects, c) => objects[0], typeof(object));
             var resolver = CreateBindingResourceResolver();
 
-            resolver.ResolveMethod(name, false).ShouldBeNull();
+            resolver.ResolveMethod(name, EmptyContext, false).ShouldBeNull();
             resolver.AddMethod(name, source, true);
-            resolver.ResolveMethod(name, true).ShouldEqual(source);
+            resolver.ResolveMethod(name, EmptyContext, true).ShouldEqual(source);
         }
 
         [TestMethod]
@@ -149,17 +149,17 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var resolver = CreateBindingResourceResolver();
 
             resolver.AddMethod(name, source, true);
-            resolver.ResolveMethod(name, true).ShouldEqual(source);
+            resolver.ResolveMethod(name, EmptyContext, true).ShouldEqual(source);
 
             resolver.RemoveMethod(name).ShouldBeTrue();
-            resolver.ResolveMethod(name, false).ShouldBeNull();
+            resolver.ResolveMethod(name, EmptyContext, false).ShouldBeNull();
         }
 
         [TestMethod]
         public void ResolverShouldThrowExceptionIfMethodIsNotRegistered()
         {
             var resolver = CreateBindingResourceResolver();
-            ShouldThrow(() => resolver.ResolveMethod("test", true));
+            ShouldThrow(() => resolver.ResolveMethod("test", EmptyContext, true));
         }
 
         [TestMethod]
@@ -181,7 +181,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var resolver = CreateBindingResourceResolver();
             resolver.AddMethod(name, source, true);
             resolver.AddMethod(name, source2, true);
-            resolver.ResolveMethod(name, true).ShouldEqual(source2);
+            resolver.ResolveMethod(name, EmptyContext, true).ShouldEqual(source2);
         }
 
         [TestMethod]
@@ -191,9 +191,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var source = typeof(object);
             var resolver = CreateBindingResourceResolver();
 
-            resolver.ResolveType(name, false).ShouldBeNull();
+            resolver.ResolveType(name, EmptyContext, false).ShouldBeNull();
             resolver.AddType(name, source, true);
-            resolver.ResolveType(name, true).ShouldEqual(source);
+            resolver.ResolveType(name, EmptyContext, true).ShouldEqual(source);
         }
 
         [TestMethod]
@@ -204,17 +204,17 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var resolver = CreateBindingResourceResolver();
 
             resolver.AddType(name, source, true);
-            resolver.ResolveType(name, true).ShouldEqual(source);
+            resolver.ResolveType(name, EmptyContext, true).ShouldEqual(source);
 
             resolver.RemoveType(name).ShouldBeTrue();
-            resolver.ResolveType(name, false).ShouldBeNull();
+            resolver.ResolveType(name, EmptyContext, false).ShouldBeNull();
         }
 
         [TestMethod]
         public void ResolverShouldThrowExceptionIfTypeIsNotRegistered()
         {
             var resolver = CreateBindingResourceResolver();
-            ShouldThrow(() => resolver.ResolveType("test", true));
+            ShouldThrow(() => resolver.ResolveType("test", EmptyContext, true));
         }
 
         [TestMethod]
@@ -236,7 +236,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var resolver = CreateBindingResourceResolver();
             resolver.AddType(name, source, true);
             resolver.AddType(name, source2, true);
-            resolver.ResolveType(name, true).ShouldEqual(source2);
+            resolver.ResolveType(name, EmptyContext, true).ShouldEqual(source2);
         }
 
         [TestMethod]
@@ -245,7 +245,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             const string typeName = "System.AppDomain";
             var type = Type.GetType(typeName, true);
             var resolver = CreateBindingResourceResolver();
-            resolver.ResolveType(typeName, true).ShouldEqual(type);
+            resolver.ResolveType(typeName, EmptyContext, true).ShouldEqual(type);
         }
 
         [TestMethod]

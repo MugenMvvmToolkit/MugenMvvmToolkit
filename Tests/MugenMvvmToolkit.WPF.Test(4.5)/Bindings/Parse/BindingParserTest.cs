@@ -213,6 +213,58 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         }
 
         [TestMethod]
+        public void ParserShouldParseRelativeSourceExpression3()
+        {
+            bool isInvoked = false;
+            const string targetPath = "Text";
+            const string sourcePath = "StringProperty";
+            const string relativeSourceType = "type";
+            const uint level = 10;
+            const string binding = "Text $Relative(type, 10).StringProperty";
+            var targetObj = new BindingSourceModel();
+            var relativeObj = new BindingSourceModel();
+            IEventListener eventListener = null;
+            var providerMock = new ObserverProviderMock
+            {
+                ObserveParent = (o, listener) =>
+                {
+                    eventListener = listener;
+                    return null;
+                },
+                Observe = (o, path, arg3) => new MultiPathObserver(o, path, arg3)
+            };
+            var treeManagerMock = new VisualTreeManagerMock
+            {
+                FindRelativeSource = (o, s, arg3) =>
+                {
+                    o.ShouldEqual(targetObj);
+                    s.ShouldEqual(relativeSourceType);
+                    arg3.ShouldEqual(level);
+                    isInvoked = true;
+                    return relativeObj;
+                }
+            };
+
+
+            IBindingParser bindingParser = CreateBindingParser(treeManagerMock, null, providerMock);
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+            target.Path.ShouldEqual(targetPath);
+
+            context.Add(BindingBuilderConstants.Target, targetObj);
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            IBindingSource source = sources.Single().Invoke(BindingProvider.Instance, context);
+            source.Path.Path.ShouldContain(sourcePath);
+            isInvoked.ShouldBeTrue();
+
+            isInvoked = false;
+            eventListener.ShouldNotBeNull();
+            eventListener.Handle(this, EventArgs.Empty);
+            isInvoked.ShouldBeTrue();
+        }
+
+        [TestMethod]
         public void ParserShouldParseElementSourceExpression1()
         {
             bool isInvoked = false;
@@ -270,6 +322,56 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string sourcePath = "StringProperty";
             const string relativeSourceName = "type";
             const string binding = "Text {ElementSource type}.StringProperty";
+
+            var targetObj = new BindingSourceModel();
+            var relativeObj = new BindingSourceModel();
+            IEventListener eventListener = null;
+            var providerMock = new ObserverProviderMock
+            {
+                ObserveParent = (o, listener) =>
+                {
+                    eventListener = listener;
+                    return null;
+                },
+                Observe = (o, path, arg3) => new MultiPathObserver(o, path, arg3)
+            };
+            var treeManagerMock = new VisualTreeManagerMock
+            {
+                FindByName = (o, s) =>
+                {
+                    o.ShouldEqual(targetObj);
+                    s.ShouldEqual(relativeSourceName);
+                    isInvoked = true;
+                    return relativeObj;
+                }
+            };
+
+            IBindingParser bindingParser = CreateBindingParser(treeManagerMock, null, providerMock);
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+            target.Path.ShouldEqual(targetPath);
+
+            context.Add(BindingBuilderConstants.Target, targetObj);
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            IBindingSource source = sources.Single().Invoke(BindingProvider.Instance, context);
+            source.Path.Path.ShouldContain(sourcePath);
+            isInvoked.ShouldBeTrue();
+
+            isInvoked = false;
+            eventListener.ShouldNotBeNull();
+            eventListener.Handle(this, EventArgs.Empty);
+            isInvoked.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public void ParserShouldParseElementSourceExpression3()
+        {
+            bool isInvoked = false;
+            const string targetPath = "Text";
+            const string sourcePath = "StringProperty";
+            const string relativeSourceName = "type";
+            const string binding = "Text $Element(type).StringProperty";
 
             var targetObj = new BindingSourceModel();
             var relativeObj = new BindingSourceModel();
@@ -748,9 +850,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
                 TargetAccessor = new BindingSourceAccessorMock
                 {
                     Source = new BindingSourceMock
-                        {
-                            GetPathMembers = b => new BindingPathMembersMock(this, BindingPath.Create("IntProperty"), new BindingMemberInfo("IntProperty", BindingSourceModel.IntPropertyInfo, typeof(BindingSourceModel)))
-                        }
+                    {
+                        GetPathMembers = b => new BindingPathMembersMock(this, BindingPath.Create("IntProperty"), new BindingMemberInfo("IntProperty", BindingSourceModel.IntPropertyInfo, typeof(BindingSourceModel)))
+                    }
                 }
             };
 

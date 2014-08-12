@@ -100,7 +100,7 @@ namespace MugenMvvmToolkit.Controls
                     for (int index = 0; index < Parent.Controls.Count; index++)
                     {
                         var ctrl = Parent.Controls[index];
-                        if (ctrl == this || !ctrl.Bounds.IntersectsWith(Bounds) || !ctrl.Visible)
+                        if (ctrl is ToastMessageControl || !ctrl.Bounds.IntersectsWith(Bounds) || !ctrl.Visible)
                             continue;
                         using (var bmp = new Bitmap(ctrl.Width, ctrl.Height))
                         {
@@ -181,7 +181,7 @@ namespace MugenMvvmToolkit.Controls
                     using (var foregroundBrush = new SolidBrush(_foregroundColor))
                     {
                         rectangle = new Rectangle(9, 9, Width - 21, Height - 21);
-                        e.DrawString(_message, Parent.Font, foregroundBrush, rectangle, sf);
+                        e.DrawString(_message, Font, foregroundBrush, rectangle, sf);
                         rectangle = new Rectangle(0, 0, Width, Height);
                         pe.Graphics.DrawImage(img, rectangle, 0, 0, img.Width, img.Height, GraphicsUnit.Pixel, imga);
                     }

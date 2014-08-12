@@ -185,12 +185,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         ///     Gets an instance of <see cref="IBindingValueConverter" /> by the specified name.
         /// </summary>
         /// <param name="name">The specified name.</param>
+        /// <param name="context">The specified data context, if any.</param>
         /// <param name="throwOnError">
         ///     true to throw an exception if the type cannot be found; false to return null. Specifying
         ///     false also suppresses some other exception conditions, but not all of them.
         /// </param>
         /// <returns>An instance of <see cref="IBindingValueConverter" />.</returns>
-        public virtual IBindingValueConverter ResolveConverter(string name, bool throwOnError)
+        public virtual IBindingValueConverter ResolveConverter(string name, IDataContext context, bool throwOnError)
         {
             Should.NotBeNullOrWhitespace(name, "name");
             lock (_converters)
@@ -206,12 +207,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         ///     Gets an instance of <see cref="Type" /> by the specified name.
         /// </summary>
         /// <param name="typeName">The specified name.</param>
+        /// <param name="context">The specified data context, if any.</param>
         /// <param name="throwOnError">
         ///     true to throw an exception if the type cannot be found; false to return null. Specifying
         ///     false also suppresses some other exception conditions, but not all of them.
         /// </param>
         /// <returns>An instance of <see cref="Type" />.</returns>
-        public virtual Type ResolveType(string typeName, bool throwOnError)
+        public virtual Type ResolveType(string typeName, IDataContext context, bool throwOnError)
         {
             Type value = Type.GetType(typeName, false);
             if (value == null)
@@ -229,12 +231,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         ///     Gets an instance of <see cref="IBindingResourceMethod" /> by the specified name.
         /// </summary>
         /// <param name="name">The specified name.</param>
+        /// <param name="context">The specified data context, if any.</param>
         /// <param name="throwOnError">
         ///     true to throw an exception if the type cannot be found; false to return null. Specifying
         ///     false also suppresses some other exception conditions, but not all of them.
         /// </param>
         /// <returns>An instance of <see cref="IBindingResourceMethod" />.</returns>
-        public virtual IBindingResourceMethod ResolveMethod(string name, bool throwOnError)
+        public virtual IBindingResourceMethod ResolveMethod(string name, IDataContext context, bool throwOnError)
         {
             Should.NotBeNullOrWhitespace(name, "name");
             lock (_dynamicMethods)
@@ -250,12 +253,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         ///     Gets an instance of <see cref="IBindingResourceObject" /> by the specified name.
         /// </summary>
         /// <param name="name">The specified name.</param>
+        /// <param name="context">The specified data context, if any.</param>
         /// <param name="throwOnError">
         ///     true to throw an exception if the type cannot be found; false to return null. Specifying
         ///     false also suppresses some other exception conditions, but not all of them.
         /// </param>
         /// <returns>An instance of <see cref="IBindingResourceMethod" />.</returns>
-        public virtual IBindingResourceObject ResolveObject(string name, bool throwOnError)
+        public virtual IBindingResourceObject ResolveObject(string name, IDataContext context, bool throwOnError)
         {
             Should.NotBeNullOrWhitespace(name, "name");
             lock (_objects)

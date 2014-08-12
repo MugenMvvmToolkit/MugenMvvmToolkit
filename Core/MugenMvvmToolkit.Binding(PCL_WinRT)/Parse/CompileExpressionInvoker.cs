@@ -262,7 +262,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         protected virtual object InvokeDynamicMethod(string methodName, IDataContext context, IList<Type> typeArgs, object[] items)
         {
-            var resourceMethod = BindingProvider.Instance.ResourceResolver.ResolveMethod(methodName, false);
+            var resourceMethod = BindingProvider.Instance.ResourceResolver.ResolveMethod(methodName, context, false);
             if (resourceMethod != null)
                 return resourceMethod.Invoke(typeArgs, items, context);
 
@@ -270,7 +270,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             Type targetType = binding == null
                 ? typeof(object)
                 : binding.TargetAccessor.Source.GetPathMembers(false).LastMember.Type;
-            var converter = BindingProvider.Instance.ResourceResolver.ResolveConverter(methodName, true);
+            var converter = BindingProvider.Instance.ResourceResolver.ResolveConverter(methodName, context, true);
             return converter.Convert(items[0], targetType, items.Length > 1 ? items[1] : null,
                 items.Length > 2 ? (CultureInfo)items[2] : CultureInfo.CurrentCulture);
         }
@@ -430,7 +430,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 var dynamicMethod = BindingProvider
                     .Instance
                     .ResourceResolver
-                    .ResolveMethod(methodCall.Method, false);
+                    .ResolveMethod(methodCall.Method, _dataContext, false);
                 if (dynamicMethod != null)
                     returnType = dynamicMethod.GetReturnType(arrayArg.Expressions.ToArrayFast(expression => expression.Type), typeArgs, DataContext);
 
@@ -567,13 +567,14 @@ namespace MugenMvvmToolkit.Binding.Parse
             return args;
         }
 
-        private static Type[] GetTypes(IList<string> types)
+        private Type[] GetTypes(IList<string> types)
         {
             if (types.IsNullOrEmpty())
                 return EmptyValue<Type>.ArrayInstance;
+            var resolver = BindingProvider.Instance.ResourceResolver;
             var typeArgs = new Type[types.Count];
             for (int i = 0; i < types.Count; i++)
-                typeArgs[i] = BindingProvider.Instance.ResourceResolver.ResolveType(types[i], true);
+                typeArgs[i] = resolver.ResolveType(types[i], _dataContext, true);
             return typeArgs;
         }
 
