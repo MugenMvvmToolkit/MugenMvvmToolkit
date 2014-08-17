@@ -40,12 +40,6 @@ namespace MugenMvvmToolkit.Binding.Parse
     /// </summary>
     public class BindingParser : IBindingParser
     {
-        #region Nested types
-
-        private delegate object InternalFunc(IDataContext context);
-
-        #endregion
-
         #region Fields
 
         protected const string PathName = "Path";
@@ -56,43 +50,15 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         protected static readonly DataConstant<object> SourceExpressionConstant;
 
-        private static readonly BindingSourceDelegate[] EmptyBindingSourceDelegates =
-        {
-            BindEmptyPathSource
-        };
+        private static readonly BindingSourceDelegate[] EmptyBindingSourceDelegates;
+        private static readonly HashSet<string> LiteralConstants;
+        private static readonly HashSet<TokenType> LiteralTokens;
+        private static readonly HashSet<TokenType> ResourceTokens;
+        private static readonly HashSet<TokenType> DelimeterTokens;
+        private static readonly Action<IDataContext> EmptyPathSourceDelegate;
 
-        private static readonly HashSet<string> LiteralConstants = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            TrueLiteral,
-            FalseLiteral,
-            NullLiteral
-        };
-
-        private static readonly HashSet<TokenType> LiteralTokens = new HashSet<TokenType>
-        {
-            TokenType.IntegerLiteral,
-            TokenType.RealLiteral,
-            TokenType.StringLiteral
-        };
-
-        private static readonly HashSet<TokenType> ResourceTokens = new HashSet<TokenType>
-        {
-            TokenType.Dollar,
-            TokenType.DoubleDollar
-        };
-
-        private static readonly HashSet<TokenType> DelimeterTokens = new HashSet<TokenType>
-        {
-            TokenType.Comma,
-            TokenType.Eof,
-            TokenType.Semicolon
-        };
-
-        private static readonly Action<IDataContext> EmptyPathSourceDelegate =
-            context => context.Add(BindingBuilderConstants.Sources, EmptyBindingSourceDelegates);
-
-        private readonly IDictionary<string, TokenType> _binaryOperationAliases;
-        private readonly IDictionary<TokenType, int> _binaryOperationTokens;
+        private readonly Dictionary<string, TokenType> _binaryOperationAliases;
+        private readonly Dictionary<TokenType, int> _binaryOperationTokens;
         private readonly Dictionary<string, IBindingBehavior> _bindingModeToAction;
         private readonly Dictionary<string, Func<BindingParser, IList<Action<IDataContext>>>> _bindingParameterToAction;
 
@@ -120,7 +86,35 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         static BindingParser()
         {
-            SourceExpressionConstant = DataConstant.Create(() => SourceExpressionConstant, false);
+            SourceExpressionConstant = DataConstant.Create(() => SourceExpressionConstant, true);
+            DelimeterTokens = new HashSet<TokenType>
+            {
+                TokenType.Comma,
+                TokenType.Eof,
+                TokenType.Semicolon
+            };
+            ResourceTokens = new HashSet<TokenType>
+            {
+                TokenType.Dollar,
+                TokenType.DoubleDollar
+            };
+            LiteralConstants = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                TrueLiteral,
+                FalseLiteral,
+                NullLiteral
+            };
+            LiteralTokens = new HashSet<TokenType>
+            {
+                TokenType.IntegerLiteral,
+                TokenType.RealLiteral,
+                TokenType.StringLiteral
+            };
+            EmptyBindingSourceDelegates = new BindingSourceDelegate[]
+            {
+                BindEmptyPathSource
+            };
+            EmptyPathSourceDelegate = context => context.Add(BindingBuilderConstants.Sources, EmptyBindingSourceDelegates);
         }
 
         /// <summary>
@@ -177,12 +171,10 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {"ValidatesOnNotifyDataErrors", parser => parser.GetBehaviorSetter(ValidatesOnNotifyDataErrorsBehavior.Prototype)},
                 {"ValidatesOnErrors", parser => parser.GetBehaviorSetter(ValidatesOnNotifyDataErrorsBehavior.Prototype)},
                 {"ValidatesOnExceptions", parser => parser.GetBehaviorSetter(ValidatesOnExceptionsBehavior.Instance)},
-                {"Validate",parser => parser.GetBehaviorSetter(ValidatesOnNotifyDataErrorsBehavior.Prototype, ValidatesOnExceptionsBehavior.Instance)},
+                {"Validate", parser => parser.GetBehaviorSetter(ValidatesOnNotifyDataErrorsBehavior.Prototype, ValidatesOnExceptionsBehavior.Instance)},
                 {"DefaultValueOnException", parser => parser.GetBehaviorSetter(DefaultValueOnExceptionBehavior.Instance) },
                 {"SetDefaultValue", parser => parser.GetBehaviorSetter(DefaultValueOnExceptionBehavior.Instance)},
                 {"Delay", parser => parser.GetDelaySetter()},
-                {"Source", parser => parser.GetSourceSetter()},
-                {"Src", parser => parser.GetSourceSetter()},
                 {"Converter", parser => parser.GetConverterSetter()},
                 {"Conv", parser => parser.GetConverterSetter()},
                 {"ConverterParameter", parser => parser.GetConverterParameterSetter()},
@@ -1233,20 +1225,20 @@ namespace MugenMvvmToolkit.Binding.Parse
         }
 
         private IList<Action<IDataContext>> GetBindingValueSetter(Action<IDataContext, object> setSimpleValue,
-            Action<IDataContext, Func<IDataContext, object>> setComplexValue, bool isSourceValue, bool useBindingForMember)
+            Action<IDataContext, Func<IDataContext, object>> setComplexValue, bool useBindingForMember)
         {
             ValidateToken(TokenType.Equal);
             NextToken(true);
             var actions = new List<Action<IDataContext>>();
             IExpressionNode node = Handle(ParsePrimary(), false, Context, actions);
             if (node != null)
-                actions.Add(GetBindingValueSetterMain(node, setSimpleValue, setComplexValue, isSourceValue, useBindingForMember));
+                actions.Add(GetBindingValueSetterMain(node, setSimpleValue, setComplexValue, useBindingForMember));
             return actions;
         }
 
         [NotNull]
         private Action<IDataContext> GetBindingValueSetterMain(IExpressionNode node, Action<IDataContext, object> setSimpleValue,
-            Action<IDataContext, Func<IDataContext, object>> setComplexValue, bool isSourceValue, bool useBindingForMember)
+            Action<IDataContext, Func<IDataContext, object>> setComplexValue, bool useBindingForMember)
         {
             var constantNode = node as IConstantExpressionNode;
             if (constantNode != null)
@@ -1264,9 +1256,6 @@ namespace MugenMvvmToolkit.Binding.Parse
             {
                 if (resourceExpression != null)
                 {
-                    if (isSourceValue)
-                        return context => setSimpleValue(context, new InternalFunc(d => GetResourceObject(memberName, d)));
-
                     if (resourceExpression.Dynamic)
                         return context => setComplexValue(context, d => GetResourceObject(memberName, d));
                     return context => setSimpleValue(context, GetResourceObject(memberName, context));
@@ -1283,12 +1272,10 @@ namespace MugenMvvmToolkit.Binding.Parse
                 var relativeSrc = node as IRelativeSourceExpressionNode;
                 if (relativeSrc == null)
                     throw BindingExceptionManager.UnknownIdentifierParser(node.ToString(), Tokenizer, Expression);
-                if (isSourceValue)
-                    return context => setSimpleValue(context, relativeSrc);
 
                 return context =>
                 {
-                    var relativeSource = new RelativeSource(relativeSrc);
+                    var relativeSource = new RelativeSourceBehavior(relativeSrc);
                     context.GetOrAddBehaviors().Add(relativeSource);
                     setComplexValue(context, d => relativeSource.Value);
                 };
@@ -1301,8 +1288,6 @@ namespace MugenMvvmToolkit.Binding.Parse
             var method = methodCall.Method;
             var args = methodCall.Arguments.ToArrayFast(ex => ((IConstantExpressionNode)ex).Value);
             var memberPath = members.Count == 0 ? null : string.Join(".", members);
-            if (isSourceValue)
-                return context => setSimpleValue(context, new InternalFunc(dataContext => InvokeMethod(dataContext, method, args, memberPath)));
 
             if (resourceExpression.Dynamic)
                 return context => setComplexValue(context, d => InvokeMethod(d, method, args, memberPath));
@@ -1323,43 +1308,38 @@ namespace MugenMvvmToolkit.Binding.Parse
             return BindingExtensions.GetValueFromPath(result, memberPath);
         }
 
-        private IList<Action<IDataContext>> GetSourceSetter()
-        {
-            return GetBindingValueSetter((context, o) => context.Add(SourceExpressionConstant, o), null, true, true);
-        }
-
         private IList<Action<IDataContext>> GetConverterSetter()
         {
             return GetBindingValueSetter((context, o) =>
             {
                 var converter = o as IBindingValueConverter ?? BindingProvider.Instance.ResourceResolver.ResolveConverter((string)o, context, true);
                 context.Add(BindingBuilderConstants.Converter, d => converter);
-            }, (context, func) => context.Add(BindingBuilderConstants.Converter, d => (IBindingValueConverter)func(d)), false, false);
+            }, (context, func) => context.Add(BindingBuilderConstants.Converter, d => (IBindingValueConverter)func(d)), false);
         }
 
         private IList<Action<IDataContext>> GetConverterParameterSetter()
         {
             return
                 GetBindingValueSetter((context, o) => context.Add(BindingBuilderConstants.ConverterParameter, d => o),
-                    (context, func) => context.Add(BindingBuilderConstants.ConverterParameter, func), false, true);
+                    (context, func) => context.Add(BindingBuilderConstants.ConverterParameter, func), true);
         }
 
         private IList<Action<IDataContext>> GetFallbackSetter()
         {
             return GetBindingValueSetter((context, o) => context.Add(BindingBuilderConstants.Fallback, d => o),
-                (context, func) => context.Add(BindingBuilderConstants.Fallback, func), false, false);
+                (context, func) => context.Add(BindingBuilderConstants.Fallback, func), false);
         }
 
         private IList<Action<IDataContext>> GetTargetNullValueSetter()
         {
             return GetBindingValueSetter((context, o) => context.Add(BindingBuilderConstants.TargetNullValue, o),
-                (context, func) => context.Add(BindingBuilderConstants.TargetNullValue, func(DataContext.Empty)), false, false);
+                (context, func) => context.Add(BindingBuilderConstants.TargetNullValue, func(DataContext.Empty)), false);
         }
 
         private IList<Action<IDataContext>> GetCommandParameterSetter()
         {
             return GetBindingValueSetter((context, o) => context.Add(BindingBuilderConstants.CommandParameter, d => o),
-                (context, func) => context.Add(BindingBuilderConstants.CommandParameter, func), false, true);
+                (context, func) => context.Add(BindingBuilderConstants.CommandParameter, func), true);
         }
 
         private IList<Action<IDataContext>> GetConverterCultureSetter()
@@ -1368,7 +1348,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             {
                 CultureInfo culture = o as CultureInfo ?? new CultureInfo(((string)o).Replace("\"", string.Empty));
                 context.Add(BindingBuilderConstants.ConverterCulture, d => culture);
-            }, (context, func) => context.Add(BindingBuilderConstants.ConverterCulture, d => (CultureInfo)func(d)), false, false);
+            }, (context, func) => context.Add(BindingBuilderConstants.ConverterCulture, d => (CultureInfo)func(d)), false);
         }
 
         #endregion
@@ -1383,8 +1363,8 @@ namespace MugenMvvmToolkit.Binding.Parse
                 string resourceName = node.ResourceName;
                 return (provider, context) =>
                 {
-                    var item = GetResourceObject(resourceName, context);
-                    return new BindingSource(provider.ObserverProvider.Observe(item, path, false));
+                    var resourceObject = provider.ResourceResolver.ResolveObject(resourceName, context, true);
+                    return new BindingSource(provider.ObserverProvider.Observe(resourceObject, path, false));
                 };
             }
             if (node.IsRelativeSource)
@@ -1392,7 +1372,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 IRelativeSourceExpressionNode r = node.RelativeSourceExpression;
                 return (provider, context) =>
                 {
-                    var relativeSource = new RelativeSource(r);
+                    var relativeSource = new RelativeSourceBehavior(r);
                     object target = context.GetData(BindingBuilderConstants.Target, true);
                     relativeSource.UpdateSource(target);
                     return relativeSource.BindingSource;
@@ -1400,26 +1380,9 @@ namespace MugenMvvmToolkit.Binding.Parse
             }
             return (provider, context) =>
             {
-                object src;
-                if (context.TryGetData(SourceExpressionConstant, out src))
-                {
-                    var r = src as IRelativeSourceExpressionNode;
-                    if (r == null)
-                    {
-                        var func = src as InternalFunc;
-                        if (func != null)
-                            src = func(context);
-                        return new BindingSource(provider.ObserverProvider.Observe(src, path, false));
-                    }
-                    var relativeSource = new RelativeSource(r);
-                    object target = context.GetData(BindingBuilderConstants.Target, true);
-                    relativeSource.Path = path.Path;
-                    relativeSource.UpdateSource(target);
-                    return relativeSource.BindingSource;
-                }
-                src = context.GetData(SourceExpressionConstant) ??
-                      provider.GetBindingContext(context.GetData(BindingBuilderConstants.Target, true),
-                          context.GetData(BindingBuilderConstants.TargetPath, true).Path);
+                var src = context.GetData(SourceExpressionConstant) ??
+                          provider.GetBindingContext(context.GetData(BindingBuilderConstants.Target, true),
+                              context.GetData(BindingBuilderConstants.TargetPath, true).Path);
                 return new BindingSource(provider.ObserverProvider.Observe(src, path, false));
             };
         }

@@ -23,6 +23,7 @@ using Microsoft.Phone.Controls;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Utils;
 using NavigationMode = System.Windows.Navigation.NavigationMode;
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -48,7 +49,7 @@ namespace MugenMvvmToolkit.Infrastructure
             public StateObserver(Frame frame)
             {
                 _reference = new WeakReference(frame);
-                _previousView = MvvmExtensions.GetWeakReference(null);
+                _previousView = MvvmUtils.EmptyWeakReference;
                 frame.Navigating += FrameOnNavigating;
                 frame.Navigated += FrameOnNavigated;
             }
@@ -64,7 +65,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     return;
                 var page = target.Content as PhoneApplicationPage;
                 if (page != null)
-                    _previousView = MvvmExtensions.GetWeakReference(page);
+                    _previousView = ServiceProvider.WeakReferenceFactory(page, true);
             }
 
             private void FrameOnNavigated(object sender, NavigationEventArgs args)

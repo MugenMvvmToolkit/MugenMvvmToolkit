@@ -56,7 +56,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         static WindowsPhoneBootstrapperBase()
         {
-#if V78
+#if V71
             ServiceProvider.WeakReferenceFactory = PlatformExtensions.CreateWeakReference;
 #endif
             DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;

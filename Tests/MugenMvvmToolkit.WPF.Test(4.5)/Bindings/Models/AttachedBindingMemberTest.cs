@@ -112,7 +112,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             const string path = "path";
             var property = AttachedBindingMember.CreateAutoProperty(path, typeof(string));
 
-            IDisposable subscriber = property.TryObserveMember(source, listenerMock);
+            IDisposable subscriber = property.TryObserve(source, listenerMock);
             property.SetValue(source, new object[] { path });
             isInvoked.ShouldBeTrue();
             subscriber.ShouldNotBeNull();
@@ -143,7 +143,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             const string path = "path";
             var property = AttachedBindingMember.CreateAutoProperty<BindingSourceModel, string>(path);
 
-            IDisposable subscriber = property.TryObserveMember(source, listenerMock);
+            IDisposable subscriber = property.TryObserve(source, listenerMock);
             property.SetValue(source, new object[] { path });
             isInvoked.ShouldBeTrue();
             subscriber.ShouldNotBeNull();
@@ -484,7 +484,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             var property = AttachedBindingMember.CreateMember(path, typeof(string), (info, o, arg3) => null,
                 (info, o, arg3) => null, memberChangeEventName: BindingSourceModel.EventName);
 
-            IDisposable subscriber = property.TryObserveMember(source, listenerMock);
+            IDisposable subscriber = property.TryObserve(source, listenerMock);
             source.RaiseEvent();
             isInvoked.ShouldBeTrue();
             subscriber.ShouldNotBeNull();
@@ -513,7 +513,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             var property = AttachedBindingMember.CreateMember<BindingSourceModel, string>(path, (info, o, arg3) => null,
                 (info, o, arg3) => null, memberChangeEventName: BindingSourceModel.EventName);
 
-            IDisposable subscriber = property.TryObserveMember(source, listenerMock);
+            IDisposable subscriber = property.TryObserve(source, listenerMock);
             source.RaiseEvent();
             isInvoked.ShouldBeTrue();
             subscriber.ShouldNotBeNull();
@@ -547,12 +547,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
                     return result;
                 });
 
-            property.TryObserveMember(source, listenerMock).ShouldBeNull();
+            property.TryObserve(source, listenerMock).ShouldBeNull();
             isInvoked.ShouldBeTrue();
 
             isInvoked = false;
             result = new ActionToken(() => { });
-            property.TryObserveMember(source, listenerMock).ShouldEqual(result);
+            property.TryObserve(source, listenerMock).ShouldEqual(result);
             isInvoked.ShouldBeTrue();
         }
 
@@ -575,12 +575,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
                     return result;
                 });
 
-            property.TryObserveMember(source, listenerMock).ShouldBeNull();
+            property.TryObserve(source, listenerMock).ShouldBeNull();
             isInvoked.ShouldBeTrue();
 
             isInvoked = false;
             result = new ActionToken(() => { });
-            property.TryObserveMember(source, listenerMock).ShouldEqual(result);
+            property.TryObserve(source, listenerMock).ShouldEqual(result);
             isInvoked.ShouldBeTrue();
         }
 
@@ -807,7 +807,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             var property = AttachedBindingMember.CreateNotifiableMember(path, typeof(string), (info, o, arg3) => null,
                 (info, o, arg3) => raiseEvent);
 
-            IDisposable subscriber = property.TryObserveMember(source, listenerMock);
+            IDisposable subscriber = property.TryObserve(source, listenerMock);
             property.SetValue(source, new object[] { path });
             isInvoked.ShouldBeTrue();
             subscriber.ShouldNotBeNull();
@@ -842,7 +842,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             var property = AttachedBindingMember.CreateNotifiableMember<BindingSourceModel, string>(path, (info, o, arg3) => null,
                 (info, o, arg3) => raiseEvent);
 
-            IDisposable subscriber = property.TryObserveMember(source, listenerMock);
+            IDisposable subscriber = property.TryObserve(source, listenerMock);
             property.SetValue(source, new object[] { path });
             isInvoked.ShouldBeTrue();
             subscriber.ShouldNotBeNull();

@@ -152,7 +152,7 @@ namespace MugenMvvmToolkit.Binding.Sources
         }
 
         /// <summary>
-        ///     Gets or sets the parameter to pass to the command.
+        ///     Gets a parameter to pass to the command.
         /// </summary>
         /// <returns>
         ///     Parameter to pass to the command.

@@ -487,7 +487,7 @@ namespace MugenMvvmToolkit.ViewModels
             var parentViewModel = context.GetData(ActivationConstants.ParentViewModel);
             if (parentViewModel == null)
                 return;
-            Settings.Metadata.AddOrUpdate(ViewModelConstants.ParentViewModel, MvvmExtensions.GetWeakReference(parentViewModel));
+            Settings.Metadata.AddOrUpdate(ViewModelConstants.ParentViewModel, ServiceProvider.WeakReferenceFactory(parentViewModel, true));
             ObservationMode observationMode;
             if (!context.TryGetData(ActivationConstants.ObservationMode, out observationMode))
                 observationMode = ApplicationSettings.ViewModelObservationMode;
@@ -602,6 +602,10 @@ namespace MugenMvvmToolkit.ViewModels
             var toRemove = _vmEventAggregator.GetObservers();
             for (int index = 0; index < toRemove.Count; index++)
                 Unsubscribe(toRemove[index]);
+
+            IViewManager viewManager;
+            if (IocContainer.TryGet(out viewManager))
+                viewManager.CleanupViewAsync(this);
 
             _viewModelProvider = null;
             //Disposing ioc adapter.

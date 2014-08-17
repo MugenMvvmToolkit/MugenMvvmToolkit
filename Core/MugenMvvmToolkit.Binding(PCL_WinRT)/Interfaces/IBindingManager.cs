@@ -39,7 +39,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         ///     True if the binding is registered.
         /// </returns>
         bool IsRegistered([NotNull] IDataBinding binding);
-
+        
         /// <summary>
         ///     Retrieves the <see cref="IDataBinding" /> objects.
         /// </summary>
@@ -52,6 +52,11 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         /// <param name="target">The object where <paramref name="path" /> is.</param>
         /// <param name="path">The binding target property from which to retrieve the binding.</param>
         IEnumerable<IDataBinding> GetBindings([NotNull] object target, [NotNull] string path);
+
+        /// <summary>
+        ///     Unregisters the specified <see cref="IDataBinding"/>.
+        /// </summary>
+        void Unregister(IDataBinding binding);
 
         /// <summary>
         ///     Removes all bindings from the specified target.

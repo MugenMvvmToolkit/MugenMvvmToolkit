@@ -29,7 +29,9 @@ namespace MugenMvvmToolkit
 {
     public static class PlatformExtensions
     {
-#if WINDOWS_PHONE && V78
+        private static readonly Func<ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs>, NotifyCollectionChangedEventHandler> CreateHandlerDelegate = CreateHandler;
+
+#if WINDOWS_PHONE && V71
         //NOTE ConditionalWeakTable not supported on WP 7.8, we should keep references in memory.
         private static readonly List<WeakReference> WeakReferences;
 
@@ -98,7 +100,7 @@ namespace MugenMvvmToolkit
             return type.IsDefined(typeof(DataContractAttribute), false) || type.IsPrimitive;
         }
 
-#if V78
+#if V71
         internal static WeakReference CreateWeakReference(object item, bool trackResurrection)
         {
             var reference = new WeakReference(item, trackResurrection);
@@ -140,13 +142,10 @@ namespace MugenMvvmToolkit
         }
 
         public static NotifyCollectionChangedEventHandler MakeWeakCollectionChangedHandler<TTarget>(TTarget target,
-            Action<TTarget, object, NotifyCollectionChangedEventArgs> invokeAction, bool cacheWeakReferenceTarget)
+            Action<TTarget, object, NotifyCollectionChangedEventArgs> invokeAction)
             where TTarget : class
         {
-            return ReflectionExtensions
-                .CreateWeakDelegate<TTarget, NotifyCollectionChangedEventArgs, NotifyCollectionChangedEventHandler>(
-                    target, invokeAction, UnsubscribeCollectionChanged, handler => handler.Handle,
-                    cacheWeakReferenceTarget);
+            return ReflectionExtensions.CreateWeakDelegate(target, invokeAction, UnsubscribeCollectionChanged, CreateHandlerDelegate);
         }
 
         private static void UnsubscribeCollectionChanged(object o, NotifyCollectionChangedEventHandler handler)
@@ -154,6 +153,11 @@ namespace MugenMvvmToolkit
             var notifyCollectionChanged = o as INotifyCollectionChanged;
             if (notifyCollectionChanged != null)
                 notifyCollectionChanged.CollectionChanged -= handler;
+        }
+
+        private static NotifyCollectionChangedEventHandler CreateHandler(ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs> weakEventHandler)
+        {
+            return weakEventHandler.Handle;
         }
 
         #endregion

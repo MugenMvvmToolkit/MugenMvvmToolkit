@@ -53,35 +53,34 @@ namespace MugenMvvmToolkit.Binding
     {
         #region Nested types
 
-#if WINDOWS_PHONE || WINDOWSCOMMON || NETFX_CORE
-        private sealed class ParentListener
+        private sealed class ParentListener : EventListenerList
         {
-        #region Fields
+            #region Fields
 
-            private readonly FrameworkElement _view;
-            private WeakReference _parentReference;
+            private readonly WeakReference _view;
+            private WeakReference _parent;
             private bool _isAttached;
 
             #endregion
 
-        #region Constructors
+            #region Constructors
 
-            public ParentListener(FrameworkElement view)
+            private ParentListener(FrameworkElement view)
             {
-                _view = view;
-                _parentReference = MvvmExtensions.GetWeakReference(GetParentValue(view));
+                _view = ServiceProvider.WeakReferenceFactory(view, true);
+                _parent = ServiceProvider.WeakReferenceFactory(FindParent(view), true);
                 RoutedEventHandler handler = OnChanged;
-                _view.Loaded += handler;
-                _view.Unloaded += handler;
+                view.Loaded += handler;
+                view.Unloaded += handler;
             }
 
             #endregion
 
-        #region Properties
+            #region Properties
 
             public DependencyObject Parent
             {
-                get { return _parentReference.Target as DependencyObject; }
+                get { return _parent.Target as DependencyObject; }
                 set
                 {
                     _isAttached = true;
@@ -91,41 +90,41 @@ namespace MugenMvvmToolkit.Binding
 
             #endregion
 
-        #region Events
+            #region Methods
 
-            public event EventHandler Changed;
+            public static ParentListener GetOrAdd(FrameworkElement element)
+            {
+                return ServiceProvider.AttachedValueProvider.GetOrAdd(element, "#ParentListener",
+                    (frameworkElement, o) => new ParentListener(frameworkElement), null);
+            }
 
             private void OnChanged(object sender, RoutedEventArgs routedEventArgs)
             {
+                var view = (FrameworkElement)_view.Target;
+                if (view == null)
+                {
+                    Clear();
+                    return;
+                }
                 if (!_isAttached)
-                    SetParent(GetParentValue(_view));
+                    SetParent(FindParent(view));
             }
 
             private void SetParent(DependencyObject value)
             {
-                if (ReferenceEquals(value, _parentReference.Target))
+                if (ReferenceEquals(value, _parent.Target))
                     return;
-                _parentReference = MvvmExtensions.GetWeakReference(value);
-                var handler = Changed;
-                if (handler != null)
-                    handler(_view, EventArgs.Empty);
-            }
-
-            private static DependencyObject GetParentValue(FrameworkElement target)
-            {
-                return VisualTreeHelper.GetParent(target) ?? target.Parent;
+                _parent = ServiceProvider.WeakReferenceFactory(value, true);
+                Raise(_view.Target, EventArgs.Empty);
             }
 
             #endregion
         }
-#endif
+
         #endregion
 
         #region Fields
 
-#if WINDOWS_PHONE || WINDOWSCOMMON || NETFX_CORE
-        private static readonly IAttachedBindingMemberInfo<FrameworkElement, ParentListener> ViewParentListenerMember;
-#endif
         private readonly static IAttachedBindingMemberInfo<FrameworkElement, bool> DisableValidationMember;
 
         #endregion
@@ -137,15 +136,20 @@ namespace MugenMvvmToolkit.Binding
             if (View.OnBindChanged == null)
                 View.OnBindChanged = OnBindChanged;
             DisableValidationMember = AttachedBindingMember.CreateAutoProperty<FrameworkElement, bool>("DisableValidation");
-#if WINDOWS_PHONE || WINDOWSCOMMON || NETFX_CORE
-            ViewParentListenerMember = AttachedBindingMember.CreateAutoProperty<FrameworkElement, ParentListener>(
-                "#ParentListener", defaultValue: (view, info) => new ParentListener(view));
-#endif
         }
 
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Tries to set attached parent.
+        /// </summary>
+        public static void SetAttachedParent([CanBeNull] FrameworkElement target, [CanBeNull] DependencyObject parent)
+        {
+            if (target != null)
+                ParentListener.GetOrAdd(target).Parent = parent;
+        }
 
         private static void Register(IBindingMemberProvider memberProvider)
         {
@@ -262,7 +266,7 @@ namespace MugenMvvmToolkit.Binding
                 var binding = new System.Windows.Data.Binding(ValidationBinder.PropertyName)
                 {
 #if WPF && NET4
-                    ValidatesOnDataErrors = true,                    
+                    ValidatesOnDataErrors = true,
 #else
                     ValidatesOnDataErrors = false,
                     ValidatesOnNotifyDataErrors = true,
@@ -289,7 +293,7 @@ namespace MugenMvvmToolkit.Binding
             while (target != null)
             {
                 root = target;
-                target = GetParentValue(null, target, arg3) as FrameworkElement;
+                target = FindParent(target) as FrameworkElement;
             }
             var frameworkElement = root as FrameworkElement;
             if (frameworkElement == null)
@@ -298,58 +302,14 @@ namespace MugenMvvmToolkit.Binding
             return frameworkElement.FindName(name) ?? FindChild(root, name);
         }
 
-#if WINDOWS_PHONE || WINDOWSCOMMON || NETFX_CORE
-        /// <summary>
-        /// Tries to set attached parent.
-        /// </summary>
-        public static void SetAttachedParent([CanBeNull] FrameworkElement target, [CanBeNull] DependencyObject parent)
-        {
-            if (target != null)
-                ViewParentListenerMember.GetValue(target, null).Parent = parent;
-        }
-#endif
         private static DependencyObject GetParentValue(IBindingMemberInfo bindingMemberInfo, FrameworkElement target, object[] arg3)
         {
-#if WINDOWS_PHONE || WINDOWSCOMMON || NETFX_CORE
-            var listener = ViewParentListenerMember.GetValue(target, arg3);
-            return listener.Parent;
-#else
-            IBindingMemberInfo member = BindingProvider
-                .Instance
-                .MemberProvider
-                .GetBindingMember(target.GetType(), "PlacementTarget", false, false);
-            if (member != null)
-            {
-                object value = member.GetValue(target, arg3);
-                if (value != null)
-                    return (DependencyObject)value;
-            }
-#if WPF
-            var parent = VisualTreeHelper.GetParent(target) ?? LogicalTreeHelper.GetParent(target);
-#else
-            var parent = VisualTreeHelper.GetParent(target);
-#endif
-            if (parent == null)
-            {
-                var frameworkElement = target as FrameworkElement;
-                if (frameworkElement != null)
-                    return frameworkElement.Parent;
-            }
-            return parent;
-#endif
+            return ParentListener.GetOrAdd(target).Parent;
         }
 
         private static IDisposable ObserveParentMember(IBindingMemberInfo bindingMemberInfo, FrameworkElement o, IEventListener arg3)
         {
-#if WINDOWS_PHONE || WINDOWSCOMMON || NETFX_CORE
-            var parentListener = ViewParentListenerMember.GetValue(o, null);
-            var handler = arg3.ToWeakEventHandler<EventArgs>();
-            parentListener.Changed += handler.Handle;
-            handler.Unsubscriber = WeakActionToken.Create(parentListener, handler, (listener, eventHandler) => listener.Changed -= eventHandler.Handle, false);
-            return handler;
-#else
-            return new DependencyPropertyBindingMember.DependencyPropertyListener(o, AttachedMemberConstants.Parent, arg3);
-#endif
+            return ParentListener.GetOrAdd(o).AddWithUnsubscriber(arg3);
 
         }
 
@@ -359,6 +319,22 @@ namespace MugenMvvmToolkit.Binding
             return new DependencyPropertyBindingMember.DependencyPropertyListener(textBlock, "Text", arg3);
         }
 #endif
+
+        private static DependencyObject FindParent(FrameworkElement target)
+        {
+            IBindingMemberInfo member = BindingProvider
+                    .Instance
+                    .MemberProvider
+                    .GetBindingMember(target.GetType(), "PlacementTarget", false, false);
+            if (member != null)
+            {
+                object value = member.GetValue(target, null);
+                if (value != null)
+                    return (DependencyObject)value;
+            }
+            return VisualTreeHelper.GetParent(target) ?? target.Parent;
+        }
+
         private static DependencyObject FindChild(DependencyObject parent, string childName)
         {
             if (parent == null)
@@ -391,6 +367,8 @@ namespace MugenMvvmToolkit.Binding
         {
             if (View.OnBindChanged == null)
                 View.OnBindChanged = OnBindChanged;
+            ViewManager.GetDataContext = o => BindingProvider.Instance.ContextManager.GetBindingContext(o).Value;
+            ViewManager.SetDataContext = (o, o1) => BindingProvider.Instance.ContextManager.GetBindingContext(o).Value = o1;
             base.Load(context);
             var oldMember = BindingProvider.Instance.MemberProvider as BindingMemberProvider;
             BindingProvider.Instance.MemberProvider = oldMember == null

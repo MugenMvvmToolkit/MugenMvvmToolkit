@@ -205,9 +205,9 @@ namespace MugenMvvmToolkit.Collections
                             list.RemoveAt(index);
                             index--;
                             shouldIgnore = true;
-                            continue;
                         }
-                        list[index] = UpdateAddEvent(oldArgs.NewItems, newIndex);
+                        else
+                            list[index] = UpdateAddEvent(oldArgs.NewItems, newIndex);
                     }
                 }
 
@@ -222,9 +222,9 @@ namespace MugenMvvmToolkit.Collections
                         {
                             list.RemoveAt(index);
                             index--;
-                            continue;
                         }
-                        list[index] = UpdateReplaceEvent(oldArgs.NewItems, oldArgs.OldItems, replaceIndex);
+                        else
+                            list[index] = UpdateReplaceEvent(oldArgs.NewItems, oldArgs.OldItems, replaceIndex);
                     }
                 }
             }
@@ -966,7 +966,7 @@ namespace MugenMvvmToolkit.Collections
         {
             if (Interlocked.Increment(ref _suspendCount) == 1)
                 OnPropertyChanged(new PropertyChangedEventArgs("IsNotificationsSuspended"));
-            return WeakActionToken.Create(this, collection => collection.EndSuspendNotifications(), false);
+            return WeakActionToken.Create(this, collection => collection.EndSuspendNotifications());
         }
 
         #endregion

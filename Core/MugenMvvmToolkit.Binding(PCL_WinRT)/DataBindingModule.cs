@@ -125,7 +125,7 @@ namespace MugenMvvmToolkit.Binding
 
         private static IDisposable ObserveCommandParameter(IBindingMemberInfo bindingMemberInfo, object o, IEventListener arg3)
         {
-            return GetCommandParameterMember(o).TryObserveMember(o, arg3);
+            return GetCommandParameterMember(o).TryObserve(o, arg3);
         }
 
         private static object SetCommandParameter(IBindingMemberInfo bindingMemberInfo, object o, object[] arg3)

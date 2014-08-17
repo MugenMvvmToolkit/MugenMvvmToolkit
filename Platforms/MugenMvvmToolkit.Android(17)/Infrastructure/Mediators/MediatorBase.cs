@@ -117,7 +117,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         public virtual void OnDestroy(Action baseOnDestroy)
         {
-            var viewModel = BindingContext.DataContext as IViewModel;
+            var viewModel = BindingContext.Value as IViewModel;
             if (viewModel != null)
                 Get<IViewManager>().CleanupViewAsync(viewModel);
             baseOnDestroy();
@@ -131,9 +131,9 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public virtual void OnSaveInstanceState(Bundle outState, Action<Bundle> baseOnSaveInstanceState)
         {
             lock (ContextCache)
-                ContextCache[_id] = BindingContext.DataContext;
+                ContextCache[_id] = BindingContext.Value;
             outState.PutString(IdKey, _id.ToString());
-            var viewModel = BindingContext.DataContext as IViewModel;
+            var viewModel = BindingContext.Value as IViewModel;
             if (viewModel != null)
                 viewModel.Disposed += ClearCacheOnDispose;
             baseOnSaveInstanceState(outState);
@@ -163,7 +163,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             var viewModel = oldContext as IViewModel;
             if (viewModel == null)
-                BindingContext.DataContext = oldContext;
+                BindingContext.Value = oldContext;
             else
             {
                 var viewManager = Get<IViewManager>();
@@ -182,7 +182,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         protected T Get<T>()
         {
-            var viewModel = BindingContext.DataContext as IViewModel;
+            var viewModel = BindingContext.Value as IViewModel;
             if (viewModel == null)
                 return ServiceProvider.IocContainer.Get<T>();
             return MvvmUtils.GetIocContainer(viewModel, true).Get<T>();

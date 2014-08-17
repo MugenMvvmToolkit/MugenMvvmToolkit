@@ -60,7 +60,7 @@ namespace MugenMvvmToolkit.ViewModels
             _locker = new object();
             SetOriginalItemsSource(new ObservableCollection<T>());
             _weakPropertyHandler = ReflectionExtensions
-                .MakeWeakPropertyChangedHandler(this, (model, o, arg3) => model.OnSelectedItemPropertyChanged(o, arg3), true);
+                .MakeWeakPropertyChangedHandler(this, (model, o, arg3) => model.OnSelectedItemPropertyChanged(o, arg3));
         }
 
         #endregion
@@ -379,8 +379,8 @@ namespace MugenMvvmToolkit.ViewModels
             var args = new SelectedItemChangedEventArgs<T>(oldValue, newValue);
             ThreadManager.Invoke(Settings.EventExecutionMode, this, args, (model, eventArgs) =>
             {
-                var genericHandler = SelectedItemChanged;
-                var nonGenericHandler = _selectedItemChangedNonGeneric;
+                var genericHandler = model.SelectedItemChanged;
+                var nonGenericHandler = model._selectedItemChangedNonGeneric;
                 if (genericHandler != null)
                     genericHandler(model, eventArgs);
                 if (nonGenericHandler != null)
@@ -398,8 +398,8 @@ namespace MugenMvvmToolkit.ViewModels
             var args = new ItemsSourceChangedEventArgs<T>(data);
             ThreadManager.Invoke(Settings.EventExecutionMode, this, args, (model, eventArgs) =>
             {
-                var genericHandler = ItemsSourceChanged;
-                var nonGenericHandler = _itemsSourceChangedNonGeneric;
+                var genericHandler = model.ItemsSourceChanged;
+                var nonGenericHandler = model._itemsSourceChangedNonGeneric;
                 if (genericHandler != null)
                     genericHandler(model, eventArgs);
                 if (nonGenericHandler != null)

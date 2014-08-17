@@ -14,6 +14,8 @@
 // ****************************************************************************
 #endregion
 
+using System;
+using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
@@ -37,6 +39,87 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
     /// </summary>
     public class BindingResourceResolverEx : BindingResourceResolver
     {
+        #region Nested types
+
+        private sealed class XamlUnresolvedResource : IBindingResourceObject, IEventListener
+        {
+            #region Fields
+
+            private object _value;
+            private readonly string _key;
+            private readonly IDisposable _unsubscriber;
+            private readonly WeakReference _reference;
+
+            #endregion
+
+            #region Constructors
+
+            public XamlUnresolvedResource(object target, string key, IBindingMemberInfo rootMember)
+            {
+                _key = key;
+                _value = BindingConstants.UnsetValue;
+                _reference = ServiceProvider.WeakReferenceFactory(target, true);
+                _unsubscriber = rootMember.TryObserve(target, this);
+            }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public Type Type
+            {
+                get
+                {
+                    var value = _value;
+                    if (ReferenceEquals(value, BindingConstants.UnsetValue))
+                        return typeof(object);
+                    return value.GetType();
+                }
+            }
+
+            public object Value
+            {
+                get
+                {
+                    if (ReferenceEquals(_value, BindingConstants.UnsetValue))
+                        Tracer.Warn("The XAML resource with key '{0}' cannot be found.", _key);
+                    return _value;
+                }
+                private set
+                {
+                    if (Equals(_value, value))
+                        return;
+                    _value = value;
+                    var handler = ValueChanged;
+                    if (handler != null)
+                        handler(this, EventArgs.Empty);
+                }
+            }
+
+            public bool IsWeak
+            {
+                get { return true; }
+            }
+
+            public void Handle(object sender, object message)
+            {
+                var target = _reference.Target;
+                if (target == null)
+                {
+                    if (_unsubscriber != null)
+                        _unsubscriber.Dispose();
+                    return;
+                }
+                Value = TryFindResource(Application.Current, target, _key) ?? BindingConstants.UnsetValue;
+            }
+
+            public event EventHandler<ISourceValue, EventArgs> ValueChanged;
+
+            #endregion
+        }
+
+        #endregion
+
         #region Constructors
 
         /// <summary>
@@ -74,20 +157,17 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (result != null)
                 return result;
 
-            var application = Application.Current;
-            if (application != null)
+            var item = TryFindResource(Application.Current, GetTarget(context), name);
+            if (item != null)
             {
-                var item = TryFindResource(application, name, context ?? DataContext.Empty);
-                if (item != null)
-                {
-                    var valueConverter = item as IBindingValueConverter;
-                    if (valueConverter != null)
-                        return valueConverter;
-                    var converter = item as IValueConverter;
-                    if (converter != null)
-                        return new ValueConverterWrapper(converter.Convert, converter.ConvertBack);
-                }
+                var valueConverter = item as IBindingValueConverter;
+                if (valueConverter != null)
+                    return valueConverter;
+                var converter = item as IValueConverter;
+                if (converter != null)
+                    return new ValueConverterWrapper(converter.Convert, converter.ConvertBack);
             }
+
             if (throwOnError)
                 throw BindingExceptionManager.CannotResolveInstanceByName(this, "converter", name);
             return null;
@@ -108,15 +188,22 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             var result = base.ResolveObject(name, context, false);
             if (result != null)
                 return result;
-            var application = Application.Current;
-            if (application != null)
-            {
-                var item = TryFindResource(application, name, context ?? DataContext.Empty);
-                if (item != null)
-                    return new BindingResourceObject(item);
-            }
+
+            var target = GetTarget(context);
+            var item = TryFindResource(Application.Current, target, name);
+            if (item != null)
+                return new BindingResourceObject(item);
+
             if (throwOnError)
-                throw BindingExceptionManager.CannotResolveInstanceByName(this, "dynamic object", name);
+            {
+                if (target != null)
+                {
+                    var rootMember = BindingProvider.Instance.VisualTreeManager.GetRootMember(target.GetType());
+                    if (rootMember != null)
+                        return new XamlUnresolvedResource(target, name, rootMember);
+                }
+                throw BindingExceptionManager.CannotResolveInstanceByName(this, "resource object", name);
+            }
             return null;
         }
 
@@ -127,19 +214,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <summary>
         /// Tries to find a resource by key.
         /// </summary>
-        protected virtual object TryFindResource([NotNull]Application application, [NotNull] string resourceKey, [NotNull] IDataContext context)
+        protected static object TryFindResource([CanBeNull]Application application, [CanBeNull] object target, [NotNull] string resourceKey)
         {
-            object target;
-            if (!context.TryGetData(BindingBuilderConstants.Target, out target))
-            {
-                IDataBinding data;
-                if (context.TryGetData(BindingConstants.Binding, out data))
-                    target = data.TargetAccessor.Source.GetSource(false);
-            }
             var currentElement = target as FrameworkElement;
 #if WPF
             if (currentElement == null)
+            {
+                if (application == null)
+                    return null;
                 return application.TryFindResource(resourceKey);
+            }
             return currentElement.TryFindResource(resourceKey);
 #else
             while (currentElement != null)
@@ -148,10 +232,23 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     return currentElement.Resources[resourceKey];
                 currentElement = currentElement.Parent as FrameworkElement;
             }
-            if (application.Resources.Contains(resourceKey))
+            if (application != null && application.Resources.Contains(resourceKey))
                 return application.Resources[resourceKey];
             return null;
 #endif
+        }
+
+        private static object GetTarget(IDataContext context)
+        {
+            if (context == null)
+                return null;
+            object target;
+            if (context.TryGetData(BindingBuilderConstants.Target, out target))
+                return target;
+            IDataBinding data;
+            if (context.TryGetData(BindingConstants.Binding, out data))
+                return data.TargetAccessor.Source.GetSource(false);
+            return null;
         }
 
         #endregion

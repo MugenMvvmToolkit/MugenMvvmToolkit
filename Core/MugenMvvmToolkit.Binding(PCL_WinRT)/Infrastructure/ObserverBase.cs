@@ -39,9 +39,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         private static readonly EventInfo CollectionChangedEvent;
 
-        private readonly bool _isBindingContext;
+        private readonly bool _isSourceValue;
+        private readonly object _sourceValue;
         private readonly IBindingPath _path;
-        private readonly object _sourceReference;
+
         private bool _isDisposed;
         private Exception _observationException;
         private IHandler<ValueChangedEventArgs> _listener;
@@ -63,14 +64,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Should.NotBeNull(source, "source");
             Should.NotBeNull(path, "path");
             _path = path;
-            var bindingContext = source as IBindingContext;
-            if (bindingContext == null)
-                _sourceReference = MvvmExtensions.GetWeakReference(source);
+            var sourceValue = source as ISourceValue;
+            if (sourceValue == null)
+                _sourceValue = ServiceProvider.WeakReferenceFactory(source, true);
             else
             {
-                bindingContext.DataContextChanged += OnMemberChangedImpl;
-                _sourceReference = bindingContext;
-                _isBindingContext = true;
+                _isSourceValue = true;
+                _sourceValue = sourceValue;
+                sourceValue.ValueChanged += OnMemberChangedImpl;
             }
         }
 
@@ -83,7 +84,15 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         protected object Locker
         {
-            get { return _sourceReference; }
+            get { return _sourceValue; }
+        }
+
+        /// <summary>
+        /// Gets the original source object.
+        /// </summary>
+        protected object OriginalSource
+        {
+            get { return _sourceValue; }
         }
 
         #endregion
@@ -108,14 +117,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         }
 
         /// <summary>
-        ///     Updates the observer value and then raises the value changed event.
-        /// </summary>
-        protected void OnMemberChangedImpl(object sender, object args)
-        {
-            Update();
-        }
-
-        /// <summary>
         ///     Raises the ValueChanged event.
         /// </summary>
         protected virtual void RaiseValueChanged(ValueChangedEventArgs args)
@@ -127,7 +128,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     listener.Handle(this, args);
             }
             // ReSharper disable once EmptyGeneralCatchClause
-            catch (Exception)
+            catch
             {
             }
         }
@@ -139,7 +140,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             if (member.MemberType == BindingMemberType.Event)
                 return null;
-            var disposable = member.TryObserveMember(value, eventListener);
+            var disposable = member.TryObserve(value, eventListener);
             if (disposable != null)
                 return disposable;
 
@@ -156,17 +157,21 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         /// <summary>
         ///     Gets the actual source if source.
-        ///     If the source is a <see cref="IBindingContext" /> this property returns the DataContext value.
+        ///     If the source is a <see cref="ISourceValue" /> this property returns the value of Value property.
         /// </summary>
-        protected internal bool GetActualSource(out object source)
+        protected internal object GetActualSource()
         {
-            if (_isBindingContext)
-            {
-                source = ((IBindingContext)_sourceReference).DataContext;
-                return true;
-            }
-            source = ((WeakReference)_sourceReference).Target;
-            return source != null;
+            if (_isSourceValue)
+                return ((ISourceValue)_sourceValue).Value;
+            return ((WeakReference)_sourceValue).Target;
+        }
+
+        /// <summary>
+        ///     Updates the observer value and then raises the value changed event.
+        /// </summary>
+        private void OnMemberChangedImpl(object sender, object args)
+        {
+            Update();
         }
 
         private bool WeakValidate()
@@ -202,9 +207,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             get
             {
-                if (_isBindingContext)
-                    return _sourceReference;
-                return ((WeakReference)_sourceReference).Target;
+                if (_isSourceValue)
+                    return _sourceValue;
+                return ((WeakReference)_sourceValue).Target;
             }
         }
 
@@ -224,7 +229,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             try
             {
-                lock (_sourceReference)
+                lock (_sourceValue)
                     UpdateInternal();
                 _observationException = null;
             }
@@ -266,9 +271,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 Validate();
             else if (!WeakValidate())
                 return null;
-            if (_isBindingContext)
-                return ((IBindingContext)_sourceReference).DataContext;
-            return ((WeakReference)_sourceReference).Target;
+            if (_isSourceValue)
+                return ((ISourceValue)_sourceValue).Value;
+            return ((WeakReference)_sourceValue).Target;
         }
 
         /// <summary>
@@ -290,15 +295,15 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             if (_isDisposed)
                 return;
-            lock (_sourceReference)
+            lock (_sourceValue)
             {
                 if (_isDisposed)
                     return;
                 try
                 {
-                    var bindingContext = Source as IBindingContext;
-                    if (bindingContext != null)
-                        bindingContext.DataContextChanged -= OnMemberChangedImpl;
+                    var sourceValue = _sourceValue as ISourceValue;
+                    if (sourceValue != null)
+                        sourceValue.ValueChanged -= OnMemberChangedImpl;
                     _listener = null;
                     OnDispose();
                 }

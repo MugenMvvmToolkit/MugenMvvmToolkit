@@ -21,7 +21,6 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
-using MugenMvvmToolkit.Infrastructure;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
@@ -34,30 +33,9 @@ namespace MugenMvvmToolkit.Binding.Models
 
         private sealed class ObservableProperty<TTarget>
         {
-            #region Nested types
-
-            private sealed class EventInvoker
-            {
-                #region Events
-
-                public event EventHandler Changed;
-
-                public void RaiseChanged(object sender)
-                {
-                    var handler = Changed;
-                    if (handler != null)
-                        handler(sender, EventArgs.Empty);
-                }
-
-                #endregion
-            }
-
-            #endregion
-
             #region Fields
 
             private const string ListenerMember = ".EventInvoker";
-            private static readonly Func<object, object, EventInvoker> EventInvokerCreator = (o, state) => new EventInvoker();
             private readonly Func<IBindingMemberInfo, TTarget, object[], bool> _setValue;
 
             #endregion
@@ -76,13 +54,10 @@ namespace MugenMvvmToolkit.Binding.Models
 
             public IDisposable ObserveMember(IBindingMemberInfo arg1, TTarget arg2, IEventListener arg3)
             {
-                var invoker = ServiceProvider
+                return ServiceProvider
                     .AttachedValueProvider
-                    .GetOrAdd(arg2, GetMemberPath(arg1), EventInvokerCreator, null);
-                var handler = arg3.ToWeakEventHandler<EventArgs>(false);
-                invoker.Changed += handler.Handle;
-                handler.Unsubscriber = WeakActionToken.Create(invoker, handler, (eventInvoker, eventHandler) => eventInvoker.Changed -= eventHandler.Handle, false);
-                return handler;
+                    .GetOrAdd(arg2, GetMemberPath(arg1), EventListenerListFactory, null)
+                    .AddWithUnsubscriber(arg3);
             }
 
             public object SetValue(IBindingMemberInfo arg1, TTarget arg2, object[] arg3)
@@ -91,9 +66,9 @@ namespace MugenMvvmToolkit.Binding.Models
                     return null;
                 var invoker = ServiceProvider
                     .AttachedValueProvider
-                    .GetValue<EventInvoker>(arg2, GetMemberPath(arg1), false);
+                    .GetValue<EventListenerList>(arg2, GetMemberPath(arg1), false);
                 if (invoker != null)
-                    invoker.RaiseChanged(arg2);
+                    invoker.Raise(arg2, EventArgs.Empty);
                 return null;
             }
 
@@ -110,6 +85,7 @@ namespace MugenMvvmToolkit.Binding.Models
             #region Fields
 
             private const string IsAttachedHandlerInvokedMember = ".IsAttachedHandlerInvoked";
+
             private readonly Func<IBindingMemberInfo, TTarget, object[], TType> _getValue;
             private readonly Action<TTarget, MemberAttachedEventArgs> _memberAttachedHandler;
             private readonly Action<TTarget, AttachedMemberChangedEventArgs<TType>> _memberChangedHandler;
@@ -161,14 +137,13 @@ namespace MugenMvvmToolkit.Binding.Models
                 _memberType = memberType ?? BindingMemberType.Attached;
                 _canRead = getValue != null;
                 _canWrite = setValue != null;
-                _id = MemberPrefix + Interlocked.Increment(ref _counter) + "." + path;
-                Tracer.Info("The attached property with path: {0}, type: {1}, target type: {2} was created.", path, type,
-                    typeof(TTarget));
+                _id = MemberPrefix + Interlocked.Increment(ref _counter).ToString() + "." + path;
+                Tracer.Info("The attached property with path: {0}, type: {1}, target type: {2} was created.", path, type, typeof(TTarget));
             }
 
             #endregion
 
-            #region Implementation of IBindingMemberInfo
+            #region Implementation of interfaces
 
             /// <summary>
             ///     Gets the path of member.
@@ -242,53 +217,10 @@ namespace MugenMvvmToolkit.Binding.Models
             /// <summary>
             ///     Attempts to track the value change.
             /// </summary>
-            IDisposable IBindingMemberInfo.TryObserveMember(object source, IEventListener listener)
+            IDisposable IBindingMemberInfo.TryObserve(object source, IEventListener listener)
             {
-                return TryObserveMember((TTarget)source, listener);
+                return TryObserve((TTarget)source, listener);
             }
-
-            #endregion
-
-            #region Methods
-
-            private static IDisposable ObserveAttached(IBindingMemberInfo member, TTarget source, IEventListener listener)
-            {
-                var property = GetAttachedProperty((IAttachedBindingMemberInternal)member, source);
-                var eventHandler = listener.ToWeakEventHandler<EventArgs>(false);
-                property.ValueChanged += eventHandler.Handle;
-                eventHandler.Unsubscriber = WeakActionToken.Create(property, eventHandler, (attachedProperty, handler) => attachedProperty.ValueChanged -= handler.Handle, false);
-                return eventHandler;
-            }
-
-            private static object SetAttachedValue(IBindingMemberInfo member, TTarget source, object[] args)
-            {
-                GetAttachedProperty((IAttachedBindingMemberInternal)member, source).SetValue(source, args);
-                return null;
-            }
-
-            private static TType GetAttachedValue(IBindingMemberInfo member, TTarget source, object[] args)
-            {
-                return (TType)GetAttachedProperty((IAttachedBindingMemberInternal)member, source).Value;
-            }
-
-            private void RaiseAttached(object source)
-            {
-                var id = ServiceProvider
-                    .AttachedValueProvider
-                    .GetValue<object>(source, Id + IsAttachedHandlerInvokedMember, false);
-                if (id != null)
-                    return;
-                id = new object();
-                var attachId = ServiceProvider
-                    .AttachedValueProvider
-                    .GetOrAdd(source, Id + IsAttachedHandlerInvokedMember, (o, o1) => o1, id);
-                if (ReferenceEquals(id, attachId))
-                    _memberAttachedHandler((TTarget)source, new MemberAttachedEventArgs(this));
-            }
-
-            #endregion
-
-            #region Implementation of IAttachedBindingMember
 
             public string MemberChangeEventName { get; set; }
 
@@ -314,10 +246,6 @@ namespace MugenMvvmToolkit.Binding.Models
             {
                 get { return _id; }
             }
-
-            #endregion
-
-            #region Implementation of IAttachedBindingMemberInfo<in TTarget,out TType>
 
             /// <summary>
             ///     Returns the member value of a specified object.
@@ -347,7 +275,7 @@ namespace MugenMvvmToolkit.Binding.Models
             /// <summary>
             ///     Attempts to track the value change.
             /// </summary>
-            public IDisposable TryObserveMember(TTarget source, IEventListener listener)
+            public IDisposable TryObserve(TTarget source, IEventListener listener)
             {
                 if (_observeMemberDelegate == null)
                     return null;
@@ -355,9 +283,44 @@ namespace MugenMvvmToolkit.Binding.Models
             }
 
             #endregion
+
+            #region Methods
+
+            private static IDisposable ObserveAttached(IBindingMemberInfo member, TTarget source, IEventListener listener)
+            {
+                return GetAttachedProperty((IAttachedBindingMemberInternal)member, source).AddWithUnsubscriber(listener);
+            }
+
+            private static object SetAttachedValue(IBindingMemberInfo member, TTarget source, object[] args)
+            {
+                GetAttachedProperty((IAttachedBindingMemberInternal)member, source).SetValue(source, args);
+                return null;
+            }
+
+            private static TType GetAttachedValue(IBindingMemberInfo member, TTarget source, object[] args)
+            {
+                return (TType)GetAttachedProperty((IAttachedBindingMemberInternal)member, source).Value;
+            }
+
+            private void RaiseAttached(object source)
+            {
+                var id = ServiceProvider
+                    .AttachedValueProvider
+                    .GetValue<object>(source, Id + IsAttachedHandlerInvokedMember, false);
+                if (id != null)
+                    return;
+                id = new object();
+                var attachId = ServiceProvider
+                    .AttachedValueProvider
+                    .GetOrAdd(source, Id + IsAttachedHandlerInvokedMember, (o, o1) => o1, id);
+                if (ReferenceEquals(id, attachId))
+                    _memberAttachedHandler((TTarget)source, new MemberAttachedEventArgs(this));
+            }
+
+            #endregion
         }
 
-        private sealed class AttachedProperty
+        private sealed class AttachedProperty : EventListenerList
         {
             #region Fields
 
@@ -366,15 +329,9 @@ namespace MugenMvvmToolkit.Binding.Models
 
             #endregion
 
-            #region Events
-
-            public event EventHandler ValueChanged;
-
-            #endregion
-
             #region Methods
 
-            public void AddListener(IAttachedBindingMemberInternal listener)
+            public void AddMemberListener(IAttachedBindingMemberInternal listener)
             {
                 if (_members == null)
                     _members = new HashSet<IAttachedBindingMemberInternal>();
@@ -397,18 +354,7 @@ namespace MugenMvvmToolkit.Binding.Models
                     for (int index = 0; index < members.Length; index++)
                         members[index].MemberChanged(source, oldValue, value, args);
                 }
-                EventHandler handler = ValueChanged;
-                if (handler != null)
-                    handler(this, EventArgs.Empty);
-            }
-
-            #endregion
-
-            #region Overrides of Object
-
-            public override string ToString()
-            {
-                return "Attached property value: " + Value;
+                Raise(source, EventArgs.Empty);
             }
 
             #endregion
@@ -434,6 +380,7 @@ namespace MugenMvvmToolkit.Binding.Models
         private static int _counter;
         private const string MemberPrefix = "#@$Attached";
         private static readonly Func<object, object, AttachedProperty> AttachedPropertyFactoryDelegate;
+        private static readonly Func<object, object, EventListenerList> EventListenerListFactory;
 
         #endregion
 
@@ -442,6 +389,7 @@ namespace MugenMvvmToolkit.Binding.Models
         static AttachedBindingMember()
         {
             AttachedPropertyFactoryDelegate = AttachedPropertyFactory;
+            EventListenerListFactory = EventListenerListFactoryMethod;
         }
 
         #endregion
@@ -600,7 +548,7 @@ namespace MugenMvvmToolkit.Binding.Models
             var member = (IAttachedBindingMemberInternal)state;
             var property = new AttachedProperty { Value = member.GetDefaultValue(source) };
             if (member.HasMemberChangedHandler)
-                property.AddListener(member);
+                property.AddMemberListener(member);
             return property;
         }
 
@@ -609,6 +557,11 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             string eventName = ((IAttachedBindingMemberInternal)member).MemberChangeEventName;
             return BindingProvider.Instance.WeakEventManager.TrySubscribe(source, eventName, arg3);
+        }
+
+        private static EventListenerList EventListenerListFactoryMethod(object item, object state)
+        {
+            return new EventListenerList();
         }
 
         #endregion

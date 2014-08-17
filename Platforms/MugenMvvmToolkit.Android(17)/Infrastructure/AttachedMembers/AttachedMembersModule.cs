@@ -45,22 +45,37 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Nested types
 
-        private sealed class DateChangedListener : Object, DatePicker.IOnDateChangedListener
+        private sealed class DateChangedListener : JavaEventListenerList, DatePicker.IOnDateChangedListener
         {
-            #region Implementation of IOnDateChangedListener
+            #region Constructors
 
-            public void OnDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth)
+            private DateChangedListener()
             {
-                EventHandler dateChanged = DateChanged;
-                if (dateChanged != null)
-                    dateChanged(view, EventArgs.Empty);
             }
 
             #endregion
 
-            #region Events
+            #region Implementation of IOnDateChangedListener
 
-            public event EventHandler DateChanged;
+            public void OnDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth)
+            {
+                Raise(view, EventArgs.Empty);
+            }
+
+            #endregion
+
+            #region Methods
+
+            public static DateChangedListener GetOrAdd(DatePicker datePicker)
+            {
+                return ServiceProvider.AttachedValueProvider.GetOrAdd(datePicker, "#DateChangedListener",
+                    (picker, o) =>
+                    {
+                        var listener = new DateChangedListener();
+                        picker.Init(picker.Year, picker.Month, picker.DayOfMonth, listener);
+                        return listener;
+                    }, null);
+            }
 
             #endregion
         }
@@ -69,7 +84,22 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             #region Fields
 
-            public readonly static ContentChangeListener Instance = new ContentChangeListener();
+            public static readonly ContentChangeListener Instance;
+            private static readonly EventHandler<ISourceValue, EventArgs> BindingContextChangedDelegate;
+
+            #endregion
+
+            #region Constructors
+
+            static ContentChangeListener()
+            {
+                Instance = new ContentChangeListener();
+                BindingContextChangedDelegate = BindingContextChanged;
+            }
+
+            private ContentChangeListener()
+            {
+            }
 
             #endregion
 
@@ -81,7 +111,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (viewGroup.IndexOfChild(child) == 0)
                 {
                     var dataContext = BindingProvider.Instance.ContextManager.GetBindingContext(child);
-                    dataContext.DataContextChanged += BindingContextChanged;
+                    dataContext.ValueChanged += BindingContextChangedDelegate;
                     UpdataContext(viewGroup, child, dataContext);
                 }
                 GlobalViewParentListener.Instance.OnChildViewAdded(parent, child);
@@ -92,7 +122,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 var viewGroup = (ViewGroup)parent;
                 if (viewGroup.ChildCount == 0)
                 {
-                    BindingProvider.Instance.ContextManager.GetBindingContext(child).DataContextChanged -= BindingContextChanged;
+                    BindingProvider.Instance.ContextManager.GetBindingContext(child).ValueChanged -= BindingContextChangedDelegate;
                     ContentMember.SetValue(viewGroup, RemoveViewValue);
                 }
                 GlobalViewParentListener.Instance.OnChildViewRemoved(parent, child);
@@ -102,8 +132,9 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Methods
 
-            private static void BindingContextChanged(IBindingContext context, EventArgs args)
+            private static void BindingContextChanged(ISourceValue value, EventArgs args)
             {
+                var context = (IBindingContext)value;
                 UpdataContext(null, context.Source as View, context);
             }
 
@@ -114,9 +145,9 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (parent == null)
                     parent = view.Parent as View;
                 if (parent != null &&
-                    !Equals(BindingProvider.Instance.ContextManager.GetBindingContext(parent).DataContext,
-                        context.DataContext))
-                    ContentMember.SetValue(parent, new[] { context.DataContext, AddViewValue });
+                    !Equals(BindingProvider.Instance.ContextManager.GetBindingContext(parent).Value,
+                        context.Value))
+                    ContentMember.SetValue(parent, new[] { context.Value, AddViewValue });
             }
 
             #endregion
@@ -126,10 +157,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Fields
 
-        private static readonly IAttachedBindingMemberInfo<DatePicker, DatePicker.IOnDateChangedListener> DateChangedListenerMember;
-        private static readonly IAttachedBindingMemberInfo<ViewGroup, ViewGroupItemsSourceGenerator> ViewGroupItemsSourceGeneratorMember;
-
-        private static readonly IAttachedBindingMemberInfo<TabHost, TabHostItemsSourceGenerator> TabHostItemsSourceGeneratorMember;
         private static readonly IAttachedBindingMemberInfo<TabHost, object> TabHostSelectedItemMember;
 
         internal static readonly IAttachedBindingMemberInfo<AdapterView, int> AdapterViewSelectedPositionMember;
@@ -155,40 +182,25 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         static AttachedMembersModule()
         {
-            DateChangedListenerMember = AttachedBindingMember
-                .CreateAutoProperty<DatePicker, DatePicker.IOnDateChangedListener>("#DateChangedListener", null, null, DateChangedListenerDefaultValue);
-            ViewGroupItemsSourceGeneratorMember = AttachedBindingMember
-                .CreateAutoProperty<ViewGroup, ViewGroupItemsSourceGenerator>(
-                    "#ItemsSourceGeneratorMember", null, null, (@group, info) => new ViewGroupItemsSourceGenerator(@group));
             //Menu
-            MenuItemClickListenerMember = AttachedBindingMember
-                .CreateAutoProperty<IMenuItem, IMenuItemOnMenuItemClickListener>("#ClickListener", null, null, MenuItemClickListenerAttached);
-            MenuParentMember = AttachedBindingMember
-                .CreateAutoProperty<object, object>(AttachedMemberConstants.Parent);
-            MenuItemsSourceGeneratorMember = AttachedBindingMember
-                .CreateAutoProperty<IMenu, MenuItemsSourceGenerator>("#MenuItemsSourceGeneratorMember");
-            MenuItemsSourceMember = AttachedBindingMember
-                .CreateAutoProperty<IMenu, IEnumerable>(AttachedMemberConstants.ItemsSource, MenuItemsSourceChanged);
+            MenuParentMember = AttachedBindingMember.CreateAutoProperty<object, object>(AttachedMemberConstants.Parent);
+            MenuItemsSourceMember = AttachedBindingMember.CreateAutoProperty<IMenu, IEnumerable>(AttachedMemberConstants.ItemsSource, MenuItemsSourceChanged);
 
 #if !API8
             MenuItemActionViewMember = AttachedBindingMember
                 .CreateNotifiableMember<IMenuItem, object>("ActionView", (info, item, arg3) => item.GetActionView(), (info, item, arg3) => MenuItemUpdateActionView(item, arg3[0]));
             MenuItemActionViewSelectorMember = AttachedBindingMember
-                .CreateAutoProperty<IMenuItem, IDataTemplateSelector>("ActionViewTemplateSelector", (o, args) => RefreshValue(o, MenuItemActionViewMember));
-            MenuItemActionViewBindMember = AttachedBindingMember.CreateAutoProperty<IMenuItem, string>("#ActionViewBind");
+                .CreateAutoProperty<IMenuItem, IDataTemplateSelector>("ActionViewTemplateSelector", (o, args) => RefreshValue(o, MenuItemActionViewMember));            
 
             MenuItemActionProviderMember = AttachedBindingMember
                 .CreateNotifiableMember<IMenuItem, object>("ActionProvider", (info, item, arg3) => item.GetActionProvider(), (info, item, arg3) => MenuItemUpdateActionProvider(item, arg3[0]));
             MenuItemActionProviderSelectorMember = AttachedBindingMember
-                .CreateAutoProperty<IMenuItem, IDataTemplateSelector>("ActionProviderTemplateSelector", (o, args) => RefreshValue(o, MenuItemActionProviderMember));
-            MenuItemActionProviderBindMember = AttachedBindingMember.CreateAutoProperty<IMenuItem, string>("#ActionProviderBind");
+                .CreateAutoProperty<IMenuItem, IDataTemplateSelector>("ActionProviderTemplateSelector", (o, args) => RefreshValue(o, MenuItemActionProviderMember));           
 
             AddToBackStackMember = AttachedBindingMember.CreateAutoProperty<ViewGroup, bool>("AddToBackStack");
 #endif
             //View
             ViewAttachedParentMember = AttachedBindingMember.CreateAutoProperty<View, object>("#Parent", ViewAttachedParentChanged);
-            ViewParentListenerMember = AttachedBindingMember.CreateAutoProperty<View, ParentListener>(
-                "#ParentListener", defaultValue: (view, info) => new ParentListener(view));
             DisableValidationMember = AttachedBindingMember.CreateAutoProperty<View, bool>("DisableValidation");
 
             //ViewGroup
@@ -207,30 +219,20 @@ namespace MugenMvvmToolkit.Infrastructure
                 AttachedMemberConstants.SelectedItem, AdapterViewSelectedItemChanged);
 
             //TabHost
-            TabHostItemsSourceGeneratorMember =
-                AttachedBindingMember.CreateAutoProperty<TabHost, TabHostItemsSourceGenerator>("#TabHostItemsSourceGeneratorMember");
             TabHostSelectedItemMember = AttachedBindingMember.CreateAutoProperty<TabHost, object>(AttachedMemberConstants.SelectedItem, TabHostSelectedItemChanged); ;
 
 #if !API8
             //Action bar
-            ActionBarTabContentIdMember = AttachedBindingMember
-                .CreateAutoProperty<ActionBar, int?>("TabContentId");
-            ActionBarItemsSourceAdatapterMember = AttachedBindingMember
-                .CreateAutoProperty<ActionBar, ItemsSourceAdapter>("#ItemsSourceAdatapter");
-            ActionBarTabItemsSourceGeneratorMember = AttachedBindingMember
-                .CreateAutoProperty<ActionBar, ActionBarTabItemsSourceGenerator>("#ActionBarTabItemsSourceGenerator");
-            ActionBarItemsSourceMember = AttachedBindingMember.CreateAutoProperty<ActionBar, IEnumerable>(
-                AttachedMemberConstants.ItemsSource, (bar, args) => ActionBarUpdateItemsSource(bar));
+            ActionBarTabContentIdMember = AttachedBindingMember.CreateAutoProperty<ActionBar, int?>("TabContentId");
+            ActionBarItemsSourceMember = AttachedBindingMember.CreateAutoProperty<ActionBar, IEnumerable>(AttachedMemberConstants.ItemsSource, (bar, args) => ActionBarUpdateItemsSource(bar));
             ActionBarSelectedItemMember = AttachedBindingMember.CreateAutoProperty<ActionBar, object>(AttachedMemberConstants.SelectedItem, ActionBarSelectedItemChanged);
             //Context action bar
             ActionBarContextActionBarTemplateMember = AttachedBindingMember.CreateAutoProperty<ActionBar, int?>("ContextActionBarTemplate");
-            ActionBarActionModeTemplateMember = AttachedBindingMember.CreateAutoProperty<ActionBar, ActionMode>("#BindableActionMode");
             ActionBarContextActionBarVisibleMember = AttachedBindingMember.CreateAutoProperty<ActionBar, bool>("ContextActionBarVisible", ActionBarContextActionBarVisibleChanged);
 
             //ActioBar.Tab
             ActionBarTabParentMember = AttachedBindingMember.CreateAutoProperty<ActionBar.Tab, ActionBar>(AttachedMemberConstants.Parent);
             ActionBarTabContentMember = AttachedBindingMember.CreateAutoProperty<ActionBar.Tab, object>(AttachedMemberConstants.Content);
-            ActionBarTabContentInternalMember = AttachedBindingMember.CreateAutoProperty<ActionBar.Tab, object>("ContentInternal");
 #endif
 
         }
@@ -283,7 +285,6 @@ namespace MugenMvvmToolkit.Infrastructure
             memberProvider.Register(AttachedBindingMember
                 .CreateAutoProperty<ViewGroup, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector, ViewGroupTemplateChanged));
 
-            memberProvider.Register(ViewGroupItemsSourceGeneratorMember);
             memberProvider.Register(ContentMember);
             memberProvider.Register(ContentTemplateIdMember);
             memberProvider.Register(ContentTemplateSelectorMember);
@@ -292,7 +293,6 @@ namespace MugenMvvmToolkit.Infrastructure
 #endif
 
             //TabHost
-            memberProvider.Register(TabHostItemsSourceGeneratorMember);
             memberProvider.Register(TabHostSelectedItemMember);
             memberProvider.Register(AttachedBindingMember
                 .CreateAutoProperty<TabHost, IEnumerable>(AttachedMemberConstants.ItemsSource, TabHostItemsSourceChanged));
@@ -311,7 +311,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
 
             //DatePicker
-            memberProvider.Register(DateChangedListenerMember);
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<DatePicker, DateTime>("SelectedDate",
                     (info, picker, arg3) => picker.DateTime,
@@ -381,27 +380,21 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static void TabHostSelectedItemChanged(TabHost tabHost, AttachedMemberChangedEventArgs<object> arg)
         {
-            var generator = TabHostItemsSourceGeneratorMember.GetValue(tabHost, null);
+            var generator = TabHostItemsSourceGenerator.Get(tabHost);
             if (generator != null)
                 generator.SetSelectedItem(arg.NewValue);
         }
 
         private static void TabHostTemplateChanged<T>(TabHost tabHost, AttachedMemberChangedEventArgs<T> args)
         {
-            var generator = TabHostItemsSourceGeneratorMember.GetValue(tabHost, null);
+            var generator = TabHostItemsSourceGenerator.Get(tabHost);
             if (generator != null)
                 generator.Reset();
         }
 
         private static void TabHostItemsSourceChanged(TabHost tabHost, AttachedMemberChangedEventArgs<IEnumerable> arg)
         {
-            var generator = TabHostItemsSourceGeneratorMember.GetValue(tabHost, null);
-            if (generator == null)
-            {
-                generator = new TabHostItemsSourceGenerator(tabHost);
-                TabHostItemsSourceGeneratorMember.SetValue(tabHost, new object[] { generator });
-            }
-            generator.Update(arg.NewValue);
+            TabHostItemsSourceGenerator.GetOrAdd(tabHost).Update(arg.NewValue);
         }
 
         #endregion
@@ -450,18 +443,7 @@ namespace MugenMvvmToolkit.Infrastructure
         private static IDisposable ObserveSelectedDate(IBindingMemberInfo bindingMemberInfo, DatePicker datePicker,
             IEventListener arg3)
         {
-            var value = (DateChangedListener)DateChangedListenerMember.GetValue(datePicker, null);
-            var handler = arg3.ToWeakEventHandler<EventArgs>(false);
-            value.DateChanged += handler.Handle;
-            handler.Unsubscriber = WeakActionToken.Create(value, handler, (listener, eventHandler) => listener.DateChanged -= eventHandler.Handle, false);
-            return handler;
-        }
-
-        private static DatePicker.IOnDateChangedListener DateChangedListenerDefaultValue(DatePicker sender, IBindingMemberInfo bindingMemberInfo)
-        {
-            var listener = new DateChangedListener();
-            sender.Init(sender.Year, sender.Month, sender.DayOfMonth, listener);
-            return listener;
+            return DateChangedListener.GetOrAdd(datePicker).AddListner(arg3);
         }
 
         #endregion
@@ -488,23 +470,21 @@ namespace MugenMvvmToolkit.Infrastructure
         private static IDisposable ObserveTimePickerValue(IBindingMemberInfo bindingMemberInfo, TimePicker timePicker,
             IEventListener arg3)
         {
-            var eventHandler = arg3.ToWeakEventHandler<TimePicker.TimeChangedEventArgs>();
-            timePicker.TimeChanged += eventHandler.Handle;
-            eventHandler.Unsubscriber = WeakActionToken.Create(timePicker, eventHandler,
-                (picker, handler) => picker.TimeChanged -= handler.Handle, true);
-            return eventHandler;
+            EventHandler<TimePicker.TimeChangedEventArgs> handler = arg3.ToWeakEventListener().Handle;
+            timePicker.TimeChanged += handler;
+            return WeakActionToken.Create(timePicker, handler, (picker, eventHandler) => picker.TimeChanged -= eventHandler);
         }
 
         #endregion
 
         #region ViewGroup
 
-        private static void ViewGroupTemplateChanged<T>(object sender, AttachedMemberChangedEventArgs<T> args)
+        private static void ViewGroupTemplateChanged<T>(ViewGroup sender, AttachedMemberChangedEventArgs<T> args)
         {
             var container = sender as AdapterView;
             if (container == null)
             {
-                var sourceGenerator = (ViewGroupItemsSourceGenerator)ViewGroupItemsSourceGeneratorMember.GetValue(sender, null);
+                var sourceGenerator = ViewGroupItemsSourceGenerator.GetOrAdd(sender);
                 if (sourceGenerator != null)
                     sourceGenerator.Reset();
                 return;
@@ -519,7 +499,7 @@ namespace MugenMvvmToolkit.Infrastructure
             var container = sender as AdapterView;
             if (container == null)
             {
-                var sourceGenerator = ViewGroupItemsSourceGeneratorMember.GetValue(sender, null);
+                var sourceGenerator = ViewGroupItemsSourceGenerator.GetOrAdd(sender);
                 if (sourceGenerator != null)
                     sourceGenerator.Update(args.NewValue);
                 return;

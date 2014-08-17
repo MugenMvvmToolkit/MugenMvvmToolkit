@@ -127,8 +127,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public object DataContext
             {
-                get { return _context.DataContext; }
-                set { _context.DataContext = value; }
+                get { return _context.Value; }
+                set { _context.Value = value; }
             }
 
             public void Show()
@@ -327,8 +327,8 @@ namespace MugenMvvmToolkit.Infrastructure
 #if WINFORMS || ANDROID
         static ViewManagerEx()
         {
-            GetDataContext = o => BindingProvider.Instance.ContextManager.GetBindingContext(o).DataContext;
-            SetDataContext = (o, o1) => BindingProvider.Instance.ContextManager.GetBindingContext(o).DataContext = o1;
+            GetDataContext = o => BindingProvider.Instance.ContextManager.GetBindingContext(o).Value;
+            SetDataContext = (o, o1) => BindingProvider.Instance.ContextManager.GetBindingContext(o).Value = o1;
         }
 #endif
         /// <summary>

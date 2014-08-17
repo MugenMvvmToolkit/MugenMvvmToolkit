@@ -14,8 +14,10 @@
 // ****************************************************************************
 #endregion
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models.EventArg;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
@@ -23,6 +25,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
     {
         #region Fields
 
+        [NotNull]
         public IList<object> Errors;
 
         #endregion
@@ -64,7 +67,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected override void UpdateErrors(IList<object> errors)
         {
-            Errors = errors;
+            Errors = errors ?? EmptyValue<object>.ListInstance;
             IDataBinding dataBinding = Binding;
             if (dataBinding != null)
                 dataBinding.UpdateTarget();

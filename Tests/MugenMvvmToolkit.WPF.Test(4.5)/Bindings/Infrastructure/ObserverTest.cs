@@ -81,7 +81,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         public void ObserverShouldUseBindingContextAsSource()
         {
             var model = new BindingSourceModel();
-            var contextMock = new BindingContextMock { DataContext = model };
+            var contextMock = new BindingContextMock { Value = model };
             var propertyName = GetMemberPath<BindingSourceModel>(sourceModel => sourceModel.StringProperty);
             var observer = CreateObserver(contextMock, propertyName, false);
 
@@ -305,14 +305,14 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         public void ObserverShouldUpdateInformationWhenContextChanged()
         {
             var model = new BindingSourceModel();
-            var contextMock = new BindingContextMock { DataContext = model };
+            var contextMock = new BindingContextMock { Value = model };
             var propertyName = GetMemberPath<BindingSourceModel>(sourceModel => sourceModel.StringProperty);
             var observer = CreateObserver(contextMock, propertyName, false);
             var members = observer.GetPathMembers(true);
             members.Members.Single().Type.ShouldEqual(typeof(string));
             observer.Path.Path.ShouldEqual(propertyName);
 
-            contextMock.DataContext = new Source();
+            contextMock.Value = new Source();
             members = observer.GetPathMembers(true);
             members.Members.Single().Type.ShouldEqual(typeof(int));
             observer.Path.Path.ShouldEqual(propertyName);
@@ -322,14 +322,14 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         public void ObserverShouldUpdateInformationWhenContextChangedNotValidContext()
         {
             var model = new BindingSourceModel();
-            var contextMock = new BindingContextMock { DataContext = model };
+            var contextMock = new BindingContextMock { Value = model };
             var propertyName = GetMemberPath<BindingSourceModel>(sourceModel => sourceModel.StringProperty);
             var observer = CreateObserver(contextMock, propertyName, false);
             var members = observer.GetPathMembers(true);
             members.Members.Single().Type.ShouldEqual(typeof(string));
             observer.Path.Path.ShouldEqual(propertyName);
 
-            contextMock.DataContext = new object();
+            contextMock.Value = new object();
             members = observer.GetPathMembers(false);
             members.Members.ShouldBeEmpty();
             observer.Path.Path.ShouldEqual(propertyName);

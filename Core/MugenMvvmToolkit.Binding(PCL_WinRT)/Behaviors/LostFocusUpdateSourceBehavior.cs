@@ -19,6 +19,7 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
@@ -66,12 +67,13 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             object value = Binding.TargetAccessor.Source.GetPathMembers(false).PenultimateValue;
             if (value == null || value.IsUnsetValue())
                 return false;
-            _member = BindingProvider.Instance.MemberProvider.GetBindingMember(value.GetType(),
-                AttachedMemberConstants.Focused, false, false);
+            _member = BindingProvider.Instance
+                                     .MemberProvider
+                                     .GetBindingMember(value.GetType(), AttachedMemberConstants.Focused, false, false);
 
             if (_member == null)
                 return false;
-            _subscriber = _member.TryObserveMember(value, this);
+            _subscriber = _member.TryObserve(value, this);
             if (_subscriber == null)
                 return false;
             Binding.SourceAccessor.ValueChanging += SourceOnValueChanging;
@@ -108,7 +110,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 return;
             object value = Binding.TargetAccessor.Source.GetPathMembers(false).PenultimateValue;
             if (value != null && !value.IsUnsetValue())
-                args.Cancel = (bool) _member.GetValue(value, null);
+                args.Cancel = (bool)_member.GetValue(value, null);
         }
 
         private void OnLostFocus()
@@ -121,6 +123,15 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         #endregion
 
         #region Implementation of IEventListener
+
+        /// <summary>
+        ///     Gets the value that indicates that the listener is weak. 
+        ///     <c>true</c> the listener can be used without <c>WeakReference</c>/>.
+        /// </summary>
+        bool IEventListener.IsWeak
+        {
+            get { return false; }
+        }
 
         /// <summary>
         ///     Handles the message.

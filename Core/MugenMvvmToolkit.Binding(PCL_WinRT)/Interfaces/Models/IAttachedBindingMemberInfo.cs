@@ -41,6 +41,6 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
         /// <summary>
         ///     Attempts to track the value change.
         /// </summary>
-        IDisposable TryObserveMember(TTarget source, IEventListener listener);
+        IDisposable TryObserve(TTarget source, IEventListener listener);
     }
 }

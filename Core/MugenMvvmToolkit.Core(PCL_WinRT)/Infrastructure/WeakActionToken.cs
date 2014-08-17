@@ -37,35 +37,35 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Constructors
 
-            public WeakActionTokenInternal(Action<TTarget> action, TTarget target, bool cacheWeakReferenceTarget)
+            public WeakActionTokenInternal(Action<TTarget> action, TTarget target)
             {
                 Should.NotBeNull(action, "action");
                 Should.NotBeNull(target, "target");
                 _action = action;
-                _target = GetWeakReference(target, cacheWeakReferenceTarget);
+                _target = GetWeakReference(target);
             }
 
-            public WeakActionTokenInternal(Action<TTarget, TArg1> action, TTarget target, TArg1 arg1, bool cacheWeakReferenceTarget)
+            public WeakActionTokenInternal(Action<TTarget, TArg1> action, TTarget target, TArg1 arg1)
             {
                 Should.NotBeNull(action, "action");
                 Should.NotBeNull(target, "target");
                 _action = action;
                 _target = new object[]
                 {
-                    GetWeakReference(target, cacheWeakReferenceTarget),
+                    GetWeakReference(target),
                     arg1
                 };
             }
 
             public WeakActionTokenInternal(Action<TTarget, TArg1, TArg2> action, TTarget target, TArg1 arg1,
-                TArg2 arg2, bool cacheWeakReferenceTarget)
+                TArg2 arg2)
             {
                 Should.NotBeNull(action, "action");
                 Should.NotBeNull(target, "target");
                 _action = action;
                 _target = new object[]
                 {
-                    GetWeakReference(target, cacheWeakReferenceTarget),
+                    GetWeakReference(target),
                     arg1,
                     arg2
                 };
@@ -128,40 +128,35 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Creates a new instance of the weak action token class.
         /// </summary>
-        public static IDisposable Create<TTarget>([NotNull] TTarget target, [NotNull] Action<TTarget> action, bool cacheWeakReferenceTarget)
+        public static IDisposable Create<TTarget>([NotNull] TTarget target, [NotNull] Action<TTarget> action)
             where TTarget : class
         {
-            return new WeakActionTokenInternal<TTarget, object, object>(action, target, cacheWeakReferenceTarget);
+            return new WeakActionTokenInternal<TTarget, object, object>(action, target);
         }
 
         /// <summary>
         ///     Creates a new instance of the weak action token class.
         /// </summary>
         public static IDisposable Create<TTarget, TArg1>([NotNull] TTarget target, TArg1 arg1,
-            [NotNull] Action<TTarget, TArg1> action, bool cacheWeakReferenceTarget)
+            [NotNull] Action<TTarget, TArg1> action)
             where TTarget : class
         {
-            return new WeakActionTokenInternal<TTarget, TArg1, object>(action, target, arg1, cacheWeakReferenceTarget);
+            return new WeakActionTokenInternal<TTarget, TArg1, object>(action, target, arg1);
         }
 
         /// <summary>
         ///     Creates a new instance of the weak action token class.
         /// </summary>
         public static IDisposable Create<TTarget, TArg1, TArg2>([NotNull] TTarget target, TArg1 arg1, TArg2 arg2,
-            [NotNull] Action<TTarget, TArg1, TArg2> action, bool cacheWeakReferenceTarget)
+            [NotNull] Action<TTarget, TArg1, TArg2> action)
             where TTarget : class
         {
-            return new WeakActionTokenInternal<TTarget, TArg1, TArg2>(action, target, arg1, arg2, cacheWeakReferenceTarget);
+            return new WeakActionTokenInternal<TTarget, TArg1, TArg2>(action, target, arg1, arg2);
         }
 
-        private static WeakReference GetWeakReference(object target, bool cacheWeakReferenceTarget)
+        private static WeakReference GetWeakReference(object target)
         {
-            var reference = target as WeakReference;
-            if (reference != null)
-                return reference;
-            if (cacheWeakReferenceTarget)
-                return MvvmExtensions.GetWeakReference(target);
-            return ServiceProvider.WeakReferenceFactory(target, true);
+            return target as WeakReference ?? ServiceProvider.WeakReferenceFactory(target, true);
         }
 
         #endregion

@@ -35,32 +35,34 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberExpressionNode" /> class.
-        /// </summary>
-        public BindingMemberExpressionNode([NotNull] IRelativeSourceExpressionNode relativeSource,
-            [NotNull] string paramName, int index)
+        private BindingMemberExpressionNode([NotNull] string paramName, int index)
             : base(ExpressionNodeType.BindingMember)
         {
-            Should.NotBeNull(relativeSource, "relativeSource");
             Should.NotBeNull(paramName, "paramName");
-            _relativeSourceExpression = relativeSource;
             _parameterName = paramName;
-            _path = relativeSource.Path;
             _index = index;
         }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="BindingMemberExpressionNode" /> class.
         /// </summary>
+        public BindingMemberExpressionNode([NotNull] IRelativeSourceExpressionNode relativeSource,
+            [NotNull] string paramName, int index)
+            : this(paramName, index)
+        {
+            Should.NotBeNull(relativeSource, "relativeSource");
+            _relativeSourceExpression = relativeSource;
+            _path = relativeSource.Path;
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="BindingMemberExpressionNode" /> class.
+        /// </summary>
         public BindingMemberExpressionNode([NotNull] string path, [NotNull] string paramName, int index)
-            : base(ExpressionNodeType.BindingMember)
+            : this(paramName, index)
         {
             Should.NotBeNull(path, "path");
-            Should.NotBeNull(paramName, "paramName");
             _path = path;
-            _parameterName = paramName;
-            _index = index;
         }
 
         /// <summary>
@@ -68,15 +70,12 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         /// </summary>
         public BindingMemberExpressionNode([NotNull] string resourceName, [NotNull] string path,
             [NotNull] string paramName, int index)
-            : base(ExpressionNodeType.BindingMember)
+            : this(paramName, index)
         {
             Should.NotBeNull(resourceName, "resourceName");
             Should.NotBeNull(path, "path");
-            Should.NotBeNull(paramName, "paramName");
             _resourceName = resourceName;
             _path = path;
-            _parameterName = paramName;
-            _index = index;
             _isDynamic = true;
         }
 

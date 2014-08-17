@@ -182,8 +182,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                     Instance.GetType(), GetType());
             else
             {
-                _weakPropertyHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this,
-                    (@base, o, arg3) => @base.OnPropertyChangedNotifyDataError(arg3), false);
+                _weakPropertyHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, (@base, o, arg3) => @base.OnPropertyChangedNotifyDataError(arg3));
                 _notifyPropertyChanged.PropertyChanged += _weakPropertyHandler;
             }
         }

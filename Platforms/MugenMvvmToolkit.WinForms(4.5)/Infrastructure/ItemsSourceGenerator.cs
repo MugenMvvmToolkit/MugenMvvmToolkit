@@ -121,7 +121,7 @@ namespace MugenMvvmToolkit.Infrastructure
             }
             object template = selector.SelectTemplate(item, _view);
             if (template != null)
-                BindingProvider.Instance.ContextManager.GetBindingContext(template).DataContext = item;
+                BindingProvider.Instance.ContextManager.GetBindingContext(template).Value = item;
             return template;
         }
 
@@ -136,7 +136,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (viewModel is IHasDisplayName)
                 set.BindFromExpression("Text DisplayName;");
             set.Apply();
-            BindingProvider.Instance.ContextManager.GetBindingContext(page).DataContext = item;
+            BindingProvider.Instance.ContextManager.GetBindingContext(page).Value = item;
             return page;
         }
 

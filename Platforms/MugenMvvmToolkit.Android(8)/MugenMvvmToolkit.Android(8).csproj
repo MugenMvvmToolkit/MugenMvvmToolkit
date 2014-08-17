@@ -173,6 +173,9 @@
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Models\EventArg\NavigationEventArgs.cs">
       <Link>Models\EventArg\NavigationEventArgs.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Models\JavaEventListenerList.cs">
+      <Link>Models\JavaEventListenerList.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Models\JavaObjectWeakReference.cs">
       <Link>Models\JavaObjectWeakReference.cs</Link>
     </Compile>
@@ -245,10 +248,10 @@
     <AndroidResource Include="..\MugenMvvmToolkit.Android%2817%29\Resources\Values\BindingResources.xml">
       <Link>Resources\Values\BindingResources.xml</Link>
     </AndroidResource>
-    <Content Include="..\..\Solution Items\licence.txt">
+    <None Include="..\..\Solution Items\licence.txt">
       <Link>licence.txt</Link>
-    </Content>
-    <Content Include="FodyWeavers.xml" />
+    </None>
+    <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Solution Items\MugenMvvmToolkit.licenseheader">

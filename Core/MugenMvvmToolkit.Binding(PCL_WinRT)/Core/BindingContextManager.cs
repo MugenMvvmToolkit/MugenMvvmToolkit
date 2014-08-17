@@ -15,6 +15,7 @@
 #endregion
 using System;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -39,40 +40,33 @@ namespace MugenMvvmToolkit.Binding.Core
             private bool _isParentContext;
             private object _dataContext;
             //NOTE to keep observer reference.
-// ReSharper disable once NotAccessedField.Local
+            // ReSharper disable once NotAccessedField.Local
             private IDisposable _parentListener;
 
             #endregion
 
             #region Constructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="BindingContextManager" /> class.
-            /// </summary>
             public BindingContext(object target)
             {
                 _isParentContext = true;
-                _targetReference = MvvmExtensions.GetWeakReference(target);
-                _parentListener = BindingProvider.Instance.ObserverProvider.TryObserveParent(target, this);
+                _targetReference = ServiceProvider.WeakReferenceFactory(target, true);
+                var parentMember = BindingProvider.Instance.VisualTreeManager.GetParentMember(target.GetType());
+                if (parentMember != null)
+                    _parentListener = parentMember.TryObserve(target, this);
                 Handle(null, null);
             }
 
             #endregion
 
-            #region Implementation of IBindingContext
+            #region Implementation of interfaces
 
-            /// <summary>
-            ///     Gets the source object.
-            /// </summary>
             public object Source
             {
                 get { return _targetReference.Target; }
             }
 
-            /// <summary>
-            ///     Gets the data context.
-            /// </summary>
-            public object DataContext
+            public object Value
             {
                 get
                 {
@@ -80,7 +74,7 @@ namespace MugenMvvmToolkit.Binding.Core
                     var bc = dc as IBindingContext;
                     if (bc == null)
                         return dc;
-                    return bc.DataContext;
+                    return bc.Value;
                 }
                 set
                 {
@@ -103,14 +97,26 @@ namespace MugenMvvmToolkit.Binding.Core
                             _dataContext = value;
                         }
                     }
-                    RaiseDataContextChanged(null, EventArgs.Empty);
+                    RaiseValueChanged();
                 }
             }
 
-            /// <summary>
-            ///     Occurs when the DataContext property changed.
-            /// </summary>
-            public event EventHandler<IBindingContext, EventArgs> DataContextChanged;
+            public bool IsWeak
+            {
+                get { return true; }
+            }
+
+            public void Handle(object sender, object message)
+            {
+                if (!(sender is IBindingContext))
+                {
+                    lock (_targetReference)
+                        UpdateContextInternal();
+                }
+                RaiseValueChanged();
+            }
+
+            public event EventHandler<ISourceValue, EventArgs> ValueChanged;
 
             #endregion
 
@@ -137,7 +143,9 @@ namespace MugenMvvmToolkit.Binding.Core
                     _dataContext = null;
                 else
                 {
-                    context.DataContextChanged += RaiseDataContextChanged;
+                    var source = context.Source;
+                    if (source != null)
+                        WeakEventManager.GetBindingContextListener(source).Add(this);
                     _dataContext = context;
                 }
             }
@@ -146,30 +154,18 @@ namespace MugenMvvmToolkit.Binding.Core
             {
                 var bindingContext = _dataContext as IBindingContext;
                 if (bindingContext != null)
-                    bindingContext.DataContextChanged -= RaiseDataContextChanged;
+                {
+                    var source = bindingContext.Source;
+                    if (source != null)
+                        WeakEventManager.GetBindingContextListener(source).Remove(this);
+                }
             }
 
-            private void RaiseDataContextChanged(object sender, EventArgs eventArgs)
+            private void RaiseValueChanged()
             {
-                var handler = DataContextChanged;
+                var handler = ValueChanged;
                 if (handler != null)
-                    handler(this, eventArgs);
-            }
-
-            #endregion
-
-            #region Implementation of IEventListener
-
-            /// <summary>
-            ///     Handles the message.
-            /// </summary>
-            /// <param name="sender">The object that raised the event.</param>
-            /// <param name="message">Information about event.</param>
-            public void Handle(object sender, object message)
-            {
-                lock (_targetReference)
-                    UpdateContextInternal();
-                RaiseDataContextChanged(null, EventArgs.Empty);
+                    handler(this, EventArgs.Empty);
             }
 
             #endregion
@@ -198,20 +194,14 @@ namespace MugenMvvmToolkit.Binding.Core
 
             #endregion
 
-            #region Implementation of IBindingContext
+            #region Implementation of interfaces
 
-            /// <summary>
-            ///     Gets the source object.
-            /// </summary>
             public object Source
             {
                 get { return _observer.Source; }
             }
 
-            /// <summary>
-            ///     Gets the data context.
-            /// </summary>
-            public object DataContext
+            public object Value
             {
                 get
                 {
@@ -222,7 +212,7 @@ namespace MugenMvvmToolkit.Binding.Core
                 }
                 set
                 {
-                    if (ReferenceEquals(DataContext, value))
+                    if (ReferenceEquals(Value, value))
                         return;
                     object target = _observer.Source;
                     if (target == null)
@@ -236,20 +226,12 @@ namespace MugenMvvmToolkit.Binding.Core
                 }
             }
 
-            /// <summary>
-            ///     Handles the message.
-            /// </summary>
-            /// <param name="sender">The object that raised the event.</param>
-            /// <param name="message">Information about event.</param>
-            void IHandler<ValueChangedEventArgs>.Handle(object sender, ValueChangedEventArgs message)
+            public void Handle(object sender, ValueChangedEventArgs message)
             {
                 OnDataContextChanged(message);
             }
 
-            /// <summary>
-            ///     Occurs when the DataContext property changed.
-            /// </summary>
-            public event EventHandler<IBindingContext, EventArgs> DataContextChanged;
+            public event EventHandler<ISourceValue, EventArgs> ValueChanged;
 
             #endregion
 
@@ -258,7 +240,7 @@ namespace MugenMvvmToolkit.Binding.Core
             private void OnDataContextChanged(ValueChangedEventArgs message)
             {
                 _isInvoked = true;
-                var handler = DataContextChanged;
+                var handler = ValueChanged;
                 if (handler != null)
                     handler(this, message);
             }
@@ -273,36 +255,15 @@ namespace MugenMvvmToolkit.Binding.Core
         private const string ContextMemberPath =
             "$$BindingContextManager" + AttachedMemberConstants.DataContext;
 
-        private readonly Func<object, object, IBindingContext> _getBindingContext;
+        private static readonly Func<object, object, IBindingContext> CreateBindingContextDelegate;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberType" /> class.
-        /// </summary>
-        public BindingContextManager()
+        static BindingContextManager()
         {
-            _getBindingContext = (o, o1) => CreateBindingContext(o);
-        }
-
-        #endregion
-
-        #region Implementation of IBindingContextManager
-
-        /// <summary>
-        ///     Gets the binding context for the specified item.
-        /// </summary>
-        public IBindingContext GetBindingContext(object item)
-        {
-            Should.NotBeNull(item, "item");
-            var context = item as IBindingContext;
-            if (context != null)
-                return context;
-            return ServiceProvider
-                .AttachedValueProvider
-                .GetOrAdd(item, ContextMemberPath, _getBindingContext, null);
+            CreateBindingContextDelegate = CreateBindingContext;
         }
 
         #endregion
@@ -334,6 +295,33 @@ namespace MugenMvvmToolkit.Binding.Core
             if (member != null && member.Type.Equals(typeof(object)) && member.CanRead && member.CanWrite)
                 return member;
             return null;
+        }
+
+        #endregion
+
+        #region Methods
+
+        private static IBindingContext CreateBindingContext(object item, object state)
+        {
+            return ((BindingContextManager)state).CreateBindingContext(item);
+        }
+
+        #endregion
+
+        #region Implementation of IBindingContextManager
+
+        /// <summary>
+        ///     Gets the binding context for the specified item.
+        /// </summary>
+        public IBindingContext GetBindingContext(object item)
+        {
+            Should.NotBeNull(item, "item");
+            var context = item as IBindingContext;
+            if (context != null)
+                return context;
+            return ServiceProvider
+                .AttachedValueProvider
+                .GetOrAdd(item, ContextMemberPath, CreateBindingContextDelegate, this);
         }
 
         #endregion

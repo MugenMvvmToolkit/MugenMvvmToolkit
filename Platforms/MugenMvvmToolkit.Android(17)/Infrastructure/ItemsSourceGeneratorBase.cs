@@ -40,8 +40,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected ItemsSourceGeneratorBase()
         {
-            _handler = PlatformExtensions.MakeWeakCollectionChangedHandler(this,
-                (@base, o, arg3) => @base.ItemsSourceOnCollectionChanged(arg3), false);
+            _handler = PlatformExtensions.MakeWeakCollectionChangedHandler(this, (@base, o, arg3) => @base.ItemsSourceOnCollectionChanged(arg3));
         }
 
         #endregion

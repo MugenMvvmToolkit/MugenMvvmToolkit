@@ -19,31 +19,100 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Accessors;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.DataConstants;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Infrastructure;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
     internal sealed class BindingMemberInfo : IBindingMemberInfo
     {
+        #region Nested types
+
+        private sealed class ArrayAccessor
+        {
+            #region Fields
+
+            private readonly int[] _indexes;
+
+            #endregion
+
+            #region Constructors
+
+            public ArrayAccessor(int[] indexes)
+            {
+                _indexes = indexes;
+            }
+
+            #endregion
+
+            #region Methods
+
+            public object GetValue(object arg)
+            {
+                return ((Array)arg).GetValue(_indexes);
+            }
+
+            public void SetValue(object arg1, object arg2)
+            {
+                ((Array)arg1).SetValue(arg2, _indexes);
+            }
+
+            #endregion
+        }
+
+        private sealed class DynamicObjectAccessor
+        {
+            #region Fields
+
+            private readonly string _path;
+
+            #endregion
+
+            #region Constructors
+
+            public DynamicObjectAccessor(string path)
+            {
+                _path = path;
+            }
+
+            #endregion
+
+            #region Methods
+
+            public object GetValue(object arg, object[] args)
+            {
+                return ((IDynamicObject)arg).GetMember(_path, args);
+            }
+
+            public object SetValue(object arg1, object[] args)
+            {
+                ((IDynamicObject)arg1).SetMember(_path, args);
+                return null;
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         /// <summary>
         ///     Gets the binding context member.
         /// </summary>
-        public static readonly BindingMemberInfo BindingContextMember = new BindingMemberInfo(AttachedMemberConstants.DataContext, BindingMemberType.BindingContext);
+        public static readonly BindingMemberInfo BindingContextMember;
 
         /// <summary>
         ///     Gets the empty member.
         /// </summary>
-        public static readonly IBindingMemberInfo Empty = new BindingMemberInfo("Empty", BindingMemberType.Empty);
+        public static readonly IBindingMemberInfo Empty;
 
         /// <summary>
         ///     Gets the unset member.
         /// </summary>
-        public static readonly IBindingMemberInfo Unset = new BindingMemberInfo("Unset", BindingMemberType.Unset);
+        public static readonly IBindingMemberInfo Unset;
 
-        internal static readonly IBindingMemberInfo MultiBindingSourceAccessorMember = new BindingMemberInfo();
+        internal static readonly IBindingMemberInfo MultiBindingSourceAccessorMember;
 
         private readonly bool _canRead;
         private readonly bool _canWrite;
@@ -64,6 +133,14 @@ namespace MugenMvvmToolkit.Binding.Models
         #endregion
 
         #region Constructors
+
+        static BindingMemberInfo()
+        {
+            BindingContextMember = new BindingMemberInfo(AttachedMemberConstants.DataContext, BindingMemberType.BindingContext);
+            Empty = new BindingMemberInfo("Empty", BindingMemberType.Empty);
+            Unset = new BindingMemberInfo("Unset", BindingMemberType.Unset);
+            MultiBindingSourceAccessorMember = new BindingMemberInfo();
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="BindingMemberInfo" /> class.
@@ -95,8 +172,8 @@ namespace MugenMvvmToolkit.Binding.Models
             if (memberType == BindingMemberType.BindingContext)
             {
                 _isDataContext = true;
-                _getValueAccessorSingle = o => BindingProvider.Instance.ContextManager.GetBindingContext(o).DataContext;
-                _setValueAccessorSingle = (o, arg) => BindingProvider.Instance.ContextManager.GetBindingContext(o).DataContext = arg;
+                _getValueAccessorSingle = o => BindingProvider.Instance.ContextManager.GetBindingContext(o).Value;
+                _setValueAccessorSingle = (o, arg) => BindingProvider.Instance.ContextManager.GetBindingContext(o).Value = arg;
                 _canRead = true;
                 _canWrite = true;
                 _isSingleParameter = true;
@@ -191,8 +268,10 @@ namespace MugenMvvmToolkit.Binding.Models
             var indexes = BindingReflectionExtensions
                 .GetIndexerValues(null, path, typeof(int))
                 .ToArrayFast(o => (int)o);
-            _getValueAccessorSingle = o => ((Array)o).GetValue(indexes);
-            _setValueAccessorSingleAction = (o, o1) => ((Array)o).SetValue(o1, indexes);
+            var arrayAccessor = new ArrayAccessor(indexes);
+            _getValueAccessorSingle = arrayAccessor.GetValue;
+            _setValueAccessorSingleAction = arrayAccessor.SetValue;
+
             _canRead = true;
             _canWrite = true;
             _isSingleParameter = true;
@@ -204,12 +283,9 @@ namespace MugenMvvmToolkit.Binding.Models
         public BindingMemberInfo(string path)
             : this(path, BindingMemberType.Dynamic, typeof(object))
         {
-            _getValueAccessor = (o, args) => ((IDynamicObject)o).GetMember(Path, args);
-            _setValueAccessor = (o, args) =>
-            {
-                ((IDynamicObject)o).SetMember(Path, args);
-                return null;
-            };
+            var accessor = new DynamicObjectAccessor(path);
+            _getValueAccessor = accessor.GetValue;
+            _setValueAccessor = accessor.SetValue;
             _canRead = true;
             _canWrite = true;
         }
@@ -299,25 +375,13 @@ namespace MugenMvvmToolkit.Binding.Models
         /// <summary>
         ///     Attempts to track the value change.
         /// </summary>
-        public IDisposable TryObserveMember(object source, IEventListener listener)
+        public IDisposable TryObserve(object source, IEventListener listener)
         {
             if (_isDataContext)
-            {
-                IBindingContext context = BindingProvider.Instance.ContextManager.GetBindingContext(source);
-                var handler = listener.ToWeakEventHandler<EventArgs>(false);
-                context.DataContextChanged += handler.Handle;
-                handler.Unsubscriber = new ActionToken(Unsubscribe, new object[] { context, handler });
-                return handler;
-            }
+                return WeakEventManager.GetBindingContextListener(source).AddWithUnsubscriber(listener);
             if (_memberEvent == null)
                 return null;
             return _memberEvent.SetValue(source, new object[] { listener }) as IDisposable;
-        }
-
-        private static void Unsubscribe(object arg)
-        {
-            var array = (object[])arg;
-            ((IBindingContext)array[0]).DataContextChanged -= ((ReflectionExtensions.IWeakEventHandler<EventArgs>)array[1]).Handle;
         }
 
         #endregion

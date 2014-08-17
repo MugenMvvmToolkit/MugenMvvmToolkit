@@ -67,9 +67,8 @@ namespace MugenMvvmToolkit.ViewModels
                 : (IList<IViewModel>)ApplicationSettings.ItemsSourceDecorator(collection);
             collection.CollectionChanged += OnViewModelsChanged;
             _weakEventHandler = ReflectionExtensions.CreateWeakDelegate<MultiViewModel, ViewModelClosedEventArgs, EventHandler<ICloseableViewModel, ViewModelClosedEventArgs>>(this,
-                (model, o, arg3) => model.OnViewModelClosed(arg3), UnsubscribeAction, handler => handler.Handle, true);
-            _propertyChangedWeakEventHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this,
-                (model, o, arg3) => model.OnItemPropertyChanged(o, arg3), true);
+                (model, o, arg3) => model.OnViewModelClosed(arg3), UnsubscribeAction, handler => handler.Handle);
+            _propertyChangedWeakEventHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, (model, o, arg3) => model.OnItemPropertyChanged(o, arg3));
         }
 
         #endregion

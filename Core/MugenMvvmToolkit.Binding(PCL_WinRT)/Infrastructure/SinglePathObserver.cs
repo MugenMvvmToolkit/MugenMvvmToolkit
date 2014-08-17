@@ -42,12 +42,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Constructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="SingleBindingPathMembers" /> class.
-            /// </summary>
-            public SingleBindingPathMembers(object source, IBindingPath path, IBindingMemberInfo lastMember)
+            public SingleBindingPathMembers(WeakReference source, IBindingPath path, IBindingMemberInfo lastMember)
             {
-                _reference = MvvmExtensions.GetWeakReference(source);
+                _reference = source;
                 _lastMember = lastMember;
                 _path = path;
             }
@@ -145,17 +142,19 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 if (_weakEventListener != null)
                     _weakEventListener.Dispose();
-                object target;
-                if (!GetActualSource(out target) || target == null || target.IsUnsetValue())
+                object source = GetActualSource();
+                if (source == null || source.IsUnsetValue())
                     _pathMembers = UnsetBindingPathMembers.Instance;
                 else
                 {
                     IBindingMemberInfo lastMember = BindingProvider
                         .Instance
                         .MemberProvider
-                        .GetBindingMember(target.GetType(), Path.Path, _ignoreAttachedMembers, true);
-                    _pathMembers = new SingleBindingPathMembers(target, Path, lastMember);
-                    _weakEventListener = TryAddEventHandler(target, lastMember, this, Path.Path);
+                        .GetBindingMember(source.GetType(), Path.Path, _ignoreAttachedMembers, true);
+                    _pathMembers = new SingleBindingPathMembers(
+                        OriginalSource as WeakReference ?? ServiceProvider.WeakReferenceFactory(source, true), Path,
+                        lastMember);
+                    _weakEventListener = TryAddEventHandler(source, lastMember, this, Path.Path);
                 }
             }
             catch (Exception)
@@ -187,6 +186,15 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #endregion
 
         #region Implementation of IEventListener
+
+        /// <summary>
+        ///     Gets the value that indicates that the listener is weak. 
+        ///     <c>true</c> the listener can be used without <c>WeakReference</c>/>.
+        /// </summary>
+        bool IEventListener.IsWeak
+        {
+            get { return false; }
+        }
 
         /// <summary>
         ///     Handles the message.

@@ -30,6 +30,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private readonly ActionBar _actionBar;
         private readonly ActionBarTabTemplate _tabTemplate;
+        private const string Key = "#ActionBarTabItemsSourceGenerator";
 
         #endregion
 
@@ -38,7 +39,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="ActionBarTabItemsSourceGenerator" /> class.
         /// </summary>
-        public ActionBarTabItemsSourceGenerator(ActionBar actionBar, ActionBarTabTemplate tabTemplate)
+        private ActionBarTabItemsSourceGenerator(ActionBar actionBar, ActionBarTabTemplate tabTemplate)
         {
             Should.NotBeNull(actionBar, "actionBar");
             Should.NotBeNull(tabTemplate, "tabTemplate");
@@ -112,6 +113,16 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
+        public static ActionBarTabItemsSourceGenerator Get(ActionBar actionBar)
+        {
+            return ServiceProvider.AttachedValueProvider.GetValue<ActionBarTabItemsSourceGenerator>(actionBar, Key, false);
+        }
+
+        public static void Set(ActionBar actionBar, ActionBarTabTemplate tabTemplate)
+        {
+            ServiceProvider.AttachedValueProvider.SetValue(actionBar, Key, new ActionBarTabItemsSourceGenerator(actionBar, tabTemplate));
+        }
+
         private void OnEmptyTab()
         {
             AttachedMembersModule
@@ -131,7 +142,7 @@ namespace MugenMvvmToolkit.Infrastructure
             for (int i = 0; i < _actionBar.TabCount; i++)
             {
                 ActionBar.Tab tab = _actionBar.GetTabAt(i);
-                if (contextManager.GetBindingContext(tab).DataContext == dataContext)
+                if (contextManager.GetBindingContext(tab).Value == dataContext)
                 {
                     var selectedTab = _actionBar.SelectedNavigationIndex < 0 ? null : _actionBar.SelectedTab;
                     if (!ReferenceEquals(selectedTab, tab))

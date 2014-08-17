@@ -32,7 +32,6 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             #region Fields
 
-            private const string SelfWeakKey = "@SelfWeak!~#@";
             private const string ProviderKey = "$$!!~~ProviderKey";
             private WeakKey _reference;
 
@@ -50,7 +49,6 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 _reference = reference;
                 Add(ProviderKey, provider);
-                Add(SelfWeakKey, reference.Reference);
             }
 
             #endregion
@@ -66,17 +64,11 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Overrides of LightDictionaryBase<string,object>
 
-            /// <summary>
-            ///     Determines whether the specified objects are equal.
-            /// </summary>
             protected override bool Equals(string x, string y)
             {
                 return string.Equals(x, y, StringComparison.Ordinal);
             }
 
-            /// <summary>
-            ///     Returns a hash code for the specified object.
-            /// </summary>
             protected override int GetHashCode(string key)
             {
                 return key.GetHashCode();

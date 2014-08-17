@@ -41,8 +41,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac">
-      <HintPath>..\..\packages\Autofac.3.5.0\lib\net40\Autofac.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -61,9 +60,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\Solution Items\licence.txt">
+    <None Include="..\..\Solution Items\licence.txt">
       <Link>licence.txt</Link>
-    </Content>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\MugenMvvmToolkit.AutofacContainer%28PCL%29\AutofacContainer.cs">

@@ -21,7 +21,7 @@ using MugenMvvmToolkit.Interfaces.Models;
 namespace MugenMvvmToolkit.Binding.Interfaces
 {
     /// <summary>
-    ///     Represents the binding provider that allows to create the data bindings.
+    ///     Represents the binding provider that allows to create and manage the data bindings.
     /// </summary>
     public interface IBindingProvider
     {

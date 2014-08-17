@@ -65,9 +65,7 @@ namespace MugenMvvmToolkit.Models
             }
             else
             {
-                AttachedMembersModule
-                    .MenuItemsSourceGeneratorMember
-                    .SetValue(menu, new object[] { new MenuItemsSourceGenerator(menu, context, ItemTemplate) });
+                MenuItemsSourceGenerator.Set(menu, context, ItemTemplate);
                 setter.SetBinding(template => template.ItemsSource, ItemsSource, true);
             }
         }

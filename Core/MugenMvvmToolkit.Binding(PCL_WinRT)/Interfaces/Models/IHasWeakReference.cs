@@ -14,17 +14,19 @@
 // ****************************************************************************
 #endregion
 using System;
+using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Models
 {
     /// <summary>
     ///     Represents the interface that indicates that the instance has a self weak reference
     /// </summary>
-    public interface IHasSelfWeakReference
+    public interface IHasWeakReference
     {
         /// <summary>
-        ///     Gets the self <see cref="WeakReference" />.
+        ///     Gets the <see cref="System.WeakReference" /> of current object.
         /// </summary>
-        WeakReference SelfReference { get; }
+        [NotNull]
+        WeakReference WeakReference { get; }
     }
 }

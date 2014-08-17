@@ -129,10 +129,7 @@ namespace MugenMvvmToolkit.Models
             }
             else
             {
-                AttachedMembersModule.ActionBarTabItemsSourceGeneratorMember.SetValue(actionBar, new object[]
-                {
-                    new ActionBarTabItemsSourceGenerator(actionBar, TabTemplate)
-                });
+                ActionBarTabItemsSourceGenerator.Set(actionBar, TabTemplate);
                 setter.SetBinding(template => template.ItemsSource, ItemsSource, false);
             }
 

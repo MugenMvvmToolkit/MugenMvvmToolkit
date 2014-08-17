@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit
         private static Func<ITrackingCollection, IStateTransitionManager> _trackingCollectionStateTransitionManagerFactory;
         private static Func<ITrackingCollection, IEqualityComparer<object>> _trackingCollectionEqualityComparerFactory;
         private static Func<object, IEventAggregator> _instanceEventAggregatorFactory;
-        private static Func<object, bool, WeakReference> _weakReferenceFactory;        
+        private static Func<object, bool, WeakReference> _weakReferenceFactory;
 
         #endregion
 
@@ -61,6 +61,8 @@ namespace MugenMvvmToolkit
         {
             EntityConstructorInfos = new Dictionary<Type, ConstructorInfo>();
             DefaultEntityFactory = DefaultEntityFactoryMethod;
+            _weakReferenceFactory = CreateWeakReference;
+            _instanceEventAggregatorFactory = GetInstanceEventAggregator;
         }
 
         #endregion
@@ -80,18 +82,13 @@ namespace MugenMvvmToolkit
         public static Func<Type, IEnumerable<Type>> EntityMetadataTypeProvider { get; set; }
 
         /// <summary>
-        ///     Gets or sets the factory that creates a instance of <see cref="WeakReference"/>.
+        ///     Gets or sets the factory that creates a instance of <see cref="WeakReference" />.
         /// </summary>
         [NotNull]
         public static Func<object, bool, WeakReference> WeakReferenceFactory
         {
-            get
-            {
-                if (_weakReferenceFactory == null)
-                    return CreateWeakReference;
-                return _weakReferenceFactory;
-            }
-            set { _weakReferenceFactory = value; }
+            get { return _weakReferenceFactory; }
+            set { _weakReferenceFactory = value ?? CreateWeakReference; }
         }
 
         /// <summary>
@@ -100,13 +97,8 @@ namespace MugenMvvmToolkit
         [NotNull]
         public static Func<object, IEventAggregator> InstanceEventAggregatorFactory
         {
-            get
-            {
-                if (_instanceEventAggregatorFactory == null)
-                    return GetInstanceEventAggregator;
-                return _instanceEventAggregatorFactory;
-            }
-            set { _instanceEventAggregatorFactory = value; }
+            get { return _instanceEventAggregatorFactory; }
+            set { _instanceEventAggregatorFactory = value ?? GetInstanceEventAggregator; }
         }
 
         /// <summary>
@@ -172,7 +164,7 @@ namespace MugenMvvmToolkit
             {
 #if PCL_Silverlight
                 if (_attachedValueProvider == null)
-                    throw ExceptionManager.ObjectNotInitialized("AttachedValueProvider", null, "");
+                    throw ExceptionManager.ObjectNotInitialized("AttachedValueProvider", typeof(IAttachedValueProvider));
 #else
                 if (_attachedValueProvider == null)
                     Interlocked.CompareExchange(ref _attachedValueProvider, new AttachedValueProviderDefault(), null);

@@ -34,7 +34,18 @@ namespace MugenMvvmToolkit
     {
         #region Fields
 
-        private static readonly MethodInfo ToBindingListMethod = typeof(PlatformExtensions).GetMethod("ToBindingList");
+        private static readonly Func<ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs>, NotifyCollectionChangedEventHandler> CreateHandlerDelegate;
+        private static readonly MethodInfo ToBindingListMethod;
+
+        #endregion
+
+        #region Constructors
+
+        static PlatformExtensions()
+        {
+            CreateHandlerDelegate = CreateHandler;
+            ToBindingListMethod = typeof(PlatformExtensions).GetMethod("ToBindingList");
+        }
 
         #endregion
 
@@ -84,12 +95,10 @@ namespace MugenMvvmToolkit
         }
 
         public static NotifyCollectionChangedEventHandler MakeWeakCollectionChangedHandler<TTarget>(TTarget target,
-            Action<TTarget, object, NotifyCollectionChangedEventArgs> invokeAction, bool cacheWeakReferenceTarget)
+            Action<TTarget, object, NotifyCollectionChangedEventArgs> invokeAction)
             where TTarget : class
         {
-            return ReflectionExtensions
-                .CreateWeakDelegate<TTarget, NotifyCollectionChangedEventArgs, NotifyCollectionChangedEventHandler>(
-                    target, invokeAction, UnsubscribeCollectionChanged, handler => handler.Handle, cacheWeakReferenceTarget);
+            return ReflectionExtensions.CreateWeakDelegate(target, invokeAction, UnsubscribeCollectionChanged, CreateHandlerDelegate);
         }
 
         internal static IList ToBindingListInternal(IList list)
@@ -125,6 +134,11 @@ namespace MugenMvvmToolkit
         internal static void Add(this SortedDictionary<string, AutoCompleteItem> dict, AutoCompleteItem item)
         {
             dict[item.Value] = item;
+        }
+
+        private static NotifyCollectionChangedEventHandler CreateHandler(ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs> weakEventHandler)
+        {
+            return weakEventHandler.Handle;
         }
 
         #endregion

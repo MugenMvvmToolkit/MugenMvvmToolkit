@@ -24,6 +24,7 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.DataConstants;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -48,7 +49,6 @@ namespace MugenMvvmToolkit.Binding
         {
             #region Fields
 
-            private readonly IBindingProvider _bindingProvider;
             private readonly IBindingContext _innerContext;
             private IBindingContext _parentContext;
             //NOTE to keep observer reference.
@@ -59,44 +59,51 @@ namespace MugenMvvmToolkit.Binding
 
             #region Constructors
 
-            public BindingContextWrapper(object target, IBindingProvider bindingProvider)
+            public BindingContextWrapper(object target)
             {
-                _bindingProvider = bindingProvider;
-                _parentListener = _bindingProvider.ObserverProvider.TryObserveParent(target, this);
+                var parentMember = BindingProvider.Instance.VisualTreeManager.GetParentMember(target.GetType());
+                if (parentMember != null)
+                    _parentListener = parentMember.TryObserve(target, this);
                 Update(target);
-                _innerContext = _bindingProvider.ContextManager.GetBindingContext(target);
+                _innerContext = BindingProvider.Instance.ContextManager.GetBindingContext(target);
             }
 
             #endregion
 
-            #region Implementation of IBindingContext
+            #region Implementation of interfaces
 
-            /// <summary>
-            ///     Gets the source object.
-            /// </summary>
             public object Source
             {
                 get { return _innerContext; }
             }
 
-            /// <summary>
-            ///     Gets the data context.
-            /// </summary>
-            public object DataContext
+            public object Value
             {
                 get
                 {
                     if (_parentContext == null)
                         return null;
-                    return _parentContext.DataContext;
+                    return _parentContext.Value;
                 }
-                set { _innerContext.DataContext = value; }
+                set { _innerContext.Value = value; }
             }
 
-            /// <summary>
-            ///     Occurs when the DataContext property changed.
-            /// </summary>
-            public event EventHandler<IBindingContext, EventArgs> DataContextChanged;
+            public bool IsWeak
+            {
+                get { return true; }
+            }
+
+            public void Handle(object sender, object message)
+            {
+                if (!(sender is IBindingContext) && _innerContext != null)
+                {
+                    lock (this)
+                        Update(_innerContext.Source);
+                }
+                RaiseValueChanged();
+            }
+
+            public event EventHandler<ISourceValue, EventArgs> ValueChanged;
 
             #endregion
 
@@ -106,43 +113,73 @@ namespace MugenMvvmToolkit.Binding
             {
                 if (_parentContext != null)
                 {
-                    _parentContext.DataContextChanged -= RaiseDataContextChanged;
-                    _parentContext = null;
+                    var src = _parentContext.Source;
+                    if (src != null)
+                        WeakEventManager.GetBindingContextListener(src).Remove(this);
                 }
-                _parentContext = GetParentBindingContext(source);
-                if (_parentContext != null)
-                    _parentContext.DataContextChanged += RaiseDataContextChanged;
-                RaiseDataContextChanged(null, EventArgs.Empty);
+                if (source == null)
+                    _parentContext = null;
+                else
+                {
+                    _parentContext = GetParentBindingContext(source);
+                    var src = _parentContext.Source;
+                    if (src != null)
+                        WeakEventManager.GetBindingContextListener(src).Add(this);
+                }
             }
 
-            private IBindingContext GetParentBindingContext(object target)
+            private static IBindingContext GetParentBindingContext(object target)
             {
-                object parent = _bindingProvider.VisualTreeManager.FindParent(target);
+                object parent = BindingProvider.Instance.VisualTreeManager.FindParent(target);
                 if (parent == null)
                     return null;
-                return _bindingProvider.ContextManager.GetBindingContext(parent);
+                return BindingProvider.Instance.ContextManager.GetBindingContext(parent);
             }
 
-            private void RaiseDataContextChanged(object sender, EventArgs eventArgs)
+            private void RaiseValueChanged()
             {
-                var handler = DataContextChanged;
+                var handler = ValueChanged;
                 if (handler != null)
-                    handler(this, eventArgs);
+                    handler(this, EventArgs.Empty);
+            }
+
+            #endregion
+        }
+
+        private sealed class WeakEventListenerWrapper : IEventListener
+        {
+            #region Fields
+
+            private WeakReference _listenerRef;
+
+            #endregion
+
+            #region Constructors
+
+            public WeakEventListenerWrapper(IEventListener listener)
+            {
+                _listenerRef = ServiceProvider.WeakReferenceFactory(listener, true);
             }
 
             #endregion
 
             #region Implementation of IEventListener
 
-            /// <summary>
-            ///     Handles the message.
-            /// </summary>
-            /// <param name="sender">The object that raised the event.</param>
-            /// <param name="message">Information about event.</param>
+            public bool IsWeak
+            {
+                get { return true; }
+            }
+
             public void Handle(object sender, object message)
             {
-                if (_innerContext != null)
-                    Update(_innerContext.Source);
+                var reference = _listenerRef;
+                if (reference == null)
+                    return;
+                var listener = (IEventListener)reference.Target;
+                if (listener == null)
+                    _listenerRef = null;
+                else
+                    listener.Handle(sender, message);
             }
 
             #endregion
@@ -155,7 +192,19 @@ namespace MugenMvvmToolkit.Binding
         /// <summary>
         /// Gets the array with single null value.
         /// </summary>
-        public static readonly object[] NullValue = { null };
+        public static readonly object[] NullValue;
+
+        private static readonly Func<string, string, string> MergePathDelegate;
+
+        #endregion
+
+        #region Constructors
+
+        static BindingExtensions()
+        {
+            NullValue = new object[] { null };
+            MergePathDelegate = MergePath;
+        }
 
         #endregion
 
@@ -176,12 +225,39 @@ namespace MugenMvvmToolkit.Binding
         }
 
         /// <summary>
-        ///     Returns a weak-reference version of a delegate.
+        /// Converts the specified <see cref="IEventListener"/> to a weak <see cref="IEventListener"/> if listener is not weak.
         /// </summary>
-        public static ReflectionExtensions.IWeakEventHandler<TArg> ToWeakEventHandler<TArg>(this IEventListener listener, bool cacheWeakReferenceTarget = false)
+        public static IEventListener ToWeakEventListener(this IEventListener listener)
         {
-            return ReflectionExtensions.CreateWeakEventHandler<IEventListener, TArg>(listener,
-                (eventListener, o, arg3) => eventListener.Handle(o, arg3), cacheWeakReferenceTarget);
+            if (listener.IsWeak)
+                return listener;
+            return new WeakEventListenerWrapper(listener);
+        }
+
+        /// <summary>
+        /// Converts the specified <see cref="IEventListener"/> to a <see cref="WeakReference"/> if listener is not weak.
+        /// </summary>
+        public static object ToWeakItem(this IEventListener target)
+        {
+            if (target.IsWeak)
+                return target;
+            var hasWeakReference = target as IHasWeakReference;
+            if (hasWeakReference == null)
+                return ServiceProvider.WeakReferenceFactory(target, true);
+            return hasWeakReference.WeakReference;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="IEventListener"/> from an object that was obtained from the <see cref="ToWeakItem"/> method.
+        /// </summary>
+        public static IEventListener GetEventListenerFromWeakItem(object target)
+        {
+            if (target == null)
+                return null;
+            var listener = target as IEventListener;
+            if (listener == null)
+                return (IEventListener)((WeakReference)target).Target;
+            return listener;
         }
 
         /// <summary>
@@ -238,7 +314,7 @@ namespace MugenMvvmToolkit.Binding
         {
             Should.NotBeNull(provider, "provider");
             if (targetPath == AttachedMemberConstants.DataContext)
-                return new BindingContextWrapper(target, provider);
+                return new BindingContextWrapper(target);
             return provider.ContextManager.GetBindingContext(target);
         }
 
@@ -393,7 +469,7 @@ namespace MugenMvvmToolkit.Binding
         {
             if (items == null || items.Count == 0)
                 return string.Empty;
-            return items.Aggregate(MergePath);
+            return items.Aggregate(MergePathDelegate);
         }
 
         [CanBeNull]

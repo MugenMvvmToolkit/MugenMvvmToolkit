@@ -130,6 +130,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Fields
 
+        private const string Key = "!#tabgen";
         private object _currentTabContent;
         private readonly TabFactory _tabFactory;
         private readonly TabHost _tabHost;
@@ -143,7 +144,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="ViewGroupItemsSourceGenerator" /> class.
         /// </summary>
-        public TabHostItemsSourceGenerator([NotNull] TabHost tabHost)
+        private TabHostItemsSourceGenerator([NotNull] TabHost tabHost)
         {
             Should.NotBeNull(tabHost, "tabHost");
             _tabHost = tabHost;
@@ -227,6 +228,17 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Methods
+
+        public static TabHostItemsSourceGenerator Get(TabHost tabHost)
+        {
+            return ServiceProvider.AttachedValueProvider.GetValue<TabHostItemsSourceGenerator>(tabHost, Key, false);
+        }
+
+        public static TabHostItemsSourceGenerator GetOrAdd(TabHost tabHost)
+        {
+            return ServiceProvider.AttachedValueProvider.GetOrAdd(tabHost, Key,
+                (host, o) => new TabHostItemsSourceGenerator(host), null);
+        }
 
         public void SetSelectedItem(object item)
         {
@@ -330,7 +342,7 @@ namespace MugenMvvmToolkit.Infrastructure
             _tabToContent[id] = value;
             SetIndicator(spec, GetItem(index));
             spec.SetContent(_tabFactory);
-            BindingProvider.Instance.ContextManager.GetBindingContext(spec).DataContext = item;
+            BindingProvider.Instance.ContextManager.GetBindingContext(spec).Value = item;
             return spec;
         }
 

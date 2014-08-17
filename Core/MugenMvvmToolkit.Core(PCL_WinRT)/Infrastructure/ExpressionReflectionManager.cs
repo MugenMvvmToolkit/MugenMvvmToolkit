@@ -70,7 +70,8 @@ namespace MugenMvvmToolkit.Infrastructure
             /// </returns>
             public bool Equals(MethodDelegateCacheKey x, MethodDelegateCacheKey y)
             {
-                return x.DelegateType.Equals(y.DelegateType) && x.Method.Equals(y.Method);
+                return x.DelegateType.Equals(y.DelegateType) &&
+                       (ReferenceEquals(x.Method, y.Method) || x.Method.Equals(y.Method));
             }
 
             /// <summary>
@@ -215,7 +216,6 @@ namespace MugenMvvmToolkit.Infrastructure
                 return Delegate.CreateDelegate(delegateType, result);
             return Delegate.CreateDelegate(delegateType, target, result);
 #endif
-
         }
 
         /// <summary>
@@ -477,14 +477,23 @@ namespace MugenMvvmToolkit.Infrastructure
             ParameterInfo[] eParameters = eventHandlerType.GetMethodEx("Invoke").GetParameters();
             if (mParameters.Length != eParameters.Length)
                 return null;
-            if (method.IsGenericMethodDefinition && method.GetGenericArguments().Length == eParameters.Length)
+            if (method.IsGenericMethodDefinition)
             {
+                var genericArguments = method.GetGenericArguments();
+                var types = new Type[genericArguments.Length];
+                int index = 0;
+                for (int i = 0; i < mParameters.Length; i++)
+                {
+                    if (mParameters[i].ParameterType.IsGenericParameter)
+                        types[index++] = eParameters[i].ParameterType;
+                }
                 try
                 {
-                    method = method.MakeGenericMethod(eParameters.ToArrayFast(info => info.ParameterType));
+                    method = method.MakeGenericMethod(types);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Tracer.Warn(e.Flatten(true));
                     return null;
                 }
                 mParameters = method.GetParameters();

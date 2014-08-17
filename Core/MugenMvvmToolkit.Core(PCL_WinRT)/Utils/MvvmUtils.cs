@@ -51,6 +51,11 @@ namespace MugenMvvmToolkit.Utils
         [SuppressTaskBusyHandler]
         public static readonly Task<bool> FalseTaskResult;
 
+        /// <summary>
+        /// Gets the empty weak reference.
+        /// </summary>
+        public static readonly WeakReference EmptyWeakReference;
+
         private static readonly HashSet<string> KnownPublicKeys;
 
         #endregion
@@ -62,6 +67,7 @@ namespace MugenMvvmToolkit.Utils
         /// </summary>
         static MvvmUtils()
         {
+            EmptyWeakReference = new WeakReference(null, false);
             TrueTaskResult = MvvmExtensions.FromResult(true);
             FalseTaskResult = MvvmExtensions.FromResult(false);
             CanTraceFinalizedItem = Debugger.IsAttached;
@@ -214,7 +220,13 @@ namespace MugenMvvmToolkit.Utils
             if (designTimeManager == null)
                 return;
             SynchronizationContext context = SynchronizationContext.Current;
-            Task.Factory.StartNew(() => context.Post(o => designTimeManager.InitializeViewModel(viewModel), null));
+            Task.Factory.StartNew(() =>
+            {
+                if (context == null)
+                    designTimeManager.InitializeViewModel(viewModel);
+                else
+                    context.Post(o => designTimeManager.InitializeViewModel(viewModel), null);
+            });
         }
 
         public static void WithTaskExceptionHandler(Task task, object sender)

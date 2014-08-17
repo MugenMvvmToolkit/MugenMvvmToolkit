@@ -266,7 +266,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 IBindingResourceObject value;
                 if (!_objects.TryGetValue(name, out value) && throwOnError)
-                    throw BindingExceptionManager.CannotResolveInstanceByName(this, "dynamic object", name);
+                    throw BindingExceptionManager.CannotResolveInstanceByName(this, "resource object", name);
                 return value;
             }
         }

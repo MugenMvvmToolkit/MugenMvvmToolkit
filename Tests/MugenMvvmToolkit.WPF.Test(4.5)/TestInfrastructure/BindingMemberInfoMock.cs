@@ -88,7 +88,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         /// <summary>
         ///     Attempts to track the value change.
         /// </summary>
-        IDisposable IBindingMemberInfo.TryObserveMember(object source, IEventListener listener)
+        IDisposable IBindingMemberInfo.TryObserve(object source, IEventListener listener)
         {
             return TryObserveMember(source, listener);
         }

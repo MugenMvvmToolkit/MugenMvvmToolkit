@@ -25,6 +25,12 @@ namespace MugenMvvmToolkit.Binding.Interfaces
     public interface IVisualTreeManager
     {
         /// <summary>
+        ///     Gets the root member, if any.
+        /// </summary>
+        [CanBeNull]
+        IBindingMemberInfo GetRootMember([NotNull] Type type);
+
+        /// <summary>
         ///     Gets the parent member, if any.
         /// </summary>
         [CanBeNull]

@@ -20,6 +20,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Markup;
+using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
@@ -52,9 +53,6 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
         private IBindingValueConverter _converter;
         private UpdateSourceTriggerCore _updateSourceTrigger;
         private BindingModeCore _mode;
-        private object _source;
-        private string _elementName;
-        private string _resourceMemberName;
         private string _targetMemberName;
         private IBindingMemberInfo _targetMemberInfo;
         private object _commandParameter;
@@ -101,6 +99,15 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
         [ConstructorArgument("path")]
 #endif
         public string Path { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the path to the binding source property this property is the same as <see cref="Path"/>.
+        /// </summary>
+        public string Expression
+        {
+            get { return Path; }
+            set { Path = value; }
+        }
 
         /// <summary>
         ///     Gets or sets a value that indicates the direction of the data flow in the binding.
@@ -172,6 +179,9 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
             }
         }
 
+        /// <summary>
+        ///     Gets or sets the parameter to pass to the command.
+        /// </summary>
         public object CommandParameter
         {
             get { return _commandParameter; }
@@ -184,49 +194,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
         }
 
         /// <summary>
-        ///     Gets or sets the object to use as the binding source.
-        /// </summary>
-        public object Source
-        {
-            get { return _source; }
-            set
-            {
-                _source = value;
-                if (value != null)
-                    HasSource = true;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the name of the element to use as the binding source object.
-        /// </summary>
-        public string ElementName
-        {
-            get { return _elementName; }
-            set
-            {
-                _elementName = value;
-                if (!string.IsNullOrWhiteSpace(value))
-                    HasSource = true;
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the name of dynamic member.
-        /// </summary>
-        public string ResourceMemberName
-        {
-            get { return _resourceMemberName; }
-            set
-            {
-                _resourceMemberName = value;
-                if (!string.IsNullOrWhiteSpace(value))
-                    HasSource = true;
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets a value that indicates whether to include data errors behavior.
+        ///     Gets or sets a value that indicates whether to include <see cref="ValidatesOnNotifyDataErrorsBehavior"/>
         /// </summary>
         public bool ValidatesOnNotifyDataErrors
         {
@@ -240,7 +208,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
         }
 
         /// <summary>
-        ///     Gets or sets a value that indicates whether to include exception errors behavior.
+        ///     Gets or sets a value that indicates whether to include <see cref="ValidatesOnExceptionsBehavior"/>
         /// </summary>
         public bool ValidatesOnExceptions
         {
@@ -311,7 +279,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
         }
 
         /// <summary>
-        ///     Gets or sets a value that indicates whether to include exception errors behavior and data errors behavior.
+        ///     Gets or sets a value that indicates whether to include <see cref="ValidatesOnNotifyDataErrorsBehavior"/> and <see cref="ValidatesOnExceptionsBehavior"/>.
         /// </summary>
         public bool Validate
         {
@@ -323,6 +291,9 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
             }
         }
 
+        /// <summary>
+        ///     Gets or sets the property that is responsible for the automatic toggle enabled state for command.
+        /// </summary>
         public bool? ToggleEnabledState
         {
             get { return _toggleEnabledState; }
@@ -333,8 +304,6 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
                 _toggleEnabledState = value;
             }
         }
-
-        protected bool HasSource { get; set; }
 
         protected bool HasValue { get; set; }
 
@@ -420,7 +389,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
         {
             IBindingBuilder builder = BindingProvider
                 .Instance
-                .CreateBuilderFromString(targetObject, targetPath, Path, GetSource(targetObject));
+                .CreateBuilderFromString(targetObject, targetPath, Path);
 
             var syntaxBuilder = new SyntaxBuilder<object, object>(builder);
             SetMode(syntaxBuilder);
@@ -483,27 +452,6 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
 #endif
         }
 
-        protected object GetSource(object target)
-        {
-            if (!HasSource)
-                return null;
-            if (Source != null)
-                return Source;
-            if (!string.IsNullOrWhiteSpace(ResourceMemberName))
-                return BindingProvider.Instance
-                                      .ResourceResolver
-                                      .ResolveObject(ResourceMemberName, DataContext.Empty, true)
-                                      .Value;
-            if (string.IsNullOrWhiteSpace(ElementName))
-                return null;
-            var element = BindingProvider.Instance
-                                         .VisualTreeManager
-                                         .FindByName(target, ElementName);
-            if (element == null)
-                throw BindingExceptionManager.ElementSourceNotFound(target, ElementName);
-            return element;
-        }
-
 #if WPF
         private static string RegisterAttachedProperty(DependencyProperty property, object target)
         {
@@ -562,9 +510,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
 
         private IDataBinding CreateBinding(object targetObject, string targetPath)
         {
-            return BindingProvider
-                .Instance
-                .CreateBindingFromString(targetObject, targetPath, Path, GetSource(targetObject));
+            return BindingProvider.Instance.CreateBindingFromString(targetObject, targetPath, Path);
         }
 
         private void SetMode(IBindingModeSyntax syntax)

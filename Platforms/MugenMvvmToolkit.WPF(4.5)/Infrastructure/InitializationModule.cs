@@ -37,6 +37,12 @@ namespace MugenMvvmToolkit.Infrastructure
 #if !WINDOWS_PHONE && !NETFX_CORE
             ViewManagerEx.Initialize();
 #endif
+            if (DesignTimeManagerBase.IsDesignModeStatic)
+#if WINDOWS_PHONE && V71
+                ServiceProvider.AttachedValueProvider = new WeakReferenceAttachedValueProvider();            
+#else
+                ServiceProvider.AttachedValueProvider = new AttachedValueProvider();
+#endif
         }
 
         /// <summary>
@@ -121,7 +127,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <returns>An instance of <see cref="IAttachedValueProvider" />.</returns>
         protected override BindingInfo<IAttachedValueProvider> GetAttachedValueProvider()
         {
-#if WINDOWS_PHONE && V78
+#if WINDOWS_PHONE && V71
             return BindingInfo<IAttachedValueProvider>.FromType<WeakReferenceAttachedValueProvider>(DependencyLifecycle.SingleInstance);
 #else
             return BindingInfo<IAttachedValueProvider>.FromType<AttachedValueProvider>(DependencyLifecycle.SingleInstance);

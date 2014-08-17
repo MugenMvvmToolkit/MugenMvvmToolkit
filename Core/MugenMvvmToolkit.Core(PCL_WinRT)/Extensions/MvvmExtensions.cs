@@ -21,6 +21,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -51,19 +52,10 @@ namespace MugenMvvmToolkit
     /// </summary>
     public static class MvvmExtensions
     {
-        #region Fields
-
-        private const string SelfWeakKey = "@SelfWeak!~#@";
-        private static readonly Func<object, object, WeakReference> CreateWeakReferenceDelegate;
-        private static readonly WeakReference EmptyWeakReference = new WeakReference(null);
-
-        #endregion
-
         #region Constructors
 
         static MvvmExtensions()
         {
-            CreateWeakReferenceDelegate = (o, o1) => ServiceProvider.WeakReferenceFactory(o, true);
             ShortDuration = 2000;
             LongDuration = 3500;
         }
@@ -1177,21 +1169,6 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        /// Gets an instance of <see cref="WeakReference"/>.
-        /// </summary>
-        [NotNull]
-        public static WeakReference GetWeakReference([CanBeNull] object item)
-        {
-            if (item == null)
-                return EmptyWeakReference;
-            if (ServiceProvider.HasAttachedValueProvider)
-                return ServiceProvider
-                    .AttachedValueProvider
-                    .GetOrAdd(item, SelfWeakKey, CreateWeakReferenceDelegate, null);
-            return ServiceProvider.WeakReferenceFactory(item, true);
-        }
-
-        /// <summary>
         ///     Converts the <see cref="IDataContext" /> to the <see cref="IDictionary{TKey,TValue}" />
         /// </summary>
         public static IDictionary<object, object> ToDictionary([CanBeNull] this IDataContext context)
@@ -1332,6 +1309,18 @@ namespace MugenMvvmToolkit
             Should.NotBeNull(collection, "collection");
             foreach (var item in collection)
                 collection.UpdateState(item.Entity, state, validateState);
+        }
+
+        /// <summary>
+        ///     Gets a value indicating whether the entity has changes.
+        /// </summary>
+        [Pure]
+        public static bool HasChanges<T>(this IEntitySnapshot snapshot, T item, Expression<Func<T, object>> propertyExpression)
+        {
+            Should.NotBeNull(snapshot, "snapshot");
+            Should.NotBeNull(item, "item");
+            Should.NotBeNull(propertyExpression, "propertyExpression");
+            return snapshot.HasChanges(item, MvvmUtilsInternal.ParseMemberExpression(propertyExpression).Name);
         }
 
         /// <summary>
@@ -1637,6 +1626,11 @@ namespace MugenMvvmToolkit
         internal static bool HasFlagEx(this ObservationMode handleType, ObservationMode value)
         {
             return (handleType & value) == value;
+        }
+
+        private static WeakReference CreateWeakReference(object o)
+        {
+            return ServiceProvider.WeakReferenceFactory(o, true);
         }
 
         #endregion

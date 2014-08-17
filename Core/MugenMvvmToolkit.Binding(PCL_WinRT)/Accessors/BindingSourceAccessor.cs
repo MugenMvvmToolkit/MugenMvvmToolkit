@@ -63,6 +63,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
             public void SetValue(BindingMemberValue currentValue, object newValue)
             {
+                //it's normal here.
                 lock (this)
                 {
                     if (_currentValue != null && Equals(currentValue.Member, _currentValue.Member) &&
@@ -86,12 +87,22 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 if (_subscriber == null)
                     return;
                 LastContext = null;
-                //NOTE: it's normal here.
+                //it's normal here.
                 lock (this)
                 {
                     if (UnsubscribeEventHandler())
                         UnsubscribeCommand();
+                    ClearValueReference();
                 }
+            }
+
+            private void ClearValueReference()
+            {
+                var reference = _valueReference as WeakReference;
+                if (reference == null)
+                    _valueReference = null;
+                else
+                    reference.Target = null;
             }
 
             private void SetValue(object newValue)
@@ -100,8 +111,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 if (accessor == null || newValue == null)
                 {
                     UnsubscribeCommand();
-                    if (!(_valueReference is WeakReference))
-                        _valueReference = null;
+                    ClearValueReference();
                     return;
                 }
 
@@ -191,7 +201,12 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
             #region Implementation of IEventListener
 
-            void IEventListener.Handle(object sender, object message)
+            public bool IsWeak
+            {
+                get { return true; }
+            }
+
+            public void Handle(object sender, object message)
             {
                 var target = (BindingSourceAccessor)_sourceReference.Target;
                 if (target == null)

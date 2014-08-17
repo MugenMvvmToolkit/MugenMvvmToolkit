@@ -29,20 +29,20 @@ namespace MugenMvvmToolkit.Binding.Core
     {
         #region Fields
 
+        private readonly static object TrueBoxed = true;
         private const string BindPrefix = "#${Binding}.";
         private const string IsRegisteredMember = "#$BindingIsAssociated";
-        private readonly UpdateValueDelegate<object, IDataBinding, IDataBinding, object> _updateValueFactoryDelegate;
+        private static readonly UpdateValueDelegate<object, IDataBinding, IDataBinding, object> UpdateValueFactoryDelegate;
+        private static readonly Func<string, object, bool> GetBindingPredicateDelegate;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingManager" /> class.
-        /// </summary>
-        public BindingManager()
+        static BindingManager()
         {
-            _updateValueFactoryDelegate = UpdateValueFactory;
+            UpdateValueFactoryDelegate = UpdateValueFactory;
+            GetBindingPredicateDelegate = GetBindingPredicate;
         }
 
         #endregion
@@ -60,10 +60,23 @@ namespace MugenMvvmToolkit.Binding.Core
             Should.NotBeNull(target, "target");
             Should.NotBeNull(path, "path");
             Should.NotBeNull(binding, "binding");
-            RegisterBinding(binding);
+            binding.NotBeDisposed();
+            var dataBinding = binding as DataBinding;
+            if (dataBinding == null)
+            {
+                if (ServiceProvider.AttachedValueProvider.GetValue<object>(binding, IsRegisteredMember, false) != null)
+                    throw BindingExceptionManager.DuplicateBindingRegistration(binding);
+                ServiceProvider.AttachedValueProvider.SetValue(binding, IsRegisteredMember, TrueBoxed);
+            }
+            else
+            {
+                if (dataBinding.IsAssociated)
+                    throw BindingExceptionManager.DuplicateBindingRegistration(binding);
+                dataBinding.IsAssociated = true;
+            }
             ServiceProvider
                 .AttachedValueProvider
-                .AddOrUpdate(target, BindPrefix + path, binding, _updateValueFactoryDelegate);
+                .AddOrUpdate(target, BindPrefix + path, binding, UpdateValueFactoryDelegate);
         }
 
         /// <summary>
@@ -91,7 +104,7 @@ namespace MugenMvvmToolkit.Binding.Core
             Should.NotBeNull(target, "target");
             return ServiceProvider
                 .AttachedValueProvider
-                .GetValues(target, GetBindingPredicate)
+                .GetValues(target, GetBindingPredicateDelegate)
                 .ToArrayFast(pair => (IDataBinding)pair.Value);
         }
 
@@ -110,6 +123,18 @@ namespace MugenMvvmToolkit.Binding.Core
         }
 
         /// <summary>
+        ///     Unregisters the specified <see cref="IDataBinding"/>.
+        /// </summary>
+        public virtual void Unregister(IDataBinding binding)
+        {
+            Should.NotBeNull(binding, "binding");
+            object source = binding.TargetAccessor.Source.GetSource(false);
+            string path = binding.TargetAccessor.Source.Path.Path;
+            if (source != null && path != null)
+                ClearBindings(source, path);
+        }
+
+        /// <summary>
         ///     Removes all bindings from the specified target.
         /// </summary>
         /// <param name="target">The object from which to remove bindings.</param>
@@ -117,7 +142,7 @@ namespace MugenMvvmToolkit.Binding.Core
         {
             Should.NotBeNull(target, "target");
             IAttachedValueProvider provider = ServiceProvider.AttachedValueProvider;
-            var values = provider.GetValues(target, GetBindingPredicate);
+            var values = provider.GetValues(target, GetBindingPredicateDelegate);
             for (int index = 0; index < values.Count; index++)
             {
                 var value = values[index];
@@ -152,50 +177,20 @@ namespace MugenMvvmToolkit.Binding.Core
             return s.StartsWith(BindPrefix, StringComparison.Ordinal);
         }
 
-        private IDataBinding UpdateValueFactory(object o, IDataBinding dataBinding, IDataBinding arg3, object state)
+        private static IDataBinding UpdateValueFactory(object o, IDataBinding dataBinding, IDataBinding arg3, object state)
         {
             ClearBinding(arg3);
             return dataBinding;
         }
 
-        private void RegisterBinding(IDataBinding binding)
+        private static void ClearBinding(IDataBinding binding)
         {
-            var dataBinding = binding as DataBinding;
-            if (dataBinding == null)
-            {
-                if (ServiceProvider.AttachedValueProvider.GetValue<object>(binding, IsRegisteredMember, false) != null)
-                    throw BindingExceptionManager.DuplicateBindingRegistration(binding);
-                ServiceProvider.AttachedValueProvider.SetValue(binding, IsRegisteredMember, this);
-            }
-            else
-            {
-                if (dataBinding.IsAssociated)
-                    throw BindingExceptionManager.DuplicateBindingRegistration(binding);
-                dataBinding.IsAssociated = true;
-            }
-            binding.NotBeDisposed();
-            binding.Disposed += BindingOnDisposed;
-        }
-
-        private void ClearBinding(IDataBinding binding)
-        {
-            binding.Disposed -= BindingOnDisposed;
             binding.Dispose();
             var dataBinding = binding as DataBinding;
             if (dataBinding == null)
                 ServiceProvider.AttachedValueProvider.SetValue(binding, IsRegisteredMember, null);
             else
                 dataBinding.IsAssociated = false;
-        }
-
-        private void BindingOnDisposed(object sender, EventArgs eventArgs)
-        {
-            var binding = (IDataBinding)sender;
-            ClearBinding(binding);
-            object source = binding.TargetAccessor.Source.GetSource(false);
-            string path = binding.TargetAccessor.Source.Path.Path;
-            if (source != null && path != null)
-                ClearBindings(source, path);
         }
 
         #endregion

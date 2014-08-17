@@ -14,10 +14,13 @@
 // ****************************************************************************
 #endregion
 using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
@@ -26,7 +29,140 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
     /// </summary>
     public class VisualTreeManager : IVisualTreeManager
     {
+        #region Netsted types
+
+        private sealed class RootObserver : List<IDisposable>, IDisposable, IEventListener
+        {
+            #region Fields
+
+            private bool _updating;
+            private bool _disposed;
+            private readonly WeakReference _reference;
+            private readonly object _listener;
+
+            #endregion
+
+            #region Constructors
+
+            public RootObserver(object target, IEventListener listener)
+            {
+                _reference = ServiceProvider.WeakReferenceFactory(target, true);
+                _listener = listener.ToWeakItem();
+                Handle(null, null);
+            }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public bool IsWeak
+            {
+                get { return true; }
+            }
+
+            public void Handle(object sender, object message)
+            {
+                if (_updating || _disposed)
+                    return;
+                bool lockTaken = false;
+                bool cycle = false;
+                try
+                {
+                    Monitor.Enter(this, ref lockTaken);
+                    if (_disposed)
+                        return;
+                    if (_updating)
+                    {
+                        cycle = true;
+                        return;
+                    }
+                    _updating = true;
+                    object currentItem = _reference.Target;
+                    if (currentItem == null)
+                    {
+                        Dispose(true);
+                        return;
+                    }
+                    Dispose(false);
+                    var listener = BindingExtensions.GetEventListenerFromWeakItem(_listener);
+                    if (listener != null)
+                        listener.Handle(currentItem, message);
+
+                    var treeManager = BindingProvider.Instance.VisualTreeManager;
+                    while (currentItem != null)
+                    {
+                        var parentMember = treeManager.GetParentMember(currentItem.GetType());
+                        if (parentMember == null)
+                            break;
+                        var observer = parentMember.TryObserve(currentItem, this);
+                        if (observer != null)
+                            Add(observer);
+                        currentItem = parentMember.GetValue(currentItem, null);
+                    }
+                }
+                finally
+                {
+                    if (!cycle)
+                        _updating = false;
+                    if (lockTaken)
+                        Monitor.Exit(this);
+                }
+            }
+
+            public void Dispose()
+            {
+                lock (this)
+                    Dispose(true);
+            }
+
+            #endregion
+
+            #region Methods
+
+            private void Dispose(bool dispose)
+            {
+                if (_disposed)
+                    return;
+                if (dispose)
+                    _disposed = true;
+                for (int i = 0; i < Count; i++)
+                    this[i].Dispose();
+                Clear();
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region Fields
+
+        private static readonly IAttachedBindingMemberInfo<object, object> RootMember;
+
+        #endregion
+
+        #region Constructors
+
+        static VisualTreeManager()
+        {
+            RootMember = AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.RootElement, GetRootElement, null, ObserveRootElement);
+        }
+
+        #endregion
+
         #region Implementation of ITargetTreeManager
+
+        /// <summary>
+        ///     Gets the root member, if any.
+        /// </summary>
+        public virtual IBindingMemberInfo GetRootMember(Type type)
+        {
+            if (GetParentMember(type) == null)
+                return null;
+            return BindingProvider.Instance
+                .MemberProvider
+                .GetBindingMember(type, AttachedMemberConstants.RootElement, false, false) ?? RootMember;
+        }
 
         /// <summary>
         ///     Gets the parent member, if any.
@@ -99,13 +235,34 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     return nameSource;
 
                 target = FindParent(target);
-            }           
+            }
             return null;
         }
 
         #endregion
 
         #region Methods
+
+        private static IDisposable ObserveRootElement(IBindingMemberInfo bindingMemberInfo, object o, IEventListener arg3)
+        {
+            return new RootObserver(o, arg3);
+        }
+
+        private static object GetRootElement(IBindingMemberInfo bindingMemberInfo, object currentItem, object[] arg3)
+        {
+            var treeManager = BindingProvider.Instance.VisualTreeManager;
+            while (currentItem != null)
+            {
+                var parentMember = treeManager.GetParentMember(currentItem.GetType());
+                if (parentMember == null)
+                    return currentItem;
+                var next = parentMember.GetValue(currentItem, null);
+                if (next == null)
+                    return currentItem;
+                currentItem = next;
+            }
+            return null;
+        }
 
         private static void TypeNameEqual(Type type, string typeName, out bool shortNameEqual, out bool fullNameEqual)
         {
@@ -133,7 +290,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 #else
                 type = type.BaseType;
 #endif
-
             }
         }
 

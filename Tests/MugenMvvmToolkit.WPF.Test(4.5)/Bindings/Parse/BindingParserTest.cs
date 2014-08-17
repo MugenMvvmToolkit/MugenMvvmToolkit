@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Converters;
@@ -47,7 +48,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             IBindingSource source = sources.Single().Invoke(BindingProvider.Instance, context);
             BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
             var sourceObj = new BindingSourceModel();
-            BindingProvider.Instance.ContextManager.GetBindingContext(targetObj).DataContext = sourceObj;
+            BindingProvider.Instance.ContextManager.GetBindingContext(targetObj).Value = sourceObj;
             BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
         }
 
@@ -120,13 +121,16 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new BindingSourceModel();
             var relativeObj = new BindingSourceModel();
             IEventListener eventListener = null;
-            var providerMock = new ObserverProviderMock
+            var memberMock = new BindingMemberInfoMock
             {
-                ObserveParent = (o, listener) =>
+                TryObserveMember = (o, listener) =>
                 {
                     eventListener = listener;
                     return null;
-                },
+                }
+            };
+            var providerMock = new ObserverProviderMock
+            {
                 Observe = (o, path, arg3) => new MultiPathObserver(o, path, arg3)
             };
             var treeManagerMock = new VisualTreeManagerMock
@@ -138,7 +142,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
                     arg3.ShouldEqual(level);
                     isInvoked = true;
                     return relativeObj;
-                }
+                },
+                GetRootMember = type => memberMock
             };
 
 
@@ -172,13 +177,16 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new BindingSourceModel();
             var relativeObj = new BindingSourceModel();
             IEventListener eventListener = null;
-            var providerMock = new ObserverProviderMock
+            var memberMock = new BindingMemberInfoMock
             {
-                ObserveParent = (o, listener) =>
+                TryObserveMember = (o, listener) =>
                 {
                     eventListener = listener;
                     return null;
-                },
+                }
+            };
+            var providerMock = new ObserverProviderMock
+            {
                 Observe = (o, path, arg3) => new MultiPathObserver(o, path, arg3)
             };
             var treeManagerMock = new VisualTreeManagerMock
@@ -190,7 +198,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
                     arg3.ShouldEqual(level);
                     isInvoked = true;
                     return relativeObj;
-                }
+                },
+                GetRootMember = type => memberMock
             };
 
 
@@ -224,13 +233,16 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new BindingSourceModel();
             var relativeObj = new BindingSourceModel();
             IEventListener eventListener = null;
-            var providerMock = new ObserverProviderMock
+            var memberMock = new BindingMemberInfoMock
             {
-                ObserveParent = (o, listener) =>
+                TryObserveMember = (o, listener) =>
                 {
                     eventListener = listener;
                     return null;
-                },
+                }
+            };
+            var providerMock = new ObserverProviderMock
+            {
                 Observe = (o, path, arg3) => new MultiPathObserver(o, path, arg3)
             };
             var treeManagerMock = new VisualTreeManagerMock
@@ -242,7 +254,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
                     arg3.ShouldEqual(level);
                     isInvoked = true;
                     return relativeObj;
-                }
+                },
+                GetRootMember = type => memberMock
             };
 
 
@@ -276,13 +289,16 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new BindingSourceModel();
             var relativeObj = new BindingSourceModel();
             IEventListener eventListener = null;
-            var providerMock = new ObserverProviderMock
+            var memberMock = new BindingMemberInfoMock
             {
-                ObserveParent = (o, listener) =>
+                TryObserveMember = (o, listener) =>
                 {
                     eventListener = listener;
                     return null;
-                },
+                }
+            };
+            var providerMock = new ObserverProviderMock
+            {
                 Observe = (o, path, arg3) => new MultiPathObserver(o, path, arg3)
             };
             var treeManagerMock = new VisualTreeManagerMock
@@ -293,7 +309,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
                     s.ShouldEqual(relativeSourceName);
                     isInvoked = true;
                     return relativeObj;
-                }
+                },
+                GetRootMember = type => memberMock
             };
 
             IBindingParser bindingParser = CreateBindingParser(treeManagerMock, null, providerMock);
@@ -326,13 +343,16 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new BindingSourceModel();
             var relativeObj = new BindingSourceModel();
             IEventListener eventListener = null;
-            var providerMock = new ObserverProviderMock
+            var memberMock = new BindingMemberInfoMock
             {
-                ObserveParent = (o, listener) =>
+                TryObserveMember = (o, listener) =>
                 {
                     eventListener = listener;
                     return null;
-                },
+                }
+            };
+            var providerMock = new ObserverProviderMock
+            {
                 Observe = (o, path, arg3) => new MultiPathObserver(o, path, arg3)
             };
             var treeManagerMock = new VisualTreeManagerMock
@@ -343,7 +363,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
                     s.ShouldEqual(relativeSourceName);
                     isInvoked = true;
                     return relativeObj;
-                }
+                },
+                GetRootMember = type => memberMock
             };
 
             IBindingParser bindingParser = CreateBindingParser(treeManagerMock, null, providerMock);
@@ -376,13 +397,16 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new BindingSourceModel();
             var relativeObj = new BindingSourceModel();
             IEventListener eventListener = null;
-            var providerMock = new ObserverProviderMock
+            var memberMock = new BindingMemberInfoMock
             {
-                ObserveParent = (o, listener) =>
+                TryObserveMember = (o, listener) =>
                 {
                     eventListener = listener;
                     return null;
-                },
+                }
+            };
+            var providerMock = new ObserverProviderMock
+            {
                 Observe = (o, path, arg3) => new MultiPathObserver(o, path, arg3)
             };
             var treeManagerMock = new VisualTreeManagerMock
@@ -393,7 +417,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
                     s.ShouldEqual(relativeSourceName);
                     isInvoked = true;
                     return relativeObj;
-                }
+                },
+                GetRootMember = type => memberMock
             };
 
             IBindingParser bindingParser = CreateBindingParser(treeManagerMock, null, providerMock);
@@ -1087,7 +1112,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             context.GetData(BindingBuilderConstants.Converter)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
-            BindingProvider.Instance.ContextManager.GetBindingContext(target).DataContext = sourceObj;
+            BindingProvider.Instance.ContextManager.GetBindingContext(target).Value = sourceObj;
             context.GetData(BindingBuilderConstants.Converter)
                 .Invoke(EmptyContext)
                 .ShouldEqual(sourceObj.ObjectProperty);
@@ -1128,7 +1153,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             context.GetData(BindingBuilderConstants.ConverterParameter)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
-            BindingProvider.Instance.ContextManager.GetBindingContext(target).DataContext = sourceObj;
+            BindingProvider.Instance.ContextManager.GetBindingContext(target).Value = sourceObj;
             context.GetData(BindingBuilderConstants.ConverterParameter)
                 .Invoke(EmptyContext)
                 .ShouldEqual(sourceObj.ObjectProperty);
@@ -1155,7 +1180,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             context.GetData(BindingBuilderConstants.ConverterParameter)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
-            BindingProvider.Instance.ContextManager.GetBindingContext(target).DataContext = sourceObj;
+            BindingProvider.Instance.ContextManager.GetBindingContext(target).Value = sourceObj;
             context.GetData(BindingBuilderConstants.ConverterParameter)
                 .Invoke(EmptyContext)
                 .ShouldEqual(sourceObj.ObjectProperty);
@@ -1208,7 +1233,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             context.GetData(BindingBuilderConstants.Fallback)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
-            BindingProvider.Instance.ContextManager.GetBindingContext(target).DataContext = sourceObj;
+            BindingProvider.Instance.ContextManager.GetBindingContext(target).Value = sourceObj;
             context.GetData(BindingBuilderConstants.Fallback)
                 .Invoke(EmptyContext)
                 .ShouldEqual(sourceObj.ObjectProperty);
@@ -1285,7 +1310,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             context.GetData(BindingBuilderConstants.CommandParameter)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
-            BindingProvider.Instance.ContextManager.GetBindingContext(target).DataContext = sourceObj;
+            BindingProvider.Instance.ContextManager.GetBindingContext(target).Value = sourceObj;
             context.GetData(BindingBuilderConstants.CommandParameter)
                 .Invoke(EmptyContext)
                 .ShouldEqual(sourceObj.ObjectProperty);
@@ -1312,7 +1337,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             context.GetData(BindingBuilderConstants.CommandParameter)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
-            BindingProvider.Instance.ContextManager.GetBindingContext(target).DataContext = sourceObj;
+            BindingProvider.Instance.ContextManager.GetBindingContext(target).Value = sourceObj;
             context.GetData(BindingBuilderConstants.CommandParameter)
                 .Invoke(EmptyContext)
                 .ShouldEqual(sourceObj.ObjectProperty);
@@ -1365,7 +1390,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             context.GetData(BindingBuilderConstants.ConverterCulture)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
-            BindingProvider.Instance.ContextManager.GetBindingContext(target).DataContext = sourceObj;
+            BindingProvider.Instance.ContextManager.GetBindingContext(target).Value = sourceObj;
             context.GetData(BindingBuilderConstants.ConverterCulture)
                 .Invoke(EmptyContext)
                 .ShouldEqual(sourceObj.ObjectProperty);
@@ -1401,13 +1426,23 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         private static void BindingSourceShouldBeValidDataContext(object target, IBindingSource bindingSource, string path)
         {
             BindingSourceShouldBeValid(bindingSource, path,
-                BindingProvider.Instance.ContextManager.GetBindingContext(target).DataContext);
+                BindingProvider.Instance.ContextManager.GetBindingContext(target).Value);
         }
 
         private static void BindingSourceShouldBeValid(IBindingSource bindingSource, string path, object source)
         {
-            bindingSource.GetSource(true).ShouldEqual(source);
-            bindingSource.Path.Path.ShouldEqual(path);
+            var src = bindingSource.GetSource(true);
+            var resourceObject = src as ISourceValue;
+            if (resourceObject == null)
+            {
+                src.ShouldEqual(source);
+                bindingSource.Path.Path.ShouldEqual(path);
+            }
+            else
+            {
+                resourceObject.Value.ShouldEqual(source);
+                bindingSource.Path.Path.ShouldEqual(path);
+            }
         }
 
         protected virtual IBindingParser CreateBindingParser(IVisualTreeManager treeManager = null, IBindingProvider bindingProvider = null, IObserverProvider observerProvider = null)

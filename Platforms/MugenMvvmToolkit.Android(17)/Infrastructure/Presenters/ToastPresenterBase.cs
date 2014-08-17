@@ -219,7 +219,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 return null;
             var view = PlatformExtensions.GetContentView(ctx, ctx, content, null, null) as View;
             if (view != null)
-                BindingProvider.Instance.ContextManager.GetBindingContext(view).DataContext = content;
+                BindingProvider.Instance.ContextManager.GetBindingContext(view).Value = content;
             return view;
         }
 

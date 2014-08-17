@@ -32,9 +32,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var context = new ExplicitDataContext();
             var manager = CreateContextManager();
             var bindingContext = manager.GetBindingContext(context);
-            bindingContext.DataContext.ShouldBeNull();
+            bindingContext.Value.ShouldBeNull();
             context.DataContext = o;
-            bindingContext.DataContext.ShouldEqual(o);
+            bindingContext.Value.ShouldEqual(o);
         }
 
         [TestMethod]
@@ -44,9 +44,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var context = new ExplicitDataContext();
             var manager = CreateContextManager();
             var bindingContext = manager.GetBindingContext(context);
-            bindingContext.DataContext.ShouldBeNull();
-            bindingContext.DataContext = o;
-            bindingContext.DataContext.ShouldEqual(o);
+            bindingContext.Value.ShouldBeNull();
+            bindingContext.Value = o;
+            bindingContext.Value.ShouldEqual(o);
             context.DataContext.ShouldEqual(o);
         }
 
@@ -57,9 +57,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var context = new ExplicitDataContext();
             var manager = CreateContextManager();
             var bindingContext = manager.GetBindingContext(context);
-            bindingContext.DataContextChanged += (sender, args) => isInvoked = true;
+            bindingContext.ValueChanged += (sender, args) => isInvoked = true;
             isInvoked.ShouldBeFalse();
-            bindingContext.DataContext = context;
+            bindingContext.Value = context;
             isInvoked.ShouldBeTrue();
         }
 
@@ -70,13 +70,13 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var context = new ExplicitDataContext { DataContext = o };
             var manager = CreateContextManager();
             var bindingContext = manager.GetBindingContext(context);
-            bindingContext.DataContext.ShouldEqual(o);
+            bindingContext.Value.ShouldEqual(o);
 
             context = null;
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
-            bindingContext.DataContext.ShouldBeNull();
+            bindingContext.Value.ShouldBeNull();
         }
 
         [TestMethod]
@@ -110,7 +110,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var manager = CreateContextManager(observerProvider: providerMock);
             providerMock.Observe = (o1, path, arg3) => observerMock;
             var bindingContext = manager.GetBindingContext(context);
-            bindingContext.DataContextChanged += (sender, args) => isInvoked = true;
+            bindingContext.ValueChanged += (sender, args) => isInvoked = true;
             isInvoked.ShouldBeFalse();
             observerMock.RaiseValueChanged();
             isInvoked.ShouldBeTrue();
@@ -122,6 +122,16 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             bool isFindParentInvoked = false;
             bool isObserveParentInvoked = false;
             var context = new object();
+
+            var memberMock = new BindingMemberInfoMock
+            {
+                TryObserveMember = (o, listener) =>
+                {
+                    o.ShouldEqual(context);
+                    isObserveParentInvoked = true;
+                    return null;
+                }
+            };
             var managerMock = new VisualTreeManagerMock
             {
                 FindParent = o =>
@@ -129,23 +139,19 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
                     o.ShouldEqual(context);
                     isFindParentInvoked = true;
                     return null;
-                }
-            };
-            var providerMock = new ObserverProviderMock
-            {
-                ObserveParent = (o, listener) =>
+                },
+                GetParentMember = type =>
                 {
-                    o.ShouldEqual(context);
-                    isObserveParentInvoked = true;
-                    return null;
+                    type.ShouldEqual(context.GetType());
+                    return memberMock;
                 }
             };
 
-            var manager = CreateContextManager(managerMock, providerMock);
+            var manager = CreateContextManager(managerMock);
             var bindingContext = manager.GetBindingContext(context);
             isFindParentInvoked.ShouldBeTrue();
             isObserveParentInvoked.ShouldBeTrue();
-            bindingContext.DataContext.ShouldBeNull();
+            bindingContext.Value.ShouldBeNull();
         }
 
         [TestMethod]
@@ -153,6 +159,15 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         {
             bool isFindParentInvoked = false;
             var context = new object();
+            IEventListener eventListener = null;
+            var memberMock = new BindingMemberInfoMock
+            {
+                TryObserveMember = (o, listener) =>
+                {
+                    eventListener = listener;
+                    return null;
+                }
+            };
             var managerMock = new VisualTreeManagerMock
             {
                 FindParent = o =>
@@ -160,22 +175,18 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
                     o.ShouldEqual(context);
                     isFindParentInvoked = true;
                     return null;
+                },
+                GetParentMember = type =>
+                {
+                    type.ShouldEqual(context.GetType());
+                    return memberMock;
                 }
             };
-            IEventListener eventListener = null;
-            var providerMock = new ObserverProviderMock
-            {
-                ObserveParent = (o, listener) =>
-                {
-                    eventListener = listener;
-                    return null;
-                },
-            };
 
-            var manager = CreateContextManager(managerMock, providerMock);
+            var manager = CreateContextManager(managerMock);
             var bindingContext = manager.GetBindingContext(context);
             isFindParentInvoked.ShouldBeTrue();
-            bindingContext.DataContext.ShouldBeNull();
+            bindingContext.Value.ShouldBeNull();
 
             isFindParentInvoked = false;
             eventListener.ShouldNotBeNull();
@@ -188,6 +199,15 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         {
             bool isFindParentInvoked = false;
             var context = new object();
+            IEventListener eventListener = null;
+            var memberMock = new BindingMemberInfoMock
+            {
+                TryObserveMember = (o, listener) =>
+                {
+                    eventListener = listener;
+                    return null;
+                }
+            };
             var managerMock = new VisualTreeManagerMock
             {
                 FindParent = o =>
@@ -195,25 +215,21 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
                     o.ShouldEqual(context);
                     isFindParentInvoked = true;
                     return null;
+                },
+                GetParentMember = type =>
+                {
+                    type.ShouldEqual(context.GetType());
+                    return memberMock;
                 }
             };
-            IEventListener eventListener = null;
-            var providerMock = new ObserverProviderMock
-            {
-                ObserveParent = (o, listener) =>
-                {
-                    eventListener = listener;
-                    return null;
-                },
-            };
 
-            var manager = CreateContextManager(managerMock, providerMock);
+            var manager = CreateContextManager(managerMock);
             var bindingContext = manager.GetBindingContext(context);
             isFindParentInvoked.ShouldBeTrue();
-            bindingContext.DataContext.ShouldBeNull();
+            bindingContext.Value.ShouldBeNull();
 
             isFindParentInvoked = false;
-            bindingContext.DataContext = context;
+            bindingContext.Value = context;
             eventListener.ShouldNotBeNull();
             eventListener.Handle(this, EventArgs.Empty);
             isFindParentInvoked.ShouldBeFalse();
@@ -226,17 +242,14 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var context = new object();
             var managerMock = new VisualTreeManagerMock
             {
-                FindParent = o => null
-            };
-            var providerMock = new ObserverProviderMock
-            {
-                ObserveParent = (o, listener) => null
+                FindParent = o => null,
+                GetParentMember = type => null
             };
 
-            var manager = CreateContextManager(managerMock, providerMock);
+            var manager = CreateContextManager(managerMock);
             var bindingContext = manager.GetBindingContext(context);
-            bindingContext.DataContextChanged += (sender, args) => contextChanged = true;
-            bindingContext.DataContext = context;
+            bindingContext.ValueChanged += (sender, args) => contextChanged = true;
+            bindingContext.Value = context;
             contextChanged.ShouldBeTrue();
         }
 
@@ -245,23 +258,28 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         {
             bool contextChanged = false;
             var context = new object();
-            var managerMock = new VisualTreeManagerMock
-            {
-                FindParent = o => null
-            };
             IEventListener eventListener = null;
-            var providerMock = new ObserverProviderMock
+            var memberMock = new BindingMemberInfoMock
             {
-                ObserveParent = (o, listener) =>
+                TryObserveMember = (o, listener) =>
                 {
                     eventListener = listener;
                     return null;
-                },
+                }
+            };
+            var managerMock = new VisualTreeManagerMock
+            {
+                FindParent = o => null,
+                GetParentMember = type =>
+                {
+                    type.ShouldEqual(context.GetType());
+                    return memberMock;
+                }
             };
 
-            var manager = CreateContextManager(managerMock, providerMock);
+            var manager = CreateContextManager(managerMock);
             var bindingContext = manager.GetBindingContext(context);
-            bindingContext.DataContextChanged += (sender, args) => contextChanged = true;
+            bindingContext.ValueChanged += (sender, args) => contextChanged = true;
             eventListener.ShouldNotBeNull();
             eventListener.Handle(this, EventArgs.Empty);
             contextChanged.ShouldBeTrue();

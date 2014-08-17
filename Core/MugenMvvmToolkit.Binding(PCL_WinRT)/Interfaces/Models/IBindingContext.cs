@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="IBindingContext.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,17 +13,17 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
-using System;
+
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Models
 {
     /// <summary>
     ///     Represents the binding context.
     /// </summary>
-    public interface IBindingContext
+    public interface IBindingContext : ISourceValue
     {
         /// <summary>
         ///     Gets the source object.
@@ -34,11 +35,6 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
         ///     Gets or sets the data context.
         /// </summary>
         [CanBeNull]
-        object DataContext { get; set; }
-
-        /// <summary>
-        ///     Occurs when the DataContext property changed.
-        /// </summary>
-        event EventHandler<IBindingContext, EventArgs> DataContextChanged;
+        new object Value { get; set; }
     }
 }

@@ -24,6 +24,7 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Fields
 
+        private const string Key = "#MenuItemsSourceGeneratorMember";
         private readonly Context _context;
         private readonly MenuItemTemplate _itemTemplate;
         private readonly IMenu _menu;
@@ -35,7 +36,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="MenuItemsSourceGenerator" /> class.
         /// </summary>
-        public MenuItemsSourceGenerator(IMenu menu, Context context, MenuItemTemplate itemTemplate)
+        private MenuItemsSourceGenerator(IMenu menu, Context context, MenuItemTemplate itemTemplate)
         {
             Should.NotBeNull(menu, "menu");
             Should.NotBeNull(itemTemplate, "itemTemplate");
@@ -101,5 +102,20 @@ namespace MugenMvvmToolkit.Infrastructure
         }
 
         #endregion
+
+        #region Methods
+
+        public static MenuItemsSourceGenerator Get(IMenu menu)
+        {
+            return ServiceProvider.AttachedValueProvider.GetValue<MenuItemsSourceGenerator>(menu, Key, false);
+        }
+
+        public static void Set(IMenu menu, Context context, MenuItemTemplate itemTemplate)
+        {
+            ServiceProvider.AttachedValueProvider.SetValue(menu, Key, new MenuItemsSourceGenerator(menu, context, itemTemplate));
+        }
+
+        #endregion
+
     }
 }

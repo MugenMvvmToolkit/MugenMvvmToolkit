@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="OperationCallbackManager.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,13 +13,16 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Collections;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -40,7 +44,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             #region Constructors
 
             /// <summary>
-            ///     Initializes a new instance of the <see cref="LightDictionaryBase{TKey,TValue}" /> class.
+            ///     Initializes a new instance of the <see cref="CallbackDictionary" /> class.
             /// </summary>
             public CallbackDictionary()
                 : base(true)
@@ -76,13 +80,18 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         private const string CallbacksMember = "~~#callbacks";
 
-        private static readonly DataConstant<CallbackDictionary> CallbackConstant = DataConstant.Create(() => CallbackConstant, true);
+        private static readonly DataConstant<CallbackDictionary> CallbackConstant;
 
         private readonly object _locker;
 
         #endregion
 
         #region Constructors
+
+        static OperationCallbackManager()
+        {
+            CallbackConstant = DataConstant.Create(() => CallbackConstant, true);
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="OperationCallbackManager" /> class.
@@ -91,6 +100,15 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         {
             _locker = new object();
         }
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        ///    Gets or sets the value, if <c>true</c> manager will serialize callback before store it, use this to debug your callbacks.
+        /// </summary>
+        public static bool AlwaysSerializeCallback { get; set; }
 
         #endregion
 
@@ -206,6 +224,18 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         private static void RegisterInternal(CallbackDictionary callbacks, string id, IOperationCallback callback)
         {
+            //Only for debug callback
+            if (AlwaysSerializeCallback && callback.IsSerializable)
+            {
+                ISerializer serializer;
+                if (ServiceProvider.IocContainer.TryGet(out serializer))
+                {
+                    var stream = serializer.Serialize(callback);
+                    stream.Position = 0;
+                    callback = (IOperationCallback)serializer.Deserialize(stream);
+                }
+            }
+
             lock (callbacks)
             {
                 List<object> list;

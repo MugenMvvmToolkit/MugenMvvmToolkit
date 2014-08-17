@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 
@@ -11,6 +10,8 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         public Func<Type, IBindingMemberInfo> GetParentMember { get; set; }
 
+        public Func<Type, IBindingMemberInfo> GetRootMember { get; set; }
+
         public Func<object, object> FindParent { get; set; }
 
         public Func<object, string, object> FindByName { get; set; }
@@ -21,9 +22,13 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of ITargetTreeManager
 
-        /// <summary>
-        ///     Gets the name of parent member, if any.
-        /// </summary>
+        IBindingMemberInfo IVisualTreeManager.GetRootMember(Type type)
+        {
+            if (GetRootMember == null)
+                return null;
+            return GetRootMember(type);
+        }
+
         IBindingMemberInfo IVisualTreeManager.GetParentMember(Type type)
         {
             if (GetParentMember == null)

@@ -43,41 +43,74 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Nested types
 
-        private sealed class MenuItemOnMenuItemClickListener : Object, IMenuItemOnMenuItemClickListener
-        {
-            #region Implementation of IMenuItemOnMenuItemClickListener
-
-            public bool OnMenuItemClick(IMenuItem item)
-            {
-                EventHandler handler = Click;
-                if (handler != null)
-                    handler(item, EventArgs.Empty);
-                return true;
-            }
-
-            #endregion
-
-            #region Events
-
-            public event EventHandler Click;
-
-            #endregion
-        }
-
-#if !API8
-        private sealed class ActionViewExpandedListener : Object, IMenuItemOnActionExpandListener
+        private sealed class MenuItemOnMenuItemClickListener : JavaEventListenerList, IMenuItemOnMenuItemClickListener
         {
             #region Fields
 
-            private readonly WeakReference _listenerRef;
+            private const string Key = "#ClickListener";
 
             #endregion
 
             #region Constructors
 
-            public ActionViewExpandedListener(IEventListener listener)
+            private MenuItemOnMenuItemClickListener()
             {
-                _listenerRef = ServiceProvider.WeakReferenceFactory(listener, true);
+            }
+
+            #endregion
+
+            #region Implementation of IMenuItemOnMenuItemClickListener
+
+            public bool OnMenuItemClick(IMenuItem item)
+            {
+                Raise(item, EventArgs.Empty);
+                return true;
+            }
+
+            #endregion
+
+            #region Methods
+
+            public static MenuItemOnMenuItemClickListener GetOrAdd(IMenuItem item)
+            {
+                return ServiceProvider.AttachedValueProvider.GetOrAdd(item, Key, (menuItem, o) =>
+                {
+                    var listener = new MenuItemOnMenuItemClickListener();
+                    menuItem.SetOnMenuItemClickListener(listener);
+                    return listener;
+                }, null);
+            }
+
+            #endregion
+        }
+
+#if !API8
+        private sealed class ActionViewExpandedListener : JavaEventListenerList, IMenuItemOnActionExpandListener
+        {
+            #region Fields
+
+            private const string Key = "!~ActionViewExpandedListener";
+
+            #endregion
+
+            #region Constructors
+
+            private ActionViewExpandedListener()
+            {
+            }
+
+            #endregion
+
+            #region Methods
+
+            public static ActionViewExpandedListener GetOrAdd(IMenuItem menuItem)
+            {
+                return ServiceProvider.AttachedValueProvider.GetOrAdd(menuItem, Key, (item, o) =>
+                {
+                    var listener = new ActionViewExpandedListener();
+                    menuItem.SetOnActionExpandListener(listener);
+                    return listener;
+                }, null);
             }
 
             #endregion
@@ -86,17 +119,13 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public bool OnMenuItemActionCollapse(IMenuItem item)
             {
-                var listener = (IEventListener)_listenerRef.Target;
-                if (listener != null)
-                    listener.Handle(item, EventArgs.Empty);
+                Raise(item, EventArgs.Empty);
                 return true;
             }
 
             public bool OnMenuItemActionExpand(IMenuItem item)
             {
-                var listener = (IEventListener)_listenerRef.Target;
-                if (listener != null)
-                    listener.Handle(item, EventArgs.Empty);
+                Raise(item, EventArgs.Empty);
                 return true;
             }
 
@@ -164,7 +193,12 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Implementation of IEventListener
 
-            void IEventListener.Handle(object sender, object message)
+            public bool IsWeak
+            {
+                get { return false; }
+            }
+
+            public void Handle(object sender, object message)
             {
                 var view = _view;
                 if (!view.IsAlive())
@@ -224,18 +258,13 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         internal static readonly IBindingMemberInfo MenuParentMember;
-        internal static readonly IAttachedBindingMemberInfo<IMenu, MenuItemsSourceGenerator> MenuItemsSourceGeneratorMember;
-#if !API8
-        internal static readonly IAttachedBindingMemberInfo<IMenuItem, string> MenuItemActionViewBindMember;
-        internal static readonly IAttachedBindingMemberInfo<IMenuItem, string> MenuItemActionProviderBindMember;
-
+#if !API8        
         private static readonly IAttachedBindingMemberInfo<IMenuItem, object> MenuItemActionViewMember;
         private static readonly IAttachedBindingMemberInfo<IMenuItem, object> MenuItemActionProviderMember;
         private static readonly IAttachedBindingMemberInfo<IMenuItem, IDataTemplateSelector> MenuItemActionViewSelectorMember;
         private static readonly IAttachedBindingMemberInfo<IMenuItem, IDataTemplateSelector> MenuItemActionProviderSelectorMember;
 #endif
         private static readonly IAttachedBindingMemberInfo<IMenu, IEnumerable> MenuItemsSourceMember;
-        private static readonly IAttachedBindingMemberInfo<IMenuItem, IMenuItemOnMenuItemClickListener> MenuItemClickListenerMember;
 
         #endregion
 
@@ -252,16 +281,12 @@ namespace MugenMvvmToolkit.Infrastructure
 
             //IMenuItem
             memberProvider.Register(typeof(IMenuItem), MenuParentMember, true);
-            memberProvider.Register(MenuItemClickListenerMember);
-
 #if !API8
             memberProvider.Register(MenuItemActionViewMember);
-            memberProvider.Register(MenuItemActionViewSelectorMember);
-            memberProvider.Register(MenuItemActionViewBindMember);
+            memberProvider.Register(MenuItemActionViewSelectorMember);            
 
             memberProvider.Register(MenuItemActionProviderMember);
-            memberProvider.Register(MenuItemActionProviderSelectorMember);
-            memberProvider.Register(MenuItemActionProviderBindMember);
+            memberProvider.Register(MenuItemActionProviderSelectorMember);            
 #endif
             memberProvider.Register(AttachedBindingMember.CreateEvent<IMenuItem>("Click", SetClickEventValue));
 
@@ -339,27 +364,14 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static void MenuItemsSourceChanged(IMenu menu, AttachedMemberChangedEventArgs<IEnumerable> args)
         {
-            var generator = MenuItemsSourceGeneratorMember.GetValue(menu, null);
+            var generator = MenuItemsSourceGenerator.Get(menu);
             if (generator != null)
                 generator.Update(args.NewValue);
         }
 
-        private static IMenuItemOnMenuItemClickListener MenuItemClickListenerAttached(IMenuItem menuItem,
-            IBindingMemberInfo bindingMemberInfo)
-        {
-            var listener = new MenuItemOnMenuItemClickListener();
-            menuItem.SetOnMenuItemClickListener(listener);
-            return listener;
-        }
-
         private static IDisposable SetClickEventValue(IBindingMemberInfo bindingMemberInfo, IMenuItem menuItem, IEventListener listener)
         {
-            var clickListener = (MenuItemOnMenuItemClickListener)MenuItemClickListenerMember.GetValue(menuItem, null);
-            var handler = listener.ToWeakEventHandler<EventArgs>();
-            clickListener.Click += handler.Handle;
-            handler.Unsubscriber = WeakActionToken.Create(clickListener, handler,
-                (itemClickListener, eventHandler) => itemClickListener.Click -= eventHandler.Handle, false);
-            return handler;
+            return MenuItemOnMenuItemClickListener.GetOrAdd(menuItem).AddListner(listener);
         }
 
 #if !API8
@@ -399,7 +411,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 menuItem.SetActionView(view);
             }
             ViewAttachedParentMember.SetValue(view, new object[] { menuItem });
-            var bindings = MenuItemActionViewBindMember.GetValue(menuItem, null);
+            var bindings = MenuItemTemplate.GetActionViewBind(menuItem);
             if (!string.IsNullOrEmpty(bindings))
                 BindingProvider.Instance.CreateBindingsFromString(view, bindings, null);
             return true;
@@ -431,7 +443,7 @@ namespace MugenMvvmToolkit.Infrastructure
             BindingProvider.Instance
                            .CreateBindingFromString(actionProvider, AttachedMemberConstants.DataContext,
                                AttachedMemberConstants.DataContext, menuItem);
-            var bindings = MenuItemActionProviderBindMember.GetValue(menuItem, null);
+            var bindings = MenuItemTemplate.GetActionProviderBind(menuItem);
             if (!string.IsNullOrEmpty(bindings))
                 BindingProvider.Instance.CreateBindingsFromString(actionProvider, bindings, null);
             return true;
@@ -448,8 +460,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static IDisposable ObserveIsActionViewExpanded(IBindingMemberInfo bindingMemberInfo, IMenuItem menuItem, IEventListener arg3)
         {
-            menuItem.SetOnActionExpandListener(new ActionViewExpandedListener(arg3));
-            return WeakActionToken.Create(menuItem, item => item.SetOnActionExpandListener(null), true);
+            return ActionViewExpandedListener.GetOrAdd(menuItem).AddListner(arg3);
         }
 
         private static Context GetContextFromMenuItem(IMenuItem menuItem)
@@ -471,8 +482,6 @@ namespace MugenMvvmToolkit.Infrastructure
             return Application.Context;
         }
 #endif
-
-
         #endregion
     }
 }

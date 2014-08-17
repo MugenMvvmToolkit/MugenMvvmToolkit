@@ -37,17 +37,12 @@ namespace MugenMvvmToolkit
         /// <summary>
         /// Represents the weak reference event wrapper.
         /// </summary>
-        public interface IWeakEventHandler<in TArg> : IDisposable
+        public interface IWeakEventHandler<in TArg>
         {
             /// <summary>
             /// Invokes the event.
             /// </summary>
             void Handle(object sender, TArg arg);
-
-            /// <summary>
-            /// Gets or sets the unsubscriber.
-            /// </summary>
-            IDisposable Unsubscriber { get; set; }
         }
 
         private sealed class WeakEventHandler<TTarget, TArg, TDelegate> : IWeakEventHandler<TArg>
@@ -65,15 +60,13 @@ namespace MugenMvvmToolkit
 
             #region Constructors
 
-            public WeakEventHandler(TTarget target, Action<TTarget, object, TArg> invokeAction, Action<object, TDelegate> unsubscribeAction, bool cacheWeakReferenceTarget)
+            public WeakEventHandler(TTarget target, Action<TTarget, object, TArg> invokeAction, Action<object, TDelegate> unsubscribeAction)
             {
                 Should.NotBeNull(target, "target");
                 Should.NotBeNull(invokeAction, "invokeAction");
                 _invokeAction = invokeAction;
                 _unsubscribeAction = unsubscribeAction;
-                _targetReference = cacheWeakReferenceTarget
-                    ? MvvmExtensions.GetWeakReference(target)
-                    : ServiceProvider.WeakReferenceFactory(target, true);
+                _targetReference = ServiceProvider.WeakReferenceFactory(target, true);
             }
 
             #endregion
@@ -87,22 +80,9 @@ namespace MugenMvvmToolkit
                 {
                     if (_unsubscribeAction != null)
                         _unsubscribeAction.Invoke(sender, HandlerDelegate);
-                    Dispose();
                 }
                 else
                     _invokeAction(target, sender, arg);
-            }
-
-            public IDisposable Unsubscriber { get; set; }
-
-            public void Dispose()
-            {
-                var unsubscriber = Unsubscriber;
-                if (unsubscriber != null)
-                {
-                    Unsubscriber = null;
-                    unsubscriber.Dispose();
-                }
             }
 
             #endregion
@@ -111,6 +91,11 @@ namespace MugenMvvmToolkit
         #endregion
 
         #region Fields
+
+        private static readonly Action<object, PropertyChangedEventHandler> UnsubscribePropertyChangedDelegate;
+        private static readonly Action<object, EventHandler<DataErrorsChangedEventArgs>> UnsubscribeErrorsChangedDelegate;
+        private static readonly Func<IWeakEventHandler<PropertyChangedEventArgs>, PropertyChangedEventHandler> CreatePropertyChangedHandlerDelegate;
+        private static readonly Func<IWeakEventHandler<DataErrorsChangedEventArgs>, EventHandler<DataErrorsChangedEventArgs>> CreateErrorsChangedHandlerDelegate;
 
         private static readonly Dictionary<MemberInfo, Attribute[]> CachedAttributes;
         private static readonly Dictionary<Type, Func<object, object>> GetDataContextDelegateCache;
@@ -122,6 +107,10 @@ namespace MugenMvvmToolkit
 
         static ReflectionExtensions()
         {
+            CreatePropertyChangedHandlerDelegate = CreateHandler;
+            CreateErrorsChangedHandlerDelegate = CreateHandler;
+            UnsubscribePropertyChangedDelegate = UnsubscribePropertyChanged;
+            UnsubscribeErrorsChangedDelegate = UnsubscribeErrorsChanged;
             CachedAttributes = new Dictionary<MemberInfo, Attribute[]>();
             GetDataContextDelegateCache = new Dictionary<Type, Func<object, object>>();
             SetDataContextDelegateCache = new Dictionary<Type, Action<object, object>>();
@@ -144,10 +133,10 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Returns a weak-reference version of a delegate.
         /// </summary>
-        public static IWeakEventHandler<TArg> CreateWeakEventHandler<TTarget, TArg>([NotNull] TTarget target, [NotNull]Action<TTarget, object, TArg> invokeAction, bool cacheWeakReferenceTarget)
+        public static IWeakEventHandler<TArg> CreateWeakEventHandler<TTarget, TArg>([NotNull] TTarget target, [NotNull]Action<TTarget, object, TArg> invokeAction)
             where TTarget : class
         {
-            return new WeakEventHandler<TTarget, TArg, object>(target, invokeAction, null, cacheWeakReferenceTarget);
+            return new WeakEventHandler<TTarget, TArg, object>(target, invokeAction, null);
         }
 
         /// <summary>
@@ -155,12 +144,12 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static TResult CreateWeakDelegate<TTarget, TArg, TResult>([NotNull] TTarget target,
             [NotNull]Action<TTarget, object, TArg> invokeAction, [CanBeNull] Action<object, TResult> unsubscribeAction,
-            [NotNull] Func<IWeakEventHandler<TArg>, TResult> createHandler, bool cacheWeakReferenceTarget)
+            [NotNull] Func<IWeakEventHandler<TArg>, TResult> createHandler)
             where TTarget : class
             where TResult : class
         {
             Should.NotBeNull(createHandler, "createHandler");
-            var weakEventHandler = new WeakEventHandler<TTarget, TArg, TResult>(target, invokeAction, unsubscribeAction, cacheWeakReferenceTarget);
+            var weakEventHandler = new WeakEventHandler<TTarget, TArg, TResult>(target, invokeAction, unsubscribeAction);
             var handler = createHandler(weakEventHandler);
             if (unsubscribeAction == null)
                 return handler;
@@ -172,20 +161,20 @@ namespace MugenMvvmToolkit
         ///     Returns a weak-reference version of a delegate.
         /// </summary>
         public static PropertyChangedEventHandler MakeWeakPropertyChangedHandler<TTarget>([NotNull]TTarget target,
-            [NotNull]Action<TTarget, object, PropertyChangedEventArgs> invokeAction, bool cacheWeakReferenceTarget)
+            [NotNull]Action<TTarget, object, PropertyChangedEventArgs> invokeAction)
             where TTarget : class
         {
-            return CreateWeakDelegate(target, invokeAction, UnsubscribePropertyChanged, CreateHandler, cacheWeakReferenceTarget);
+            return CreateWeakDelegate(target, invokeAction, UnsubscribePropertyChangedDelegate, CreatePropertyChangedHandlerDelegate);
         }
 
         /// <summary>
         ///     Returns a weak-reference version of a delegate.
         /// </summary>
         public static EventHandler<DataErrorsChangedEventArgs> MakeWeakErrorsChangedHandler<TTarget>([NotNull]TTarget target,
-            [NotNull]Action<TTarget, object, DataErrorsChangedEventArgs> invokeAction, bool cacheWeakReferenceTarget = true)
+            [NotNull]Action<TTarget, object, DataErrorsChangedEventArgs> invokeAction)
             where TTarget : class
         {
-            return CreateWeakDelegate(target, invokeAction, UnsubscribeErrorsChanged, CreateHandler, cacheWeakReferenceTarget);
+            return CreateWeakDelegate(target, invokeAction, UnsubscribeErrorsChangedDelegate, CreateErrorsChangedHandlerDelegate);
         }
 
         /// <summary>
@@ -216,9 +205,25 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Invokes the constructor using the current <see cref="IReflectionManager" />.
         /// </summary>
+        public static object InvokeEx([NotNull] this ConstructorInfo constructor)
+        {
+            return constructor.InvokeEx(EmptyValue<object>.ArrayInstance);
+        }
+
+        /// <summary>
+        ///     Invokes the constructor using the current <see cref="IReflectionManager" />.
+        /// </summary>
         public static object InvokeEx([NotNull] this ConstructorInfo constructor, params object[] parameters)
         {
             return ServiceProvider.ReflectionManager.GetActivatorDelegate(constructor).Invoke(parameters);
+        }
+
+        /// <summary>
+        ///     Invokes the method using the current <see cref="IReflectionManager" />.
+        /// </summary>
+        public static object InvokeEx([NotNull] this MethodInfo method, object target)
+        {
+            return method.InvokeEx(target, EmptyValue<object>.ArrayInstance);
         }
 
         /// <summary>
@@ -309,14 +314,14 @@ namespace MugenMvvmToolkit
             return attributes;
         }
 
-        internal static void UnsubscribePropertyChanged(object sender, PropertyChangedEventHandler handler)
+        private static void UnsubscribePropertyChanged(object sender, PropertyChangedEventHandler handler)
         {
             var notifyPropertyChanged = sender as INotifyPropertyChanged;
             if (notifyPropertyChanged != null)
                 notifyPropertyChanged.PropertyChanged -= handler;
         }
 
-        internal static void UnsubscribeErrorsChanged(object o, EventHandler<DataErrorsChangedEventArgs> eventHandler)
+        private static void UnsubscribeErrorsChanged(object o, EventHandler<DataErrorsChangedEventArgs> eventHandler)
         {
             var notifyDataErrorInfo = o as INotifyDataErrorInfo;
             if (notifyDataErrorInfo != null)
@@ -647,7 +652,7 @@ namespace MugenMvvmToolkit
                 result |= BindingFlags.NonPublic;
             if (flags.HasMemberFlag(MemberFlags.Public))
                 result |= BindingFlags.Public;
-            return result;
+            return result | BindingFlags.FlattenHierarchy;
         }
 #endif
         #endregion

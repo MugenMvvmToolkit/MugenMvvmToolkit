@@ -146,7 +146,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         }
 
         [TestMethod]
-        public void ManagerShouldClearBindingIfItIsRegistered()
+        public void ManagerShouldClearBindingIfBindingIsRegistered()
         {
             const string path = "test";
             var target = new object();
@@ -166,7 +166,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             manager.Register(target, path, bindingMock);
             manager.IsRegistered(bindingMock).ShouldBeTrue();
 
-            bindingMock.Dispose();
+            manager.Unregister(bindingMock);
             manager.IsRegistered(bindingMock).ShouldBeFalse();
             bindingMock.IsDisposed.ShouldBeTrue();
         }

@@ -194,9 +194,9 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
                 {
                     _elements.RemoveAt(i);
                     i--;
-                    continue;
                 }
-                _elements[i] = node;
+                else
+                    _elements[i] = node;
             }
 
             for (int i = 0; i < _attributes.Count; i++)
@@ -206,9 +206,9 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
                 {
                     _attributes.RemoveAt(i);
                     i--;
-                    continue;
                 }
-                _attributes[i] = node;
+                else
+                    _attributes[i] = node;
             }
         }
 

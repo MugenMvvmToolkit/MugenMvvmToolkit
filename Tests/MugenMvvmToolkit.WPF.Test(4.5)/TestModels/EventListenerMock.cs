@@ -14,6 +14,12 @@ namespace MugenMvvmToolkit.Test.TestModels
         #region Implementation of IEventListener
 
         /// <summary>
+        ///     Gets the value that indicates that the listener is weak. 
+        ///     <c>true</c> the listener can be used without <c>WeakReference</c>/>.
+        /// </summary>
+        public bool IsWeak { get; set; }
+
+        /// <summary>
         ///     Handles the message.
         /// </summary>
         /// <param name="sender">The object that raised the event.</param>

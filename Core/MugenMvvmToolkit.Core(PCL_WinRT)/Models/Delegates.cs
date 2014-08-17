@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.Models
     ///     Reprsents the attached value update delegate.
     /// </summary>
     public delegate TValue UpdateValueDelegate<in TItem, in TNewValue, TValue, in TState>(
-        TItem item, TNewValue newValue, TValue oldValue, TState state);
+        TItem item, TNewValue addValue, TValue currentValue, TState state);
 
     /// <summary>
     ///     Represents the delegate to create view model.

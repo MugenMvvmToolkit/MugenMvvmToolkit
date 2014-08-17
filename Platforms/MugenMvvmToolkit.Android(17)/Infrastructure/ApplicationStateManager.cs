@@ -76,7 +76,7 @@ namespace MugenMvvmToolkit.Infrastructure
             var viewModel = BindingProvider.Instance
                 .ContextManager
                 .GetBindingContext(activity)
-                .DataContext as IViewModel;
+                .Value as IViewModel;
             SaveState(viewModel, bundle, VmStateActivityBundleKey);
         }
 
@@ -90,7 +90,7 @@ namespace MugenMvvmToolkit.Infrastructure
             var viewModel = BindingProvider.Instance
                 .ContextManager
                 .GetBindingContext(activity)
-                .DataContext as IViewModel;
+                .Value as IViewModel;
             RestoreState(viewModel, bundle, VmStateActivityBundleKey);
         }
 
@@ -105,7 +105,7 @@ namespace MugenMvvmToolkit.Infrastructure
             var viewModel = BindingProvider.Instance
                 .ContextManager
                 .GetBindingContext(fragment)
-                .DataContext as IViewModel;
+                .Value as IViewModel;
             SaveState(viewModel, bundle, VmStateFragmentBundleKey);
         }
 
@@ -119,7 +119,7 @@ namespace MugenMvvmToolkit.Infrastructure
             var viewModel = BindingProvider.Instance
                 .ContextManager
                 .GetBindingContext(fragment)
-                .DataContext as IViewModel;
+                .Value as IViewModel;
             RestoreState(viewModel, bundle, VmStateFragmentBundleKey);
         }
 #endif

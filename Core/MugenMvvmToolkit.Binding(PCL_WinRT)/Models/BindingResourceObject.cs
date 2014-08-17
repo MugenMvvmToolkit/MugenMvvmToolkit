@@ -15,6 +15,7 @@
 #endregion
 using System;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
@@ -40,7 +41,7 @@ namespace MugenMvvmToolkit.Binding.Models
             _value = value;
             if (type == null && value != null)
                 type = value.GetType();
-            _type = type ?? typeof (object);
+            _type = type ?? typeof(object);
         }
 
         #endregion
@@ -61,6 +62,15 @@ namespace MugenMvvmToolkit.Binding.Models
         public object Value
         {
             get { return _value; }
+        }
+
+        /// <summary>
+        ///     Occurs when the <see cref="ISourceValue.Value"/>  property changed.
+        /// </summary>
+        public event EventHandler<ISourceValue, EventArgs> ValueChanged
+        {
+            add { }
+            remove { }
         }
 
         #endregion

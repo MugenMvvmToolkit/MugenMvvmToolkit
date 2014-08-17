@@ -13,7 +13,6 @@
 // </license>
 // ****************************************************************************
 #endregion
-using System;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 
@@ -29,11 +28,5 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         /// </summary>
         [NotNull]
         IObserver Observe([NotNull] object target, [NotNull] IBindingPath path, bool ignoreAttachedMembers);
-
-        /// <summary>
-        ///     Attempts to track the change of parent.
-        /// </summary>
-        [CanBeNull]
-        IDisposable TryObserveParent([NotNull] object target, [NotNull] IEventListener listener);
     }
 }

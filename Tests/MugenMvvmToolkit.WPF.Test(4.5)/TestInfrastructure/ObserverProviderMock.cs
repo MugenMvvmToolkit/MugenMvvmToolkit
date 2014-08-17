@@ -10,8 +10,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         public Func<object, IBindingPath, bool, IObserver> Observe { get; set; }
 
-        public Func<object, IEventListener, IDisposable> ObserveParent { get; set; }
-
         #endregion
 
         #region Implementation of IObserverProvider
@@ -22,14 +20,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         IObserver IObserverProvider.Observe(object target, IBindingPath path, bool ignoreAttachedMembers)
         {
             return Observe(target, path, ignoreAttachedMembers);
-        }
-
-        /// <summary>
-        ///     Attempts to track the change of parent.
-        /// </summary>
-        public IDisposable TryObserveParent(object target, IEventListener listener)
-        {
-            return ObserveParent(target, listener);
         }
 
         #endregion

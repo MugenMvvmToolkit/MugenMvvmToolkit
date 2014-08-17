@@ -28,6 +28,12 @@ namespace MugenMvvmToolkit.Models
 {
     public sealed class ActionBarTabTemplate : Java.Lang.Object, ActionBar.ITabListener
     {
+        #region Fields
+
+        private const string ContentInternalKey = "!$contint";
+
+        #endregion
+
         #region Properties
 
         [XmlAttribute("DATACONTEXT")]
@@ -73,10 +79,10 @@ namespace MugenMvvmToolkit.Models
 
         public void ClearTab(ActionBar bar, ActionBar.Tab tab)
         {
-            var fragment = AttachedMembersModule.ActionBarTabContentInternalMember.GetValue(tab, null) as Fragment;
+            var fragment = ServiceProvider.AttachedValueProvider.GetValue<object>(tab, ContentInternalKey, false) as Fragment;
             if (fragment != null)
             {
-                var viewModel = BindingProvider.Instance.ContextManager.GetBindingContext(fragment).DataContext as IViewModel;
+                var viewModel = BindingProvider.Instance.ContextManager.GetBindingContext(fragment).Value as IViewModel;
                 if (viewModel != null)
                     viewModel.Settings.Metadata.Remove(MvvmFragmentMediator.StateNotNeeded);
                 fragment.FragmentManager
@@ -97,7 +103,7 @@ namespace MugenMvvmToolkit.Models
             AttachedMembersModule.ActionBarTabParentMember.SetValue(newTab, new object[] { bar });
             var setter = new XmlPropertySetter<ActionBarTabTemplate, ActionBar.Tab>(newTab, bar.ThemedContext);
             if (useContext)
-                BindingProvider.Instance.ContextManager.GetBindingContext(newTab).DataContext = context;
+                BindingProvider.Instance.ContextManager.GetBindingContext(newTab).Value = context;
             else
                 setter.SetProperty(template => template.DataContext, DataContext);
             setter.SetBinding(template => template.ContentTemplateSelector, ContentTemplateSelector, false);
@@ -168,15 +174,16 @@ namespace MugenMvvmToolkit.Models
             //Set selected item data context or tab
             AttachedMembersModule
                 .ActionBarSelectedItemMember
-                .SetValue(bar, AttachedMembersModule.ActionBarTabItemsSourceGeneratorMember.GetValue(bar, null) == null
+                .SetValue(bar, ActionBarTabItemsSourceGenerator.Get(bar) == null
                     ? new object[] { tab }
-                    : new[] { BindingProvider.Instance.ContextManager.GetBindingContext(tab).DataContext });
-            AttachedMembersModule.ActionBarTabContentInternalMember.SetValue(tab, new[] { content });
+                    : new[] { BindingProvider.Instance.ContextManager.GetBindingContext(tab).Value });
+
+            ServiceProvider.AttachedValueProvider.SetValue(tab, ContentInternalKey, content);
         }
 
         void ActionBar.ITabListener.OnTabUnselected(ActionBar.Tab tab, FragmentTransaction ft)
         {
-            var fragment = AttachedMembersModule.ActionBarTabContentInternalMember.GetValue(tab, null) as Fragment;
+            var fragment = ServiceProvider.AttachedValueProvider.GetValue<object>(tab, ContentInternalKey, false) as Fragment;
             if (fragment != null)
                 ft.Remove(fragment);
         }

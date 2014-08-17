@@ -36,6 +36,7 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Fields
 
+        private const string Key = "#ItemsSourceAdatapter";
         private IEnumerable _itemsSource;
         private readonly object _container;
         private readonly NotifyCollectionChangedEventHandler _weakHandler;
@@ -61,8 +62,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 dropDownItemTemplateSelectorName);
             _layoutInflater = LayoutInflater.From(context);
             if (listenCollectionChanges)
-                _weakHandler = PlatformExtensions.MakeWeakCollectionChangedHandler(this,
-                    (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3), false);
+                _weakHandler = PlatformExtensions.MakeWeakCollectionChangedHandler(this, (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));
         }
 
         #endregion
@@ -124,6 +124,16 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
+        public static ItemsSourceAdapter Get(object container)
+        {
+            return ServiceProvider.AttachedValueProvider.GetValue<ItemsSourceAdapter>(container, Key, false);
+        }
+
+        public static void Set(object container, ItemsSourceAdapter adapter)
+        {
+            ServiceProvider.AttachedValueProvider.SetValue(container, Key, adapter);
+        }
+
         public virtual object GetRawItem(int position)
         {
             if (position < 0)
@@ -172,7 +182,7 @@ namespace MugenMvvmToolkit.Infrastructure
                         BindingProvider.Instance
                                        .ContextManager
                                        .GetBindingContext(valueView)
-                                       .DataContext = value;
+                                       .Value = value;
                         return valueView;
                     }
                     if (template is int)
@@ -195,7 +205,7 @@ namespace MugenMvvmToolkit.Infrastructure
             var itemView = convertView as ListItemView;
             if (itemView == null || itemView.TemplateId != templateId)
                 convertView = CreateView(value, parent, templateId.Value);
-            BindingProvider.Instance.ContextManager.GetBindingContext(convertView).DataContext = value;
+            BindingProvider.Instance.ContextManager.GetBindingContext(convertView).Value = value;
             return convertView;
         }
 

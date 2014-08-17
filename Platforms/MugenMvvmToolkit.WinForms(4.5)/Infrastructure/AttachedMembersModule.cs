@@ -44,7 +44,6 @@ namespace MugenMvvmToolkit.Infrastructure
         private readonly static IAttachedBindingMemberInfo<object, IContentViewManager> ContentViewManagerMember;
         private readonly static IAttachedBindingMemberInfo<Control, bool> DisableValidationMember;
         private readonly static IAttachedBindingMemberInfo<object, IEnumerable> ItemsSourceMember;
-        private readonly static IAttachedBindingMemberInfo<object, ItemsSourceGenerator> ItemsSourceGeneratorMember;
         private readonly static IAttachedBindingMemberInfo<Control, object> ContenMember;
         private readonly static IAttachedBindingMemberInfo<Control, IDataTemplateSelector> ContenTemplateMember;
 
@@ -56,7 +55,6 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             //Object
             ItemsSourceMember = AttachedBindingMember.CreateAutoProperty<object, IEnumerable>(AttachedMemberConstants.ItemsSource, ObjectItemsSourceChanged);
-            ItemsSourceGeneratorMember = AttachedBindingMember.CreateAutoProperty<object, ItemsSourceGenerator>("@$generator", defaultValue: (control, info) => new ItemsSourceGenerator(control));
             CollectionViewManagerMember = AttachedBindingMember.CreateAutoProperty<object, ICollectionViewManager>("CollectionViewManager");
             ContentViewManagerMember = AttachedBindingMember.CreateAutoProperty<object, IContentViewManager>("ContentViewManager");
 
@@ -247,7 +245,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static IDisposable ObserveObjectItemsSource(IBindingMemberInfo bindingMemberInfo, object component, IEventListener arg3)
         {
-            return GetObjectItemsSourceMember(component).TryObserveMember(component, arg3);
+            return GetObjectItemsSourceMember(component).TryObserve(component, arg3);
         }
 
         private static object SetObjectItemsSource(IBindingMemberInfo bindingMemberInfo, object component, object[] arg3)
@@ -262,7 +260,9 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static void ObjectItemsSourceChanged(object control, AttachedMemberChangedEventArgs<IEnumerable> args)
         {
-            ItemsSourceGeneratorMember.GetValue(control, null).Update(args.NewValue);
+            ServiceProvider.AttachedValueProvider
+                .GetOrAdd(control,"@!generator", (o, o1) => new ItemsSourceGenerator(o), null)
+                .Update(args.NewValue);
         }
 
         private static IBindingMemberInfo GetObjectItemsSourceMember(object component)
@@ -291,18 +291,17 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static IDisposable ObserveParentMemberToolStripItem(IBindingMemberInfo bindingMemberInfo, ToolStripItem toolStripItem, IEventListener arg3)
         {
-            var weakEventHandler = arg3.ToWeakEventHandler<EventArgs>(false);
-            EventHandler handler = weakEventHandler.Handle;
+            EventHandler handler = arg3.ToWeakEventListener().Handle;
             ToolStrip owner = GetOwner(toolStripItem);
             WeakReference ownerRef = null;
             if (owner != null)
             {
                 owner.ParentChanged += handler;
-                ownerRef = MvvmExtensions.GetWeakReference(owner);
+                ownerRef = ServiceProvider.WeakReferenceFactory(owner, true);
             }
             toolStripItem.OwnerChanged += handler;
-            var menuItemRef = MvvmExtensions.GetWeakReference(toolStripItem);
-            weakEventHandler.Unsubscriber = new ActionToken(() =>
+            var menuItemRef = ServiceProvider.WeakReferenceFactory(toolStripItem, true);
+            return new ActionToken(() =>
             {
                 if (ownerRef != null)
                 {
@@ -316,7 +315,6 @@ namespace MugenMvvmToolkit.Infrastructure
                     item.OwnerChanged -= handler;
                 menuItemRef = null;
             });
-            return weakEventHandler;
         }
 
         private static ToolStrip GetOwner(ToolStripItem menuItem)
@@ -369,7 +367,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 return null;
             return BindingProvider.Instance
                 .ContextManager
-                .GetBindingContext(tabControl.TabPages[tabControl.SelectedIndex]).DataContext;
+                .GetBindingContext(tabControl.TabPages[tabControl.SelectedIndex]).Value;
         }
 
         private static object SetSelectedItemTabControl(IBindingMemberInfo bindingMemberInfo, TabControl tabControl, object[] arg3)
@@ -377,7 +375,7 @@ namespace MugenMvvmToolkit.Infrastructure
             var item = arg3[0];
             foreach (TabPage tabPage in tabControl.TabPages)
             {
-                if (Equals(BindingProvider.Instance.ContextManager.GetBindingContext(tabPage).DataContext, item))
+                if (Equals(BindingProvider.Instance.ContextManager.GetBindingContext(tabPage).Value, item))
                 {
                     tabControl.SelectedTab = tabPage;
                     return null;

@@ -273,7 +273,7 @@ namespace MugenMvvmToolkit.Models
         {
             if (Interlocked.Increment(ref _suspendCount) == 1)
                 OnPropertyChanged("IsNotificationsSuspended");
-            return WeakActionToken.Create(this, @base => @base.EndSuspendNotifications(), true);
+            return WeakActionToken.Create(this, @base => @base.EndSuspendNotifications());
         }
 
         #endregion

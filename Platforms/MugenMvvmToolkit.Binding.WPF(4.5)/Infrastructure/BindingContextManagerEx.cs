@@ -60,9 +60,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     .ObserverProvider
                     .Observe(element, BindingPath.DataContext, true);
                 _observer.Listener = this;
-#else        
+#else
+                _sourceReference = ServiceProvider.WeakReferenceFactory(element, true);
                 element.DataContextChanged += RaiseDataContextChanged;
-                _sourceReference = MvvmExtensions.GetWeakReference(element);
+                if (ListenUnloadEvent)
+                    element.Unloaded += ElementOnUnloaded;
 #endif
             }
 
@@ -88,7 +90,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             /// <summary>
             ///     Gets the data context.
             /// </summary>
-            public object DataContext
+            public object Value
             {
                 get
                 {
@@ -112,9 +114,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
 
             /// <summary>
-            ///     Occurs when the DataContext property changed.
+            ///     Occurs when the <see cref="Value"/>  property changed.
             /// </summary>
-            public event EventHandler<IBindingContext, EventArgs> DataContextChanged;
+            public event EventHandler<ISourceValue, EventArgs> ValueChanged;
 
             #endregion
 
@@ -123,20 +125,44 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 #if WINDOWS_PHONE || NETFX_CORE
             void IHandler<ValueChangedEventArgs>.Handle(object sender, ValueChangedEventArgs message)
             {
-                var handler = DataContextChanged;
+                var handler = ValueChanged;
                 if (handler != null)
                     handler(this, EventArgs.Empty);
             }
 #else
             private void RaiseDataContextChanged(object sender, EventType args)
             {
-                var handler = DataContextChanged;
+                var handler = ValueChanged;
                 if (handler != null)
                     handler(this, EventArgs.Empty);
+            }
+
+            private void ElementOnUnloaded(object sender, RoutedEventArgs routedEventArgs)
+            {
+                if (Value == null)
+                    RaiseDataContextChanged(sender, default(EventType));
             }
 #endif
             #endregion
         }
+
+        #endregion
+
+        #region Properties
+
+#if !WINDOWS_PHONE && !NETFX_CORE
+        static BindingContextManagerEx()
+        {
+#if WPF
+            ListenUnloadEvent = true;
+#endif
+        }
+
+        /// <summary>
+        /// Gets or sets the value that indicates that context should listen the Unload event.
+        /// </summary>
+        public static bool ListenUnloadEvent { get; set; }
+#endif
 
         #endregion
 

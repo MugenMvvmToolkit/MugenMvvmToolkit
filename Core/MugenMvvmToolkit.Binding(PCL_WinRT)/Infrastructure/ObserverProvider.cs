@@ -13,8 +13,6 @@
 // </license>
 // ****************************************************************************
 #endregion
-using System;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 
@@ -39,21 +37,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (path.IsEmpty)
                 return new EmptyPathObserver(target, path);
             return new MultiPathObserver(target, path, ignoreAttachedMembers);
-        }
-
-        /// <summary>
-        ///     Attempts to track the change of parent.
-        /// </summary>
-        public virtual IDisposable TryObserveParent(object target, IEventListener listener)
-        {
-            Should.NotBeNull(target, "target");
-            IBindingMemberInfo parentMember = BindingProvider
-                .Instance
-                .VisualTreeManager
-                .GetParentMember(target.GetType());
-            if (parentMember == null)
-                return null;
-            return parentMember.TryObserveMember(target, listener);
         }
 
         #endregion

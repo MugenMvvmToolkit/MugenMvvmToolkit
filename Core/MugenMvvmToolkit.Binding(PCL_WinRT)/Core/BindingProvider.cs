@@ -46,10 +46,16 @@ namespace MugenMvvmToolkit.Binding.Core
 
         private static readonly DataConstant<BindingProvider> ProviderConstant;
         private static readonly DataConstant<Exception> ExceptionConstant;
+        private static readonly IComparer<IBindingBehavior> BehaviorComparer;
+        private static readonly Func<IDataContext, IDataBinding> CreateInvalidaDataBindingDelegate;
+        private static readonly Func<IDataContext, IList<object>, object> FormatMembersExpressionDelegate;
 
         private static IBindingProvider _instance;
-        private static readonly IComparer<IBindingBehavior> BehaviorComparer;
+
         private readonly OrderedListInternal<IBindingBehavior> _defaultBehaviors;
+        private readonly IList<IBindingSourceDecorator> _decorators;
+        private readonly Func<IDataContext, IDataBinding> _buildDelegate;
+
         private IBindingManager _bindingManager;
         private IBindingContextManager _contextManager;
         private IBindingResourceResolver _dynamicResolver;
@@ -57,8 +63,6 @@ namespace MugenMvvmToolkit.Binding.Core
         private IObserverProvider _observerProvider;
         private IBindingParser _parser;
         private IVisualTreeManager _visualTreeManager;
-        private readonly IList<IBindingSourceDecorator> _decorators;
-        private readonly Func<IDataContext, IDataBinding> _buildDelegate;
         private IWeakEventManager _weakEventManager;
 
         #endregion
@@ -70,6 +74,8 @@ namespace MugenMvvmToolkit.Binding.Core
         /// </summary>
         static BindingProvider()
         {
+            CreateInvalidaDataBindingDelegate = CreateInvalidaDataBinding;
+            FormatMembersExpressionDelegate = FormatMembersExpression;
             ProviderConstant = DataConstant.Create(() => ProviderConstant, true);
             ExceptionConstant = DataConstant.Create(() => ExceptionConstant, true);
             BehaviorComparer = new DelegateComparer<IBindingBehavior>((behavior, bindingBehavior) => bindingBehavior.Priority.CompareTo(behavior.Priority));
@@ -327,7 +333,7 @@ namespace MugenMvvmToolkit.Binding.Core
                 builder.Add(BindingBuilderConstants.Target, target);
                 builder.Add(ProviderConstant, this);
                 builder.Add(ExceptionConstant, exception);
-                builder.Add(BindingBuilderConstants.BuildDelegate, CreateInvalidaDataBinding);
+                builder.Add(BindingBuilderConstants.BuildDelegate, CreateInvalidaDataBindingDelegate);
                 return new IBindingBuilder[] { builder };
             }
         }
@@ -408,7 +414,7 @@ namespace MugenMvvmToolkit.Binding.Core
             var sourceDelegates = context.GetData(BindingBuilderConstants.Sources, true);
             if (sourceDelegates.Count > 1 || formatExpression != null)
             {
-                formatExpression = formatExpression ?? FormatMembersExpression;
+                formatExpression = formatExpression ?? FormatMembersExpressionDelegate;
                 var sources = new IBindingSource[sourceDelegates.Count];
                 for (int index = 0; index < sourceDelegates.Count; index++)
                     sources[index] = Decorate(sourceDelegates[index].Invoke(this, context), false, context);

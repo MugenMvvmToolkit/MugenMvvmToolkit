@@ -19,7 +19,7 @@ namespace MugenMvvmToolkit.Test.TestModels
         /// </summary>
         public object Source { get; set; }
 
-        public object DataContext
+        public object Value
         {
             get { return _dataContext; }
             set
@@ -29,7 +29,7 @@ namespace MugenMvvmToolkit.Test.TestModels
             }
         }
 
-        public event EventHandler<IBindingContext, EventArgs> DataContextChanged;
+        public event EventHandler<ISourceValue, EventArgs> ValueChanged;
 
         #endregion
 
@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         private void OnDataContextChanged()
         {
-            var handler = DataContextChanged;
+            var handler = ValueChanged;
             if (handler != null) handler(this, EventArgs.Empty);
         }
 

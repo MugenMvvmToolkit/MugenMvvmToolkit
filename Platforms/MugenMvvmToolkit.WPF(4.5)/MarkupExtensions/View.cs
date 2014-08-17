@@ -295,7 +295,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
         private static void OnBindChangedCallback(DependencyObject sender, DependencyPropertyChangedEventArgs args)
         {
             var bindChanged = OnBindChanged;
-            Should.MethodBeSupported(DesignTimeManagerBase.GetIsDesignModeStatic() || bindChanged != null, "OnBindChanged");
+            Should.MethodBeSupported(DesignTimeManagerBase.IsDesignModeStatic || bindChanged != null, "OnBindChanged");
             if (bindChanged != null)
                 bindChanged(sender, (string)args.NewValue);
         }

@@ -24,6 +24,13 @@ namespace MugenMvvmToolkit.Models
 {
     public sealed class MenuItemTemplate
     {
+        #region Fields
+
+        private const string ActionViewBindKey = "@ActionViewBind";
+        private const string ActionProviderBindKey = "@ActionProviderBind";
+
+        #endregion
+
         #region Properties
 
         [XmlAttribute("DATACONTEXT")]
@@ -96,6 +103,16 @@ namespace MugenMvvmToolkit.Models
 
         #region Methods
 
+        public static string GetActionViewBind(IMenuItem menuItem)
+        {
+            return ServiceProvider.AttachedValueProvider.GetValue<string>(menuItem, ActionViewBindKey, false);
+        }
+
+        public static string GetActionProviderBind(IMenuItem menuItem)
+        {
+            return ServiceProvider.AttachedValueProvider.GetValue<string>(menuItem, ActionProviderBindKey, false);
+        }
+
         public void Apply(IMenu menu, Context context, object dataContext, int id, int order)
         {
             ApplyInternal(menu, context, id, order, dataContext, true);
@@ -125,8 +142,7 @@ namespace MugenMvvmToolkit.Models
                 }
                 else
                 {
-                    AttachedMembersModule.MenuItemsSourceGeneratorMember.SetValue(subMenu,
-                        new object[] { new MenuItemsSourceGenerator(subMenu, context, ItemTemplate) });
+                    MenuItemsSourceGenerator.Set(subMenu, context, ItemTemplate);
                     new XmlPropertySetter<MenuItemTemplate, ISubMenu>(subMenu, context)
                         .SetBinding(template => template.ItemsSource, ItemsSource, true);
                 }
@@ -153,15 +169,14 @@ namespace MugenMvvmToolkit.Models
             setter.SetBoolProperty(template => template.IsActionViewExpanded, IsActionViewExpanded);
             setter.SetStringProperty(template => template.Title, Title);
             setter.SetStringProperty(template => template.CommandParameter, CommandParameter);
-            setter.SetBinding(template => template.Click, Click, false);            
+            setter.SetBinding(template => template.Click, Click, false);
 #if !API8
             setter.SetEnumProperty<ShowAsAction>(template => template.ShowAsAction, ShowAsAction);
 
             if (!string.IsNullOrEmpty(ActionViewBind))
-                AttachedMembersModule.MenuItemActionViewBindMember.SetValue(menuItem, new object[] { ActionViewBind });
+                ServiceProvider.AttachedValueProvider.SetValue(menuItem, ActionViewBindKey, ActionViewBind);
             if (!string.IsNullOrEmpty(ActionProviderBind))
-                AttachedMembersModule.MenuItemActionProviderBindMember.SetValue(menuItem,
-                    new object[] { ActionProviderBind });
+                ServiceProvider.AttachedValueProvider.SetValue(menuItem, ActionProviderBindKey, ActionProviderBind);
 #endif
 
             setter.SetBinding(template => template.ActionViewTemplateSelector, ActionViewTemplateSelector, false);
@@ -173,7 +188,7 @@ namespace MugenMvvmToolkit.Models
         private void SetDataContext<T>(T target, Context context, object dataContext, bool useContext)
         {
             if (useContext)
-                BindingProvider.Instance.ContextManager.GetBindingContext(target).DataContext = dataContext;
+                BindingProvider.Instance.ContextManager.GetBindingContext(target).Value = dataContext;
             else
                 new XmlPropertySetter<MenuItemTemplate, T>(target, context)
                     .SetBinding(template => template.DataContext, DataContext, false);

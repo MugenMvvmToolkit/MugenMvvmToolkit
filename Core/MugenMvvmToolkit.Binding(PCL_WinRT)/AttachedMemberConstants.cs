@@ -46,6 +46,11 @@ namespace MugenMvvmToolkit.Binding
         public const string Parent = "Parent";
 
         /// <summary>
+        ///     Gets the name of member that will be used by GetRootMember method.
+        /// </summary>
+        public const string RootElement = "#RootElement";
+
+        /// <summary>
         ///     Gets the name of member that will be used by FindByName method.
         /// </summary>
         public const string FindByNameMethod = "#FindByName";

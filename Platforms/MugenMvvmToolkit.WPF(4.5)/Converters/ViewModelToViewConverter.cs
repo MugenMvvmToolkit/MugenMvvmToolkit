@@ -116,14 +116,10 @@ namespace MugenMvvmToolkit.Converters
                         ctx = new DataContext(ActivationConstants.ViewName.ToValue(viewName));
                 }
 #if ANDROID
-                var content = PlatformExtensions.GetOrCreateView((IViewModel)value, AlwaysCreateNewView, ctx);
-                var view = content as IView;
-                if (view == null)
-                    return content;
-                return view.GetUnderlyingView();
+                return PlatformExtensions.GetOrCreateView((IViewModel)value, AlwaysCreateNewView, ctx);
 #else
                 return ViewManager.GetOrCreateView((IViewModel)value, AlwaysCreateNewView, ctx).GetUnderlyingView();
-#endif                
+#endif
             }
             catch (Exception exception)
             {

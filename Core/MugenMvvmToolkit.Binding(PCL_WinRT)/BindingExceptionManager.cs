@@ -32,13 +32,23 @@ namespace MugenMvvmToolkit.Binding
     /// </summary>
     public static class BindingExceptionManager
     {
+        #region Fields
+
+        internal const string ElementSourceNotFoundFormat2 =
+            "The ElementSource cannot be found, the provider returns the null result for the source type '{0}' target element name '{1}'";
+
+        internal const string RelativeSourceNotFoundFormat3 =
+            "The RelativeSource cannot be found, the provider returns the null result for the source type '{0}' target type name '{1}' level '{2}'";
+
+        #endregion
+
         #region Methods
 
         public static Exception CannotResolveInstanceByName(object sender, string instanceName, string name)
         {
             return
-                new InvalidOperationException(string.Format(
-                    "The {0} with name '{1}' is not registered in the '{2}'", instanceName, name, sender));
+                new InvalidOperationException(string.Format("The {0} with name '{1}' is not registered in the '{2}'",
+                    instanceName, name, sender));
         }
 
         internal static Exception ExpressionNodeCannotBeNull(Type ownerType)
@@ -142,25 +152,6 @@ namespace MugenMvvmToolkit.Binding
                     action == BindingAction.UpdateSource ? "source" : "target",
                     binding.TargetAccessor.Source.Path, exception.Message);
             return new InvalidOperationException(message, exception);
-        }
-
-        internal static Exception RelativeSourceNotFound(object source, string typeName, uint level)
-        {
-            return new InvalidOperationException(
-                string.Format(
-                    "The RelativeSource cannot be found, the provider returns the null result for the source type '{0}' target type name '{1}' level '{2}'",
-                    source, typeName, level));
-        }
-
-        /// <summary>
-        ///     Creates an instance of exception that indicates that element source was not found.
-        /// </summary>
-        public static Exception ElementSourceNotFound(object source, string typeName)
-        {
-            return new InvalidOperationException(
-                string.Format(
-                    "The ElementSource cannot be found, the provider returns the null result for the source type '{0}' target element name '{1}'",
-                    source, typeName));
         }
 
         internal static Exception UnexpectedExpressionNode(IExpressionNode node)

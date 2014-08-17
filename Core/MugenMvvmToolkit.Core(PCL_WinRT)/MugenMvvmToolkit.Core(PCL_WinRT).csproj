@@ -45,10 +45,10 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
-    <Content Include="..\..\Solution Items\licence.txt">
+    <None Include="..\..\Solution Items\licence.txt">
       <Link>licence.txt</Link>
-    </Content>
-    <Content Include="FodyWeavers.xml" />
+    </None>
+    <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Annotations\Toolkit.Annotations.cs" />

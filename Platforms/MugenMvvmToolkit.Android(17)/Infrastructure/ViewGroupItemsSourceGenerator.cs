@@ -23,6 +23,7 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Fields
 
+        private const string Key = "@@!gen";
         private readonly ItemsSourceAdapter _adapter;
         private readonly ViewGroup _viewGroup;
 
@@ -33,12 +34,21 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="ViewGroupItemsSourceGenerator" /> class.
         /// </summary>
-        public ViewGroupItemsSourceGenerator([NotNull] ViewGroup viewGroup)
+        private ViewGroupItemsSourceGenerator([NotNull] ViewGroup viewGroup)
         {
             Should.NotBeNull(viewGroup, "viewGroup");
             _viewGroup = viewGroup;
             _adapter = new ItemsSourceAdapter(viewGroup, viewGroup.Context, false);
             TryListenActivity(viewGroup.Context);
+        }
+
+        #endregion
+
+        #region Methods
+
+        public static ViewGroupItemsSourceGenerator GetOrAdd(ViewGroup viewGroup)
+        {
+            return ServiceProvider.AttachedValueProvider.GetOrAdd(viewGroup, Key, (@group, o) => new ViewGroupItemsSourceGenerator(viewGroup), null);
         }
 
         #endregion

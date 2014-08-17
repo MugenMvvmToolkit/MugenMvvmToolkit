@@ -17,6 +17,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -125,7 +126,10 @@ namespace MugenMvvmToolkit
                         for (int i = 0; i < WeakReferences.Count; i++)
                         {
                             if (WeakReferences[i].Target == null)
+                            {
                                 WeakReferences.RemoveAt(i);
+                                i--;
+                            }
                         }
                     }
                 }
@@ -146,8 +150,10 @@ namespace MugenMvvmToolkit
 
         //NOTE ConditionalWeakTable invokes finalizer for value, even if the key object is still alive https://bugzilla.xamarin.com/show_bug.cgi?id=21620.
         private static readonly List<WeakReference> WeakReferences;
+        private static readonly Func<ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs>, NotifyCollectionChangedEventHandler> CreateHandlerDelegate;
         private const string VisitedParentPath = "$``!Visited~";
         private static Func<Activity, IDataContext, IMvvmActivityMediator> _mvvmActivityMediatorFactory;
+        private static readonly Action<object, NotifyCollectionChangedEventHandler> UnsubscribeCollectionChangedDelegate;
 #if !API8
         private static Func<Fragment, IDataContext, IMvvmFragmentMediator> _mvvmFragmentMediatorFactory;
 #endif
@@ -157,13 +163,15 @@ namespace MugenMvvmToolkit
 
         static PlatformExtensions()
         {
-            WeakReferences = new List<WeakReference>(128);
+            CreateHandlerDelegate = CreateHandler;
+#if !API8
+            _mvvmFragmentMediatorFactory = MvvmFragmentMediatorFactoryMethod;
+#endif
+            _mvvmActivityMediatorFactory = MvvmActivityMediatorFactoryMethod;
+            UnsubscribeCollectionChangedDelegate = UnsubscribeCollectionChanged;
+            WeakReferences = new List<WeakReference>(256);
             // ReSharper disable once ObjectCreationAsStatement
             new WeakReferenceCollector();
-            _mvvmActivityMediatorFactory = (activity, ctx) => new MvvmActivityMediator(activity);
-#if !API8
-            _mvvmFragmentMediatorFactory = (fragment, context) => new MvvmFragmentMediator(fragment);
-#endif
         }
 
         #endregion
@@ -438,12 +446,9 @@ namespace MugenMvvmToolkit
         }
 
         public static NotifyCollectionChangedEventHandler MakeWeakCollectionChangedHandler<TTarget>(TTarget target, Action<TTarget, object,
-            NotifyCollectionChangedEventArgs> invokeAction, bool cacheWeakReferenceTarget) where TTarget : class
+            NotifyCollectionChangedEventArgs> invokeAction) where TTarget : class
         {
-            return ReflectionExtensions
-                .CreateWeakDelegate<TTarget, NotifyCollectionChangedEventArgs, NotifyCollectionChangedEventHandler>(
-                    target, invokeAction, UnsubscribeCollectionChanged, handler => handler.Handle,
-                    cacheWeakReferenceTarget);
+            return ReflectionExtensions.CreateWeakDelegate(target, invokeAction, UnsubscribeCollectionChangedDelegate, CreateHandlerDelegate);
         }
 
         internal static PlatformInfo GetPlatformInfo()
@@ -472,12 +477,12 @@ namespace MugenMvvmToolkit
         internal static object GetOrCreateView(IViewModel vm, bool? alwaysCreateNewView, IDataContext dataContext = null)
         {
 #if API8
-            return ViewManager.GetOrCreateView(vm, alwaysCreateNewView, dataContext);
+            return ViewManager.GetOrCreateView(vm, alwaysCreateNewView, dataContext).GetUnderlyingView();
 #else
             //NOTE: trying to use current fragment, if any.
             var fragment = vm.Settings.Metadata.GetData(MvvmFragmentMediator.CurrentFragment, false);
             if (fragment == null)
-                return ViewManager.GetOrCreateView(vm, alwaysCreateNewView, dataContext);
+                return ViewManager.GetOrCreateView(vm, alwaysCreateNewView, dataContext).GetUnderlyingView();
             return fragment;
 #endif
 
@@ -572,6 +577,11 @@ namespace MugenMvvmToolkit
             }
             return activity.GetFragmentManager();
         }
+
+        private static IMvvmFragmentMediator MvvmFragmentMediatorFactoryMethod(Fragment fragment, IDataContext dataContext)
+        {
+            return new MvvmFragmentMediator(fragment);
+        }
 #endif
 
         private static View GetContentInternal(Context ctx, object content, int? templateId)
@@ -584,7 +594,7 @@ namespace MugenMvvmToolkit
             BindingProvider.Instance
                 .ContextManager
                 .GetBindingContext(newView)
-                .DataContext = content;
+                .Value = content;
             return newView;
         }
 
@@ -601,7 +611,7 @@ namespace MugenMvvmToolkit
             var newView = template as View;
             if (newView != null)
             {
-                BindingProvider.Instance.ContextManager.GetBindingContext(newView).DataContext = content;
+                BindingProvider.Instance.ContextManager.GetBindingContext(newView).Value = content;
                 return newView;
             }
             if (template is int)
@@ -610,11 +620,21 @@ namespace MugenMvvmToolkit
             var fragment = template as Fragment;
             if (fragment != null)
             {
-                BindingProvider.Instance.ContextManager.GetBindingContext(fragment).DataContext = content;
+                BindingProvider.Instance.ContextManager.GetBindingContext(fragment).Value = content;
                 return fragment;
             }
 #endif
             return template;
+        }
+
+        private static IMvvmActivityMediator MvvmActivityMediatorFactoryMethod(Activity activity, IDataContext dataContext)
+        {
+            return new MvvmActivityMediator(activity);
+        }
+
+        private static NotifyCollectionChangedEventHandler CreateHandler(ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs> weakEventHandler)
+        {
+            return weakEventHandler.Handle;
         }
 
         #endregion

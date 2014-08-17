@@ -36,6 +36,8 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Fields
 
+        private static bool? _isDesignModeStatic;
+
         private readonly int _priority;
         private readonly object _locker;
         private bool _isInitialized;
@@ -152,6 +154,24 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #endregion
 
+        #region Properties
+
+        /// <summary>
+        ///     Gets the value indicating whether the control is in design mode (running under Blend or Visual Studio).
+        /// </summary>
+        public static bool IsDesignModeStatic
+        {
+            get
+            {
+                if (_isDesignModeStatic.HasValue)
+                    return _isDesignModeStatic.Value;
+                _isDesignModeStatic = GetIsDesignModeStatic();
+                return _isDesignModeStatic.Value;
+            }
+        }
+
+        #endregion
+
         #region Methods
 
         /// <summary>
@@ -178,7 +198,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected virtual bool GetIsDesignMode()
         {
-            return GetIsDesignModeStatic();
+            return IsDesignModeStatic;
         }
 
         /// <summary>
@@ -200,7 +220,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 .InitializeViewModel(viewModel, Context ?? DataContext.Empty);
         }
 
-        internal static bool GetIsDesignModeStatic()
+        private static bool GetIsDesignModeStatic()
         {
             try
             {

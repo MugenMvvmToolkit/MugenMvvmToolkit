@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
@@ -34,7 +35,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
     /// <summary>
     ///     Represents the binding behavior that checks for errors that are raised by a data source that implements <see cref="INotifyDataErrorInfo" />.
     /// </summary>
-    public class ValidatesOnNotifyDataErrorsBehavior : BindingBehaviorBase, IEventListener, IHasSelfWeakReference
+    public class ValidatesOnNotifyDataErrorsBehavior : BindingBehaviorBase, IEventListener, IHasWeakReference
     {
         #region Fields
 
@@ -59,6 +60,15 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             IdNotifyDataErrorInfoBindingBehavior = new Guid("198CBAA2-CF75-4620-9BDD-A1EBF9B8B2F4");
             Prototype = new ValidatesOnNotifyDataErrorsBehavior();
             ErrorsConstant = new SenderType("VNDEB.ErrorsConstant");
+        }
+
+        #endregion
+
+        #region Properties
+
+        internal WeakReference SelfReference
+        {
+            get { return _selfReference; }
         }
 
         #endregion
@@ -156,7 +166,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// <summary>
         /// Updates the current errors.
         /// </summary>
-        protected virtual void UpdateErrors(IList<object> errors)
+        protected virtual void UpdateErrors([CanBeNull] IList<object> errors)
         {
             var binding = Binding;
             if (binding != null)
@@ -186,7 +196,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         private void UpdateErrors()
         {
-            var errors = new List<object>();
+            List<object> errors = null;
             lock (_subscribers)
             {
                 var accessor = Binding.SourceAccessor as ISingleBindingSourceAccessor;
@@ -194,10 +204,10 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 {
                     var sources = Binding.SourceAccessor.Sources;
                     for (int index = 0; index < sources.Count; index++)
-                        CollectErrors(errors, sources[index]);
+                        CollectErrors(ref errors, sources[index]);
                 }
                 else
-                    CollectErrors(errors, accessor.Source);
+                    CollectErrors(ref errors, accessor.Source);
             }
             UpdateErrors(errors);
         }
@@ -220,20 +230,33 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             UpdateErrors();
         }
 
-        private static void CollectErrors(List<object> errors, IBindingSource bindingSource)
+        private static void CollectErrors(ref List<object> errors, IBindingSource bindingSource)
         {
             var notifyDataErrorInfo = bindingSource.GetPathMembers(false).PenultimateValue as INotifyDataErrorInfo;
             if (notifyDataErrorInfo == null)
                 return;
             var path = bindingSource.Path.Parts.LastOrDefault();
             var e = notifyDataErrorInfo.GetErrors(path);
-            if (e != null)
-                errors.AddRange(e.OfType<object>());
+            if (e == null)
+                return;
+            foreach (var error in e)
+            {
+                if (error == null)
+                    continue;
+                if (errors == null)
+                    errors = new List<object>();
+                errors.Add(error);
+            }
         }
 
         #endregion
 
         #region Implementation of interfaces
+
+        bool IEventListener.IsWeak
+        {
+            get { return false; }
+        }
 
         void IEventListener.Handle(object sender, object message)
         {
@@ -243,7 +266,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 UpdateErrors();
         }
 
-        WeakReference IHasSelfWeakReference.SelfReference
+        WeakReference IHasWeakReference.WeakReference
         {
             get { return _selfReference; }
         }

@@ -89,9 +89,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     var observer = (ObserverBase)_reference.Target;
                     if (observer == null)
                         return null;
-                    object result;
-                    observer.GetActualSource(out result);
-                    return result;
+                    return observer.GetActualSource();
                 }
             }
 

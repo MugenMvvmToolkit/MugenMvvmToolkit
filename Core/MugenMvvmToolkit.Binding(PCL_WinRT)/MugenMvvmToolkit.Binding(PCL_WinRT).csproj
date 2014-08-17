@@ -45,10 +45,10 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
-    <Content Include="..\..\Solution Items\licence.txt">
+    <None Include="..\..\Solution Items\licence.txt">
       <Link>licence.txt</Link>
-    </Content>
-    <Content Include="FodyWeavers.xml" />
+    </None>
+    <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Accessors\BindingSourceAccessor.cs" />
@@ -119,7 +119,8 @@
     <Compile Include="Interfaces\Models\IBindingResourceObject.cs" />
     <Compile Include="Interfaces\Models\IDynamicObject.cs" />
     <Compile Include="Interfaces\Models\IEventListener.cs" />
-    <Compile Include="Interfaces\Models\IHasSelfWeakReference.cs" />
+    <Compile Include="Interfaces\Models\IHasWeakReference.cs" />
+    <Compile Include="Interfaces\Models\ISourceValue.cs" />
     <Compile Include="Interfaces\Parse\IBindingParser.cs" />
     <Compile Include="Interfaces\Parse\IExpressionInvoker.cs" />
     <Compile Include="Interfaces\Parse\IExpressionVisitor.cs" />
@@ -161,10 +162,11 @@
     <Compile Include="Models\EventArg\ValueAccessorChangedEventArgs.cs" />
     <Compile Include="Models\EventArg\ValueAccessorChangingEventArgs.cs" />
     <Compile Include="Models\EventArg\ValueChangedEventArgs.cs" />
+    <Compile Include="Models\EventListenerList.cs" />
     <Compile Include="Models\Exceptions\ParseException.cs" />
     <Compile Include="Models\ExpressionNodeType.cs" />
     <Compile Include="Models\MethodData.cs" />
-    <Compile Include="Models\RelativeSource.cs" />
+    <Compile Include="Behaviors\RelativeSourceBehavior.cs" />
     <Compile Include="Models\SenderType.cs" />
     <Compile Include="Models\TokenType.cs" />
     <Compile Include="Models\UnsetBindingPathMembers.cs" />

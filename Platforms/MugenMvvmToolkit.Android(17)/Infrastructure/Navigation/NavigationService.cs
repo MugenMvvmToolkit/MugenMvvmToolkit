@@ -82,7 +82,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                     var viewModel = BindingProvider.Instance
                         .ContextManager
                         .GetBindingContext(_currentActivity)
-                        .DataContext as IViewModel;
+                        .Value as IViewModel;
                     if (viewModel != null)
                         viewModel.Dispose();
                 }

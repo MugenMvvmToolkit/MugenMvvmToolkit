@@ -98,7 +98,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             member.SetValue(model, new object[] { model });
 
             member.GetValue(model, null).ShouldEqual(model);
-            contextMock.DataContext.ShouldEqual(model);
+            contextMock.Value.ShouldEqual(model);
         }
 
         [TestMethod]

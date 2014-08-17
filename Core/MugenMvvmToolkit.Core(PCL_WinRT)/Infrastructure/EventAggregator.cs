@@ -86,7 +86,8 @@ namespace MugenMvvmToolkit.Infrastructure
             #region Fields
 
             private const string HandlerInfoPath = "```@HandlerInfo";
-            private static readonly HandlerInfo EmptyHandler = new HandlerInfo();
+            private static readonly HandlerInfo EmptyHandler;
+            private static readonly Func<object, object, HandlerInfo> CreateDelegate;
 
             private static readonly Dictionary<Type, Dictionary<Type, Func<object, object[], object>>> TypeHandlers =
                 new Dictionary<Type, Dictionary<Type, Func<object, object[], object>>>();
@@ -104,6 +105,12 @@ namespace MugenMvvmToolkit.Infrastructure
             #endregion
 
             #region Constructors
+
+            static HandlerInfo()
+            {
+                EmptyHandler = new HandlerInfo();
+                CreateDelegate = Create;
+            }
 
             private HandlerInfo()
             {
@@ -140,7 +147,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public static HandlerInfo GetOrCreate(object target)
             {
-                return ServiceProvider.AttachedValueProvider.GetOrAdd(target, HandlerInfoPath, Create, null);
+                return ServiceProvider.AttachedValueProvider.GetOrAdd(target, HandlerInfoPath, CreateDelegate, null);
             }
 
             public void Handle(object sender, object message, bool trace)
@@ -183,7 +190,6 @@ namespace MugenMvvmToolkit.Infrastructure
                     }
                 }
             }
-
 
             private static HandlerInfo Create(object target, object state)
             {
@@ -371,9 +377,9 @@ namespace MugenMvvmToolkit.Infrastructure
                     {
                         _handlerReferences.RemoveAt(index);
                         index--;
-                        continue;
                     }
-                    objects.Add(handler.Target);
+                    else
+                        objects.Add(handler.Target);
                 }
             }
             return objects;

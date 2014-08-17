@@ -1,6 +1,6 @@
 #region Copyright
 // ****************************************************************************
-// <copyright file="RelativeSource.cs">
+// <copyright file="RelativeSourceBehavior.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
 // </copyright>
 // ****************************************************************************
@@ -13,99 +13,91 @@
 // </license>
 // ****************************************************************************
 #endregion
+
 using System;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Interfaces.Sources;
+using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Sources;
+using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Utils;
 
-namespace MugenMvvmToolkit.Binding.Models
+namespace MugenMvvmToolkit.Binding.Behaviors
 {
-    public sealed class RelativeSource : BindingBehaviorBase
+    public sealed class RelativeSourceBehavior : BindingBehaviorBase
     {
         #region Nested types
 
-        private sealed class ParentSourceValue : IEventListener
+        private sealed class ParentSourceValue : ISourceValue, IEventListener
         {
             #region Fields
 
-            private object _value;
             private readonly IRelativeSourceExpressionNode _node;
             private readonly WeakReference _targetReference;
             private readonly IDisposable _subscriber;
-            private bool _hasParent;
             private readonly bool _isElementSource;
 
+            private WeakReference _value;
+            private bool _hasParent;
+            
             #endregion
 
             #region Constructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="ParentSourceValue" /> class.
-            /// </summary>
             public ParentSourceValue(object target, IRelativeSourceExpressionNode node)
             {
                 _node = node;
                 _isElementSource = _node.Type == RelativeSourceExpressionNode.ElementSourceType;
-                _targetReference = MvvmExtensions.GetWeakReference(target);
-                _subscriber = BindingProvider.Instance.ObserverProvider.TryObserveParent(target, this);
+                _targetReference = ServiceProvider.WeakReferenceFactory(target, true);
+                _value = MvvmUtils.EmptyWeakReference;
+                var rootMember = BindingProvider.Instance.VisualTreeManager.GetRootMember(target.GetType());
+                if (rootMember != null)
+                    _subscriber = rootMember.TryObserve(target, this);
                 Handle(null, null);
             }
 
             #endregion
 
-            #region Properties
+            #region Implementation of interfaces
 
             public object Value
             {
                 get
                 {
-                    if (_value != null)
-                        return _value;
-                    if (_isElementSource)
-                        throw BindingExceptionManager.ElementSourceNotFound(_targetReference.Target, _node.ElementName);
-                    throw BindingExceptionManager.RelativeSourceNotFound(_targetReference.Target, _node.Type,
-                        _node.Level);
+                    var target = _value.Target;
+                    if (_hasParent && target == null)
+                    {
+                        if (_isElementSource)
+                            Tracer.Warn(BindingExceptionManager.ElementSourceNotFoundFormat2, _targetReference.Target, _node.ElementName);
+                        else
+                            Tracer.Warn(BindingExceptionManager.RelativeSourceNotFoundFormat3, _targetReference.Target, _node.Type, _node.Level);
+                    }
+                    return target ?? BindingConstants.UnsetValue;
                 }
-                set
+                private set
                 {
-                    if (Equals(value, _value)) return;
-                    _value = value;
-                    OnValueChanged();
+                    if (Equals(value, _value.Target))
+                        return;
+                    _value = value == null
+                        ? MvvmUtils.EmptyWeakReference
+                        : ServiceProvider.WeakReferenceFactory(value, true);
+                    var handler = ValueChanged;
+                    if (handler != null)
+                        handler(this, EventArgs.Empty);
                 }
             }
 
-            #endregion
-
-            #region Events
-
-            public event EventHandler ValueChanged;
-
-            #endregion
-
-            #region Methods
-
-            private void OnValueChanged()
+            public bool IsWeak
             {
-                var handler = ValueChanged;
-                if (handler != null) handler(this, EventArgs.Empty);
+                get { return true; }
             }
 
-            #endregion
-
-            #region Implementation of IEventListener
-
-            /// <summary>
-            ///     Handles the message.
-            /// </summary>
-            /// <param name="sender">The object that raised the event.</param>
-            /// <param name="message">Information about event.</param>
             public void Handle(object sender, object message)
             {
                 var target = _targetReference.Target;
@@ -116,15 +108,14 @@ namespace MugenMvvmToolkit.Binding.Models
                         _subscriber.Dispose();
                     return;
                 }
-                _hasParent = BindingProvider.Instance.VisualTreeManager.FindParent(target) != null;
-                var value = _isElementSource
-                    ? BindingProvider.Instance.VisualTreeManager.FindByName(target, _node.ElementName)
-                    : BindingProvider.Instance.VisualTreeManager.FindRelativeSource(target, _node.Type, _node.Level);
-                if (value != null || _hasParent)
-                    Value = value;
-                else
-                    Value = BindingConstants.UnsetValue;
+                var treeManager = BindingProvider.Instance.VisualTreeManager;
+                _hasParent = treeManager.FindParent(target) != null;
+                Value = _isElementSource
+                    ? treeManager.FindByName(target, _node.ElementName)
+                    : treeManager.FindRelativeSource(target, _node.Type, _node.Level);
             }
+
+            public event EventHandler<ISourceValue, EventArgs> ValueChanged;
 
             #endregion
         }
@@ -142,9 +133,9 @@ namespace MugenMvvmToolkit.Binding.Models
         #region Constructors
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelativeSource" /> class.
+        ///     Initializes a new instance of the <see cref="RelativeSourceBehavior" /> class.
         /// </summary>
-        public RelativeSource(IRelativeSourceExpressionNode relativeSource)
+        public RelativeSourceBehavior(IRelativeSourceExpressionNode relativeSource)
         {
             _id = Guid.NewGuid();
             _relativeSourceNode = relativeSource;
@@ -217,13 +208,7 @@ namespace MugenMvvmToolkit.Binding.Models
                 if (RelativeSourceNode.Type == RelativeSourceExpressionNode.MemberSourceType)
                     target = BindingProvider.Instance.ContextManager.GetBindingContext(target);
                 else
-                {
-                    var source = target;
                     target = new ParentSourceValue(target, RelativeSourceNode);
-                    ServiceProvider.AttachedValueProvider.SetValue(source, "@$@$parentvalue" + target.GetHashCode(),
-                        target);
-                    path = BindingExtensions.MergePath("Value", path);
-                }
             }
             IObserver observer = BindingProvider.Instance.ObserverProvider.Observe(target, BindingPath.Create(path), false);
             _bindingSource = new BindingSource(observer);
@@ -273,7 +258,7 @@ namespace MugenMvvmToolkit.Binding.Models
         /// </summary>
         protected override IBindingBehavior CloneInternal()
         {
-            return new RelativeSource(RelativeSourceNode);
+            return new RelativeSourceBehavior(RelativeSourceNode);
         }
 
         #endregion

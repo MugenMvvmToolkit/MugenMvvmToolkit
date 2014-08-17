@@ -17,11 +17,15 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
+using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
@@ -35,15 +39,22 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <summary>
         ///     This is internal class, don't use it.
         /// </summary>
-        public sealed class WeakListenerInternal
+        public sealed class WeakListenerInternal : EventListenerList
         {
             #region Fields
 
-            private WeakReference[] _listeners;
-
-            private readonly WeakReference _selfReference;
             internal static readonly WeakListenerInternal EmptyListener;
             internal static readonly MethodInfo HandleMethod;
+            private static readonly object[] Empty;
+            private static readonly Func<object, object, WeakListenerInternal> AddSourceEventDelegate;
+            private static readonly UpdateValueDelegate<object, Func<object, object, WeakListenerInternal>, WeakListenerInternal, object> UpdateSourceEventDelegate;
+
+            private readonly WeakReference _sourceRef;
+            private readonly EventInfo _eventInfo;
+
+            internal object Handler;
+            //Only for WinRT
+            internal object RegToken;
 
             #endregion
 
@@ -51,23 +62,22 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             static WeakListenerInternal()
             {
-                HandleMethod = typeof(WeakListenerInternal)
-                    .GetMethodEx("Handle", MemberFlags.Public | MemberFlags.Instance);
-                EmptyListener = new WeakListenerInternal(true);
+                Empty = new object[0];
+                AddSourceEventDelegate = AddSourceEvent;
+                UpdateSourceEventDelegate = UpdateSourceEvent;
+                HandleMethod = typeof(WeakListenerInternal).GetMethodEx("Raise", MemberFlags.Public | MemberFlags.Instance);
+                EmptyListener = new WeakListenerInternal();
             }
 
-            internal WeakListenerInternal()
-                : this(false)
+            internal WeakListenerInternal(object source, EventInfo eventInfo)
             {
+                _sourceRef = ServiceProvider.WeakReferenceFactory(source, true);
+                _eventInfo = eventInfo;
             }
 
-            private WeakListenerInternal(bool empty)
+            private WeakListenerInternal()
             {
-                if (!empty)
-                {
-                    _listeners = EmptyValue<WeakReference>.ArrayInstance;
-                    _selfReference = ServiceProvider.WeakReferenceFactory(this, true);
-                }
+                Listeners = null;
             }
 
             #endregion
@@ -76,97 +86,94 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             internal bool IsEmpty
             {
-                get { return _listeners == null; }
+                get { return Listeners == null; }
+            }
+
+            #endregion
+
+            #region Overrides of EventListenerListBase
+
+            /// <summary>
+            /// Occurs on add a listener.
+            /// </summary>
+            protected override bool OnAdd(object weakItem, bool withUnsubscriber, out IDisposable unsubscriber)
+            {
+                unsubscriber = null;
+                if (!ReferenceEquals(Listeners, Empty))
+                    return false;
+                var source = _sourceRef.Target;
+                if (source == null)
+                    return false;
+                var state = new[] { this, weakItem, null };
+                string member = _eventInfo == null ? BindingContextMember : EventPrefix + _eventInfo.Name;
+                ServiceProvider.AttachedValueProvider.AddOrUpdate(source, member, AddSourceEventDelegate, UpdateSourceEventDelegate, state);
+                unsubscriber = (IDisposable)state[2];
+                return true;
+            }
+
+            /// <summary>
+            /// Occurs on empty collection.
+            /// </summary>
+            protected override void OnEmpty()
+            {
+                Listeners = Empty;
+                var source = _sourceRef.Target;
+                if (source == null)
+                    return;
+                //Binding context
+                if (_eventInfo == null)
+                {
+                    BindingProvider.Instance.ContextManager.GetBindingContext(source).ValueChanged -= Raise;
+                    ServiceProvider.AttachedValueProvider.Clear(source, BindingContextMember);
+                }
+                else
+                {
+#if PCL_WINRT
+                    var removeMethod = _eventInfo.RemoveMethod;
+#else
+                    var removeMethod = _eventInfo.GetRemoveMethod(true);
+#endif
+                    if (removeMethod != null)
+                        removeMethod.InvokeEx(source, RegToken ?? Handler);
+                    ServiceProvider.AttachedValueProvider.Clear(source, EventPrefix + _eventInfo.Name);
+                }
             }
 
             #endregion
 
             #region Methods
 
-            /// <summary>
-            ///     This is internal method, don't use it.
-            /// </summary>
-            public void Handle<TSender, TArgs>(TSender sender, TArgs args)
+            private static WeakListenerInternal AddSourceEvent(object source, object state)
             {
-                bool hasDeadRef = false;
-                var listeners = _listeners;
-                for (int i = 0; i < listeners.Length; i++)
+                var array = (object[])state;
+                var @this = (WeakListenerInternal)array[0];
+                var weakItem = array[1];
+                @this.Listeners = new[] { weakItem };
+
+                //Binding context
+                if (@this._eventInfo == null)
+                    BindingProvider.Instance.ContextManager.GetBindingContext(source).ValueChanged += @this.Raise;
+                else
                 {
-                    var listener = (IEventListener)listeners[i].Target;
-                    if (listener == null)
-                        hasDeadRef = true;
-                    else
-                        listener.Handle(sender, args);
+#if PCL_WINRT
+                    var addMethod = @this._eventInfo.AddMethod;
+#else
+                    var addMethod = @this._eventInfo.GetAddMethod(true);
+#endif
+                    @this.RegToken = addMethod.InvokeEx(source, @this.Handler);
                 }
-                if (hasDeadRef)
-                {
-                    lock (this)
-                        Update(null);
-                }
+
+                array[2] = new ActionToken(UnsubscribeListenerDelegate, new[] { @this, weakItem });
+                return @this;
             }
 
-            internal IDisposable Add(IEventListener target)
+            private static WeakListenerInternal UpdateSourceEvent(object source,
+                Func<object, object, WeakListenerInternal> addValue, WeakListenerInternal currentValue, object state)
             {
-                var reference = GetWeakReference(target);
-                //NOTE it's normal here.
-                lock (this)
-                {
-                    if (_listeners.Length == 0)
-                        _listeners = new[] { reference };
-                    else
-                        Update(reference);
-                }
-                return WeakActionToken.Create(_selfReference, reference, RemoveStatic, false);
-            }
-
-            private void Update(WeakReference newItem)
-            {
-                var references = newItem == null
-                    ? new WeakReference[_listeners.Length]
-                    : new WeakReference[_listeners.Length + 1];
-                int index = 0;
-                for (int i = 0; i < _listeners.Length; i++)
-                {
-                    var reference = _listeners[i];
-                    if (reference.Target != null)
-                        references[index++] = reference;
-                }
-                if (newItem != null)
-                {
-                    references[index] = newItem;
-                    index++;
-                }
-                else if (index == 0)
-                {
-                    _listeners = EmptyValue<WeakReference>.ArrayInstance;
-                    return;
-                }
-                if (references.Length != index)
-                    Array.Resize(ref references, index);
-                _listeners = references;
-            }
-
-            private void Remove(WeakReference weakReference)
-            {
-                lock (this)
-                {
-                    for (int i = 0; i < _listeners.Length; i++)
-                    {
-                        if (ReferenceEquals(_listeners[i], weakReference))
-                        {
-                            _listeners[i] = MvvmExtensions.GetWeakReference(null);
-                            Update(null);
-                            return;
-                        }
-                    }
-                }
-            }
-
-            private static void RemoveStatic(WeakReference selfReference, WeakReference weakReference)
-            {
-                var listener = (WeakListenerInternal)selfReference.Target;
-                if (listener != null)
-                    listener.Remove(weakReference);
+                var array = (object[])state;
+                var weakItem = array[1];
+                array[2] = currentValue.AddInternal(weakItem, true);
+                return currentValue;
             }
 
             #endregion
@@ -176,17 +183,33 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             #region Fields
 
-            private readonly WeakReference _selfReference;
-            private KeyValuePair<WeakReference, string>[] _listeners;
+            private static readonly KeyValuePair<object, string>[] Empty;
+            private static readonly Action<object> UnsubscribeListenerDelegate;
+
+            private static readonly Func<INotifyPropertyChanged, object, WeakPropertyChangedListener> AddSourceEventDelegate;
+            private static readonly UpdateValueDelegate<INotifyPropertyChanged, Func<INotifyPropertyChanged, object, WeakPropertyChangedListener>, WeakPropertyChangedListener, object> UpdateSourceEventDelegate;
+
+            private readonly WeakReference _propertyChanged;
+
+            //Use an array to reduce the cost of memory and do not lock during a call event.
+            private KeyValuePair<object, string>[] _listeners;
 
             #endregion
 
             #region Constructors
 
-            public WeakPropertyChangedListener()
+            static WeakPropertyChangedListener()
             {
-                _listeners = EmptyValue<KeyValuePair<WeakReference, string>>.ArrayInstance;
-                _selfReference = ServiceProvider.WeakReferenceFactory(this, true);
+                Empty = new KeyValuePair<object, string>[0];
+                UnsubscribeListenerDelegate = UnsubscribeListener;
+                UpdateSourceEventDelegate = UpdateSourceEvent;
+                AddSourceEventDelegate = AddSourceEvent;
+            }
+
+            public WeakPropertyChangedListener(INotifyPropertyChanged propertyChanged)
+            {
+                _listeners = EmptyValue<KeyValuePair<object, string>>.ArrayInstance;
+                _propertyChanged = ServiceProvider.WeakReferenceFactory(propertyChanged, true);
             }
 
             #endregion
@@ -200,7 +223,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 for (int i = 0; i < listeners.Length; i++)
                 {
                     var pair = listeners[i];
-                    var listener = (IEventListener)pair.Key.Target;
+                    var listener = BindingExtensions.GetEventListenerFromWeakItem(pair.Key);
                     if (listener == null)
                         hasDeadRef = true;
                     else
@@ -211,61 +234,48 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 }
                 if (hasDeadRef)
                 {
-                    lock (this)
+                    lock (_propertyChanged)
                         Update(null, null);
                 }
             }
 
             internal IDisposable Add(IEventListener target, string path)
             {
-                var reference = GetWeakReference(target);
-                //NOTE it's normal here.
-                lock (this)
+                return AddInternal(target.ToWeakItem(), path);
+            }
+
+            private IDisposable AddInternal(object weakItem, string path)
+            {
+                lock (_propertyChanged)
                 {
-                    if (_listeners.Length == 0)
-                        _listeners = new[] { new KeyValuePair<WeakReference, string>(reference, path) };
+                    //if value was removed from another thread
+                    if (ReferenceEquals(_listeners, Empty))
+                    {
+                        var source = (INotifyPropertyChanged)_propertyChanged.Target;
+                        if (source != null)
+                        {
+                            var state = new[] { this, weakItem, path, null };
+                            ServiceProvider.AttachedValueProvider.AddOrUpdate(source, PropertyChangedMember, AddSourceEventDelegate, UpdateSourceEventDelegate, state);
+                            return (IDisposable)state[3];
+                        }
+                    }
+                    else if (_listeners.Length == 0)
+                        _listeners = new[] { new KeyValuePair<object, string>(weakItem, path) };
                     else
-                        Update(reference, path);
+                        Update(weakItem, path);
                 }
-                return WeakActionToken.Create(_selfReference, reference, RemoveStatic, false);
+                return new ActionToken(UnsubscribeListenerDelegate, new[] { this, weakItem });
             }
 
-            private void Update(WeakReference newItem, string path)
+            private void Remove(object weakItem)
             {
-                var references = newItem == null
-                    ? new KeyValuePair<WeakReference, string>[_listeners.Length]
-                    : new KeyValuePair<WeakReference, string>[_listeners.Length + 1];
-                int index = 0;
-                for (int i = 0; i < _listeners.Length; i++)
-                {
-                    var reference = _listeners[i];
-                    if (reference.Key.Target != null)
-                        references[index++] = reference;
-                }
-                if (newItem != null)
-                {
-                    references[index] = new KeyValuePair<WeakReference, string>(newItem, path);
-                    index++;
-                }
-                else if (index == 0)
-                {
-                    _listeners = EmptyValue<KeyValuePair<WeakReference, string>>.ArrayInstance;
-                    return;
-                }
-                if (references.Length != index)
-                    Array.Resize(ref references, index);
-                _listeners = references;
-            }
-
-            private void Remove(WeakReference weakReference)
-            {
-                lock (this)
+                lock (_propertyChanged)
                 {
                     for (int i = 0; i < _listeners.Length; i++)
                     {
-                        if (ReferenceEquals(_listeners[i].Key, weakReference))
+                        if (ReferenceEquals(_listeners[i].Key, weakItem))
                         {
-                            _listeners[i] = new KeyValuePair<WeakReference, string>(MvvmExtensions.GetWeakReference(null), string.Empty);
+                            _listeners[i] = new KeyValuePair<object, string>(MvvmUtils.EmptyWeakReference, string.Empty);
                             Update(null, null);
                             return;
                         }
@@ -273,11 +283,66 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 }
             }
 
-            private static void RemoveStatic(WeakReference weakListenerInternal, WeakReference weakReference)
+            private void Update(object newItem, string path)
             {
-                var listener = (WeakPropertyChangedListener)weakListenerInternal.Target;
-                if (listener != null)
-                    listener.Remove(weakReference);
+                var references = newItem == null
+                    ? new KeyValuePair<object, string>[_listeners.Length]
+                    : new KeyValuePair<object, string>[_listeners.Length + 1];
+                int index = 0;
+                for (int i = 0; i < _listeners.Length; i++)
+                {
+                    var reference = _listeners[i];
+                    if (BindingExtensions.GetEventListenerFromWeakItem(reference.Key) != null)
+                        references[index++] = reference;
+                }
+                if (newItem != null)
+                {
+                    references[index] = new KeyValuePair<object, string>(newItem, path);
+                    index++;
+                }
+                else if (index == 0)
+                {
+                    //Remove event from source, if no listeners.
+                    _listeners = Empty;
+                    var target = (INotifyPropertyChanged)_propertyChanged.Target;
+                    if (target != null)
+                    {
+                        target.PropertyChanged -= Handle;
+                        ServiceProvider.AttachedValueProvider.Clear(target, PropertyChangedMember);
+                    }
+                    return;
+                }
+                if (references.Length != index)
+                    Array.Resize(ref references, index);
+                _listeners = references;
+            }
+
+            private static WeakPropertyChangedListener AddSourceEvent(INotifyPropertyChanged source, object state)
+            {
+                var array = (object[])state;
+                var @this = (WeakPropertyChangedListener)array[0];
+                var weakItem = array[1];
+                var path = (string)array[2];
+                @this._listeners = new[] { new KeyValuePair<object, string>(weakItem, path) };
+                source.PropertyChanged += @this.Handle;
+                array[3] = new ActionToken(UnsubscribeListenerDelegate, new[] { @this, weakItem });
+                return @this;
+            }
+
+            private static WeakPropertyChangedListener UpdateSourceEvent(INotifyPropertyChanged item,
+                Func<INotifyPropertyChanged, object, WeakPropertyChangedListener> addValue, WeakPropertyChangedListener currentValue, object state)
+            {
+                var array = (object[])state;
+                var weakItem = array[1];
+                var path = (string)array[2];
+                array[3] = currentValue.AddInternal(weakItem, path);
+                return currentValue;
+            }
+
+            private static void UnsubscribeListener(object state)
+            {
+                var array = (object[])state;
+                ((WeakPropertyChangedListener)array[0]).Remove(array[1]);
             }
 
             #endregion
@@ -287,8 +352,24 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Fields
 
+        private static readonly Func<object, object, WeakListenerInternal> CreateContextListenerDelegate;
+        private static readonly Func<object, object, WeakListenerInternal> CreateWeakListenerDelegate;
+        private static readonly Func<INotifyPropertyChanged, object, WeakPropertyChangedListener> CreateWeakPropertyListenerDelegate;
+
         private const string EventPrefix = "#@!weak";
         private const string PropertyChangedMember = "#@!weakpropchang";
+        private const string BindingContextMember = "@$ctxchanged";
+
+        #endregion
+
+        #region Constructors
+
+        static WeakEventManager()
+        {
+            CreateWeakListenerDelegate = CreateWeakListener;
+            CreateContextListenerDelegate = CreateContextListener;
+            CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
+        }
 
         #endregion
 
@@ -303,11 +384,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Should.NotBeNull(eventInfo, "eventInfo");
             Should.NotBeNull(listener, "listener");
             var listenerInternal = ServiceProvider
-                .AttachedValueProvider
-                .GetOrAdd(target, EventPrefix + eventInfo.Name, CreateWeakListener, eventInfo);
+                    .AttachedValueProvider
+                    .GetOrAdd(target, EventPrefix + eventInfo.Name, CreateWeakListenerDelegate, eventInfo);
             if (listenerInternal.IsEmpty)
                 return null;
-            return listenerInternal.Add(listener);
+            return listenerInternal.AddWithUnsubscriber(listener);
         }
 
         /// <summary>
@@ -318,19 +399,33 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Should.NotBeNull(propertyChanged, "propertyChanged");
             Should.NotBeNull(propertyName, "propertyName");
             Should.NotBeNull(listener, "listener");
-            var listenerInternal = ServiceProvider
+            return ServiceProvider
                 .AttachedValueProvider
-                .GetOrAdd(propertyChanged, PropertyChangedMember, CreateWeakPropertyListener, null);
-            return listenerInternal.Add(listener, propertyName);
+                .GetOrAdd(propertyChanged, PropertyChangedMember, CreateWeakPropertyListenerDelegate, null)
+                .Add(listener, propertyName);
         }
 
         #endregion
 
         #region Methods
 
+        internal static WeakListenerInternal GetBindingContextListener([NotNull] object source)
+        {
+            return ServiceProvider
+                .AttachedValueProvider
+                .GetOrAdd(source, BindingContextMember, CreateContextListenerDelegate, null);
+        }
+
+        private static WeakListenerInternal CreateContextListener(object src, object state)
+        {
+            var listenerInternal = new WeakListenerInternal(src, null);
+            BindingProvider.Instance.ContextManager.GetBindingContext(src).ValueChanged += listenerInternal.Raise;
+            return listenerInternal;
+        }
+
         private static WeakPropertyChangedListener CreateWeakPropertyListener(INotifyPropertyChanged propertyChanged, object state)
         {
-            var listener = new WeakPropertyChangedListener();
+            var listener = new WeakPropertyChangedListener(propertyChanged);
             propertyChanged.PropertyChanged += listener.Handle;
             return listener;
         }
@@ -338,30 +433,22 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private static WeakListenerInternal CreateWeakListener(object target, object state)
         {
             var eventInfo = (EventInfo)state;
-            var listenerInternal = new WeakListenerInternal();
-            Delegate handler = eventInfo.EventHandlerType == typeof(EventHandler)
-                ? new EventHandler(listenerInternal.Handle)
+            var listenerInternal = new WeakListenerInternal(target, eventInfo);
+            listenerInternal.Handler = eventInfo.EventHandlerType == typeof(EventHandler)
+                ? new EventHandler(listenerInternal.Raise)
                 : ServiceProvider.ReflectionManager.TryCreateDelegate(eventInfo.EventHandlerType,
                     listenerInternal, WeakListenerInternal.HandleMethod);
-            if (handler == null)
+            if (listenerInternal.Handler == null)
                 return WeakListenerInternal.EmptyListener;
 #if PCL_WINRT
             var addMethod = eventInfo.AddMethod;
 #else
-            var addMethod = eventInfo.GetAddMethod(true);            
+            var addMethod = eventInfo.GetAddMethod(true);
 #endif
             if (addMethod == null)
                 return WeakListenerInternal.EmptyListener;
-            addMethod.InvokeEx(target, handler);
+            listenerInternal.RegToken = addMethod.InvokeEx(target, listenerInternal.Handler);
             return listenerInternal;
-        }
-
-        private static WeakReference GetWeakReference(object target)
-        {
-            var pathObserver = target as IHasSelfWeakReference;
-            if (pathObserver == null)
-                return ServiceProvider.WeakReferenceFactory(target, true);
-            return pathObserver.SelfReference;
         }
 
         #endregion

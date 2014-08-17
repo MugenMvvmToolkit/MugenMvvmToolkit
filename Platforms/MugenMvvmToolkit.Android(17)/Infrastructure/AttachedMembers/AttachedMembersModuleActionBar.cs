@@ -60,7 +60,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public bool OnNavigationItemSelected(int itemPosition, long itemId)
             {
-                ItemsSourceAdapter adapter = ActionBarItemsSourceAdatapterMember.GetValue(_actionBar, null);
+                ItemsSourceAdapter adapter = ItemsSourceAdapter.Get(_actionBar);
                 if (adapter == null)
                     return false;
                 ActionBarSelectedItemMember.SetValue(_actionBar, new[] { adapter.GetRawItem(itemPosition) });
@@ -126,23 +126,16 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Fields
 
+        private const string ActionBarActionModeKey = "!#CurrentActionMode";
+
         internal static readonly IAttachedBindingMemberInfo<ActionBar.Tab, object> ActionBarTabContentMember;
-        internal static readonly IAttachedBindingMemberInfo<ActionBar.Tab, object> ActionBarTabContentInternalMember;
         internal static readonly IAttachedBindingMemberInfo<ActionBar.Tab, ActionBar> ActionBarTabParentMember;
 
         internal static readonly IAttachedBindingMemberInfo<ActionBar, int?> ActionBarTabContentIdMember;
         internal static readonly IAttachedBindingMemberInfo<ActionBar, object> ActionBarSelectedItemMember;
 
-        internal static readonly IAttachedBindingMemberInfo<ActionBar, ActionBarTabItemsSourceGenerator>
-            ActionBarTabItemsSourceGeneratorMember;
-
         private static readonly IAttachedBindingMemberInfo<ActionBar, IEnumerable> ActionBarItemsSourceMember;
-
-        private static readonly IAttachedBindingMemberInfo<ActionBar, ItemsSourceAdapter>
-            ActionBarItemsSourceAdatapterMember;
-
         private static readonly IAttachedBindingMemberInfo<ActionBar, int?> ActionBarContextActionBarTemplateMember;
-        private static readonly IAttachedBindingMemberInfo<ActionBar, ActionMode> ActionBarActionModeTemplateMember;
         private static readonly IAttachedBindingMemberInfo<ActionBar, bool> ActionBarContextActionBarVisibleMember;
 
         #endregion
@@ -156,10 +149,7 @@ namespace MugenMvvmToolkit.Infrastructure
             memberProvider.Register(ActionBarTabContentIdMember);
             memberProvider.Register(ActionBarSelectedItemMember);
             memberProvider.Register(ActionBarItemsSourceMember);
-            memberProvider.Register(ActionBarItemsSourceAdatapterMember);
-            memberProvider.Register(ActionBarTabItemsSourceGeneratorMember);
             memberProvider.Register(ActionBarContextActionBarTemplateMember);
-            memberProvider.Register(ActionBarActionModeTemplateMember);
             memberProvider.Register(ActionBarContextActionBarVisibleMember);
 
             memberProvider.Register(AttachedBindingMember
@@ -361,16 +351,18 @@ namespace MugenMvvmToolkit.Infrastructure
         private static void ActionBarContextActionBarVisibleChanged(ActionBar actionBar,
             AttachedMemberChangedEventArgs<bool> args)
         {
-            ActionMode actionMode = ActionBarActionModeTemplateMember.GetValue(actionBar, null);
+            var attachedValueProvider = ServiceProvider.AttachedValueProvider;
+
+            var actionMode = attachedValueProvider.GetValue<ActionMode>(actionBar, ActionBarActionModeKey, false);
             if (actionMode != null)
                 actionMode.Finish();
             if (args.NewValue)
             {
                 actionMode = actionBar.StartActionMode(new BindableActionMode(actionBar));
-                ActionBarActionModeTemplateMember.SetValue(actionBar, new object[] { actionMode });
+                attachedValueProvider.SetValue(actionBar, ActionBarActionModeKey, actionMode);
             }
             else
-                ActionBarActionModeTemplateMember.SetValue(actionBar, BindingExtensions.NullValue);
+                attachedValueProvider.Clear(actionBar, ActionBarActionModeKey);
         }
 
         private static bool ActionBarSetNavigationMode(IBindingMemberInfo bindingMemberInfo, ActionBar actionBar,
@@ -396,7 +388,7 @@ namespace MugenMvvmToolkit.Infrastructure
             switch (actionBar.GetNavigationMode())
             {
                 case ActionBarNavigationMode.List:
-                    ItemsSourceAdapter adapter = ActionBarItemsSourceAdatapterMember.GetValue(actionBar, null);
+                    ItemsSourceAdapter adapter = ItemsSourceAdapter.Get(actionBar);
                     if (adapter == null || adapter.ItemsSource == null)
                         return;
                     if (args.NewValue == null)
@@ -405,7 +397,7 @@ namespace MugenMvvmToolkit.Infrastructure
                         actionBar.SetSelectedNavigationItem(adapter.GetPosition(args.NewValue));
                     break;
                 case ActionBarNavigationMode.Tabs:
-                    var tabGenerator = ActionBarTabItemsSourceGeneratorMember.GetValue(actionBar, null);
+                    var tabGenerator = ActionBarTabItemsSourceGenerator.Get(actionBar);
                     if (tabGenerator == null)
                     {
                         var tabValue = args.NewValue as ActionBar.Tab;
@@ -418,7 +410,7 @@ namespace MugenMvvmToolkit.Infrastructure
                         {
                             object ctx = actionBar.SelectedNavigationIndex < 0 ? null : actionBar.SelectedTab;
                             if (ctx != null)
-                                ctx = BindingProvider.Instance.ContextManager.GetBindingContext(ctx).DataContext;
+                                ctx = BindingProvider.Instance.ContextManager.GetBindingContext(ctx).Value;
                             args.Member.SetValue(actionBar, new[] { ctx });
                         }
                         else
@@ -433,11 +425,11 @@ namespace MugenMvvmToolkit.Infrastructure
             switch (actionBar.GetNavigationMode())
             {
                 case ActionBarNavigationMode.List:
-                    ItemsSourceAdapter sourceAdapter = ActionBarItemsSourceAdatapterMember.GetValue(actionBar, null);
+                    ItemsSourceAdapter sourceAdapter = ItemsSourceAdapter.Get(actionBar);
                     if (sourceAdapter == null)
                     {
                         sourceAdapter = new ItemsSourceAdapter(actionBar, actionBar.ThemedContext, true);
-                        ActionBarTabItemsSourceGeneratorMember.SetValue(actionBar, new object[] { sourceAdapter });
+                        ItemsSourceAdapter.Set(actionBar, sourceAdapter);
                         actionBar.SetListNavigationCallbacks(sourceAdapter, new ActionBarNavigationListener(actionBar));
                     }
                     sourceAdapter.ItemsSource = ActionBarItemsSourceMember.GetValue(actionBar, null);
@@ -445,17 +437,15 @@ namespace MugenMvvmToolkit.Infrastructure
                 case ActionBarNavigationMode.Standard:
                     ActionBarSelectedItemMember.SetValue(actionBar, BindingExtensions.NullValue);
                     actionBar.SetListNavigationCallbacks(null, null);
-                    ActionBarTabItemsSourceGenerator generator =
-                        ActionBarTabItemsSourceGeneratorMember.GetValue(actionBar, null);
+                    ActionBarTabItemsSourceGenerator generator = ActionBarTabItemsSourceGenerator.Get(actionBar);
                     if (generator != null)
                         generator.Update(null);
-                    ItemsSourceAdapter adapter = ActionBarItemsSourceAdatapterMember.GetValue(actionBar, null);
+                    ItemsSourceAdapter adapter = ItemsSourceAdapter.Get(actionBar);
                     if (adapter != null)
                         adapter.ItemsSource = null;
                     break;
                 case ActionBarNavigationMode.Tabs:
-                    ActionBarTabItemsSourceGenerator tabGenerator =
-                        ActionBarTabItemsSourceGeneratorMember.GetValue(actionBar, null);
+                    ActionBarTabItemsSourceGenerator tabGenerator = ActionBarTabItemsSourceGenerator.Get(actionBar);
                     if (tabGenerator != null)
                         tabGenerator.Update(ActionBarItemsSourceMember.GetValue(actionBar, null));
                     break;

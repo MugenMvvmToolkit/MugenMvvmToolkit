@@ -24,6 +24,7 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Utils;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvmToolkit.Infrastructure
@@ -47,7 +48,7 @@ namespace MugenMvvmToolkit.Infrastructure
             /// </summary>
             protected LayoutObserver(View view)
             {
-                _viewReference = MvvmExtensions.GetWeakReference(view);
+                _viewReference = ServiceProvider.WeakReferenceFactory(view, true);
 #if API17
                 view.LayoutChange += OnGlobalLayoutChanged;
 #else
@@ -121,7 +122,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             #region Fields
 
-            private readonly WeakReference _listenerRef;
+            private readonly object _listenerRef;
             private ViewStates _oldValue;
 
             #endregion
@@ -134,7 +135,7 @@ namespace MugenMvvmToolkit.Infrastructure
             public VisiblityObserver(View view, IEventListener handler)
                 : base(view)
             {
-                _listenerRef = ServiceProvider.WeakReferenceFactory(handler, true);
+                _listenerRef = handler.ToWeakItem();
                 _oldValue = view.Visibility;
             }
 
@@ -148,47 +149,60 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (_oldValue == visibility)
                     return;
                 _oldValue = visibility;
-                var listener = (IEventListener)_listenerRef.Target;
+                var listener = BindingExtensions.GetEventListenerFromWeakItem(_listenerRef);
                 if (listener == null)
                     Dispose();
                 else
-                    listener.Handle(sender, eventArgs);
+                    listener.Handle(view, eventArgs);
             }
 
             #endregion
         }
 
-        private sealed class ParentListener
+        private sealed class ParentListener : EventListenerList
         {
             #region Fields
 
-            private readonly View _view;
+            private const string Key = "!#ParentListener";
+            private readonly WeakReference _viewRef;
             private WeakReference _parentReference;
 
             #endregion
 
             #region Constructors
 
-            public ParentListener(View view)
+            private ParentListener(View view)
             {
-                _view = view;
-                _parentReference = MvvmExtensions.GetWeakReference(view.Id == Android.Resource.Id.Content ? null : view.Parent);
+                _viewRef = ServiceProvider.WeakReferenceFactory(view, true);
+                _parentReference = view.Id == Android.Resource.Id.Content
+                    ? MvvmUtils.EmptyWeakReference
+                    : ServiceProvider.WeakReferenceFactory(view.Parent, true);
             }
 
             #endregion
 
-            #region Events
+            #region Methods
 
-            public event EventHandler Changed;
-
-            public void Raise(object sender)
+            public static ParentListener GetOrAdd(View view)
             {
-                if (_view.Id == Android.Resource.Id.Content || ReferenceEquals(_view.Parent, _parentReference.Target))
+                return ServiceProvider
+                    .AttachedValueProvider
+                    .GetOrAdd(view, Key, (view1, o) => new ParentListener(view1), null);
+            }
+
+            public void Raise()
+            {
+                var view = (View)_viewRef.Target;
+                if (view == null)
+                {
+                    Clear();
                     return;
-                _parentReference = MvvmExtensions.GetWeakReference(_view.Parent);
-                var handler = Changed;
-                if (handler != null)
-                    handler(sender, EventArgs.Empty);
+                }
+                if (view.Id == Android.Resource.Id.Content || ReferenceEquals(view.Parent, _parentReference.Target))
+                    return;
+                if (!Equals(view.Parent, _parentReference.Target))
+                    _parentReference = ServiceProvider.WeakReferenceFactory(view.Parent, true);
+                Raise(view, EventArgs.Empty);
             }
 
             #endregion
@@ -203,7 +217,6 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public static readonly IAttachedBindingMemberInfo<View, object> ViewAttachedParentMember;
 
-        private static readonly IAttachedBindingMemberInfo<View, ParentListener> ViewParentListenerMember;
         private static readonly IAttachedBindingMemberInfo<View, bool> DisableValidationMember;
 
         #endregion
@@ -212,16 +225,12 @@ namespace MugenMvvmToolkit.Infrastructure
 
         internal static void RaiseParentChanged(View view)
         {
-            var parentListener = ViewParentListenerMember.GetValue(view, null);
-            if (parentListener != null)
-                parentListener.Raise(view);
+            ParentListener.GetOrAdd(view).Raise();
         }
 
         private static void RegisterViewMembers(IBindingMemberProvider memberProvider)
         {
             //View
-            memberProvider.Register(ViewAttachedParentMember);
-            memberProvider.Register(ViewParentListenerMember);
             memberProvider.Register(DisableValidationMember);
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<View, int>(AttachedMemberNames.MenuTemplate));
 
@@ -260,11 +269,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static IDisposable ObserveViewParent(IBindingMemberInfo bindingMemberInfo, View view, IEventListener arg3)
         {
-            var parentListener = ViewParentListenerMember.GetValue(view, null);
-            var handler = arg3.ToWeakEventHandler<EventArgs>();
-            parentListener.Changed += handler.Handle;
-            handler.Unsubscriber = WeakActionToken.Create(parentListener, handler, (listener, eventHandler) => listener.Changed -= eventHandler.Handle, false);
-            return handler;
+            return ParentListener.GetOrAdd(view).AddWithUnsubscriber(arg3);
         }
 
         private static object GetViewParentValue(IBindingMemberInfo arg1, View arg2, object[] arg3)

@@ -27,7 +27,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
     /// <summary>
     ///     Represents the observer that uses the several path members to observe.
     /// </summary>
-    public class MultiPathObserver : ObserverBase, IEventListener, IHasSelfWeakReference
+    public class MultiPathObserver : ObserverBase, IEventListener, IHasWeakReference
     {
         #region Nested types
 
@@ -35,24 +35,43 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             #region Fields
 
-            private readonly MultiPathObserver _multiPathObserver;
+            private WeakReference _reference;
+            public IDisposable Observer;
 
             #endregion
 
             #region Constructors
 
-            public LastMemberListener(MultiPathObserver multiPathObserver)
+            public LastMemberListener(WeakReference reference)
             {
-                _multiPathObserver = multiPathObserver;
+                _reference = reference;
             }
 
             #endregion
 
             #region Implementation of IEventListener
 
+            public bool IsWeak
+            {
+                get { return true; }
+            }
+
             public void Handle(object sender, object message)
             {
-                _multiPathObserver.RaiseValueChanged(ValueChangedEventArgs.TrueEventArgs);
+                var reference = _reference;
+                if (reference == null)
+                    return;
+                var observer = (MultiPathObserver)reference.Target;
+                if (observer == null)
+                {
+                    _reference = null;
+                    var subscriber = Observer;
+                    Observer = null;
+                    if (subscriber != null)
+                        subscriber.Dispose();
+                }
+                else
+                    observer.RaiseValueChanged(ValueChangedEventArgs.TrueEventArgs);
             }
 
             #endregion
@@ -76,7 +95,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 IList<IBindingMemberInfo> members)
             {
                 _observerRef = observerReference;
-                _penultimateValueRef = MvvmExtensions.GetWeakReference(penultimateValue);
+                _penultimateValueRef = ServiceProvider.WeakReferenceFactory(penultimateValue, true);
                 _path = path;
                 _members = members;
                 _lastMember = _members[_members.Count - 1];
@@ -128,9 +147,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     var observer = (ObserverBase)_observerRef.Target;
                     if (observer == null)
                         return null;
-                    object result;
-                    observer.GetActualSource(out result);
-                    return result;
+                    return observer.GetActualSource();
                 }
             }
 
@@ -167,11 +184,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             : base(source, path)
         {
             Should.BeSupported(!path.IsEmpty, "The MultiPathObserver doesn't support the empty path members.");
-            _listeners = new List<IDisposable>();
-            _lastMemberListener = new LastMemberListener(this);
+            _listeners = new List<IDisposable>(path.Parts.Count - 1);
             _ignoreAttachedMembers = ignoreAttachedMembers;
             _members = UnsetBindingPathMembers.Instance;
             _selfReference = ServiceProvider.WeakReferenceFactory(this, true);
+            _lastMemberListener = new LastMemberListener(_selfReference);
             Update();
         }
 
@@ -187,8 +204,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             try
             {
                 ClearListeners();
-                object source;
-                if (!GetActualSource(out source) || source == null)
+                object source = GetActualSource();
+                if (source == null || source.IsUnsetValue())
                 {
                     _members = UnsetBindingPathMembers.Instance;
                     return;
@@ -257,7 +274,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (source == null)
                 return null;
             if (isLastInChain)
-                return TryAddEventHandler(source, pathMember, _lastMemberListener, pathMember.Path);
+            {
+                var observer = TryAddEventHandler(source, pathMember, _lastMemberListener, pathMember.Path);
+                _lastMemberListener.Observer = observer;
+                return observer;
+            }
             return TryAddEventHandler(source, pathMember, this, pathMember.Path);
         }
 
@@ -276,6 +297,15 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Implementation of interfaces
 
         /// <summary>
+        ///     Gets the value that indicates that the listener is weak. 
+        ///     <c>true</c> the listener can be used without <c>WeakReference</c>/>.
+        /// </summary>
+        bool IEventListener.IsWeak
+        {
+            get { return false; }
+        }
+
+        /// <summary>
         ///     Handles the message.
         /// </summary>
         /// <param name="sender">The object that raised the event.</param>
@@ -285,10 +315,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Update();
         }
 
-        /// <summary>
-        ///     Gets the self weak reference.
-        /// </summary>
-        WeakReference IHasSelfWeakReference.SelfReference
+        WeakReference IHasWeakReference.WeakReference
         {
             get { return _selfReference; }
         }

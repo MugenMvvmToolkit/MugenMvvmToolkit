@@ -31,7 +31,9 @@ namespace MugenMvvmToolkit.Models
         #region Fields
 
         private static readonly Action<RelayCommandBase, EventArgs> RaiseCanExecuteChangedDelegate;
-        private readonly List<KeyValuePair<WeakReference, Action<object>>> _notifiers;
+
+        private readonly List<KeyValuePair<WeakReference, Action<RelayCommandBase, object>>> _notifiers;
+        private readonly PropertyChangedEventHandler _weakHandler;
         private EventHandler _canExecuteChangedInternal;
         private int _disposeState;
 
@@ -50,7 +52,10 @@ namespace MugenMvvmToolkit.Models
         protected RelayCommandBase(bool hasCanExecuteImpl)
         {
             if (hasCanExecuteImpl)
-                _notifiers = new List<KeyValuePair<WeakReference, Action<object>>>(2);
+            {
+                _notifiers = new List<KeyValuePair<WeakReference, Action<RelayCommandBase, object>>>(2);
+                _weakHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, OnPropertyChangedStatic);
+            }
             ExecutionMode = ApplicationSettings.CommandExecutionMode;
             CanExecuteMode = ApplicationSettings.CommandCanExecuteMode;
         }
@@ -222,9 +227,9 @@ namespace MugenMvvmToolkit.Models
                     {
                         _notifiers.RemoveAt(i);
                         i--;
-                        continue;
                     }
-                    objects.Add(target);
+                    else
+                        objects.Add(target);
                 }
             }
             return objects;
@@ -243,10 +248,10 @@ namespace MugenMvvmToolkit.Models
             {
                 if (Contains(item, false))
                     return true;
-                Action<object> notifier = CreateNotifier(item);
+                Action<RelayCommandBase, object> notifier = CreateNotifier(item);
                 if (notifier == null)
                     return false;
-                _notifiers.Add(new KeyValuePair<WeakReference, Action<object>>(MvvmExtensions.GetWeakReference(item), notifier));
+                _notifiers.Add(new KeyValuePair<WeakReference, Action<RelayCommandBase, object>>(ServiceProvider.WeakReferenceFactory(item, true), notifier));
                 return true;
             }
         }
@@ -275,10 +280,10 @@ namespace MugenMvvmToolkit.Models
             {
                 for (int index = 0; index < _notifiers.Count; index++)
                 {
-                    KeyValuePair<WeakReference, Action<object>> notifier = _notifiers[index];
+                    var notifier = _notifiers[index];
                     object target = notifier.Key.Target;
                     if (target != null)
-                        notifier.Value(target);
+                        notifier.Value(this, target);
                 }
                 _notifiers.Clear();
             }
@@ -325,19 +330,17 @@ namespace MugenMvvmToolkit.Models
         /// <param name="item">The specified item to create notifier.</param>
         /// <returns>An action to unsubscribe.</returns>
         [CanBeNull]
-        protected virtual Action<object> CreateNotifier(object item)
+        protected virtual Action<RelayCommandBase, object> CreateNotifier(object item)
         {
             var observable = item as IObservable;
             if (observable != null && observable.Subscribe(this))
-                return o => ((IObservable)o).Unsubscribe(this);
+                return (@base, o) => ((IObservable)o).Unsubscribe(@base);
 
             var propertyChanged = item as INotifyPropertyChanged;
             if (propertyChanged == null)
                 return null;
-
-            var handler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, (@base, o, arg3) => @base.RaiseCanExecuteChanged(), true);
-            propertyChanged.PropertyChanged += handler;
-            return o => ((INotifyPropertyChanged)o).PropertyChanged -= handler;
+            propertyChanged.PropertyChanged += _weakHandler;
+            return (@base, o) => ((INotifyPropertyChanged)o).PropertyChanged -= @base._weakHandler;
         }
 
         /// <summary>
@@ -345,13 +348,6 @@ namespace MugenMvvmToolkit.Models
         /// </summary>
         protected virtual void OnDispose()
         {
-        }
-
-        private static void RaiseCanExecuteChangedStatic(RelayCommandBase @this, EventArgs args)
-        {
-            EventHandler handler = @this._canExecuteChangedInternal;
-            if (handler != null)
-                handler(@this, args);
         }
 
         private bool Contains(object item, bool remove)
@@ -368,13 +364,25 @@ namespace MugenMvvmToolkit.Models
                 {
                     if (remove)
                     {
-                        _notifiers[i].Value(target);
+                        _notifiers[i].Value(this, target);
                         _notifiers.RemoveAt(i);
                     }
                     return true;
                 }
             }
             return false;
+        }
+
+        private static void RaiseCanExecuteChangedStatic(RelayCommandBase @this, EventArgs args)
+        {
+            EventHandler handler = @this._canExecuteChangedInternal;
+            if (handler != null)
+                handler(@this, args);
+        }
+
+        private static void OnPropertyChangedStatic(RelayCommandBase relayCommandBase, object o, PropertyChangedEventArgs arg3)
+        {
+            relayCommandBase.RaiseCanExecuteChanged();
         }
 
         #endregion

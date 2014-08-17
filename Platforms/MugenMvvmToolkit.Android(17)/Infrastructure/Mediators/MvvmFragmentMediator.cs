@@ -170,7 +170,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                     _bindings = new List<IDataBinding>();
                 Tuple<View, IList<IDataBinding>> tuple = inflater.CreateBindableView(viewId.Value, container, false);
                 FragmentViewMember.SetValue(tuple.Item1, new object[] { Target });
-                BindingProvider.Instance.ContextManager.GetBindingContext(tuple.Item1).DataContext = DataContext;
+                BindingProvider.Instance.ContextManager.GetBindingContext(tuple.Item1).Value = DataContext;
                 _bindings.AddRange(tuple.Item2);
                 return tuple.Item1;
             }
@@ -196,7 +196,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             }
             baseOnCreate(savedInstanceState);
 
-            var viewModel = BindingContext.DataContext as IViewModel;
+            var viewModel = BindingContext.Value as IViewModel;
             if (viewModel != null)
             {
                 if (!viewModel.Settings.Metadata.Contains(StateNotNeeded) && !viewModel.Settings.Metadata.Contains(ViewModelConstants.StateManager))
@@ -215,7 +215,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         public override void OnSaveInstanceState(Bundle outState, Action<Bundle> baseOnSaveInstanceState)
         {
-            var viewModel = BindingContext.DataContext as IViewModel;
+            var viewModel = BindingContext.Value as IViewModel;
             if (viewModel != null)
             {
                 object currentStateManager;
@@ -263,7 +263,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public override void OnDestroy(Action baseOnDestroy)
         {
             Tracer.Info("OnDestroy fragment({0})", Target);
-            _oldContext = BindingContext.DataContext;
+            _oldContext = BindingContext.Value;
             ClearBindings();
             var viewModel = _oldContext as IViewModel;
             if (viewModel != null)
@@ -394,7 +394,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             if (view != null)
                 BindingProvider.Instance.ContextManager
                     .GetBindingContext(view)
-                    .DataContext = DataContext;
+                    .Value = DataContext;
         }
 
         #endregion
@@ -405,7 +405,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             if (bundle == null)
                 return;
-            var dataContext = BindingContext.DataContext;
+            var dataContext = BindingContext.Value;
             var vmTypeName = bundle.GetString(VmTypeNameBundleKey);
             if (vmTypeName == null)
                 return;
@@ -420,7 +420,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                     .Instance
                     .ContextManager
                     .GetBindingContext(Target.Activity)
-                    .DataContext as IViewModel;
+                    .Value as IViewModel;
             if (vmType == null)
                 return;
 
@@ -451,7 +451,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                         .Instance
                         .ContextManager
                         .GetBindingContext(parent)
-                        .DataContext as IWrapperViewModel;
+                        .Value as IWrapperViewModel;
                     if (wrapperViewModel != null)
                     {
                         if (wrapperViewModel.ViewModel == null)
@@ -493,7 +493,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         private void TrySetTitleBinding()
         {
-            var hasDisplayName = BindingContext.DataContext as IHasDisplayName;
+            var hasDisplayName = BindingContext.Value as IHasDisplayName;
             if (_dialogFragment == null || hasDisplayName == null)
                 return;
             var dialog = _dialogFragment.Dialog;

@@ -131,6 +131,7 @@
     <Compile Include="Models\Enums.cs" />
     <Compile Include="Models\EventArg\NavigatingCancelEventArgs.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgs.cs" />
+    <Compile Include="Models\JavaEventListenerList.cs" />
     <Compile Include="Models\JavaObjectWeakReference.cs" />
     <Compile Include="Models\MenuItemTemplate.cs" />
     <Compile Include="Models\MenuTemplate.cs" />
@@ -155,10 +156,10 @@
     <Compile Include="Views\OptionsMenu.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\Solution Items\licence.txt">
+    <None Include="..\..\Solution Items\licence.txt">
       <Link>licence.txt</Link>
-    </Content>
-    <Content Include="FodyWeavers.xml" />
+    </None>
+    <None Include="FodyWeavers.xml" />
     <AndroidResource Include="Resources\Values\BindingResources.xml" />
   </ItemGroup>
   <ItemGroup>

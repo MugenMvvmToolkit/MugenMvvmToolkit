@@ -43,89 +43,38 @@ namespace MugenMvvmToolkit.Binding.Models
     public sealed class DependencyPropertyBindingMember : IBindingMemberInfo
     {
         #region Nested types
-
+        
         //BUG: WP doesn't update DataContextProperty on change in parent.
 #if WINDOWS_PHONE
-        private sealed class DataContextUnsubscriber : IDisposable
-        {
-        #region Fields
-
-            private readonly WeakReference _reference;
-            private readonly IEventListener _listener;
-
-            #endregion
-
-        #region Constructors
-
-            public DataContextUnsubscriber(FrameworkElement element, IEventListener listener)
-            {
-                _listener = listener;
-                _reference = MvvmExtensions.GetWeakReference(element);
-            }
-
-            #endregion
-
-        #region Methods
-
-            private void DisposeInternal(FrameworkElement element)
-            {
-                var eventListeners = (List<IEventListener>)element.GetValue(DataContextChangedHelper.DataContextListenersProperty);
-                eventListeners.Remove(_listener);
-            }
-
-            #endregion
-
-        #region Implementation of IDisposable
-
-            public void Dispose()
-            {
-                var target = (FrameworkElement)_reference.Target;
-                if (target == null)
-                    return;
-                if (target.CheckAccess())
-                    DisposeInternal(target);
-                else
-                {
-                    Action<FrameworkElement> action = DisposeInternal;
-                    target.Dispatcher.BeginInvoke(action, target);
-                }
-            }
-
-            #endregion
-        }
-
         private static class DataContextChangedHelper
         {
-        #region Fields
+            #region Fields
 
             public static readonly DependencyProperty InternalDataContextProperty = DependencyProperty.RegisterAttached(
                 "InternalDataContext", typeof(object), typeof(DataContextChangedHelper),
                 new PropertyMetadata(null, OnDataContextChanged));
 
-            public static readonly DependencyProperty DataContextListenersProperty = DependencyProperty.RegisterAttached(
-                "DataContextListeners", typeof(List<IEventListener>), typeof(DataContextChangedHelper),
-                new PropertyMetadata(null));
+            public static readonly DependencyProperty DataContextListenerProperty = DependencyProperty.RegisterAttached(
+                "DataContextListener", typeof(EventListenerList), typeof(DataContextChangedHelper), new PropertyMetadata(default(EventListenerList)));
 
             #endregion
 
-        #region Methods
+            #region Methods
 
             private static void OnDataContextChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
             {
-                var listeners = (List<IEventListener>)sender.GetValue(DataContextListenersProperty);
-                if (listeners == null)
-                    return;
-                for (int i = 0; i < listeners.Count; i++)
-                    listeners[i].Handle(sender, e);
+                var value = (EventListenerList)sender.GetValue(DataContextListenerProperty);
+                if (value != null)
+                    value.Raise(sender, e);
             }
 
             public static IDisposable Listen(FrameworkElement control, IEventListener listener)
             {
-                var listeners = (List<IEventListener>)control.GetValue(DataContextListenersProperty);
-                if (listeners == null)
+                var value = (EventListenerList)control.GetValue(DataContextListenerProperty);
+                if (value == null)
                 {
-                    listeners = new List<IEventListener>();
-                    control.SetValue(DataContextListenersProperty, listeners);
+                    value = new EventListenerList();
+                    control.SetValue(DataContextListenerProperty, value);
                     control.SetBinding(InternalDataContextProperty, new BindingEx
                     {
                         ValidatesOnDataErrors = false,
@@ -134,12 +83,10 @@ namespace MugenMvvmToolkit.Binding.Models
                         ValidatesOnExceptions = false
                     });
                 }
-                listeners.Add(listener);
-                return new DataContextUnsubscriber(control, listener);
+                return value.AddWithUnsubscriber(listener);
             }
 
-        #endregion
-
+            #endregion
         }
 #endif
 
@@ -153,7 +100,7 @@ namespace MugenMvvmToolkit.Binding.Models
 #if !NETFX_CORE && !WINDOWSCOMMON
             private static readonly Action<DependencyPropertyListener> DisposeDelegate = member => DisposeInternal(member);
 #endif
-            private WeakReference _listener;
+            private object _listener;
 
             #endregion
 
@@ -164,7 +111,7 @@ namespace MugenMvvmToolkit.Binding.Models
             /// </summary>
             public DependencyPropertyListener(object source, string propertyToBind, IEventListener listener)
             {
-                _listener = ServiceProvider.WeakReferenceFactory(listener, true);
+                _listener = listener.ToWeakItem();
                 BindingOperations.SetBinding(this, ValueProperty,
                     new BindingEx
                     {
@@ -200,7 +147,7 @@ namespace MugenMvvmToolkit.Binding.Models
             /// </summary>
             public DependencyPropertyListener(object source, DependencyProperty propertyToBind, IEventListener listener)
             {
-                _listener = ServiceProvider.WeakReferenceFactory(listener, true);
+                _listener = listener.ToWeakItem();
                 BindingOperations.SetBinding(this, ValueProperty,
                     new BindingEx
                     {
@@ -242,7 +189,7 @@ namespace MugenMvvmToolkit.Binding.Models
                 var reference = listener._listener;
                 if (reference != null)
                 {
-                    var target = (IEventListener)reference.Target;
+                    var target = BindingExtensions.GetEventListenerFromWeakItem(reference);
                     if (target == null)
                         DisposeInternal(listener);
                     else
@@ -408,7 +355,7 @@ namespace MugenMvvmToolkit.Binding.Models
         /// <summary>
         ///     Attempts to track the value change.
         /// </summary>
-        public IDisposable TryObserveMember(object source, IEventListener listener)
+        public IDisposable TryObserve(object source, IEventListener listener)
         {
 #if WINDOWS_PHONE
             var frameworkElement = source as FrameworkElement;

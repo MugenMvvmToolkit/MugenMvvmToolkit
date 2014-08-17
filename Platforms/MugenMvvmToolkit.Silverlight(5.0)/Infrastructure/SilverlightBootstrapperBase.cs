@@ -99,7 +99,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 context = DataContext.Empty;
             Initialize();
             var viewModelType = GetMainViewModelType();
-            _application.RootVisual = (UIElement)ViewManager.GetOrCreateView(CreateMainViewModel(viewModelType, context), false, context);
+            _application.RootVisual = (UIElement)ViewManager.GetOrCreateView(CreateMainViewModel(viewModelType, context), false, context).GetUnderlyingView();
         }
 
         /// <summary>

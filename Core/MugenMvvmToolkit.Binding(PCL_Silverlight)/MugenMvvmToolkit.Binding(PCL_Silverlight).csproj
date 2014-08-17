@@ -84,6 +84,9 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\OneWayToSourceBindingMode.cs">
       <Link>Behaviors\OneWayToSourceBindingMode.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\RelativeSourceBehavior.cs">
+      <Link>Behaviors\RelativeSourceBehavior.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\TwoWayBindingMode.cs">
       <Link>Behaviors\TwoWayBindingMode.cs</Link>
     </Compile>
@@ -246,8 +249,11 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Models\IEventListener.cs">
       <Link>Interfaces\Models\IEventListener.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Models\IHasSelfWeakReference.cs">
-      <Link>Interfaces\Models\IHasSelfWeakReference.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Models\IHasWeakReference.cs">
+      <Link>Interfaces\Models\IHasWeakReference.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Models\ISourceValue.cs">
+      <Link>Interfaces\Models\ISourceValue.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Parse\IBindingParser.cs">
       <Link>Interfaces\Parse\IBindingParser.cs</Link>
@@ -372,6 +378,9 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\EventArg\ValueChangedEventArgs.cs">
       <Link>Models\EventArg\ValueChangedEventArgs.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\EventListenerList.cs">
+      <Link>Models\EventListenerList.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\Exceptions\ParseException.cs">
       <Link>Models\Exceptions\ParseException.cs</Link>
     </Compile>
@@ -380,9 +389,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\MethodData.cs">
       <Link>Models\MethodData.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\RelativeSource.cs">
-      <Link>Models\RelativeSource.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\SenderType.cs">
       <Link>Models\SenderType.cs</Link>
@@ -461,10 +467,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\Solution Items\licence.txt">
+    <None Include="..\..\Solution Items\licence.txt">
       <Link>licence.txt</Link>
-    </Content>
-    <Content Include="FodyWeavers.xml" />
+    </None>
+    <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Solution Items\MugenMvvmToolkit.licenseheader">
