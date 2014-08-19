@@ -13,6 +13,8 @@
 // </license>
 // ****************************************************************************
 #endregion
+
+using System;
 using System.Collections;
 using Android.App;
 using Android.Support.V7.App;
@@ -21,6 +23,7 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Views;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
@@ -128,7 +131,7 @@ namespace MugenMvvmToolkit.Infrastructure
             AttachedMembersModule
                 .ActionBarSelectedItemMember
                 .SetValue(_actionBar, BindingExtensions.NullValue);
-            var value = AttachedMembersModule.ActionBarTabContentIdMember.GetValue(_actionBar, null);
+            var value = ActionBarView.GetTabContentId(_actionBar);
             if (value == null)
                 return;
             var layout = ((Activity)_actionBar.ThemedContext).FindViewById<FrameLayout>(value.Value);

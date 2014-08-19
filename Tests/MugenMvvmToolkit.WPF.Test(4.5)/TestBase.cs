@@ -110,9 +110,9 @@ namespace MugenMvvmToolkit.Test
 
             var dataContext = new DataContext();
             if (parentViewModel != null)
-                dataContext.Add(ActivationConstants.ParentViewModel, parentViewModel);
+                dataContext.Add(InitializationConstants.ParentViewModel, parentViewModel);
             if (iocContainer != null)
-                dataContext.Add(ActivationConstants.IocContainer, iocContainer);
+                dataContext.Add(InitializationConstants.IocContainer, iocContainer);
 
             viewModel.InitializeViewModel(dataContext);
         }

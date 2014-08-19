@@ -26,5 +26,6 @@
   
   <declare-styleable name="ActionBarView">
     <attr name="ActionBarTemplate" format="integer" />
+    <attr name="TabContentId" format="integer" />
   </declare-styleable>
 </resources>

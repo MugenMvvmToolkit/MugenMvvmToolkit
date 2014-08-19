@@ -283,7 +283,8 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                     callback.Invoke(OperationResult.CreateResult<bool?>(OperationType.Navigation, CurrentViewModel, true, context));
                 return;
             }
-            string viewName = context.GetData(NavigationConstants.ViewName);
+
+            string viewName = viewModel.GetViewName(context);
             var parameters = context.GetData(NavigationConstants.Parameters);
 
             var vmType = viewModel.GetType();
@@ -604,7 +605,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 return (IViewModel)view.DataContext;
 
             if (vm == null)
-                vm = ViewModelProvider.GetViewModel(vmType, ActivationConstants.IsRestored.ToValue(true));
+                vm = ViewModelProvider.GetViewModel(vmType, InitializationConstants.IsRestored.ToValue(true));
             MvvmUtils.WithTaskExceptionHandler(ViewManager.InitializeViewAsync(vm, view), this);
             return vm;
         }

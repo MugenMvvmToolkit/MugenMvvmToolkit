@@ -175,7 +175,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             OnInitialized(context);
 
             _notifyPropertyChanged = Instance as INotifyPropertyChanged ??
-                                     context.ValidationMetadata.GetData(ValidationConstants.ViewModel);
+                                     context.ValidationMetadata.GetData(ViewModelConstants.ViewModel);
             if (_notifyPropertyChanged == null)
                 Tracer.Warn(
                     "The type {0} doesn't implement the INotifyPropertyChanged, validator {1} cannot track errors.",

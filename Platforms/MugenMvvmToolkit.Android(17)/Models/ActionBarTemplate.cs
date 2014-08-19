@@ -13,21 +13,29 @@
 // </license>
 // ****************************************************************************
 #endregion
+
+using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using Android.App;
+using Android.OS;
 using Android.Support.V7.App;
 using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces.Views;
+using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Models
 {
     [XmlRoot("ACTIONBAR")]
     public sealed class ActionBarTemplate
     {
-        #region Properties
+        #region Fields
 
-        [XmlAttribute("TABCONTENTID")]
-        public string TabContentId { get; set; }
+        private const string SelectedTabIndexKey = "~@tabindex";
+
+        #endregion
+
+        #region Properties
 
         [XmlAttribute("DATACONTEXT")]
         public string DataContext { get; set; }
@@ -58,6 +66,9 @@ namespace MugenMvvmToolkit.Models
 
         [XmlAttribute("HOMEBUTTONENABLED")]
         public string HomeButtonEnabled { get; set; }
+
+        [XmlAttribute("HOMEBUTTONCLICK")]
+        public string HomeButtonClick { get; set; }
 
         [XmlAttribute("ICON")]
         public string Icon { get; set; }
@@ -92,6 +103,9 @@ namespace MugenMvvmToolkit.Models
         [XmlAttribute("ITEMSSOURCE")]
         public string ItemsSource { get; set; }
 
+        [XmlElement("RESTORETABSELECTEDINDEX")]
+        public string RestoreTabSelectedIndex { get; set; }
+
         [XmlElement("TABTEMPLATE")]
         public ActionBarTabTemplate TabTemplate { get; set; }
 
@@ -114,7 +128,6 @@ namespace MugenMvvmToolkit.Models
             var actionBar = activity.GetActionBar();
             var setter = new XmlPropertySetter<ActionBarTemplate, ActionBar>(actionBar, activity);
             setter.SetEnumProperty<ActionBarNavigationMode>(template => template.NavigationMode, NavigationMode);
-            setter.SetProperty(template => template.TabContentId, TabContentId);
             setter.SetProperty(template => template.DataContext, DataContext);
             if (string.IsNullOrEmpty(ItemsSource))
             {
@@ -125,6 +138,7 @@ namespace MugenMvvmToolkit.Models
                         var tab = Tabs[index].CreateTab(actionBar);
                         actionBar.AddTab(tab, index);
                     }
+                    TryRestoreSelectedIndex(activity, actionBar);
                 }
             }
             else
@@ -137,6 +151,7 @@ namespace MugenMvvmToolkit.Models
             setter.SetBinding(template => template.ContextActionBarVisible, ContextActionBarVisible, false);
 
             setter.SetBinding(template => template.SelectedItem, SelectedItem, false);
+            
             setter.SetProperty(template => template.BackgroundDrawable, BackgroundDrawable);
             setter.SetProperty(template => template.CustomView, CustomView);
             setter.SetEnumProperty<ActionBarDisplayOptions>(template => template.DisplayOptions, DisplayOptions);
@@ -154,6 +169,34 @@ namespace MugenMvvmToolkit.Models
             setter.SetStringProperty(template => template.Subtitle, Subtitle);
             setter.SetStringProperty(template => template.Title, Title);
             setter.SetBoolProperty(template => template.Visible, Visible);
+            setter.SetBinding("HomeButton.Click", HomeButtonClick, false);
+        }
+
+        private void TryRestoreSelectedIndex(Activity activity, ActionBar actionBar)
+        {
+            bool result;
+            if (bool.TryParse(RestoreTabSelectedIndex, out result) && !result)
+                return;
+            var activityView = activity as IActivityView;
+            if (activityView == null)
+                return;
+            var bundle = activityView.Bundle;
+            if (bundle != null)
+            {
+                var i = bundle.GetInt(SelectedTabIndexKey, int.MinValue);
+                if (i != int.MinValue)
+                    actionBar.SetSelectedNavigationItem(i);
+            }
+            activityView.SaveInstanceState += ActivityViewOnSaveInstanceState;
+        }
+
+        private static void ActivityViewOnSaveInstanceState(Activity sender, ValueEventArgs<Bundle> args)
+        {
+            var actionBar = sender.GetActionBar();
+            if (actionBar == null)
+                return;
+            var index = actionBar.SelectedNavigationIndex;
+            args.Value.PutInt(SelectedTabIndexKey, index);
         }
 
         #endregion

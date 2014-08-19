@@ -80,6 +80,9 @@
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs">
       <Link>Callbacks\SerializableOperationCallbackFactory.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\DataTemplateSelectorBase.cs">
+      <Link>Infrastructure\DataTemplateSelectorBase.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\DebugTracer.cs">
       <Link>Infrastructure\DebugTracer.cs</Link>
     </Compile>
@@ -113,8 +116,8 @@
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Presenters\MessagePresenter.cs">
       <Link>Infrastructure\Presenters\MessagePresenter.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Presenters\ToastPresenterBase.cs">
-      <Link>Infrastructure\Presenters\ToastPresenterBase.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Presenters\ToastPresenter.cs">
+      <Link>Infrastructure\Presenters\ToastPresenter.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\TabHostItemsSourceGenerator.cs">
       <Link>Infrastructure\TabHostItemsSourceGenerator.cs</Link>

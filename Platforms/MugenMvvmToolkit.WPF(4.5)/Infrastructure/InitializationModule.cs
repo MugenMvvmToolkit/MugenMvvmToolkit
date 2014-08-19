@@ -239,7 +239,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <returns>An instance of <see cref="IToastPresenter" />.</returns>
         protected override BindingInfo<IToastPresenter> GetToastPresenter()
         {
-            return BindingInfo<IToastPresenter>.FromType<ToastPresenterBase>(DependencyLifecycle.SingleInstance);
+            return BindingInfo<IToastPresenter>.FromType<ToastPresenter>(DependencyLifecycle.SingleInstance);
         }
 
         #endregion

@@ -56,6 +56,14 @@ namespace MugenMvvmToolkit.Views.Activities
         }
 
         /// <summary>
+        /// Gets the current bundle.
+        /// </summary>
+        public Bundle Bundle
+        {
+            get { return _mediator.Bundle; }
+        }
+
+        /// <summary>
         ///     Occurs when the DataContext property changed.
         /// </summary>
         public virtual event EventHandler<Activity, EventArgs> DataContextChanged
@@ -98,6 +106,15 @@ namespace MugenMvvmToolkit.Views.Activities
         {
             add { _mediator.Paused += value; }
             remove { _mediator.Paused -= value; }
+        }
+
+        /// <summary>
+        ///     Occurred on save activity state.
+        /// </summary>
+        public event EventHandler<Activity, ValueEventArgs<Bundle>> SaveInstanceState
+        {
+            add { _mediator.SaveInstanceState += value; }
+            remove { _mediator.SaveInstanceState -= value; }
         }
 
         /// <summary>

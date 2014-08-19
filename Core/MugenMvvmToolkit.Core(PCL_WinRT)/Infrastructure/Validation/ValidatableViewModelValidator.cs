@@ -116,7 +116,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         protected override bool CanValidateInternal(IValidatorContext validatorContext)
         {
             IViewModel viewModel;
-            validatorContext.ValidationMetadata.TryGetData(ValidationConstants.ViewModel, out viewModel);
+            validatorContext.ValidationMetadata.TryGetData(ViewModelConstants.ViewModel, out viewModel);
             return viewModel == null || !ReferenceEquals(viewModel, validatorContext.Instance);
         }
 

@@ -17,6 +17,7 @@ using System;
 using System.Globalization;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
@@ -55,7 +56,7 @@ namespace MugenMvvmToolkit.Converters
         /// <summary>
         /// Gets an instance of <see cref="ViewModelToViewConverter"/>.
         /// </summary>
-        public static readonly IValueConverter Instance = new ViewModelToViewConverter();
+        public static readonly ViewModelToViewConverter Instance = new ViewModelToViewConverter();
 
         #endregion
 
@@ -100,21 +101,17 @@ namespace MugenMvvmToolkit.Converters
         #region Implementation of IValueConverter
 
 #if NETFX_CORE || WINDOWSCOMMON
-        object IValueConverter.Convert(object value, Type targetType, object parameter, string language)
+        public object Convert(object value, Type targetType = null, object parameter = null, string language = null)
 #else
-        object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object value, Type targetType = null, object parameter = null, CultureInfo culture = null)
 #endif
 
         {
             try
             {
-                var ctx = parameter as DataContext;
-                if (ctx == null)
-                {
-                    var viewName = parameter as string ?? ViewName;
-                    if (viewName != null)
-                        ctx = new DataContext(ActivationConstants.ViewName.ToValue(viewName));
-                }
+                var ctx = (parameter as DataContext).ToNonReadOnly();
+                if (!string.IsNullOrEmpty(ViewName))
+                    ctx.AddOrUpdate(NavigationConstants.ViewName, ViewName);
 #if ANDROID
                 return PlatformExtensions.GetOrCreateView((IViewModel)value, AlwaysCreateNewView, ctx);
 #else
@@ -150,9 +147,9 @@ namespace MugenMvvmToolkit.Converters
         }
 
 #if NETFX_CORE || WINDOWSCOMMON
-        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, string language)
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
 #else
-        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 #endif
 
         {

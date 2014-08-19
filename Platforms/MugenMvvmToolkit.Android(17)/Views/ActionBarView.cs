@@ -20,6 +20,7 @@ using System.Xml.Serialization;
 using Android.App;
 using Android.Content;
 using Android.Content.Res;
+using Android.Support.V7.App;
 using Android.Util;
 using Android.Views;
 using MugenMvvmToolkit.Binding.Core;
@@ -34,7 +35,10 @@ namespace MugenMvvmToolkit.Views
         #region Fields
 
         private static readonly XmlSerializer Serializer = new XmlSerializer(typeof(ActionBarTemplate), string.Empty);
+        private const string TabContentIdKey = "!@tabcontentId";
+
         private readonly int _resourceId;
+        private readonly int _tabContentId;
         private Activity _activity;
 
         #endregion
@@ -53,6 +57,7 @@ namespace MugenMvvmToolkit.Views
             try
             {
                 _resourceId = typedArray.GetResourceId(Resource.Styleable.ActionBarView_ActionBarTemplate, int.MinValue);
+                _tabContentId = typedArray.GetResourceId(Resource.Styleable.ActionBarView_TabContentId, int.MinValue);
             }
             finally
             {
@@ -73,6 +78,9 @@ namespace MugenMvvmToolkit.Views
                 Tracer.Warn("The activity is null {0}", this);
                 return;
             }
+            var actionBar = _activity.GetActionBar();
+            if (_tabContentId != int.MinValue)
+                ServiceProvider.AttachedValueProvider.SetValue(actionBar, TabContentIdKey, _tabContentId);
             using (XmlReader reader = Context.Resources.GetLayout(_resourceId))
             {
                 //NOTE XDocument throws an error.
@@ -86,6 +94,14 @@ namespace MugenMvvmToolkit.Views
             }
         }
 
+        public static int? GetTabContentId(ActionBar actionBar)
+        {
+            int value;
+            if (ServiceProvider.AttachedValueProvider.TryGetValue(actionBar, TabContentIdKey, out value))
+                return value;
+            return null;
+        }
+
         #endregion
 
         #region Implementation of IManualBindings
@@ -94,9 +110,10 @@ namespace MugenMvvmToolkit.Views
         {
             if (bindings == null || _activity == null)
                 return EmptyValue<IDataBinding>.ListInstance;
+            var actionBar = _activity.GetActionBar();
             var dataBindings = new List<IDataBinding>();
             foreach (string binding in bindings)
-                dataBindings.AddRange(BindingProvider.Instance.CreateBindingsFromString(_activity.GetActionBar(), binding, null));
+                dataBindings.AddRange(BindingProvider.Instance.CreateBindingsFromString(actionBar, binding, null));
             return dataBindings;
         }
 

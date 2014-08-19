@@ -164,6 +164,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public virtual View OnCreateView(int? viewId, LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState, Func<LayoutInflater, ViewGroup, Bundle, View> baseOnCreateView)
         {
+            ClearBindings();
             if (viewId.HasValue)
             {
                 if (_bindings == null)
@@ -425,7 +426,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 return;
 
             var viewModel = Get<IViewModelProvider>()
-                .GetViewModel(vmType, parentVm, parameters: ActivationConstants.IsRestored.ToValue(true));
+                .GetViewModel(vmType, parentVm, parameters: InitializationConstants.IsRestored.ToValue(true));
             TryRestoreFragmentContext(viewModel, true);
         }
 
@@ -478,7 +479,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 return;
             foreach (IDataBinding binding in _bindings)
                 binding.Dispose();
-            _bindings = null;
+            _bindings.Clear();
         }
 
         private bool OnClosing()

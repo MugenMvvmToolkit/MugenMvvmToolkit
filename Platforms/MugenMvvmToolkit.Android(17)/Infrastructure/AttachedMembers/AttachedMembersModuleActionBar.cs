@@ -13,6 +13,8 @@
 // </license>
 // ****************************************************************************
 #endregion
+
+using System;
 using System.Collections;
 using Android.App;
 using Android.Graphics.Drawables;
@@ -21,7 +23,6 @@ using Android.Support.V7.View;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Java.Lang;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
@@ -30,6 +31,7 @@ using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
+using Object = Java.Lang.Object;
 
 // ReSharper disable once CheckNamespace
 
@@ -131,7 +133,6 @@ namespace MugenMvvmToolkit.Infrastructure
         internal static readonly IAttachedBindingMemberInfo<ActionBar.Tab, object> ActionBarTabContentMember;
         internal static readonly IAttachedBindingMemberInfo<ActionBar.Tab, ActionBar> ActionBarTabParentMember;
 
-        internal static readonly IAttachedBindingMemberInfo<ActionBar, int?> ActionBarTabContentIdMember;
         internal static readonly IAttachedBindingMemberInfo<ActionBar, object> ActionBarSelectedItemMember;
 
         private static readonly IAttachedBindingMemberInfo<ActionBar, IEnumerable> ActionBarItemsSourceMember;
@@ -146,7 +147,6 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             memberProvider.Register(ActionBarTabContentMember);
             memberProvider.Register(ActionBarTabParentMember);
-            memberProvider.Register(ActionBarTabContentIdMember);
             memberProvider.Register(ActionBarSelectedItemMember);
             memberProvider.Register(ActionBarItemsSourceMember);
             memberProvider.Register(ActionBarContextActionBarTemplateMember);
@@ -266,6 +266,7 @@ namespace MugenMvvmToolkit.Infrastructure
             memberProvider.Register(AttachedBindingMember
                 .CreateNotifiableMember<ActionBar, bool>("Visible", (info, actionBar, arg3) => actionBar.IsShowing,
                     SetActionBarIsShowing));
+            memberProvider.Register(AttachedBindingMember.CreateMember<ActionBar, View>("HomeButton", GetHomeButton, null));
 
             memberProvider.Register(
                 AttachedBindingMember.CreateAutoProperty<ActionBar, int?>(AttachedMemberNames.DropDownItemTemplate));
@@ -346,6 +347,28 @@ namespace MugenMvvmToolkit.Infrastructure
                         searchView.SetQuery(arg3[0].ToStringSafe(), false);
                         return null;
                     }, memberChangeEventName: "QueryTextChange"));
+        }
+
+        private static View GetHomeButton(IBindingMemberInfo bindingMemberInfo, ActionBar actionBar, object[] arg3)
+        {
+            var activity = actionBar.ThemedContext.GetActivity();
+            if (activity == null)
+                return null;
+            var finder = PlatformExtensions.HomeButtonFinder;
+            if (finder != null)
+                return finder(activity);
+#if API17
+            var homeView = activity.FindViewById(Android.Resource.Id.Home);                
+#else
+            var homeView = activity.FindViewById(Resource.Id.home);
+#endif
+            if (homeView != null)
+            {
+                homeView = homeView.Parent as View;
+                if (homeView != null)
+                    return homeView.Parent as View;
+            }
+            return null;
         }
 
         private static void ActionBarContextActionBarVisibleChanged(ActionBar actionBar,

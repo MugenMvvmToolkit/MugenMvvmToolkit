@@ -140,9 +140,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected override ICollection<Assembly> GetAssemblies()
         {
-            return MvvmUtils
-                .SkipFrameworkAssemblies(AppDomain.CurrentDomain.GetAssemblies())
-                .ToList();
+            return new HashSet<Assembly>(MvvmUtils.SkipFrameworkAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
         }
 
         #endregion
@@ -266,8 +264,7 @@ You must specify the type of application bootstraper using BootstrapperAttribute
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
         {
-            var viewName = dataContext.GetData(ActivationConstants.ViewName) ??
-                    viewModel.Settings.Metadata.GetData(ActivationConstants.ViewName);
+            var viewName = viewModel.GetViewName(dataContext);
             var container = MvvmUtils.GetIocContainer(viewModel, true);
             var mappingProvider = container.Get<IViewMappingProvider>();
             var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
@@ -276,8 +273,7 @@ You must specify the type of application bootstraper using BootstrapperAttribute
 
         private static bool CanShowViewModelNavigationPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
         {
-            var viewName = dataContext.GetData(ActivationConstants.ViewName) ??
-                    viewModel.Settings.Metadata.GetData(ActivationConstants.ViewName);
+            var viewName = viewModel.GetViewName(dataContext);
             var container = MvvmUtils.GetIocContainer(viewModel, true);
             var mappingProvider = container.Get<IViewMappingProvider>();
             var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);

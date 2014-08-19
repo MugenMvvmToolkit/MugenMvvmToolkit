@@ -36,6 +36,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         private readonly BindableMenuInflater _menuInflater;
         private IList<IDataBinding> _bindings;
+        private Bundle _bundle;
 
         #endregion
 
@@ -63,6 +64,14 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         }
 
         /// <summary>
+        /// Gets the current bundle.
+        /// </summary>
+        public virtual Bundle Bundle
+        {
+            get { return _bundle; }
+        }
+
+        /// <summary>
         ///     Called when the activity has detected the user's press of the back key.
         /// </summary>
         public virtual void OnBackPressed(Action baseOnBackPressed)
@@ -86,6 +95,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             AndroidBootstrapperBase.EnsureInitialized();
             Tracer.Info("OnCreate activity({0})", Target);
+            _bundle = savedInstanceState;
 
             OnCreate(savedInstanceState);
 
@@ -122,6 +132,10 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             var stateManager = Get<IApplicationStateManager>();
             stateManager.OnSaveInstanceStateActivity(Activity, outState);
+
+            var handler = SaveInstanceState;
+            if (handler != null)
+                handler(Activity, new ValueEventArgs<Bundle>(outState));
             base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
         }
 
@@ -285,6 +299,11 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         ///     Occurred on paused activity.
         /// </summary>
         public virtual event EventHandler<Activity, EventArgs> Paused;
+
+        /// <summary>
+        ///     Occurred on save activity state.
+        /// </summary>
+        public virtual event EventHandler<Activity, ValueEventArgs<Bundle>> SaveInstanceState;
 
         /// <summary>
         ///     Occurred on stoped activity.

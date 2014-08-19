@@ -122,9 +122,12 @@ namespace MugenMvvmToolkit.Binding
                 else
                 {
                     _parentContext = GetParentBindingContext(source);
-                    var src = _parentContext.Source;
-                    if (src != null)
-                        WeakEventManager.GetBindingContextListener(src).Add(this);
+                    if (_parentContext != null)
+                    {
+                        var src = _parentContext.Source;
+                        if (src != null)
+                            WeakEventManager.GetBindingContextListener(src).Add(this);
+                    }
                 }
             }
 

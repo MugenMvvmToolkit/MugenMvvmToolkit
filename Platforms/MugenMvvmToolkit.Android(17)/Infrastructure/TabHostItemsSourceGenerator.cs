@@ -16,8 +16,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Android.App;
+using Android.OS;
 using Android.Support.V4.App;
 using Android.Views;
 using Android.Widget;
@@ -29,71 +29,19 @@ using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Interfaces.Views;
+using MugenMvvmToolkit.Models.EventArg;
 using Object = Java.Lang.Object;
+#if API8
+using FragmentTransaction = System.Object;
+#endif
+
 
 namespace MugenMvvmToolkit.Infrastructure
 {
     internal sealed class TabHostItemsSourceGenerator : ItemsSourceGeneratorBase
     {
         #region Nested types
-
-        private sealed class ContentSelector
-        {
-            #region Fields
-
-            private object _content;
-            private readonly TabHostItemsSourceGenerator _generator;
-
-            #endregion
-
-            #region Constructors
-
-            public ContentSelector(TabHostItemsSourceGenerator generator)
-            {
-                _generator = generator;
-            }
-
-            #endregion
-
-            #region Methods
-
-            public object GetContent(object item)
-            {
-                if (_content == null)
-                {
-                    var content = PlatformExtensions.GetContentView(_generator._tabHost, _generator._tabHost.Context,
-                        item, ValueTemplateManager.GetTemplateId(_generator._tabHost, AttachedMemberConstants.ContentTemplate),
-                        ValueTemplateManager.GetDataTemplateSelector(_generator._tabHost, AttachedMemberConstants.ContentTemplateSelector));
-#if !API8
-                    if (content is Fragment)
-                        return content;
-#endif
-                    _content = content;
-                }
-                return _content;
-            }
-
-            #endregion
-        }
-
-        private sealed class EmptyTemplateSelector : IDataTemplateSelector
-        {
-            #region Fields
-
-            public static readonly EmptyTemplateSelector Instance = new EmptyTemplateSelector();
-            public static readonly View EmptyView = new View(Application.Context);
-
-            #endregion
-
-            #region Implementation of IDataTemplateSelector
-
-            public object SelectTemplate(object item, object container)
-            {
-                return EmptyView;
-            }
-
-            #endregion
-        }
 
         private sealed class TabFactory : Object, TabHost.ITabContentFactory
         {
@@ -126,15 +74,59 @@ namespace MugenMvvmToolkit.Infrastructure
             #endregion
         }
 
+        private sealed class EmptyTemplateSelector : IDataTemplateSelector
+        {
+            #region Fields
+
+            public static readonly EmptyTemplateSelector Instance = new EmptyTemplateSelector();
+            public static readonly View EmptyView = new View(Application.Context);
+
+            #endregion
+
+            #region Implementation of IDataTemplateSelector
+
+            public object SelectTemplate(object item, object container)
+            {
+                return EmptyView;
+            }
+
+            #endregion
+        }
+
+        private sealed class TabInfo
+        {
+            #region Fields
+
+            public readonly object Item;
+            public readonly TabHost.TabSpec TabSpec;
+            public readonly object Content;
+
+            #endregion
+
+            #region Constructors
+
+            public TabInfo(object item, TabHost.TabSpec tabSpec, object content)
+            {
+                Item = item;
+                TabSpec = tabSpec;
+                Content = content;
+            }
+
+            #endregion
+        }
+
         #endregion
 
         #region Fields
 
+        private const string SelectedTabIndexKey = "~@tindex";
         private const string Key = "!#tabgen";
+        private bool _isRestored;
+
         private object _currentTabContent;
         private readonly TabFactory _tabFactory;
         private readonly TabHost _tabHost;
-        private readonly Dictionary<string, Tuple<object, Func<object, object>, TabHost.TabSpec>> _tabToContent;
+        private readonly Dictionary<string, TabInfo> _tabToContent;
         private readonly IBindingMemberInfo _selectedItemMember;
 
         #endregion
@@ -149,7 +141,7 @@ namespace MugenMvvmToolkit.Infrastructure
             Should.NotBeNull(tabHost, "tabHost");
             _tabHost = tabHost;
             _tabHost.Setup();
-            _tabToContent = new Dictionary<string, Tuple<object, Func<object, object>, TabHost.TabSpec>>();
+            _tabToContent = new Dictionary<string, TabInfo>();
             _tabFactory = new TabFactory(this);
             _selectedItemMember = BindingProvider.Instance
                                                  .MemberProvider
@@ -162,6 +154,16 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Overrides of ItemsSourceGeneratorBase
 
+        public override void Update(IEnumerable itemsSource)
+        {
+            base.Update(itemsSource);
+            if (!_isRestored)
+            {
+                _isRestored = true;
+                TryRestoreSelectedIndex();
+            }
+        }
+
         protected override IEnumerable ItemsSource { get; set; }
 
         protected override void Add(int insertionIndex, int count)
@@ -169,7 +171,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (insertionIndex == _tabHost.TabWidget.TabCount)
             {
                 for (int i = 0; i < count; i++)
-                    _tabHost.AddTab(CreateTabSpec(insertionIndex + i, null));
+                    _tabHost.AddTab(CreateTabSpec(insertionIndex + i));
             }
             else
                 Refresh();
@@ -187,13 +189,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         protected override void Refresh()
         {
-            string selectedTag = null;
-            Tuple<object, Func<object, object>, TabHost.TabSpec> value = null;
-            if (_tabHost.CurrentTabTag != null)
-                _tabToContent.TryGetValue(_tabHost.CurrentTabTag, out value);
-
-            TryClearCurrentView(_currentTabContent);
-            var oldValues = _tabToContent.ToDictionary(pair => pair.Value.Item1 ?? string.Empty, pair => pair);
+            string selectedTag = _tabHost.CurrentTabTag;
+            var oldValues = new Dictionary<string, TabInfo>(_tabToContent);
             _tabHost.CurrentTab = 0;
             _tabHost.ClearAllTabs();
             _tabToContent.Clear();
@@ -201,15 +198,13 @@ namespace MugenMvvmToolkit.Infrastructure
             int count = ItemsSource.Count();
             for (int i = 0; i < count; i++)
             {
-                var tabSpec = CreateTabSpec(i, oldValues);
-                _tabHost.AddTab(tabSpec);
-                if (value != null)
-                {
-                    var item = GetItem(i);
-                    if (item == value.Item1)
-                        selectedTag = tabSpec.Tag;
-                }
+                var tabInfo = TryRecreateTabInfo(i, oldValues);
+                _tabHost.AddTab(tabInfo.TabSpec);
             }
+            foreach (var oldValue in oldValues)
+                RemoveTab(oldValue.Value);
+
+
             if (count == 0)
                 OnEmptyTab();
             else
@@ -250,15 +245,47 @@ namespace MugenMvvmToolkit.Infrastructure
             }
             else
             {
-                foreach (var o in _tabToContent)
+                foreach (var pair in _tabToContent)
                 {
-                    if (o.Value.Item1 == item)
+                    if (pair.Value.Item == item)
                     {
-                        if (_tabHost.CurrentTabTag != o.Key)
-                            _tabHost.SetCurrentTabByTag(o.Key);
+                        if (_tabHost.CurrentTabTag != pair.Key)
+                            _tabHost.SetCurrentTabByTag(pair.Key);
                         break;
                     }
                 }
+            }
+        }
+
+        private void TabHostOnTabChanged(object sender, TabHost.TabChangeEventArgs args)
+        {
+            OnTabChanged(args.TabId);
+        }
+
+        private void OnTabChanged(string id)
+        {
+            var oldValue = _currentTabContent;
+            TabInfo info;
+            if (_tabToContent.TryGetValue(id, out info))
+            {
+                _currentTabContent = info.Content;
+                if (ReferenceEquals(_currentTabContent, oldValue))
+                    return;
+
+                var ft = OnTabUnselected(oldValue);
+                ft = OnTabSelected(_currentTabContent, ft);
+#if !API8
+                if (ft != null)
+                    ft.Commit();
+#endif
+                if (_selectedItemMember != null)
+                    _selectedItemMember.SetValue(_tabHost, new[] { info.Item });
+            }
+            else
+            {
+                _currentTabContent = _tabHost.CurrentTabView;
+                if (_selectedItemMember != null)
+                    _selectedItemMember.SetValue(_tabHost, new object[] { _tabHost.CurrentTabView });
             }
         }
 
@@ -270,32 +297,36 @@ namespace MugenMvvmToolkit.Infrastructure
                 _tabHost.TabContentView.RemoveAllViews();
         }
 
-        private void TabHostOnTabChanged(object sender, TabHost.TabChangeEventArgs args)
+        private TabHost.TabSpec CreateTabSpec(int index)
         {
-            OnTabChanged(args.TabId);
+            return CreateTabInfo(GetItem(index)).TabSpec;
         }
 
-        private void OnTabChanged(string id)
+        private TabInfo TryRecreateTabInfo(int index, Dictionary<string, TabInfo> oldValues)
         {
-            var oldValue = _currentTabContent;
-            Tuple<object, Func<object, object>, TabHost.TabSpec> value;
-            if (_tabToContent.TryGetValue(id, out value))
+            object item = GetItem(index);
+            foreach (var tabInfo in oldValues)
             {
-                _currentTabContent = value.Item2(value.Item1);
-                if (Equals(_currentTabContent, oldValue))
-                    return;
-                TryClearCurrentView(oldValue);
-                _tabHost.TabContentView.SetContentView(_currentTabContent);
+                if (Equals(tabInfo.Value.Item, item))
+                {
+                    oldValues.Remove(tabInfo.Key);
+                    _tabToContent[tabInfo.Key] = tabInfo.Value;
+                    return tabInfo.Value;
+                }
+            }
+            return CreateTabInfo(item);
+        }
 
-                if (_selectedItemMember != null)
-                    _selectedItemMember.SetValue(_tabHost, new[] { value.Item1 });
-            }
-            else
-            {
-                _currentTabContent = _tabHost.CurrentTabView;
-                if (_selectedItemMember != null)
-                    _selectedItemMember.SetValue(_tabHost, new object[] { _tabHost.CurrentTabView });
-            }
+        private TabInfo CreateTabInfo(object item)
+        {
+            string id = Guid.NewGuid().ToString("n");
+            var spec = _tabHost.NewTabSpec(id);
+            var tabInfo = new TabInfo(item, spec, GetContent(item));
+            _tabToContent[id] = tabInfo;
+            SetIndicator(spec, item);
+            spec.SetContent(_tabFactory);
+            BindingProvider.Instance.ContextManager.GetBindingContext(spec).Value = item;
+            return tabInfo;
         }
 
         private void SetIndicator(TabHost.TabSpec tabSpec, object item)
@@ -325,41 +356,97 @@ namespace MugenMvvmToolkit.Infrastructure
                 tabSpec.SetIndicator(view);
         }
 
-        private TabHost.TabSpec CreateTabSpec(int index, Dictionary<object, KeyValuePair<string, Tuple<object, Func<object, object>, TabHost.TabSpec>>> oldValues)
+        private object GetContent(object item)
         {
-            object item = GetItem(index);
-            KeyValuePair<string, Tuple<object, Func<object, object>, TabHost.TabSpec>> pair;
-            if (oldValues != null && oldValues.TryGetValue(item, out pair))
-            {
-                _tabToContent[pair.Key] = pair.Value;
-                return pair.Value.Item3;
-            }
-
-            string id = Guid.NewGuid().ToString("n");
-            var spec = _tabHost.NewTabSpec(id);
-            var value = new Tuple<object, Func<object, object>, TabHost.TabSpec>(item,
-                new ContentSelector(this).GetContent, spec);
-            _tabToContent[id] = value;
-            SetIndicator(spec, GetItem(index));
-            spec.SetContent(_tabFactory);
-            BindingProvider.Instance.ContextManager.GetBindingContext(spec).Value = item;
-            return spec;
+            return PlatformExtensions.GetContentView(_tabHost, _tabHost.Context,
+                item, ValueTemplateManager.GetTemplateId(_tabHost, AttachedMemberConstants.ContentTemplate),
+                ValueTemplateManager.GetDataTemplateSelector(_tabHost, AttachedMemberConstants.ContentTemplateSelector));
         }
 
-        private void TryClearCurrentView(object view)
+        private FragmentTransaction OnTabUnselected(object content)
         {
 #if !API8
-            var fragment = view as Fragment;
+            var fragment = content as Fragment;
+            if (fragment != null)
+            {
+                var fragmentManager = _tabHost.GetFragmentManager();
+                if (fragmentManager == null)
+                    return null;
+                return fragmentManager.BeginTransaction().Detach(fragment);
+            }
+#endif
+            var view = content as View;
+            if (view != null)
+                _tabHost.TabContentView.RemoveView(view);
+            return null;
+        }
+
+        private FragmentTransaction OnTabSelected(object content, FragmentTransaction ft)
+        {
+#if !API8
+            var fragment = content as Fragment;
+            if (fragment != null)
+            {
+                if (ft == null)
+                {
+                    var fragmentManager = _tabHost.GetFragmentManager();
+                    if (fragmentManager == null)
+                        return null;
+                    ft = fragmentManager.BeginTransaction();
+                }
+
+                if (fragment.IsDetached)
+                    return ft.Attach(fragment);
+                return ft.Replace(_tabHost.TabContentView.Id, fragment);
+            }
+#endif
+            var view = content as View;
+            if (view == null)
+                _tabHost.TabContentView.RemoveAllViews();
+            else
+                _tabHost.TabContentView.AddView(view);
+            return null;
+        }
+
+        private void RemoveTab(TabInfo tab)
+        {
+#if !API8
+            var fragment = tab.Content as Fragment;
             if (fragment == null)
                 return;
             var fragmentManager = _tabHost.GetFragmentManager();
             if (fragmentManager == null)
                 return;
-            fragmentManager.BeginTransaction().Remove(fragment).Commit();
+            fragmentManager.BeginTransaction()
+                .Remove(fragment)
+                .Commit();
             fragmentManager.ExecutePendingTransactions();
 #endif
         }
 
+        private void TryRestoreSelectedIndex()
+        {
+            var activityView = _tabHost.Context as IActivityView;
+            if (activityView == null)
+                return;
+            var bundle = activityView.Bundle;
+            if (bundle != null)
+            {
+                var i = bundle.GetInt(SelectedTabIndexKey, int.MinValue);
+                if (i != int.MinValue)
+                    _tabHost.CurrentTab = i;
+            }
+            activityView.SaveInstanceState += ActivityViewOnSaveInstanceState;
+        }
+
+        private void ActivityViewOnSaveInstanceState(Activity sender, ValueEventArgs<Bundle> args)
+        {
+            var index = _tabHost.CurrentTab;
+            if (index > 0)
+                args.Value.PutInt(SelectedTabIndexKey, index);
+        }
+
         #endregion
+
     }
 }

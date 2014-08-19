@@ -52,12 +52,10 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml" />
     <Reference Include="Xamarin.Android.Support.v4">
-      <HintPath>..\..\Components\xamandroidsupportv7appcompat-20.0.0\lib\android\Xamarin.Android.Support.v4.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\packages\Xamarin.Android.Support.v4.20.0.0.3\lib\MonoAndroid10\Xamarin.Android.Support.v4.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Android.Support.v7.AppCompat">
-      <HintPath>..\..\Components\xamandroidsupportv7appcompat-20.0.0\lib\android\Xamarin.Android.Support.v7.AppCompat.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\packages\Xamarin.Android.Support.v7.AppCompat.20.0.0\lib\MonoAndroid10\Xamarin.Android.Support.v7.AppCompat.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -96,6 +94,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs">
       <Link>Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\DataTemplateSelectorBase.cs">
+      <Link>Infrastructure\DataTemplateSelectorBase.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\DebugTracer.cs">
       <Link>Infrastructure\DebugTracer.cs</Link>
@@ -136,8 +137,8 @@
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Presenters\MessagePresenter.cs">
       <Link>Infrastructure\Presenters\MessagePresenter.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Presenters\ToastPresenterBase.cs">
-      <Link>Infrastructure\Presenters\ToastPresenterBase.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Presenters\ToastPresenter.cs">
+      <Link>Infrastructure\Presenters\ToastPresenter.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\TabHostItemsSourceGenerator.cs">
       <Link>Infrastructure\TabHostItemsSourceGenerator.cs</Link>
@@ -325,12 +326,6 @@
       <Name>MugenMvvmToolkit.Core%28PCL_WinRT%29</Name>
       <Private>False</Private>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <XamarinComponentReference Include="xamandroidsupportv7appcompat">
-      <Visible>False</Visible>
-      <Version>20.0.0</Version>
-    </XamarinComponentReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

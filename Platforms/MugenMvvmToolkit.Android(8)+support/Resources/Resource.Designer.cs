@@ -88,6 +88,9 @@ namespace MugenMvvmToolkit
 			// aapt resource value: 0x7f010074
 			public static int PopupMenuTemplate = 2130772084;
 			
+			// aapt resource value: 0x7f010078
+			public static int TabContentId = 2130772088;
+			
 			// aapt resource value: 0x7f01000f
 			public static int actionBarDivider = 2130771983;
 			
@@ -1707,10 +1710,14 @@ namespace MugenMvvmToolkit
 			public static int ActionBarLayout_android_layout_gravity = 0;
 			
 			public static int[] ActionBarView = new int[] {
-					2130772087};
+					2130772087,
+					2130772088};
 			
 			// aapt resource value: 0
 			public static int ActionBarView_ActionBarTemplate = 0;
+			
+			// aapt resource value: 1
+			public static int ActionBarView_TabContentId = 1;
 			
 			public static int[] ActionBarWindow = new int[] {
 					2130771968,

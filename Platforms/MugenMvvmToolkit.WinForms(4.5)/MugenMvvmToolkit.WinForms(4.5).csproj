@@ -62,6 +62,9 @@
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\AttachedValueProvider.cs">
       <Link>Infrastructure\AttachedValueProvider.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\DataTemplateSelectorBase.cs">
+      <Link>Infrastructure\DataTemplateSelectorBase.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\ItemsSourceGeneratorBase.cs">
       <Link>Infrastructure\ItemsSourceGeneratorBase.cs</Link>
     </Compile>
@@ -134,7 +137,7 @@
     <Compile Include="Collections\BindingListWrapper.cs" />
     <Compile Include="Infrastructure\InitializationModule.cs" />
     <Compile Include="Infrastructure\ThreadManager.cs" />
-    <Compile Include="Infrastructure\Presenters\ToastPresenterBase.cs" />
+    <Compile Include="Infrastructure\Presenters\ToastPresenter.cs" />
     <Compile Include="Infrastructure\WinFormsBootstrapperBase.cs" />
     <Compile Include="Interfaces\ICollectionViewManager.cs" />
     <Compile Include="Interfaces\IContentViewManager.cs" />

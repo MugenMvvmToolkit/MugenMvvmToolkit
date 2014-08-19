@@ -17,6 +17,7 @@ using System;
 using System.ComponentModel;
 using Android.App;
 using Android.OS;
+using JetBrains.Annotations;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 
@@ -24,6 +25,12 @@ namespace MugenMvvmToolkit.Interfaces.Views
 {
     public interface IActivityView : IView
     {
+        /// <summary>
+        /// Gets the current bundle.
+        /// </summary>
+        [CanBeNull]
+        Bundle Bundle { get; }
+
         /// <summary>
         ///     Occurs when the DataContext property changed.
         /// </summary>
@@ -48,6 +55,11 @@ namespace MugenMvvmToolkit.Interfaces.Views
         ///     Occurred on paused activity.
         /// </summary>
         event EventHandler<Activity, EventArgs> Paused;
+
+        /// <summary>
+        ///     Occurred on save activity state.
+        /// </summary>
+        event EventHandler<Activity, ValueEventArgs<Bundle>> SaveInstanceState;
 
         /// <summary>
         ///     Occurred on stoped activity.

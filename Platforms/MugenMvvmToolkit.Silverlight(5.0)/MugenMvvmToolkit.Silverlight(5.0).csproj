@@ -113,8 +113,8 @@
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\DynamicViewModelWindowPresenter.cs">
       <Link>Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\ToastPresenterBase.cs">
-      <Link>Infrastructure\Presenters\ToastPresenterBase.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Presenters\ToastPresenter.cs">
+      <Link>Infrastructure\Presenters\ToastPresenter.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\ThreadManager.cs">
       <Link>Infrastructure\ThreadManager.cs</Link>

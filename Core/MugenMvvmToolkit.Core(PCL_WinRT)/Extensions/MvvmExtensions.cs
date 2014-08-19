@@ -1517,6 +1517,15 @@ namespace MugenMvvmToolkit
             return context;
         }
 
+        /// <summary>
+        ///     Creates an array from a <see cref="IDataContext" />.
+        /// </summary>
+        public static DataConstantValue[] ToArray([NotNull] this IDataContext context)
+        {
+            Should.NotBeNull(context, "context");
+            return context.ToList().ToArrayFast();
+        }
+
         internal static void Invoke(this IThreadManager threadManager, ExecutionMode mode, Action invokeAction)
         {
             switch (mode)

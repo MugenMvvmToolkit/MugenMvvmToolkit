@@ -133,8 +133,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
         {
-            var viewName = dataContext.GetData(ActivationConstants.ViewName) ??
-                    viewModel.Settings.Metadata.GetData(ActivationConstants.ViewName);
+            var viewName = viewModel.GetViewName(dataContext);
             var container = MvvmUtils.GetIocContainer(viewModel, true);
             var mappingProvider = container.Get<IViewMappingProvider>();
             var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
@@ -143,8 +142,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static bool CanShowViewModelNavigationPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
         {
-            var viewName = dataContext.GetData(ActivationConstants.ViewName) ??
-                    viewModel.Settings.Metadata.GetData(ActivationConstants.ViewName);
+            var viewName = viewModel.GetViewName(dataContext);
             var container = MvvmUtils.GetIocContainer(viewModel, true);
             var mappingProvider = container.Get<IViewMappingProvider>();
             var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);

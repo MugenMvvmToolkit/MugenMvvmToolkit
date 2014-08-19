@@ -68,6 +68,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\DataTemplateSelectorBase.cs">
+      <Link>Infrastructure\DataTemplateSelectorBase.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\ItemsSourceGeneratorBase.cs">
       <Link>Infrastructure\ItemsSourceGeneratorBase.cs</Link>
     </Compile>
@@ -162,8 +165,8 @@
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\Presenters\MessagePresenter.cs">
       <Link>Infrastructure\Presenters\MessagePresenter.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\Presenters\ToastPresenterBase.cs">
-      <Link>Infrastructure\Presenters\ToastPresenterBase.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\Presenters\ToastPresenter.cs">
+      <Link>Infrastructure\Presenters\ToastPresenter.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\ThreadManager.cs">
       <Link>Infrastructure\ThreadManager.cs</Link>

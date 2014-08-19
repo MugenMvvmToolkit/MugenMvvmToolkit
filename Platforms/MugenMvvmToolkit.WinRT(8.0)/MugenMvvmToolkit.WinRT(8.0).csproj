@@ -175,8 +175,8 @@
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\navigation\NavigationProvider.cs">
       <Link>Infrastructure\Navigation\NavigationProvider.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\ToastPresenterBase.cs">
-      <Link>Infrastructure\Presenters\ToastPresenterBase.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Presenters\ToastPresenter.cs">
+      <Link>Infrastructure\Presenters\ToastPresenter.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\VisualStateManager.cs">
       <Link>Infrastructure\VisualStateManager.cs</Link>

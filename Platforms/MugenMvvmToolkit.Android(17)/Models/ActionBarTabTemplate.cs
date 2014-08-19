@@ -23,14 +23,140 @@ using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Views;
 
 namespace MugenMvvmToolkit.Models
 {
-    public sealed class ActionBarTabTemplate : Java.Lang.Object, ActionBar.ITabListener
+    public sealed class ActionBarTabTemplate
     {
+        #region Nested types
+
+        private sealed class TabListener : Java.Lang.Object, ActionBar.ITabListener
+        {
+            #region Fields
+
+            private object _content;
+
+            #endregion
+
+            #region Methods
+
+            public void Clear(ActionBar bar, ActionBar.Tab tab)
+            {
+                var fragment = _content as Fragment;
+                if (fragment != null)
+                {
+                    var viewModel = BindingProvider.Instance.ContextManager.GetBindingContext(fragment).Value as IViewModel;
+                    if (viewModel != null)
+                        viewModel.Settings.Metadata.Remove(MvvmFragmentMediator.StateNotNeeded);
+                    var manager = fragment.FragmentManager;
+                    if (manager != null)
+                        manager.BeginTransaction()
+                               .Remove(fragment)
+                               .Commit();
+                }
+
+                tab.SetTabListener(null);
+                AttachedMembersModule
+                    .ActionBarTabParentMember
+                    .SetValue(tab, BindingExtensions.NullValue);
+            }
+
+            #endregion
+
+            #region Implementation of ITabListener
+
+            public void OnTabReselected(ActionBar.Tab tab, FragmentTransaction ft)
+            {
+            }
+
+            public void OnTabSelected(ActionBar.Tab tab, FragmentTransaction ft)
+            {
+                var bar = AttachedMembersModule.ActionBarTabParentMember.GetValue(tab, null);
+                var placeHolder = ActionBarView.GetTabContentId(bar);
+                var activity = bar.ThemedContext.GetActivity();
+
+                //Set selected item data context or tab
+                AttachedMembersModule
+                    .ActionBarSelectedItemMember
+                    .SetValue(bar, ActionBarTabItemsSourceGenerator.Get(bar) == null
+                        ? new object[] { tab }
+                        : new[] { BindingProvider.Instance.ContextManager.GetBindingContext(tab).Value });
+
+                if (placeHolder == null)
+                {
+                    Tracer.Error("The placeholder for tab {0} was not found.", tab);
+                    return;
+                }
+                var layout = activity.FindViewById<ViewGroup>(placeHolder.Value);
+                if (layout == null)
+                {
+                    Tracer.Warn("The ActionBarTabContentId with id = {0} is not found in activity {1}",
+                        placeHolder.Value,
+                        activity);
+                    return;
+                }
+                if (_content == null)
+                {
+                    _content = AttachedMembersModule.ActionBarTabContentMember.GetValue(tab, null);
+                    var viewModel = _content as IViewModel;
+                    if (viewModel == null)
+                    {
+                        var fragmentClass = _content as string;
+                        //If content is a string, trying to create a fragment.
+                        if (!string.IsNullOrEmpty(fragmentClass))
+                        {
+                            var type = TypeCache<Fragment>.Instance.GetTypeByName(fragmentClass, true, false);
+                            if (type != null)
+                            {
+                                var fragment = Fragment.Instantiate(bar.ThemedContext, Java.Lang.Class.FromType(type).Name);
+                                _content = fragment;
+                            }
+                        }
+                        else if (_content is int)
+                            _content = activity.CreateBindableView((int)_content).Item1;
+                    }
+                    else
+                        viewModel.Settings.Metadata.AddOrUpdate(MvvmFragmentMediator.StateNotNeeded, true);
+                    _content = PlatformExtensions.GetContentView(layout, layout.Context, _content,
+                        ValueTemplateManager.GetTemplateId(tab, AttachedMemberConstants.ContentTemplate),
+                        ValueTemplateManager.GetDataTemplateSelector(tab, AttachedMemberConstants.ContentTemplateSelector));
+                    layout.SetContentView(_content, ft, (@group, fragment, arg3) =>
+                    {
+                        if (fragment.IsDetached)
+                            arg3.Attach(fragment);
+                        else
+                            arg3.Replace(@group.Id, fragment);
+                    });
+                }
+                else
+                    layout.SetContentView(_content, ft, (@group, fragment, arg3) => arg3.Attach(fragment));
+            }
+
+            public void OnTabUnselected(ActionBar.Tab tab, FragmentTransaction ft)
+            {
+                var fragment = _content as Fragment;
+                if (fragment != null)
+                {
+                    ft.Detach(fragment);
+                    return;
+                }
+                var view = _content as View;
+                if (view == null)
+                    return;
+                var viewGroup = view.Parent as ViewGroup;
+                if (viewGroup != null)
+                    viewGroup.RemoveView(view);
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
-        private const string ContentInternalKey = "!$contint";
+        private const string ListenerKey = "!~tablistener";
 
         #endregion
 
@@ -79,22 +205,11 @@ namespace MugenMvvmToolkit.Models
 
         public void ClearTab(ActionBar bar, ActionBar.Tab tab)
         {
-            var fragment = ServiceProvider.AttachedValueProvider.GetValue<object>(tab, ContentInternalKey, false) as Fragment;
-            if (fragment != null)
-            {
-                var viewModel = BindingProvider.Instance.ContextManager.GetBindingContext(fragment).Value as IViewModel;
-                if (viewModel != null)
-                    viewModel.Settings.Metadata.Remove(MvvmFragmentMediator.StateNotNeeded);
-                fragment.FragmentManager
-                    .BeginTransaction()
-                    .Remove(fragment)
-                    .Commit();
-            }
-
-            tab.SetTabListener(null);
-            AttachedMembersModule
-                .ActionBarTabParentMember
-                .SetValue(tab, BindingExtensions.NullValue);
+            var listener = ServiceProvider.AttachedValueProvider.GetValue<TabListener>(tab, ListenerKey, false);
+            if (listener == null)
+                return;
+            ServiceProvider.AttachedValueProvider.Clear(tab, ListenerKey);
+            listener.Clear(bar, tab);
         }
 
         private ActionBar.Tab CreateTabInternal(ActionBar bar, object context, bool useContext)
@@ -114,78 +229,10 @@ namespace MugenMvvmToolkit.Models
             setter.SetProperty(template => template.Icon, Icon);
             setter.SetProperty(template => template.Text, Text);
             setter.SetProperty(template => template.Tag, Tag);
-            newTab.SetTabListener(this);
+            var tabListener = new TabListener();
+            ServiceProvider.AttachedValueProvider.SetValue(newTab, ListenerKey, tabListener);
+            newTab.SetTabListener(tabListener);
             return newTab;
-        }
-
-        #endregion
-
-        #region Implementation of ITabListener
-
-        void ActionBar.ITabListener.OnTabReselected(ActionBar.Tab tab, FragmentTransaction ft)
-        {
-        }
-
-        void ActionBar.ITabListener.OnTabSelected(ActionBar.Tab tab, FragmentTransaction ft)
-        {
-            var bar = AttachedMembersModule.ActionBarTabParentMember.GetValue(tab, null);
-            var placeHolder = AttachedMembersModule.ActionBarTabContentIdMember.GetValue(bar, null);
-            var activity = (Activity)bar.ThemedContext;
-            if (placeHolder == null)
-            {
-                Tracer.Error("The placeholder for tab {0} was not found.", tab);
-                return;
-            }
-            var content = AttachedMembersModule.ActionBarTabContentMember.GetValue(tab, null);
-            var viewModel = content as IViewModel;
-            if (viewModel != null)
-                viewModel.Settings.Metadata.AddOrUpdate(MvvmFragmentMediator.StateNotNeeded, true);
-
-            var fragmentClass = content as string;
-            //If content is a string, trying to create a fragment.
-            if (!string.IsNullOrEmpty(fragmentClass))
-            {
-                var type = TypeCache<Fragment>.Instance.GetTypeByName(fragmentClass, true, false);
-                if (type != null)
-                {
-                    var fragment = Fragment.Instantiate(bar.ThemedContext, Java.Lang.Class.FromType(type).Name);
-                    AttachedMembersModule.ActionBarTabContentMember.SetValue(tab, new object[] { fragment });
-                    content = fragment;
-                }
-            }
-            else if (content is int)
-            {
-                content = activity.CreateBindableView((int)content).Item1;
-                AttachedMembersModule.ActionBarTabContentMember.SetValue(tab, new[] { content });
-            }
-
-            var layout = activity.FindViewById<ViewGroup>(placeHolder.Value);
-            if (layout == null)
-            {
-                Tracer.Warn("The ActionBarTabContentId with id = {0} is not found in activity {1}", placeHolder.Value,
-                    activity);
-                content = null;
-            }
-            else
-                content = layout.SetContentView(content,
-                    ValueTemplateManager.GetTemplateId(tab, AttachedMemberConstants.ContentTemplate),
-                    ValueTemplateManager.GetDataTemplateSelector(tab, AttachedMemberConstants.ContentTemplateSelector), ft);
-
-            //Set selected item data context or tab
-            AttachedMembersModule
-                .ActionBarSelectedItemMember
-                .SetValue(bar, ActionBarTabItemsSourceGenerator.Get(bar) == null
-                    ? new object[] { tab }
-                    : new[] { BindingProvider.Instance.ContextManager.GetBindingContext(tab).Value });
-
-            ServiceProvider.AttachedValueProvider.SetValue(tab, ContentInternalKey, content);
-        }
-
-        void ActionBar.ITabListener.OnTabUnselected(ActionBar.Tab tab, FragmentTransaction ft)
-        {
-            var fragment = ServiceProvider.AttachedValueProvider.GetValue<object>(tab, ContentInternalKey, false) as Fragment;
-            if (fragment != null)
-                ft.Remove(fragment);
         }
 
         #endregion

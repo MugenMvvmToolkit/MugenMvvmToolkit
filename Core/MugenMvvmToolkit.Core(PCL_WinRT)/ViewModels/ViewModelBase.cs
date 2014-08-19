@@ -204,10 +204,10 @@ namespace MugenMvvmToolkit.ViewModels
             {
                 if (_isInitialized)
                     throw ExceptionManager.ObjectInitialized("ViewModel", this);
-                context.TryGetData(ActivationConstants.IsRestored, out _isRestored);
+                context.TryGetData(InitializationConstants.IsRestored, out _isRestored);
                 if (_iocContainer != null)
                     _iocContainer.Dispose();
-                _iocContainer = context.GetData(ActivationConstants.IocContainer, true);
+                _iocContainer = context.GetData(InitializationConstants.IocContainer, true);
                 _threadManager = _iocContainer.Get<IThreadManager>();
                 if (!_customVmProvider)
                     ViewModelProvider = _iocContainer.Get<IViewModelProvider>();
@@ -484,12 +484,12 @@ namespace MugenMvvmToolkit.ViewModels
 
         private void InitializeParentViewModel(IDataContext context)
         {
-            var parentViewModel = context.GetData(ActivationConstants.ParentViewModel);
+            var parentViewModel = context.GetData(InitializationConstants.ParentViewModel);
             if (parentViewModel == null)
                 return;
             Settings.Metadata.AddOrUpdate(ViewModelConstants.ParentViewModel, ServiceProvider.WeakReferenceFactory(parentViewModel, true));
             ObservationMode observationMode;
-            if (!context.TryGetData(ActivationConstants.ObservationMode, out observationMode))
+            if (!context.TryGetData(InitializationConstants.ObservationMode, out observationMode))
                 observationMode = ApplicationSettings.ViewModelObservationMode;
             if (observationMode.HasFlagEx(ObservationMode.ParentObserveChild))
                 Subscribe(parentViewModel);

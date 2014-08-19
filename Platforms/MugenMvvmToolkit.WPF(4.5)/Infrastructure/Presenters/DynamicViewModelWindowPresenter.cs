@@ -26,6 +26,7 @@ using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Presenters
 {
@@ -142,7 +143,9 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             bool data;
             if (context.TryGetData(NavigationConstants.SuppressWindowNavigation, out data) && data)
                 return null;
-            IViewMappingItem mappingItem = ViewMappingProvider.FindMappingForViewModel(viewModel.GetType(), context.GetData(NavigationConstants.ViewName), false);
+
+            var viewName = viewModel.GetViewName(context);
+            IViewMappingItem mappingItem = ViewMappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
             if (mappingItem == null)
                 return null;
             Type viewType = ViewManager.GetViewType(mappingItem.ViewType, context);

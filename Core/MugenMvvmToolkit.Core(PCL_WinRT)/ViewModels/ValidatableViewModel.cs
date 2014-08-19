@@ -366,7 +366,7 @@ namespace MugenMvvmToolkit.ViewModels
             EnsureNotDisposed();
             var ctx = new ValidatorContext(instanceToValidate, PropertiesMapping, IgnoreProperties, Settings.Metadata,
                 this.GetIocContainer(true, false));
-            ctx.ValidationMetadata.AddOrUpdate(ValidationConstants.ViewModel, this);
+            ctx.ValidationMetadata.AddOrUpdate(ViewModelConstants.ViewModel, this);
             return ctx;
         }
 

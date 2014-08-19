@@ -38,6 +38,12 @@ namespace MugenMvvmToolkit.Interfaces.Mediators
         object DataContext { get; set; }
 
         /// <summary>
+        /// Gets the current bundle.
+        /// </summary>
+        [CanBeNull]
+        Bundle Bundle { get; }
+
+        /// <summary>
         /// Called when the activity has detected the user's press of the back key.
         /// </summary>
         void OnBackPressed(Action baseOnBackPressed);
@@ -168,6 +174,11 @@ namespace MugenMvvmToolkit.Interfaces.Mediators
         ///     Occurred on paused activity.
         /// </summary>
         event EventHandler<Activity, EventArgs> Paused;
+
+        /// <summary>
+        ///     Occurred on save activity state.
+        /// </summary>
+        event EventHandler<Activity, ValueEventArgs<Bundle>> SaveInstanceState;
 
         /// <summary>
         ///     Occurred on stoped activity.

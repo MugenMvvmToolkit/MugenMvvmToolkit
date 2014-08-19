@@ -47,17 +47,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 tabControl.TabPages.Insert(index, (TabPage)item);
                 return;
             }
-            var tableLayoutPanel = view as TableLayoutPanel;
-            if (tableLayoutPanel != null)
-            {
-                if (tableLayoutPanel.RowCount <= index)
-                    tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-                var itemToAdd = (Control)item;
-                tableLayoutPanel.Controls.Add(itemToAdd, 0, index);
-                tableLayoutPanel.Controls.SetChildIndex(itemToAdd, index);
-                return;
-            }
-
+            
             var control = view as Control;
             if (control == null)
                 TraceNotSupported(view);
@@ -102,8 +92,11 @@ namespace MugenMvvmToolkit.Infrastructure
             var tableLayoutPanel = view as TableLayoutPanel;
             if (tableLayoutPanel != null)
             {
-                tableLayoutPanel.RowStyles.Clear();
                 tableLayoutPanel.Controls.Clear();
+                tableLayoutPanel.RowStyles.Clear();
+                tableLayoutPanel.ColumnStyles.Clear();
+                tableLayoutPanel.ColumnCount = 1;
+                tableLayoutPanel.RowCount = 0;                
                 return;
             }
 
@@ -124,6 +117,5 @@ namespace MugenMvvmToolkit.Infrastructure
         }
 
         #endregion
-
     }
 }

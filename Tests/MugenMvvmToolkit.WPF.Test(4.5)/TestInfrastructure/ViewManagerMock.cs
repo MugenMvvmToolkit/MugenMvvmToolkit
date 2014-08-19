@@ -54,7 +54,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         Task<IView> IViewManager.GetViewAsync(IViewModel viewModel, IDataContext dataContext)
         {
             if (GetViewRawDelegate == null)
-                return MvvmExtensions.FromResult(GetViewDelegate(viewModel, dataContext.GetData(ActivationConstants.ViewName)));
+                return MvvmExtensions.FromResult(GetViewDelegate(viewModel, dataContext.GetData(InitializationConstants.ViewName)));
             return MvvmExtensions.FromResult(GetViewRawDelegate(viewModel, dataContext));
         }
 

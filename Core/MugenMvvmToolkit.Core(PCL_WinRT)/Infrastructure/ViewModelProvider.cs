@@ -99,8 +99,7 @@ namespace MugenMvvmToolkit.Infrastructure
             Should.NotBeNull(dataContext, "dataContext");
             dataContext = dataContext.ToNonReadOnly();
             IIocContainer iocContainer = CreateViewModelIocContainer(dataContext);
-            dataContext.Remove(ActivationConstants.IocContainer);
-            dataContext.Add(ActivationConstants.IocContainer, iocContainer);
+            dataContext.AddOrUpdate(InitializationConstants.IocContainer, iocContainer);
             IViewModel viewModel = getViewModel(iocContainer);
             if (!viewModel.IsInitialized)
                 viewModel.InitializeViewModel(dataContext);
@@ -120,8 +119,8 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             Should.NotBeNull(viewModelType, "viewModelType");
             Should.NotBeNull(dataContext, "dataContext");
-            var viewModelBindingName = dataContext.GetData(ActivationConstants.ViewModelBindingName);
-            var parameters = dataContext.GetData(ActivationConstants.IocParameters);
+            var viewModelBindingName = dataContext.GetData(InitializationConstants.ViewModelBindingName);
+            var parameters = dataContext.GetData(InitializationConstants.IocParameters);
             return GetViewModel(adapter => (IViewModel)adapter.Get(viewModelType, viewModelBindingName, parameters),
                 dataContext);
         }
@@ -141,10 +140,10 @@ namespace MugenMvvmToolkit.Infrastructure
                 throw ExceptionManager.ObjectInitialized("ViewModel", viewModel);
             dataContext = dataContext.ToNonReadOnly();
             var iocContainer = CreateViewModelIocContainer(dataContext);
-            dataContext.Remove(ActivationConstants.IocContainer);
-            dataContext.Add(ActivationConstants.IocContainer, iocContainer);
+            dataContext.Remove(InitializationConstants.IocContainer);
+            dataContext.Add(InitializationConstants.IocContainer, iocContainer);
             viewModel.InitializeViewModel(dataContext);
-            MergeParameters(viewModel, dataContext);            
+            MergeParameters(viewModel, dataContext);
         }
 
         #endregion
@@ -153,9 +152,9 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static void MergeParameters(IViewModel vm, IDataContext ctx)
         {
-            var data = ctx.GetData(ActivationConstants.ViewName);
-            if (!string.IsNullOrEmpty(data) && !vm.Settings.Metadata.Contains(ActivationConstants.ViewName))
-                vm.Settings.Metadata.Add(ActivationConstants.ViewName, data);
+            var viewName = ctx.GetData(InitializationConstants.ViewName);
+            if (!string.IsNullOrEmpty(viewName))
+                vm.Settings.Metadata.AddOrUpdate(InitializationConstants.ViewName, viewName);
         }
 
         /// <summary>
@@ -163,13 +162,13 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected virtual IIocContainer CreateViewModelIocContainer([NotNull] IDataContext dataContext)
         {
-            var container = dataContext.GetData(ActivationConstants.ExplicitIocContainer);
+            var container = dataContext.GetData(InitializationConstants.IocContainer);
             if (container == null)
             {
                 bool useParent;
-                if (!dataContext.TryGetData(ActivationConstants.UseParentIocContainer, out useParent))
+                if (!dataContext.TryGetData(InitializationConstants.UseParentIocContainer, out useParent))
                     useParent = UseParentIocContainer;
-                var parentViewModel = dataContext.GetData(ActivationConstants.ParentViewModel);
+                var parentViewModel = dataContext.GetData(InitializationConstants.ParentViewModel);
                 if (useParent && parentViewModel != null)
                     container = parentViewModel.GetIocContainer(false).CreateChild();
                 else

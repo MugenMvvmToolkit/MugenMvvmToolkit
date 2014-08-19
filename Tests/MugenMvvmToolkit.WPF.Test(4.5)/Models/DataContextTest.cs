@@ -20,28 +20,28 @@ namespace MugenMvvmToolkit.Test.Models
         {
             const string st = "test";
             IDataContext context = Create();
-            context.Add(ActivationConstants.UseParentIocContainer, true);
+            context.Add(InitializationConstants.UseParentIocContainer, true);
             context.Count.ShouldEqual(1);
 
-            context.Add(ActivationConstants.ViewModelBindingName, st);
+            context.Add(InitializationConstants.ViewModelBindingName, st);
             context.Count.ShouldEqual(2);
 
             bool data;
-            context.TryGetData(ActivationConstants.UseParentIocContainer, out data).ShouldBeTrue();
+            context.TryGetData(InitializationConstants.UseParentIocContainer, out data).ShouldBeTrue();
             data.ShouldBeTrue();
-            context.GetData(ActivationConstants.ViewModelBindingName).ShouldEqual(st);
+            context.GetData(InitializationConstants.ViewModelBindingName).ShouldEqual(st);
         }
 
         [TestMethod]
         public void ContainsRemoveTest()
         {
             IDataContext context = Create();
-            context.Add(ActivationConstants.UseParentIocContainer, true);
-            context.Contains(ActivationConstants.UseParentIocContainer).ShouldBeTrue();
+            context.Add(InitializationConstants.UseParentIocContainer, true);
+            context.Contains(InitializationConstants.UseParentIocContainer).ShouldBeTrue();
 
-            context.Remove(ActivationConstants.UseParentIocContainer).ShouldBeTrue();
-            context.Contains(ActivationConstants.UseParentIocContainer).ShouldBeFalse();
-            context.Remove(ActivationConstants.UseParentIocContainer).ShouldBeFalse();
+            context.Remove(InitializationConstants.UseParentIocContainer).ShouldBeTrue();
+            context.Contains(InitializationConstants.UseParentIocContainer).ShouldBeFalse();
+            context.Remove(InitializationConstants.UseParentIocContainer).ShouldBeFalse();
         }
 
         [TestMethod]
@@ -49,16 +49,16 @@ namespace MugenMvvmToolkit.Test.Models
         {
             const string st = "test";
             IDataContext context = Create();
-            context.Add(ActivationConstants.UseParentIocContainer, true);
+            context.Add(InitializationConstants.UseParentIocContainer, true);
             context.Count.ShouldEqual(1);
 
-            context.Add(ActivationConstants.ViewModelBindingName, st);
+            context.Add(InitializationConstants.ViewModelBindingName, st);
             context.Count.ShouldEqual(2);
 
             var dictionary = context.ToList().ToDictionary(constantValue => constantValue.DataConstant, value => value.Value);
             dictionary.Count.ShouldEqual(2);
-            dictionary[ActivationConstants.UseParentIocContainer].ShouldEqual(true);
-            dictionary[ActivationConstants.ViewModelBindingName].ShouldEqual(st);
+            dictionary[InitializationConstants.UseParentIocContainer].ShouldEqual(true);
+            dictionary[InitializationConstants.ViewModelBindingName].ShouldEqual(st);
         }
 
         [TestMethod]
@@ -92,16 +92,16 @@ namespace MugenMvvmToolkit.Test.Models
         {
             return new DataContext
             {
-                {ActivationConstants.ObservationMode, ObservationMode.Both},
-                {ActivationConstants.ViewName, "Test"}
+                {InitializationConstants.ObservationMode, ObservationMode.Both},
+                {InitializationConstants.ViewName, "Test"}
             };
         }
 
         protected override void AssertObject(DataContext deserializedObj)
         {
             deserializedObj.Count.ShouldEqual(2);
-            deserializedObj.GetDataTest(ActivationConstants.ObservationMode).ShouldEqual(ObservationMode.Both);
-            deserializedObj.GetData(ActivationConstants.ViewName).ShouldEqual("Test");
+            deserializedObj.GetDataTest(InitializationConstants.ObservationMode).ShouldEqual(ObservationMode.Both);
+            deserializedObj.GetData(InitializationConstants.ViewName).ShouldEqual("Test");
         }
 
         protected override IEnumerable<Type> GetKnownTypes()

@@ -293,8 +293,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </returns>
         protected virtual IView GetView(IViewModel viewModel, IDataContext dataContext)
         {
-            string viewBindingName = dataContext.GetData(ActivationConstants.ViewName) ??
-                                     viewModel.Settings.Metadata.GetData(ActivationConstants.ViewName);
+            var viewBindingName = viewModel.GetViewName(dataContext);
             Type viewType = viewModel.GetType();
             IViewMappingItem mappingItem = ViewMappingProvider.FindMappingForViewModel(viewType, viewBindingName, true);
             object viewObj = viewModel.GetIocContainer(true).Get(mappingItem.ViewType);

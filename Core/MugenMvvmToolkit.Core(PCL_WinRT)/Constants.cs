@@ -35,6 +35,8 @@ namespace MugenMvvmToolkit.DataConstants
 
         public static readonly DataConstant<WeakReference> ParentViewModel;
 
+        public static readonly DataConstant<IViewModel> ViewModel;
+
         #endregion
 
         #region Constructors
@@ -44,39 +46,20 @@ namespace MugenMvvmToolkit.DataConstants
             View = DataConstant.Create(() => View, true);
             ViewModelTypeName = DataConstant.Create(() => ViewModelTypeName, true);
             StateManager = DataConstant.Create(() => StateManager, true);
+            ViewModel = DataConstant.Create(() => ViewModel, true);
             ParentViewModel = DataConstant.Create(() => ParentViewModel, true);
         }
 
         #endregion
     }
 
-    public static class ValidationConstants
-    {
-        #region Fields
-
-        public static readonly DataConstant<IViewModel> ViewModel;
-
-        #endregion
-
-        #region Constructors
-
-        static ValidationConstants()
-        {
-            ViewModel = DataConstant.Create(() => ViewModel, true);
-        }
-
-        #endregion
-    }
-
-    public static class ActivationConstants
+    public static class InitializationConstants
     {
         #region Fields
 
         public static readonly DataConstant<bool> UseParentIocContainer;
 
         public static readonly DataConstant<IIocContainer> IocContainer;
-
-        public static readonly DataConstant<IIocContainer> ExplicitIocContainer;
 
         public static readonly DataConstant<IViewModel> ParentViewModel;
 
@@ -94,17 +77,16 @@ namespace MugenMvvmToolkit.DataConstants
 
         #region Constructors
 
-        static ActivationConstants()
+        static InitializationConstants()
         {
             UseParentIocContainer = DataConstant.Create(() => UseParentIocContainer);
             IocContainer = DataConstant.Create(() => IocContainer, true);
-            ExplicitIocContainer = DataConstant.Create(() => ExplicitIocContainer, true);
             ParentViewModel = DataConstant.Create(() => ParentViewModel, true);
             ObservationMode = DataConstant.Create(() => ObservationMode);
-            ViewName = DataConstant.Create(() => ViewName, false);
             ViewModelBindingName = DataConstant.Create(() => ViewModelBindingName, false);
             IocParameters = DataConstant.Create(() => IocParameters, true);
             IsRestored = DataConstant.Create(() => IsRestored);
+            ViewName = NavigationConstants.ViewName;
         }
 
         #endregion

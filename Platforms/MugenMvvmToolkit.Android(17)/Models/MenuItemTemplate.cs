@@ -60,6 +60,9 @@ namespace MugenMvvmToolkit.Models
         [XmlAttribute("TITLE")]
         public string Title { get; set; }
 
+        [XmlAttribute("TITLECONDENSED")]
+        public string TitleCondensed { get; set; }
+
         [XmlAttribute("CLICK")]
         public string Click { get; set; }
 
@@ -142,7 +145,7 @@ namespace MugenMvvmToolkit.Models
                 }
                 else
                 {
-                    MenuItemsSourceGenerator.Set(subMenu, context, ItemTemplate);
+                    MenuItemsSourceGenerator.Set(subMenu, context, ItemTemplate ?? this);
                     new XmlPropertySetter<MenuItemTemplate, ISubMenu>(subMenu, context)
                         .SetBinding(template => template.ItemsSource, ItemsSource, true);
                 }
@@ -168,6 +171,7 @@ namespace MugenMvvmToolkit.Models
             setter.SetBoolProperty(template => template.IsVisible, IsVisible);
             setter.SetBoolProperty(template => template.IsActionViewExpanded, IsActionViewExpanded);
             setter.SetStringProperty(template => template.Title, Title);
+            setter.SetStringProperty(template => template.TitleCondensed, TitleCondensed);
             setter.SetStringProperty(template => template.CommandParameter, CommandParameter);
             setter.SetBinding(template => template.Click, Click, false);
 #if !API8

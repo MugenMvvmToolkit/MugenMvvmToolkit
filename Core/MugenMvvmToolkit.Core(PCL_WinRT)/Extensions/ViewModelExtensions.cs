@@ -43,6 +43,18 @@ namespace MugenMvvmToolkit.ViewModels
         #region View models extension
 
         /// <summary>
+        /// Returns the name of view, if any.
+        /// </summary>
+        public static string GetViewName(this IViewModel viewModel, IDataContext context = null)
+        {
+            Should.NotBeNull(viewModel, "viewModel");
+            if (context == null)
+                return viewModel.Settings.Metadata.GetData(InitializationConstants.ViewName);
+            return context.GetData(NavigationConstants.ViewName) ??
+                   viewModel.Settings.Metadata.GetData(InitializationConstants.ViewName);
+        }
+
+        /// <summary>
         ///     Invokes a task and wrap it to busy indicator.
         /// </summary>
         /// <param name="task">The specified <see cref="Task" />.</param>
@@ -387,11 +399,11 @@ namespace MugenMvvmToolkit.ViewModels
                 return parameters;
             var values = new List<DataConstantValue>();
             if (useParentIocContainer.HasValue)
-                values.Add(ActivationConstants.UseParentIocContainer.ToValue(useParentIocContainer.Value));
+                values.Add(InitializationConstants.UseParentIocContainer.ToValue(useParentIocContainer.Value));
             if (parentViewModel != null)
-                values.Add(ActivationConstants.ParentViewModel.ToValue(parentViewModel));
+                values.Add(InitializationConstants.ParentViewModel.ToValue(parentViewModel));
             if (observationMode.HasValue)
-                values.Add(ActivationConstants.ObservationMode.ToValue(observationMode.Value));
+                values.Add(InitializationConstants.ObservationMode.ToValue(observationMode.Value));
             if (parameters != null && parameters.Length != 0)
             {
                 for (int index = 0; index < parameters.Length; index++)

@@ -33,7 +33,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
     /// <summary>
     ///     Provides functionality to present a timed message.
     /// </summary>
-    public class ToastPresenterBase : IToastPresenter
+    public class ToastPresenter : IToastPresenter
     {
         #region Nested types
 
@@ -140,9 +140,9 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         #region Constructors
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ToastPresenterBase" /> class.
+        ///     Initializes a new instance of the <see cref="ToastPresenter" /> class.
         /// </summary>
-        public ToastPresenterBase([NotNull] INavigationProvider navigationProvider,
+        public ToastPresenter([NotNull] INavigationProvider navigationProvider,
             [NotNull] IThreadManager threadManager)
         {
             Should.NotBeNull(navigationProvider, "navigationProvider");

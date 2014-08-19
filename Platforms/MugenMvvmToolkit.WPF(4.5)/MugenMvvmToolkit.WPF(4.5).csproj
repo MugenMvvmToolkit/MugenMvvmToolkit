@@ -59,7 +59,7 @@
     <Compile Include="Converters\InverseBooleanConverter.cs" />
     <Compile Include="Converters\ViewModelToViewConverter.cs" />
     <Compile Include="Infrastructure\Bootstrapper.cs" />
-    <Compile Include="Infrastructure\Presenters\ToastPresenterBase.cs" />
+    <Compile Include="Infrastructure\Presenters\ToastPresenter.cs" />
     <Compile Include="Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs" />
     <Compile Include="Infrastructure\ViewManagerEx.cs" />
     <Compile Include="Infrastructure\ViewModelDataTemplateModule.cs" />

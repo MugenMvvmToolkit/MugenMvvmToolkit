@@ -221,7 +221,8 @@ namespace MugenMvvmToolkit
         [CanBeNull]
         public static FragmentManager TryGetFragmentManager(this Activity activity)
         {
-            Should.NotBeNull(activity, "activity");
+            if (activity == null)
+                return null;
 #if API8SUPPORT
             var fragmentActivity = activity as FragmentActivity;
             if (fragmentActivity == null)

@@ -223,7 +223,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
 #if !API8
             //Action bar
-            ActionBarTabContentIdMember = AttachedBindingMember.CreateAutoProperty<ActionBar, int?>("TabContentId");
             ActionBarItemsSourceMember = AttachedBindingMember.CreateAutoProperty<ActionBar, IEnumerable>(AttachedMemberConstants.ItemsSource, (bar, args) => ActionBarUpdateItemsSource(bar));
             ActionBarSelectedItemMember = AttachedBindingMember.CreateAutoProperty<ActionBar, object>(AttachedMemberConstants.SelectedItem, ActionBarSelectedItemChanged);
             //Context action bar

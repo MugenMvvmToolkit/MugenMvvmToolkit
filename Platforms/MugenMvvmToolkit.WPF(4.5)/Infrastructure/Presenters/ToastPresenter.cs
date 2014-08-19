@@ -50,7 +50,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
     /// <summary>
     ///     Provides functionality to present a timed message.
     /// </summary>
-    public class ToastPresenterBase : IToastPresenter
+    public class ToastPresenter : IToastPresenter
     {
         #region Nested types
 
@@ -146,7 +146,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         #region Constructors
 
 #if WPF
-        static ToastPresenterBase()
+        static ToastPresenter()
         {
             var method = typeof(Popup).GetMethod("Reposition", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             if (method != null)
@@ -155,9 +155,9 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 #endif
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ToastPresenterBase" /> class.
+        ///     Initializes a new instance of the <see cref="ToastPresenter" /> class.
         /// </summary>
-        public ToastPresenterBase([NotNull]IThreadManager threadManager)
+        public ToastPresenter([NotNull]IThreadManager threadManager)
         {
             Should.NotBeNull(threadManager, "threadManager");
             _threadManager = threadManager;

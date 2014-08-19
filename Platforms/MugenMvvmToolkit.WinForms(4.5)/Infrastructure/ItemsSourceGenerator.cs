@@ -21,6 +21,7 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Converters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -110,19 +111,26 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 if (_isTabControl)
                     return CreateDefaultTabPage(item);
-                return item;
+                return GetDefaultTemplate(item);
             }
             var selector = (IDataTemplateSelector)_itemTemplateMember.GetValue(_view, null);
             if (selector == null)
             {
                 if (_isTabControl)
                     return CreateDefaultTabPage(item);
-                return item;
+                return GetDefaultTemplate(item);
             }
             object template = selector.SelectTemplate(item, _view);
             if (template != null)
                 BindingProvider.Instance.ContextManager.GetBindingContext(template).Value = item;
             return template;
+        }
+
+        private static object GetDefaultTemplate(object item)
+        {
+            if (item is IViewModel)
+                return ViewModelToViewConverter.Instance.Convert(item);
+            return item;
         }
 
         private static TabPage CreateDefaultTabPage(object item)

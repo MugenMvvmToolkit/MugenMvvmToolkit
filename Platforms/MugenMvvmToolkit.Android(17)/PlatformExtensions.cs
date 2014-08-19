@@ -185,6 +185,12 @@ namespace MugenMvvmToolkit
         public static IDataTemplateSelector DefaultDataTemplateSelector { get; set; }
 
         /// <summary>
+        /// Gets or sets the custom home button finder.
+        /// </summary>
+        [CanBeNull]
+        public static Func<Activity, View> HomeButtonFinder { get; set; }
+
+        /// <summary>
         ///     Gets or sets the factory that creates an instance of <see cref="IMvvmActivityMediator" />.
         /// </summary>
         [NotNull]
@@ -301,14 +307,15 @@ namespace MugenMvvmToolkit
         ///     Sets the content.
         /// </summary>
         public static object SetContentView([NotNull] this ViewGroup frameLayout, object content, int? templateId,
-            IDataTemplateSelector templateSelector, FragmentTransaction transaction = null)
+            IDataTemplateSelector templateSelector, FragmentTransaction transaction = null, Action<ViewGroup, Fragment, FragmentTransaction> updateAction = null)
         {
             content = GetContentView(frameLayout, frameLayout.Context, content, templateId, templateSelector);
-            frameLayout.SetContentView(content, transaction);
+            frameLayout.SetContentView(content, transaction, updateAction);
             return content;
         }
 
-        public static void SetContentView([NotNull]this ViewGroup frameLayout, object content, FragmentTransaction transaction = null)
+        public static void SetContentView([NotNull]this ViewGroup frameLayout, object content,
+            FragmentTransaction transaction = null, Action<ViewGroup, Fragment, FragmentTransaction> updateAction = null)
         {
             Should.NotBeNull(frameLayout, "frameLayout");
             if (content == null)
@@ -345,7 +352,10 @@ namespace MugenMvvmToolkit
                     transaction = manager.BeginTransaction();
                 }
 
-                transaction = transaction.Replace(frameLayout.Id, fragment);
+                if (updateAction == null)
+                    transaction = transaction.Replace(frameLayout.Id, fragment);
+                else
+                    updateAction(frameLayout, fragment, transaction);
                 if (addToBackStack)
                     transaction = transaction.AddToBackStack(null);
                 if (manager != null)
@@ -476,7 +486,7 @@ namespace MugenMvvmToolkit
 
         internal static object GetOrCreateView(IViewModel vm, bool? alwaysCreateNewView, IDataContext dataContext = null)
         {
-#if API8
+#if API8            
             return ViewManager.GetOrCreateView(vm, alwaysCreateNewView, dataContext).GetUnderlyingView();
 #else
             //NOTE: trying to use current fragment, if any.
@@ -485,7 +495,6 @@ namespace MugenMvvmToolkit
                 return ViewManager.GetOrCreateView(vm, alwaysCreateNewView, dataContext).GetUnderlyingView();
             return fragment;
 #endif
-
         }
 
         internal static string XmlTagsToUpper(string xml)

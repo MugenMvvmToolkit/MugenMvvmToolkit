@@ -97,8 +97,8 @@ namespace MugenMvvmToolkit.Test.ViewModels
             Action<IDataContext> check = context =>
             {
                 context.GetData((DataConstant<string>)constantValue.DataConstant).ShouldEqual(constantValue.Value);
-                context.GetDataTest(ActivationConstants.ObservationMode).ShouldEqual(listenType);
-                context.GetDataTest(ActivationConstants.UseParentIocContainer).ShouldEqual(useParentIocContainer);
+                context.GetDataTest(InitializationConstants.ObservationMode).ShouldEqual(listenType);
+                context.GetDataTest(InitializationConstants.UseParentIocContainer).ShouldEqual(useParentIocContainer);
                 isInvoked = true;
             };
             providerMock.GetViewModel = (@delegate, context) =>

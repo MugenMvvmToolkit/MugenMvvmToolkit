@@ -53,12 +53,12 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        public void Reset()
+        public virtual void Reset()
         {
             Refresh();
         }
 
-        public void Update(IEnumerable itemsSource)
+        public virtual void Update(IEnumerable itemsSource)
         {
             if (ReferenceEquals(itemsSource, ItemsSource))
                 return;
@@ -97,7 +97,7 @@ namespace MugenMvvmToolkit.Infrastructure
             return itemsSource.ElementAtIndex(position);
         }
 
-        protected void OnTargetDisposed(object sender, EventArgs e)
+        protected virtual void OnTargetDisposed(object sender, EventArgs e)
         {
 #if ANDROID
             var activityView = sender as IActivityView;
