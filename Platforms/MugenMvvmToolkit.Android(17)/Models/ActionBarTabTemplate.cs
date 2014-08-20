@@ -77,11 +77,12 @@ namespace MugenMvvmToolkit.Models
                 var activity = bar.ThemedContext.GetActivity();
 
                 //Set selected item data context or tab
+                var selectedItem = ActionBarTabItemsSourceGenerator.Get(bar) == null
+                    ? tab
+                    : BindingProvider.Instance.ContextManager.GetBindingContext(tab).Value;
                 AttachedMembersModule
                     .ActionBarSelectedItemMember
-                    .SetValue(bar, ActionBarTabItemsSourceGenerator.Get(bar) == null
-                        ? new object[] { tab }
-                        : new[] { BindingProvider.Instance.ContextManager.GetBindingContext(tab).Value });
+                    .SetValue(bar, selectedItem);
 
                 if (placeHolder == null)
                 {
@@ -215,7 +216,7 @@ namespace MugenMvvmToolkit.Models
         private ActionBar.Tab CreateTabInternal(ActionBar bar, object context, bool useContext)
         {
             ActionBar.Tab newTab = bar.NewTab();
-            AttachedMembersModule.ActionBarTabParentMember.SetValue(newTab, new object[] { bar });
+            AttachedMembersModule.ActionBarTabParentMember.SetValue(newTab, bar);
             var setter = new XmlPropertySetter<ActionBarTabTemplate, ActionBar.Tab>(newTab, bar.ThemedContext);
             if (useContext)
                 BindingProvider.Instance.ContextManager.GetBindingContext(newTab).Value = context;

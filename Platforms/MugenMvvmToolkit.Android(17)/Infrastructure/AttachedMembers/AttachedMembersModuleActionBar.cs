@@ -65,7 +65,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 ItemsSourceAdapter adapter = ItemsSourceAdapter.Get(_actionBar);
                 if (adapter == null)
                     return false;
-                ActionBarSelectedItemMember.SetValue(_actionBar, new[] { adapter.GetRawItem(itemPosition) });
+                ActionBarSelectedItemMember.SetValue(_actionBar, adapter.GetRawItem(itemPosition));
                 return true;
             }
 
@@ -113,7 +113,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public void OnDestroyActionMode(ActionMode mode)
             {
-                ActionBarContextActionBarVisibleMember.SetValue(_actionBar, new object[] { false });
+                ActionBarContextActionBarVisibleMember.SetValue(_actionBar, false);
             }
 
             public bool OnPrepareActionMode(ActionMode mode, IMenu menu)
@@ -177,7 +177,7 @@ namespace MugenMvvmToolkit.Infrastructure
                         else
                             actionBar.CustomView = (View)arg3[0];
                         if (actionBar.CustomView != null)
-                            ViewAttachedParentMember.SetValue(actionBar.CustomView, new object[] { actionBar });
+                            ViewAttachedParentMember.SetValue(actionBar.CustomView, actionBar);
                         return true;
                     }));
             memberProvider.Register(AttachedBindingMember
@@ -300,7 +300,7 @@ namespace MugenMvvmToolkit.Infrastructure
                         else
                             tab.SetCustomView((View)arg3[0]);
                         if (tab.CustomView != null)
-                            ViewAttachedParentMember.SetValue(tab.CustomView, new object[] { tab });
+                            ViewAttachedParentMember.SetValue(tab.CustomView, tab);
                         return true;
                     }));
             memberProvider.Register(AttachedBindingMember

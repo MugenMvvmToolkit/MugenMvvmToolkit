@@ -264,6 +264,16 @@ namespace MugenMvvmToolkit.Binding.Models
             ///     Sets the member value of a specified object.
             /// </summary>
             /// <param name="source">The object whose member value will be set.</param>
+            /// <param name="value">The value for member.</param>
+            public object SetValue(TTarget source, TType value)
+            {
+                return SetValue(source, new object[] { value });
+            }
+
+            /// <summary>
+            ///     Sets the member value of a specified object.
+            /// </summary>
+            /// <param name="source">The object whose member value will be set.</param>
             /// <param name="args">Optional values for members..</param>
             public object SetValue(TTarget source, object[] args)
             {

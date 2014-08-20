@@ -185,17 +185,29 @@ namespace MugenMvvmToolkit.Infrastructure
             //Menu
             MenuParentMember = AttachedBindingMember.CreateAutoProperty<object, object>(AttachedMemberConstants.Parent);
             MenuItemsSourceMember = AttachedBindingMember.CreateAutoProperty<IMenu, IEnumerable>(AttachedMemberConstants.ItemsSource, MenuItemsSourceChanged);
+            IsCheckedMenuItemMember = AttachedBindingMember.CreateNotifiableMember<IMenuItem, bool>("IsChecked",
+                (info, item, arg3) => item.IsChecked,
+                (info, item, arg3) =>
+                {
+                    var value = (bool)arg3[0];
+                    if (value != item.IsChecked)
+                    {
+                        item.SetChecked(value);
+                        return true;
+                    }
+                    return false;
+                });
 
 #if !API8
             MenuItemActionViewMember = AttachedBindingMember
                 .CreateNotifiableMember<IMenuItem, object>("ActionView", (info, item, arg3) => item.GetActionView(), (info, item, arg3) => MenuItemUpdateActionView(item, arg3[0]));
             MenuItemActionViewSelectorMember = AttachedBindingMember
-                .CreateAutoProperty<IMenuItem, IDataTemplateSelector>("ActionViewTemplateSelector", (o, args) => RefreshValue(o, MenuItemActionViewMember));            
+                .CreateAutoProperty<IMenuItem, IDataTemplateSelector>("ActionViewTemplateSelector", (o, args) => RefreshValue(o, MenuItemActionViewMember));
 
             MenuItemActionProviderMember = AttachedBindingMember
                 .CreateNotifiableMember<IMenuItem, object>("ActionProvider", (info, item, arg3) => item.GetActionProvider(), (info, item, arg3) => MenuItemUpdateActionProvider(item, arg3[0]));
             MenuItemActionProviderSelectorMember = AttachedBindingMember
-                .CreateAutoProperty<IMenuItem, IDataTemplateSelector>("ActionProviderTemplateSelector", (o, args) => RefreshValue(o, MenuItemActionProviderMember));           
+                .CreateAutoProperty<IMenuItem, IDataTemplateSelector>("ActionProviderTemplateSelector", (o, args) => RefreshValue(o, MenuItemActionProviderMember));
 
             AddToBackStackMember = AttachedBindingMember.CreateAutoProperty<ViewGroup, bool>("AddToBackStack");
 #endif
@@ -409,7 +421,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (adapter == null)
                 return;
             object item = adapter.GetRawItem(args.NewValue);
-            AdapterViewSelectedItemMember.SetValue(sender, new[] { item });
+            AdapterViewSelectedItemMember.SetValue(sender, item);
         }
 
         private static void AdapterViewSelectedItemChanged(AdapterView sender,
@@ -419,20 +431,20 @@ namespace MugenMvvmToolkit.Infrastructure
             if (adapter == null)
                 return;
             int position = adapter.GetPosition(args.NewValue);
-            AdapterViewSelectedPositionMember.SetValue(sender, new object[] { position });
+            AdapterViewSelectedPositionMember.SetValue(sender, position);
         }
 
         private static void AdapterViewSelectedMemberAttached(AdapterView adapterView,
             MemberAttachedEventArgs memberAttached)
         {
             if (adapterView is ListView)
-                adapterView.ItemClick += (sender, args) => AdapterViewSelectedPositionMember.SetValue(sender, new object[] { args.Position });
+                adapterView.ItemClick += (sender, args) => AdapterViewSelectedPositionMember.SetValue((AdapterView)sender, args.Position);
             else
             {
-                adapterView.ItemSelected += (sender, args) => AdapterViewSelectedPositionMember.SetValue(sender, new object[] { args.Position });
-                adapterView.NothingSelected += (sender, args) => AdapterViewSelectedPositionMember.SetValue(sender, new object[] { -1 });
+                adapterView.ItemSelected += (sender, args) => AdapterViewSelectedPositionMember.SetValue((AdapterView)sender, args.Position);
+                adapterView.NothingSelected += (sender, args) => AdapterViewSelectedPositionMember.SetValue((AdapterView)sender, -1);
             }
-            AdapterViewSelectedPositionMember.SetValue(adapterView, new object[] { adapterView.SelectedItemPosition });
+            AdapterViewSelectedPositionMember.SetValue(adapterView, adapterView.SelectedItemPosition);
         }
 
         #endregion

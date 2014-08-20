@@ -170,7 +170,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 if (_bindings == null)
                     _bindings = new List<IDataBinding>();
                 Tuple<View, IList<IDataBinding>> tuple = inflater.CreateBindableView(viewId.Value, container, false);
-                FragmentViewMember.SetValue(tuple.Item1, new object[] { Target });
+                FragmentViewMember.SetValue(tuple.Item1, Target);
                 BindingProvider.Instance.ContextManager.GetBindingContext(tuple.Item1).Value = DataContext;
                 _bindings.AddRange(tuple.Item2);
                 return tuple.Item1;

@@ -90,7 +90,7 @@ namespace MugenMvvmToolkit.Infrastructure
             Should.NotBeNull(action, "action");
             if (cancellationToken.IsCancellationRequested)
                 return;
-            if (IsUiThread)
+            if (priority != OperationPriority.Low && IsUiThread)
                 action();
             else
                 _synchronizationContext.Post(state => ((Action)state).Invoke(), action);

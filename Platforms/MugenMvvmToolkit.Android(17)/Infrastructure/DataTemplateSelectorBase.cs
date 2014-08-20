@@ -11,7 +11,7 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Implementation of IDataTemplateSelector
 
         /// <summary>
-        ///     Override this method to return an app specific template id.
+        ///     Override this method to return an app specific template.
         /// </summary>
         /// <param name="item">The data content</param>
         /// <param name="container">The element to which the template will be applied</param>
@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Methods
 
         /// <summary>
-        ///     Override this method to return an app specific template id.
+        ///     Override this method to return an app specific template.
         /// </summary>
         /// <param name="item">The data content</param>
         /// <param name="container">The element to which the template will be applied</param>

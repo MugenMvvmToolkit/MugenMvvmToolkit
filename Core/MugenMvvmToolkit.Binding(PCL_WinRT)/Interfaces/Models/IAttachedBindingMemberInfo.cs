@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="IAttachedBindingMemberInfo.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,7 +13,9 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System;
 using JetBrains.Annotations;
 
@@ -21,7 +24,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
     /// <summary>
     ///     Represents the attached binding member info.
     /// </summary>
-    public interface IAttachedBindingMemberInfo<in TTarget, out TType> : IBindingMemberInfo
+    public interface IAttachedBindingMemberInfo<in TTarget, TType> : IBindingMemberInfo
     {
         /// <summary>
         ///     Returns the member value of a specified object.
@@ -30,6 +33,13 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
         /// <param name="args">Optional values for members.</param>
         /// <returns>The member value of the specified object.</returns>
         TType GetValue(TTarget source, [CanBeNull] object[] args);
+
+        /// <summary>
+        ///     Sets the member value of a specified object.
+        /// </summary>
+        /// <param name="source">The object whose member value will be set.</param>
+        /// <param name="value">The value for member.</param>
+        object SetValue(TTarget source, TType value);
 
         /// <summary>
         ///     Sets the member value of a specified object.

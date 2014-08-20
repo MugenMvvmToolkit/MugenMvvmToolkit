@@ -43,7 +43,7 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Nested types
 
-        private sealed class MenuItemOnMenuItemClickListener : JavaEventListenerList, IMenuItemOnMenuItemClickListener
+        internal sealed class MenuItemOnMenuItemClickListener : JavaEventListenerList, IMenuItemOnMenuItemClickListener
         {
             #region Fields
 
@@ -175,6 +175,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             #region Fields
 
+            private static readonly PopupMenuDismissListener DismissListener;
             private readonly View _view;
             private readonly Type _viewType;
             private IDisposable _unsubscriber;
@@ -182,6 +183,11 @@ namespace MugenMvvmToolkit.Infrastructure
             #endregion
 
             #region Constructors
+
+            static PopupMenuPresenter()
+            {
+                DismissListener = new PopupMenuDismissListener();
+            }
 
             public PopupMenuPresenter(View view)
             {
@@ -234,7 +240,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
                 var menu = new PopupMenu(activity, view);
                 activity.MenuInflater.Inflate(templateId, menu.Menu, view);
-                menu.SetOnDismissListener(new PopupMenuDismissListener());
+                menu.SetOnDismissListener(DismissListener);
                 menu.Show();
             }
 
@@ -258,7 +264,8 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         internal static readonly IBindingMemberInfo MenuParentMember;
-#if !API8        
+        internal static readonly IAttachedBindingMemberInfo<IMenuItem, bool> IsCheckedMenuItemMember;
+#if !API8
         private static readonly IAttachedBindingMemberInfo<IMenuItem, object> MenuItemActionViewMember;
         private static readonly IAttachedBindingMemberInfo<IMenuItem, object> MenuItemActionProviderMember;
         private static readonly IAttachedBindingMemberInfo<IMenuItem, IDataTemplateSelector> MenuItemActionViewSelectorMember;
@@ -280,13 +287,14 @@ namespace MugenMvvmToolkit.Infrastructure
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<IMenu, bool?>("Visible", (menu, args) => menu.SetGroupVisible(0, args.NewValue.GetValueOrDefault())));
 
             //IMenuItem
+            memberProvider.Register(IsCheckedMenuItemMember);
             memberProvider.Register(typeof(IMenuItem), MenuParentMember, true);
 #if !API8
             memberProvider.Register(MenuItemActionViewMember);
-            memberProvider.Register(MenuItemActionViewSelectorMember);            
+            memberProvider.Register(MenuItemActionViewSelectorMember);
 
             memberProvider.Register(MenuItemActionProviderMember);
-            memberProvider.Register(MenuItemActionProviderSelectorMember);            
+            memberProvider.Register(MenuItemActionProviderSelectorMember);
 #endif
             memberProvider.Register(AttachedBindingMember.CreateEvent<IMenuItem>("Click", SetClickEventValue));
 
@@ -316,9 +324,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 .CreateMember<IMenuItem, bool>("IsCheckable",
                     (info, item, arg3) => item.IsCheckable,
                     (info, item, arg3) => item.SetCheckable((bool)arg3[0])));
-            memberProvider.Register(AttachedBindingMember.CreateMember<IMenuItem, bool>("IsChecked",
-                (info, item, arg3) => item.IsChecked,
-                (info, item, arg3) => item.SetChecked((bool)arg3[0])));
+
             memberProvider.Register(AttachedBindingMember.CreateMember<IMenuItem, bool>("IsEnabled",
                 (info, item, arg3) => item.IsEnabled,
                 (info, item, arg3) => item.SetEnabled((bool)arg3[0])));
@@ -410,7 +416,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 }
                 menuItem.SetActionView(view);
             }
-            ViewAttachedParentMember.SetValue(view, new object[] { menuItem });
+            ViewAttachedParentMember.SetValue(view, menuItem);
             var bindings = MenuItemTemplate.GetActionViewBind(menuItem);
             if (!string.IsNullOrEmpty(bindings))
                 BindingProvider.Instance.CreateBindingsFromString(view, bindings, null);

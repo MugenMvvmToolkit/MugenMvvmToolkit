@@ -30,6 +30,7 @@ using MugenMvvmToolkit.Converters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
@@ -37,7 +38,7 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Fields
 
-        private const string ErrorProviderName = "__binding__error__provider";
+        private const string ErrorProviderKey = "!@eprovider";
 
         internal readonly static IAttachedBindingMemberInfo<object, ICollectionViewManager> CollectionViewManagerMember;
 
@@ -157,37 +158,28 @@ namespace MugenMvvmToolkit.Infrastructure
             if (rootControl == null)
                 return null;
 
-            object error = null;
-            var errors = (IList<object>)arg3[0];
-            if (errors != null && errors.Count > 0)
-                error = errors[0];
-            GetErrorProvider(rootControl).SetError(control, error == null ? null : error.ToString());
+            var errors = arg3[0] as IList<object> ?? EmptyValue<object>.ListInstance;
+            var errorProvider = GetErrorProvider(rootControl);
+            var setErrorsCustom = PlatformExtensions.SetControlErrorsDelegate;
+            if (setErrorsCustom == null)
+            {
+                object error = null;
+                if (errors != null && errors.Count > 0)
+                    error = errors[0];
+                errorProvider.SetError(control, error == null ? null : error.ToString());
+            }
+            else
+                setErrorsCustom(control, errorProvider, errors);
             return null;
         }
 
         private static ErrorProvider GetErrorProvider(Control rootControl)
         {
-            ErrorProvider errorProvider;
-            Control errorControl = rootControl.Controls.Find(ErrorProviderName, true).FirstOrDefault();
-            if (errorControl != null)
-                errorProvider = (ErrorProvider)errorControl.Tag;
-            else
-            {
-                errorProvider = new ErrorProvider
+            return ServiceProvider.AttachedValueProvider.GetOrAdd(rootControl, ErrorProviderKey,
+                (control, o) => new ErrorProvider
                 {
-                    ContainerControl = (ContainerControl)rootControl.GetContainerControl()
-                };
-                var control = new Control
-                {
-                    Visible = false,
-                    Name = ErrorProviderName,
-                    Width = 0,
-                    Height = 0,
-                    Tag = errorProvider
-                };
-                rootControl.Controls.Add(control);
-            }
-            return errorProvider;
+                    ContainerControl = control.GetContainerControl() as ContainerControl,
+                }, null);
         }
 
         private static void UpdateContent(Control container, object value, IDataTemplateSelector selector)
@@ -261,7 +253,7 @@ namespace MugenMvvmToolkit.Infrastructure
         private static void ObjectItemsSourceChanged(object control, AttachedMemberChangedEventArgs<IEnumerable> args)
         {
             ServiceProvider.AttachedValueProvider
-                .GetOrAdd(control,"@!generator", (o, o1) => new ItemsSourceGenerator(o), null)
+                .GetOrAdd(control, "@!generator", (o, o1) => new ItemsSourceGenerator(o), null)
                 .Update(args.NewValue);
         }
 

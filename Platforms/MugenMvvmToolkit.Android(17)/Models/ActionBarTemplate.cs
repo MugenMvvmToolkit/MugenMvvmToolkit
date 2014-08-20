@@ -151,7 +151,7 @@ namespace MugenMvvmToolkit.Models
             setter.SetBinding(template => template.ContextActionBarVisible, ContextActionBarVisible, false);
 
             setter.SetBinding(template => template.SelectedItem, SelectedItem, false);
-            
+
             setter.SetProperty(template => template.BackgroundDrawable, BackgroundDrawable);
             setter.SetProperty(template => template.CustomView, CustomView);
             setter.SetEnumProperty<ActionBarDisplayOptions>(template => template.DisplayOptions, DisplayOptions);
@@ -174,6 +174,8 @@ namespace MugenMvvmToolkit.Models
 
         private void TryRestoreSelectedIndex(Activity activity, ActionBar actionBar)
         {
+            if (actionBar.GetNavigationMode() == ActionBarNavigationMode.Standard)
+                return;
             bool result;
             if (bool.TryParse(RestoreTabSelectedIndex, out result) && !result)
                 return;

@@ -49,6 +49,16 @@ namespace MugenMvvmToolkit
 
         #endregion
 
+        #region Properties
+
+        /// <summary>
+        /// Gets or sets the delegate that allows to set control errors.
+        /// </summary>
+        [CanBeNull]
+        public static Action<Control, ErrorProvider, IList<object>> SetControlErrorsDelegate { get; set; }
+
+        #endregion
+
         #region Methods
 
         /// <summary>

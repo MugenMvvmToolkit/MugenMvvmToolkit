@@ -481,7 +481,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 #else
             ThreadManager.InvokeAsync(() => ThreadManager.InvokeOnUiThreadAsync(() => CallbackManager.SetResult(viewModel, operationResult), OperationPriority.Low));
 #endif
-
         }
 
         protected static Type GetViewModelTypeFromParameter(object parameter, out IDataContext parameters)
@@ -614,7 +613,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         {
             if (_ignoreCloseFromViewModel)
                 return;
-            ((ICloseableViewModel)args.ViewModel).Closed -= CloseableViewModelOnClosed;
             _threadManager.InvokeOnUiThreadAsync(() =>
             {
                 try
