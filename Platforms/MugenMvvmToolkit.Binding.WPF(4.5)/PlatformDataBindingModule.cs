@@ -15,26 +15,22 @@
 #endregion
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.MarkupExtensions;
 #if NETFX_CORE || WINDOWSCOMMON
+using System.Reflection;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
-using MugenMvvmToolkit.MarkupExtensions;
-using VisualStateManager = Windows.UI.Xaml.VisualStateManager;
 #else
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Controls.Primitives;
 #endif
 using MugenMvvmToolkit.Binding.Converters;
 using MugenMvvmToolkit.Binding.Core;
@@ -125,7 +121,7 @@ namespace MugenMvvmToolkit.Binding
 
         #region Fields
 
-        private readonly static IAttachedBindingMemberInfo<FrameworkElement, bool> DisableValidationMember;
+        internal readonly static IAttachedBindingMemberInfo<FrameworkElement, bool> DisableValidationMember;
 
         #endregion
 
@@ -169,8 +165,6 @@ namespace MugenMvvmToolkit.Binding
                 .CreateMember<FrameworkElement, object>(AttachedMemberConstants.Parent, GetParentValue, null, ObserveParentMember));
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, object>(AttachedMemberConstants.FindByNameMethod, FindByNameMemberImpl, null));
-            memberProvider.Register(AttachedBindingMember
-                .CreateMember<FrameworkElement, object>(AttachedMemberConstants.SetErrorsMethod, null, SetErrorsValue));
 #if SILVERLIGHT || NETFX_CORE || WINDOWSCOMMON
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, bool>(AttachedMemberConstants.Focused,
@@ -208,7 +202,7 @@ namespace MugenMvvmToolkit.Binding
         {
             if (string.IsNullOrWhiteSpace(bindings))
                 return;
-            IList<IDataBinding> list = BindingProvider.Instance.CreateBindingsFromString(sender, bindings, null);
+            IList<IDataBinding> list = BindingServiceProvider.BindingProvider.CreateBindingsFromString(sender, bindings, null);
             if (!ApplicationSettings.IsDesignMode)
                 return;
             foreach (InvalidDataBinding binding in list.OfType<InvalidDataBinding>())
@@ -222,69 +216,6 @@ namespace MugenMvvmToolkit.Binding
 #else
             return new DependencyPropertyBindingMember.DependencyPropertyListener(uiElement, UIElement.VisibilityProperty, arg3);
 #endif
-        }
-
-        private static object SetErrorsValue(IBindingMemberInfo bindingMemberInfo, FrameworkElement validatableControl, IList<object> arg3)
-        {
-            if (DisableValidationMember.GetValue(validatableControl, null))
-                return null;
-            var errors = (ICollection<object>)arg3[0];
-#if NETFX_CORE || WINDOWSCOMMON
-            var items = ServiceProvider
-                .AttachedValueProvider
-                .GetOrAdd(validatableControl, "@$@errors_int", (element, o) =>
-                {
-                    var list = new ObservableCollection<object>();
-                    View.SetErrors(element, new ReadOnlyObservableCollection<object>(list));
-                    return list;
-                }, null);
-            var control = validatableControl as Control;
-            if (errors == null || errors.Count == 0)
-            {
-                View.SetHasErrors(validatableControl, false);
-                items.Clear();
-                if (control != null)
-                    VisualStateManager.GoToState(control, "Valid", true);
-            }
-            else
-            {
-                items.Clear();
-                items.AddRange(errors);
-                View.SetHasErrors(validatableControl, true);
-                if (control != null)
-                    VisualStateManager.GoToState(control, "Invalid", true);
-            }
-#else
-            var binder = (ValidationBinder)ValidationBinder.GetErrorContainer(validatableControl);
-            if (binder == null)
-            {
-                if (errors == null || errors.Count == 0)
-                    return null;
-                binder = new ValidationBinder();
-                ValidationBinder.SetErrorContainer(validatableControl, binder);
-
-                var binding = new System.Windows.Data.Binding(ValidationBinder.PropertyName)
-                {
-#if WPF && NET4
-                    ValidatesOnDataErrors = true,
-#else
-                    ValidatesOnDataErrors = false,
-                    ValidatesOnNotifyDataErrors = true,
-#endif
-                    Mode = System.Windows.Data.BindingMode.OneWay,
-                    Source = binder,
-                    ValidatesOnExceptions = false,
-                    NotifyOnValidationError = false,
-#if WPF
-                    NotifyOnSourceUpdated = false,
-                    NotifyOnTargetUpdated = false
-#endif
-                };
-                validatableControl.SetBinding(ValidationBinder.ErrorContainerProperty, binding);
-            }
-            binder.SetErrors(errors);
-#endif
-            return null;
         }
 
         private static object FindByNameMemberImpl(IBindingMemberInfo bindingMemberInfo, FrameworkElement target, object[] arg3)
@@ -322,8 +253,7 @@ namespace MugenMvvmToolkit.Binding
 
         private static DependencyObject FindParent(FrameworkElement target)
         {
-            IBindingMemberInfo member = BindingProvider
-                    .Instance
+            IBindingMemberInfo member = BindingServiceProvider
                     .MemberProvider
                     .GetBindingMember(target.GetType(), "PlacementTarget", false, false);
             if (member != null)
@@ -367,20 +297,21 @@ namespace MugenMvvmToolkit.Binding
         {
             if (View.OnBindChanged == null)
                 View.OnBindChanged = OnBindChanged;
-            ViewManager.GetDataContext = o => BindingProvider.Instance.ContextManager.GetBindingContext(o).Value;
-            ViewManager.SetDataContext = (o, o1) => BindingProvider.Instance.ContextManager.GetBindingContext(o).Value = o1;
+            ViewManager.GetDataContext = o => BindingServiceProvider.ContextManager.GetBindingContext(o).Value;
+            ViewManager.SetDataContext = (o, o1) => BindingServiceProvider.ContextManager.GetBindingContext(o).Value = o1;
             base.Load(context);
-            var oldMember = BindingProvider.Instance.MemberProvider as BindingMemberProvider;
-            BindingProvider.Instance.MemberProvider = oldMember == null
+            var oldMember = BindingServiceProvider.MemberProvider as BindingMemberProvider;
+            BindingServiceProvider.MemberProvider = oldMember == null
                 ? new BindingMemberProviderEx()
                 : new BindingMemberProviderEx(oldMember);
-            BindingProvider.Instance.ContextManager = new BindingContextManagerEx();
-            var resolver = BindingProvider.Instance.ResourceResolver as BindingResourceResolver;
-            BindingProvider.Instance.ResourceResolver = resolver == null
+            BindingServiceProvider.ContextManager = new BindingContextManagerEx();
+            var resolver = BindingServiceProvider.ResourceResolver as BindingResourceResolver;
+            BindingServiceProvider.ResourceResolver = resolver == null
                 ? new BindingResourceResolverEx()
                 : new BindingResourceResolverEx(resolver);
-            Register(BindingProvider.Instance.MemberProvider);
-            var resourceResolver = BindingProvider.Instance.ResourceResolver;
+            BindingServiceProvider.ErrorProvider = new BindingErrorProvider();
+            Register(BindingServiceProvider.MemberProvider);
+            var resourceResolver = BindingServiceProvider.ResourceResolver;
             resourceResolver.AddObject("Visible", new BindingResourceObject(Visibility.Visible), true);
             resourceResolver.AddObject("Collapsed", new BindingResourceObject(Visibility.Collapsed), true);
 

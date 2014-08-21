@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // ****************************************************************************
-// <copyright file="IHasSelfWeakReference.cs">
+// <copyright file="IBindingErrorProvider.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
 // </copyright>
 // ****************************************************************************
@@ -13,20 +13,21 @@
 // </license>
 // ****************************************************************************
 #endregion
-using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace MugenMvvmToolkit.Binding.Interfaces.Models
+namespace MugenMvvmToolkit.Binding.Interfaces
 {
     /// <summary>
-    ///     Represents the interface that indicates that the instance has a self weak reference
+    ///     Represents the interfaces that provides a user interface for indicating that a control on a form has an error associated with it.
     /// </summary>
-    public interface IHasWeakReference
+    public interface IBindingErrorProvider
     {
         /// <summary>
-        ///     Gets the <see cref="System.WeakReference" /> of current object.
+        ///     Sets errors for binding target.
         /// </summary>
-        [NotNull]
-        WeakReference WeakReference { get; }
+        /// <param name="target">The binding target object.</param>
+        /// <param name="errors">The collection of errors</param>
+        void SetErrors([NotNull]object target, [NotNull] IList<object> errors);
     }
 }

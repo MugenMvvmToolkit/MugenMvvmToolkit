@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // ****************************************************************************
-// <copyright file="Delegates.cs">
+// <copyright file="IHasSelfWeakReference.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
 // </copyright>
 // ****************************************************************************
@@ -13,13 +13,20 @@
 // </license>
 // ****************************************************************************
 #endregion
+using System;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
-using MugenMvvmToolkit.Interfaces.Models;
 
-namespace MugenMvvmToolkit.Binding.Models
+namespace MugenMvvmToolkit.Interfaces.Models
 {
-    [NotNull]
-    public delegate IBindingSource BindingSourceDelegate([NotNull]IBindingProvider provider, [NotNull] IDataContext context);
+    /// <summary>
+    ///     Represents the interface that indicates that the instance has a self weak reference
+    /// </summary>
+    public interface IHasWeakReference
+    {
+        /// <summary>
+        ///     Gets the <see cref="System.WeakReference" /> of current object.
+        /// </summary>
+        [NotNull]
+        WeakReference WeakReference { get; }
+    }
 }

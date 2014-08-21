@@ -387,8 +387,8 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
 
         protected virtual IBindingBuilder CreateBindingBuilder(object targetObject, string targetPath)
         {
-            IBindingBuilder builder = BindingProvider
-                .Instance
+            IBindingBuilder builder = BindingServiceProvider
+                .BindingProvider
                 .CreateBuilderFromString(targetObject, targetPath, Path);
 
             var syntaxBuilder = new SyntaxBuilder<object, object>(builder);
@@ -432,7 +432,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
                 return CreateDelegateForEvent(eventInfo);
 
             if (_targetMemberInfo == null)
-                _targetMemberInfo = BindingProvider.Instance
+                _targetMemberInfo = BindingServiceProvider
                     .MemberProvider
                     .GetBindingMember(targetObject.GetType(), targetPath, false, false);
             if (_targetMemberInfo == null)
@@ -457,12 +457,12 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
         {
             var targetType = target.GetType();
             var path = property.Name + "Property";
-            var member = BindingProvider.Instance
+            var member = BindingServiceProvider
                                         .MemberProvider
                                         .GetBindingMember(targetType, path, false, false);
             if (member == null)
             {
-                BindingProvider.Instance
+                BindingServiceProvider
                                .MemberProvider
                                .Register(targetType,
                                    new DependencyPropertyBindingMember(property, path, property.PropertyType,
@@ -482,14 +482,14 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
 
             var targetType = target.GetType();
             string name = method.Name.Replace("Get", string.Empty) + "Property";
-            var memberInfo = BindingProvider.Instance
+            var memberInfo = BindingServiceProvider
                                             .MemberProvider
                                             .GetBindingMember(targetType, name, false, false);
             if (memberInfo != null)
                 return name;
 
             var fullName = string.Format("_attached_{0}_{1}", reflectedType.FullName.Replace(".", "_"), name);
-            memberInfo = BindingProvider.Instance
+            memberInfo = BindingServiceProvider
                                         .MemberProvider
                                         .GetBindingMember(targetType, fullName, false, false);
 
@@ -500,7 +500,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
             if (fieldInfo == null)
                 return null;
 
-            BindingProvider.Instance
+            BindingServiceProvider
                            .MemberProvider
                            .Register(method.GetParameters()[0].ParameterType,
                                new DependencyPropertyBindingMember((DependencyProperty)fieldInfo.GetValue(null), fullName, method.ReturnType, false, method, null), true);
@@ -510,7 +510,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
 
         private IDataBinding CreateBinding(object targetObject, string targetPath)
         {
-            return BindingProvider.Instance.CreateBindingFromString(targetObject, targetPath, Path);
+            return BindingServiceProvider.BindingProvider.CreateBindingFromString(targetObject, targetPath, Path);
         }
 
         private void SetMode(IBindingModeSyntax syntax)

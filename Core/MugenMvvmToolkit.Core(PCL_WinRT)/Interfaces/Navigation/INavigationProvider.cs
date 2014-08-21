@@ -13,7 +13,6 @@
 // </license>
 // ****************************************************************************
 #endregion
-using System;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;

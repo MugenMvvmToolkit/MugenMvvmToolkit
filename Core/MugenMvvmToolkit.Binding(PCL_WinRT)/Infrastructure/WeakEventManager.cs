@@ -13,16 +13,14 @@
 // </license>
 // ****************************************************************************
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Utils;
@@ -71,7 +69,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             internal WeakListenerInternal(object source, EventInfo eventInfo)
             {
-                _sourceRef = ServiceProvider.WeakReferenceFactory(source, true);
+                _sourceRef = MvvmExtensions.GetWeakReference(source);
                 _eventInfo = eventInfo;
             }
 
@@ -123,7 +121,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 //Binding context
                 if (_eventInfo == null)
                 {
-                    BindingProvider.Instance.ContextManager.GetBindingContext(source).ValueChanged -= Raise;
+                    BindingServiceProvider.ContextManager.GetBindingContext(source).ValueChanged -= Raise;
                     ServiceProvider.AttachedValueProvider.Clear(source, BindingContextMember);
                 }
                 else
@@ -152,7 +150,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
                 //Binding context
                 if (@this._eventInfo == null)
-                    BindingProvider.Instance.ContextManager.GetBindingContext(source).ValueChanged += @this.Raise;
+                    BindingServiceProvider.ContextManager.GetBindingContext(source).ValueChanged += @this.Raise;
                 else
                 {
 #if PCL_WINRT
@@ -163,7 +161,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     @this.RegToken = addMethod.InvokeEx(source, @this.Handler);
                 }
 
-                array[2] = new ActionToken(UnsubscribeListenerDelegate, new[] { @this, weakItem });
+                array[2] = new Unsubscriber(@this, weakItem);
                 return @this;
             }
 
@@ -181,10 +179,49 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         private sealed class WeakPropertyChangedListener
         {
+            #region Nested types
+
+            private sealed class Unsubscriber : IDisposable
+            {
+                #region Fields
+
+                private WeakPropertyChangedListener _eventListener;
+                private object _weakItem;
+
+                #endregion
+
+                #region Constructors
+
+                public Unsubscriber(WeakPropertyChangedListener eventListener, object weakItem)
+                {
+                    _eventListener = eventListener;
+                    _weakItem = weakItem;
+                }
+
+                #endregion
+
+                #region Implementation of IDisposable
+
+                public void Dispose()
+                {
+                    var listener = _eventListener;
+                    var weakItem = _weakItem;
+                    if (listener != null && weakItem != null)
+                    {
+                        _eventListener = null;
+                        _weakItem = null;
+                        listener.Remove(weakItem);
+                    }
+                }
+
+                #endregion
+            }
+
+            #endregion
+
             #region Fields
 
             private static readonly KeyValuePair<object, string>[] Empty;
-            private static readonly Action<object> UnsubscribeListenerDelegate;
 
             private static readonly Func<INotifyPropertyChanged, object, WeakPropertyChangedListener> AddSourceEventDelegate;
             private static readonly UpdateValueDelegate<INotifyPropertyChanged, Func<INotifyPropertyChanged, object, WeakPropertyChangedListener>, WeakPropertyChangedListener, object> UpdateSourceEventDelegate;
@@ -201,7 +238,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             static WeakPropertyChangedListener()
             {
                 Empty = new KeyValuePair<object, string>[0];
-                UnsubscribeListenerDelegate = UnsubscribeListener;
                 UpdateSourceEventDelegate = UpdateSourceEvent;
                 AddSourceEventDelegate = AddSourceEvent;
             }
@@ -209,7 +245,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             public WeakPropertyChangedListener(INotifyPropertyChanged propertyChanged)
             {
                 _listeners = EmptyValue<KeyValuePair<object, string>>.ArrayInstance;
-                _propertyChanged = ServiceProvider.WeakReferenceFactory(propertyChanged, true);
+                _propertyChanged = MvvmExtensions.GetWeakReference(propertyChanged);
             }
 
             #endregion
@@ -228,7 +264,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                         hasDeadRef = true;
                     else
                     {
-                        if (BindingExtensions.PropertyNameEqual(args.PropertyName, pair.Value))
+                        if (MvvmExtensions.PropertyNameEqual(args.PropertyName, pair.Value, true))
                             listener.Handle(sender, args);
                     }
                 }
@@ -264,7 +300,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     else
                         Update(weakItem, path);
                 }
-                return new ActionToken(UnsubscribeListenerDelegate, new[] { this, weakItem });
+                return new Unsubscriber(this, weakItem);
             }
 
             private void Remove(object weakItem)
@@ -325,7 +361,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 var path = (string)array[2];
                 @this._listeners = new[] { new KeyValuePair<object, string>(weakItem, path) };
                 source.PropertyChanged += @this.Handle;
-                array[3] = new ActionToken(UnsubscribeListenerDelegate, new[] { @this, weakItem });
+                array[3] = new Unsubscriber(@this, weakItem);
                 return @this;
             }
 
@@ -337,12 +373,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 var path = (string)array[2];
                 array[3] = currentValue.AddInternal(weakItem, path);
                 return currentValue;
-            }
-
-            private static void UnsubscribeListener(object state)
-            {
-                var array = (object[])state;
-                ((WeakPropertyChangedListener)array[0]).Remove(array[1]);
             }
 
             #endregion
@@ -419,7 +449,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private static WeakListenerInternal CreateContextListener(object src, object state)
         {
             var listenerInternal = new WeakListenerInternal(src, null);
-            BindingProvider.Instance.ContextManager.GetBindingContext(src).ValueChanged += listenerInternal.Raise;
+            BindingServiceProvider.ContextManager.GetBindingContext(src).ValueChanged -= listenerInternal.Raise;
             return listenerInternal;
         }
 

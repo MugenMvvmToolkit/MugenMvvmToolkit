@@ -1,6 +1,8 @@
 using System;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Collections;
+using MugenMvvmToolkit.Interfaces.Models;
 using Object = Java.Lang.Object;
 
 namespace MugenMvvmToolkit.Models

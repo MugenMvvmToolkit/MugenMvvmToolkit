@@ -72,6 +72,7 @@
     <Compile Include="BindingExceptionManager.cs" />
     <Compile Include="BindingExtensions.cs" />
     <Compile Include="BindingReflectionExtensions.cs" />
+    <Compile Include="BindingServiceProvider.cs" />
     <Compile Include="Builders\BindingBuilder.cs" />
     <Compile Include="Builders\BindingSet.cs" />
     <Compile Include="Builders\SyntaxBuilder.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="Infrastructure\BindingMemberProvider.cs" />
     <Compile Include="Infrastructure\BindingResourceResolver.cs" />
     <Compile Include="Infrastructure\EmptyPathObserver.cs" />
+    <Compile Include="Infrastructure\EventListenerList.cs" />
     <Compile Include="Infrastructure\MultiPathObserver.cs" />
     <Compile Include="Infrastructure\ObserverBase.cs" />
     <Compile Include="Infrastructure\ObserverProvider.cs" />
@@ -99,6 +101,7 @@
     <Compile Include="Interfaces\IBindingBehavior.cs" />
     <Compile Include="Interfaces\IBindingBuilder.cs" />
     <Compile Include="Interfaces\IBindingContextManager.cs" />
+    <Compile Include="Interfaces\IBindingErrorProvider.cs" />
     <Compile Include="Interfaces\IBindingManager.cs" />
     <Compile Include="Interfaces\IBindingMemberProvider.cs" />
     <Compile Include="Interfaces\IBindingProvider.cs" />
@@ -119,7 +122,6 @@
     <Compile Include="Interfaces\Models\IBindingResourceObject.cs" />
     <Compile Include="Interfaces\Models\IDynamicObject.cs" />
     <Compile Include="Interfaces\Models\IEventListener.cs" />
-    <Compile Include="Interfaces\Models\IHasWeakReference.cs" />
     <Compile Include="Interfaces\Models\ISourceValue.cs" />
     <Compile Include="Interfaces\Parse\IBindingParser.cs" />
     <Compile Include="Interfaces\Parse\IExpressionInvoker.cs" />
@@ -153,7 +155,6 @@
     <Compile Include="Models\BindingPath.cs" />
     <Compile Include="Models\BindingResourceMethod.cs" />
     <Compile Include="Models\BindingResourceObject.cs" />
-    <Compile Include="Models\Delegates.cs" />
     <Compile Include="Models\Enums.cs" />
     <Compile Include="Models\EventArg\AttachedMemberChangedEventArgs.cs" />
     <Compile Include="Models\EventArg\BindingEventArgs.cs" />
@@ -162,7 +163,6 @@
     <Compile Include="Models\EventArg\ValueAccessorChangedEventArgs.cs" />
     <Compile Include="Models\EventArg\ValueAccessorChangingEventArgs.cs" />
     <Compile Include="Models\EventArg\ValueChangedEventArgs.cs" />
-    <Compile Include="Models\EventListenerList.cs" />
     <Compile Include="Models\Exceptions\ParseException.cs" />
     <Compile Include="Models\ExpressionNodeType.cs" />
     <Compile Include="Models\MethodData.cs" />

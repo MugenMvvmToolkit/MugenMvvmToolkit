@@ -16,7 +16,6 @@
 
 using System;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -56,7 +55,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 _isElementSource = _node.Type == RelativeSourceExpressionNode.ElementSourceType;
                 _targetReference = ServiceProvider.WeakReferenceFactory(target, true);
                 _value = MvvmUtils.EmptyWeakReference;
-                var rootMember = BindingProvider.Instance.VisualTreeManager.GetRootMember(target.GetType());
+                var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
                 if (rootMember != null)
                     _subscriber = rootMember.TryObserve(target, this);
                 Handle(null, null);
@@ -108,7 +107,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                         _subscriber.Dispose();
                     return;
                 }
-                var treeManager = BindingProvider.Instance.VisualTreeManager;
+                var treeManager = BindingServiceProvider.VisualTreeManager;
                 _hasParent = treeManager.FindParent(target) != null;
                 Value = _isElementSource
                     ? treeManager.FindByName(target, _node.ElementName)
@@ -206,11 +205,11 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             if (RelativeSourceNode.Type != RelativeSourceExpressionNode.SelfType)
             {
                 if (RelativeSourceNode.Type == RelativeSourceExpressionNode.MemberSourceType)
-                    target = BindingProvider.Instance.ContextManager.GetBindingContext(target);
+                    target = BindingServiceProvider.ContextManager.GetBindingContext(target);
                 else
                     target = new ParentSourceValue(target, RelativeSourceNode);
             }
-            IObserver observer = BindingProvider.Instance.ObserverProvider.Observe(target, BindingPath.Create(path), false);
+            IObserver observer = BindingServiceProvider.ObserverProvider.Observe(target, BindingPath.Create(path), false);
             _bindingSource = new BindingSource(observer);
         }
 

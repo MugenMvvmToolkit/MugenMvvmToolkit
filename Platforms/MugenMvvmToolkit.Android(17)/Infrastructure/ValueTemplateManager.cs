@@ -14,6 +14,7 @@
 // ****************************************************************************
 #endregion
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces;
@@ -84,8 +85,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public static IDataTemplateSelector GetDataTemplateSelector(object container, string templateSelectorMember)
         {
-            IBindingMemberInfo member = BindingProvider
-                .Instance
+            IBindingMemberInfo member = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(container.GetType(), templateSelectorMember, false, false);
             if (member == null)
@@ -95,8 +95,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public static int? GetTemplateId(object container, string templateIdMember)
         {
-            IBindingMemberInfo member = BindingProvider
-                .Instance
+            IBindingMemberInfo member = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(container.GetType(), templateIdMember, false, false);
             if (member == null)

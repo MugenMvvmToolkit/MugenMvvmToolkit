@@ -15,6 +15,8 @@
 #endregion
 using System;
 using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 #if NETFX_CORE || WINDOWSCOMMON
@@ -27,9 +29,6 @@ using EventType = System.Windows.DependencyPropertyChangedEventArgs;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Models.EventArg;
-using MugenMvvmToolkit.Interfaces;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
@@ -56,7 +55,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             public BindingContextSource(FrameworkElement element)
             {
 #if WINDOWS_PHONE || NETFX_CORE
-                _observer = BindingProvider.Instance
+                _observer = BindingServiceProvider
                     .ObserverProvider
                     .Observe(element, BindingPath.DataContext, true);
                 _observer.Listener = this;

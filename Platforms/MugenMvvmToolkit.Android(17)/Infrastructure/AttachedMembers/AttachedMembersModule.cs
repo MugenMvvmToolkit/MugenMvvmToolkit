@@ -27,7 +27,6 @@ using Android.Widget;
 using Java.Lang;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -110,7 +109,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 var viewGroup = (ViewGroup)parent;
                 if (viewGroup.IndexOfChild(child) == 0)
                 {
-                    var dataContext = BindingProvider.Instance.ContextManager.GetBindingContext(child);
+                    var dataContext = BindingServiceProvider.ContextManager.GetBindingContext(child);
                     dataContext.ValueChanged += BindingContextChangedDelegate;
                     UpdataContext(viewGroup, child, dataContext);
                 }
@@ -122,7 +121,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 var viewGroup = (ViewGroup)parent;
                 if (viewGroup.ChildCount == 0)
                 {
-                    BindingProvider.Instance.ContextManager.GetBindingContext(child).ValueChanged -= BindingContextChangedDelegate;
+                    BindingServiceProvider.ContextManager.GetBindingContext(child).ValueChanged -= BindingContextChangedDelegate;
                     ContentMember.SetValue(viewGroup, RemoveViewValue);
                 }
                 GlobalViewParentListener.Instance.OnChildViewRemoved(parent, child);
@@ -145,7 +144,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (parent == null)
                     parent = view.Parent as View;
                 if (parent != null &&
-                    !Equals(BindingProvider.Instance.ContextManager.GetBindingContext(parent).Value,
+                    !Equals(BindingServiceProvider.ContextManager.GetBindingContext(parent).Value,
                         context.Value))
                     ContentMember.SetValue(parent, new[] { context.Value, AddViewValue });
             }
@@ -161,6 +160,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         internal static readonly IAttachedBindingMemberInfo<AdapterView, int> AdapterViewSelectedPositionMember;
         private static readonly IAttachedBindingMemberInfo<AdapterView, object> AdapterViewSelectedItemMember;
+        private static readonly IAttachedBindingMemberInfo<AdapterView, bool> DisableScrollToSelectedItemMember;
 
 #if !API8
         internal static readonly IAttachedBindingMemberInfo<ViewGroup, bool> AddToBackStackMember;
@@ -229,6 +229,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     AdapterViewSelectedItemPositionChanged, AdapterViewSelectedMemberAttached);
             AdapterViewSelectedItemMember = AttachedBindingMember.CreateAutoProperty<AdapterView, object>(
                 AttachedMemberConstants.SelectedItem, AdapterViewSelectedItemChanged);
+            DisableScrollToSelectedItemMember = AttachedBindingMember.CreateAutoProperty<AdapterView, bool>("DisableScrollToSelectedItem");
 
             //TabHost
             TabHostSelectedItemMember = AttachedBindingMember.CreateAutoProperty<TabHost, object>(AttachedMemberConstants.SelectedItem, TabHostSelectedItemChanged); ;
@@ -415,7 +416,8 @@ namespace MugenMvvmToolkit.Infrastructure
         private static void AdapterViewSelectedItemPositionChanged(AdapterView sender,
             AttachedMemberChangedEventArgs<int> args)
         {
-            sender.SetSelection(args.NewValue);
+            if (!DisableScrollToSelectedItemMember.GetValue(sender, null))
+                sender.SetSelection(args.NewValue);
 
             var adapter = GetAdapter(sender) as ItemsSourceAdapter;
             if (adapter == null)
@@ -573,7 +575,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public int Priority
         {
-            get { return int.MinValue; }
+            get { return ModuleBase.BindingModulePriority; }
         }
 
         /// <summary>
@@ -581,7 +583,8 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public bool Load(IModuleContext context)
         {
-            Register(BindingProvider.Instance.MemberProvider);
+            Register(BindingServiceProvider.MemberProvider);
+            BindingServiceProvider.ErrorProvider = new BindingErrorProvider();
             return true;
         }
 

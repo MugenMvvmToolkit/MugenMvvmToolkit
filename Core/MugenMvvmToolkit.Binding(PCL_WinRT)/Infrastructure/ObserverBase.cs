@@ -19,7 +19,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Reflection;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -136,7 +135,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <summary>
         ///     Tries to add event handler using the event listener.
         /// </summary>
-        protected virtual IDisposable TryAddEventHandler(object value, IBindingMemberInfo member, IEventListener eventListener, string propertyName)
+        protected virtual IDisposable TryObserveMember(object value, IBindingMemberInfo member, IEventListener eventListener, string propertyName)
         {
             if (member.MemberType == BindingMemberType.Event)
                 return null;
@@ -145,14 +144,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return disposable;
 
             if (value is IEnumerable && value is INotifyCollectionChanged)
-                return BindingProvider.Instance
+                return BindingServiceProvider
                     .WeakEventManager
                     .TrySubscribe(value, CollectionChangedEvent, eventListener);
 
             var propertyChanged = value as INotifyPropertyChanged;
             if (propertyChanged == null)
                 return null;
-            return BindingProvider.Instance.WeakEventManager.Subscribe(propertyChanged, propertyName, eventListener);
+            return BindingServiceProvider.WeakEventManager.Subscribe(propertyChanged, propertyName, eventListener);
         }
 
         /// <summary>

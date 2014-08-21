@@ -100,7 +100,7 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 string eventName = strings[0];
                 dataContext.Add(ViewFactoryConstants.PopupMenuEvent, eventName);
-                IBindingMemberInfo member = BindingProvider.Instance
+                IBindingMemberInfo member = BindingServiceProvider
                     .MemberProvider
                     .GetBindingMember(view.GetType(), AttachedMemberNames.PopupMenuEvent, false, false);
                 if (member != null)
@@ -113,7 +113,7 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 string path = strings[0];
                 dataContext.Add(ViewFactoryConstants.PlacementTargetPath, path);
-                IBindingMemberInfo member = BindingProvider.Instance
+                IBindingMemberInfo member = BindingServiceProvider
                     .MemberProvider
                     .GetBindingMember(view.GetType(), AttachedMemberNames.PlacementTargetPath, false, false);
                 if (member != null)
@@ -130,8 +130,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (!value.HasValue)
                 return;
             dataContext.Add(constant, value.Value);
-            IBindingMemberInfo member = BindingProvider
-                .Instance
+            IBindingMemberInfo member = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(view.GetType(), attachedMemberName, false, false);
             if (member != null)

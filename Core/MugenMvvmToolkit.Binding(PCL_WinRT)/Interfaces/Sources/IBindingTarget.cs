@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Sources
         bool IsEnabled { get; set; }
 
         /// <summary>
-        ///     Gets or sets a value that indicates whether the target supports the validation.
+        ///     Gets a value that indicates whether the target supports the validation.
         /// </summary>
         /// <returns>
         ///     true if the target is validatable; otherwise false.

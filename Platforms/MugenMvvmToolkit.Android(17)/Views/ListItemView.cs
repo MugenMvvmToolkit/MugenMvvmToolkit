@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 
@@ -148,7 +149,7 @@ namespace MugenMvvmToolkit.Views
             if (view == null)
                 return;
             var type = view.GetType();
-            var member = BindingProvider.Instance.MemberProvider.GetBindingMember(type, "Activated", false, false);
+            var member = BindingServiceProvider.MemberProvider.GetBindingMember(type, "Activated", false, false);
             if (member != null && member.CanWrite)
                 member.SetValue(view, new object[] { value });
 #endif

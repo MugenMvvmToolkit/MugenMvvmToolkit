@@ -742,12 +742,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
 
         protected override void OnInit()
         {
-            if (!BindingProvider.Instance.MemberProvider.HasMember(typeof(BindingSourceModel), AttachedMemberConstants.Enabled, false))
-                BindingProvider.Instance.MemberProvider.Register(typeof(BindingSourceModel),
+            base.OnInit();
+            if (!BindingServiceProvider.MemberProvider.HasMember(typeof(BindingSourceModel), AttachedMemberConstants.Enabled, false))
+                BindingServiceProvider.MemberProvider.Register(typeof(BindingSourceModel),
                     AttachedBindingMember.CreateMember<BindingSourceModel, bool>(AttachedMemberConstants.Enabled,
                         (info, sourceModel, arg3) => sourceModel.IsEnabled,
                         (info, sourceModel, arg3) => sourceModel.IsEnabled = (bool)arg3[0]), true);
-            base.OnInit();
         }
 
         #endregion

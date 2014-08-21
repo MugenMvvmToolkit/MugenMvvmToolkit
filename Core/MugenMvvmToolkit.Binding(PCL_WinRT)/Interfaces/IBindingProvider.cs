@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="IBindingProvider.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,7 +13,9 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
@@ -38,52 +41,10 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         ICollection<IBindingSourceDecorator> SourceDecorators { get; }
 
         /// <summary>
-        ///     Gets or sets the <see cref="IBindingManager" />.
-        /// </summary>
-        [NotNull]
-        IBindingManager BindingManager { get; set; }
-
-        /// <summary>
-        ///     Gets or sets  the <see cref="IBindingMemberProvider" />.
-        /// </summary>
-        [NotNull]
-        IBindingMemberProvider MemberProvider { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the <see cref="IObserverProvider" />.
-        /// </summary>
-        [NotNull]
-        IObserverProvider ObserverProvider { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the <see cref="IBindingContextManager" />.
-        /// </summary>
-        [NotNull]
-        IBindingContextManager ContextManager { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the default <see cref="IVisualTreeManager" />.
-        /// </summary>
-        [NotNull]
-        IVisualTreeManager VisualTreeManager { get; set; }
-
-        /// <summary>
         ///     Gets or sets the <see cref="IBindingParser" />.
         /// </summary>
         [NotNull]
         IBindingParser Parser { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the <see cref="IBindingResourceResolver" />.
-        /// </summary>
-        [NotNull]
-        IBindingResourceResolver ResourceResolver { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the <see cref="IWeakEventManager" />.
-        /// </summary>
-        [NotNull]
-        IWeakEventManager WeakEventManager { get; set; }
 
         /// <summary>
         ///     Creates an instance of <see cref="IBindingBuilder" />.

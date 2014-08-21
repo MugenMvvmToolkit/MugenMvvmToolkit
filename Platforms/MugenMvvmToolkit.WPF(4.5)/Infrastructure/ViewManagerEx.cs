@@ -19,7 +19,7 @@ using System.Reflection;
 using System.Windows;
 using JetBrains.Annotations;
 #if WINFORMS || ANDROID
-using MugenMvvmToolkit.Binding.Core;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 #endif
 #if WINFORMS
@@ -118,7 +118,7 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 Should.NotBeNull(form, "form");
                 _form = form;
-                _context = BindingProvider.Instance.ContextManager.GetBindingContext(form);
+                _context = BindingServiceProvider.ContextManager.GetBindingContext(form);
             }
 
         #endregion
@@ -327,8 +327,8 @@ namespace MugenMvvmToolkit.Infrastructure
 #if WINFORMS || ANDROID
         static ViewManagerEx()
         {
-            GetDataContext = o => BindingProvider.Instance.ContextManager.GetBindingContext(o).Value;
-            SetDataContext = (o, o1) => BindingProvider.Instance.ContextManager.GetBindingContext(o).Value = o1;
+            GetDataContext = o => BindingServiceProvider.ContextManager.GetBindingContext(o).Value;
+            SetDataContext = (o, o1) => BindingServiceProvider.ContextManager.GetBindingContext(o).Value = o1;
         }
 #endif
         /// <summary>

@@ -311,7 +311,7 @@ namespace MugenMvvmToolkit.Infrastructure
             lock (_handlerReferences)
             {
                 if (!Contains(instance, false))
-                    _handlerReferences.Add(ServiceProvider.WeakReferenceFactory(handlerInfo, false));
+                    _handlerReferences.Add(ServiceProvider.WeakReferenceFactory(handlerInfo, true));
             }
             return true;
         }

@@ -16,11 +16,11 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
@@ -95,7 +95,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 IList<IBindingMemberInfo> members)
             {
                 _observerRef = observerReference;
-                _penultimateValueRef = ServiceProvider.WeakReferenceFactory(penultimateValue, true);
+                _penultimateValueRef = MvvmExtensions.GetWeakReference(penultimateValue);
                 _path = path;
                 _members = members;
                 _lastMember = _members[_members.Count - 1];
@@ -211,7 +211,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     return;
                 }
                 bool allMembersAvailable = true;
-                IBindingMemberProvider memberProvider = BindingProvider.Instance.MemberProvider;
+                IBindingMemberProvider memberProvider = BindingServiceProvider.MemberProvider;
                 IList<string> items = Path.Parts;
                 int lastIndex = items.Count - 1;
                 var members = new List<IBindingMemberInfo>();
@@ -275,11 +275,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return null;
             if (isLastInChain)
             {
-                var observer = TryAddEventHandler(source, pathMember, _lastMemberListener, pathMember.Path);
+                var observer = TryObserveMember(source, pathMember, _lastMemberListener, pathMember.Path);
                 _lastMemberListener.Observer = observer;
                 return observer;
             }
-            return TryAddEventHandler(source, pathMember, this, pathMember.Path);
+            return TryObserveMember(source, pathMember, this, pathMember.Path);
         }
 
         /// <summary>

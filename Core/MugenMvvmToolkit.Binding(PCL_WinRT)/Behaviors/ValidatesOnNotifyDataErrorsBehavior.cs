@@ -19,13 +19,13 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
@@ -217,7 +217,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             var dataErrorInfo = source.GetPathMembers(false).PenultimateValue as INotifyDataErrorInfo;
             if (dataErrorInfo == null)
                 return;
-            var subscriber = BindingProvider.Instance.WeakEventManager.TrySubscribe(dataErrorInfo, ErrorsChangedEvent, this);
+            var subscriber = BindingServiceProvider.WeakEventManager.TrySubscribe(dataErrorInfo, ErrorsChangedEvent, this);
             if (subscriber != null)
                 _subscribers.Add(subscriber);
         }

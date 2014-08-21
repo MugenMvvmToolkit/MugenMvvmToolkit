@@ -141,7 +141,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public void Select(object dataContext)
         {
-            IBindingContextManager contextManager = BindingProvider.Instance.ContextManager;
+            IBindingContextManager contextManager = BindingServiceProvider.ContextManager;
             for (int i = 0; i < _actionBar.TabCount; i++)
             {
                 ActionBar.Tab tab = _actionBar.GetTabAt(i);

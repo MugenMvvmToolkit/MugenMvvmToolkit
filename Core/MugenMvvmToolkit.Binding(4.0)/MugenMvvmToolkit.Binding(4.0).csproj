@@ -137,6 +137,9 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\BindingReflectionExtensions.cs">
       <Link>BindingReflectionExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\BindingServiceProvider.cs">
+      <Link>BindingServiceProvider.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\builders\BindingBuilder.cs">
       <Link>Builders\BindingBuilder.cs</Link>
     </Compile>
@@ -185,6 +188,9 @@
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\infrastructure\EmptyPathObserver.cs">
       <Link>Infrastructure\EmptyPathObserver.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\EventListenerList.cs">
+      <Link>Infrastructure\EventListenerList.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\infrastructure\MultiPathObserver.cs">
       <Link>Infrastructure\MultiPathObserver.cs</Link>
     </Compile>
@@ -217,6 +223,9 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\IBindingContextManager.cs">
       <Link>Interfaces\IBindingContextManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IBindingErrorProvider.cs">
+      <Link>Interfaces\IBindingErrorProvider.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\IBindingManager.cs">
       <Link>Interfaces\IBindingManager.cs</Link>
@@ -277,9 +286,6 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\models\IEventListener.cs">
       <Link>Interfaces\Models\IEventListener.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Models\IHasWeakReference.cs">
-      <Link>Interfaces\Models\IHasWeakReference.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Models\ISourceValue.cs">
       <Link>Interfaces\Models\ISourceValue.cs</Link>
@@ -380,9 +386,6 @@
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\models\BindingResourceObject.cs">
       <Link>Models\BindingResourceObject.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\models\Delegates.cs">
-      <Link>Models\Delegates.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\models\Enums.cs">
       <Link>Models\Enums.cs</Link>
     </Compile>
@@ -406,9 +409,6 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\models\eventarg\ValueChangedEventArgs.cs">
       <Link>Models\EventArg\ValueChangedEventArgs.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\EventListenerList.cs">
-      <Link>Models\EventListenerList.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\models\exceptions\ParseException.cs">
       <Link>Models\Exceptions\ParseException.cs</Link>

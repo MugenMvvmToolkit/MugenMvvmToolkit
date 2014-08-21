@@ -23,6 +23,7 @@ using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Interfaces.Syntax;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Sources;
@@ -100,7 +101,7 @@ namespace MugenMvvmToolkit.Binding
         #region To
 
         public static IBindingModeInfoBehaviorSyntax ToSource([NotNull] this IBindingToSyntax syntax,
-            [NotNull] BindingSourceDelegate bindingSourceDelegate)
+            [NotNull] Func<IDataContext, IBindingSource> bindingSourceDelegate)
         {
             Should.NotBeNull(syntax, "syntax");
             Should.NotBeNull(bindingSourceDelegate, "bindingSourceDelegate");
@@ -113,9 +114,9 @@ namespace MugenMvvmToolkit.Binding
         {
             Should.NotBeNull(source, "source");
             Should.NotBeNull(sourcePath, "sourcePath");
-            return syntax.ToSource((provider, context) =>
+            return syntax.ToSource(context =>
             {
-                IObserver observer = provider.ObserverProvider.Observe(source, BindingPath.Create(sourcePath), false);
+                IObserver observer = BindingServiceProvider.ObserverProvider.Observe(source, BindingPath.Create(sourcePath), false);
                 return new BindingSource(observer);
             });
         }
@@ -131,12 +132,13 @@ namespace MugenMvvmToolkit.Binding
             [NotNull] string sourcePath)
         {
             Should.NotBeNull(sourcePath, "sourcePath");
-            return syntax.ToSource((provider, context) =>
+            return syntax.ToSource(context =>
             {
-                IBindingContext bindingContext = provider
+                IBindingContext bindingContext = BindingServiceProvider
+                    .ContextManager
                     .GetBindingContext(context.GetData(BindingBuilderConstants.Target, true),
                         context.GetData(BindingBuilderConstants.TargetPath, true).Path);
-                IObserver observer = provider.ObserverProvider.Observe(bindingContext, BindingPath.Create(sourcePath),
+                IObserver observer = BindingServiceProvider.ObserverProvider.Observe(bindingContext, BindingPath.Create(sourcePath),
                     false);
                 return new BindingSource(observer);
             });
@@ -161,10 +163,10 @@ namespace MugenMvvmToolkit.Binding
             [NotNull] string selfPath)
         {
             Should.NotBeNull(selfPath, "selfPath");
-            return syntax.ToSource((provider, context) =>
+            return syntax.ToSource(context =>
             {
                 object target = context.GetData(BindingBuilderConstants.Target, true);
-                return new BindingSource(provider.ObserverProvider.Observe(target, BindingPath.Create(selfPath), false));
+                return new BindingSource(BindingServiceProvider.ObserverProvider.Observe(target, BindingPath.Create(selfPath), false));
             });
         }
 
@@ -374,13 +376,13 @@ namespace MugenMvvmToolkit.Binding
             return syntax.Builder.GetOrAddSyntaxBuilder();
         }
 
-        private static IList<BindingSourceDelegate> GetOrAddBindingSources([NotNull] this IDataContext syntax)
+        private static IList<Func<IDataContext, IBindingSource>> GetOrAddBindingSources([NotNull] this IDataContext syntax)
         {
             Should.NotBeNull(syntax, "syntax");
-            IList<BindingSourceDelegate> delegates = syntax.GetData(BindingBuilderConstants.Sources);
+            IList<Func<IDataContext, IBindingSource>> delegates = syntax.GetData(BindingBuilderConstants.Sources);
             if (delegates == null)
             {
-                delegates = new List<BindingSourceDelegate>(1);
+                delegates = new List<Func<IDataContext, IBindingSource>>(1);
                 syntax.Add(BindingBuilderConstants.Sources, delegates);
             }
             return delegates;

@@ -21,8 +21,8 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Windows.Forms;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Collections;
@@ -46,16 +46,6 @@ namespace MugenMvvmToolkit
             CreateHandlerDelegate = CreateHandler;
             ToBindingListMethod = typeof(PlatformExtensions).GetMethod("ToBindingList");
         }
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        /// Gets or sets the delegate that allows to set control errors.
-        /// </summary>
-        [CanBeNull]
-        public static Action<Control, ErrorProvider, IList<object>> SetControlErrorsDelegate { get; set; }
 
         #endregion
 
@@ -84,9 +74,9 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        ///     Tries to find the root control.
+        ///     Tries to get the root control.
         /// </summary>
-        public static Control FindRootControl([CanBeNull] Control target)
+        public static Control GetRootControl([CanBeNull] Control target)
         {
             Control root = target;
             while (target != null)
@@ -129,7 +119,7 @@ namespace MugenMvvmToolkit
         {
             if (instance == null)
                 return null;
-            var member = BindingProvider.Instance
+            var member = BindingServiceProvider
                                         .MemberProvider
                                         .GetBindingMember(instance.GetType(), name, false, false);
             if (member == null || !member.CanRead)

@@ -23,7 +23,7 @@ using Android.Content.Res;
 using Android.Support.V7.App;
 using Android.Util;
 using Android.Views;
-using MugenMvvmToolkit.Binding.Core;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
@@ -113,7 +113,7 @@ namespace MugenMvvmToolkit.Views
             var actionBar = _activity.GetActionBar();
             var dataBindings = new List<IDataBinding>();
             foreach (string binding in bindings)
-                dataBindings.AddRange(BindingProvider.Instance.CreateBindingsFromString(actionBar, binding, null));
+                dataBindings.AddRange(BindingServiceProvider.BindingProvider.CreateBindingsFromString(actionBar, binding, null));
             return dataBindings;
         }
 

@@ -18,6 +18,7 @@ using Android.App;
 using Android.OS;
 using Android.Support.V4.App;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -73,7 +74,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (bundle == null)
                 return;
-            var viewModel = BindingProvider.Instance
+            var viewModel = BindingServiceProvider
                 .ContextManager
                 .GetBindingContext(activity)
                 .Value as IViewModel;
@@ -87,7 +88,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (bundle == null)
                 return;
-            var viewModel = BindingProvider.Instance
+            var viewModel = BindingServiceProvider
                 .ContextManager
                 .GetBindingContext(activity)
                 .Value as IViewModel;
@@ -102,7 +103,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (bundle == null)
                 return;
-            var viewModel = BindingProvider.Instance
+            var viewModel = BindingServiceProvider
                 .ContextManager
                 .GetBindingContext(fragment)
                 .Value as IViewModel;
@@ -116,7 +117,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (bundle == null)
                 return;
-            var viewModel = BindingProvider.Instance
+            var viewModel = BindingServiceProvider
                 .ContextManager
                 .GetBindingContext(fragment)
                 .Value as IViewModel;

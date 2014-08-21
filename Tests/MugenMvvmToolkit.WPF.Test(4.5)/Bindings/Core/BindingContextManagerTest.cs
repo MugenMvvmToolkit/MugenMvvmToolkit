@@ -5,6 +5,7 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestModels;
 using Should;
@@ -288,11 +289,11 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         protected virtual IBindingContextManager CreateContextManager(IVisualTreeManager treeManager = null,
             IObserverProvider observerProvider = null)
         {
-            BindingProvider.Instance = new BindingProvider();
+            BindingServiceProvider.BindingProvider = new BindingProvider();
             if (treeManager != null)
-                BindingProvider.Instance.VisualTreeManager = treeManager;
+                BindingServiceProvider.VisualTreeManager = treeManager;
             if (observerProvider != null)
-                BindingProvider.Instance.ObserverProvider = observerProvider;
+                BindingServiceProvider.ObserverProvider = observerProvider;
             return new BindingContextManager();
         }
 

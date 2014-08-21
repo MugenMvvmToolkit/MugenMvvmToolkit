@@ -20,7 +20,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Converters;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -50,7 +49,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         protected static readonly DataConstant<object> SourceExpressionConstant;
 
-        private static readonly BindingSourceDelegate[] EmptyBindingSourceDelegates;
+        private static readonly Func<IDataContext, IBindingSource>[] EmptyBindingSourceDelegates;
         private static readonly HashSet<string> LiteralConstants;
         private static readonly HashSet<TokenType> LiteralTokens;
         private static readonly HashSet<TokenType> ResourceTokens;
@@ -110,7 +109,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 TokenType.RealLiteral,
                 TokenType.StringLiteral
             };
-            EmptyBindingSourceDelegates = new BindingSourceDelegate[]
+            EmptyBindingSourceDelegates = new Func<IDataContext, IBindingSource>[]
             {
                 BindEmptyPathSource
             };
@@ -1083,12 +1082,12 @@ namespace MugenMvvmToolkit.Binding.Parse
                 else if (isEmpty)
                     invoker = CreateExpressionInvoker(expression, members, true);
 
-                IList<BindingSourceDelegate> bindingSource;
+                IList<Func<IDataContext, IBindingSource>> bindingSource;
                 if (isEmpty)
                     bindingSource = EmptyBindingSourceDelegates;
                 else
                 {
-                    bindingSource = new BindingSourceDelegate[members.Length];
+                    bindingSource = new Func<IDataContext, IBindingSource>[members.Length];
                     for (int i = 0; i < members.Length; i++)
                         bindingSource[i] = GetBindingSourceDelegate(members[i].Value);
                 }
@@ -1101,7 +1100,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                         if (!context.Contains(BindingBuilderConstants.Converter))
                         {
                             if (converter == null)
-                                converter = BindingProvider.Instance
+                                converter = BindingServiceProvider
                                                            .ResourceResolver
                                                            .ResolveConverter(converterName, context, false);
                             if (converter != null)
@@ -1134,7 +1133,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {
                     context =>
                     {
-                        var behavior = BindingProvider.Instance
+                        var behavior = BindingServiceProvider
                             .ResourceResolver
                             .ResolveBehavior(left, context, EmptyValue<string>.ListInstance, true);
                         context.GetOrAddBehaviors().Add(behavior);
@@ -1164,7 +1163,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             {
                 context =>
                 {
-                    var behavior = BindingProvider.Instance
+                    var behavior = BindingServiceProvider
                         .ResourceResolver
                         .ResolveBehavior(memberName, context, args, true);
                     context.GetOrAddBehaviors().Add(behavior);
@@ -1296,12 +1295,12 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         private static object GetResourceObject(string name, IDataContext context)
         {
-            return BindingProvider.Instance.ResourceResolver.ResolveObject(name, context, true).Value;
+            return BindingServiceProvider.ResourceResolver.ResolveObject(name, context, true).Value;
         }
 
         private static object InvokeMethod(IDataContext context, string methodName, object[] args, string memberPath)
         {
-            var method = BindingProvider.Instance.ResourceResolver.ResolveMethod(methodName, context, true);
+            var method = BindingServiceProvider.ResourceResolver.ResolveMethod(methodName, context, true);
             var result = method.Invoke(EmptyValue<Type>.ListInstance, args, context);
             if (memberPath == null)
                 return result;
@@ -1312,7 +1311,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             return GetBindingValueSetter((context, o) =>
             {
-                var converter = o as IBindingValueConverter ?? BindingProvider.Instance.ResourceResolver.ResolveConverter((string)o, context, true);
+                var converter = o as IBindingValueConverter ?? BindingServiceProvider.ResourceResolver.ResolveConverter((string)o, context, true);
                 context.Add(BindingBuilderConstants.Converter, d => converter);
             }, (context, func) => context.Add(BindingBuilderConstants.Converter, d => (IBindingValueConverter)func(d)), false);
         }
@@ -1355,22 +1354,22 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Bind members
 
-        protected static BindingSourceDelegate GetBindingSourceDelegate(BindingMemberExpressionNode node)
+        protected static Func<IDataContext, IBindingSource> GetBindingSourceDelegate(BindingMemberExpressionNode node)
         {
             IBindingPath path = BindingPath.Create(node.Path);
             if (node.IsDynamic)
             {
                 string resourceName = node.ResourceName;
-                return (provider, context) =>
+                return context =>
                 {
-                    var resourceObject = provider.ResourceResolver.ResolveObject(resourceName, context, true);
-                    return new BindingSource(provider.ObserverProvider.Observe(resourceObject, path, false));
+                    var resourceObject = BindingServiceProvider.ResourceResolver.ResolveObject(resourceName, context, true);
+                    return new BindingSource(BindingServiceProvider.ObserverProvider.Observe(resourceObject, path, false));
                 };
             }
             if (node.IsRelativeSource)
             {
                 IRelativeSourceExpressionNode r = node.RelativeSourceExpression;
-                return (provider, context) =>
+                return context =>
                 {
                     var relativeSource = new RelativeSourceBehavior(r);
                     object target = context.GetData(BindingBuilderConstants.Target, true);
@@ -1378,21 +1377,23 @@ namespace MugenMvvmToolkit.Binding.Parse
                     return relativeSource.BindingSource;
                 };
             }
-            return (provider, context) =>
+            return context =>
             {
                 var src = context.GetData(SourceExpressionConstant) ??
-                          provider.GetBindingContext(context.GetData(BindingBuilderConstants.Target, true),
+                          BindingServiceProvider.ContextManager.GetBindingContext(
+                              context.GetData(BindingBuilderConstants.Target, true),
                               context.GetData(BindingBuilderConstants.TargetPath, true).Path);
-                return new BindingSource(provider.ObserverProvider.Observe(src, path, false));
+                return new BindingSource(BindingServiceProvider.ObserverProvider.Observe(src, path, false));
             };
         }
 
-        private static IBindingSource BindEmptyPathSource(IBindingProvider provider, IDataContext context)
+        private static IBindingSource BindEmptyPathSource(IDataContext context)
         {
             object src = context.GetData(SourceExpressionConstant) ??
-                         provider.GetBindingContext(context.GetData(BindingBuilderConstants.Target, true),
+                         BindingServiceProvider.ContextManager.GetBindingContext(
+                             context.GetData(BindingBuilderConstants.Target, true),
                              context.GetData(BindingBuilderConstants.TargetPath, true).Path);
-            return new BindingSource(provider.ObserverProvider.Observe(src, BindingPath.Empty, false));
+            return new BindingSource(BindingServiceProvider.ObserverProvider.Observe(src, BindingPath.Empty, false));
         }
 
         #endregion

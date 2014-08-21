@@ -150,6 +150,7 @@
     <Compile Include="Interfaces\Models\IHasDisplayName.cs" />
     <Compile Include="Interfaces\Models\IHasOperationResult.cs" />
     <Compile Include="Interfaces\Models\IHasState.cs" />
+    <Compile Include="Interfaces\Models\IHasWeakReference.cs" />
     <Compile Include="Interfaces\Models\IModuleContext.cs" />
     <Compile Include="Interfaces\Models\IObservable.cs" />
     <Compile Include="Interfaces\Models\IRelayCommand.cs" />

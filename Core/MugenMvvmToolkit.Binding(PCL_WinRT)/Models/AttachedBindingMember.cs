@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Core;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 
@@ -99,6 +99,7 @@ namespace MugenMvvmToolkit.Binding.Models
             private readonly bool _canRead;
             private readonly bool _canWrite;
             private readonly string _id;
+            private readonly bool _isAttachedProperty;
 
             #endregion
 
@@ -114,6 +115,7 @@ namespace MugenMvvmToolkit.Binding.Models
             {
                 _memberChangedHandler = memberChangedHandler;
                 _defaultValue = defaultValue;
+                _isAttachedProperty = true;
             }
 
             /// <summary>
@@ -255,6 +257,10 @@ namespace MugenMvvmToolkit.Binding.Models
             /// <returns>The member value of the specified object.</returns>
             public TType GetValue(TTarget source, object[] args)
             {
+                if (_isAttachedProperty && _memberAttachedHandler == null && _defaultValue == null &&
+                    !ServiceProvider.AttachedValueProvider.Contains(source, Id))
+                    return default(TType);
+
                 if (_memberAttachedHandler != null)
                     RaiseAttached(source);
                 return _getValue(this, source, args);
@@ -566,7 +572,7 @@ namespace MugenMvvmToolkit.Binding.Models
             IEventListener arg3)
         {
             string eventName = ((IAttachedBindingMemberInternal)member).MemberChangeEventName;
-            return BindingProvider.Instance.WeakEventManager.TrySubscribe(source, eventName, arg3);
+            return BindingServiceProvider.WeakEventManager.TrySubscribe(source, eventName, arg3);
         }
 
         private static EventListenerList EventListenerListFactoryMethod(object item, object state)

@@ -1,19 +1,71 @@
-﻿using System;
+﻿#region Copyright
+// ****************************************************************************
+// <copyright file="EventListenerList.cs">
+// Copyright © Vyacheslav Volkov 2012-2014
+// </copyright>
+// ****************************************************************************
+// <author>Vyacheslav Volkov</author>
+// <email>vvs0205@outlook.com</email>
+// <project>MugenMvvmToolkit</project>
+// <web>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</web>
+// <license>
+// See license.txt in this solution or http://opensource.org/licenses/MS-PL
+// </license>
+// ****************************************************************************
+#endregion
+using System;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Utils;
 
-namespace MugenMvvmToolkit.Binding.Models
+namespace MugenMvvmToolkit.Binding.Infrastructure
 {
     /// <summary>
     ///     Represents the weak collection of <see cref="IEventListener" />.
     /// </summary>
     public class EventListenerList
     {
-        #region Fields
+        #region Nested types
 
-        internal static readonly Action<object> UnsubscribeListenerDelegate;
+        internal sealed class Unsubscriber : IDisposable
+        {
+            #region Fields
+
+            private EventListenerList _eventListener;
+            private object _weakItem;
+
+            #endregion
+
+            #region Constructors
+
+            public Unsubscriber(EventListenerList eventListener, object weakItem)
+            {
+                _eventListener = eventListener;
+                _weakItem = weakItem;
+            }
+
+            #endregion
+
+            #region Implementation of IDisposable
+
+            public void Dispose()
+            {
+                var listener = _eventListener;
+                var weakItem = _weakItem;
+                if (listener != null && weakItem != null)
+                {
+                    _eventListener = null;
+                    _weakItem = null;
+                    listener.Remove(weakItem);
+                }
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region Fields
 
         //Use an array to reduce the cost of memory and do not lock during a call event.
         protected object[] Listeners;
@@ -21,11 +73,6 @@ namespace MugenMvvmToolkit.Binding.Models
         #endregion
 
         #region Constructors
-
-        static EventListenerList()
-        {
-            UnsubscribeListenerDelegate = UnsubscribeListener;
-        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="EventListenerList" /> class.
@@ -123,7 +170,7 @@ namespace MugenMvvmToolkit.Binding.Models
                     Update(weakItem);
             }
             if (withUnsubscriber)
-                return new ActionToken(UnsubscribeListenerDelegate, new[] { this, weakItem });
+                return new Unsubscriber(this, weakItem);
             return null;
         }
 
@@ -172,12 +219,6 @@ namespace MugenMvvmToolkit.Binding.Models
         protected virtual void OnEmpty()
         {
             Listeners = EmptyValue<object>.ArrayInstance;
-        }
-
-        private static void UnsubscribeListener(object state)
-        {
-            var array = (object[])state;
-            ((EventListenerList)array[0]).Remove(array[1]);
         }
 
         #endregion

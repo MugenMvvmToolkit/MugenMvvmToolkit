@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
@@ -147,14 +146,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     _pathMembers = UnsetBindingPathMembers.Instance;
                 else
                 {
-                    IBindingMemberInfo lastMember = BindingProvider
-                        .Instance
+                    IBindingMemberInfo lastMember = BindingServiceProvider
                         .MemberProvider
                         .GetBindingMember(source.GetType(), Path.Path, _ignoreAttachedMembers, true);
                     _pathMembers = new SingleBindingPathMembers(
                         OriginalSource as WeakReference ?? ServiceProvider.WeakReferenceFactory(source, true), Path,
                         lastMember);
-                    _weakEventListener = TryAddEventHandler(source, lastMember, this, Path.Path);
+                    _weakEventListener = TryObserveMember(source, lastMember, this, Path.Path);
                 }
             }
             catch (Exception)

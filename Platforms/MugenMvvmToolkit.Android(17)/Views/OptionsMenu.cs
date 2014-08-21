@@ -19,6 +19,7 @@ using Android.Content;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -44,7 +45,7 @@ namespace MugenMvvmToolkit.Views
             SetMinimumWidth(0);
             SetMinimumHeight(0);
             base.Visibility = ViewStates.Gone;
-            base.Id = Resource.Id.OptionsMenu;            
+            base.Id = Resource.Id.OptionsMenu;
         }
 
         #endregion
@@ -54,8 +55,7 @@ namespace MugenMvvmToolkit.Views
         public void Inflate(Activity activity, IMenu menu)
         {
             _currentMenu = menu;
-            IBindingMemberInfo bindingMember = BindingProvider
-                .Instance
+            IBindingMemberInfo bindingMember = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(typeof(OptionsMenu), AttachedMemberNames.MenuTemplate, false, true);
             var value = (int)bindingMember.GetValue(this, null);
@@ -63,7 +63,7 @@ namespace MugenMvvmToolkit.Views
             if (_bindings != null)
             {
                 foreach (string binding in _bindings)
-                    BindingProvider.Instance.CreateBindingsFromString(menu, binding, null);
+                    BindingServiceProvider.BindingProvider.CreateBindingsFromString(menu, binding, null);
             }
         }
 

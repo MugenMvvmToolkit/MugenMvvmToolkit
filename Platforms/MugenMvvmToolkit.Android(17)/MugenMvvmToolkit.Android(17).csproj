@@ -95,6 +95,7 @@
     <Compile Include="Infrastructure\AttachedMembers\AttachedMembersModuleActionBar.cs" />
     <Compile Include="Infrastructure\BindableMenuInflater.cs" />
     <Compile Include="Infrastructure\AndroidBootstrapperBase.cs" />
+    <Compile Include="Infrastructure\BindingErrorProvider.cs" />
     <Compile Include="Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs" />
     <Compile Include="Infrastructure\GlobalViewParentListener.cs" />
     <Compile Include="Infrastructure\InitializationModule.cs" />

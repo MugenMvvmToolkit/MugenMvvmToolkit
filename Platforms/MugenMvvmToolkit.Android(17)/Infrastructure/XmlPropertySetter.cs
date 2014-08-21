@@ -75,12 +75,12 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 if (value.StartsWith("{"))
                 {
-                    BindingProvider.Instance.CreateBindingFromString(_target, propertyName, ToBindingString(value));
+                    BindingServiceProvider.BindingProvider.CreateBindingFromString(_target, propertyName, ToBindingString(value));
                     return;
                 }
                 objectToSet = value;
             }
-            var member = BindingProvider.Instance.MemberProvider.GetBindingMember(typeof(TTarget), propertyName, false, true);
+            var member = BindingServiceProvider.MemberProvider.GetBindingMember(typeof(TTarget), propertyName, false, true);
             member.SetValue(_target, new[] { convertAction == null ? objectToSet : convertAction(objectToSet) });
         }
 
@@ -98,12 +98,12 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 if (value.StartsWith("{"))
                 {
-                    BindingProvider.Instance.CreateBindingFromString(_target, propertyName, ToBindingString(value));
+                    BindingServiceProvider.BindingProvider.CreateBindingFromString(_target, propertyName, ToBindingString(value));
                     return;
                 }
                 objectToSet = value;
             }
-            var member = BindingProvider.Instance.MemberProvider.GetBindingMember(typeof(TTarget), propertyName, false, true);
+            var member = BindingServiceProvider.MemberProvider.GetBindingMember(typeof(TTarget), propertyName, false, true);
             member.SetValue(_target, new[] { objectToSet });
         }
 
@@ -120,7 +120,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     return;
                 value = string.Empty;
             }
-            BindingProvider.Instance.CreateBindingFromString(_target, propertyName, ToBindingString(value));
+            BindingServiceProvider.BindingProvider.CreateBindingFromString(_target, propertyName, ToBindingString(value));
         }
 
         private string TryGetResourceAsString(string value)

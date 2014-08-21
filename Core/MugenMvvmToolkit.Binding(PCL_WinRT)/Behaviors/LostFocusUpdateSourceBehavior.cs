@@ -14,12 +14,10 @@
 // ****************************************************************************
 #endregion
 using System;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
-using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
@@ -67,7 +65,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             object value = Binding.TargetAccessor.Source.GetPathMembers(false).PenultimateValue;
             if (value == null || value.IsUnsetValue())
                 return false;
-            _member = BindingProvider.Instance
+            _member = BindingServiceProvider
                                      .MemberProvider
                                      .GetBindingMember(value.GetType(), AttachedMemberConstants.Focused, false, false);
 

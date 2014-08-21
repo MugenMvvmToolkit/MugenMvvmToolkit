@@ -45,10 +45,10 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
 
-            IBindingSource source = sources.Single().Invoke(BindingProvider.Instance, context);
+            IBindingSource source = sources.Single().Invoke(context);
             BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
             var sourceObj = new BindingSourceModel();
-            BindingProvider.Instance.ContextManager.GetBindingContext(targetObj).Value = sourceObj;
+            BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = sourceObj;
             BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
         }
 
@@ -67,7 +67,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var target = new object();
             context.Add(BindingBuilderConstants.Target, target);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(BindingProvider.Instance, context);
+            IBindingSource source = sources.Single().Invoke(context);
             BindingSourceShouldBeValidDataContext(target, source, sourcePath);
         }
 
@@ -86,7 +86,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new BindingSourceModel();
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(BindingProvider.Instance, context);
+            IBindingSource source = sources.Single().Invoke(context);
             BindingSourceShouldBeValid(source, sourcePath, targetObj);
         }
 
@@ -105,7 +105,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new BindingSourceModel();
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(BindingProvider.Instance, context);
+            IBindingSource source = sources.Single().Invoke(context);
             BindingSourceShouldBeValid(source, sourcePath, targetObj);
         }
 
@@ -155,7 +155,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
 
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(BindingProvider.Instance, context);
+            IBindingSource source = sources.Single().Invoke(context);
             source.Path.Path.ShouldContain(sourcePath);
             isInvoked.ShouldBeTrue();
 
@@ -211,7 +211,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
 
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(BindingProvider.Instance, context);
+            IBindingSource source = sources.Single().Invoke(context);
             source.Path.Path.ShouldContain(sourcePath);
             isInvoked.ShouldBeTrue();
 
@@ -267,7 +267,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
 
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(BindingProvider.Instance, context);
+            IBindingSource source = sources.Single().Invoke(context);
             source.Path.Path.ShouldContain(sourcePath);
             isInvoked.ShouldBeTrue();
 
@@ -321,7 +321,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
 
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(BindingProvider.Instance, context);
+            IBindingSource source = sources.Single().Invoke(context);
             source.Path.Path.ShouldContain(sourcePath);
             isInvoked.ShouldBeTrue();
 
@@ -375,7 +375,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
 
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(BindingProvider.Instance, context);
+            IBindingSource source = sources.Single().Invoke(context);
             source.Path.Path.ShouldContain(sourcePath);
             isInvoked.ShouldBeTrue();
 
@@ -429,7 +429,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
 
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(BindingProvider.Instance, context);
+            IBindingSource source = sources.Single().Invoke(context);
             source.Path.Path.ShouldContain(sourcePath);
             isInvoked.ShouldBeTrue();
 
@@ -461,9 +461,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var objTarget = new object();
             context.Add(BindingBuilderConstants.Target, objTarget);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(objTarget, sources[0].Invoke(BindingProvider.Instance, context),
+            BindingSourceShouldBeValidDataContext(objTarget, sources[0].Invoke(context),
                 sourcePath1);
-            BindingSourceShouldBeValidDataContext(objTarget, sources[1].Invoke(BindingProvider.Instance, context),
+            BindingSourceShouldBeValidDataContext(objTarget, sources[1].Invoke(context),
                 sourcePath2);
         }
 
@@ -489,9 +489,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var objTarget = new object();
             context.Add(BindingBuilderConstants.Target, objTarget);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(objTarget, sources[0].Invoke(BindingProvider.Instance, context),
+            BindingSourceShouldBeValidDataContext(objTarget, sources[0].Invoke(context),
                 sourcePath1);
-            BindingSourceShouldBeValidDataContext(objTarget, sources[1].Invoke(BindingProvider.Instance, context),
+            BindingSourceShouldBeValidDataContext(objTarget, sources[1].Invoke(context),
                 sourcePath2);
         }
 
@@ -515,8 +515,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new object();
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(BindingProvider.Instance, context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(BindingProvider.Instance, context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
         }
 
         [TestMethod]
@@ -551,9 +551,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new object();
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(BindingProvider.Instance, context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(BindingProvider.Instance, context), sourcePath2);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[2].Invoke(BindingProvider.Instance, context), sourcePath3);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[2].Invoke(context), sourcePath3);
         }
 
         [TestMethod]
@@ -586,9 +586,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new object();
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(BindingProvider.Instance, context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(BindingProvider.Instance, context), sourcePath2);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[2].Invoke(BindingProvider.Instance, context), sourcePath3);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[2].Invoke(context), sourcePath3);
         }
 
         [TestMethod]
@@ -613,10 +613,10 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new object();
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(BindingProvider.Instance, context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(BindingProvider.Instance, context), sourcePath2);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[2].Invoke(BindingProvider.Instance, context), sourcePath3);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[3].Invoke(BindingProvider.Instance, context), sourcePath4);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[2].Invoke(context), sourcePath3);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[3].Invoke(context), sourcePath4);
         }
 
         [TestMethod]
@@ -641,10 +641,10 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new object();
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(BindingProvider.Instance, context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(BindingProvider.Instance, context), sourcePath2);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[2].Invoke(BindingProvider.Instance, context), sourcePath3);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[3].Invoke(BindingProvider.Instance, context), sourcePath4);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[2].Invoke(context), sourcePath3);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[3].Invoke(context), sourcePath4);
         }
 
         [TestMethod]
@@ -668,7 +668,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new object();
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(BindingProvider.Instance, context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
         }
 
         [TestMethod]
@@ -692,7 +692,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new object();
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(BindingProvider.Instance, context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
         }
 
         [TestMethod]
@@ -708,7 +708,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
 
             var provider = new BindingProvider();
             var resolver = new BindingResourceResolver();
-            provider.ResourceResolver = resolver;
+            BindingServiceProvider.ResourceResolver = resolver;
             var method = new BindingResourceMethod((list, objects, c) =>
             {
                 objects[0].ShouldEqual(args[0]);
@@ -729,8 +729,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new object();
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(BindingProvider.Instance, context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(BindingProvider.Instance, context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
         }
 
         [TestMethod]
@@ -745,7 +745,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
 
             var provider = new BindingProvider();
             var resolver = new BindingResourceResolver();
-            provider.ResourceResolver = resolver;
+            BindingServiceProvider.ResourceResolver = resolver;
             resolver.AddObject(objectName, new BindingResourceObject(10), true);
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: provider);
 
@@ -759,8 +759,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new object();
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(BindingProvider.Instance, context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(BindingProvider.Instance, context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
         }
 
         [TestMethod]
@@ -775,7 +775,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
 
             var provider = new BindingProvider();
             var resolver = new BindingResourceResolver();
-            provider.ResourceResolver = resolver;
+            BindingServiceProvider.ResourceResolver = resolver;
             resolver.AddObject(objectName, new BindingResourceObject(10), true);
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: provider);
 
@@ -789,8 +789,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new object();
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(BindingProvider.Instance, context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(BindingProvider.Instance, context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
         }
 
         [TestMethod]
@@ -808,7 +808,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
 
             var provider = new BindingProvider();
             var resolver = new BindingResourceResolver();
-            provider.ResourceResolver = resolver;
+            BindingServiceProvider.ResourceResolver = resolver;
             resolver.AddObject(objectName, expressionObject, true);
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: provider);
 
@@ -822,9 +822,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new object();
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(BindingProvider.Instance, context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(BindingProvider.Instance, context), sourcePath2);
-            BindingSourceShouldBeValid(sources[2].Invoke(BindingProvider.Instance, context), sourcePath3, tuple);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
+            BindingSourceShouldBeValid(sources[2].Invoke(context), sourcePath3, tuple);
         }
 
         [TestMethod]
@@ -840,7 +840,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
 
             var provider = new BindingProvider();
             var resolver = new BindingResourceResolver();
-            provider.ResourceResolver = resolver;
+            BindingServiceProvider.ResourceResolver = resolver;
             resolver.AddObject(objectName, new BindingResourceObject(model), true);
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: provider);
 
@@ -854,9 +854,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new object();
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(BindingProvider.Instance, context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(BindingProvider.Instance, context), sourcePath2);
-            BindingSourceShouldBeValid(sources[2].Invoke(BindingProvider.Instance, context),
+            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
+            BindingSourceShouldBeValid(sources[2].Invoke(context),
                 GetMemberPath(model, sourceModel => sourceModel.IntProperty), model);
         }
 
@@ -893,7 +893,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
             var provider = new BindingProvider();
             var resolver = new BindingResourceResolver();
-            provider.ResourceResolver = resolver;
+            BindingServiceProvider.ResourceResolver = resolver;
             resolver.AddConverter(converterName, converterMock, true);
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: provider);
 
@@ -909,8 +909,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new object();
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(BindingProvider.Instance, context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(BindingProvider.Instance, context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
         }
 
         [TestMethod]
@@ -932,7 +932,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new object();
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(BindingProvider.Instance, context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
         }
 
         [TestMethod]
@@ -954,7 +954,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new object();
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(BindingProvider.Instance, context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
         }
 
         [TestMethod]
@@ -976,7 +976,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var targetObj = new object();
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(BindingProvider.Instance, context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
         }
 
         [TestMethod]
@@ -1009,8 +1009,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var value = new TwoWayBindingMode();
             var resolver = new BindingResourceResolver();
             resolver.AddBehavior(behaviorName, (dataContext, list) => value, true);
-            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider { ResourceResolver = resolver });
-
+            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
+            BindingServiceProvider.ResourceResolver = resolver;
             var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
             context.GetData(BindingBuilderConstants.Behaviors).Single().ShouldBeType<TwoWayBindingMode>();
         }
@@ -1023,7 +1023,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var value = new TwoWayBindingMode();
             var resolver = new BindingResourceResolver();
             resolver.AddBehavior(behaviorName, (dataContext, list) => value, true);
-            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider { ResourceResolver = resolver });
+            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
+            BindingServiceProvider.ResourceResolver = resolver;
 
             var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
             context.GetData(BindingBuilderConstants.Behaviors).IsNullOrEmpty().ShouldBeTrue();
@@ -1085,7 +1086,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var value = new InverseBooleanConverterCore();
             var resolver = new BindingResourceResolver();
             resolver.AddConverter(converterName, value, true);
-            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider { ResourceResolver = resolver });
+            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
+            BindingServiceProvider.ResourceResolver = resolver;
 
             var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
             context.GetData(BindingBuilderConstants.Converter).Invoke(EmptyContext).ShouldEqual(value);
@@ -1112,7 +1114,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             context.GetData(BindingBuilderConstants.Converter)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
-            BindingProvider.Instance.ContextManager.GetBindingContext(target).Value = sourceObj;
+            BindingServiceProvider.ContextManager.GetBindingContext(target).Value = sourceObj;
             context.GetData(BindingBuilderConstants.Converter)
                 .Invoke(EmptyContext)
                 .ShouldEqual(sourceObj.ObjectProperty);
@@ -1125,7 +1127,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var value = new InverseBooleanConverterCore();
             var resolver = new BindingResourceResolver();
             resolver.AddObject("param", new BindingResourceObject(value), true);
-            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider { ResourceResolver = resolver });
+            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
+            BindingServiceProvider.ResourceResolver = resolver;
+
             var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
             context.GetData(BindingBuilderConstants.Converter)
                 .Invoke(EmptyContext)
@@ -1153,7 +1157,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             context.GetData(BindingBuilderConstants.ConverterParameter)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
-            BindingProvider.Instance.ContextManager.GetBindingContext(target).Value = sourceObj;
+            BindingServiceProvider.ContextManager.GetBindingContext(target).Value = sourceObj;
             context.GetData(BindingBuilderConstants.ConverterParameter)
                 .Invoke(EmptyContext)
                 .ShouldEqual(sourceObj.ObjectProperty);
@@ -1180,7 +1184,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             context.GetData(BindingBuilderConstants.ConverterParameter)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
-            BindingProvider.Instance.ContextManager.GetBindingContext(target).Value = sourceObj;
+            BindingServiceProvider.ContextManager.GetBindingContext(target).Value = sourceObj;
             context.GetData(BindingBuilderConstants.ConverterParameter)
                 .Invoke(EmptyContext)
                 .ShouldEqual(sourceObj.ObjectProperty);
@@ -1205,7 +1209,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text Text, ConverterParameter=$param";
             var resolver = new BindingResourceResolver();
             resolver.AddObject("param", new BindingResourceObject(value), true);
-            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider { ResourceResolver = resolver });
+            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
+            BindingServiceProvider.ResourceResolver = resolver;
+
             var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
             context.GetData(BindingBuilderConstants.ConverterParameter)
                 .Invoke(EmptyContext)
@@ -1233,7 +1239,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             context.GetData(BindingBuilderConstants.Fallback)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
-            BindingProvider.Instance.ContextManager.GetBindingContext(target).Value = sourceObj;
+            BindingServiceProvider.ContextManager.GetBindingContext(target).Value = sourceObj;
             context.GetData(BindingBuilderConstants.Fallback)
                 .Invoke(EmptyContext)
                 .ShouldEqual(sourceObj.ObjectProperty);
@@ -1258,7 +1264,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text Text, Fallback=$param";
             var resolver = new BindingResourceResolver();
             resolver.AddObject("param", new BindingResourceObject(value), true);
-            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider { ResourceResolver = resolver });
+            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
+            BindingServiceProvider.ResourceResolver = resolver;
+
             var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
             context.GetData(BindingBuilderConstants.Fallback)
                 .Invoke(EmptyContext)
@@ -1283,7 +1291,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text Text, TargetNullValue=$param";
             var resolver = new BindingResourceResolver();
             resolver.AddObject("param", new BindingResourceObject(value), true);
-            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider { ResourceResolver = resolver });
+            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
+            BindingServiceProvider.ResourceResolver = resolver;
+
             var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
             context.GetData(BindingBuilderConstants.TargetNullValue)
                 .ShouldEqual(value);
@@ -1310,7 +1320,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             context.GetData(BindingBuilderConstants.CommandParameter)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
-            BindingProvider.Instance.ContextManager.GetBindingContext(target).Value = sourceObj;
+            BindingServiceProvider.ContextManager.GetBindingContext(target).Value = sourceObj;
             context.GetData(BindingBuilderConstants.CommandParameter)
                 .Invoke(EmptyContext)
                 .ShouldEqual(sourceObj.ObjectProperty);
@@ -1337,7 +1347,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             context.GetData(BindingBuilderConstants.CommandParameter)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
-            BindingProvider.Instance.ContextManager.GetBindingContext(target).Value = sourceObj;
+            BindingServiceProvider.ContextManager.GetBindingContext(target).Value = sourceObj;
             context.GetData(BindingBuilderConstants.CommandParameter)
                 .Invoke(EmptyContext)
                 .ShouldEqual(sourceObj.ObjectProperty);
@@ -1362,7 +1372,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text Text, CommandParameter=$param";
             var resolver = new BindingResourceResolver();
             resolver.AddObject("param", new BindingResourceObject(value), true);
-            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider { ResourceResolver = resolver });
+            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
+            BindingServiceProvider.ResourceResolver = resolver;
+
             var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
             context.GetData(BindingBuilderConstants.CommandParameter)
                 .Invoke(EmptyContext)
@@ -1390,7 +1402,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             context.GetData(BindingBuilderConstants.ConverterCulture)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
-            BindingProvider.Instance.ContextManager.GetBindingContext(target).Value = sourceObj;
+            BindingServiceProvider.ContextManager.GetBindingContext(target).Value = sourceObj;
             context.GetData(BindingBuilderConstants.ConverterCulture)
                 .Invoke(EmptyContext)
                 .ShouldEqual(sourceObj.ObjectProperty);
@@ -1416,7 +1428,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var cultureInfo = new CultureInfo("ru-RU");
             var resolver = new BindingResourceResolver();
             resolver.AddObject("param", new BindingResourceObject(cultureInfo), true);
-            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider { ResourceResolver = resolver });
+            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
+            BindingServiceProvider.ResourceResolver = resolver;
+
             var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
             context.GetData(BindingBuilderConstants.ConverterCulture)
                 .Invoke(EmptyContext)
@@ -1426,7 +1440,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         private static void BindingSourceShouldBeValidDataContext(object target, IBindingSource bindingSource, string path)
         {
             BindingSourceShouldBeValid(bindingSource, path,
-                BindingProvider.Instance.ContextManager.GetBindingContext(target).Value);
+                BindingServiceProvider.ContextManager.GetBindingContext(target).Value);
         }
 
         private static void BindingSourceShouldBeValid(IBindingSource bindingSource, string path, object source)
@@ -1449,11 +1463,11 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         {
             if (bindingProvider == null)
                 bindingProvider = new BindingProvider();
-            BindingProvider.Instance = bindingProvider;
+            BindingServiceProvider.BindingProvider = bindingProvider;
             if (treeManager != null)
-                BindingProvider.Instance.VisualTreeManager = treeManager;
+                BindingServiceProvider.VisualTreeManager = treeManager;
             if (observerProvider != null)
-                BindingProvider.Instance.ObserverProvider = observerProvider;
+                BindingServiceProvider.ObserverProvider = observerProvider;
             return new BindingParser();
         }
 

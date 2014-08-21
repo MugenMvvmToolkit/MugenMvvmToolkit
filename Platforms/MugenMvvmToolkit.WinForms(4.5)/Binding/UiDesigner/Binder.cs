@@ -22,7 +22,6 @@ using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 
 namespace MugenMvvmToolkit.Binding.UiDesigner
@@ -105,7 +104,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
         private void BindControls()
         {
             SetBindings(Bindings);
-            IBindingProvider bindingProvider = BindingProvider.Instance;
+            IBindingProvider bindingProvider = BindingServiceProvider.BindingProvider;
             foreach (var controlBinding in _controlBindings)
             {
                 string value;
@@ -184,7 +183,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             }
             if (ContainerControl == null || ContainerControl.Name == name)
                 return ContainerControl;
-            var findByName = BindingProvider.Instance.VisualTreeManager.FindByName(ContainerControl, name);
+            var findByName = BindingServiceProvider.VisualTreeManager.FindByName(ContainerControl, name);
             if (findByName != null)
                 return findByName;
 

@@ -99,6 +99,9 @@
     <Compile Include="..\mugenmvvmtoolkit.binding.wpf%284.5%29\infrastructure\BindingContextManagerEx.cs">
       <Link>Infrastructure\BindingContextManagerEx.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Infrastructure\BindingErrorProvider.cs">
+      <Link>Infrastructure\BindingErrorProvider.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding.wpf%284.5%29\infrastructure\BindingMemberProviderEx.cs">
       <Link>Infrastructure\BindingMemberProviderEx.cs</Link>
     </Compile>

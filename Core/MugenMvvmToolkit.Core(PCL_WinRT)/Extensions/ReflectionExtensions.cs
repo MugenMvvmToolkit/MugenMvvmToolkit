@@ -20,6 +20,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
@@ -66,7 +67,7 @@ namespace MugenMvvmToolkit
                 Should.NotBeNull(invokeAction, "invokeAction");
                 _invokeAction = invokeAction;
                 _unsubscribeAction = unsubscribeAction;
-                _targetReference = ServiceProvider.WeakReferenceFactory(target, true);
+                _targetReference = MvvmExtensions.GetWeakReference(target);
             }
 
             #endregion

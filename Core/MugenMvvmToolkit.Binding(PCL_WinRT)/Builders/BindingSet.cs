@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Syntax;
 using MugenMvvmToolkit.Models;
@@ -47,7 +46,7 @@ namespace MugenMvvmToolkit.Binding.Builders
             Should.NotBeNull(target, "target");
             _target = target;
             _builders = new List<IBindingBuilder>();
-            _bindingProvider = bindingProvider ?? BindingProvider.Instance;
+            _bindingProvider = bindingProvider ?? BindingServiceProvider.BindingProvider;
         }
 
         #endregion

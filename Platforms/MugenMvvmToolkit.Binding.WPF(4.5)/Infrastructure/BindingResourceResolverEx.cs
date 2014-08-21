@@ -198,7 +198,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 if (target != null)
                 {
-                    var rootMember = BindingProvider.Instance.VisualTreeManager.GetRootMember(target.GetType());
+                    var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
                     if (rootMember != null)
                         return new XamlUnresolvedResource(target, name, rootMember);
                 }

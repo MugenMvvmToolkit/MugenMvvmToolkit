@@ -32,15 +32,6 @@ namespace MugenMvvmToolkit.Infrastructure
     /// </summary>
     public abstract class InitializationModuleBase : ModuleBase
     {
-        #region Fields
-
-        /// <summary>
-        ///     Gets the default priority of initialization module.
-        /// </summary>
-        public const int InitializationModulePriority = DefaultPriority + 10;
-
-        #endregion
-
         #region Constructors
 
         /// <summary>

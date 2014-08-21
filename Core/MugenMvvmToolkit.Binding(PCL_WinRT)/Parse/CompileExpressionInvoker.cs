@@ -21,7 +21,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
@@ -262,7 +261,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         protected virtual object InvokeDynamicMethod(string methodName, IDataContext context, IList<Type> typeArgs, object[] items)
         {
-            var resourceMethod = BindingProvider.Instance.ResourceResolver.ResolveMethod(methodName, context, false);
+            var resourceMethod = BindingServiceProvider.ResourceResolver.ResolveMethod(methodName, context, false);
             if (resourceMethod != null)
                 return resourceMethod.Invoke(typeArgs, items, context);
 
@@ -270,7 +269,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             Type targetType = binding == null
                 ? typeof(object)
                 : binding.TargetAccessor.Source.GetPathMembers(false).LastMember.Type;
-            var converter = BindingProvider.Instance.ResourceResolver.ResolveConverter(methodName, context, true);
+            var converter = BindingServiceProvider.ResourceResolver.ResolveConverter(methodName, context, true);
             return converter.Convert(items[0], targetType, items.Length > 1 ? items[1] : null,
                 items.Length > 2 ? (CultureInfo)items[2] : CultureInfo.CurrentCulture);
         }
@@ -427,8 +426,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                     .Select(node => ExpressionReflectionManager.ConvertIfNeed(BuildExpression(node), typeof(object), false));
                 var arrayArg = Expression.NewArrayInit(typeof(object), parameters);
                 Type returnType = typeof(object);
-                var dynamicMethod = BindingProvider
-                    .Instance
+                var dynamicMethod = BindingServiceProvider
                     .ResourceResolver
                     .ResolveMethod(methodCall.Method, _dataContext, false);
                 if (dynamicMethod != null)
@@ -446,7 +444,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 .ToArrayFast(node => new ArgumentData(node, node.NodeType == ExpressionNodeType.Lambda ? null : BuildExpression(node), null));
 
             var method = targetData
-                .FindMethod(methodCall.Method, typeArgs, args, BindingProvider.Instance.ResourceResolver.GetKnownTypes(), target == null);
+                .FindMethod(methodCall.Method, typeArgs, args, BindingServiceProvider.ResourceResolver.GetKnownTypes(), target == null);
             return GenerateMethodCall(method, targetData, args);
         }
 
@@ -571,7 +569,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             if (types.IsNullOrEmpty())
                 return EmptyValue<Type>.ArrayInstance;
-            var resolver = BindingProvider.Instance.ResourceResolver;
+            var resolver = BindingServiceProvider.ResourceResolver;
             var typeArgs = new Type[types.Count];
             for (int i = 0; i < types.Count; i++)
                 typeArgs[i] = resolver.ResolveType(types[i], _dataContext, true);

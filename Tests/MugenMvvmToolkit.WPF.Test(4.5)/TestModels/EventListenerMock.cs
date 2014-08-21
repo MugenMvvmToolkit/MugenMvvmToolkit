@@ -1,5 +1,6 @@
 ﻿using System;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Test.TestModels
 {

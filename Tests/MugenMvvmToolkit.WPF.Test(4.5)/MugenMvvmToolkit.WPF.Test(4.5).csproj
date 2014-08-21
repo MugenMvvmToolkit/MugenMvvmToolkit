@@ -153,6 +153,7 @@
     <Compile Include="Models\DefaultViewModelSettingsTest.cs" />
     <Compile Include="TestBase.cs" />
     <Compile Include="TestExtensions.cs" />
+    <Compile Include="TestInfrastructure\BindingErrorProviderMock.cs" />
     <Compile Include="TestInfrastructure\ConsoleTracer.cs" />
     <Compile Include="TestInfrastructure\DisplayNameProviderMock.cs" />
     <Compile Include="TestInfrastructure\EntitySnapshotMock.cs" />

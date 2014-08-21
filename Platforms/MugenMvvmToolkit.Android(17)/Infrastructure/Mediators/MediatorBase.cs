@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Android.OS;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -94,7 +95,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             get
             {
                 if (_context == null)
-                    _context = BindingProvider.Instance.ContextManager.GetBindingContext(_target);
+                    _context = BindingServiceProvider.ContextManager.GetBindingContext(_target);
                 return _context;
             }
         }
@@ -145,7 +146,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         protected void OnCreate(Bundle savedInstanceState)
         {
             if (_context == null)
-                _context = BindingProvider.Instance.ContextManager.GetBindingContext(_target);
+                _context = BindingServiceProvider.ContextManager.GetBindingContext(_target);
             if (savedInstanceState != null)
             {
                 var oldId = savedInstanceState.GetString(IdKey);

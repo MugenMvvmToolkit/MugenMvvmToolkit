@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Test.TestModels;
 using Should;
 

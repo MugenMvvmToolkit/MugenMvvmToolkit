@@ -21,7 +21,6 @@ using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -30,7 +29,6 @@ using MugenMvvmToolkit.Converters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
@@ -38,12 +36,10 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Fields
 
-        private const string ErrorProviderKey = "!@eprovider";
-
         internal readonly static IAttachedBindingMemberInfo<object, ICollectionViewManager> CollectionViewManagerMember;
+        internal readonly static IAttachedBindingMemberInfo<Control, bool> DisableValidationMember;
 
         private readonly static IAttachedBindingMemberInfo<object, IContentViewManager> ContentViewManagerMember;
-        private readonly static IAttachedBindingMemberInfo<Control, bool> DisableValidationMember;
         private readonly static IAttachedBindingMemberInfo<object, IEnumerable> ItemsSourceMember;
         private readonly static IAttachedBindingMemberInfo<Control, object> ContenMember;
         private readonly static IAttachedBindingMemberInfo<Control, IDataTemplateSelector> ContenTemplateMember;
@@ -84,8 +80,6 @@ namespace MugenMvvmToolkit.Infrastructure
             //Control
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<Control, object>(AttachedMemberConstants.FindByNameMethod, FindByNameControlMember, null));
-            memberProvider.Register(AttachedBindingMember
-                .CreateMember<Control, object>(AttachedMemberConstants.SetErrorsMethod, null, SetErrorValue));
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<Control, bool>(AttachedMemberConstants.Enabled,
                     (info, control, arg3) => control.Enabled, (info, control, arg3) => control.Enabled = (bool)arg3[0],
@@ -150,38 +144,6 @@ namespace MugenMvvmToolkit.Infrastructure
             UpdateContent(control, args.NewValue, ContenTemplateMember.GetValue(control, null));
         }
 
-        private static object SetErrorValue(IBindingMemberInfo bindingMemberInfo, Control control, IList<object> arg3)
-        {
-            if (DisableValidationMember.GetValue(control, null))
-                return null;
-            Control rootControl = PlatformExtensions.FindRootControl(control);
-            if (rootControl == null)
-                return null;
-
-            var errors = arg3[0] as IList<object> ?? EmptyValue<object>.ListInstance;
-            var errorProvider = GetErrorProvider(rootControl);
-            var setErrorsCustom = PlatformExtensions.SetControlErrorsDelegate;
-            if (setErrorsCustom == null)
-            {
-                object error = null;
-                if (errors != null && errors.Count > 0)
-                    error = errors[0];
-                errorProvider.SetError(control, error == null ? null : error.ToString());
-            }
-            else
-                setErrorsCustom(control, errorProvider, errors);
-            return null;
-        }
-
-        private static ErrorProvider GetErrorProvider(Control rootControl)
-        {
-            return ServiceProvider.AttachedValueProvider.GetOrAdd(rootControl, ErrorProviderKey,
-                (control, o) => new ErrorProvider
-                {
-                    ContainerControl = control.GetContainerControl() as ContainerControl,
-                }, null);
-        }
-
         private static void UpdateContent(Control container, object value, IDataTemplateSelector selector)
         {
             if (selector != null)
@@ -205,7 +167,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 };
 
             }
-            var viewManager = ContentViewManagerMember.GetValue(container, null);
+            IContentViewManager viewManager = ContentViewManagerMember.GetValue(container, null);
             if (viewManager == null)
             {
                 container.Controls.Clear();
@@ -225,7 +187,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static object FindByNameControlMember(IBindingMemberInfo bindingMemberInfo, Control control, IList<object> arg3)
         {
-            var root = PlatformExtensions.FindRootControl(control);
+            var root = PlatformExtensions.GetRootControl(control);
             if (root != null)
                 control = root;
             return control.Controls.Find((string)arg3[0], true).FirstOrDefault();
@@ -259,7 +221,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static IBindingMemberInfo GetObjectItemsSourceMember(object component)
         {
-            return BindingProvider.Instance.MemberProvider.GetBindingMember(component.GetType(),
+            return BindingServiceProvider.MemberProvider.GetBindingMember(component.GetType(),
                 AttachedMemberConstants.ItemsSource, true, false) ?? ItemsSourceMember;
         }
 
@@ -357,7 +319,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (tabControl.TabCount == 0 || tabControl.SelectedIndex < 0)
                 return null;
-            return BindingProvider.Instance
+            return BindingServiceProvider
                 .ContextManager
                 .GetBindingContext(tabControl.TabPages[tabControl.SelectedIndex]).Value;
         }
@@ -367,7 +329,7 @@ namespace MugenMvvmToolkit.Infrastructure
             var item = arg3[0];
             foreach (TabPage tabPage in tabControl.TabPages)
             {
-                if (Equals(BindingProvider.Instance.ContextManager.GetBindingContext(tabPage).Value, item))
+                if (Equals(BindingServiceProvider.ContextManager.GetBindingContext(tabPage).Value, item))
                 {
                     tabControl.SelectedTab = tabPage;
                     return null;
@@ -387,7 +349,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public int Priority
         {
-            get { return InitializationModuleBase.InitializationModulePriority - 10; }
+            get { return ModuleBase.BindingModulePriority; }
         }
 
         /// <summary>
@@ -395,7 +357,8 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public bool Load(IModuleContext context)
         {
-            Register(BindingProvider.Instance.MemberProvider);
+            Register(BindingServiceProvider.MemberProvider);
+            BindingServiceProvider.ErrorProvider = new BindingErrorProvider();
             return true;
         }
 

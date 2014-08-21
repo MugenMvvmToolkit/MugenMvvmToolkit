@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="AttachedMemberConstants.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,7 +13,9 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 namespace MugenMvvmToolkit.Binding
 {
     /// <summary>
@@ -54,11 +57,6 @@ namespace MugenMvvmToolkit.Binding
         ///     Gets the name of member that will be used by FindByName method.
         /// </summary>
         public const string FindByNameMethod = "#FindByName";
-
-        /// <summary>
-        ///     Gets the name of member that will be used by SetErrors method.
-        /// </summary>
-        public const string SetErrorsMethod = "#SetErrorsMemberName";
 
         /// <summary>
         ///     Gets the name of member that will be used by SetErrors method.

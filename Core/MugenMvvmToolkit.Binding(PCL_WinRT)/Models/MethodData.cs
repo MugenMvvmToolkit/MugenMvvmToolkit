@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using MugenMvvmToolkit.Binding.Infrastructure;
 
 namespace MugenMvvmToolkit.Binding.Models
 {

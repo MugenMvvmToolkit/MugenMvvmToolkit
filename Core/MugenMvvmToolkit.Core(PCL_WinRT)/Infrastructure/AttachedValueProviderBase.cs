@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.Infrastructure
             Should.NotBeNull(item, "item");
             Should.NotBeNull(path, "path");
             Should.NotBeNull(updateValueFactory, "updateValueFactory");
-            LightDictionaryBase<string, object> dictionary = GetOrAddAttachedValues(item, true);
+            LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, true);
             lock (dictionary)
             {
                 object value;
@@ -94,7 +94,7 @@ namespace MugenMvvmToolkit.Infrastructure
             Should.NotBeNull(path, "path");
             Should.NotBeNull(addValueFactory, "addValueFactory");
             Should.NotBeNull(updateValueFactory, "updateValueFactory");
-            LightDictionaryBase<string, object> dictionary = GetOrAddAttachedValues(item, true);
+            LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, true);
             lock (dictionary)
             {
                 object value;
@@ -129,7 +129,7 @@ namespace MugenMvvmToolkit.Infrastructure
             Should.NotBeNull(item, "item");
             Should.NotBeNull(path, "path");
             Should.NotBeNull(valueFactory, "valueFactory");
-            LightDictionaryBase<string, object> dictionary = GetOrAddAttachedValues(item, true);
+            LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, true);
             lock (dictionary)
             {
                 object oldValue;
@@ -157,7 +157,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             Should.NotBeNull(item, "item");
             Should.NotBeNull(path, "path");
-            LightDictionaryBase<string, object> dictionary = GetOrAddAttachedValues(item, true);
+            LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, true);
             lock (dictionary)
             {
                 object oldValue;
@@ -180,11 +180,11 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     When this method returns, contains the object from the
         ///     <see cref="IAttachedValueProvider" /> that has the specified property, or null value, if the operation failed.
         /// </param>
-        public bool TryGetValue<TValue>(object item, string path, out TValue value)
+        public virtual bool TryGetValue<TValue>(object item, string path, out TValue value)
         {
             Should.NotBeNull(item, "item");
             Should.NotBeNull(path, "path");
-            LightDictionaryBase<string, object> dictionary = GetOrAddAttachedValues(item, false);
+            LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, false);
             if (dictionary == null)
             {
                 value = default(TValue);
@@ -219,7 +219,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             Should.NotBeNull(item, "item");
             Should.NotBeNull(path, "path");
-            LightDictionaryBase<string, object> dictionary = GetOrAddAttachedValues(item, false);
+            LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, false);
             if (dictionary == null)
             {
                 if (throwOnError)
@@ -252,9 +252,24 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             Should.NotBeNull(item, "item");
             Should.NotBeNull(path, "path");
-            LightDictionaryBase<string, object> dictionary = GetOrAddAttachedValues(item, true);
+            LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, true);
             lock (dictionary)
                 dictionary[path] = value;
+        }
+
+        /// <summary>
+        ///     Determines whether the <see cref="IAttachedValueProvider" /> contains the specified key.
+        /// </summary>
+        /// <param name="item">The item of the value to set.</param>
+        /// <param name="path">The path of the value to set.</param>
+        public virtual bool Contains(object item, string path)
+        {
+            Should.NotBeNull(item, "item");
+            LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, false);
+            if (dictionary == null)
+                return false;
+            lock (dictionary)
+                return dictionary.ContainsKey(path);
         }
 
         /// <summary>
@@ -263,7 +278,7 @@ namespace MugenMvvmToolkit.Infrastructure
         public virtual IList<KeyValuePair<string, object>> GetValues(object item, Func<string, object, bool> predicate)
         {
             Should.NotBeNull(item, "item");
-            LightDictionaryBase<string, object> dictionary = GetOrAddAttachedValues(item, false);
+            LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, false);
             if (dictionary == null)
                 return EmptyValue<KeyValuePair<string, object>>.ArrayInstance;
             lock (dictionary)
@@ -294,7 +309,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public virtual bool Clear(object item, string path)
         {
-            LightDictionaryBase<string, object> dictionary = GetOrAddAttachedValues(item, false);
+            LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, false);
             if (dictionary == null)
                 return false;
             lock (dictionary)
@@ -321,7 +336,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Gets or adds the attached values container.
         /// </summary>
-        protected abstract LightDictionaryBase<string, object> GetOrAddAttachedValues(object item, bool addNew);
+        protected abstract LightDictionaryBase<string, object> GetOrAddAttachedDictionary(object item, bool addNew);
 
         #endregion
     }

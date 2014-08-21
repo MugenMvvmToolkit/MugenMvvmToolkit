@@ -138,11 +138,17 @@ namespace MugenMvvmToolkit.Interfaces
         void SetValue([NotNull] object item, [NotNull] string path, [CanBeNull] object value);
 
         /// <summary>
+        ///     Determines whether the <see cref="IAttachedValueProvider" /> contains the specified key.
+        /// </summary>
+        /// <param name="item">The item of the value to set.</param>
+        /// <param name="path">The path of the value to set.</param>
+        bool Contains([NotNull] object item, [NotNull] string path);
+
+        /// <summary>
         ///     Gets the property values for the specified item
         /// </summary>
         [NotNull]
-        IList<KeyValuePair<string, object>> GetValues([NotNull] object item,
-            [CanBeNull] Func<string, object, bool> predicate);
+        IList<KeyValuePair<string, object>> GetValues([NotNull] object item, [CanBeNull] Func<string, object, bool> predicate);
 
         /// <summary>
         ///     Clears all attached properties in the specified item.

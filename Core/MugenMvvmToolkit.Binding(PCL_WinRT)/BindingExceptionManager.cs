@@ -131,13 +131,6 @@ namespace MugenMvvmToolkit.Binding
                         node.ParameterName, node.Path));
         }
 
-        internal static Exception MissingEvent(object source, string eventName)
-        {
-            return
-                new InvalidOperationException(string.Format(
-                    "The source '{0}' does not contain an event with name '{1}'", source, eventName));
-        }
-
         internal static Exception InvalidBindingMemberExpression()
         {
             return
@@ -252,6 +245,13 @@ namespace MugenMvvmToolkit.Binding
                     type, path));
         }
 
-        #endregion
+        internal static Exception MissingEvent(object source, string eventName)
+        {
+            return
+                new InvalidOperationException(string.Format(
+                    "The source '{0}' does not contain an event with name '{1}'", source, eventName));
+        }
+
+        #endregion        
     }
 }

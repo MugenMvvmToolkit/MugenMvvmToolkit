@@ -179,7 +179,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     valueView = template as View;
                     if (valueView != null)
                     {
-                        BindingProvider.Instance
+                        BindingServiceProvider
                                        .ContextManager
                                        .GetBindingContext(valueView)
                                        .Value = value;
@@ -205,7 +205,7 @@ namespace MugenMvvmToolkit.Infrastructure
             var itemView = convertView as ListItemView;
             if (itemView == null || itemView.TemplateId != templateId)
                 convertView = CreateView(value, parent, templateId.Value);
-            BindingProvider.Instance.ContextManager.GetBindingContext(convertView).Value = value;
+            BindingServiceProvider.ContextManager.GetBindingContext(convertView).Value = value;
             return convertView;
         }
 

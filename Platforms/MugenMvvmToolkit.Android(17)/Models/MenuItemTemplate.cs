@@ -17,9 +17,10 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using Android.Content;
 using Android.Views;
-using MugenMvvmToolkit.Binding.Core;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Models
 {
@@ -195,7 +196,7 @@ namespace MugenMvvmToolkit.Models
         private void SetDataContext<T>(T target, Context context, object dataContext, bool useContext)
         {
             if (useContext)
-                BindingProvider.Instance.ContextManager.GetBindingContext(target).Value = dataContext;
+                BindingServiceProvider.ContextManager.GetBindingContext(target).Value = dataContext;
             else
                 new XmlPropertySetter<MenuItemTemplate, T>(target, context)
                     .SetBinding(template => template.DataContext, DataContext, false);

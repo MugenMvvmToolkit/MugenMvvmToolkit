@@ -143,7 +143,7 @@ namespace MugenMvvmToolkit.Infrastructure
             _tabHost.Setup();
             _tabToContent = new Dictionary<string, TabInfo>();
             _tabFactory = new TabFactory(this);
-            _selectedItemMember = BindingProvider.Instance
+            _selectedItemMember = BindingServiceProvider
                                                  .MemberProvider
                                                  .GetBindingMember(tabHost.GetType(), AttachedMemberConstants.SelectedItem, false, false);
             TryListenActivity(tabHost.Context);
@@ -325,7 +325,7 @@ namespace MugenMvvmToolkit.Infrastructure
             _tabToContent[id] = tabInfo;
             SetIndicator(spec, item);
             spec.SetContent(_tabFactory);
-            BindingProvider.Instance.ContextManager.GetBindingContext(spec).Value = item;
+            BindingServiceProvider.ContextManager.GetBindingContext(spec).Value = item;
             return tabInfo;
         }
 
@@ -345,7 +345,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (content == EmptyTemplateSelector.EmptyView)
             {
                 if (viewModel is IHasDisplayName)
-                    BindingProvider.Instance.CreateBindingsFromString(tabSpec, "Title DisplayName", null);
+                    BindingServiceProvider.BindingProvider.CreateBindingsFromString(tabSpec, "Title DisplayName", null);
                 else
                     tabSpec.SetIndicator(item.ToStringSafe("(null)"));
             }

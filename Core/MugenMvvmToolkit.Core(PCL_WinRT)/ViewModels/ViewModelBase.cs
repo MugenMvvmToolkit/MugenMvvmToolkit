@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.ViewModels
     ///     Represents the base class for all view models.
     /// </summary>
     [BaseViewModel(Priority = 9)]
-    public abstract class ViewModelBase : NotifyPropertyChangedBase, IViewModel, IHandler<object>
+    public abstract class ViewModelBase : NotifyPropertyChangedBase, IViewModel, IHandler<object>, IHasWeakReference
     {
         #region Fields
 
@@ -57,6 +57,7 @@ namespace MugenMvvmToolkit.ViewModels
         private int _disposed;
         private bool _customVmProvider;
         private bool _isRestored;
+        private WeakReference _weakReference;
 
         #endregion
 
@@ -350,6 +351,29 @@ namespace MugenMvvmToolkit.ViewModels
 
         #endregion
 
+        #region Implementation of IHasWeakReference
+
+        /// <summary>
+        ///     Gets the <see cref="System.WeakReference" /> of current object.
+        /// </summary>
+        WeakReference IHasWeakReference.WeakReference
+        {
+            get
+            {
+                if (_weakReference == null)
+                {
+                    lock (_disposeCancellationToken)
+                    {
+                        if (_weakReference == null)
+                            _weakReference = ServiceProvider.WeakReferenceFactory(this, true);
+                    }
+                }
+                return _weakReference;
+            }
+        }
+
+        #endregion
+
         #region Work with IoC
 
         /// <summary>
@@ -487,7 +511,7 @@ namespace MugenMvvmToolkit.ViewModels
             var parentViewModel = context.GetData(InitializationConstants.ParentViewModel);
             if (parentViewModel == null)
                 return;
-            Settings.Metadata.AddOrUpdate(ViewModelConstants.ParentViewModel, ServiceProvider.WeakReferenceFactory(parentViewModel, true));
+            Settings.Metadata.AddOrUpdate(ViewModelConstants.ParentViewModel, MvvmExtensions.GetWeakReference(parentViewModel));
             ObservationMode observationMode;
             if (!context.TryGetData(InitializationConstants.ObservationMode, out observationMode))
                 observationMode = ApplicationSettings.ViewModelObservationMode;

@@ -30,10 +30,12 @@ using MugenMvvmToolkit.Models;
 #if NET4
 using AttachedValueProviderDefault = MugenMvvmToolkit.Infrastructure.AttachedValueProvider;    
 #endif
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit
 {
+    /// <summary>
+    ///     Represents the service locator for MVVM infrastructure.
+    /// </summary>
     public static class ServiceProvider
     {
         #region Fields
@@ -164,7 +166,7 @@ namespace MugenMvvmToolkit
             {
 #if PCL_Silverlight
                 if (_attachedValueProvider == null)
-                    throw ExceptionManager.ObjectNotInitialized("AttachedValueProvider", typeof(IAttachedValueProvider));
+                    throw MugenMvvmToolkit.Utils.ExceptionManager.ObjectNotInitialized("AttachedValueProvider", typeof(IAttachedValueProvider));
 #else
                 if (_attachedValueProvider == null)
                     Interlocked.CompareExchange(ref _attachedValueProvider, new AttachedValueProviderDefault(), null);

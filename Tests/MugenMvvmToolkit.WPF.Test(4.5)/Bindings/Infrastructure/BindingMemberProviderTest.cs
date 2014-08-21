@@ -80,7 +80,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             const string path = AttachedMemberConstants.DataContext;
             var model = new BindingSourceModel();
             var contextMock = new BindingContextMock();
-            BindingProvider.Instance.ContextManager = new BindingContextManagerMock
+            BindingServiceProvider.ContextManager = new BindingContextManagerMock
             {
                 GetBindingContext = o => contextMock
             };

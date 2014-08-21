@@ -16,12 +16,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,7 +38,6 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
-using MugenMvvmToolkit.Models.Messages;
 using MugenMvvmToolkit.Utils;
 using MugenMvvmToolkit.ViewModels;
 
@@ -999,6 +996,17 @@ namespace MugenMvvmToolkit
 
         #region Extensions
 
+        /// <summary>
+        /// Gets or creates an instance of <see cref="WeakReference"/> for the specified item.
+        /// </summary>
+        public static WeakReference GetWeakReference(object item)
+        {
+            var hasWeak = item as IHasWeakReference;
+            if (hasWeak == null)
+                return ServiceProvider.WeakReferenceFactory(item, true);
+            return hasWeak.WeakReference;
+        }
+
         /// <returns>
         /// Gets the underlying view object.
         /// </returns>
@@ -1233,43 +1241,16 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Checks whether the properties are equal.
         /// </summary>
-        /// <param name="propertyChangedEvent">The specified property changed event.</param>
-        /// <param name="getProperty">The expression to get property.</param>
-        /// <returns>If true property is equal, otherwise false.</returns>
-        [Pure]
-        public static bool PropertyNameEqual<T>([NotNull] this PropertyChangedEventArgs propertyChangedEvent,
-            [NotNull] Expression<Func<T, object>> getProperty)
+        public static bool PropertyNameEqual(string changedProperty, string sourceProperty, bool emptySourcePathResult = false)
         {
-            Should.NotBeNull(propertyChangedEvent, "propertyChangedEvent");
-            return PropertyNameEqual(propertyChangedEvent.PropertyName, getProperty);
-        }
-
-        /// <summary>
-        ///     Checks whether the properties are equal.
-        /// </summary>
-        /// <param name="validationMessage">The specified property changed event.</param>
-        /// <param name="getProperty">The expression to get property.</param>
-        /// <returns>If true property equals, otherwise false.</returns>
-        [Pure]
-        public static bool PropertyNameEqual<T>([NotNull] this AsyncValidationMessage validationMessage,
-            [NotNull] Expression<Func<T, object>> getProperty)
-        {
-            Should.NotBeNull(validationMessage, "validationMessage");
-            return PropertyNameEqual(validationMessage.PropertyName, getProperty);
-        }
-
-        /// <summary>
-        ///     Checks whether the properties are equal.
-        /// </summary>
-        /// <param name="errorsChangedMessage">The specified property changed event.</param>
-        /// <param name="getProperty">The expression to get property.</param>
-        /// <returns>If true property equals, otherwise false.</returns>
-        [Pure]
-        public static bool PropertyNameEqual<T>([NotNull] this DataErrorsChangedMessage errorsChangedMessage,
-            [NotNull] Expression<Func<T, object>> getProperty)
-        {
-            Should.NotBeNull(errorsChangedMessage, "errorsChangedMessage");
-            return PropertyNameEqual(errorsChangedMessage.PropertyName, getProperty);
+            if (string.IsNullOrEmpty(changedProperty) || changedProperty.Equals(sourceProperty))
+                return true;
+            if (string.IsNullOrEmpty(sourceProperty))
+                return emptySourcePathResult;
+            if (sourceProperty.StartsWith("[", StringComparison.Ordinal) &&
+                (changedProperty == "Item" || changedProperty == "Item[]" || changedProperty == "Item" + sourceProperty))
+                return true;
+            return false;
         }
 
         /// <summary>
@@ -1635,11 +1616,6 @@ namespace MugenMvvmToolkit
         internal static bool HasFlagEx(this ObservationMode handleType, ObservationMode value)
         {
             return (handleType & value) == value;
-        }
-
-        private static WeakReference CreateWeakReference(object o)
-        {
-            return ServiceProvider.WeakReferenceFactory(o, true);
         }
 
         #endregion

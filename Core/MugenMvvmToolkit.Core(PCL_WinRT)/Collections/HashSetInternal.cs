@@ -13,9 +13,9 @@
 // </license>
 // ****************************************************************************
 #endregion
-using MugenMvvmToolkit;
 #if PCL_Silverlight
 using System.Linq;
+using MugenMvvmToolkit;
 using MugenMvvmToolkit.Collections;
 
 namespace System.Collections.Generic

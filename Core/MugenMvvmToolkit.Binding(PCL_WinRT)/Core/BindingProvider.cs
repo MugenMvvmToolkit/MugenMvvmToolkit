@@ -21,7 +21,6 @@ using MugenMvvmToolkit.Binding.Accessors;
 using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.DataConstants;
-using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -33,7 +32,6 @@ using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Binding.Core
 {
@@ -50,20 +48,11 @@ namespace MugenMvvmToolkit.Binding.Core
         private static readonly Func<IDataContext, IDataBinding> CreateInvalidaDataBindingDelegate;
         private static readonly Func<IDataContext, IList<object>, object> FormatMembersExpressionDelegate;
 
-        private static IBindingProvider _instance;
-
         private readonly OrderedListInternal<IBindingBehavior> _defaultBehaviors;
         private readonly IList<IBindingSourceDecorator> _decorators;
         private readonly Func<IDataContext, IDataBinding> _buildDelegate;
 
-        private IBindingManager _bindingManager;
-        private IBindingContextManager _contextManager;
-        private IBindingResourceResolver _dynamicResolver;
-        private IBindingMemberProvider _memberProvider;
-        private IObserverProvider _observerProvider;
         private IBindingParser _parser;
-        private IVisualTreeManager _visualTreeManager;
-        private IWeakEventManager _weakEventManager;
 
         #endregion
 
@@ -84,19 +73,9 @@ namespace MugenMvvmToolkit.Binding.Core
         /// <summary>
         ///     Initializes a new instance of the <see cref="BindingProvider" /> class.
         /// </summary>
-        public BindingProvider(IBindingManager bindingManager = null, IBindingContextManager contextManager = null,
-            IBindingMemberProvider memberProvider = null, IObserverProvider observerProvider = null,
-            IBindingParser parser = null, IBindingResourceResolver bindingResourceResolver = null,
-            IVisualTreeManager visualTreeManager = null, IWeakEventManager eventManager = null)
+        public BindingProvider(IBindingParser parser = null)
         {
-            _weakEventManager = eventManager ?? new WeakEventManager();
-            _bindingManager = bindingManager ?? new BindingManager();
-            _contextManager = contextManager ?? new BindingContextManager();
-            _memberProvider = memberProvider ?? new BindingMemberProvider();
-            _observerProvider = observerProvider ?? new ObserverProvider();
-            _visualTreeManager = visualTreeManager ?? new VisualTreeManager();
             _parser = parser ?? new BindingParser();
-            _dynamicResolver = bindingResourceResolver ?? new BindingResourceResolver();
             var comparer = new DelegateComparer<IBindingSourceDecorator>((manager, targetManager) => targetManager.Priority.CompareTo(manager.Priority));
             _decorators = new OrderedListInternal<IBindingSourceDecorator>(comparer);
             _defaultBehaviors = new OrderedListInternal<IBindingBehavior>(BehaviorComparer)
@@ -104,38 +83,6 @@ namespace MugenMvvmToolkit.Binding.Core
                 new OneWayBindingMode()
             };
             _buildDelegate = BuildBinding;
-        }
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        ///     Gets or sets the default <see cref="IBindingProvider" />.
-        /// </summary>
-        [NotNull]
-        public static IBindingProvider Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    lock (ProviderConstant)
-                    {
-                        if (_instance == null)
-                        {
-                            _instance = new BindingProvider();
-                            MvvmUtils.InitializeDesignTimeManager();
-                        }
-                    }
-                }
-                return _instance;
-            }
-            set
-            {
-                Should.PropertyBeNotNull(value, "Instance");
-                _instance = value;
-            }
         }
 
         #endregion
@@ -159,71 +106,6 @@ namespace MugenMvvmToolkit.Binding.Core
         }
 
         /// <summary>
-        ///     Gets or sets the <see cref="IBindingManager" />.
-        /// </summary>
-        public IBindingManager BindingManager
-        {
-            get { return _bindingManager; }
-            set
-            {
-                Should.PropertyBeNotNull(value, "BindingManager");
-                _bindingManager = value;
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets  the <see cref="IBindingMemberProvider" />.
-        /// </summary>
-        public IBindingMemberProvider MemberProvider
-        {
-            get { return _memberProvider; }
-            set
-            {
-                Should.PropertyBeNotNull(value, "MemberProvider");
-                _memberProvider = value;
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the <see cref="IObserverProvider" />.
-        /// </summary>
-        public IObserverProvider ObserverProvider
-        {
-            get { return _observerProvider; }
-            set
-            {
-                Should.PropertyBeNotNull(value, "ObserverProvider");
-                _observerProvider = value;
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the <see cref="IBindingContextManager" />.
-        /// </summary>
-        public IBindingContextManager ContextManager
-        {
-            get { return _contextManager; }
-            set
-            {
-                Should.PropertyBeNotNull(value, "ContextManager");
-                _contextManager = value;
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the default <see cref="IVisualTreeManager" />.
-        /// </summary>
-        public IVisualTreeManager VisualTreeManager
-        {
-            get { return _visualTreeManager; }
-            set
-            {
-                Should.PropertyBeNotNull(value, "TargetTreeManager");
-                _visualTreeManager = value;
-            }
-        }
-
-        /// <summary>
         ///     Gets or sets the <see cref="IBindingParser" />.
         /// </summary>
         public IBindingParser Parser
@@ -233,32 +115,6 @@ namespace MugenMvvmToolkit.Binding.Core
             {
                 Should.PropertyBeNotNull(value, "Parser");
                 _parser = value;
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the <see cref="IBindingResourceResolver" />.
-        /// </summary>
-        public IBindingResourceResolver ResourceResolver
-        {
-            get { return _dynamicResolver; }
-            set
-            {
-                Should.PropertyBeNotNull(value, "ResourceResolver");
-                _dynamicResolver = value;
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the <see cref="IWeakEventManager" />.
-        /// </summary>
-        public IWeakEventManager WeakEventManager
-        {
-            get { return _weakEventManager; }
-            set
-            {
-                Should.PropertyBeNotNull(value, "WeakEventManager");
-                _weakEventManager = value;
             }
         }
 
@@ -393,7 +249,7 @@ namespace MugenMvvmToolkit.Binding.Core
                 object target;
                 IBindingPath targetPath;
                 IDataBinding binding = CreateBinding(context, out target, out targetPath);
-                BindingManager.Register(target, targetPath.Path, binding);
+                BindingServiceProvider.BindingManager.Register(target, targetPath.Path, binding);
                 return binding;
             }
             catch (Exception exception)
@@ -417,11 +273,11 @@ namespace MugenMvvmToolkit.Binding.Core
                 formatExpression = formatExpression ?? FormatMembersExpressionDelegate;
                 var sources = new IBindingSource[sourceDelegates.Count];
                 for (int index = 0; index < sourceDelegates.Count; index++)
-                    sources[index] = Decorate(sourceDelegates[index].Invoke(this, context), false, context);
+                    sources[index] = Decorate(sourceDelegates[index].Invoke(context), false, context);
                 sourceAccessor = new MultiBindingSourceAccessor(sources, formatExpression, context);
             }
             else
-                sourceAccessor = new BindingSourceAccessor(Decorate(sourceDelegates[0].Invoke(this, context), false, context), context, false);
+                sourceAccessor = new BindingSourceAccessor(Decorate(sourceDelegates[0].Invoke(context), false, context), context, false);
             var binding = new DataBinding(new BindingSourceAccessor(GetBindingTarget(context, out target, out targetPath), context, true), sourceAccessor);
             AddBehaviors(binding, context);
             return binding;
@@ -435,7 +291,7 @@ namespace MugenMvvmToolkit.Binding.Core
         {
             target = context.GetData(BindingBuilderConstants.Target, true);
             targetPath = context.GetData(BindingBuilderConstants.TargetPath, true);
-            IBindingSource bindingSource = new BindingTarget(ObserverProvider.Observe(target, targetPath, false))
+            IBindingSource bindingSource = new BindingTarget(BindingServiceProvider.ObserverProvider.Observe(target, targetPath, false))
             {
                 CommandParameterDelegate = context.GetData(BindingBuilderConstants.CommandParameter)
             };

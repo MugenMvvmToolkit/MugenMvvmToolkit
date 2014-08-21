@@ -16,7 +16,9 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces.Models;
 #if NETFX_CORE || WINDOWSCOMMON
 using Windows.UI.Core;
 using Windows.UI.Xaml;

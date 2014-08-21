@@ -362,7 +362,7 @@ namespace MugenMvvmToolkit.Binding.Core
                 finally
                 {
                     _isDisposed = true;
-                    BindingProvider.Instance.BindingManager.Unregister(this);
+                    BindingServiceProvider.BindingManager.Unregister(this);
                 }
             }
         }

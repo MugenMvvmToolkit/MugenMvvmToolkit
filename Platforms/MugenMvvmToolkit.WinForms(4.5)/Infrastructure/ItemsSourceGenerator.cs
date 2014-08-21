@@ -19,7 +19,6 @@ using System.Windows.Forms;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Converters;
 using MugenMvvmToolkit.Interfaces;
@@ -46,7 +45,7 @@ namespace MugenMvvmToolkit.Infrastructure
             ListenDisposeEvent(view as IComponent);
             _isTabControl = view is TabControl;
             _view = view;
-            _itemTemplateMember = BindingProvider.Instance
+            _itemTemplateMember = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(view.GetType(), AttachedMemberConstants.ItemTemplate, false, false);
         }
@@ -122,7 +121,7 @@ namespace MugenMvvmToolkit.Infrastructure
             }
             object template = selector.SelectTemplate(item, _view);
             if (template != null)
-                BindingProvider.Instance.ContextManager.GetBindingContext(template).Value = item;
+                BindingServiceProvider.ContextManager.GetBindingContext(template).Value = item;
             return template;
         }
 
@@ -144,7 +143,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (viewModel is IHasDisplayName)
                 set.BindFromExpression("Text DisplayName;");
             set.Apply();
-            BindingProvider.Instance.ContextManager.GetBindingContext(page).Value = item;
+            BindingServiceProvider.ContextManager.GetBindingContext(page).Value = item;
             return page;
         }
 

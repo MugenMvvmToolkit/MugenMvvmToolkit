@@ -107,7 +107,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Gets or adds the attached values container.
         /// </summary>
-        protected override LightDictionaryBase<string, object> GetOrAddAttachedValues(object item, bool addNew)
+        protected override LightDictionaryBase<string, object> GetOrAddAttachedDictionary(object item, bool addNew)
         {
 #if WINDOWSCOMMON || NETFX_CORE
             var dependencyObject = item as DependencyObject;

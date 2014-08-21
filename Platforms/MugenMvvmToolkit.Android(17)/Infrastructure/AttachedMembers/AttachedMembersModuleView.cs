@@ -14,11 +14,9 @@
 // ****************************************************************************
 #endregion
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Android.Views;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Core;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -217,7 +215,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public static readonly IAttachedBindingMemberInfo<View, object> ViewAttachedParentMember;
 
-        private static readonly IAttachedBindingMemberInfo<View, bool> DisableValidationMember;
+        internal static readonly IAttachedBindingMemberInfo<View, bool> DisableValidationMember;
 
         #endregion
 
@@ -239,8 +237,6 @@ namespace MugenMvvmToolkit.Infrastructure
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<View, string>(AttachedMemberNames.PopupMenuEvent, PopupMenuEventChanged));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<View, string>(AttachedMemberNames.PlacementTargetPath));
 #endif
-
-            memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.SetErrorsMethod, null, SetErrorValue));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.Parent,
                     GetViewParentValue, null, ObserveViewParent));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.FindByNameMethod,
@@ -293,32 +289,14 @@ namespace MugenMvvmToolkit.Infrastructure
             return target.RootView.FindViewWithTag(tag);
         }
 
-        private static object SetErrorValue(IBindingMemberInfo bindingMemberInfo, View view, object[] arg3)
-        {
-            if (DisableValidationMember.GetValue(view, null))
-                return null;
-            IBindingMemberInfo errorMember = BindingProvider
-                .Instance
-                .MemberProvider
-                .GetBindingMember(view.GetType(), "Error", false, false);
-            if (errorMember == null)
-                return null;
-            var errors = (ICollection<object>)arg3[0];
-            object[] error = errors == null || errors.Count == 0
-                ? BindingExtensions.NullValue
-                : new object[] { errors.FirstOrDefault().ToStringSafe() };
-            errorMember.SetValue(view, error);
-            return null;
-        }
-
 #if !API8
         private static void PopupMenuEventChanged(View view, AttachedMemberChangedEventArgs<string> args)
         {
             if (string.IsNullOrEmpty(args.NewValue))
                 return;
-            IBindingMemberInfo member = BindingProvider.Instance
-                                                       .MemberProvider
-                                                       .GetBindingMember(view.GetType(), args.NewValue, false, true);
+            IBindingMemberInfo member = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(view.GetType(), args.NewValue, false, true);
             var presenter = ServiceProvider.AttachedValueProvider.GetOrAdd(view, "!@popup", (view1, o) => new PopupMenuPresenter(view1), null);
             var unsubscriber = member.SetValue(view, new object[] { presenter }) as IDisposable;
             presenter.Update(unsubscriber);

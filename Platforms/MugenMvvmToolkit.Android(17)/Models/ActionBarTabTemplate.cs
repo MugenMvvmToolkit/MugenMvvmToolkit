@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.Models
                 var fragment = _content as Fragment;
                 if (fragment != null)
                 {
-                    var viewModel = BindingProvider.Instance.ContextManager.GetBindingContext(fragment).Value as IViewModel;
+                    var viewModel = BindingServiceProvider.ContextManager.GetBindingContext(fragment).Value as IViewModel;
                     if (viewModel != null)
                         viewModel.Settings.Metadata.Remove(MvvmFragmentMediator.StateNotNeeded);
                     var manager = fragment.FragmentManager;
@@ -79,7 +79,7 @@ namespace MugenMvvmToolkit.Models
                 //Set selected item data context or tab
                 var selectedItem = ActionBarTabItemsSourceGenerator.Get(bar) == null
                     ? tab
-                    : BindingProvider.Instance.ContextManager.GetBindingContext(tab).Value;
+                    : BindingServiceProvider.ContextManager.GetBindingContext(tab).Value;
                 AttachedMembersModule
                     .ActionBarSelectedItemMember
                     .SetValue(bar, selectedItem);
@@ -219,7 +219,7 @@ namespace MugenMvvmToolkit.Models
             AttachedMembersModule.ActionBarTabParentMember.SetValue(newTab, bar);
             var setter = new XmlPropertySetter<ActionBarTabTemplate, ActionBar.Tab>(newTab, bar.ThemedContext);
             if (useContext)
-                BindingProvider.Instance.ContextManager.GetBindingContext(newTab).Value = context;
+                BindingServiceProvider.ContextManager.GetBindingContext(newTab).Value = context;
             else
                 setter.SetProperty(template => template.DataContext, DataContext);
             setter.SetBinding(template => template.ContentTemplateSelector, ContentTemplateSelector, false);

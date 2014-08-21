@@ -288,6 +288,9 @@
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestInfrastructure\BindingContextManagerMock.cs">
       <Link>TestInfrastructure\BindingContextManagerMock.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestInfrastructure\BindingErrorProviderMock.cs">
+      <Link>TestInfrastructure\BindingErrorProviderMock.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestInfrastructure\BindingMemberInfoMock.cs">
       <Link>TestInfrastructure\BindingMemberInfoMock.cs</Link>
     </Compile>

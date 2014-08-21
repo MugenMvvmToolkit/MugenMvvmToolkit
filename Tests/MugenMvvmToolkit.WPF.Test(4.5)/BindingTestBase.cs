@@ -35,6 +35,7 @@ namespace MugenMvvmToolkit.Test
 
         protected override void OnInit()
         {
+            BindingServiceProvider.SetDefaultValues();
             base.OnInit();
             ThreadManager.ImmediateInvokeAsync = true;
             ThreadManager.ImmediateInvokeOnUiThreadAsync = true;

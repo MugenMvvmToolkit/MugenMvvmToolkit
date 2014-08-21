@@ -23,6 +23,7 @@ using Android.Support.V4.App;
 using Android.Util;
 using Android.Views;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -171,7 +172,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                     _bindings = new List<IDataBinding>();
                 Tuple<View, IList<IDataBinding>> tuple = inflater.CreateBindableView(viewId.Value, container, false);
                 FragmentViewMember.SetValue(tuple.Item1, Target);
-                BindingProvider.Instance.ContextManager.GetBindingContext(tuple.Item1).Value = DataContext;
+                BindingServiceProvider.ContextManager.GetBindingContext(tuple.Item1).Value = DataContext;
                 _bindings.AddRange(tuple.Item2);
                 return tuple.Item1;
             }
@@ -302,7 +303,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             {
                 _bindings = new List<IDataBinding>();
                 foreach (string bind in strings)
-                    _bindings.AddRange(BindingProvider.Instance.CreateBindingsFromString(Target, bind, null));
+                    _bindings.AddRange(BindingServiceProvider.BindingProvider.CreateBindingsFromString(Target, bind, null));
             }
             baseOnInflate(activity, attrs, savedInstanceState);
         }
@@ -393,7 +394,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             base.OnDataContextChanged(oldValue, newValue);
             View view = Target.View;
             if (view != null)
-                BindingProvider.Instance.ContextManager
+                BindingServiceProvider.ContextManager
                     .GetBindingContext(view)
                     .Value = DataContext;
         }
@@ -417,8 +418,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
             IViewModel parentVm = null;
             if (Target.Activity != null)
-                parentVm = BindingProvider
-                    .Instance
+                parentVm = BindingServiceProvider
                     .ContextManager
                     .GetBindingContext(Target.Activity)
                     .Value as IViewModel;
@@ -448,8 +448,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 var parent = Target.ParentFragment ?? (object)Target.Activity;
                 if (parent != null)
                 {
-                    var wrapperViewModel = BindingProvider
-                        .Instance
+                    var wrapperViewModel = BindingServiceProvider
                         .ContextManager
                         .GetBindingContext(parent)
                         .Value as IWrapperViewModel;
@@ -503,8 +502,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
             if (_bindings == null)
                 _bindings = new List<IDataBinding>();
-            var bindings = BindingProvider
-                .Instance
+            var bindings = BindingServiceProvider
+                .BindingProvider
                 .CreateBindingsFromString(dialog, "Title DisplayName", new object[] { hasDisplayName });
             _bindings.AddRange(bindings);
         }

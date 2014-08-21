@@ -77,6 +77,9 @@
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\BindableMenuInflater.cs">
       <Link>Infrastructure\BindableMenuInflater.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\BindingErrorProvider.cs">
+      <Link>Infrastructure\BindingErrorProvider.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs">
       <Link>Callbacks\SerializableOperationCallbackFactory.cs</Link>
     </Compile>

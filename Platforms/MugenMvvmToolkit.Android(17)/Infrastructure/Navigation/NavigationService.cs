@@ -19,6 +19,7 @@ using System.Linq;
 using Android.App;
 using Android.Content;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -79,7 +80,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 //Trying to dispose main view model.
                 if (!mainActivity)
                 {
-                    var viewModel = BindingProvider.Instance
+                    var viewModel = BindingServiceProvider
                         .ContextManager
                         .GetBindingContext(_currentActivity)
                         .Value as IViewModel;

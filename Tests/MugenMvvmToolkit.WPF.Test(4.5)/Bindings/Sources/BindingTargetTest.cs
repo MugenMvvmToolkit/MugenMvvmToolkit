@@ -27,18 +27,16 @@ namespace MugenMvvmToolkit.Test.Bindings.Sources
             var target = new object();
             var list = new List<object> { "Test" };
             bool isInvoked = false;
-            IAttachedBindingMemberInfo<object, IEnumerable> member =
-                AttachedBindingMember.CreateMember<object, IEnumerable>(AttachedMemberConstants.SetErrorsMethod,
-                    null, (info, o, arg3) =>
-                    {
-                        o.ShouldEqual(target);
-                        ((IEnumerable<object>)arg3[0]).SequenceEqual(list).ShouldBeTrue();
-                        isInvoked = true;
-                        return null;
-                    });
-            var memberProvider = new BindingMemberProvider();
-            memberProvider.Register(typeof(object), member, false);
-            BindingProvider.Instance.MemberProvider = memberProvider;
+
+            BindingServiceProvider.ErrorProvider = new BindingErrorProviderMock
+            {
+                SetErrors = (o, objects) =>
+                {
+                    o.ShouldEqual(target);
+                    objects.SequenceEqual(list).ShouldBeTrue();
+                    isInvoked = true;
+                }
+            };
             var mock = new ObserverMock { PathMembers = new BindingPathMembersMock(target, BindingPath.Empty) };
             var bindingTarget = (BindingTarget)CreateBindingSource(mock);
             bindingTarget.SetErrors(new SenderType("Test"), list);
@@ -54,7 +52,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Sources
                     (info, o, arg3) => isEnabled = (bool)arg3[0]);
             var memberProvider = new BindingMemberProvider();
             memberProvider.Register(typeof(object), member, false);
-            BindingProvider.Instance.MemberProvider = memberProvider;
+            BindingServiceProvider.MemberProvider = memberProvider;
 
             var mock = new ObserverMock { PathMembers = new BindingPathMembersMock(new object(), BindingPath.Empty) };
             var bindingTarget = (BindingTarget)CreateBindingSource(mock);

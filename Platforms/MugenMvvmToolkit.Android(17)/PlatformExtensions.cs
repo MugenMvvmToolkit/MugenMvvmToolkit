@@ -29,6 +29,7 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.DataConstants;
@@ -383,7 +384,7 @@ namespace MugenMvvmToolkit
             if (ServiceProvider.AttachedValueProvider.GetValue<object>(view, VisitedParentPath, false) != null)
                 return;
             ServiceProvider.AttachedValueProvider.SetValue(view, VisitedParentPath, view);
-            var parent = BindingProvider.Instance.VisualTreeManager.FindParent(view) as View;
+            var parent = BindingServiceProvider.VisualTreeManager.FindParent(view) as View;
             if (parent != null)
                 parent.ListenParentChange();
 
@@ -447,7 +448,7 @@ namespace MugenMvvmToolkit
             if (viewFactory == null)
                 viewFactory = ServiceProvider.IocContainer.Get<IViewFactory>();
             using (LayoutInflater inflater = layoutInflater.CloneInContext(layoutInflater.Context))
-            using (var bindingFactory = new BindingFactory(BindingProvider.Instance, viewFactory))
+            using (var bindingFactory = new BindingFactory(BindingServiceProvider.BindingProvider, viewFactory))
             {
                 inflater.Factory = bindingFactory;
                 View view = inflater.Inflate(layoutResId, viewGroup, attachToRoot);
@@ -600,7 +601,7 @@ namespace MugenMvvmToolkit
             var newView = LayoutInflater
                     .From(ctx)
                     .CreateBindableView(templateId.Value).Item1;
-            BindingProvider.Instance
+            BindingServiceProvider
                 .ContextManager
                 .GetBindingContext(newView)
                 .Value = content;
@@ -620,7 +621,7 @@ namespace MugenMvvmToolkit
             var newView = template as View;
             if (newView != null)
             {
-                BindingProvider.Instance.ContextManager.GetBindingContext(newView).Value = content;
+                BindingServiceProvider.ContextManager.GetBindingContext(newView).Value = content;
                 return newView;
             }
             if (template is int)
@@ -629,7 +630,7 @@ namespace MugenMvvmToolkit
             var fragment = template as Fragment;
             if (fragment != null)
             {
-                BindingProvider.Instance.ContextManager.GetBindingContext(fragment).Value = content;
+                BindingServiceProvider.ContextManager.GetBindingContext(fragment).Value = content;
                 return fragment;
             }
 #endif

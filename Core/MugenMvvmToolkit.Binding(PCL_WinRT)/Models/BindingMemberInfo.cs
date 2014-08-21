@@ -17,7 +17,6 @@ using System;
 using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Accessors;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -172,8 +171,8 @@ namespace MugenMvvmToolkit.Binding.Models
             if (memberType == BindingMemberType.BindingContext)
             {
                 _isDataContext = true;
-                _getValueAccessorSingle = o => BindingProvider.Instance.ContextManager.GetBindingContext(o).Value;
-                _setValueAccessorSingle = (o, arg) => BindingProvider.Instance.ContextManager.GetBindingContext(o).Value = arg;
+                _getValueAccessorSingle = o => BindingServiceProvider.ContextManager.GetBindingContext(o).Value;
+                _setValueAccessorSingle = (o, arg) => BindingServiceProvider.ContextManager.GetBindingContext(o).Value = arg;
                 _canRead = true;
                 _canWrite = true;
                 _isSingleParameter = true;
@@ -208,7 +207,7 @@ namespace MugenMvvmToolkit.Binding.Models
             _canRead = true;
             _canWrite = true;
             _isSingleParameter = true;
-            _memberEvent = BindingExtensions.TryFindMemberChangeEvent(BindingProvider.Instance.MemberProvider, sourceType, field.Name);
+            _memberEvent = BindingExtensions.TryFindMemberChangeEvent(BindingServiceProvider.MemberProvider, sourceType, field.Name);
         }
 
         /// <summary>
@@ -242,7 +241,7 @@ namespace MugenMvvmToolkit.Binding.Models
             }
             _isSingleParameter = true;
 
-            _memberEvent = BindingExtensions.TryFindMemberChangeEvent(BindingProvider.Instance.MemberProvider, sourceType, property.Name);
+            _memberEvent = BindingExtensions.TryFindMemberChangeEvent(BindingServiceProvider.MemberProvider, sourceType, property.Name);
         }
 
         /// <summary>
@@ -408,7 +407,7 @@ namespace MugenMvvmToolkit.Binding.Models
             var listener = arg as IEventListener;
             if (listener == null)
                 throw BindingExceptionManager.BindingMemberMustBeWriteable(this);
-            return BindingProvider.Instance.WeakEventManager.TrySubscribe(o, (EventInfo)_member, listener);
+            return BindingServiceProvider.WeakEventManager.TrySubscribe(o, (EventInfo)_member, listener);
         }
 
         #endregion

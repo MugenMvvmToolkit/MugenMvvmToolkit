@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
@@ -373,9 +374,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             IBindingMemberProvider memberProvider = null, IBindingContextManager contextManager = null)
         {
             if (memberProvider != null)
-                BindingProvider.Instance.MemberProvider = memberProvider;
+                BindingServiceProvider.MemberProvider = memberProvider;
             if (contextManager != null)
-                BindingProvider.Instance.ContextManager = contextManager;
+                BindingServiceProvider.ContextManager = contextManager;
             var bindingPath = BindingPath.Create(path);
             if (bindingPath.IsEmpty)
                 return new EmptyPathObserver(source, bindingPath);

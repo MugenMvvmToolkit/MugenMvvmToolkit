@@ -433,7 +433,7 @@ namespace MugenMvvmToolkit.Infrastructure
                         {
                             object ctx = actionBar.SelectedNavigationIndex < 0 ? null : actionBar.SelectedTab;
                             if (ctx != null)
-                                ctx = BindingProvider.Instance.ContextManager.GetBindingContext(ctx).Value;
+                                ctx = BindingServiceProvider.ContextManager.GetBindingContext(ctx).Value;
                             args.Member.SetValue(actionBar, new[] { ctx });
                         }
                         else

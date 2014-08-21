@@ -339,6 +339,9 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\IHasState.cs">
       <Link>Interfaces\Models\IHasState.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\IHasWeakReference.cs">
+      <Link>Interfaces\Models\IHasWeakReference.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\IModuleContext.cs">
       <Link>Interfaces\Models\IModuleContext.cs</Link>
     </Compile>

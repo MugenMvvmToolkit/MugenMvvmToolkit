@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
@@ -165,7 +164,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
             IBindingPath path = BindingPath.Create(memberName);
             string firstMember = path.Parts[0];
-            Type type = BindingProvider.Instance.ResourceResolver.ResolveType(firstMember, DataContext.Empty, false);
+            Type type = BindingServiceProvider.ResourceResolver.ResolveType(firstMember, DataContext.Empty, false);
             var dynMember = (ResourceExpressionNode)nodes[0];
             if (dynMember.Dynamic && type == null)
             {
@@ -179,8 +178,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             {
                 if (type == null)
                 {
-                    IBindingResourceObject resourceObject = BindingProvider
-                        .Instance
+                    IBindingResourceObject resourceObject = BindingServiceProvider
                         .ResourceResolver
                         .ResolveObject(firstMember, DataContext.Empty, true);
                     var dynamicObject = resourceObject.Value as IDynamicObject;

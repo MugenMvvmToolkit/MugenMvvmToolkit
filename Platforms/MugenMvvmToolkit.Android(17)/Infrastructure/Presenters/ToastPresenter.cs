@@ -20,6 +20,7 @@ using Android.Content;
 using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -219,7 +220,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 return null;
             var view = PlatformExtensions.GetContentView(ctx, ctx, content, null, null) as View;
             if (view != null)
-                BindingProvider.Instance.ContextManager.GetBindingContext(view).Value = content;
+                BindingServiceProvider.ContextManager.GetBindingContext(view).Value = content;
             return view;
         }
 

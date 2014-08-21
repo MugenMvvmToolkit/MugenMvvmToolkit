@@ -30,6 +30,7 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using Object = Java.Lang.Object;
 #if API8SUPPORT
@@ -140,7 +141,7 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 try
                 {
-                    ClearBindings(menu.Menu, BindingProvider.Instance.BindingManager);
+                    ClearBindings(menu.Menu, BindingServiceProvider.BindingManager);
                 }
                 catch (Exception exception)
                 {
@@ -219,12 +220,11 @@ namespace MugenMvvmToolkit.Infrastructure
                     Tracer.Warn("(PopupMenu) The contex of view is not an activity.");
                     return;
                 }
-                var templateId = (int)BindingProvider.Instance
+                var templateId = (int)BindingServiceProvider
                     .MemberProvider
                     .GetBindingMember(_viewType, AttachedMemberNames.PopupMenuTemplate, false, true)
                     .GetValue(_view, null);
-                IBindingMemberInfo bindingMember = BindingProvider
-                    .Instance
+                IBindingMemberInfo bindingMember = BindingServiceProvider
                     .MemberProvider
                     .GetBindingMember(_viewType, AttachedMemberNames.PlacementTargetPath, false, false);
                 if (bindingMember != null)
@@ -419,7 +419,7 @@ namespace MugenMvvmToolkit.Infrastructure
             ViewAttachedParentMember.SetValue(view, menuItem);
             var bindings = MenuItemTemplate.GetActionViewBind(menuItem);
             if (!string.IsNullOrEmpty(bindings))
-                BindingProvider.Instance.CreateBindingsFromString(view, bindings, null);
+                BindingServiceProvider.BindingProvider.CreateBindingsFromString(view, bindings, null);
             return true;
         }
 
@@ -446,12 +446,12 @@ namespace MugenMvvmToolkit.Infrastructure
             }
             //TODO WRAPPER???
             menuItem.SetActionProvider(actionProvider);
-            BindingProvider.Instance
-                           .CreateBindingFromString(actionProvider, AttachedMemberConstants.DataContext,
-                               AttachedMemberConstants.DataContext, menuItem);
+            BindingServiceProvider
+                .BindingProvider
+                .CreateBindingFromString(actionProvider, AttachedMemberConstants.DataContext, AttachedMemberConstants.DataContext, menuItem);
             var bindings = MenuItemTemplate.GetActionProviderBind(menuItem);
             if (!string.IsNullOrEmpty(bindings))
-                BindingProvider.Instance.CreateBindingsFromString(actionProvider, bindings, null);
+                BindingServiceProvider.BindingProvider.CreateBindingsFromString(actionProvider, bindings, null);
             return true;
         }
 
@@ -471,7 +471,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static Context GetContextFromMenuItem(IMenuItem menuItem)
         {
-            var parent = BindingProvider.Instance.VisualTreeManager.FindParent(menuItem);
+            var parent = BindingServiceProvider.VisualTreeManager.FindParent(menuItem);
             while (parent != null)
             {
                 var actionBar = parent as ActionBar;
@@ -483,7 +483,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 var ctx = parent as Context;
                 if (ctx != null)
                     return ctx;
-                parent = BindingProvider.Instance.VisualTreeManager.FindParent(parent);
+                parent = BindingServiceProvider.VisualTreeManager.FindParent(parent);
             }
             return Application.Context;
         }

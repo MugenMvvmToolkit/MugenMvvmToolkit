@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -88,7 +87,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     if (listener != null)
                         listener.Handle(currentItem, message);
 
-                    var treeManager = BindingProvider.Instance.VisualTreeManager;
+                    var treeManager = BindingServiceProvider.VisualTreeManager;
                     while (currentItem != null)
                     {
                         var parentMember = treeManager.GetParentMember(currentItem.GetType());
@@ -159,7 +158,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             if (GetParentMember(type) == null)
                 return null;
-            return BindingProvider.Instance
+            return BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(type, AttachedMemberConstants.RootElement, false, false) ?? RootMember;
         }
@@ -170,7 +169,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public virtual IBindingMemberInfo GetParentMember(Type type)
         {
             Should.NotBeNull(type, "type");
-            return BindingProvider.Instance.MemberProvider.GetBindingMember(type, AttachedMemberConstants.Parent, false, false);
+            return BindingServiceProvider.MemberProvider.GetBindingMember(type, AttachedMemberConstants.Parent, false, false);
         }
 
         /// <summary>
@@ -191,8 +190,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             Should.NotBeNull(target, "target");
             Should.NotBeNullOrWhitespace(elementName, "elementName");
-            var member = BindingProvider
-                .Instance
+            var member = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(target.GetType(), AttachedMemberConstants.FindByNameMethod, false, false);
             if (member == null)
@@ -250,7 +248,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         private static object GetRootElement(IBindingMemberInfo bindingMemberInfo, object currentItem, object[] arg3)
         {
-            var treeManager = BindingProvider.Instance.VisualTreeManager;
+            var treeManager = BindingServiceProvider.VisualTreeManager;
             while (currentItem != null)
             {
                 var parentMember = treeManager.GetParentMember(currentItem.GetType());

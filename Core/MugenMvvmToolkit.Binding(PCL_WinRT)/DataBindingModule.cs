@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -25,7 +24,6 @@ using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Models.IoC;
 
 namespace MugenMvvmToolkit.Binding
 {
@@ -56,7 +54,7 @@ namespace MugenMvvmToolkit.Binding
         /// </summary>
         public virtual int Priority
         {
-            get { return InitializationModuleBase.InitializationModulePriority - 1; }
+            get { return ModuleBase.BindingModulePriority; }
         }
 
         /// <summary>
@@ -65,15 +63,6 @@ namespace MugenMvvmToolkit.Binding
         public virtual bool Load(IModuleContext context)
         {
             Should.NotBeNull(context, "context");
-            IBindingProvider provider;
-            if (context.IocContainer == null)
-                provider = BindingProvider.Instance;
-            else
-            {
-                if (!context.IocContainer.CanResolve<IBindingProvider>())
-                    context.IocContainer.BindToMethod((container, list) => BindingProvider.Instance, DependencyLifecycle.TransientInstance);
-                provider = context.IocContainer.Get<IBindingProvider>();
-            }
             IEnumerable<Type> converterTypes = context
                 .Assemblies
                 .SelectMany(assembly => assembly.SafeGetTypes(context.Mode != LoadMode.Design))
@@ -91,13 +80,13 @@ namespace MugenMvvmToolkit.Binding
                     continue;
                 var converter = (IBindingValueConverter)constructor.InvokeEx();
                 string name = RemoveTail(RemoveTail(type.Name, "ValueConverter"), "Converter");
-                if (provider.ResourceResolver.TryAddConverter(name, converter))
+                if (BindingServiceProvider.ResourceResolver.TryAddConverter(name, converter))
                     Tracer.Info("The {0} converter is registered.", type);
             }
-            provider.MemberProvider.Register(
+            BindingServiceProvider.MemberProvider.Register(
                 AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.CommandParameter,
                     GetCommandParameter, SetCommandParameter, ObserveCommandParameter));
-            provider.MemberProvider.Register(AttachedBindingMember.CreateAutoProperty<object, IEnumerable<object>>(
+            BindingServiceProvider.MemberProvider.Register(AttachedBindingMember.CreateAutoProperty<object, IEnumerable<object>>(
                     AttachedMemberConstants.ErrorsPropertyMember, defaultValue: (o, info) => Enumerable.Empty<object>()));
             return true;
         }
@@ -140,7 +129,7 @@ namespace MugenMvvmToolkit.Binding
 
         private static IBindingMemberInfo GetCommandParameterMember(object instance)
         {
-            return BindingProvider.Instance
+            return BindingServiceProvider
                  .MemberProvider
                  .GetBindingMember(instance.GetType(), AttachedMemberConstants.CommandParameter, true, false) ?? CommandParameterInternal;
         }

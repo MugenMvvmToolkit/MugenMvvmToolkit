@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Sources;
@@ -111,10 +110,9 @@ namespace MugenMvvmToolkit.Binding.Sources
                 object penultimateValue = Observer.GetPathMembers(false).PenultimateValue;
                 if (penultimateValue == null || penultimateValue.IsUnsetValue())
                     return false;
-                IBindingMemberInfo member = BindingProvider.Instance
+                IBindingMemberInfo member = BindingServiceProvider
                     .MemberProvider
-                    .GetBindingMember(penultimateValue.GetType(), AttachedMemberConstants.Enabled, false,
-                        false);
+                    .GetBindingMember(penultimateValue.GetType(), AttachedMemberConstants.Enabled, false, false);
                 if (member == null)
                     return false;
                 return (bool)member.GetValue(penultimateValue, null);
@@ -124,10 +122,9 @@ namespace MugenMvvmToolkit.Binding.Sources
                 object penultimateValue = Observer.GetPathMembers(false).PenultimateValue;
                 if (penultimateValue == null || penultimateValue.IsUnsetValue())
                     return;
-                IBindingMemberInfo member = BindingProvider.Instance
+                IBindingMemberInfo member = BindingServiceProvider
                     .MemberProvider
-                    .GetBindingMember(penultimateValue.GetType(), AttachedMemberConstants.Enabled, false,
-                        false);
+                    .GetBindingMember(penultimateValue.GetType(), AttachedMemberConstants.Enabled, false, false);
                 if (member == null)
                     Tracer.Warn("The member {0} cannot be obtained on type {1}",
                         AttachedMemberConstants.Enabled, penultimateValue.GetType());
@@ -137,7 +134,7 @@ namespace MugenMvvmToolkit.Binding.Sources
         }
 
         /// <summary>
-        ///     Gets or sets a value that indicates whether the target supports the validation.
+        ///     Gets a value that indicates whether the target supports the validation.
         /// </summary>
         /// <returns>
         ///     true if the target is validatable; otherwise false.
@@ -146,8 +143,8 @@ namespace MugenMvvmToolkit.Binding.Sources
         {
             get
             {
-                object source;
-                return GetSetErrorsMember(out source) != null;
+                var target = Observer.GetPathMembers(false).PenultimateValue;
+                return target != null && !target.IsUnsetValue();
             }
         }
 
@@ -166,8 +163,7 @@ namespace MugenMvvmToolkit.Binding.Sources
             if (target == null || target.IsUnsetValue())
                 return null;
 
-            var commandParameterMember = BindingProvider
-                .Instance
+            var commandParameterMember = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(target.GetType(), AttachedMemberConstants.CommandParameter, false, false);
             if (commandParameterMember == null)
@@ -182,15 +178,15 @@ namespace MugenMvvmToolkit.Binding.Sources
         /// <param name="errors">The collection of errors</param>
         public void SetErrors(SenderType senderType, IList<object> errors)
         {
-            object source;
-            IBindingMemberInfo member = GetSetErrorsMember(out source);
-            if (source == null)
+            var source = Observer.GetPathMembers(false).PenultimateValue;
+            if (source == null || source.IsUnsetValue())
                 return;
-            IBindingMemberInfo propertyMember = BindingProvider
-                .Instance
+
+            var errorProvider = BindingServiceProvider.ErrorProvider;
+            IBindingMemberInfo propertyMember = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(source.GetType(), AttachedMemberConstants.ErrorsPropertyMember, false, false);
-            if (member == null && propertyMember == null)
+            if (errorProvider == null && propertyMember == null)
                 return;
             lock (Observer)
             {
@@ -207,28 +203,12 @@ namespace MugenMvvmToolkit.Binding.Sources
                 else
                     errors = _errors.SelectMany(list => list.Value).ToList();
             }
-            var args = new object[] { errors };
-            if (member != null)
-                member.SetValue(source, args);
+
+            if (errorProvider != null)
+                errorProvider.SetErrors(source, errors);
+
             if (propertyMember != null && propertyMember.CanWrite)
-                propertyMember.SetValue(source, args);
-        }
-
-        #endregion
-
-        #region Methods
-
-        private IBindingMemberInfo GetSetErrorsMember(out object source)
-        {
-            source = Observer.GetPathMembers(false).PenultimateValue;
-            if (source == null || source.IsUnsetValue())
-            {
-                source = null;
-                return null;
-            }
-            return BindingProvider.Instance
-                .MemberProvider
-                .GetBindingMember(source.GetType(), AttachedMemberConstants.SetErrorsMethod, false, false);
+                propertyMember.SetValue(source, new object[] { errors });
         }
 
         #endregion

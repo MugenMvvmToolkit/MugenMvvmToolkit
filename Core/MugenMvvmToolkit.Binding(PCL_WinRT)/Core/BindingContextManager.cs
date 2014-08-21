@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit.Binding.Core
             {
                 _isParentContext = true;
                 _targetReference = ServiceProvider.WeakReferenceFactory(target, true);
-                var parentMember = BindingProvider.Instance.VisualTreeManager.GetParentMember(target.GetType());
+                var parentMember = BindingServiceProvider.VisualTreeManager.GetParentMember(target.GetType());
                 if (parentMember != null)
                     _parentListener = parentMember.TryObserve(target, this);
                 Handle(null, null);
@@ -124,10 +124,10 @@ namespace MugenMvvmToolkit.Binding.Core
 
             private static IBindingContext GetParentBindingContext(object target)
             {
-                object parent = BindingProvider.Instance.VisualTreeManager.FindParent(target);
+                object parent = BindingServiceProvider.VisualTreeManager.FindParent(target);
                 if (parent == null)
                     return null;
-                return BindingProvider.Instance.ContextManager.GetBindingContext(parent);
+                return BindingServiceProvider.ContextManager.GetBindingContext(parent);
             }
 
             private void UpdateContextInternal()
@@ -186,7 +186,7 @@ namespace MugenMvvmToolkit.Binding.Core
             public BindingContextSource(object source, IBindingMemberInfo member)
             {
                 _member = member;
-                _observer = BindingProvider.Instance
+                _observer = BindingServiceProvider
                                            .ObserverProvider
                                            .Observe(source, BindingPath.Create(member.Path), true);
                 _observer.Listener = this;
@@ -288,8 +288,7 @@ namespace MugenMvvmToolkit.Binding.Core
         /// </summary>
         protected static IBindingMemberInfo GetExplicitDataContext(object source)
         {
-            IBindingMemberInfo member = BindingProvider
-                .Instance
+            IBindingMemberInfo member = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(source.GetType(), AttachedMemberConstants.DataContext, true, false);
             if (member != null && member.Type.Equals(typeof(object)) && member.CanRead && member.CanWrite)

@@ -17,7 +17,6 @@
 #endregion
 
 using System.Collections.Generic;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
@@ -75,7 +74,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             get
             {
-                var bindingParser = BindingProvider.Instance.Parser as BindingParser;
+                var bindingParser = BindingServiceProvider.BindingProvider.Parser as BindingParser;
                 if (bindingParser == null)
                     return DefaultRelativeSourceAliases;
                 return bindingParser.RelativeSourceAliases;
@@ -86,7 +85,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             get
             {
-                var bindingParser = BindingProvider.Instance.Parser as BindingParser;
+                var bindingParser = BindingServiceProvider.BindingProvider.Parser as BindingParser;
                 if (bindingParser == null)
                     return DefaultElementSourceAliases;
                 return bindingParser.ElementSourceAliases;

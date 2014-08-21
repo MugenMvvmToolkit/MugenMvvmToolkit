@@ -18,11 +18,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Builders;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
@@ -61,11 +59,11 @@ namespace MugenMvvmToolkit.Binding
 
             public BindingContextWrapper(object target)
             {
-                var parentMember = BindingProvider.Instance.VisualTreeManager.GetParentMember(target.GetType());
+                var parentMember = BindingServiceProvider.VisualTreeManager.GetParentMember(target.GetType());
                 if (parentMember != null)
                     _parentListener = parentMember.TryObserve(target, this);
                 Update(target);
-                _innerContext = BindingProvider.Instance.ContextManager.GetBindingContext(target);
+                _innerContext = BindingServiceProvider.ContextManager.GetBindingContext(target);
             }
 
             #endregion
@@ -133,10 +131,10 @@ namespace MugenMvvmToolkit.Binding
 
             private static IBindingContext GetParentBindingContext(object target)
             {
-                object parent = BindingProvider.Instance.VisualTreeManager.FindParent(target);
+                object parent = BindingServiceProvider.VisualTreeManager.FindParent(target);
                 if (parent == null)
                     return null;
-                return BindingProvider.Instance.ContextManager.GetBindingContext(parent);
+                return BindingServiceProvider.ContextManager.GetBindingContext(parent);
             }
 
             private void RaiseValueChanged()
@@ -244,10 +242,7 @@ namespace MugenMvvmToolkit.Binding
         {
             if (target.IsWeak)
                 return target;
-            var hasWeakReference = target as IHasWeakReference;
-            if (hasWeakReference == null)
-                return ServiceProvider.WeakReferenceFactory(target, true);
-            return hasWeakReference.WeakReference;
+            return MvvmExtensions.GetWeakReference(target);            
         }
 
         /// <summary>
@@ -313,12 +308,12 @@ namespace MugenMvvmToolkit.Binding
         /// <summary>
         ///     Gets the binding context for the specified item.
         /// </summary>
-        public static IBindingContext GetBindingContext([NotNull]this IBindingProvider provider, [NotNull] object target, [NotNull] string targetPath)
+        public static IBindingContext GetBindingContext([NotNull] this IBindingContextManager contextManager, [NotNull] object target, [NotNull] string targetPath)
         {
-            Should.NotBeNull(provider, "provider");
+            Should.NotBeNull(contextManager, "contextManager");
             if (targetPath == AttachedMemberConstants.DataContext)
                 return new BindingContextWrapper(target);
-            return provider.ContextManager.GetBindingContext(target);
+            return contextManager.GetBindingContext(target);
         }
 
         /// <summary>
@@ -443,7 +438,7 @@ namespace MugenMvvmToolkit.Binding
                 var item = path.Parts[index];
                 if (src == null)
                     return null;
-                IBindingMemberInfo member = BindingProvider.Instance
+                IBindingMemberInfo member = BindingServiceProvider
                     .MemberProvider
                     .GetBindingMember(src.GetType(), item, false, true);
                 src = member.GetValue(src, null);
@@ -496,24 +491,12 @@ namespace MugenMvvmToolkit.Binding
                 return false;
             var singleAccessor = accessor as ISingleBindingSourceAccessor;
             if (singleAccessor != null)
-                return PropertyNameEqual(args.PropertyName, singleAccessor.Source.Path.Parts.LastOrDefault(), true);
+                return MvvmExtensions.PropertyNameEqual(args.PropertyName, singleAccessor.Source.Path.Parts.LastOrDefault(), true);
             for (int i = 0; i < accessor.Sources.Count; i++)
             {
-                if (PropertyNameEqual(args.PropertyName, accessor.Sources[i].Path.Parts.LastOrDefault(), true))
+                if (MvvmExtensions.PropertyNameEqual(args.PropertyName, accessor.Sources[i].Path.Parts.LastOrDefault(), true))
                     return true;
             }
-            return false;
-        }
-
-        public static bool PropertyNameEqual(string changedProperty, string sourceProperty, bool emptySourcePathResult = false)
-        {
-            if (string.IsNullOrEmpty(changedProperty) || changedProperty.Equals(sourceProperty))
-                return true;
-            if (string.IsNullOrEmpty(sourceProperty))
-                return emptySourcePathResult;
-            if (sourceProperty.StartsWith("[", StringComparison.Ordinal) &&
-                (changedProperty == "Item" || changedProperty == "Item[]" || changedProperty == "Item" + sourceProperty))
-                return true;
             return false;
         }
 

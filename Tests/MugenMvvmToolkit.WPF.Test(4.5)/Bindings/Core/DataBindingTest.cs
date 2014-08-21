@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
@@ -388,7 +389,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             IBindingSourceAccessor source, IBindingManager manager = null)
         {
             if (manager != null)
-                BindingProvider.Instance.BindingManager = manager;
+                BindingServiceProvider.BindingManager = manager;
             return new DataBinding(target, source);
         }
 
