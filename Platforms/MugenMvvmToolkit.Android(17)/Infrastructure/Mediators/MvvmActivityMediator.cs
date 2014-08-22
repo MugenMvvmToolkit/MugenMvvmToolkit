@@ -20,6 +20,7 @@ using Android.App;
 using Android.OS;
 using Android.Views;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Mediators;
@@ -34,6 +35,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
     {
         #region Fields
 
+        private IMenu _menu;
         private readonly BindableMenuInflater _menuInflater;
         private IList<IDataBinding> _bindings;
         private Bundle _bundle;
@@ -119,7 +121,10 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             var optionsMenu = Activity.FindViewById<OptionsMenu>(Resource.Id.OptionsMenu);
             if (optionsMenu != null)
+            {
+                _menu = menu;
                 optionsMenu.Inflate(Activity, menu);
+            }
             return baseOnCreateOptionsMenu(menu);
         }
 
@@ -154,6 +159,10 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                     dataBinding.Dispose();
                 _bindings = null;
             }
+            MenuTemplate.Clear(_menu);
+#if !API8
+            ActionBarTemplate.Clear(Activity);
+#endif
             base.OnDestroy(baseOnDestroy);
         }
 

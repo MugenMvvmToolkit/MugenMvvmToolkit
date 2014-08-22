@@ -134,6 +134,12 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
+        ///     Gets or sets the default <see cref="IItemsSourceDecorator" />.
+        /// </summary>
+        [CanBeNull]
+        public static IItemsSourceDecorator ItemsSourceDecorator { get; set; } 
+
+        /// <summary>
         ///     Gets or sets the root <see cref="IIocContainer" />.
         /// </summary>
         public static IIocContainer IocContainer
@@ -271,6 +277,14 @@ namespace MugenMvvmToolkit
             TryInitialize(iocContainer, ref _validatorProvider);
             if (iocContainer.CanResolve<IViewModelSettings>())
                 ApplicationSettings.ViewModelSettings = iocContainer.Get<IViewModelSettings>();
+        }
+
+        internal static IList<T> TryDecorate<T>(IList<T> itemsSource)
+        {
+            var decorator = ItemsSourceDecorator;
+            if (decorator == null)
+                return itemsSource;
+            return decorator.Decorate(itemsSource);
         }
 
         private static void TryInitialize<TService>(IIocContainer iocContainer, ref TService service)

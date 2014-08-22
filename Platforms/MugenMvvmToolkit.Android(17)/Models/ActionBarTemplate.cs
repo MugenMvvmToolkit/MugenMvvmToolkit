@@ -20,6 +20,7 @@ using System.Xml.Serialization;
 using Android.App;
 using Android.OS;
 using Android.Support.V7.App;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models.EventArg;
@@ -170,6 +171,20 @@ namespace MugenMvvmToolkit.Models
             setter.SetStringProperty(template => template.Title, Title);
             setter.SetBoolProperty(template => template.Visible, Visible);
             setter.SetBinding("HomeButton.Click", HomeButtonClick, false);
+        }
+
+        public static void Clear(Activity activity)
+        {
+            try
+            {
+                var actionBar = activity.GetActionBar(false);
+                if (actionBar != null)
+                    BindingServiceProvider.BindingManager.ClearBindings(actionBar);
+            }
+            catch (Exception e)
+            {
+                Tracer.Error(e.Flatten(true));
+            }
         }
 
         private void TryRestoreSelectedIndex(Activity activity, ActionBar actionBar)

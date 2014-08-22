@@ -15,7 +15,6 @@
 #endregion
 
 using System;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;

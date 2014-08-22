@@ -22,7 +22,6 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit
 {
-    [Preserve(AllMembers = true)]
     internal class LinkerInclude
     {
         [UsedImplicitly]

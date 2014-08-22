@@ -130,6 +130,7 @@
     </Compile>
     <Compile Include="Infrastructure\AttachedMembersModule.cs" />
     <Compile Include="Infrastructure\BindingErrorProvider.cs" />
+    <Compile Include="Infrastructure\BindingListItemsSourceDecorator.cs" />
     <Compile Include="Infrastructure\CollectionViewManagerBase.cs" />
     <Compile Include="Infrastructure\ContentViewManagerBase.cs" />
     <Compile Include="Infrastructure\DefaultCollectionViewManager.cs" />

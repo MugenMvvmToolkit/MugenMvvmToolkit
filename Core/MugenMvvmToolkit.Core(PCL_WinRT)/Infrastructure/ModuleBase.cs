@@ -27,20 +27,16 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the custom module priority.
-        /// </summary>
-        public const int CustomModulePriority = InitializationModulePriority + 1;
 
         /// <summary>
         ///     Gets the intialization module priority.
         /// </summary>
-        public const int InitializationModulePriority = 10;
+        public const int InitializationModulePriority = 1;
 
         /// <summary>
         ///     Gets the binding module priority.
         /// </summary>
-        public const int BindingModulePriority = InitializationModulePriority - 1;
+        public const int BindingModulePriority = -1;
 
         private readonly bool _iocContainerCanBeNull;
         private readonly object _locker;
@@ -57,7 +53,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="ModuleBase" /> class.
         /// </summary>
-        protected ModuleBase(bool iocContainerCanBeNull = false, LoadMode supportedModes = LoadMode.All, int priority = CustomModulePriority)
+        protected ModuleBase(bool iocContainerCanBeNull = false, LoadMode supportedModes = LoadMode.All, int priority = InitializationModulePriority - 1)
         {
             _iocContainerCanBeNull = iocContainerCanBeNull;
             _priority = priority;

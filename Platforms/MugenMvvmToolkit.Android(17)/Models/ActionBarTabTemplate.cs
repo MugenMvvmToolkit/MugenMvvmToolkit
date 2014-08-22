@@ -19,7 +19,6 @@ using Android.Support.V4.App;
 using Android.Support.V7.App;
 using Android.Views;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -211,6 +210,7 @@ namespace MugenMvvmToolkit.Models
                 return;
             ServiceProvider.AttachedValueProvider.Clear(tab, ListenerKey);
             listener.Clear(bar, tab);
+            BindingServiceProvider.BindingManager.ClearBindings(tab);
         }
 
         private ActionBar.Tab CreateTabInternal(ActionBar bar, object context, bool useContext)

@@ -87,7 +87,7 @@ namespace MugenMvvmToolkit.Binding
                 AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.CommandParameter,
                     GetCommandParameter, SetCommandParameter, ObserveCommandParameter));
             BindingServiceProvider.MemberProvider.Register(AttachedBindingMember.CreateAutoProperty<object, IEnumerable<object>>(
-                    AttachedMemberConstants.ErrorsPropertyMember, defaultValue: (o, info) => Enumerable.Empty<object>()));
+                    AttachedMemberConstants.ErrorsPropertyMember, getDefaultValue: (o, info) => Enumerable.Empty<object>()));
             return true;
         }
 

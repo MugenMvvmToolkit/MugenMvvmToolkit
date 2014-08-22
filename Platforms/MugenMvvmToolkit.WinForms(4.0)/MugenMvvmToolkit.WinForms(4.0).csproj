@@ -150,6 +150,9 @@
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\BindingErrorProvider.cs">
       <Link>Infrastructure\BindingErrorProvider.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\BindingListItemsSourceDecorator.cs">
+      <Link>Infrastructure\BindingListItemsSourceDecorator.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\CollectionViewManagerBase.cs">
       <Link>Infrastructure\CollectionViewManagerBase.cs</Link>
     </Compile>

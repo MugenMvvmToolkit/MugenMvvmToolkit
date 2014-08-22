@@ -39,7 +39,6 @@ using Object = Java.Lang.Object;
 // ReSharper disable once CheckNamespace
 namespace MugenMvvmToolkit.Infrastructure
 {
-    [Preserve(AllMembers = true)]
     public partial class AttachedMembersModule : IModule
     {
         #region Nested types
@@ -160,7 +159,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         internal static readonly IAttachedBindingMemberInfo<AdapterView, int> AdapterViewSelectedPositionMember;
         private static readonly IAttachedBindingMemberInfo<AdapterView, object> AdapterViewSelectedItemMember;
-        private static readonly IAttachedBindingMemberInfo<AdapterView, bool> DisableScrollToSelectedItemMember;
+        private static readonly IAttachedBindingMemberInfo<AdapterView, bool> ScrollToSelectedItemMember;
 
 #if !API8
         internal static readonly IAttachedBindingMemberInfo<ViewGroup, bool> AddToBackStackMember;
@@ -226,10 +225,10 @@ namespace MugenMvvmToolkit.Infrastructure
             //AdapterView
             AdapterViewSelectedPositionMember =
                 AttachedBindingMember.CreateAutoProperty<AdapterView, int>("SelectedItemPosition",
-                    AdapterViewSelectedItemPositionChanged, AdapterViewSelectedMemberAttached);
+                    AdapterViewSelectedItemPositionChanged, AdapterViewSelectedMemberAttached, (view, info) => view.SelectedItemPosition);
             AdapterViewSelectedItemMember = AttachedBindingMember.CreateAutoProperty<AdapterView, object>(
                 AttachedMemberConstants.SelectedItem, AdapterViewSelectedItemChanged);
-            DisableScrollToSelectedItemMember = AttachedBindingMember.CreateAutoProperty<AdapterView, bool>("DisableScrollToSelectedItem");
+            ScrollToSelectedItemMember = AttachedBindingMember.CreateAutoProperty<AdapterView, bool>("ScrollToSelectedItem");
 
             //TabHost
             TabHostSelectedItemMember = AttachedBindingMember.CreateAutoProperty<TabHost, object>(AttachedMemberConstants.SelectedItem, TabHostSelectedItemChanged); ;
@@ -266,7 +265,7 @@ namespace MugenMvvmToolkit.Infrastructure
 #endif
             //Activity
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Activity, string>("Title",
-                (activity, args) => activity.Title = args.NewValue, defaultValue: (activity, info) => activity.Title));
+                (activity, args) => activity.Title = args.NewValue, getDefaultValue: (activity, info) => activity.Title));
 
             //CompoundButton
             memberProvider.Register(AttachedBindingMember
@@ -288,6 +287,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     ViewGroupTemplateChanged));
             memberProvider.Register(AdapterViewSelectedItemMember);
             memberProvider.Register(AdapterViewSelectedPositionMember);
+            memberProvider.Register(ScrollToSelectedItemMember);
 
             //ViewGroup
             memberProvider.Register(AttachedBindingMember
@@ -416,7 +416,7 @@ namespace MugenMvvmToolkit.Infrastructure
         private static void AdapterViewSelectedItemPositionChanged(AdapterView sender,
             AttachedMemberChangedEventArgs<int> args)
         {
-            if (!DisableScrollToSelectedItemMember.GetValue(sender, null))
+            if (!(sender is ListView) || ScrollToSelectedItemMember.GetValue(sender, null))
                 sender.SetSelection(args.NewValue);
 
             var adapter = GetAdapter(sender) as ItemsSourceAdapter;
@@ -426,8 +426,7 @@ namespace MugenMvvmToolkit.Infrastructure
             AdapterViewSelectedItemMember.SetValue(sender, item);
         }
 
-        private static void AdapterViewSelectedItemChanged(AdapterView sender,
-            AttachedMemberChangedEventArgs<object> args)
+        private static void AdapterViewSelectedItemChanged(AdapterView sender, AttachedMemberChangedEventArgs<object> args)
         {
             var adapter = GetAdapter(sender) as ItemsSourceAdapter;
             if (adapter == null)
@@ -446,7 +445,6 @@ namespace MugenMvvmToolkit.Infrastructure
                 adapterView.ItemSelected += (sender, args) => AdapterViewSelectedPositionMember.SetValue((AdapterView)sender, args.Position);
                 adapterView.NothingSelected += (sender, args) => AdapterViewSelectedPositionMember.SetValue((AdapterView)sender, -1);
             }
-            AdapterViewSelectedPositionMember.SetValue(adapterView, adapterView.SelectedItemPosition);
         }
 
         #endregion

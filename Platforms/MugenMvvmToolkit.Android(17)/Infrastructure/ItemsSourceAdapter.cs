@@ -13,25 +13,21 @@
 // </license>
 // ****************************************************************************
 #endregion
-using System;
 using System.Collections;
 using System.Collections.Specialized;
 using Android.App;
 using Android.Content;
-using Android.Runtime;
 using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Views;
 using Object = Java.Lang.Object;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    [Preserve(AllMembers = true)]
     public class ItemsSourceAdapter : BaseAdapter
     {
         #region Fields

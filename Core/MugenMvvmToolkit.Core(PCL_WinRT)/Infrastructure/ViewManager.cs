@@ -235,7 +235,7 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 CleanupView(viewModel, view);
                 tcs.SetResult(true);
-            });
+            }, OperationPriority.Low);
             return tcs.Task;
         }
 

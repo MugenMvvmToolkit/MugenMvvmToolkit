@@ -16,11 +16,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Collections;
+using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -41,8 +41,9 @@ namespace MugenMvvmToolkit.ViewModels
         private FilterDelegate<T> _filter;
         private IList<T> _itemsSource;
         private IList<T> _originalData;
-        private T _selectedItem;
         private FilterableNotifiableCollection<T> _filterableItemsSource;
+
+        private T _selectedItem;
         private readonly PropertyChangedEventHandler _weakPropertyHandler;
 
         private EventHandler<IGridViewModel, SelectedItemChangedEventArgs> _selectedItemChangedNonGeneric;
@@ -58,9 +59,10 @@ namespace MugenMvvmToolkit.ViewModels
         public GridViewModel()
         {
             _locker = new object();
-            SetOriginalItemsSource(new ObservableCollection<T>());
+            SetOriginalItemsSource(new SynchronizedNotifiableCollection<T>());
             _weakPropertyHandler = ReflectionExtensions
                 .MakeWeakPropertyChangedHandler(this, (model, o, arg3) => model.OnSelectedItemPropertyChanged(o, arg3));
+            ChangeItemSelectedState = true;
         }
 
         #endregion
@@ -74,6 +76,11 @@ namespace MugenMvvmToolkit.ViewModels
         {
             get { return _filterableItemsSource; }
         }
+
+        /// <summary>
+        /// Gets or sets the value that indicates that the current view model will change the IsSelected property in <see cref="ISelectable"/> model.
+        /// </summary>
+        public bool ChangeItemSelectedState { get; set; }
 
         #endregion
 
@@ -185,13 +192,16 @@ namespace MugenMvvmToolkit.ViewModels
                 TryUpdatePropertyChanged(oldValue, false);
                 TryUpdatePropertyChanged(_selectedItem, true);
 
-                var selectable = oldValue as ISelectable;
-                if (selectable != null)
-                    selectable.IsSelected = false;
+                if (ChangeItemSelectedState)
+                {
+                    var selectable = oldValue as ISelectable;
+                    if (selectable != null)
+                        selectable.IsSelected = false;
 
-                selectable = _selectedItem as ISelectable;
-                if (selectable != null)
-                    selectable.IsSelected = true;
+                    selectable = _selectedItem as ISelectable;
+                    if (selectable != null)
+                        selectable.IsSelected = true;
+                }
 
                 OnSelectedItemChanged(oldValue, _selectedItem);
                 RaiseSelectedItemChanged(oldValue, _selectedItem);
@@ -220,20 +230,24 @@ namespace MugenMvvmToolkit.ViewModels
             Should.NotBeNull(originalItemsSource, "originalItemsSource");
             lock (_locker)
             {
+                INotifyCollectionChanging collectionChanging;
                 if (_originalData != null)
                 {
-                    _filterableItemsSource.CollectionChanging -= RaiseCollectionChanging;
+                    collectionChanging = _originalData as INotifyCollectionChanging;
+                    if (collectionChanging != null)
+                        collectionChanging.CollectionChanging -= RaiseCollectionChanging;
                     ((INotifyCollectionChanged)(_originalData)).CollectionChanged -= RaiseCollectionChanged;
                     if (_originalData.Count != 0)
                         originalItemsSource.AddRange(_originalData);
                 }
-                _originalData = originalItemsSource;
-                _filterableItemsSource = new FilterableNotifiableCollection<T>(_originalData);
-                _filterableItemsSource.CollectionChanging += RaiseCollectionChanging;
+                _filterableItemsSource = new FilterableNotifiableCollection<T>(originalItemsSource);
+                collectionChanging = originalItemsSource as INotifyCollectionChanging;
+                if (collectionChanging != null)
+                    collectionChanging.CollectionChanging += RaiseCollectionChanging;
                 originalItemsSource.CollectionChanged += RaiseCollectionChanged;
-                _itemsSource = ApplicationSettings.ItemsSourceDecorator == null
-                    ? FilterableItemsSource
-                    : (IList<T>)ApplicationSettings.ItemsSourceDecorator(FilterableItemsSource);
+
+                _originalData = originalItemsSource;
+                _itemsSource = ServiceProvider.TryDecorate(FilterableItemsSource);
             }
             UpdateFilter();
             OnPropertyChanged("ItemsSource");

@@ -196,12 +196,19 @@ namespace MugenMvvmToolkit
 #endif
         }
 
-        public static ActionBar GetActionBar(this Activity activity)
+        public static ActionBar GetActionBar(this Activity activity, bool throwOnError = true)
         {
             Should.NotBeNull(activity, "activity");
 #if API8SUPPORT
-            Should.BeOfType<ActionBarActivity>(activity, "activity");
-            return ((ActionBarActivity)activity).SupportActionBar;
+            if (throwOnError)
+            {
+                Should.BeOfType<ActionBarActivity>(activity, "activity");
+                return ((ActionBarActivity)activity).SupportActionBar;
+            }
+            var actionBarActivity = activity as ActionBarActivity;
+            if (actionBarActivity == null)
+                return null;
+            return actionBarActivity.SupportActionBar;
 #else
             return activity.ActionBar;
 #endif

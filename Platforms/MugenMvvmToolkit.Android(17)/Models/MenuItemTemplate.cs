@@ -13,11 +13,14 @@
 // </license>
 // ****************************************************************************
 #endregion
+
+using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using Android.Content;
 using Android.Views;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -128,6 +131,28 @@ namespace MugenMvvmToolkit.Models
             ApplyInternal(menu, context, id, order, null, false);
         }
 
+        public static void Clear(IMenuItem item)
+        {
+            try
+            {
+                Clear(item, BindingServiceProvider.BindingManager);
+            }
+            catch (Exception e)
+            {
+                Tracer.Error(e.Flatten(true));
+            }
+        }
+
+        internal static void Clear(IMenuItem item, IBindingManager bindingManager)
+        {
+            if (item == null)
+                return;
+            bindingManager.ClearBindings(item);
+            if (item.HasSubMenu)
+                MenuTemplate.Clear(item.SubMenu, bindingManager);
+            AttachedMembersModule.MenuParentMember.SetValue(item, BindingExtensions.NullValue);
+        }
+
         private void ApplyInternal(IMenu menu, Context context, int id, int order, object dataContext, bool useContext)
         {
             PlatformExtensions.ValidateTemplate(ItemsSource, Items);
@@ -135,8 +160,8 @@ namespace MugenMvvmToolkit.Models
             if (isSubMenu)
             {
                 ISubMenu subMenu = menu.AddSubMenu(0, id, order, string.Empty);
-                AttachedMembersModule.MenuParentMember.SetValue(subMenu, new object[] { menu });
-                AttachedMembersModule.MenuParentMember.SetValue(subMenu.Item, new object[] { subMenu });
+                AttachedMembersModule.MenuParentMember.SetValue(subMenu, menu);
+                AttachedMembersModule.MenuParentMember.SetValue(subMenu.Item, subMenu);
                 SetDataContext(subMenu, context, dataContext, useContext);
 
                 ApplySelf(subMenu.Item, context);
@@ -155,7 +180,7 @@ namespace MugenMvvmToolkit.Models
             else
             {
                 var menuItem = menu.Add(0, id, order, string.Empty);
-                AttachedMembersModule.MenuParentMember.SetValue(menuItem, new object[] { menu });
+                AttachedMembersModule.MenuParentMember.SetValue(menuItem, menu);
                 SetDataContext(menuItem, context, dataContext, useContext);
                 ApplySelf(menuItem, context);
             }

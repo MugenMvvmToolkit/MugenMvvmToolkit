@@ -252,9 +252,7 @@ namespace MugenMvvmToolkit.Binding.Core
 
         #region Fields
 
-        private const string ContextMemberPath =
-            "$$BindingContextManager" + AttachedMemberConstants.DataContext;
-
+        private const string ContextMemberPath = "$$ContextManager." + AttachedMemberConstants.DataContext;
         private static readonly Func<object, object, IBindingContext> CreateBindingContextDelegate;
 
         #endregion

@@ -39,7 +39,7 @@ namespace MugenMvvmToolkit.Binding.Models
         public static readonly IBindingPath Empty;
 
         /// <summary>
-        /// Gets teh data context path.
+        /// Gets the data context path.
         /// </summary>
         public static readonly IBindingPath DataContext;
 

@@ -175,14 +175,14 @@ namespace MugenMvvmToolkit.Binding
 
         internal static void SetDefaultValues()
         {
-            _bindingProvider = new BindingProvider();
-            _bindingManager = new BindingManager();
-            _memberProvider = new BindingMemberProvider();
-            _observerProvider = new ObserverProvider();
-            _contextManager = new BindingContextManager();
-            _visualTreeManager = new VisualTreeManager();
             _resourceResolver = new BindingResourceResolver();
+            _memberProvider = new BindingMemberProvider();
+            _visualTreeManager = new VisualTreeManager();
             _weakEventManager = new WeakEventManager();
+            _bindingManager = new BindingManager();
+            _bindingProvider = new BindingProvider();
+            _observerProvider = new ObserverProvider();
+            _contextManager = new BindingContextManager();            
         }
 
         #endregion

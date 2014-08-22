@@ -24,7 +24,6 @@ using MugenMvvmToolkit.Binding.Interfaces;
 
 namespace MugenMvvmToolkit.Views
 {
-    [Preserve(AllMembers = true)]
     public class ListItemView : FrameLayout, ICheckable
     {
         #region Fields

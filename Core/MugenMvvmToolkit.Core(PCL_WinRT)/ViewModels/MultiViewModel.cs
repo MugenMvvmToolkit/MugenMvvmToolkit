@@ -62,9 +62,7 @@ namespace MugenMvvmToolkit.ViewModels
             DisposeViewModelOnRemove = true;
 
             var collection = new SynchronizedNotifiableCollection<IViewModel>();
-            _itemsSource = ApplicationSettings.ItemsSourceDecorator == null
-                ? collection
-                : (IList<IViewModel>)ApplicationSettings.ItemsSourceDecorator(collection);
+            _itemsSource = ServiceProvider.TryDecorate(collection);
             collection.CollectionChanged += OnViewModelsChanged;
             _weakEventHandler = ReflectionExtensions.CreateWeakDelegate<MultiViewModel, ViewModelClosedEventArgs, EventHandler<ICloseableViewModel, ViewModelClosedEventArgs>>(this,
                 (model, o, arg3) => model.OnViewModelClosed(arg3), UnsubscribeAction, handler => handler.Handle);

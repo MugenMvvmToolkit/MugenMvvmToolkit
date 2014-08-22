@@ -13,10 +13,14 @@
 // </license>
 // ****************************************************************************
 #endregion
+
+using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using Android.Content;
 using Android.Views;
+using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Infrastructure;
 
 namespace MugenMvvmToolkit.Models
@@ -52,7 +56,7 @@ namespace MugenMvvmToolkit.Models
         {
             PlatformExtensions.ValidateTemplate(ItemsSource, Items);
             var setter = new XmlPropertySetter<MenuTemplate, IMenu>(menu, context);
-            AttachedMembersModule.MenuParentMember.SetValue(menu, new[] { parent });
+            AttachedMembersModule.MenuParentMember.SetValue(menu, parent);
             setter.SetBinding(template => template.DataContext, DataContext, false);
             setter.SetBoolProperty(template => template.IsVisible, IsVisible);
             setter.SetBoolProperty(template => template.IsEnabled, IsEnabled);
@@ -68,6 +72,30 @@ namespace MugenMvvmToolkit.Models
                 MenuItemsSourceGenerator.Set(menu, context, ItemTemplate);
                 setter.SetBinding(template => template.ItemsSource, ItemsSource, true);
             }
+        }
+
+        public static void Clear(IMenu menu)
+        {
+            try
+            {
+                Clear(menu, BindingServiceProvider.BindingManager);
+            }
+            catch (Exception e)
+            {
+                Tracer.Error(e.Flatten(true));
+            }
+        }
+
+        internal static void Clear(IMenu menu, IBindingManager bindingManager)
+        {
+            if (menu == null)
+                return;
+            bindingManager.ClearBindings(menu);
+            int size = menu.Size();
+            for (int i = 0; i < size; i++)
+                MenuItemTemplate.Clear(menu.GetItem(i), bindingManager);
+            menu.Clear();
+            AttachedMembersModule.MenuParentMember.SetValue(menu, BindingExtensions.NullValue);
         }
 
         #endregion

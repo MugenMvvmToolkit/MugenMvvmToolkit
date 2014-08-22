@@ -297,10 +297,10 @@ namespace MugenMvvmToolkit.Collections
 
         private ActionToken SuspendInternal()
         {
-            //To ensure that somebody don't set a wrong value that causes deadlock.
+            //changing value that can cause deadlock.
             var notifiableCollection = Items as SynchronizedNotifiableCollection<T>;
             if (notifiableCollection != null && notifiableCollection.ExecutionMode == ExecutionMode.SynchronousOnUiThread)
-                notifiableCollection.ExecutionMode = Models.ExecutionMode.None;
+                notifiableCollection.ExecutionMode = ExecutionMode.None;
 
             _isSuspendedInternal = true;
             return new ActionToken(o => ((FilterableNotifiableCollection<T>)o)._isSuspendedInternal = false, this);

@@ -126,12 +126,6 @@ namespace MugenMvvmToolkit
         public static Action<IViewModel> InitializeDesignViewModel { get; set; }
 
         /// <summary>
-        ///     Gets or sets the delegate that allows to decorate items source collection.
-        /// </summary>
-        [CanBeNull]
-        public static Func<IList, IList> ItemsSourceDecorator { get; set; }
-
-        /// <summary>
         ///     Specifies the execution mode for <c>SyncronizedNotifiableCollection</c> by default, if not set explicitly.
         /// </summary>
         public static ExecutionMode SynchronizedCollectionExecutionMode { get; set; }

@@ -106,7 +106,6 @@ namespace MugenMvvmToolkit.Infrastructure
 #elif WINFORMS
             ((IComponent)sender).Disposed -= OnTargetDisposed;
 #endif
-
             var collectionChanged = ItemsSource as INotifyCollectionChanged;
             if (collectionChanged != null)
                 collectionChanged.CollectionChanged -= _handler;

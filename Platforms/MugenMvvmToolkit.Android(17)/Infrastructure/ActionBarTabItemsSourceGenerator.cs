@@ -20,7 +20,6 @@ using Android.App;
 using Android.Support.V7.App;
 using Android.Widget;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Views;

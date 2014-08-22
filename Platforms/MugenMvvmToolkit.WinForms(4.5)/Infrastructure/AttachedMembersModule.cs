@@ -93,6 +93,20 @@ namespace MugenMvvmToolkit.Infrastructure
             memberProvider.Register(ContenTemplateMember);
             memberProvider.Register(DisableValidationMember);
 
+            //DateTimePicker
+            memberProvider.Register(AttachedBindingMember.CreateMember<DateTimePicker, DateTime>("Value", (info, picker, arg3) => picker.Value,
+                (info, picker, arg3) =>
+                {
+                    var value = (DateTime)arg3[0];
+                    if (value < picker.MinDate)
+                        picker.Value = picker.MinDate;
+                    else if (value > picker.MaxDate)
+                        picker.Value = picker.MaxDate;
+                    else
+                        picker.Value = value;
+                    return null;
+                }, memberChangeEventName: "ValueChanged"));
+
             //MenuItem
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<MenuItem, bool>(AttachedMemberConstants.Enabled,

@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.Android.API8.AppCompactV7</id>
-    <version>1.0.6</version>
+    <version>1.0.8</version>
     <title>MugenMvvmToolkit - Android API8+ AppCompactV7</title>
     <authors>Vyacheslav Volkov</authors>
     <description>

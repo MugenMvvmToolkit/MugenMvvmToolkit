@@ -24,13 +24,11 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using Object = Java.Lang.Object;
 #if API8SUPPORT
@@ -139,34 +137,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public void OnDismiss(PopupMenu menu)
             {
-                try
-                {
-                    ClearBindings(menu.Menu, BindingServiceProvider.BindingManager);
-                }
-                catch (Exception exception)
-                {
-                    Tracer.Error(exception.Flatten(true));
-                }
-            }
-
-            #endregion
-
-            #region Methods
-
-            private static void ClearBindings(IMenu menu, IBindingManager bindingManager)
-            {
-                if (menu == null)
-                    return;
-                bindingManager.ClearBindings(menu);
-                int size = menu.Size();
-                for (int i = 0; i < size; i++)
-                {
-                    IMenuItem item = menu.GetItem(i);
-                    bindingManager.ClearBindings(item);
-                    if (item.HasSubMenu)
-                        ClearBindings(item.SubMenu, bindingManager);
-                }
-                menu.Clear();
+                MenuTemplate.Clear(menu.Menu);
             }
 
             #endregion
@@ -263,7 +234,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Fields
 
-        internal static readonly IBindingMemberInfo MenuParentMember;
+        internal static readonly IAttachedBindingMemberInfo<object, object> MenuParentMember;
         internal static readonly IAttachedBindingMemberInfo<IMenuItem, bool> IsCheckedMenuItemMember;
 #if !API8
         private static readonly IAttachedBindingMemberInfo<IMenuItem, object> MenuItemActionViewMember;

@@ -28,6 +28,15 @@ namespace MugenMvvmToolkit.Infrastructure
     /// </summary>
     public class InitializationModule : InitializationModuleBase
     {
+        #region Constructors
+
+        static InitializationModule()
+        {
+            ServiceProvider.ItemsSourceDecorator = new BindingListItemsSourceDecorator();
+        }
+
+        #endregion
+
         #region Properties
 
         /// <summary>
@@ -38,15 +47,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Overrides of InitializationModuleBase
-
-        /// <summary>
-        ///     Loads the current module.
-        /// </summary>
-        protected override bool LoadInternal()
-        {
-            ApplicationSettings.ItemsSourceDecorator = PlatformExtensions.ToBindingListInternal;
-            return base.LoadInternal();
-        }
 
         /// <summary>
         ///     Gets the <see cref="IViewManager" /> that will be used in the current application by default.
@@ -119,7 +119,7 @@ namespace MugenMvvmToolkit.Infrastructure
                         container.Get<IViewManager>(), container.Get<IThreadManager>(),
                         container.Get<IOperationCallbackManager>()));
                 return presenter;
-            }, DependencyLifecycle.SingleInstance);     
+            }, DependencyLifecycle.SingleInstance);
         }
 
         /// <summary>

@@ -449,7 +449,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private static WeakListenerInternal CreateContextListener(object src, object state)
         {
             var listenerInternal = new WeakListenerInternal(src, null);
-            BindingServiceProvider.ContextManager.GetBindingContext(src).ValueChanged -= listenerInternal.Raise;
+            BindingServiceProvider.ContextManager.GetBindingContext(src).ValueChanged += listenerInternal.Raise;
             return listenerInternal;
         }
 

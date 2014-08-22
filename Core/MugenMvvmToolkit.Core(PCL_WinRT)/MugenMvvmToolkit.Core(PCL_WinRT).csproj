@@ -129,6 +129,7 @@
     <Compile Include="Interfaces\IEventAggregator.cs" />
     <Compile Include="Interfaces\IIocContainer.cs" />
     <Compile Include="Interfaces\IIocParameter.cs" />
+    <Compile Include="Interfaces\IItemsSourceDecorator.cs" />
     <Compile Include="Interfaces\IModule.cs" />
     <Compile Include="Interfaces\IReflectionManager.cs" />
     <Compile Include="Interfaces\ISerializer.cs" />

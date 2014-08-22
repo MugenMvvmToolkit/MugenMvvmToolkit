@@ -71,7 +71,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (removalIndex == _menu.Size() - 1)
             {
                 for (int i = 0; i < count; i++)
-                    _menu.RemoveItem(removalIndex + i);
+                    RemoveItem(removalIndex + i);
             }
             else
                 Refresh();
@@ -82,14 +82,17 @@ namespace MugenMvvmToolkit.Infrastructure
             for (int i = 0; i < count; i++)
             {
                 int index = startIndex + i;
-                _menu.RemoveItem(index);
+                RemoveItem(index);
                 _itemTemplate.Apply(_menu, _context, GetItem(index), index, index);
             }
         }
 
         protected override void Refresh()
         {
+            for (int i = 0; i < _menu.Size(); i++)
+                MenuItemTemplate.Clear(_menu.GetItem(i));
             _menu.Clear();
+
             IEnumerable itemsSource = ItemsSource;
             if (itemsSource == null)
                 return;
@@ -115,7 +118,12 @@ namespace MugenMvvmToolkit.Infrastructure
             ServiceProvider.AttachedValueProvider.SetValue(menu, Key, new MenuItemsSourceGenerator(menu, context, itemTemplate));
         }
 
-        #endregion
+        private void RemoveItem(int id)
+        {
+            MenuItemTemplate.Clear(_menu.FindItem(id));
+            _menu.RemoveItem(id);
+        }
 
+        #endregion
     }
 }
