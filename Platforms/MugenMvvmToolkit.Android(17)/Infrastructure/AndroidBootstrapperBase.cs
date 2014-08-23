@@ -86,6 +86,15 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #endregion
 
+        #region Properties
+
+        /// <summary>
+        /// Gets the collection of view assemblies.
+        /// </summary>
+        public static IList<Assembly> ViewAssemblies { get; private set; }
+
+        #endregion
+
         #region Overrides of BootstrapperBase
 
         /// <summary>
@@ -110,26 +119,8 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected override void OnInitialize()
         {
-            //NOTE: to improve startup performance adding types manually
-            var viewCache = TypeCache<View>.Instance;
-#if !API8
-            var actionProviderCache = TypeCache<ActionProvider>.Instance;
-            var fragmentCache = TypeCache<Fragment>.Instance;
-#endif
-            IList<Assembly> assemblies = GetAndroidViewAssemblies();
-            for (int i = 0; i < assemblies.Count; i++)
-            {
-                var types = assemblies[i].GetTypes();
-                for (int j = 0; j < types.Length; j++)
-                {
-                    var type = types[j];
-                    viewCache.Add(type);
-#if !API8
-                    actionProviderCache.Add(type);
-                    fragmentCache.Add(type);
-#endif
-                }
-            }
+            //NOTE: to improve startup performance saving the collection of assemblies to use it later.
+            ViewAssemblies = GetAndroidViewAssemblies();
             base.OnInitialize();
             //To activate navigation provider.
             var provider = IocContainer.Get<INavigationProvider>();
@@ -193,7 +184,7 @@ You must specify the type of application bootstraper using BootstrapperAttribute
             return new[]
             {
                 typeof (View).Assembly,
-                typeof (ListItemView).Assembly,
+                typeof (ListItem).Assembly,
                 GetType().Assembly,
 #if API8SUPPORT
                typeof(SearchView).Assembly

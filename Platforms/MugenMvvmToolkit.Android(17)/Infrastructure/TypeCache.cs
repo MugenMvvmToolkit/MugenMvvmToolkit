@@ -26,7 +26,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Gets the instance of cache.
         /// </summary>
-        public static readonly TypeCache<TType> Instance = new TypeCache<TType>();
+        public static readonly TypeCache<TType> Instance;
 
         private readonly HashSet<Assembly> _cachedAssemblies;
         private readonly IDictionary<string, Type> _fullNameCache;
@@ -39,6 +39,12 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Constructors
+
+        static TypeCache()
+        {
+            Instance = new TypeCache<TType>();
+            Initialize(AndroidBootstrapperBase.ViewAssemblies);
+        }
 
         private TypeCache()
         {
@@ -54,12 +60,12 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        public static void Initialize(IEnumerable<Assembly> assemblies)
+        public static void Initialize(IList<Assembly> assemblies)
         {
             if (assemblies == null)
                 return;
-            foreach (Assembly assembly in assemblies)
-                Instance.AddAssembly(assembly);
+            for (int index = 0; index < assemblies.Count; index++)
+                Instance.AddAssembly(assemblies[index]);
         }
 
         public Type GetTypeByName(string typeName, bool ignoreCase, bool throwOnError)
@@ -98,11 +104,12 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (!_cachedAssemblies.Add(assembly))
                     return;
             }
-            foreach (Type type in assembly.GetTypes())
-                Add(type);
+            var types = assembly.GetTypes();
+            for (int index = 0; index < types.Length; index++)
+                Add(types[index]);
         }
 
-        internal void Add(Type type)
+        private void Add(Type type)
         {
             if (!typeof(TType).IsAssignableFrom(type))
                 return;

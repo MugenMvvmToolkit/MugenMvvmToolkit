@@ -17,20 +17,18 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
 using Android.App;
 using Android.Content;
+using Android.OS;
 using Android.Support.V4.App;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
@@ -153,6 +151,7 @@ namespace MugenMvvmToolkit
         private static readonly List<WeakReference> WeakReferences;
         private static readonly Func<ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs>, NotifyCollectionChangedEventHandler> CreateHandlerDelegate;
         private const string VisitedParentPath = "$``!Visited~";
+        private const string AddedToBackStackKey = "@$backstack";
         private static Func<Activity, IDataContext, IMvvmActivityMediator> _mvvmActivityMediatorFactory;
         private static readonly Action<object, NotifyCollectionChangedEventHandler> UnsubscribeCollectionChangedDelegate;
 #if !API8
@@ -185,12 +184,13 @@ namespace MugenMvvmToolkit
         [CanBeNull]
         public static IDataTemplateSelector DefaultDataTemplateSelector { get; set; }
 
+#if !API8
         /// <summary>
         /// Gets or sets the custom home button finder.
         /// </summary>
         [CanBeNull]
         public static Func<Activity, View> HomeButtonFinder { get; set; }
-
+#endif
         /// <summary>
         ///     Gets or sets the factory that creates an instance of <see cref="IMvvmActivityMediator" />.
         /// </summary>
@@ -321,19 +321,23 @@ namespace MugenMvvmToolkit
             Should.NotBeNull(frameLayout, "frameLayout");
             if (content == null)
             {
+                bool hasFragment = false;
                 var fragmentManager = frameLayout.GetFragmentManager();
                 if (fragmentManager != null)
                 {
                     var fragment = fragmentManager.FindFragmentById(frameLayout.Id);
-                    if (fragment != null)
+                    hasFragment = fragment != null;
+                    if (hasFragment && !fragmentManager.IsDestroyed)
                     {
-                        fragmentManager.BeginTransaction().Remove(fragment).Commit();
+                        fragmentManager.BeginTransaction().Remove(fragment).CommitAllowingStateLoss();
                         fragmentManager.ExecutePendingTransactions();
                     }
                 }
-                frameLayout.RemoveAllViews();
+                if (!hasFragment)
+                    frameLayout.RemoveAllViews();
                 return;
             }
+
             var view = content as View;
             if (view == null)
             {
@@ -346,19 +350,32 @@ namespace MugenMvvmToolkit
                     manager = frameLayout.GetFragmentManager();
                     if (manager == null)
                         return;
-                    var oldFragment = manager.FindFragmentById(frameLayout.Id);
-                    if (oldFragment == fragment)
-                        return;
-
                     transaction = manager.BeginTransaction();
                 }
+                if (addToBackStack && fragment.Arguments != null)
+                    addToBackStack = !fragment.Arguments.GetBoolean(AddedToBackStackKey);
 
                 if (updateAction == null)
-                    transaction = transaction.Replace(frameLayout.Id, fragment);
+                {
+                    if (fragment.IsDetached)
+                        transaction.Attach(fragment);
+                    else
+                    {
+                        if (addToBackStack)
+                        {
+                            if (fragment.Arguments == null)
+                                fragment.Arguments = new Bundle();
+                            fragment.Arguments.PutBoolean(AddedToBackStackKey, true);
+                        }
+                        transaction.Replace(frameLayout.Id, fragment);
+                    }
+                }
                 else
                     updateAction(frameLayout, fragment, transaction);
                 if (addToBackStack)
-                    transaction = transaction.AddToBackStack(null);
+                    transaction.AddToBackStack(null);
+
+
                 if (manager != null)
                 {
                     transaction.Commit();

@@ -215,8 +215,8 @@
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\Activities\SplashScreenActivityBase.cs">
       <Link>Views\Activities\SplashScreenActivityBase.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\ListItemView.cs">
-      <Link>Views\ListItemView.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\ListItem.cs">
+      <Link>Views\ListItem.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\OptionsMenu.cs">
       <Link>Views\OptionsMenu.cs</Link>

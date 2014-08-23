@@ -22,7 +22,6 @@ using Android.Widget;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Views;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
@@ -61,7 +60,7 @@ namespace MugenMvvmToolkit.Infrastructure
             for (int i = 0; i < count; i++)
             {
                 int index = insertionIndex + i;
-                ActionBar.Tab tab = CreateTab(index);
+                var tab = CreateTab(index);
                 _actionBar.AddTab(tab, index, false);
             }
         }
@@ -83,7 +82,7 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 int index = startIndex + i;
                 Remove(index);
-                ActionBar.Tab tab = CreateTab(index);
+                var tab = CreateTab(index);
                 _actionBar.AddTab(tab, index, false);
             }
         }
@@ -104,7 +103,7 @@ namespace MugenMvvmToolkit.Infrastructure
             for (int index = 0; index < count; index++)
             {
                 var item = GetItem(index);
-                ActionBar.Tab tab = CreateTab(item);
+                var tab = CreateTab(item);
                 _actionBar.AddTab(tab, index, ReferenceEquals(selectedItem, item));
             }
             if (count == 0)
@@ -130,7 +129,7 @@ namespace MugenMvvmToolkit.Infrastructure
             AttachedMembersModule
                 .ActionBarSelectedItemMember
                 .SetValue(_actionBar, BindingExtensions.NullValue);
-            var value = ActionBarView.GetTabContentId(_actionBar);
+            var value = Views.ActionBar.GetTabContentId(_actionBar);
             if (value == null)
                 return;
             var layout = ((Activity)_actionBar.ThemedContext).FindViewById<FrameLayout>(value.Value);
@@ -143,11 +142,10 @@ namespace MugenMvvmToolkit.Infrastructure
             IBindingContextManager contextManager = BindingServiceProvider.ContextManager;
             for (int i = 0; i < _actionBar.TabCount; i++)
             {
-                ActionBar.Tab tab = _actionBar.GetTabAt(i);
+                var tab = _actionBar.GetTabAt(i);
                 if (contextManager.GetBindingContext(tab).Value == dataContext)
                 {
-                    var selectedTab = _actionBar.SelectedNavigationIndex < 0 ? null : _actionBar.SelectedTab;
-                    if (!ReferenceEquals(selectedTab, tab))
+                    if (tab.Position != _actionBar.SelectedNavigationIndex)
                         tab.Select();
                     return;
                 }

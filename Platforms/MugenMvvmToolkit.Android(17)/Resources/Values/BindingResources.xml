@@ -24,7 +24,7 @@
     <attr name="PlacementTargetPath" format="string" />
   </declare-styleable>
   
-  <declare-styleable name="ActionBarView">
+  <declare-styleable name="ActionBar">
     <attr name="ActionBarTemplate" format="integer" />
     <attr name="TabContentId" format="integer" />
   </declare-styleable>

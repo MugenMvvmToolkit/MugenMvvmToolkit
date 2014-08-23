@@ -130,29 +130,9 @@ namespace MugenMvvmToolkit.Models
             var setter = new XmlPropertySetter<ActionBarTemplate, ActionBar>(actionBar, activity);
             setter.SetEnumProperty<ActionBarNavigationMode>(template => template.NavigationMode, NavigationMode);
             setter.SetProperty(template => template.DataContext, DataContext);
-            if (string.IsNullOrEmpty(ItemsSource))
-            {
-                if (Tabs != null)
-                {
-                    for (int index = 0; index < Tabs.Count; index++)
-                    {
-                        var tab = Tabs[index].CreateTab(actionBar);
-                        actionBar.AddTab(tab, index);
-                    }
-                    TryRestoreSelectedIndex(activity, actionBar);
-                }
-            }
-            else
-            {
-                ActionBarTabItemsSourceGenerator.Set(actionBar, TabTemplate);
-                setter.SetBinding(template => template.ItemsSource, ItemsSource, false);
-            }
 
             setter.SetProperty(template => template.ContextActionBarTemplate, ContextActionBarTemplate);
             setter.SetBinding(template => template.ContextActionBarVisible, ContextActionBarVisible, false);
-
-            setter.SetBinding(template => template.SelectedItem, SelectedItem, false);
-
             setter.SetProperty(template => template.BackgroundDrawable, BackgroundDrawable);
             setter.SetProperty(template => template.CustomView, CustomView);
             setter.SetEnumProperty<ActionBarDisplayOptions>(template => template.DisplayOptions, DisplayOptions);
@@ -171,6 +151,29 @@ namespace MugenMvvmToolkit.Models
             setter.SetStringProperty(template => template.Title, Title);
             setter.SetBoolProperty(template => template.Visible, Visible);
             setter.SetBinding("HomeButton.Click", HomeButtonClick, false);
+
+
+            if (string.IsNullOrEmpty(ItemsSource))
+            {
+                if (Tabs != null)
+                {
+                    ActionBar.Tab firstTab = null;
+                    for (int index = 0; index < Tabs.Count; index++)
+                    {
+                        var tab = Tabs[index].CreateTab(actionBar);
+                        if (firstTab == null)
+                            firstTab = tab;
+                        actionBar.AddTab(tab);
+                    }
+                    TryRestoreSelectedIndex(activity, actionBar);
+                }
+            }
+            else
+            {
+                ActionBarTabItemsSourceGenerator.Set(actionBar, TabTemplate);
+                setter.SetBinding(template => template.ItemsSource, ItemsSource, false);
+            }
+            setter.SetBinding(template => template.SelectedItem, SelectedItem, false);
         }
 
         public static void Clear(Activity activity)
@@ -197,14 +200,15 @@ namespace MugenMvvmToolkit.Models
             var activityView = activity as IActivityView;
             if (activityView == null)
                 return;
+            activityView.SaveInstanceState += ActivityViewOnSaveInstanceState;
+
             var bundle = activityView.Bundle;
             if (bundle != null)
             {
                 var i = bundle.GetInt(SelectedTabIndexKey, int.MinValue);
-                if (i != int.MinValue)
+                if (i != int.MinValue && i != actionBar.SelectedNavigationIndex)
                     actionBar.SetSelectedNavigationItem(i);
             }
-            activityView.SaveInstanceState += ActivityViewOnSaveInstanceState;
         }
 
         private static void ActivityViewOnSaveInstanceState(Activity sender, ValueEventArgs<Bundle> args)

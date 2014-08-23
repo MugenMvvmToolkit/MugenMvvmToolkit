@@ -17,6 +17,7 @@ using System;
 using System.Threading;
 using Android.App;
 using Android.OS;
+using Android.Support.V4.App;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
@@ -98,7 +99,15 @@ namespace MugenMvvmToolkit.Views.Activities
             try
             {
                 if (_bootstrapper == null)
+                {
                     _bootstrapper = activityBase.CreateBootstrapper();
+                    _bootstrapper.Initialize();
+                    //NOTE: to improve startup performance
+                    TypeCache<View>.Initialize(null);
+#if !API8
+                    TypeCache<Fragment>.Initialize(null);
+#endif
+                }
                 _bootstrapper.Start(activityBase.GetContext());
             }
             catch (Exception e)

@@ -92,15 +92,15 @@ namespace MugenMvvmToolkit
 		public partial class Styleable
 		{
 			
-			public static int[] ActionBarView = new int[] {
+			public static int[] ActionBar = new int[] {
 					2130771977,
 					2130771978};
 			
 			// aapt resource value: 0
-			public static int ActionBarView_ActionBarTemplate = 0;
+			public static int ActionBar_ActionBarTemplate = 0;
 			
 			// aapt resource value: 1
-			public static int ActionBarView_TabContentId = 1;
+			public static int ActionBar_TabContentId = 1;
 			
 			public static int[] Binding = new int[] {
 					2130771968,

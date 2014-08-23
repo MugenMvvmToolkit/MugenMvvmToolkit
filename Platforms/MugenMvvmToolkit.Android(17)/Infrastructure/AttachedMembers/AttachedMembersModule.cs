@@ -108,9 +108,13 @@ namespace MugenMvvmToolkit.Infrastructure
                 var viewGroup = (ViewGroup)parent;
                 if (viewGroup.IndexOfChild(child) == 0)
                 {
-                    var dataContext = BindingServiceProvider.ContextManager.GetBindingContext(child);
-                    dataContext.ValueChanged += BindingContextChangedDelegate;
-                    UpdataContext(viewGroup, child, dataContext);
+                    var underlyingView = GetUnderlyingView(child);
+                    if (underlyingView != null)
+                    {
+                        var dataContext = BindingServiceProvider.ContextManager.GetBindingContext(underlyingView);
+                        dataContext.ValueChanged += BindingContextChangedDelegate;
+                        UpdataContext(viewGroup, underlyingView, dataContext);
+                    }
                 }
                 GlobalViewParentListener.Instance.OnChildViewAdded(parent, child);
             }
@@ -118,9 +122,11 @@ namespace MugenMvvmToolkit.Infrastructure
             public void OnChildViewRemoved(View parent, View child)
             {
                 var viewGroup = (ViewGroup)parent;
-                if (viewGroup.ChildCount == 0)
+                if (viewGroup.ChildCount == 0 || viewGroup.GetChildAt(0) == child)
                 {
-                    BindingServiceProvider.ContextManager.GetBindingContext(child).ValueChanged -= BindingContextChangedDelegate;
+                    var underlyingView = GetUnderlyingView(child);
+                    if (underlyingView != null)
+                        BindingServiceProvider.ContextManager.GetBindingContext(underlyingView).ValueChanged -= BindingContextChangedDelegate;
                     ContentMember.SetValue(viewGroup, RemoveViewValue);
                 }
                 GlobalViewParentListener.Instance.OnChildViewRemoved(parent, child);
@@ -130,6 +136,41 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Methods
 
+            [CanBeNull]
+            private static View GetUnderlyingView(View child)
+            {
+#if API8SUPPORT
+                if (IsNoSaveStateFrameLayout(child))
+                {
+                    var layout = (FrameLayout)child;
+                    if (layout.ChildCount == 0)
+                        return null;
+                    return layout.GetChildAt(0);
+                }
+                return child;
+#else 
+                return child;
+#endif
+            }
+
+            private static View GetParent(View view)
+            {
+#if API8SUPPORT
+                var parent = view.Parent as View;
+                if (IsNoSaveStateFrameLayout(parent))
+                    return parent.Parent as View;
+                return parent;
+#else 
+                return view.Parent as View;
+#endif
+            }
+
+#if API8SUPPORT
+            private static bool IsNoSaveStateFrameLayout(View view)
+            {
+                return view != null && view.Class.CanonicalName.SafeContains("NoSaveStateFrameLayout", StringComparison.OrdinalIgnoreCase);
+            }
+#endif
             private static void BindingContextChanged(ISourceValue value, EventArgs args)
             {
                 var context = (IBindingContext)value;
@@ -141,10 +182,8 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (view == null)
                     return;
                 if (parent == null)
-                    parent = view.Parent as View;
-                if (parent != null &&
-                    !Equals(BindingServiceProvider.ContextManager.GetBindingContext(parent).Value,
-                        context.Value))
+                    parent = GetParent(view);
+                if (parent != null && !Equals(BindingServiceProvider.ContextManager.GetBindingContext(parent).Value, context.Value))
                     ContentMember.SetValue(parent, new[] { context.Value, AddViewValue });
             }
 
@@ -548,12 +587,9 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static void UpdateContent(ViewGroup sender, object newContent, object[] args)
         {
-            if (newContent == null)
-            {
-                if (args != RemoveViewValue)
-                    sender.RemoveAllViews();
+            if (newContent == null && args == RemoveViewValue)
                 return;
-            }
+
             //NOTE cheking if it's a view group listener.
             if (args != null && args.Length == 2 && args[1] == AddViewValue)
                 return;

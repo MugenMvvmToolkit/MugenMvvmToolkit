@@ -1644,7 +1644,15 @@ namespace MugenMvvmToolkit
 					2130772020,
 					2130772021,
 					2130772022,
-					2130772023};
+					2130772023,
+					2130772087,
+					2130772088};
+			
+			// aapt resource value: 19
+			public static int ActionBar_ActionBarTemplate = 19;
+			
+			// aapt resource value: 20
+			public static int ActionBar_TabContentId = 20;
 			
 			// aapt resource value: 10
 			public static int ActionBar_background = 10;
@@ -1708,16 +1716,6 @@ namespace MugenMvvmToolkit
 			
 			// aapt resource value: 0
 			public static int ActionBarLayout_android_layout_gravity = 0;
-			
-			public static int[] ActionBarView = new int[] {
-					2130772087,
-					2130772088};
-			
-			// aapt resource value: 0
-			public static int ActionBarView_ActionBarTemplate = 0;
-			
-			// aapt resource value: 1
-			public static int ActionBarView_TabContentId = 1;
 			
 			public static int[] ActionBarWindow = new int[] {
 					2130771968,

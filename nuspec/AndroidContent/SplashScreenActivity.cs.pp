@@ -7,7 +7,7 @@ namespace $rootnamespace$.Views
     [Activity(Label = "$rootnamespace$", MainLauncher = true, Icon = "@drawable/icon", NoHistory = true)]
     public class SplashScreenActivity : SplashScreenActivityBase
     {
-        #region Overrides of SplashScreenActivity
+        #region Overrides of SplashScreenActivityBase
 
         protected override AndroidBootstrapperBase CreateBootstrapper()
         {

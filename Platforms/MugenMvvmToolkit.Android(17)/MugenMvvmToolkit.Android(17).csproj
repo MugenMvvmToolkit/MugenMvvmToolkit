@@ -143,13 +143,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Infrastructure\ItemsSourceAdapter.cs" />
     <Compile Include="Infrastructure\TabHostItemsSourceGenerator.cs" />
-    <Compile Include="Views\ActionBarView.cs" />
+    <Compile Include="Views\ActionBar.cs" />
     <Compile Include="Views\Activities\MvvmPreferenceActivity.cs" />
     <Compile Include="Views\Activities\SplashScreenActivityBase.cs" />
     <Compile Include="Views\Fragments\MvvmListFragment.cs" />
     <Compile Include="Views\Fragments\MvvmPreferenceFragment.cs" />
     <Compile Include="Views\Fragments\MvvmWebViewFragment.cs" />
-    <Compile Include="Views\ListItemView.cs" />
+    <Compile Include="Views\ListItem.cs" />
     <Compile Include="Views\Activities\MvvmActivity.cs" />
     <Compile Include="Views\Fragments\MvvmDialogFragment.cs" />
     <Compile Include="Views\Fragments\MvvmFragment.cs" />

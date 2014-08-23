@@ -15,9 +15,7 @@
 #endregion
 using System.Collections;
 using System.Collections.Specialized;
-using Android.App;
 using Android.Content;
-using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
@@ -25,6 +23,11 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Views;
 using Object = Java.Lang.Object;
+#if API8SUPPORT
+using ActionBarEx = Android.Support.V7.App.ActionBar;
+#elif API17
+using ActionBarEx = Android.App.ActionBar;
+#endif
 
 namespace MugenMvvmToolkit.Infrastructure
 {
@@ -198,7 +201,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     textView.Text = value == null ? "(null)" : value.ToString();
                 return textView;
             }
-            var itemView = convertView as ListItemView;
+            var itemView = convertView as ListItem;
             if (itemView == null || itemView.TemplateId != templateId)
                 convertView = CreateView(value, parent, templateId.Value);
             BindingServiceProvider.ContextManager.GetBindingContext(convertView).Value = value;
@@ -207,7 +210,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         protected virtual View CreateView(object value, ViewGroup parent, int templateId)
         {
-            return new ListItemView(templateId, LayoutInflater);
+            return new ListItem(templateId, LayoutInflater);
         }
 
         protected virtual void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
@@ -223,7 +226,7 @@ namespace MugenMvvmToolkit.Infrastructure
 #if API8
             return Container is Spinner;
 #else
-            return Container is Spinner || Container is ActionBar;
+            return Container is Spinner || Container is ActionBarEx;
 #endif
         }
 

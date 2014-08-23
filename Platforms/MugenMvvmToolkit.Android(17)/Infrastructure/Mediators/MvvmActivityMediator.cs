@@ -20,7 +20,6 @@ using Android.App;
 using Android.OS;
 using Android.Views;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Mediators;
@@ -265,6 +264,12 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             Activity.SetContentView(bindableView.Item1);
             var view = Activity.FindViewById(Android.Resource.Id.Content) ?? bindableView.Item1;
             view.ListenParentChange();
+
+#if !API8
+            var actionBarView = Activity.FindViewById<Views.ActionBar>(Resource.Id.ActionBarView);
+            if (actionBarView != null)
+                actionBarView.Apply(Activity);
+#endif
         }
 
         /// <summary>

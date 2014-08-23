@@ -24,7 +24,7 @@ using MugenMvvmToolkit.Binding.Interfaces;
 
 namespace MugenMvvmToolkit.Views
 {
-    public class ListItemView : FrameLayout, ICheckable
+    public class ListItem : FrameLayout, ICheckable
     {
         #region Fields
 
@@ -38,9 +38,9 @@ namespace MugenMvvmToolkit.Views
         #region Constructors
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ListItemView" /> class.
+        ///     Initializes a new instance of the <see cref="ListItem" /> class.
         /// </summary>
-        public ListItemView(int templateId, LayoutInflater inflater)
+        public ListItem(int templateId, LayoutInflater inflater)
             : base(inflater.Context)
         {
             _templateId = templateId;

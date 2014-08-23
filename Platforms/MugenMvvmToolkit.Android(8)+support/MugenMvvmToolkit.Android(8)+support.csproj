@@ -233,8 +233,8 @@
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\ActionBarView.cs">
-      <Link>Views\ActionBarView.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\ActionBar.cs">
+      <Link>Views\ActionBar.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\Activities\MvvmActivity.cs">
       <Link>Views\Activities\MvvmActivity.cs</Link>
@@ -260,8 +260,8 @@
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\Fragments\MvvmListFragment.cs">
       <Link>Views\Fragments\MvvmListFragment.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\ListItemView.cs">
-      <Link>Views\ListItemView.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\ListItem.cs">
+      <Link>Views\ListItem.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Views\OptionsMenu.cs">
       <Link>Views\OptionsMenu.cs</Link>

@@ -22,7 +22,6 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Views;
 
 namespace MugenMvvmToolkit.Models
 {
@@ -61,28 +60,8 @@ namespace MugenMvvmToolkit.Models
                     .SetValue(tab, BindingExtensions.NullValue);
             }
 
-            #endregion
-
-            #region Implementation of ITabListener
-
-            public void OnTabReselected(ActionBar.Tab tab, FragmentTransaction ft)
+            private void SetContent(ActionBar.Tab tab, FragmentTransaction ft, int? placeHolder, Activity activity, ActionBar bar)
             {
-            }
-
-            public void OnTabSelected(ActionBar.Tab tab, FragmentTransaction ft)
-            {
-                var bar = AttachedMembersModule.ActionBarTabParentMember.GetValue(tab, null);
-                var placeHolder = ActionBarView.GetTabContentId(bar);
-                var activity = bar.ThemedContext.GetActivity();
-
-                //Set selected item data context or tab
-                var selectedItem = ActionBarTabItemsSourceGenerator.Get(bar) == null
-                    ? tab
-                    : BindingServiceProvider.ContextManager.GetBindingContext(tab).Value;
-                AttachedMembersModule
-                    .ActionBarSelectedItemMember
-                    .SetValue(bar, selectedItem);
-
                 if (placeHolder == null)
                 {
                     Tracer.Error("The placeholder for tab {0} was not found.", tab);
@@ -131,6 +110,29 @@ namespace MugenMvvmToolkit.Models
                 }
                 else
                     layout.SetContentView(_content, ft, (@group, fragment, arg3) => arg3.Attach(fragment));
+            }
+
+            #endregion
+
+            #region Implementation of ITabListener
+
+            public void OnTabReselected(ActionBar.Tab tab, FragmentTransaction ft)
+            {
+            }
+
+            public void OnTabSelected(ActionBar.Tab tab, FragmentTransaction ft)
+            {
+                var bar = AttachedMembersModule.ActionBarTabParentMember.GetValue(tab, null);
+                var placeHolder = Views.ActionBar.GetTabContentId(bar);
+                var activity = bar.ThemedContext.GetActivity();
+                SetContent(tab, ft, placeHolder, activity, bar);
+                //Set selected item data context or tab
+                var selectedItem = ActionBarTabItemsSourceGenerator.Get(bar) == null
+                    ? tab
+                    : BindingServiceProvider.ContextManager.GetBindingContext(tab).Value;
+                AttachedMembersModule
+                    .ActionBarSelectedItemMember
+                    .SetValue(bar, selectedItem);
             }
 
             public void OnTabUnselected(ActionBar.Tab tab, FragmentTransaction ft)

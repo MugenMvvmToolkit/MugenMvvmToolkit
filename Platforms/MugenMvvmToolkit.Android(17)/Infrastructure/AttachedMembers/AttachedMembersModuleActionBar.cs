@@ -24,7 +24,6 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -353,24 +352,59 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             var activity = actionBar.ThemedContext.GetActivity();
             if (activity == null)
+            {
+                Tracer.Warn("The home button cannot be found");
                 return null;
+            }
             var finder = PlatformExtensions.HomeButtonFinder;
             if (finder != null)
                 return finder(activity);
-#if API17
-            var homeView = activity.FindViewById(Android.Resource.Id.Home);                
-#else
-            var homeView = activity.FindViewById(Resource.Id.home);
-#endif
+
+            var homeView = FindHomeView(activity);
             if (homeView != null)
             {
-                homeView = homeView.Parent as View;
-                if (homeView != null)
+                if (homeView.Parent is LinearLayout)
                     return homeView.Parent as View;
+                return homeView;
             }
+            Tracer.Warn("The home button cannot be found.");
             return null;
         }
 
+        private static View FindHomeView(Activity activity)
+        {
+#if API17
+            var homeButton = activity.FindViewById(Android.Resource.Id.Home);
+            if (homeButton == null)
+                return null;
+            return homeButton.Parent as View;
+#else
+            var content = activity.FindViewById(Android.Resource.Id.Content);
+            if (content == null)
+                return null;
+            return FindHomeView(content.RootView);
+#endif
+        }
+
+#if API8SUPPORT
+        private static View FindHomeView(View view)
+        {
+            if (view == null)
+                return null;
+            if (view.Class.Name.SafeContains("homeview", StringComparison.OrdinalIgnoreCase))
+                return view;
+            var viewGroup = view as ViewGroup;
+            if (viewGroup == null)
+                return null;
+            for (int i = 0; i < viewGroup.ChildCount; i++)
+            {
+                var homeView = FindHomeView(viewGroup.GetChildAt(i));
+                if (homeView != null)
+                    return homeView;
+            }
+            return null;
+        }
+#endif
         private static void ActionBarContextActionBarVisibleChanged(ActionBar actionBar,
             AttachedMemberChangedEventArgs<bool> args)
         {
@@ -424,7 +458,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     if (tabGenerator == null)
                     {
                         var tabValue = args.NewValue as ActionBar.Tab;
-                        if (tabValue != null)
+                        if (tabValue != null && tabValue.Position != actionBar.SelectedNavigationIndex)
                             tabValue.Select();
                     }
                     else

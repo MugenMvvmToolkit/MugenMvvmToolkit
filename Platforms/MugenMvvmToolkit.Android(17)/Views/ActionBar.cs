@@ -27,10 +27,15 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
+#if API8SUPPORT
+using ActionBarEx = Android.Support.V7.App.ActionBar;
+#else
+using ActionBarEx = Android.App.ActionBar;
+#endif
 
 namespace MugenMvvmToolkit.Views
 {
-    public sealed class ActionBarView : View, IManualBindings
+    public sealed class ActionBar : View, IManualBindings
     {
         #region Fields
 
@@ -39,25 +44,24 @@ namespace MugenMvvmToolkit.Views
 
         private readonly int _resourceId;
         private readonly int _tabContentId;
-        private Activity _activity;
+        private IList<string> _bindings;
 
         #endregion
 
         #region Constructors
 
-        public ActionBarView(Context context, IAttributeSet attrs)
+        public ActionBar(Context context, IAttributeSet attrs)
             : base(context, attrs)
         {
             SetMinimumWidth(0);
             SetMinimumHeight(0);
             base.Visibility = ViewStates.Gone;
-            _activity = context.GetActivity();
             base.Id = Resource.Id.ActionBarView;
-            TypedArray typedArray = Context.ObtainStyledAttributes(attrs, Resource.Styleable.ActionBarView);
+            TypedArray typedArray = Context.ObtainStyledAttributes(attrs, Resource.Styleable.ActionBar);
             try
             {
-                _resourceId = typedArray.GetResourceId(Resource.Styleable.ActionBarView_ActionBarTemplate, int.MinValue);
-                _tabContentId = typedArray.GetResourceId(Resource.Styleable.ActionBarView_TabContentId, int.MinValue);
+                _resourceId = typedArray.GetResourceId(Resource.Styleable.ActionBar_ActionBarTemplate, int.MinValue);
+                _tabContentId = typedArray.GetResourceId(Resource.Styleable.ActionBar_TabContentId, int.MinValue);
             }
             finally
             {
@@ -69,16 +73,16 @@ namespace MugenMvvmToolkit.Views
 
         #region Methods
 
-        public void Apply()
+        public void Apply(Activity activity)
         {
             if (_resourceId == int.MinValue)
                 return;
-            if (_activity == null)
+            if (activity == null)
             {
                 Tracer.Warn("The activity is null {0}", this);
                 return;
             }
-            var actionBar = _activity.GetActionBar();
+            var actionBar = activity.GetActionBar();
             if (_tabContentId != int.MinValue)
                 ServiceProvider.AttachedValueProvider.SetValue(actionBar, TabContentIdKey, _tabContentId);
             using (XmlReader reader = Context.Resources.GetLayout(_resourceId))
@@ -89,12 +93,17 @@ namespace MugenMvvmToolkit.Views
                 using (var stringReader = new StringReader(PlatformExtensions.XmlTagsToUpper(document.InnerXml)))
                 {
                     var barTemplate = (ActionBarTemplate)Serializer.Deserialize(stringReader);
-                    barTemplate.Apply(_activity);
+                    barTemplate.Apply(activity);
                 }
             }
+
+            if (_bindings == null)
+                return;
+            for (int i = 0; i < _bindings.Count; i++)
+                BindingServiceProvider.BindingProvider.CreateBindingsFromString(actionBar, _bindings[i], null);
         }
 
-        public static int? GetTabContentId(ActionBar actionBar)
+        public static int? GetTabContentId(ActionBarEx actionBar)
         {
             int value;
             if (ServiceProvider.AttachedValueProvider.TryGetValue(actionBar, TabContentIdKey, out value))
@@ -108,13 +117,8 @@ namespace MugenMvvmToolkit.Views
 
         public IList<IDataBinding> SetBindings(IList<string> bindings)
         {
-            if (bindings == null || _activity == null)
-                return EmptyValue<IDataBinding>.ListInstance;
-            var actionBar = _activity.GetActionBar();
-            var dataBindings = new List<IDataBinding>();
-            foreach (string binding in bindings)
-                dataBindings.AddRange(BindingServiceProvider.BindingProvider.CreateBindingsFromString(actionBar, binding, null));
-            return dataBindings;
+            _bindings = bindings;
+            return EmptyValue<IDataBinding>.ListInstance;
         }
 
         #endregion
@@ -131,14 +135,6 @@ namespace MugenMvvmToolkit.Views
         {
             get { return ViewStates.Gone; }
             set { }
-        }
-
-        protected override void OnAttachedToWindow()
-        {
-            base.OnAttachedToWindow();
-            if (_activity == null)
-                _activity = Context.GetActivity();
-            Apply();
         }
 
         #endregion
