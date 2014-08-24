@@ -63,8 +63,6 @@ namespace MugenMvvmToolkit.Views.Activities
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            RequestWindowFeature(WindowFeatures.NoTitle);
-
             base.OnCreate(savedInstanceState);
 
             Application.SynchronizationContext.Post(SetContentViewAsync, this);
@@ -168,7 +166,8 @@ namespace MugenMvvmToolkit.Views.Activities
             {
                 Gravity = GravityFlags.Center
             };
-            var bar = new ProgressBar(this)
+            //NOTE using App context to set platform specific theme for progressbar
+            var bar = new ProgressBar(Application)
             {
                 LayoutParameters = layoutParams,
                 Indeterminate = true

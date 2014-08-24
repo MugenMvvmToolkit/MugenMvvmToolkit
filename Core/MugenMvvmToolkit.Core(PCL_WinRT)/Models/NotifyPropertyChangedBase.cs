@@ -204,11 +204,8 @@ namespace MugenMvvmToolkit.Models
         {
             Should.NotBeNull(args, "args");
             if (IsNotificationsSuspended)
-            {
                 IsNotificationsDirty = true;
-                return;
-            }
-            if (PropertyChanged != null)
+            else
                 ThreadManager.Invoke(executionMode, this, args, RaisePropertyChangedDelegate);
         }
 

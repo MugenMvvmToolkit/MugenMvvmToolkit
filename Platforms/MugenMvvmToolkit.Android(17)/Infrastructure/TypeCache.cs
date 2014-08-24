@@ -70,6 +70,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public Type GetTypeByName(string typeName, bool ignoreCase, bool throwOnError)
         {
+            if (_cachedAssemblies.Count == 0)
+                Initialize(AndroidBootstrapperBase.ViewAssemblies);
             Type type;
             lock (_locker)
             {

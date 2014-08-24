@@ -39,7 +39,7 @@ namespace MugenMvvmToolkit.Views
     {
         #region Fields
 
-        private static readonly XmlSerializer Serializer = new XmlSerializer(typeof(ActionBarTemplate), string.Empty);
+        private static readonly XmlSerializer Serializer;
         private const string TabContentIdKey = "!@tabcontentId";
 
         private readonly int _resourceId;
@@ -49,6 +49,11 @@ namespace MugenMvvmToolkit.Views
         #endregion
 
         #region Constructors
+
+        static ActionBar()
+        {
+            Serializer = new XmlSerializer(typeof(ActionBarTemplate), string.Empty);
+        }
 
         public ActionBar(Context context, IAttributeSet attrs)
             : base(context, attrs)

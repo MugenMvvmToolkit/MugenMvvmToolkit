@@ -32,7 +32,6 @@ namespace MugenMvvmToolkit.Views
         #region Fields
 
         private IList<string> _bindings;
-        private IMenu _currentMenu;
 
         #endregion
 
@@ -53,7 +52,6 @@ namespace MugenMvvmToolkit.Views
 
         public void Inflate(Activity activity, IMenu menu)
         {
-            _currentMenu = menu;
             IBindingMemberInfo bindingMember = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(typeof(OptionsMenu), AttachedMemberNames.MenuTemplate, false, true);

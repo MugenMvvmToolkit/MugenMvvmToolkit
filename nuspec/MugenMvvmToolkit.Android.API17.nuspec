@@ -47,6 +47,6 @@
     <file src="..\bin\Platforms\Android\API17\MugenMvvmToolkit.Android.xml" target="lib\monoandroid\MugenMvvmToolkit.Android.xml" />
 
     <file src="AndroidContent\Setup.cs.pp" target="content\monoandroid\Setup.cs.pp" />
-    <file src="AndroidContent\SplashScreenActivity.cs.pp" target="content\monoandroid\Views\SplashScreenActivity.cs.pp" />
+    <file src="AndroidContent\SplashScreenActivity.cs.pp" target="content\monoandroid\Views\SplashScreenActivity.cs.pp" />	
   </files>
 </package>

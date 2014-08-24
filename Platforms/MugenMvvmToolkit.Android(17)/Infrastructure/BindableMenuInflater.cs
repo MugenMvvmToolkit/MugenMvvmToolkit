@@ -31,18 +31,22 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         private readonly Context _context;
-        private readonly XmlSerializer _serializer;
+        private static readonly XmlSerializer Serializer;
 
         #endregion
 
         #region Constructors
+
+        static BindableMenuInflater()
+        {
+            Serializer = new XmlSerializer(typeof(MenuTemplate), string.Empty);
+        }
 
         public BindableMenuInflater([NotNull] Context context)
             : base(context)
         {
             Should.NotBeNull(context, "context");
             _context = context;
-            _serializer = new XmlSerializer(typeof(MenuTemplate), string.Empty);
         }
 
         #endregion
@@ -78,7 +82,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 {
                     using (var stringReader = new StringReader(PlatformExtensions.XmlTagsToUpper(document.InnerXml)))
                     {
-                        var menuWrapper = (MenuTemplate)_serializer.Deserialize(stringReader);
+                        var menuWrapper = (MenuTemplate)Serializer.Deserialize(stringReader);
                         menuWrapper.Apply(menu, _context, parent);
                     }
                 }
