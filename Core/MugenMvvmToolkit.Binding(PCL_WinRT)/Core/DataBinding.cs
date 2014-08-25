@@ -224,7 +224,7 @@ namespace MugenMvvmToolkit.Binding.Core
 
         #endregion
 
-        #region Implementation of IBinding
+        #region Implementation of IDataBinding
 
         /// <summary>
         ///     Gets the current <see cref="IDataContext" />.

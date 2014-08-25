@@ -21,7 +21,7 @@ using System.Windows;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
-    internal sealed class ValidationBinder : INotifyDataErrorInfo
+    public sealed class ValidationBinder : INotifyDataErrorInfo
     {
         #region Attached properties
 

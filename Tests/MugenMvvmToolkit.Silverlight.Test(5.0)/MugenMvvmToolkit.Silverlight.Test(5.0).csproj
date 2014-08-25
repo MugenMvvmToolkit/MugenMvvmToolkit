@@ -59,7 +59,7 @@
       <HintPath>..\..\packages\Autofac.3.5.2\lib\portable-net4+sl5+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\Autofac.dll</HintPath>
     </Reference>
     <Reference Include="JetBrains.Annotations">
-      <HintPath>..\..\Library\JetBrains\JetBrains.Annotations.dll</HintPath>
+      <HintPath>..\..\..\..\mugenmvvmtoolkit\V3\MugenMvvmToolkit\libs\JetBrains\JetBrains.Annotations.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Silverlight.Testing, Version=2.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

@@ -242,7 +242,7 @@ namespace MugenMvvmToolkit.Binding
         {
             if (target.IsWeak)
                 return target;
-            return MvvmExtensions.GetWeakReference(target);            
+            return MvvmExtensions.GetWeakReference(target);
         }
 
         /// <summary>
@@ -287,9 +287,10 @@ namespace MugenMvvmToolkit.Binding
         /// <summary>
         /// Tries to add the specified converter 
         /// </summary>
-        public static bool TryAddConverter([NotNull]this IBindingResourceResolver resourceResolver, [NotNull] string name, [NotNull] IBindingValueConverter converter)
+        public static bool TryAddConverter([CanBeNull]this IBindingResourceResolver resourceResolver, [NotNull] string name, [NotNull] IBindingValueConverter converter)
         {
-            Should.NotBeNull(resourceResolver, "resourceResolver");
+            if (resourceResolver == null)
+                return false;
             if (resourceResolver.ResolveConverter(name, DataContext.Empty, false) != null)
                 return false;
             resourceResolver.AddConverter(name, converter, true);
@@ -301,8 +302,16 @@ namespace MugenMvvmToolkit.Binding
         /// </summary>
         public static void Register<TTarget, TType>([NotNull]this IBindingMemberProvider memberProvider, [NotNull] IAttachedBindingMemberInfo<TTarget, TType> member, bool rewrite = true)
         {
+            memberProvider.Register(member.Path, member, rewrite);
+        }
+
+        /// <summary>
+        ///     Registers the specified member.
+        /// </summary>
+        public static void Register<TTarget, TType>([NotNull]this IBindingMemberProvider memberProvider, string path, [NotNull] IAttachedBindingMemberInfo<TTarget, TType> member, bool rewrite = true)
+        {
             Should.NotBeNull(memberProvider, "memberProvider");
-            memberProvider.Register(typeof(TTarget), member, rewrite);
+            memberProvider.Register(typeof(TTarget), path, member, rewrite);
         }
 
         /// <summary>

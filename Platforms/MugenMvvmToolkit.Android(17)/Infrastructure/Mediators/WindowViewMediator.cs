@@ -36,7 +36,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         #region Fields
 
         private readonly INavigationProvider _navigationProvider;
-        private string _id;
 
         #endregion
 
@@ -76,8 +75,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 var activity = (Activity)_navigationProvider.CurrentContent;
                 fragmentManager = activity.GetFragmentManager();
             }
-            _id = Guid.NewGuid().ToString("n");
-            view.Show(fragmentManager, _id);
+            view.Show(fragmentManager, Guid.NewGuid().ToString("n"));
         }
 
         /// <summary>
@@ -89,9 +87,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         }
 
         /// <summary>
-        ///     Initializes the specified dialog view.
+        ///     Initializes the specified view.
         /// </summary>
-        /// <param name="windowView">The specified window-view to initialize.</param>
         protected override void InitializeView(IWindowView windowView, IDataContext context)
         {
             windowView.Closing += OnViewClosing;

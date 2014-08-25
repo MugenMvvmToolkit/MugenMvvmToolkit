@@ -24,6 +24,7 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -42,15 +43,21 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Nested types
 
-        internal sealed class MenuItemOnMenuItemClickListener : JavaEventListenerList, IMenuItemOnMenuItemClickListener
+        internal sealed class MenuItemOnMenuItemClickListener : Object, IMenuItemOnMenuItemClickListener
         {
             #region Fields
 
             private const string Key = "#ClickListener";
+            public static readonly MenuItemOnMenuItemClickListener Instance;
 
             #endregion
 
             #region Constructors
+
+            static MenuItemOnMenuItemClickListener()
+            {
+                Instance = new MenuItemOnMenuItemClickListener();
+            }
 
             private MenuItemOnMenuItemClickListener()
             {
@@ -62,7 +69,11 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public bool OnMenuItemClick(IMenuItem item)
             {
-                Raise(item, EventArgs.Empty);
+                if (item.IsCheckable)
+                    IsCheckedMenuItemMember.SetValue(item, !item.IsChecked);
+                var list = ServiceProvider.AttachedValueProvider.GetValue<EventListenerList>(item, Key, false);
+                if (list != null)
+                    list.Raise(item, EventArgs.Empty);
                 return true;
             }
 
@@ -70,29 +81,30 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Methods
 
-            public static MenuItemOnMenuItemClickListener GetOrAdd(IMenuItem item)
+            public static IDisposable AddClickListener(IMenuItem item, IEventListener listener)
             {
-                return ServiceProvider.AttachedValueProvider.GetOrAdd(item, Key, (menuItem, o) =>
-                {
-                    var listener = new MenuItemOnMenuItemClickListener();
-                    menuItem.SetOnMenuItemClickListener(listener);
-                    return listener;
-                }, null);
+                return ServiceProvider.AttachedValueProvider.GetOrAdd(item, Key, (menuItem, o) => new EventListenerList(), null).AddWithUnsubscriber(listener);
             }
 
             #endregion
         }
 
 #if !API8
-        private sealed class ActionViewExpandedListener : JavaEventListenerList, IMenuItemOnActionExpandListener
+        private sealed class ActionViewExpandedListener : Object, IMenuItemOnActionExpandListener
         {
             #region Fields
 
             private const string Key = "!~ActionViewExpandedListener";
+            public static readonly ActionViewExpandedListener Instance;
 
             #endregion
 
             #region Constructors
+
+            static ActionViewExpandedListener()
+            {
+                Instance = new ActionViewExpandedListener();
+            }
 
             private ActionViewExpandedListener()
             {
@@ -102,14 +114,18 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Methods
 
-            public static ActionViewExpandedListener GetOrAdd(IMenuItem menuItem)
+            public static IDisposable AddExpandListener(IMenuItem menuItem, IEventListener listener)
             {
-                return ServiceProvider.AttachedValueProvider.GetOrAdd(menuItem, Key, (item, o) =>
-                {
-                    var listener = new ActionViewExpandedListener();
-                    menuItem.SetOnActionExpandListener(listener);
-                    return listener;
-                }, null);
+                return ServiceProvider.AttachedValueProvider
+                                      .GetOrAdd(menuItem, Key, (item, o) => new EventListenerList(), null)
+                                      .AddWithUnsubscriber(listener);
+            }
+
+            private static void Raise(IMenuItem item)
+            {
+                EventListenerList list;
+                if (ServiceProvider.AttachedValueProvider.TryGetValue(item, Key, out list))
+                    list.Raise(item, EventArgs.Empty);
             }
 
             #endregion
@@ -118,13 +134,13 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public bool OnMenuItemActionCollapse(IMenuItem item)
             {
-                Raise(item, EventArgs.Empty);
+                Raise(item);
                 return true;
             }
 
             public bool OnMenuItemActionExpand(IMenuItem item)
             {
-                Raise(item, EventArgs.Empty);
+                Raise(item);
                 return true;
             }
 
@@ -235,7 +251,7 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         internal static readonly IAttachedBindingMemberInfo<object, object> MenuParentMember;
-        internal static readonly IAttachedBindingMemberInfo<IMenuItem, bool> IsCheckedMenuItemMember;
+        private static readonly IAttachedBindingMemberInfo<IMenuItem, bool> IsCheckedMenuItemMember;
 #if !API8
         private static readonly IAttachedBindingMemberInfo<IMenuItem, object> MenuItemActionViewMember;
         private static readonly IAttachedBindingMemberInfo<IMenuItem, object> MenuItemActionProviderMember;
@@ -253,13 +269,16 @@ namespace MugenMvvmToolkit.Infrastructure
             //IMenu
             memberProvider.Register(typeof(IMenu), MenuParentMember, true);
             memberProvider.Register(MenuItemsSourceMember);
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<IMenu, bool?>("IsEnabled", (menu, args) => menu.SetGroupEnabled(0, args.NewValue.GetValueOrDefault())));
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<IMenu, bool?>("IsVisible", (menu, args) => menu.SetGroupVisible(0, args.NewValue.GetValueOrDefault())));
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<IMenu, bool?>("Visible", (menu, args) => menu.SetGroupVisible(0, args.NewValue.GetValueOrDefault())));
+            var menuEnabledMember = AttachedBindingMember.CreateAutoProperty<IMenu, bool?>(AttachedMemberConstants.Enabled, (menu, args) => menu.SetGroupEnabled(0, args.NewValue.GetValueOrDefault()));
+            memberProvider.Register(menuEnabledMember);
+            memberProvider.Register("IsEnabled", menuEnabledMember);
+
+            var menuVisibleMember = AttachedBindingMember.CreateAutoProperty<IMenu, bool?>("Visible",
+                (menu, args) => menu.SetGroupVisible(0, args.NewValue.GetValueOrDefault()));
+            memberProvider.Register(menuVisibleMember);
+            memberProvider.Register("IsVisible", menuVisibleMember);
 
             //IMenuItem
-            memberProvider.Register(IsCheckedMenuItemMember);
-            memberProvider.Register(typeof(IMenuItem), MenuParentMember, true);
 #if !API8
             memberProvider.Register(MenuItemActionViewMember);
             memberProvider.Register(MenuItemActionViewSelectorMember);
@@ -267,6 +286,8 @@ namespace MugenMvvmToolkit.Infrastructure
             memberProvider.Register(MenuItemActionProviderMember);
             memberProvider.Register(MenuItemActionProviderSelectorMember);
 #endif
+            memberProvider.Register(IsCheckedMenuItemMember);
+            memberProvider.Register(typeof(IMenuItem), MenuParentMember, true);
             memberProvider.Register(AttachedBindingMember.CreateEvent<IMenuItem>("Click", SetClickEventValue));
 
             memberProvider.Register(AttachedBindingMember
@@ -296,12 +317,11 @@ namespace MugenMvvmToolkit.Infrastructure
                     (info, item, arg3) => item.IsCheckable,
                     (info, item, arg3) => item.SetCheckable((bool)arg3[0])));
 
-            memberProvider.Register(AttachedBindingMember.CreateMember<IMenuItem, bool>("IsEnabled",
+            var menuItemEnabled = AttachedBindingMember.CreateMember<IMenuItem, bool>(AttachedMemberConstants.Enabled,
                 (info, item, arg3) => item.IsEnabled,
-                (info, item, arg3) => item.SetEnabled((bool)arg3[0])));
-            memberProvider.Register(AttachedBindingMember
-                .CreateMember<IMenuItem, bool>(AttachedMemberConstants.Enabled,
-                    (info, item, arg3) => item.IsEnabled, (info, item, arg3) => item.SetEnabled((bool)arg3[0])));
+                (info, item, arg3) => item.SetEnabled((bool)arg3[0]));
+            memberProvider.Register(menuItemEnabled);
+            memberProvider.Register("IsEnabled", menuItemEnabled);
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<IMenuItem, bool>("IsVisible", (info, item, arg3) => item.IsVisible,
                     (info, item, arg3) => item.SetVisible((bool)arg3[0])));
@@ -325,9 +345,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
 #if !API8
             memberProvider.Register(AttachedBindingMember
-                            .CreateMember<IMenuItem, bool>("IsActionViewExpanded",
-                                (info, item, arg3) => item.GetIsActionViewExpanded(), SetIsActionViewExpanded,
-                                ObserveIsActionViewExpanded));
+                .CreateMember<IMenuItem, bool>("IsActionViewExpanded", (info, item, arg3) => item.GetIsActionViewExpanded(), SetIsActionViewExpanded,
+                    ObserveIsActionViewExpanded, (item, args) => item.SetOnActionExpandListener(ActionViewExpandedListener.Instance)));
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<IMenuItem, ShowAsAction>("ShowAsAction", null,
                     (info, o, arg3) =>
@@ -336,7 +355,6 @@ namespace MugenMvvmToolkit.Infrastructure
                         return null;
                     }));
 #endif
-
         }
 
         private static void MenuItemsSourceChanged(IMenu menu, AttachedMemberChangedEventArgs<IEnumerable> args)
@@ -348,7 +366,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static IDisposable SetClickEventValue(IBindingMemberInfo bindingMemberInfo, IMenuItem menuItem, IEventListener listener)
         {
-            return MenuItemOnMenuItemClickListener.GetOrAdd(menuItem).AddListner(listener);
+            return MenuItemOnMenuItemClickListener.AddClickListener(menuItem, listener);
         }
 
 #if !API8
@@ -437,7 +455,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static IDisposable ObserveIsActionViewExpanded(IBindingMemberInfo bindingMemberInfo, IMenuItem menuItem, IEventListener arg3)
         {
-            return ActionViewExpandedListener.GetOrAdd(menuItem).AddListner(arg3);
+            return ActionViewExpandedListener.AddExpandListener(menuItem, arg3);
         }
 
         private static Context GetContextFromMenuItem(IMenuItem menuItem)

@@ -276,6 +276,9 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IIocParameter.cs">
       <Link>Interfaces\IIocParameter.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IItemsSourceDecorator.cs">
+      <Link>Interfaces\IItemsSourceDecorator.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IModule.cs">
       <Link>Interfaces\IModule.cs</Link>
     </Compile>

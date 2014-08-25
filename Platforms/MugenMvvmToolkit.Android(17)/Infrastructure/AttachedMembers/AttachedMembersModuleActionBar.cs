@@ -152,8 +152,7 @@ namespace MugenMvvmToolkit.Infrastructure
             memberProvider.Register(ActionBarContextActionBarVisibleMember);
 
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<ActionBar, object>(AttachedMemberConstants.Parent,
-                    (info, bar, arg3) => bar.ThemedContext, null));
+                .CreateMember<ActionBar, object>(AttachedMemberConstants.Parent, (info, bar, arg3) => bar.ThemedContext, null));
             memberProvider.Register(AttachedBindingMember
                 .CreateAutoProperty<ActionBar, object>("BackgroundDrawable",
                     (actionBar, args) =>

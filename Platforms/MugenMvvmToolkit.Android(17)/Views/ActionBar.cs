@@ -80,28 +80,30 @@ namespace MugenMvvmToolkit.Views
 
         public void Apply(Activity activity)
         {
-            if (_resourceId == int.MinValue)
-                return;
             if (activity == null)
             {
                 Tracer.Warn("The activity is null {0}", this);
                 return;
             }
+            
             var actionBar = activity.GetActionBar();
-            if (_tabContentId != int.MinValue)
-                ServiceProvider.AttachedValueProvider.SetValue(actionBar, TabContentIdKey, _tabContentId);
-            using (XmlReader reader = Context.Resources.GetLayout(_resourceId))
+            if (_resourceId != int.MinValue)
             {
-                //NOTE XDocument throws an error.
-                var document = new XmlDocument();
-                document.Load(reader);
-                using (var stringReader = new StringReader(PlatformExtensions.XmlTagsToUpper(document.InnerXml)))
+                if (_tabContentId != int.MinValue)
+                    ServiceProvider.AttachedValueProvider.SetValue(actionBar, TabContentIdKey, _tabContentId);
+                using (XmlReader reader = Context.Resources.GetLayout(_resourceId))
                 {
-                    var barTemplate = (ActionBarTemplate)Serializer.Deserialize(stringReader);
-                    barTemplate.Apply(activity);
+                    //NOTE XDocument throws an error.
+                    var document = new XmlDocument();
+                    document.Load(reader);
+                    using (var stringReader = new StringReader(PlatformExtensions.XmlTagsToUpper(document.InnerXml)))
+                    {
+                        var barTemplate = (ActionBarTemplate)Serializer.Deserialize(stringReader);
+                        barTemplate.Apply(activity);
+                    }
                 }
             }
-
+            
             if (_bindings == null)
                 return;
             for (int i = 0; i < _bindings.Count; i++)

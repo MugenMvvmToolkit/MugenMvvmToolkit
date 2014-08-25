@@ -41,9 +41,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Constructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="LayoutObserver" /> class.
-            /// </summary>
             protected LayoutObserver(View view)
             {
                 _viewReference = ServiceProvider.WeakReferenceFactory(view, true);
@@ -84,9 +81,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Overrides of DisposableObjectBase
 
-            /// <summary>
-            ///     Releases resources held by the object.
-            /// </summary>
             protected override void OnDispose(bool disposing)
             {
                 base.OnDispose(disposing);
@@ -127,9 +121,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Constructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="VisiblityObserver" /> class.
-            /// </summary>
             public VisiblityObserver(View view, IEventListener handler)
                 : base(view)
             {
@@ -181,11 +172,19 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Methods
 
-            public static ParentListener GetOrAdd(View view)
+            public static IDisposable AddListener(View view, IEventListener listener)
             {
                 return ServiceProvider
                     .AttachedValueProvider
-                    .GetOrAdd(view, Key, (view1, o) => new ParentListener(view1), null);
+                    .GetOrAdd(view, Key, (view1, o) => new ParentListener(view1), null)
+                    .AddWithUnsubscriber(listener);
+            }
+
+            public static void Raise(View view)
+            {
+                ParentListener listener;
+                if (ServiceProvider.AttachedValueProvider.TryGetValue(view, Key, out listener))
+                    listener.Raise();
             }
 
             public void Raise()
@@ -223,7 +222,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         internal static void RaiseParentChanged(View view)
         {
-            ParentListener.GetOrAdd(view).Raise();
+            ParentListener.Raise(view);
         }
 
         private static void RegisterViewMembers(IBindingMemberProvider memberProvider)
@@ -265,7 +264,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static IDisposable ObserveViewParent(IBindingMemberInfo bindingMemberInfo, View view, IEventListener arg3)
         {
-            return ParentListener.GetOrAdd(view).AddWithUnsubscriber(arg3);
+            return ParentListener.AddListener(view, arg3);
         }
 
         private static object GetViewParentValue(IBindingMemberInfo arg1, View arg2, object[] arg3)

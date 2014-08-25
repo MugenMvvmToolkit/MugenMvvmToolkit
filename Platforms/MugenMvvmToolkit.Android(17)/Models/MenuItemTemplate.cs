@@ -21,13 +21,11 @@ using Android.Content;
 using Android.Views;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Models
 {
-    public sealed class MenuItemTemplate : IEventListener
+    public sealed class MenuItemTemplate
     {
         #region Fields
 
@@ -215,7 +213,7 @@ namespace MugenMvvmToolkit.Models
             setter.SetProperty(template => template.ActionView, ActionView);
             setter.SetStringProperty(template => template.ActionProvider, ActionProvider);
 
-            AttachedMembersModule.MenuItemOnMenuItemClickListener.GetOrAdd(menuItem).AddListner(this);
+            menuItem.SetOnMenuItemClickListener(AttachedMembersModule.MenuItemOnMenuItemClickListener.Instance);
         }
 
         private void SetDataContext<T>(T target, Context context, object dataContext, bool useContext)
@@ -225,22 +223,6 @@ namespace MugenMvvmToolkit.Models
             else
                 new XmlPropertySetter<MenuItemTemplate, T>(target, context)
                     .SetBinding(template => template.DataContext, DataContext, false);
-        }
-
-        #endregion
-
-        #region Implementation of IEventListener
-
-        bool IEventListener.IsWeak
-        {
-            get { return true; }
-        }
-
-        void IEventListener.Handle(object sender, object message)
-        {
-            var menuItem = sender as IMenuItem;
-            if (menuItem != null)
-                AttachedMembersModule.IsCheckedMenuItemMember.SetValue(menuItem, !menuItem.IsChecked);
         }
 
         #endregion

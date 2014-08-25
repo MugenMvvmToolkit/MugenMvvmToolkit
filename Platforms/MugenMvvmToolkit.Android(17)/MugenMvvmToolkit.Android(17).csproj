@@ -133,7 +133,6 @@
     <Compile Include="Models\Enums.cs" />
     <Compile Include="Models\EventArg\NavigatingCancelEventArgs.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgs.cs" />
-    <Compile Include="Models\JavaEventListenerList.cs" />
     <Compile Include="Models\JavaObjectWeakReference.cs" />
     <Compile Include="Models\MenuItemTemplate.cs" />
     <Compile Include="Models\MenuTemplate.cs" />

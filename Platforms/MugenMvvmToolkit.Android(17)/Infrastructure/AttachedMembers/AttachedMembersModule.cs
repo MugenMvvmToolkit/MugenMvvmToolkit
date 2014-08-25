@@ -27,6 +27,7 @@ using Android.Widget;
 using Java.Lang;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -43,9 +44,21 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Nested types
 
-        private sealed class DateChangedListener : JavaEventListenerList, DatePicker.IOnDateChangedListener
+        private sealed class DateChangedListener : Object, DatePicker.IOnDateChangedListener
         {
+            #region Fields
+
+            private const string Key = "#DateChangedListener";
+            public static readonly DateChangedListener Instance;
+
+            #endregion
+
             #region Constructors
+
+            static DateChangedListener()
+            {
+                Instance = new DateChangedListener();
+            }
 
             private DateChangedListener()
             {
@@ -57,22 +70,28 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public void OnDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth)
             {
-                Raise(view, EventArgs.Empty);
+                Raise(view);
             }
 
             #endregion
 
             #region Methods
 
-            public static DateChangedListener GetOrAdd(DatePicker datePicker)
+            public static IDisposable AddDateChangedListener(DatePicker datePicker, IEventListener listener)
             {
-                return ServiceProvider.AttachedValueProvider.GetOrAdd(datePicker, "#DateChangedListener",
-                    (picker, o) =>
-                    {
-                        var listener = new DateChangedListener();
-                        picker.Init(picker.Year, picker.Month, picker.DayOfMonth, listener);
-                        return listener;
-                    }, null);
+                /*var listener = new DateChangedListener();
+                picker.Init(picker.Year, picker.Month, picker.DayOfMonth, listener);
+                return listener;*/
+                return ServiceProvider.AttachedValueProvider
+                    .GetOrAdd(datePicker, Key, (picker, o) => new EventListenerList(), null)
+                    .AddWithUnsubscriber(listener);
+            }
+
+            private static void Raise(DatePicker picker)
+            {
+                EventListenerList list;
+                if (ServiceProvider.AttachedValueProvider.TryGetValue(picker, Key, out list))
+                    list.Raise(picker, EventArgs.Empty);
             }
 
             #endregion
@@ -148,7 +167,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     return layout.GetChildAt(0);
                 }
                 return child;
-#else 
+#else
                 return child;
 #endif
             }
@@ -160,7 +179,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (IsNoSaveStateFrameLayout(parent))
                     return parent.Parent as View;
                 return parent;
-#else 
+#else
                 return view.Parent as View;
 #endif
             }
@@ -270,7 +289,7 @@ namespace MugenMvvmToolkit.Infrastructure
             ScrollToSelectedItemMember = AttachedBindingMember.CreateAutoProperty<AdapterView, bool>("ScrollToSelectedItem");
 
             //TabHost
-            TabHostSelectedItemMember = AttachedBindingMember.CreateAutoProperty<TabHost, object>(AttachedMemberConstants.SelectedItem, TabHostSelectedItemChanged); ;
+            TabHostSelectedItemMember = AttachedBindingMember.CreateAutoProperty<TabHost, object>(AttachedMemberConstants.SelectedItem, TabHostSelectedItemChanged);
 
 #if !API8
             //Action bar
@@ -362,23 +381,16 @@ namespace MugenMvvmToolkit.Infrastructure
 
 
             //DatePicker
-            memberProvider.Register(AttachedBindingMember
-                .CreateMember<DatePicker, DateTime>("SelectedDate",
-                    (info, picker, arg3) => picker.DateTime,
-                    (info, picker, arg3) => picker.DateTime = (DateTime)arg3[0], ObserveSelectedDate));
-
-            memberProvider.Register(AttachedBindingMember
-                .CreateMember<DatePicker, DateTime>("DateTime",
-                    (info, picker, arg3) => picker.DateTime,
-                    (info, picker, arg3) => picker.DateTime = (DateTime)arg3[0], ObserveSelectedDate));
+            var selectedDateMember = AttachedBindingMember.CreateMember<DatePicker, DateTime>("SelectedDate",
+                (info, picker, arg3) => picker.DateTime, (info, picker, arg3) => picker.DateTime = (DateTime)arg3[0],
+                ObserveSelectedDate, SelectedDateMemberAttached);
+            memberProvider.Register(selectedDateMember);
+            memberProvider.Register("DateTime", selectedDateMember);
 
             //TimePicker
-            memberProvider.Register(AttachedBindingMember
-                .CreateMember<TimePicker, TimeSpan>("Value", GetTimePickerValue, SetTimePickerValue,
-                    ObserveTimePickerValue));
-            memberProvider.Register(AttachedBindingMember
-                .CreateMember<TimePicker, TimeSpan>("SelectedTime", GetTimePickerValue, SetTimePickerValue,
-                    ObserveTimePickerValue));
+            var selectedTimeMember = AttachedBindingMember.CreateMember<TimePicker, TimeSpan>("SelectedTime", GetTimePickerValue, SetTimePickerValue, ObserveTimePickerValue);
+            memberProvider.Register(selectedTimeMember);
+            memberProvider.Register("Value", selectedTimeMember);
 
             //ImageView
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<ImageView, object>("ImageSource",
@@ -493,7 +505,12 @@ namespace MugenMvvmToolkit.Infrastructure
         private static IDisposable ObserveSelectedDate(IBindingMemberInfo bindingMemberInfo, DatePicker datePicker,
             IEventListener arg3)
         {
-            return DateChangedListener.GetOrAdd(datePicker).AddListner(arg3);
+            return DateChangedListener.AddDateChangedListener(datePicker, arg3);
+        }
+
+        private static void SelectedDateMemberAttached(DatePicker picker, MemberAttachedEventArgs memberAttachedEventArgs)
+        {
+            picker.Init(picker.Year, picker.Month, picker.DayOfMonth, DateChangedListener.Instance);
         }
 
         #endregion

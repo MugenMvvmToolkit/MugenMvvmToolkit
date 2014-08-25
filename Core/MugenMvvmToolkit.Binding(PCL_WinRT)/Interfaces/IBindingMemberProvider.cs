@@ -47,6 +47,15 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         void Register([NotNull] Type type, [NotNull] IBindingMemberInfo member, bool rewrite);
 
         /// <summary>
+        ///     Registers the specified member.
+        /// </summary>
+        /// <param name="type">The specified type.</param>
+        /// <param name="path">The path of member.</param>
+        /// <param name="member">The specified member.</param>
+        /// <param name="rewrite"><c>true</c> rewrite exist member, <c>false</c> throw an exception.</param>
+        void Register([NotNull] Type type, string path, [NotNull] IBindingMemberInfo member, bool rewrite);
+
+        /// <summary>
         ///     Unregisters the specified member using the type and member path.
         /// </summary>
         bool Unregister([NotNull] Type type, [NotNull] string path);

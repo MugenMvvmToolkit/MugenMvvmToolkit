@@ -23,7 +23,7 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
-    internal sealed class ValidationBinder : NotifyPropertyChangedBase, IDataErrorInfo
+    public sealed class ValidationBinder : NotifyPropertyChangedBase, IDataErrorInfo
     {
         #region Attached properties
 

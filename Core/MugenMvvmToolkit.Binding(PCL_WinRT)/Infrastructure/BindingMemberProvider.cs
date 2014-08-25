@@ -254,17 +254,30 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <param name="rewrite"><c>true</c> rewrite exist member, <c>false</c> throw an exception.</param>
         public void Register(Type type, IBindingMemberInfo member, bool rewrite)
         {
+            Register(type, member.Path, member, rewrite);
+        }
+
+        /// <summary>
+        ///     Registers the specified member.
+        /// </summary>
+        /// <param name="type">The specified type.</param>
+        /// <param name="path">The path of member.</param>
+        /// <param name="member">The specified member.</param>
+        /// <param name="rewrite"><c>true</c> rewrite exist member, <c>false</c> throw an exception.</param>
+        public void Register(Type type, string path, IBindingMemberInfo member, bool rewrite)
+        {
             Should.NotBeNull(type, "type");
+            Should.NotBeNullOrEmpty(path, "path");
             Should.NotBeNull(member, "member");
             lock (_attachedMembers)
             {
-                var key = new CacheKey(type, member.Path, false);
+                var key = new CacheKey(type, path, false);
                 if (_attachedMembers.ContainsKey(key))
                 {
                     if (rewrite)
-                        Tracer.Warn("The member {0} on type {1} has been overwritten", type, member.Path);
+                        Tracer.Warn("The member {0} on type {1} has been overwritten", type, path);
                     else
-                        throw BindingExceptionManager.DuplicateBindingMember(type, member.Path);
+                        throw BindingExceptionManager.DuplicateBindingMember(type, path);
                 }
                 _attachedMembers[key] = member;
             }
@@ -371,7 +384,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (field != null)
                     return new BindingMemberInfo(path, field, sourceType);
             }
-            return null;            
+            return null;
         }
 
 

@@ -24,7 +24,6 @@ using Android.Util;
 using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -245,7 +244,16 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         public virtual void OnViewCreated(View view, Bundle savedInstanceState, Action<View, Bundle> baseOnViewCreated)
         {
-            if (_dialogFragment != null)
+            if (_dialogFragment == null)
+            {
+                if (view != null)
+                {
+                    var actionBar = view.FindViewById<Views.ActionBar>(Resource.Id.ActionBarView);
+                    if (actionBar != null)
+                        actionBar.Apply(Target.Activity);
+                }
+            }
+            else
             {
                 var dialog = _dialogFragment.Dialog;
                 if (dialog != null)

@@ -188,7 +188,7 @@ namespace MugenMvvmToolkit.Binding.Core
                 _member = member;
                 _observer = BindingServiceProvider
                                            .ObserverProvider
-                                           .Observe(source, BindingPath.Create(member.Path), true);
+                                           .Observe(source, BindingPath.DataContext, true);
                 _observer.Listener = this;
             }
 
