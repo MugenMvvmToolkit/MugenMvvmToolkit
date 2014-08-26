@@ -79,9 +79,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public static IDisposable AddDateChangedListener(DatePicker datePicker, IEventListener listener)
             {
-                /*var listener = new DateChangedListener();
-                picker.Init(picker.Year, picker.Month, picker.DayOfMonth, listener);
-                return listener;*/
                 return ServiceProvider.AttachedValueProvider
                     .GetOrAdd(datePicker, Key, (picker, o) => new EventListenerList(), null)
                     .AddWithUnsubscriber(listener);

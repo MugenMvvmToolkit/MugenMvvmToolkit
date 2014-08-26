@@ -212,8 +212,11 @@ namespace MugenMvvmToolkit.Models
             setter.SetBinding(template => template.ActionProviderTemplateSelector, ActionProviderTemplateSelector, false);
             setter.SetProperty(template => template.ActionView, ActionView);
             setter.SetStringProperty(template => template.ActionProvider, ActionProvider);
-
+#if API8SUPPORT
+            menuItem.SetOnMenuItemClickListener(new AttachedMembersModule.MenuItemOnMenuItemClickListener(menuItem));
+#else
             menuItem.SetOnMenuItemClickListener(AttachedMembersModule.MenuItemOnMenuItemClickListener.Instance);
+#endif
         }
 
         private void SetDataContext<T>(T target, Context context, object dataContext, bool useContext)

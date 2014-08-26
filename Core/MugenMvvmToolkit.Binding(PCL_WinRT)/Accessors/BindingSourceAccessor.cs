@@ -360,7 +360,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 }
             }
             if (AutoConvertValue)
-                newValue = lastMember.Type.Convert(newValue);
+                newValue = BindingServiceProvider.ValueConverter(lastMember.Type, newValue);
             if (Equals(oldValue, newValue))
                 return false;
             if (lastMember.MemberType == BindingMemberType.Event)

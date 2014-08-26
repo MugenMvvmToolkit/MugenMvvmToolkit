@@ -48,12 +48,21 @@ namespace MugenMvvmToolkit.Infrastructure
             #region Fields
 
             private const string Key = "#ClickListener";
+#if API8SUPPORT
+            private readonly IMenuItem _item;
+#else
             public static readonly MenuItemOnMenuItemClickListener Instance;
-
+#endif
             #endregion
 
             #region Constructors
 
+#if API8SUPPORT
+            public MenuItemOnMenuItemClickListener(IMenuItem menuItem)
+            {
+                _item = menuItem;
+            }
+#else
             static MenuItemOnMenuItemClickListener()
             {
                 Instance = new MenuItemOnMenuItemClickListener();
@@ -62,13 +71,16 @@ namespace MugenMvvmToolkit.Infrastructure
             private MenuItemOnMenuItemClickListener()
             {
             }
-
+#endif
             #endregion
 
             #region Implementation of IMenuItemOnMenuItemClickListener
 
             public bool OnMenuItemClick(IMenuItem item)
             {
+#if API8SUPPORT
+                item = _item;
+#endif
                 if (item.IsCheckable)
                     IsCheckedMenuItemMember.SetValue(item, !item.IsChecked);
                 var list = ServiceProvider.AttachedValueProvider.GetValue<EventListenerList>(item, Key, false);
@@ -95,12 +107,21 @@ namespace MugenMvvmToolkit.Infrastructure
             #region Fields
 
             private const string Key = "!~ActionViewExpandedListener";
+#if API8SUPPORT
+            private readonly IMenuItem _item;
+#else
             public static readonly ActionViewExpandedListener Instance;
-
+#endif
             #endregion
 
             #region Constructors
 
+#if API8SUPPORT
+            public ActionViewExpandedListener(IMenuItem menuItem)
+            {
+                _item = menuItem;
+            }
+#else
             static ActionViewExpandedListener()
             {
                 Instance = new ActionViewExpandedListener();
@@ -109,7 +130,7 @@ namespace MugenMvvmToolkit.Infrastructure
             private ActionViewExpandedListener()
             {
             }
-
+#endif
             #endregion
 
             #region Methods
@@ -134,12 +155,18 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public bool OnMenuItemActionCollapse(IMenuItem item)
             {
+#if API8SUPPORT
+                item = _item;
+#endif
                 Raise(item);
                 return true;
             }
 
             public bool OnMenuItemActionExpand(IMenuItem item)
             {
+#if API8SUPPORT
+                item = _item;
+#endif
                 Raise(item);
                 return true;
             }
@@ -346,7 +373,14 @@ namespace MugenMvvmToolkit.Infrastructure
 #if !API8
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<IMenuItem, bool>("IsActionViewExpanded", (info, item, arg3) => item.GetIsActionViewExpanded(), SetIsActionViewExpanded,
-                    ObserveIsActionViewExpanded, (item, args) => item.SetOnActionExpandListener(ActionViewExpandedListener.Instance)));
+                    ObserveIsActionViewExpanded, (item, args) =>
+                    {
+#if API8SUPPORT
+                        item.SetOnActionExpandListener(new ActionViewExpandedListener(item));
+#else
+                        item.SetOnActionExpandListener(ActionViewExpandedListener.Instance);
+#endif
+                    }));
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<IMenuItem, ShowAsAction>("ShowAsAction", null,
                     (info, o, arg3) =>

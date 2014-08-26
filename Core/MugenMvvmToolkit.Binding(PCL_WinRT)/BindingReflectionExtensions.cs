@@ -90,7 +90,7 @@ namespace MugenMvvmToolkit.Binding
             return type.IsValueType() ? Activator.CreateInstance(type) : null;
         }
 
-        internal static object Convert(this Type type, object value)
+        internal static object Convert(Type type, object value)
         {
             if (type.IsInstanceOfType(value) || value == null)
                 return value;
@@ -577,7 +577,7 @@ namespace MugenMvvmToolkit.Binding
                 var s = strings[i];
                 if (parameters != null)
                     castType = parameters[i].ParameterType;
-                result[i] = s == "null" ? null : castType.Convert(s);
+                result[i] = s == "null" ? null : BindingServiceProvider.ValueConverter(castType, s);
             }
             return result;
         }

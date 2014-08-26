@@ -13,6 +13,8 @@
 // </license>
 // ****************************************************************************
 #endregion
+
+using System;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Infrastructure;
@@ -36,7 +38,8 @@ namespace MugenMvvmToolkit.Binding
         private static IVisualTreeManager _visualTreeManager;
         private static IBindingResourceResolver _resourceResolver;
         private static IWeakEventManager _weakEventManager;
-        
+        private static Func<Type, object, object> _valueConverter;
+
         #endregion
 
         #region Constructors
@@ -50,6 +53,16 @@ namespace MugenMvvmToolkit.Binding
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Gets or sets the delegate that allows to convert binding values.
+        /// </summary>
+        [NotNull]
+        public static Func<Type, object, object> ValueConverter
+        {
+            get { return _valueConverter; }
+            set { _valueConverter = value ?? BindingReflectionExtensions.Convert; }
+        }
 
         /// <summary>
         ///     Gets or sets the <see cref="IBindingProvider" />.
@@ -175,6 +188,7 @@ namespace MugenMvvmToolkit.Binding
 
         internal static void SetDefaultValues()
         {
+            _valueConverter = BindingReflectionExtensions.Convert;
             _resourceResolver = new BindingResourceResolver();
             _memberProvider = new BindingMemberProvider();
             _visualTreeManager = new VisualTreeManager();
@@ -182,7 +196,7 @@ namespace MugenMvvmToolkit.Binding
             _bindingManager = new BindingManager();
             _bindingProvider = new BindingProvider();
             _observerProvider = new ObserverProvider();
-            _contextManager = new BindingContextManager();            
+            _contextManager = new BindingContextManager();
         }
 
         #endregion
