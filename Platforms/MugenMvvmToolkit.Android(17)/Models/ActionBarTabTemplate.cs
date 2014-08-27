@@ -55,9 +55,7 @@ namespace MugenMvvmToolkit.Models
                 }
 
                 tab.SetTabListener(null);
-                AttachedMembersModule
-                    .ActionBarTabParentMember
-                    .SetValue(tab, BindingExtensions.NullValue);
+                BindingExtensions.AttachedParentMember.SetValue(tab, BindingExtensions.NullValue);
             }
 
             private void SetContent(ActionBar.Tab tab, FragmentTransaction ft, int? placeHolder, Activity activity, ActionBar bar)
@@ -122,7 +120,7 @@ namespace MugenMvvmToolkit.Models
 
             public void OnTabSelected(ActionBar.Tab tab, FragmentTransaction ft)
             {
-                var bar = AttachedMembersModule.ActionBarTabParentMember.GetValue(tab, null);
+                var bar = (ActionBar)BindingExtensions.AttachedParentMember.GetValue(tab, null);
                 var placeHolder = Views.ActionBar.GetTabContentId(bar);
                 var activity = bar.ThemedContext.GetActivity();
                 SetContent(tab, ft, placeHolder, activity, bar);
@@ -218,7 +216,7 @@ namespace MugenMvvmToolkit.Models
         private ActionBar.Tab CreateTabInternal(ActionBar bar, object context, bool useContext)
         {
             ActionBar.Tab newTab = bar.NewTab();
-            AttachedMembersModule.ActionBarTabParentMember.SetValue(newTab, bar);
+            BindingExtensions.AttachedParentMember.SetValue(newTab, bar);
             var setter = new XmlPropertySetter<ActionBarTabTemplate, ActionBar.Tab>(newTab, bar.ThemedContext);
             if (useContext)
                 BindingServiceProvider.ContextManager.GetBindingContext(newTab).Value = context;

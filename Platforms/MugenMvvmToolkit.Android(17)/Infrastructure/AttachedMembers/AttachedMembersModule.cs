@@ -237,7 +237,6 @@ namespace MugenMvvmToolkit.Infrastructure
         static AttachedMembersModule()
         {
             //Menu
-            MenuParentMember = AttachedBindingMember.CreateAutoProperty<object, object>(AttachedMemberConstants.Parent);
             MenuItemsSourceMember = AttachedBindingMember.CreateAutoProperty<IMenu, IEnumerable>(AttachedMemberConstants.ItemsSource, MenuItemsSourceChanged);
             IsCheckedMenuItemMember = AttachedBindingMember.CreateNotifiableMember<IMenuItem, bool>("IsChecked",
                 (info, item, arg3) => item.IsChecked,
@@ -266,7 +265,6 @@ namespace MugenMvvmToolkit.Infrastructure
             AddToBackStackMember = AttachedBindingMember.CreateAutoProperty<ViewGroup, bool>("AddToBackStack");
 #endif
             //View
-            ViewAttachedParentMember = AttachedBindingMember.CreateAutoProperty<View, object>("#Parent", ViewAttachedParentChanged);
             DisableValidationMember = AttachedBindingMember.CreateAutoProperty<View, bool>("DisableValidation");
 
             //ViewGroup
@@ -297,7 +295,6 @@ namespace MugenMvvmToolkit.Infrastructure
             ActionBarContextActionBarVisibleMember = AttachedBindingMember.CreateAutoProperty<ActionBar, bool>("ContextActionBarVisible", ActionBarContextActionBarVisibleChanged);
 
             //ActioBar.Tab
-            ActionBarTabParentMember = AttachedBindingMember.CreateAutoProperty<ActionBar.Tab, ActionBar>(AttachedMemberConstants.Parent);
             ActionBarTabContentMember = AttachedBindingMember.CreateAutoProperty<ActionBar.Tab, object>(AttachedMemberConstants.Content);
 #endif
 

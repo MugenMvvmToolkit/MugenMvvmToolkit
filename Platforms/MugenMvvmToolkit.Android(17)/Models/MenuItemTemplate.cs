@@ -148,7 +148,7 @@ namespace MugenMvvmToolkit.Models
             bindingManager.ClearBindings(item);
             if (item.HasSubMenu)
                 MenuTemplate.Clear(item.SubMenu, bindingManager);
-            AttachedMembersModule.MenuParentMember.SetValue(item, BindingExtensions.NullValue);
+            BindingExtensions.AttachedParentMember.SetValue(item, BindingExtensions.NullValue);
         }
 
         private void ApplyInternal(IMenu menu, Context context, int id, int order, object dataContext, bool useContext)
@@ -158,8 +158,8 @@ namespace MugenMvvmToolkit.Models
             if (isSubMenu)
             {
                 ISubMenu subMenu = menu.AddSubMenu(0, id, order, string.Empty);
-                AttachedMembersModule.MenuParentMember.SetValue(subMenu, menu);
-                AttachedMembersModule.MenuParentMember.SetValue(subMenu.Item, subMenu);
+                BindingExtensions.AttachedParentMember.SetValue(subMenu, menu);
+                BindingExtensions.AttachedParentMember.SetValue(subMenu.Item, subMenu);
                 SetDataContext(subMenu, context, dataContext, useContext);
 
                 ApplySelf(subMenu.Item, context);
@@ -178,7 +178,7 @@ namespace MugenMvvmToolkit.Models
             else
             {
                 var menuItem = menu.Add(0, id, order, string.Empty);
-                AttachedMembersModule.MenuParentMember.SetValue(menuItem, menu);
+                BindingExtensions.AttachedParentMember.SetValue(menuItem, menu);
                 SetDataContext(menuItem, context, dataContext, useContext);
                 ApplySelf(menuItem, context);
             }

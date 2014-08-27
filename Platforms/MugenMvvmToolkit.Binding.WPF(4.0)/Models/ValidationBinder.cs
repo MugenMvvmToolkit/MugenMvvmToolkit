@@ -23,6 +23,9 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
+    /// <summary>
+    /// Represents the class that allows to use default binding validaion mechanism.
+    /// </summary>
     public sealed class ValidationBinder : NotifyPropertyChangedBase, IDataErrorInfo
     {
         #region Attached properties

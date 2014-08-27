@@ -100,6 +100,9 @@
     <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Models\Enums.cs">
       <Link>Models\Enums.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Models\ParentObserver.cs">
+      <Link>Models\ParentObserver.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Models\ValidationBinder.cs">
       <Link>Models\ValidationBinder.cs</Link>
     </Compile>

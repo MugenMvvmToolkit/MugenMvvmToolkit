@@ -89,6 +89,11 @@ namespace MugenMvvmToolkit.Infrastructure
                     (info, control, arg3) => control.Focused, null,
                     memberChangeEventName: "LostFocus"));
 
+            //Registering parent member as attached to avoid use the BindingExtensions.AttachedParentMember property.
+            var parentMember = memberProvider.GetBindingMember(typeof(Control), AttachedMemberConstants.Parent, true, false);
+            if (parentMember != null)
+                memberProvider.Register(typeof(Control), parentMember, true);
+
             memberProvider.Register(ContenMember);
             memberProvider.Register(ContenTemplateMember);
             memberProvider.Register(DisableValidationMember);

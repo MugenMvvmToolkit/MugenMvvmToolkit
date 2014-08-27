@@ -397,7 +397,7 @@ namespace MugenMvvmToolkit
             Should.NotBeNull(view, "view");
             if (view.Context == null)
                 return;
-            AttachedMembersModule.RaiseParentChanged(view);
+            ParentObserver.Raise(view);
             if (ServiceProvider.AttachedValueProvider.GetValue<object>(view, VisitedParentPath, false) != null)
                 return;
             ServiceProvider.AttachedValueProvider.SetValue(view, VisitedParentPath, view);
@@ -412,15 +412,6 @@ namespace MugenMvvmToolkit
                 for (int i = 0; i < viewGroup.ChildCount; i++)
                     viewGroup.GetChildAt(i).ListenParentChange();
             }
-        }
-
-        /// <summary>
-        /// Invalidates the parent property of the specified view.
-        /// </summary>
-        public static void RaiseParentChanged(this View view)
-        {
-            Should.NotBeNull(view, "view");
-            AttachedMembersModule.RaiseParentChanged(view);
         }
 
         /// <summary>
@@ -579,13 +570,6 @@ namespace MugenMvvmToolkit
         }
 
 #if !API8
-        internal static void ValidateViewIdFragment(View view, Fragment content)
-        {
-            if (view.Id == View.NoId)
-                throw new ArgumentException(string.Format("To use a fragment {0}, you must specify the id for view {1}, for instance: @+id/placeholder", view, content),
-                    "view");
-        }
-
         internal static FragmentManager GetFragmentManager(this View view)
         {
             var treeView = view;
@@ -603,6 +587,13 @@ namespace MugenMvvmToolkit
                 return null;
             }
             return activity.GetFragmentManager();
+        }
+
+        private static void ValidateViewIdFragment(View view, Fragment content)
+        {
+            if (view.Id == View.NoId)
+                throw new ArgumentException(string.Format("To use a fragment {0}, you must specify the id for view {1}, for instance: @+id/placeholder", view, content),
+                    "view");
         }
 
         private static IMvvmFragmentMediator MvvmFragmentMediatorFactoryMethod(Fragment fragment, IDataContext dataContext)

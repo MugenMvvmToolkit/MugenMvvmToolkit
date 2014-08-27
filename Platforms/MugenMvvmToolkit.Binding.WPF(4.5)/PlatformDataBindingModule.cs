@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.MarkupExtensions;
 #if NETFX_CORE || WINDOWSCOMMON
 using System.Reflection;
@@ -47,78 +46,6 @@ namespace MugenMvvmToolkit.Binding
 {
     public class PlatformDataBindingModule : DataBindingModule
     {
-        #region Nested types
-
-        private sealed class ParentListener : EventListenerList
-        {
-            #region Fields
-
-            private readonly WeakReference _view;
-            private WeakReference _parent;
-            private bool _isAttached;
-
-            #endregion
-
-            #region Constructors
-
-            private ParentListener(FrameworkElement view)
-            {
-                _view = ServiceProvider.WeakReferenceFactory(view, true);
-                _parent = ServiceProvider.WeakReferenceFactory(FindParent(view), true);
-                RoutedEventHandler handler = OnChanged;
-                view.Loaded += handler;
-                view.Unloaded += handler;
-            }
-
-            #endregion
-
-            #region Properties
-
-            public DependencyObject Parent
-            {
-                get { return _parent.Target as DependencyObject; }
-                set
-                {
-                    _isAttached = true;
-                    SetParent(value);
-                }
-            }
-
-            #endregion
-
-            #region Methods
-
-            public static ParentListener GetOrAdd(FrameworkElement element)
-            {
-                return ServiceProvider.AttachedValueProvider.GetOrAdd(element, "#ParentListener",
-                    (frameworkElement, o) => new ParentListener(frameworkElement), null);
-            }
-
-            private void OnChanged(object sender, RoutedEventArgs routedEventArgs)
-            {
-                var view = (FrameworkElement)_view.Target;
-                if (view == null)
-                {
-                    Clear();
-                    return;
-                }
-                if (!_isAttached)
-                    SetParent(FindParent(view));
-            }
-
-            private void SetParent(DependencyObject value)
-            {
-                if (ReferenceEquals(value, _parent.Target))
-                    return;
-                _parent = ServiceProvider.WeakReferenceFactory(value, true);
-                Raise(_view.Target, EventArgs.Empty);
-            }
-
-            #endregion
-        }
-
-        #endregion
-
         #region Fields
 
         internal readonly static IAttachedBindingMemberInfo<FrameworkElement, bool> DisableValidationMember;
@@ -137,15 +64,6 @@ namespace MugenMvvmToolkit.Binding
         #endregion
 
         #region Methods
-
-        /// <summary>
-        /// Tries to set attached parent.
-        /// </summary>
-        public static void SetAttachedParent([CanBeNull] FrameworkElement target, [CanBeNull] DependencyObject parent)
-        {
-            if (target != null)
-                ParentListener.GetOrAdd(target).Parent = parent;
-        }
 
         private static void Register(IBindingMemberProvider memberProvider)
         {
@@ -224,7 +142,7 @@ namespace MugenMvvmToolkit.Binding
             while (target != null)
             {
                 root = target;
-                target = FindParent(target) as FrameworkElement;
+                target = ParentObserver.FindParent(target) as FrameworkElement;
             }
             var frameworkElement = root as FrameworkElement;
             if (frameworkElement == null)
@@ -235,12 +153,12 @@ namespace MugenMvvmToolkit.Binding
 
         private static DependencyObject GetParentValue(IBindingMemberInfo bindingMemberInfo, FrameworkElement target, object[] arg3)
         {
-            return ParentListener.GetOrAdd(target).Parent;
+            return ParentObserver.GetOrAdd(target).Parent;
         }
 
         private static IDisposable ObserveParentMember(IBindingMemberInfo bindingMemberInfo, FrameworkElement o, IEventListener arg3)
         {
-            return ParentListener.GetOrAdd(o).AddWithUnsubscriber(arg3);
+            return ParentObserver.GetOrAdd(o).AddWithUnsubscriber(arg3);
 
         }
 
@@ -250,21 +168,6 @@ namespace MugenMvvmToolkit.Binding
             return new DependencyPropertyBindingMember.DependencyPropertyListener(textBlock, "Text", arg3);
         }
 #endif
-
-        private static DependencyObject FindParent(FrameworkElement target)
-        {
-            IBindingMemberInfo member = BindingServiceProvider
-                    .MemberProvider
-                    .GetBindingMember(target.GetType(), "PlacementTarget", false, false);
-            if (member != null)
-            {
-                object value = member.GetValue(target, null);
-                if (value != null)
-                    return (DependencyObject)value;
-            }
-            return VisualTreeHelper.GetParent(target) ?? target.Parent;
-        }
-
         private static DependencyObject FindChild(DependencyObject parent, string childName)
         {
             if (parent == null)
@@ -343,31 +246,33 @@ namespace MugenMvvmToolkit.Binding
             conv = new NullToVisibilityConverter(Visibility.Visible, Visibility.Hidden);
             resourceResolver
                 .AddConverter("NotNullToHidden", new ValueConverterWrapper(conv.Convert, conv.ConvertBack), true);
-#endif
-            foreach (var assembly in context.Assemblies)
-            {
-                foreach (var type in assembly.SafeGetTypes(context.Mode != LoadMode.Design))
-                {
-#if NETFX_CORE || WINDOWSCOMMON
-                    if (!typeof(IValueConverter).IsAssignableFrom(type) || type.GetTypeInfo().IsAbstract || !type.GetTypeInfo().IsClass)
-                        continue;
-                    var constructor = type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(info => info.GetParameters().Length == 0);
-#else
-                    if (!typeof(IValueConverter).IsAssignableFrom(type) || type.IsAbstract || !type.IsClass)
-                        continue;
-                    var constructor = type.GetConstructor(EmptyValue<Type>.ArrayInstance);
-#endif
-
-                    if (constructor == null || !constructor.IsPublic)
-                        continue;
-                    var converter = (IValueConverter)constructor.InvokeEx();
-                    string name = RemoveTail(RemoveTail(type.Name, "ValueConverter"), "Converter");
-                    if (resourceResolver.TryAddConverter(name,
-                        new ValueConverterWrapper(converter.Convert, converter.ConvertBack)))
-                        Tracer.Info("The {0} converter is registered.", type);
-                }
-            }
+#endif            
             return true;
+        }
+
+        /// <summary>
+        /// Tries to register type.
+        /// </summary>
+        protected override void RegisterType(Type type)
+        {
+            base.RegisterType(type);
+
+#if NETFX_CORE || WINDOWSCOMMON
+            if (!typeof(IValueConverter).IsAssignableFrom(type) || type.GetTypeInfo().IsAbstract || !type.GetTypeInfo().IsClass)
+                return;
+            var constructor = type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(info => info.GetParameters().Length == 0);
+#else
+            if (!typeof(IValueConverter).IsAssignableFrom(type) || type.IsAbstract || !type.IsClass)
+                return;
+            var constructor = type.GetConstructor(EmptyValue<Type>.ArrayInstance);
+#endif
+            if (constructor == null || !constructor.IsPublic)
+                return;
+            var converter = (IValueConverter)constructor.InvokeEx();
+            string name = RemoveTail(RemoveTail(type.Name, "ValueConverter"), "Converter");
+            if (BindingServiceProvider.ResourceResolver.TryAddConverter(name,
+                new ValueConverterWrapper(converter.Convert, converter.ConvertBack)))
+                Tracer.Info("The {0} converter is registered.", type);
         }
 
         #endregion

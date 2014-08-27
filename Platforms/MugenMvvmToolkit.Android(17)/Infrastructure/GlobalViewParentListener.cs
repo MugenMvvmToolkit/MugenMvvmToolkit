@@ -22,11 +22,16 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Fields
 
-        public static readonly GlobalViewParentListener Instance = new GlobalViewParentListener();
+        public static readonly GlobalViewParentListener Instance;
 
         #endregion
 
         #region Constructors
+
+        static GlobalViewParentListener()
+        {
+            Instance = new GlobalViewParentListener();
+        }
 
         private GlobalViewParentListener()
         {
@@ -38,12 +43,12 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public void OnChildViewAdded(View parent, View child)
         {
-            child.ListenParentChange();            
+            child.ListenParentChange();
         }
 
         public void OnChildViewRemoved(View parent, View child)
         {
-            child.ListenParentChange();            
+            child.ListenParentChange();
         }
 
         #endregion

@@ -188,6 +188,9 @@
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Models\MenuTemplate.cs">
       <Link>Models\MenuTemplate.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Models\ParentObserver.cs">
+      <Link>Models\ParentObserver.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Models\ViewResult.cs">
       <Link>Models\ViewResult.cs</Link>
     </Compile>

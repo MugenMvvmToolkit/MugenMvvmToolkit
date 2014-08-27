@@ -58,6 +58,7 @@
     <Compile Include="Infrastructure\BindingErrorProvider.cs" />
     <Compile Include="Infrastructure\BindingMemberProviderEx.cs" />
     <Compile Include="Infrastructure\BindingResourceResolverEx.cs" />
+    <Compile Include="Models\ParentObserver.cs" />
     <Compile Include="Models\ValidationBinder.cs" />
     <Compile Include="MarkupExtensions\DataBindingExtension.cs" />
     <Compile Include="Models\DependencyPropertyBindingMember.cs" />

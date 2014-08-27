@@ -181,7 +181,7 @@ namespace MugenMvvmToolkit
         /// <summary>
         /// Gets the types defined in this assembly.
         /// </summary>
-        public static IEnumerable<Type> SafeGetTypes(this Assembly assembly, bool throwOnError)
+        public static IList<Type> SafeGetTypes(this Assembly assembly, bool throwOnError)
         {
             try
             {
@@ -200,7 +200,7 @@ namespace MugenMvvmToolkit
                     throw;
                 Tracer.Error("SafeGetTypes {0} - error {1}", assembly.FullName, e.Flatten(true));
             }
-            return Enumerable.Empty<Type>();
+            return EmptyValue<Type>.ListInstance;
         }
 
         /// <summary>

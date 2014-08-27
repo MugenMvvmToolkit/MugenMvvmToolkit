@@ -17,6 +17,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Binding
 {
@@ -37,13 +38,20 @@ namespace MugenMvvmToolkit.Binding
             Should.NotBeNull(flyoutBase, "flyoutBase");
             Should.NotBeNull(placementTarget, "placementTarget");
             var flyout = flyoutBase as Flyout;
-            if (flyout != null)
-                PlatformDataBindingModule.SetAttachedParent(flyout.Content as FrameworkElement, placementTarget);
-            var menuFlyout = flyoutBase as MenuFlyout;
-            if (menuFlyout != null && menuFlyout.Items != null)
+            if (flyout == null)
             {
-                foreach (MenuFlyoutItemBase item in menuFlyout.Items)
-                    PlatformDataBindingModule.SetAttachedParent(item, placementTarget);
+                var menuFlyout = flyoutBase as MenuFlyout;
+                if (menuFlyout != null && menuFlyout.Items != null)
+                {
+                    foreach (MenuFlyoutItemBase item in menuFlyout.Items)
+                        ParentObserver.GetOrAdd(item).Parent = placementTarget;
+                }
+            }
+            else
+            {
+                var content = flyout.Content as FrameworkElement;
+                if (content != null)
+                    ParentObserver.GetOrAdd(content).Parent = placementTarget;
             }
             flyoutBase.ShowAt(placementTarget);
         }

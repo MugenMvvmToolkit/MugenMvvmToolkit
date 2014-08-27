@@ -56,7 +56,7 @@ namespace MugenMvvmToolkit.Models
         {
             PlatformExtensions.ValidateTemplate(ItemsSource, Items);
             var setter = new XmlPropertySetter<MenuTemplate, IMenu>(menu, context);
-            AttachedMembersModule.MenuParentMember.SetValue(menu, parent);
+            BindingExtensions.AttachedParentMember.SetValue(menu, parent);
             setter.SetBinding(template => template.DataContext, DataContext, false);
             setter.SetBoolProperty(template => template.IsVisible, IsVisible);
             setter.SetBoolProperty(template => template.IsEnabled, IsEnabled);
@@ -95,7 +95,7 @@ namespace MugenMvvmToolkit.Models
             for (int i = 0; i < size; i++)
                 MenuItemTemplate.Clear(menu.GetItem(i), bindingManager);
             menu.Clear();
-            AttachedMembersModule.MenuParentMember.SetValue(menu, BindingExtensions.NullValue);
+            BindingExtensions.AttachedParentMember.SetValue(menu, BindingExtensions.NullValue);
         }
 
         #endregion

@@ -136,6 +136,7 @@
     <Compile Include="Models\JavaObjectWeakReference.cs" />
     <Compile Include="Models\MenuItemTemplate.cs" />
     <Compile Include="Models\MenuTemplate.cs" />
+    <Compile Include="Models\ParentObserver.cs" />
     <Compile Include="Models\ViewResult.cs" />
     <Compile Include="PlatformExtensions.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />

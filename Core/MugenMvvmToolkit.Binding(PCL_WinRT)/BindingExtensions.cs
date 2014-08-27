@@ -195,6 +195,11 @@ namespace MugenMvvmToolkit.Binding
         /// </summary>
         public static readonly object[] NullValue;
 
+        /// <summary>
+        /// Gets the attached parent member.
+        /// </summary>
+        public readonly static IAttachedBindingMemberInfo<object, object> AttachedParentMember;
+
         private static readonly Func<string, string, string> MergePathDelegate;
 
         #endregion
@@ -203,6 +208,7 @@ namespace MugenMvvmToolkit.Binding
 
         static BindingExtensions()
         {
+            AttachedParentMember = AttachedBindingMember.CreateAutoProperty<object, object>("#" + AttachedMemberConstants.Parent);
             NullValue = new object[] { null };
             MergePathDelegate = MergePath;
         }

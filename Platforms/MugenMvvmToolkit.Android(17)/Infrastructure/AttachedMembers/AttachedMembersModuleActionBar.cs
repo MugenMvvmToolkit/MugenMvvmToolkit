@@ -130,8 +130,6 @@ namespace MugenMvvmToolkit.Infrastructure
         private const string ActionBarActionModeKey = "!#CurrentActionMode";
 
         internal static readonly IAttachedBindingMemberInfo<ActionBar.Tab, object> ActionBarTabContentMember;
-        internal static readonly IAttachedBindingMemberInfo<ActionBar.Tab, ActionBar> ActionBarTabParentMember;
-
         internal static readonly IAttachedBindingMemberInfo<ActionBar, object> ActionBarSelectedItemMember;
 
         private static readonly IAttachedBindingMemberInfo<ActionBar, IEnumerable> ActionBarItemsSourceMember;
@@ -145,14 +143,13 @@ namespace MugenMvvmToolkit.Infrastructure
         private static void RegisterActionBarMembers(IBindingMemberProvider memberProvider)
         {
             memberProvider.Register(ActionBarTabContentMember);
-            memberProvider.Register(ActionBarTabParentMember);
             memberProvider.Register(ActionBarSelectedItemMember);
             memberProvider.Register(ActionBarItemsSourceMember);
             memberProvider.Register(ActionBarContextActionBarTemplateMember);
             memberProvider.Register(ActionBarContextActionBarVisibleMember);
 
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<ActionBar, object>(AttachedMemberConstants.Parent, (info, bar, arg3) => bar.ThemedContext, null));
+                .CreateMember<ActionBar, object>(AttachedMemberConstants.Parent, (info, bar, arg3) => bar.ThemedContext.GetActivity(), null));
             memberProvider.Register(AttachedBindingMember
                 .CreateAutoProperty<ActionBar, object>("BackgroundDrawable",
                     (actionBar, args) =>
@@ -169,13 +166,13 @@ namespace MugenMvvmToolkit.Infrastructure
                     (info, actionBar, arg3) =>
                     {
                         if (actionBar.CustomView != null)
-                            ViewAttachedParentMember.SetValue(actionBar.CustomView, BindingExtensions.NullValue);
+                            ParentObserver.GetOrAdd(actionBar.CustomView).Parent = null;
                         if (arg3[0] is int)
                             actionBar.SetCustomView((int)arg3[0]);
                         else
                             actionBar.CustomView = (View)arg3[0];
                         if (actionBar.CustomView != null)
-                            ViewAttachedParentMember.SetValue(actionBar.CustomView, actionBar);
+                            ParentObserver.GetOrAdd(actionBar.CustomView).Parent = actionBar;
                         return true;
                     }));
             memberProvider.Register(AttachedBindingMember
@@ -292,13 +289,13 @@ namespace MugenMvvmToolkit.Infrastructure
                     (info, tab, arg3) => tab.CustomView, (info, tab, arg3) =>
                     {
                         if (tab.CustomView != null)
-                            ViewAttachedParentMember.SetValue(tab.CustomView, BindingExtensions.NullValue);
+                            ParentObserver.GetOrAdd(tab.CustomView).Parent = null;
                         if (arg3[0] is int)
                             tab.SetCustomView((int)arg3[0]);
                         else
                             tab.SetCustomView((View)arg3[0]);
                         if (tab.CustomView != null)
-                            ViewAttachedParentMember.SetValue(tab.CustomView, tab);
+                            ParentObserver.GetOrAdd(tab.CustomView).Parent = tab;
                         return true;
                     }));
             memberProvider.Register(AttachedBindingMember

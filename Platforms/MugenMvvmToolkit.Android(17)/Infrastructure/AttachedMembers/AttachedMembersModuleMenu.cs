@@ -277,7 +277,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Fields
 
-        internal static readonly IAttachedBindingMemberInfo<object, object> MenuParentMember;
         private static readonly IAttachedBindingMemberInfo<IMenuItem, bool> IsCheckedMenuItemMember;
 #if !API8
         private static readonly IAttachedBindingMemberInfo<IMenuItem, object> MenuItemActionViewMember;
@@ -294,7 +293,6 @@ namespace MugenMvvmToolkit.Infrastructure
         private static void RegisterMenuMembers(IBindingMemberProvider memberProvider)
         {
             //IMenu
-            memberProvider.Register(typeof(IMenu), MenuParentMember, true);
             memberProvider.Register(MenuItemsSourceMember);
             var menuEnabledMember = AttachedBindingMember.CreateAutoProperty<IMenu, bool?>(AttachedMemberConstants.Enabled, (menu, args) => menu.SetGroupEnabled(0, args.NewValue.GetValueOrDefault()));
             memberProvider.Register(menuEnabledMember);
@@ -314,7 +312,6 @@ namespace MugenMvvmToolkit.Infrastructure
             memberProvider.Register(MenuItemActionProviderSelectorMember);
 #endif
             memberProvider.Register(IsCheckedMenuItemMember);
-            memberProvider.Register(typeof(IMenuItem), MenuParentMember, true);
             memberProvider.Register(AttachedBindingMember.CreateEvent<IMenuItem>("Click", SetClickEventValue));
 
             memberProvider.Register(AttachedBindingMember
@@ -406,8 +403,10 @@ namespace MugenMvvmToolkit.Infrastructure
 #if !API8
         private static bool MenuItemUpdateActionView(IMenuItem menuItem, object content)
         {
-            if (menuItem.GetActionView() != null)
-                ViewAttachedParentMember.SetValue(menuItem.GetActionView(), BindingExtensions.NullValue);
+            var actionView = menuItem.GetActionView();
+            if (actionView != null)
+                ParentObserver.GetOrAdd(actionView).Parent = null;
+
             var selector = MenuItemActionViewSelectorMember.GetValue(menuItem, null);
             if (selector != null)
             {
@@ -421,28 +420,26 @@ namespace MugenMvvmToolkit.Infrastructure
                 return true;
             }
 
-            View view;
             int viewId;
             if (int.TryParse(content.ToString(), out viewId))
             {
                 menuItem.SetActionView(viewId);
-                view = menuItem.GetActionView();
+                actionView = menuItem.GetActionView();
             }
             else
             {
-                view = content as View;
-                if (view == null)
+                actionView = content as View;
+                if (actionView == null)
                 {
                     Type viewType = TypeCache<View>.Instance.GetTypeByName(content.ToString(), false, true);
-                    view = viewType.CreateView(GetContextFromMenuItem(menuItem));
-                    view.ListenParentChange();
+                    actionView = viewType.CreateView(GetContextFromMenuItem(menuItem));
                 }
-                menuItem.SetActionView(view);
+                menuItem.SetActionView(actionView);
             }
-            ViewAttachedParentMember.SetValue(view, menuItem);
+            ParentObserver.GetOrAdd(actionView).Parent = menuItem;
             var bindings = MenuItemTemplate.GetActionViewBind(menuItem);
             if (!string.IsNullOrEmpty(bindings))
-                BindingServiceProvider.BindingProvider.CreateBindingsFromString(view, bindings, null);
+                BindingServiceProvider.BindingProvider.CreateBindingsFromString(actionView, bindings, null);
             return true;
         }
 

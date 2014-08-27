@@ -16,13 +16,11 @@
 using System;
 using Android.Views;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvmToolkit.Infrastructure
@@ -148,82 +146,15 @@ namespace MugenMvvmToolkit.Infrastructure
             #endregion
         }
 
-        private sealed class ParentListener : EventListenerList
-        {
-            #region Fields
-
-            private const string Key = "!#ParentListener";
-            private readonly WeakReference _viewRef;
-            private WeakReference _parentReference;
-
-            #endregion
-
-            #region Constructors
-
-            private ParentListener(View view)
-            {
-                _viewRef = ServiceProvider.WeakReferenceFactory(view, true);
-                _parentReference = view.Id == Android.Resource.Id.Content
-                    ? MvvmUtils.EmptyWeakReference
-                    : ServiceProvider.WeakReferenceFactory(view.Parent, true);
-            }
-
-            #endregion
-
-            #region Methods
-
-            public static IDisposable AddListener(View view, IEventListener listener)
-            {
-                return ServiceProvider
-                    .AttachedValueProvider
-                    .GetOrAdd(view, Key, (view1, o) => new ParentListener(view1), null)
-                    .AddWithUnsubscriber(listener);
-            }
-
-            public static void Raise(View view)
-            {
-                ParentListener listener;
-                if (ServiceProvider.AttachedValueProvider.TryGetValue(view, Key, out listener))
-                    listener.Raise();
-            }
-
-            public void Raise()
-            {
-                var view = (View)_viewRef.Target;
-                if (view == null)
-                {
-                    Clear();
-                    return;
-                }
-                if (view.Id == Android.Resource.Id.Content || ReferenceEquals(view.Parent, _parentReference.Target))
-                    return;
-                if (!Equals(view.Parent, _parentReference.Target))
-                    _parentReference = ServiceProvider.WeakReferenceFactory(view.Parent, true);
-                Raise(view, EventArgs.Empty);
-            }
-
-            #endregion
-        }
-
         #endregion
 
         #region Fields
-
-        /// <summary>
-        /// Gets the attached parent member for view.
-        /// </summary>
-        public static readonly IAttachedBindingMemberInfo<View, object> ViewAttachedParentMember;
 
         internal static readonly IAttachedBindingMemberInfo<View, bool> DisableValidationMember;
 
         #endregion
 
         #region Methods
-
-        internal static void RaiseParentChanged(View view)
-        {
-            ParentListener.Raise(view);
-        }
 
         private static void RegisterViewMembers(IBindingMemberProvider memberProvider)
         {
@@ -264,22 +195,14 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static IDisposable ObserveViewParent(IBindingMemberInfo bindingMemberInfo, View view, IEventListener arg3)
         {
-            return ParentListener.AddListener(view, arg3);
+            return ParentObserver.GetOrAdd(view).AddWithUnsubscriber(arg3);
         }
 
-        private static object GetViewParentValue(IBindingMemberInfo arg1, View arg2, object[] arg3)
+        private static object GetViewParentValue(IBindingMemberInfo arg1, View view, object[] arg3)
         {
-            var value = ViewAttachedParentMember.GetValue(arg2, arg3);
-            if (value != null)
-                return value;
-            if (arg2.Id == Android.Resource.Id.Content)
-                return arg2.Context;
-            return arg2.Parent;
-        }
-
-        private static void ViewAttachedParentChanged(View arg1, AttachedMemberChangedEventArgs<object> arg2)
-        {
-            RaiseParentChanged(arg1);
+            if (view.Id == Android.Resource.Id.Content)
+                return view.Context.GetActivity();
+            return ParentObserver.GetOrAdd(view).Parent;
         }
 
         private static object ViewFindByNameMember(IBindingMemberInfo bindingMemberInfo, View target, object[] arg3)

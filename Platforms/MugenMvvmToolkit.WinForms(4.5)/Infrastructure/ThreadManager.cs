@@ -27,7 +27,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         private readonly SynchronizationContext _synchronizationContext;
-        private int? _mainThreadId;
 
         #endregion
 
@@ -40,7 +39,6 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             Should.NotBeNull(synchronizationContext, "synchronizationContext");
             _synchronizationContext = synchronizationContext;
-            InvokeOnUiThread(() => _mainThreadId = Thread.CurrentThread.ManagedThreadId);
         }
 
         #endregion
@@ -53,7 +51,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <returns><c>true</c> if the calling thread is the UI thread; otherwise, <c>false</c>.</returns>
         public bool IsUiThread
         {
-            get { return Thread.CurrentThread.ManagedThreadId == _mainThreadId; }
+            get { return SynchronizationContext.Current == _synchronizationContext; }
         }
 
         /// <summary>

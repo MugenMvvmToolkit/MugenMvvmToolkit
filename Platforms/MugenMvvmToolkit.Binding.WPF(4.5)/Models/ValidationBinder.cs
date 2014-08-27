@@ -21,6 +21,9 @@ using System.Windows;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
+    /// <summary>
+    /// Represents the class that allows to use default binding validaion mechanism.
+    /// </summary>
     public sealed class ValidationBinder : INotifyDataErrorInfo
     {
         #region Attached properties
