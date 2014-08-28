@@ -29,6 +29,32 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #endregion
 
+        #region Methods
+
+        private static bool IsValidNameSymbol(bool firstSymbol, char symbol)
+        {
+            bool isValid = symbol == ':' || char.IsLetter(symbol) || symbol == '_';
+            if (firstSymbol)
+                return isValid;
+            return isValid || symbol == '-' || symbol == '.' || char.IsDigit(symbol);
+        }
+
+        public static bool IsValidName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return false;
+            if (!IsValidNameSymbol(true, name[0]))
+                return false;
+            for (int i = 1; i < name.Length; i++)
+            {
+                if (!IsValidNameSymbol(false, name[i]))
+                    return false;
+            }
+            return true;
+        }
+
+        #endregion
+
         #region Overrides of Tokenizer
 
         protected override TokenType NextTokenInternal(bool ignoreWhitespace)
@@ -163,10 +189,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         protected override bool IsValidIdentifierSymbol(bool firstSymbol, char symbol)
         {
-            bool isValid = symbol == ':' || char.IsLetter(symbol) || symbol == '_';
-            if (firstSymbol)
-                return isValid;
-            return isValid || symbol == '-' || symbol == '.' || char.IsDigit(symbol);
+            return IsValidNameSymbol(firstSymbol, symbol);
         }
 
         #endregion

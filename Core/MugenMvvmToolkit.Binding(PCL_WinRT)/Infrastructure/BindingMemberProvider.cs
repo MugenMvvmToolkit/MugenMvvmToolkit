@@ -328,6 +328,24 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return true;
         }
 
+        /// <summary>
+        ///     Dumps the name of registered members.
+        /// </summary>
+        public ICollection<string> GetAttachedMemberNames(Type type)
+        {
+            Should.NotBeNull(type, "type");
+            var names = new HashSet<string>();
+            lock (_attachedMembers)
+            {
+                foreach (var member in _attachedMembers)
+                {
+                    if (member.Key.Type.IsAssignableFrom(type))
+                        names.Add(member.Key.Path);
+                }
+            }
+            return names;
+        }
+
         #endregion
 
         #region Methods

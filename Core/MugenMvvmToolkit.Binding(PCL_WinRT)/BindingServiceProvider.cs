@@ -46,8 +46,8 @@ namespace MugenMvvmToolkit.Binding
 
         static BindingServiceProvider()
         {
+            SetDefaultValues();
             MvvmUtils.InitializeDesignTimeManager();
-            SetDefaultValues();            
         }
 
         #endregion

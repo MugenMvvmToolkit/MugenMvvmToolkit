@@ -38,7 +38,9 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             Should.NotBeNull(displayName, "displayName");
             Should.NotBeNull(value, "value");
-            _displayName = type.HasValue ? string.Format("{0} ({1})", displayName, type.Value) : displayName;
+            _displayName = type.HasValue
+                ? string.Format("{0} ({1})", displayName, type.Value == MemberTypes.Custom ? "Attached" : type.Value.ToString())
+                : displayName;
             _value = value;
             _type = type.GetValueOrDefault(MemberTypes.Custom);
         }

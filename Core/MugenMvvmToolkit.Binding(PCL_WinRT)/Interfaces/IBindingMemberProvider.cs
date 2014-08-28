@@ -14,6 +14,7 @@
 // ****************************************************************************
 #endregion
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 
@@ -64,5 +65,10 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         ///     Unregisters all members using the type.
         /// </summary>
         bool Unregister([NotNull] Type type);
+
+        /// <summary>
+        ///     Dumps the name of registered members.
+        /// </summary>
+        ICollection<string> GetAttachedMemberNames([NotNull] Type type);
     }
 }

@@ -75,7 +75,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                 return _bindings;
             }
             set
-            {
+            {                
                 _bindings = value;
                 if (DesignMode)
                     SetBindings(value);

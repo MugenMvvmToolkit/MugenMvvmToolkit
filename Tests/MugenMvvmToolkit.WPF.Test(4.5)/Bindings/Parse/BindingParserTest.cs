@@ -1069,7 +1069,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         [TestMethod]
         public void ParserShouldParseDelay()
         {
-            const uint delayValue = 500;
+            const int delayValue = 500;
             const string binding = "Text SourceText, Delay=500";
             IBindingParser bindingParser = CreateBindingParser();
 

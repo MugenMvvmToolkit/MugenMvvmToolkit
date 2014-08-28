@@ -55,7 +55,7 @@ namespace MugenMvvmToolkit.Utils
         #region Fields
 
         private static bool _loading;
-        private static readonly string ToolkitAssemblyName = typeof(DesignTimeInitializer).GetAssembly().FullName;
+        private static readonly string ToolkitAssemblyName;
         private static readonly object Locker;
         private static readonly PropertyInfo CurrentDomainProperty;
         private static readonly PropertyInfo IsDynamicProperty;
@@ -71,9 +71,9 @@ namespace MugenMvvmToolkit.Utils
 
         static DesignTimeInitializer()
         {
+            ToolkitAssemblyName = typeof(DesignTimeInitializer).GetAssembly().FullName;
             Type appDomainType = Type.GetType("System.AppDomain", false);
-            var fileInfoType = Type.GetType("System.IO.FileInfo", false);
-            if (appDomainType == null || fileInfoType == null)
+            if (appDomainType == null)
                 return;
             CurrentDomainProperty = appDomainType.GetPropertyEx("CurrentDomain");
             GetAssembliesMethod = appDomainType.GetMethodEx("GetAssemblies");

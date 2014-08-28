@@ -27,6 +27,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         #region Fields
 
         private readonly HashSet<XmlExpressionNode> _nodes;
+        private bool _isInvlalid;
 
         #endregion
 
@@ -46,6 +47,11 @@ namespace MugenMvvmToolkit.Binding.Parse
             get { return _nodes; }
         }
 
+        public bool IsInvlalid
+        {
+            get { return _isInvlalid; }
+        }
+
         #endregion
 
         #region Events
@@ -60,8 +66,23 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             Should.NotBeNull(nodes, "nodes");
             _nodes.Clear();
+            _isInvlalid = false;
             for (int i = 0; i < nodes.Count; i++)
                 nodes[i].Accept(this);
+        }
+
+        public void Raise()
+        {
+            Action<XmlExpressionNode> handler = VisitNode;
+            if (handler == null || _nodes.Count == 0)
+                return;
+            foreach (var node in _nodes)
+                handler(node);
+        }
+
+        public void Clear()
+        {
+            _nodes.Clear();
         }
 
         #endregion
@@ -73,12 +94,9 @@ namespace MugenMvvmToolkit.Binding.Parse
             var element = node as XmlExpressionNode;
             if (element != null)
             {
-                if (_nodes.Add(element))
-                {
-                    Action<XmlExpressionNode> handler = VisitNode;
-                    if (handler != null)
-                        handler.Invoke(element);
-                }
+                _nodes.Add(element);
+                if (!_isInvlalid && element is XmlInvalidExpressionNode)
+                    _isInvlalid = true;
             }
             return node;
         }

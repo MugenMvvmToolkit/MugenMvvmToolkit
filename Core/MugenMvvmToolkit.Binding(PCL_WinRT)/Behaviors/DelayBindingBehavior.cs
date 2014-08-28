@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 #if PCL_WINRT
         private sealed class Timer
         {
-            #region Fields
+        #region Fields
 
             private readonly Action<object> _callback;
             private readonly object _state;
@@ -44,7 +44,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
             #endregion
 
-            #region Constructors
+        #region Constructors
 
             public Timer(Action<object> callback, object state, int dueTime, int period)
             {
@@ -55,7 +55,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
             #endregion
 
-            #region Methods
+        #region Methods
 
             public void Change(int dueTime, int period)
             {
@@ -105,10 +105,18 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// <summary>
         ///     Gets the id of behavior.
         /// </summary>
-        public static readonly Guid IdDelayBindingBehavior = new Guid("5A471157-5E3B-4145-ACC4-9FEA8D1B3A99");
+        public static readonly Guid IdDelayBindingBehavior;
+
+#if PCL_WINRT
+        private static readonly Action<object> CallbackInternalDelegate;
+#else
+        private static readonly TimerCallback CallbackInternalDelegate;
+#endif
+
+        private static readonly SendOrPostCallback CallbackDelegate;
 
         private SynchronizationContext _context;
-        private readonly uint _delay;
+        private readonly int _delay;
 
         private bool _isUpdating;
         private Timer _timer;
@@ -116,6 +124,13 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         #endregion
 
         #region Constructors
+
+        static DelayBindingBehavior()
+        {
+            IdDelayBindingBehavior = new Guid("5A471157-5E3B-4145-ACC4-9FEA8D1B3A99");
+            CallbackInternalDelegate = CallbackInternal;
+            CallbackDelegate = Callback;
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DelayBindingBehavior" /> class.
@@ -126,7 +141,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </param>
         public DelayBindingBehavior(uint delay)
         {
-            _delay = delay;
+            _delay = (int)delay;
         }
 
         #endregion
@@ -137,7 +152,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         ///     Gets the amount of time, in milliseconds, to wait before updating the binding source after the value on the target
         ///     changes.
         /// </summary>
-        public uint Delay
+        public int Delay
         {
             get { return _delay; }
         }
@@ -168,7 +183,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         protected override bool OnAttached()
         {
             Binding.SourceAccessor.ValueChanging += SourceOnValueChanging;
-            _timer = new Timer(CallbackInternal, this, int.MaxValue, int.MaxValue);
+            _timer = new Timer(CallbackInternalDelegate, this, int.MaxValue, int.MaxValue);
             return true;
         }
 
@@ -186,7 +201,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected override IBindingBehavior CloneInternal()
         {
-            return new DelayBindingBehavior(Delay);
+            return new DelayBindingBehavior((uint)Delay);
         }
 
         #endregion
@@ -198,7 +213,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             if (args.Cancel || _isUpdating)
                 return;
             args.Cancel = true;
-            _timer.Change((int)Delay, int.MaxValue);
+            _timer.Change(Delay, int.MaxValue);
             _context = SynchronizationContext.Current;
         }
 
@@ -208,12 +223,12 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             if (behavior._context == null)
                 MvvmUtilsInternal.InvokeOnUiThreadAsync(behavior.Callback);
             else
-                behavior._context.Post(behavior.Callback, null);
+                behavior._context.Post(CallbackDelegate, state);
         }
 
-        private void Callback(object state)
+        private static void Callback(object state)
         {
-            Callback();
+            ((DelayBindingBehavior)state).Callback();
         }
 
         private void Callback()

@@ -224,8 +224,8 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             try
             {
-#if WINFORMS
-                return System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime;
+#if WINFORMS                
+                return System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime || IsVsRunning();
 #elif SILVERLIGHT
                 return DesignerProperties.IsInDesignTool;
 #elif WPF
@@ -234,8 +234,9 @@ namespace MugenMvvmToolkit.Infrastructure
                     .FromProperty(prop, typeof(FrameworkElement))
                     .Metadata
                     .DefaultValue;
-                if (!isInDesignMode &&
-                    Process.GetCurrentProcess().ProcessName.StartsWith("devenv", StringComparison.Ordinal))
+
+
+                if (!isInDesignMode && IsVsRunning())
                     isInDesignMode = true;
                 return isInDesignMode;
 #elif NETFX_CORE || WINDOWSCOMMON
@@ -248,6 +249,13 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
+#if WPF || WINFORMS
+        private static bool IsVsRunning()
+        {
+            using (var process = Process.GetCurrentProcess())
+                return process.ProcessName.StartsWith("devenv", StringComparison.Ordinal);
+        }
+#endif
         #endregion
     }
 }

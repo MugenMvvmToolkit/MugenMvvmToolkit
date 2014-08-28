@@ -24,6 +24,7 @@ using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Parse;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
 using MugenMvvmToolkit.Interfaces;
+using Timer = System.Threading.Timer;
 
 namespace MugenMvvmToolkit.Binding.UiDesigner
 {
@@ -37,6 +38,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             #region Fields
 
             public readonly int CursorLocation;
+            public readonly int Length;
             public readonly Point ScrollPos;
             public readonly string Text;
 
@@ -44,11 +46,30 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
             #region Constructors
 
-            public UndoRedoInfo(string text, Point scrollPos, int cursorLoc)
+            private UndoRedoInfo(string text, Point scrollPos, int cursorLoc, int length)
             {
                 Text = text;
                 ScrollPos = scrollPos;
                 CursorLocation = cursorLoc;
+                Length = length;
+            }
+
+            #endregion
+
+            #region Methods
+
+            public static UndoRedoInfo Create(XmlEditor editor)
+            {
+                return new UndoRedoInfo(editor.Text, editor.GetScrollPos(), editor.SelectionStart, editor.SelectionLength);
+            }
+
+            public void Restore(XmlEditor editor, bool restoreText, bool restoreScroll = true)
+            {
+                if (restoreText)
+                    editor.Text = Text;
+                editor.Select(CursorLocation, Length);
+                if (restoreScroll)
+                    editor.SetScrollPos(ScrollPos);
             }
 
             #endregion
@@ -58,50 +79,63 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         #region Fields
 
-        private static readonly Dictionary<string, string> ReplaceKeywords =
-            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly Dictionary<string, string> ReplaceKeywords;
+
+        // ReSharper disable InconsistentNaming
+        private const int WM_KEYDOWN = 0x100;
+        private const int WM_SETREDRAW = 0x0b;
+        private const int WM_CHAR = 0x102;
+        private const int VK_CONTROL = 0x11;
+        private const short KS_KEYDOWN = 0x80;
+
+        const int WM_USER = 0x400;
+        const int EM_GETEVENTMASK = WM_USER + 59;
+        const int EM_SETEVENTMASK = WM_USER + 69;
+        const int EM_GETSCROLLPOS = WM_USER + 221;
+        const int EM_SETSCROLLPOS = WM_USER + 222;
+        private const int MaxUndoRedoSteps = 100;
+        // ReSharper restore InconsistentNaming
+
+        private readonly Stack<UndoRedoInfo> _redoStack;
+        private readonly List<UndoRedoInfo> _undoList;
+        private readonly XmlParser _parser;
+        private readonly XmlVisitor _visitor;
+        private readonly ListBox _autoCompleteForm;
+        private readonly Timer _highlightTimer;
+        private readonly Action _highlightDelegate;
+
+        private bool _autoCompleteShown;
+        private bool _ignoreLostFocus;
+        private bool _isUndo;
+        private bool _highlighting;
+        private bool _paintSuspended;
+
+        private IntPtr _eventMask;
+        private int _startIndexToReplace;
+        private int _endIndexToReplace;
+        private UndoRedoInfo _lastInfo;
+        private UndoRedoInfo _painSuspendedInfo;
+
+        #endregion
+
+        #region Constructors
+
+        static XmlEditor()
+        {
+            ReplaceKeywords = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 {"&lt;", "<"},
                 {"&gt;", ">"},
                 {"&amp;", "&"},
                 {"&quot;", "\""}
             };
-
-        // ReSharper disable InconsistentNaming
-        private const int WM_USER = 0x400;
-        private const int WM_PAINT = 0xF;
-        private const int WM_KEYDOWN = 0x100;
-        private const int WM_SETREDRAW = 0x0b;
-        private const int WM_CHAR = 0x102;
-        private const int EM_GETSCROLLPOS = (WM_USER + 221);
-        private const int EM_SETSCROLLPOS = (WM_USER + 222);
-        private const int VK_CONTROL = 0x11;
-        private const short KS_KEYDOWN = 0x80;
-        // ReSharper restore InconsistentNaming
-
-        private readonly Stack<UndoRedoInfo> _redoStack = new Stack<UndoRedoInfo>();
-        private readonly List<UndoRedoInfo> _undoList = new List<UndoRedoInfo>();
-        private readonly XmlParser _parser;
-        private readonly XmlVisitor _visitor;
-
-        private bool _autoCompleteShown;
-        private bool _ignoreLostFocus;
-        private readonly ListBox _autoCompleteForm;
-
-        private bool _isUndo;
-        private UndoRedoInfo _lastInfo = new UndoRedoInfo("", new Point(), 0);
-        private const int MaxUndoRedoSteps = 100;
-        private bool _parsing;
-        private int _startIndexToReplace;
-        private int _endIndexToReplace;
-
-        #endregion
-
-        #region Constructors
+        }
 
         public XmlEditor()
         {
             InitializeComponent();
+            _redoStack = new Stack<UndoRedoInfo>();
+            _undoList = new List<UndoRedoInfo>();
             _parser = new XmlParser();
             _visitor = new XmlVisitor();
             _visitor.VisitNode += VisitorOnVisitNode;
@@ -115,6 +149,8 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                 Anchor = AnchorStyles.Left | AnchorStyles.Right,
                 HorizontalScrollbar = true,
             };
+            _highlightDelegate = Highlight;
+            _highlightTimer = new Timer(HighlightTimerCallback);
             Controls.Add(_autoCompleteForm);
         }
 
@@ -132,7 +168,25 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             get { return _redoStack.Count > 0; }
         }
 
+        public string Text
+        {
+            get { return base.Text; }
+            set
+            {
+                if (Equals(value, base.Text))
+                    return;
+                SuspendPainting();
+                base.Text = value;
+                ResumePainting();
+            }
+        }
+
         internal IXmlHandler Handler { get; set; }
+
+        private int Delay
+        {
+            get { return Math.Min(Lines.Length * 4, 600); }
+        }
 
         #endregion
 
@@ -165,12 +219,10 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             if (!CanUndo)
                 return;
             _isUndo = true;
-            _redoStack.Push(new UndoRedoInfo(Text, GetScrollPos(), SelectionStart));
+            _redoStack.Push(UndoRedoInfo.Create(this));
             UndoRedoInfo info = _undoList[0];
             _undoList.RemoveAt(0);
-            Text = info.Text;
-            SelectionStart = info.CursorLocation;
-            SetScrollPos(info.ScrollPos);
+            info.Restore(this, true);
             _lastInfo = info;
             _isUndo = false;
         }
@@ -180,27 +232,24 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             if (!CanRedo)
                 return;
             _isUndo = true;
-            _undoList.Insert(0, new UndoRedoInfo(Text, GetScrollPos(), SelectionStart));
+            _undoList.Insert(0, UndoRedoInfo.Create(this));
             UpdateUndoLimit();
             UndoRedoInfo info = _redoStack.Pop();
-            Text = info.Text;
-            SelectionStart = info.CursorLocation;
-            SetScrollPos(info.ScrollPos);
+            info.Restore(this, true);
             _isUndo = false;
         }
 
         public void Format()
         {
-            if (_visitor.Nodes.Any(node => node is XmlInvalidExpressionNode))
+            if (_visitor.IsInvlalid)
                 return;
             try
             {
-                var selectionStart = SelectionStart;
                 var text = XElement.Parse(Text, LoadOptions.None).ToString();
                 foreach (var replaceKeyword in ReplaceKeywords)
                     text = text.Replace(replaceKeyword.Key, replaceKeyword.Value);
                 Text = text;
-                SelectionStart = selectionStart;
+                Highlight();
             }
             catch (Exception)
             {
@@ -242,12 +291,15 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             return selectedNode;
         }
 
-        internal void Highlight(Color color, XmlExpressionNode node, FontStyle? style = null)
+        internal void Highlight(Color color, XmlExpressionNode node, Font font = null)
         {
             Select(node.Start, node.Length);
             SelectionColor = color;
-            if (style != null)
-                SelectionFont = new Font(Font, style.Value);
+            if (font != null)
+                SelectionFont = font;
+            SelectionLength = 0;
+            SelectionColor = ForeColor;
+            SelectionFont = Font;
         }
 
         private void UpdateUndoLimit()
@@ -258,32 +310,14 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         private Point GetScrollPos()
         {
-            var res = new Point();
-            IntPtr pnt = Marshal.AllocHGlobal(Marshal.SizeOf(res));
-            try
-            {
-                Marshal.StructureToPtr(res, pnt, true);
-                SendMessage(Handle, EM_GETSCROLLPOS, 0, pnt);
-                return res;
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(pnt);
-            }
+            var p = new Point();
+            SendMessage(Handle, EM_GETSCROLLPOS, 0, ref p);
+            return p;
         }
 
-        private void SetScrollPos(Point point)
+        private void SetScrollPos(Point pos)
         {
-            IntPtr pnt = Marshal.AllocHGlobal(Marshal.SizeOf(point));
-            try
-            {
-                Marshal.StructureToPtr(point, pnt, true);
-                SendMessage(Handle, EM_SETSCROLLPOS, 0, pnt);
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(pnt);
-            }
+            SendMessage(Handle, EM_SETSCROLLPOS, 0, ref pos);
         }
 
         private void VisitorOnVisitNode(XmlExpressionNode node)
@@ -362,64 +396,82 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             return Handler != null && Handler.CanAutoComplete(textChaned);
         }
 
+        private void SuspendPainting()
+        {
+            if (_paintSuspended)
+                return;
+
+            _painSuspendedInfo = UndoRedoInfo.Create(this);
+            SendMessage(Handle, WM_SETREDRAW, 0, IntPtr.Zero);
+            _eventMask = SendMessage(Handle, EM_GETEVENTMASK, 0, IntPtr.Zero);
+            _paintSuspended = true;
+        }
+
+        private void ResumePainting()
+        {
+            if (!_paintSuspended)
+                return;
+
+            _painSuspendedInfo.Restore(this, false, false);
+            SendMessage(Handle, EM_SETEVENTMASK, 0, _eventMask);
+            SetScrollPos(_painSuspendedInfo.ScrollPos);
+            SendMessage(Handle, WM_SETREDRAW, 1, IntPtr.Zero);
+            _paintSuspended = false;
+            Invalidate();
+            if (_autoCompleteShown)
+                _autoCompleteForm.Invalidate();
+        }
+
+        private void HighlightTimerCallback(object state)
+        {
+            Invoke(_highlightDelegate);
+        }
+
+        private void Highlight()
+        {
+            _highlightTimer.Change(int.MaxValue, int.MaxValue);
+            _highlighting = true;
+            SuspendPainting();
+            SelectAll();
+            SelectionColor = ForeColor;
+            SelectionFont = Font;
+            _visitor.Raise();
+            ResumePainting();
+            _highlighting = false;
+        }
+
         #endregion
 
         #region Overrides of TextBoxBase
 
         protected override void OnTextChanged(EventArgs e)
         {
-            if (_parsing) return;
+            if (_highlighting)
+                return;
+            _highlightTimer.Change(Delay, int.MaxValue);
             HideAutoCompleteForm();
-            _parsing = true;
-            try
+            _visitor.Clear();
+            if (!string.IsNullOrEmpty(Text))
             {
-                SendMessage(Handle, WM_SETREDRAW, 0, IntPtr.Zero);
-                base.OnTextChanged(e);
-
-                Point scrollPos = GetScrollPos();
-                int cursorLoc = SelectionStart;
-                var length = SelectionLength;
-                if (!_isUndo)
-                {
-                    _redoStack.Clear();
-                    _undoList.Insert(0, _lastInfo);
-                    UpdateUndoLimit();
-                    _lastInfo = new UndoRedoInfo(Text, scrollPos, SelectionStart);
-                }
-
-                SelectAll();
-                SelectionColor = ForeColor;
-                SelectionFont = Font;
-                if (!string.IsNullOrEmpty(Text))
-                {
-                    var nodes = _parser.Parse(Text);
-                    _visitor.Visit(nodes);
-                }
-
-                SelectionStart = cursorLoc;
-                SelectionLength = length;
-                SetScrollPos(scrollPos);
+                var nodes = _parser.Parse(Text);
+                _visitor.Visit(nodes);
             }
-            finally
+            base.OnTextChanged(e);
+            if (!_isUndo)
             {
-                _parsing = false;
-                SendMessage(Handle, WM_SETREDRAW, 1, IntPtr.Zero);
-                Invalidate();
+                _redoStack.Clear();
+                _undoList.Insert(0, _lastInfo);
+                UpdateUndoLimit();
+                _lastInfo = UndoRedoInfo.Create(this);
             }
-
             if (CanAutoComplete(true))
                 ShowAutoComplete();
         }
 
-        protected override void OnVScroll(EventArgs e)
-        {
-            if (_parsing) return;
-            base.OnVScroll(e);
-        }
-
         protected override void OnSelectionChanged(EventArgs e)
         {
-            HideAutoCompleteForm();
+            if (!_highlighting)
+                HideAutoCompleteForm();
             base.OnSelectionChanged(e);
         }
 
@@ -427,11 +479,6 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
         {
             switch (m.Msg)
             {
-                case WM_PAINT:
-                    if (_parsing)
-                        return;
-                    break;
-
                 case WM_KEYDOWN:
                     if (_autoCompleteShown)
                     {
@@ -521,14 +568,14 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                     var prevValue = SelectionStart - 1;
                     if (prevValue >= 0 && Text[prevValue] == '=')
                     {
-                        Text = Text.Insert(SelectionStart, "\"\"");
+                        SelectionLength = 0;
+                        SelectedText = "\"\"";
                         SelectionStart = prevValue + 2;
                         e.Handled = true;
                     }
                 }
             }
-
-            if (e.KeyChar == '/')
+            else if (e.KeyChar == '/')
             {
                 var node = GetSelectedNode();
                 var selectedNode = node as XmlInvalidExpressionNode;
@@ -537,15 +584,15 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                     var nextChar = SelectionStart;
                     if (Text.Length <= nextChar || Text[nextChar] != '>')
                     {
-                        var newIndex = SelectionStart + 2;
-                        Text = Text.Insert(SelectionStart, "/>");
+                        var newIndex = SelectionStart + 3;
+                        SelectionLength = 0;
+                        SelectedText = " />";
                         SelectionStart = newIndex;
                         e.Handled = true;
                     }
                 }
             }
-
-            if (e.KeyChar == '>')
+            else if (e.KeyChar == '>')
             {
                 var node = GetSelectedNode();
                 var selectedNode = node as XmlInvalidExpressionNode;
@@ -558,7 +605,8 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                         if (Text.Length > prevChar || Text[prevChar] != '/')
                         {
                             var newIndex = SelectionStart + 1;
-                            Text = Text.Insert(SelectionStart, string.Format("></{0}>", element.Name));
+                            SelectionLength = 0;
+                            SelectedText = string.Format("></{0}>", element.Name);
                             SelectionStart = newIndex;
                             e.Handled = true;
                         }
@@ -573,13 +621,16 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
         #region Win32 methods
 
         [DllImport("user32")]
-        public static extern int SendMessage(IntPtr hwnd, int wMsg, int wParam, IntPtr lParam);
+        private static extern IntPtr SendMessage(IntPtr hwnd, int wMsg, int wParam, IntPtr lParam);
 
         [DllImport("user32")]
-        public static extern short GetKeyState(int nVirtKey);
+        private static extern short GetKeyState(int nVirtKey);
 
         [DllImport("user32")]
         private extern static int GetCaretPos(out Point p);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, Int32 wMsg, Int32 wParam, ref Point lParam);
 
         #endregion
     }

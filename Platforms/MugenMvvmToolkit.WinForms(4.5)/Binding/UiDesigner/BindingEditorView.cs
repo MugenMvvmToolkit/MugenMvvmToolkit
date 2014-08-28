@@ -20,6 +20,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Binding.Parse;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
 using MugenMvvmToolkit.Interfaces;
 
@@ -45,6 +46,8 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         private readonly TreeNode _allControlsNode;
         private readonly TreeNode _sourceControls;
+        private readonly Font _boldFont;
+        private readonly Font _italicFont;
 
         private XmlElementExpressionNode _lastElement;
         private XmlValueExpressionNode _lastValueNode;
@@ -65,6 +68,8 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             typeControlComboBox.Items.Add(AllControls);
             typeControlComboBox.Items.Add(SourceControl);
             typeControlComboBox.SelectedItem = AllControls;
+            _boldFont = new Font(bindingEditor.Font, FontStyle.Bold);
+            _italicFont = new Font(bindingEditor.Font, FontStyle.Italic);
         }
 
         public BindingEditorView(string xmlText)
@@ -175,29 +180,31 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                 foreach (var member in type.GetEvents(BindingFlags.Public | BindingFlags.Instance))
                     completeItems.Add(new AutoCompleteItem(member));
 
-                completeItems.Add(new AutoCompleteItem(AttachedMemberConstants.DataContext,
-                    AttachedMemberConstants.DataContext, MemberTypes.Property));
-                completeItems.Add(new AutoCompleteItem(AttachedMemberConstants.CommandParameter,
-                    AttachedMemberConstants.CommandParameter, MemberTypes.Property));
+                completeItems.Add(new AutoCompleteItem(AttachedMemberConstants.DataContext, AttachedMemberConstants.DataContext, MemberTypes.Custom));
+                completeItems.Add(new AutoCompleteItem(AttachedMemberConstants.CommandParameter, AttachedMemberConstants.CommandParameter, MemberTypes.Custom));
                 if (typeof(DataGridView).IsAssignableFrom(type) || typeof(TabControl).IsAssignableFrom(type))
                 {
-                    completeItems.Add(new AutoCompleteItem(AttachedMemberConstants.SelectedItem, AttachedMemberConstants.SelectedItem,
-                        MemberTypes.Property));
+                    completeItems.Add(new AutoCompleteItem(AttachedMemberConstants.SelectedItem, AttachedMemberConstants.SelectedItem, MemberTypes.Custom));
                 }
                 if (typeof(Control).IsAssignableFrom(type))
                 {
                     completeItems.Add(new AutoCompleteItem(AttachedMemberConstants.Content,
-                        AttachedMemberConstants.Content, MemberTypes.Property));
+                        AttachedMemberConstants.Content, MemberTypes.Custom));
                     completeItems.Add(new AutoCompleteItem(AttachedMemberConstants.ContentTemplate,
-                        AttachedMemberConstants.ContentTemplate, MemberTypes.Property));
+                        AttachedMemberConstants.ContentTemplate, MemberTypes.Custom));
                     completeItems.Add(new AutoCompleteItem(AttachedMemberConstants.ItemsSource,
-                        AttachedMemberConstants.ItemsSource, MemberTypes.Property));
+                        AttachedMemberConstants.ItemsSource, MemberTypes.Custom));
                     completeItems.Add(new AutoCompleteItem(AttachedMemberConstants.ItemTemplate,
-                        AttachedMemberConstants.ItemTemplate, MemberTypes.Property));
+                        AttachedMemberConstants.ItemTemplate, MemberTypes.Custom));
                     completeItems.Add(new AutoCompleteItem("CollectionViewManager", "CollectionViewManager",
-                        MemberTypes.Property));
+                        MemberTypes.Custom));
                     completeItems.Add(new AutoCompleteItem("ContentViewManager", "ContentViewManager",
-                        MemberTypes.Property));
+                        MemberTypes.Custom));
+                }
+                foreach (var attachedName in BindingServiceProvider.MemberProvider.GetAttachedMemberNames(type))
+                {
+                    if (!completeItems.ContainsKey(attachedName) && XmlTokenizer.IsValidName(attachedName))
+                        completeItems.Add(new AutoCompleteItem(attachedName, attachedName, MemberTypes.Custom));
                 }
                 _controlsCompleteItems.Add(new AutoCompleteItem(string.Format("{0} ({1})", name, type.Name), name));
             }
@@ -286,7 +293,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             var commentExpressionNode = node as XmlCommentExpressionNode;
             if (commentExpressionNode != null)
             {
-                bindingEditor.Highlight(CommentColor, node, FontStyle.Italic);
+                bindingEditor.Highlight(CommentColor, node, _italicFont);
                 return;
             }
 
@@ -306,7 +313,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                     var elementColor = (element.Parent == null || _controlsDictionary.TryGetValue(element.Name, out list))
                         ? KnownControlColor
                         : UnknownControlColor;
-                    var fontStyle = list == null ? FontStyle.Bold : default(FontStyle?);
+                    var fontStyle = list == null ? _boldFont : null;
                     bindingEditor.Highlight(elementColor, node, fontStyle);
                     break;
                 case XmlValueExpressionType.AttributeName:
@@ -326,7 +333,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                         list.TryGetValue(memberName, out member);
                     if (member == null)
                     {
-                        bindingEditor.Highlight(AttachedMemberColor, node, FontStyle.Bold);
+                        bindingEditor.Highlight(AttachedMemberColor, node, _boldFont);
                         return;
                     }
                     switch (member.Type)
@@ -336,7 +343,10 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                             break;
                         case MemberTypes.Field:
                         case MemberTypes.Property:
-                            bindingEditor.Highlight(PropertyColor, node);
+                            bindingEditor.Highlight(PropertyColor, node);                        
+                            break;
+                        case MemberTypes.Custom:
+                            bindingEditor.Highlight(AttachedMemberColor, node);
                             break;
                     }
                     break;
