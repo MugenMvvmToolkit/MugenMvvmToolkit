@@ -19,7 +19,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
@@ -39,6 +38,7 @@ namespace MugenMvvmToolkit.Utils
     {
         #region Fields
 
+        //TODO MOVE TO EMPTYVALUE
         /// <summary>
         ///     Gets the true task result.
         /// </summary>
@@ -62,9 +62,6 @@ namespace MugenMvvmToolkit.Utils
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="MvvmUtils" /> class.
-        /// </summary>
         static MvvmUtils()
         {
             EmptyWeakReference = new WeakReference(null, false);
@@ -188,45 +185,6 @@ namespace MugenMvvmToolkit.Utils
             }
             modules.Sort((module, module1) => module1.Priority.CompareTo(module.Priority));
             return modules;
-        }
-
-        /// <summary>
-        ///     Tries to initialize <see cref="IDesignTimeManager" />.
-        /// </summary>
-        public static void InitializeDesignTimeManager()
-        {
-            var getManager = ApplicationSettings.GetDesignTimeManager;
-            if (getManager != null)
-                getManager();
-        }
-
-        /// <summary>
-        ///     Tries to initialize design view model using the <see cref="ApplicationSettings.GetDesignTimeManager" />.
-        /// </summary>
-        public static void TryInitializeDesignViewModel(IViewModel viewModel)
-        {
-            if (!ApplicationSettings.IsDesignMode)
-                return;
-            Action<IViewModel> action = ApplicationSettings.InitializeDesignViewModel;
-            if (action != null)
-            {
-                action(viewModel);
-                return;
-            }
-            Func<IDesignTimeManager> getManager = ApplicationSettings.GetDesignTimeManager;
-            if (getManager == null)
-                return;
-            IDesignTimeManager designTimeManager = getManager();
-            if (designTimeManager == null)
-                return;
-            SynchronizationContext context = SynchronizationContext.Current;
-            Task.Factory.StartNew(() =>
-            {
-                if (context == null)
-                    designTimeManager.InitializeViewModel(viewModel);
-                else
-                    context.Post(o => designTimeManager.InitializeViewModel(viewModel), null);
-            });
         }
 
         public static void WithTaskExceptionHandler(Task task, object sender)

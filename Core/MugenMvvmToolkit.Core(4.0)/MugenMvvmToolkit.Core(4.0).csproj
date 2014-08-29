@@ -161,6 +161,9 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\DelegateComparer.cs">
       <Link>Infrastructure\DelegateComparer.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\DesignTimeManagerImpl.cs">
+      <Link>Infrastructure\DesignTimeManagerImpl.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\DisplayNameProvider.cs">
       <Link>Infrastructure\DisplayNameProvider.cs</Link>
     </Compile>
@@ -442,9 +445,6 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\viewmodels\ICloseableViewModel.cs">
       <Link>Interfaces\ViewModels\ICloseableViewModel.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\viewmodels\IDesignViewModel.cs">
-      <Link>Interfaces\ViewModels\IDesignViewModel.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\viewmodels\IEditableViewModel.cs">
       <Link>Interfaces\ViewModels\IEditableViewModel.cs</Link>

@@ -20,6 +20,7 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces
 {
+    //TODO FIX REMOVE PROPERTIES, REMOVE IVIEWMODEL, ADD CONSTANT, FIX MODULES.  
     /// <summary>
     ///     Represents the interface for the design time manager.
     /// </summary>

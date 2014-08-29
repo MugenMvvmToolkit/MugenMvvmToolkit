@@ -16,7 +16,6 @@
 using System;
 using System.Collections.ObjectModel;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Utils;
 #if NETFX_CORE || WINDOWSCOMMON
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
@@ -295,7 +294,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
         private static void OnBindChangedCallback(DependencyObject sender, DependencyPropertyChangedEventArgs args)
         {
             var bindChanged = OnBindChanged;
-            Should.MethodBeSupported(DesignTimeManagerBase.IsDesignModeStatic || bindChanged != null, "OnBindChanged");
+            Should.MethodBeSupported(ServiceProvider.DesignTimeManager.IsDesignMode || bindChanged != null, "OnBindChanged");
             if (bindChanged != null)
                 bindChanged(sender, (string)args.NewValue);
         }

@@ -91,7 +91,7 @@ namespace MugenMvvmToolkit
         protected void Initialize([NotNull] IIocContainer iocContainer, PlatformInfo platform, params IModule[] modules)
         {
             Should.NotBeNull(iocContainer, "iocContainer");
-            ApplicationSettings.IsDesignMode = false;
+            ServiceProvider.DesignTimeManager = new DesignTimeManagerImpl(platform);
             if (modules != null)
                 CreateModuleContext(iocContainer).LoadModules(modules);
             _iocContainer = iocContainer;

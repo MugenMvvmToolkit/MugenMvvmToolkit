@@ -22,11 +22,16 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Fields
 
-        public static readonly DefaultCollectionViewManager Instance = new DefaultCollectionViewManager();
+        public static readonly DefaultCollectionViewManager Instance;
 
         #endregion
 
         #region Constructors
+
+        static DefaultCollectionViewManager()
+        {
+            Instance = new DefaultCollectionViewManager();
+        }
 
         private DefaultCollectionViewManager()
         {

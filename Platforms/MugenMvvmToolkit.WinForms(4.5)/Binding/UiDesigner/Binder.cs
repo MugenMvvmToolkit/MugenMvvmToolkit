@@ -19,37 +19,47 @@ using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Drawing.Design;
 using System.Reflection;
-using System.Text;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces;
 
 namespace MugenMvvmToolkit.Binding.UiDesigner
 {
-    [Description("Provides a data binding for controls.")]
-    [ToolboxItem(true), ProvideProperty("Bindings", typeof(object))]
-    public partial class Binder : Component, IExtenderProvider, ISupportInitialize
+    /// <summary>
+    ///     Represents the component that provides a data binding for controls.
+    /// </summary>
+    [Description("Provides a data binding for controls."), ToolboxItem(true)]
+    public class Binder : Component, ISupportInitialize
     {
         #region Fields
 
         private readonly Dictionary<object, Dictionary<string, string>> _controlBindings;
         private string _bindings;
+        private readonly List<IDataBinding> _dataBindings;
 
         #endregion
 
         #region Constructors
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Binder" /> class.
+        /// </summary>
         public Binder()
         {
-            InitializeComponent();
             _controlBindings = new Dictionary<object, Dictionary<string, string>>();
+            _dataBindings = new List<IDataBinding>();
             RootTagName = "Bindings";
             IgnoreControlException = true;
         }
 
-        public Binder(IContainer container)
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Binder" /> class.
+        /// </summary>
+        public Binder([NotNull] IContainer container)
             : this()
         {
+            Should.NotBeNull(container, "container");
             container.Add(this);
         }
 
@@ -75,7 +85,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                 return _bindings;
             }
             set
-            {                
+            {
                 _bindings = value;
                 if (DesignMode)
                     SetBindings(value);
@@ -86,23 +96,9 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         #region Methods
 
-        public object GetBindings(object control)
-        {
-            Dictionary<string, string> value;
-            _controlBindings.TryGetValue(control, out value);
-            if (value == null)
-                return "No bindings";
-            var name = PlatformExtensions.TryGetValue(control, "Name");
-            if (name == null)
-                return null;
-            var stringBuilder = new StringBuilder();
-            foreach (var binding in value)
-                stringBuilder.Append(string.Format(" {0}=\"{1}\"", binding.Key, binding.Value));
-            return string.Format("<{0}{1}/>", name, stringBuilder);
-        }
-
         private void BindControls()
         {
+            ClearBindings();
             SetBindings(Bindings);
             IBindingProvider bindingProvider = BindingServiceProvider.BindingProvider;
             foreach (var controlBinding in _controlBindings)
@@ -111,10 +107,10 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                 if (controlBinding.Value.TryGetValue(AttachedMemberConstants.DataContext, out value))
                 {
                     controlBinding.Value.Remove(AttachedMemberConstants.DataContext);
-                    bindingProvider.CreateBindingFromString(controlBinding.Key, AttachedMemberConstants.DataContext, value);
+                    _dataBindings.Add(bindingProvider.CreateBindingFromString(controlBinding.Key, AttachedMemberConstants.DataContext, value));
                 }
                 foreach (var binding in controlBinding.Value)
-                    bindingProvider.CreateBindingFromString(controlBinding.Key, binding.Key, binding.Value);
+                    _dataBindings.Add(bindingProvider.CreateBindingFromString(controlBinding.Key, binding.Key, binding.Value));
             }
         }
 
@@ -194,6 +190,13 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             return field.GetValue(ContainerControl);
         }
 
+        private void ClearBindings()
+        {
+            for (int i = 0; i < _dataBindings.Count; i++)
+                _dataBindings[i].Dispose();
+            _dataBindings.Clear();
+        }
+
         #endregion
 
         #region Overrides of Component
@@ -213,25 +216,23 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                 ContainerControl = componentHost as ContainerControl;
             }
         }
-
-        #endregion
-
-        #region Implementation of IExtenderProvider
-
-        public bool CanExtend(object extendee)
+        
+        protected override void Dispose(bool disposing)
         {
-            return extendee is Control;
+            if (disposing)
+                ClearBindings();
+            base.Dispose(disposing);
         }
 
         #endregion
 
-        #region Implementation of ISupportInitialize
+        #region Implementation of interfaces
 
-        public void BeginInit()
+        public virtual void BeginInit()
         {
         }
 
-        public void EndInit()
+        public virtual void EndInit()
         {
             if (DesignMode)
                 SetBindings(Bindings);

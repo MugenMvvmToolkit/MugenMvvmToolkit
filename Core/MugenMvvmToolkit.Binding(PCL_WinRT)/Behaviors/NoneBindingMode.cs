@@ -28,11 +28,16 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// <summary>
         ///     Gets the instance of <see cref="NoneBindingMode" /> use this instance as prototype.
         /// </summary>
-        public static readonly NoneBindingMode Instance = new NoneBindingMode();
+        public static readonly NoneBindingMode Instance;
 
         #endregion
 
         #region Constructors
+
+        static NoneBindingMode()
+        {
+            Instance = new NoneBindingMode();
+        }
 
         private NoneBindingMode()
         {

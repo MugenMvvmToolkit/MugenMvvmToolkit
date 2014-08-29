@@ -121,7 +121,7 @@ namespace MugenMvvmToolkit.Binding
             if (string.IsNullOrWhiteSpace(bindings))
                 return;
             IList<IDataBinding> list = BindingServiceProvider.BindingProvider.CreateBindingsFromString(sender, bindings, null);
-            if (!ApplicationSettings.IsDesignMode)
+            if (!ServiceProvider.DesignTimeManager.IsDesignMode)
                 return;
             foreach (InvalidDataBinding binding in list.OfType<InvalidDataBinding>())
                 throw binding.Exception;
@@ -246,7 +246,7 @@ namespace MugenMvvmToolkit.Binding
             conv = new NullToVisibilityConverter(Visibility.Visible, Visibility.Hidden);
             resourceResolver
                 .AddConverter("NotNullToHidden", new ValueConverterWrapper(conv.Convert, conv.ConvertBack), true);
-#endif            
+#endif
             return true;
         }
 

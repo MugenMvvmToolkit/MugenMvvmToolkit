@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // ****************************************************************************
-// <copyright file="InverseBooleanConverter.cs">
+// <copyright file="InverseBooleanValueConverter.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
 // </copyright>
 // ****************************************************************************
@@ -21,17 +21,26 @@ namespace MugenMvvmToolkit.Binding.Converters
     /// <summary>
     ///     This converter reverses a Boolean value (True == False, False == True).
     /// </summary>
-    public sealed class InverseBooleanConverterCore : ValueConverterBase<bool?, bool?>
+    public sealed class InverseBooleanValueConverter : ValueConverterBase<bool?, bool?>
     {
         #region Fields
 
         /// <summary>
-        ///     Gets the <see cref="InverseBooleanConverterCore" />.
+        ///     Gets an instance of <see cref="InverseBooleanValueConverter" />.
         /// </summary>
-        public static readonly InverseBooleanConverterCore Instance = new InverseBooleanConverterCore();
+        public static readonly InverseBooleanValueConverter Instance;
 
         #endregion
 
+        #region Constructors
+
+        static InverseBooleanValueConverter()
+        {
+            Instance = new InverseBooleanValueConverter();
+        }
+
+        #endregion
+        
         #region Overrides of ValueConverterBase
 
         /// <summary>

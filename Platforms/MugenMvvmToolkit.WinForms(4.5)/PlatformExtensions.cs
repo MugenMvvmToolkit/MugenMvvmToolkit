@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="PlatformExtensions.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,7 +13,9 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -24,6 +27,7 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Models;
@@ -34,8 +38,10 @@ namespace MugenMvvmToolkit
     {
         #region Fields
 
-        private static readonly Func<ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs>, NotifyCollectionChangedEventHandler> CreateHandlerDelegate;
+        private static readonly Func <ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs>, NotifyCollectionChangedEventHandler> CreateHandlerDelegate;
+
         private static readonly MethodInfo ToBindingListMethod;
+        private static Func<IComponent, string> _getComponentName;
 
         #endregion
 
@@ -44,7 +50,22 @@ namespace MugenMvvmToolkit
         static PlatformExtensions()
         {
             CreateHandlerDelegate = CreateHandler;
-            ToBindingListMethod = typeof(PlatformExtensions).GetMethod("ToBindingList");
+            _getComponentName = GetComponentNameImpl;
+            ToBindingListMethod = typeof (PlatformExtensions).GetMethod("ToBindingList");
+        }
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        ///     Gets or sets the delegate that allows to get name from component.
+        /// </summary>
+        [NotNull]
+        public static Func<IComponent, string> GetComponentName
+        {
+            get { return _getComponentName; }
+            set { _getComponentName = value ?? GetComponentNameImpl; }
         }
 
         #endregion
@@ -98,14 +119,15 @@ namespace MugenMvvmToolkit
             Action<TTarget, object, NotifyCollectionChangedEventArgs> invokeAction)
             where TTarget : class
         {
-            return ReflectionExtensions.CreateWeakDelegate(target, invokeAction, UnsubscribeCollectionChanged, CreateHandlerDelegate);
+            return ReflectionExtensions.CreateWeakDelegate(target, invokeAction, UnsubscribeCollectionChanged,
+                CreateHandlerDelegate);
         }
 
         internal static IList ToBindingListInternal(IList list)
         {
             Should.NotBeNull(list, "list");
             Type[] arguments = list.GetType().GetGenericArguments();
-            return (IList)ToBindingListMethod.MakeGenericMethod(arguments).Invoke(null, new object[] { list });
+            return (IList) ToBindingListMethod.MakeGenericMethod(arguments).Invoke(null, new object[] {list});
         }
 
         private static void UnsubscribeCollectionChanged(object o, NotifyCollectionChangedEventHandler handler)
@@ -119,9 +141,9 @@ namespace MugenMvvmToolkit
         {
             if (instance == null)
                 return null;
-            var member = BindingServiceProvider
-                                        .MemberProvider
-                                        .GetBindingMember(instance.GetType(), name, false, false);
+            IBindingMemberInfo member = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(instance.GetType(), name, false, false);
             if (member == null || !member.CanRead)
                 return null;
 
@@ -136,9 +158,17 @@ namespace MugenMvvmToolkit
             dict[item.Value] = item;
         }
 
-        private static NotifyCollectionChangedEventHandler CreateHandler(ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs> weakEventHandler)
+        private static NotifyCollectionChangedEventHandler CreateHandler(
+            ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs> weakEventHandler)
         {
             return weakEventHandler.Handle;
+        }
+
+        private static string GetComponentNameImpl(IComponent component)
+        {
+            if (component.Site == null)
+                return TryGetValue(component, "Name");
+            return component.Site.Name;
         }
 
         #endregion

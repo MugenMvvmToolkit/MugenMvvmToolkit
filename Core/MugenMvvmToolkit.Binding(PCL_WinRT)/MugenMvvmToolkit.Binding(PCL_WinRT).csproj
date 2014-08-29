@@ -76,7 +76,7 @@
     <Compile Include="Builders\BindingBuilder.cs" />
     <Compile Include="Builders\BindingSet.cs" />
     <Compile Include="Builders\SyntaxBuilder.cs" />
-    <Compile Include="Converters\InverseBooleanConverter.cs" />
+    <Compile Include="Converters\InverseBooleanValueConverter.cs" />
     <Compile Include="Converters\ValueConverterBase.cs" />
     <Compile Include="Core\BindingContextManager.cs" />
     <Compile Include="Core\BindingManager.cs" />

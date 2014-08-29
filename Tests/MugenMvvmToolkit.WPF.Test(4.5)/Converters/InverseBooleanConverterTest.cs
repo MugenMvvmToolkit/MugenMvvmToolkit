@@ -14,7 +14,7 @@ namespace MugenMvvmToolkit.Test.Converters
         [TestMethod]
         public void TestConvertNotBool()
         {
-            IBindingValueConverter converter = new InverseBooleanConverterCore();
+            IBindingValueConverter converter = new InverseBooleanValueConverter();
             Action action = () => converter.Convert(new object(), typeof (object), null, null);
             action.ShouldThrow();
         }
@@ -22,7 +22,7 @@ namespace MugenMvvmToolkit.Test.Converters
         [TestMethod]
         public void TestConvertBackNotBool()
         {
-            IBindingValueConverter converter = new InverseBooleanConverterCore();
+            IBindingValueConverter converter = new InverseBooleanValueConverter();
             Action action = () => converter.ConvertBack(new object(), typeof (object), null, null);
             action.ShouldThrow();
         }
@@ -30,7 +30,7 @@ namespace MugenMvvmToolkit.Test.Converters
         [TestMethod]
         public void TestConvert()
         {
-            IBindingValueConverter converter = new InverseBooleanConverterCore();
+            IBindingValueConverter converter = new InverseBooleanValueConverter();
             converter.Convert(true, typeof (bool), null, null).ShouldEqual(false);
             converter.Convert(false, typeof (bool), null, null).ShouldEqual(true);
         }
@@ -38,7 +38,7 @@ namespace MugenMvvmToolkit.Test.Converters
         [TestMethod]
         public void TestConvertBack()
         {
-            IBindingValueConverter converter = new InverseBooleanConverterCore();
+            IBindingValueConverter converter = new InverseBooleanValueConverter();
             converter.ConvertBack(false, typeof (bool), null, null).ShouldEqual(true);
             converter.ConvertBack(true, typeof (bool), null, null).ShouldEqual(false);
         }

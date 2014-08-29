@@ -24,11 +24,26 @@ using System.Windows.Data;
 
 namespace MugenMvvmToolkit.Converters
 {
+    /// <summary>
+    ///     This converter reverses a Boolean value (True == False, False == True).
+    /// </summary>
     public sealed class InverseBooleanConverter : IValueConverter
     {
         #region Fields
 
-        public static readonly InverseBooleanConverter Instance = new InverseBooleanConverter();
+        /// <summary>
+        ///     Gets an instance of <see cref="InverseBooleanConverter" />.
+        /// </summary>
+        public static readonly InverseBooleanConverter Instance;
+
+        #endregion
+
+        #region Constructors
+
+        static InverseBooleanConverter()
+        {
+            Instance = new InverseBooleanConverter();
+        }
 
         #endregion
 

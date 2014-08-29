@@ -32,10 +32,19 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// <summary>
         ///     Gets the id of binding mode behavior.
         /// </summary>
-        public static readonly Guid IdBindingMode = new Guid("BA46EB20-298C-49D8-AED8-8A057A7D0D06");
+        public static readonly Guid IdBindingMode;
 
         private bool _isSourceUpdating;
         private bool _isTargetUpdating;
+
+        #endregion
+
+        #region Constructors
+
+        static BindingModeBase()
+        {
+            IdBindingMode = new Guid("BA46EB20-298C-49D8-AED8-8A057A7D0D06");
+        }
 
         #endregion
 

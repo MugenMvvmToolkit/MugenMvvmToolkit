@@ -32,10 +32,19 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// <summary>
         ///     Gets the id of behavior.
         /// </summary>
-        public static readonly Guid IdLostFocusUpdateSourceBehavior = new Guid("9C7F0186-64A6-47F8-B0D0-1420A890B3BE");
+        public static readonly Guid IdLostFocusUpdateSourceBehavior;
 
         private IDisposable _subscriber;
         private IBindingMemberInfo _member;
+
+        #endregion
+
+        #region Constructors
+
+        static LostFocusUpdateSourceBehavior()
+        {
+            IdLostFocusUpdateSourceBehavior = new Guid("9C7F0186-64A6-47F8-B0D0-1420A890B3BE");
+        }
 
         #endregion
 

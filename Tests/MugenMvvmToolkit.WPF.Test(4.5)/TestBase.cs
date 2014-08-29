@@ -43,7 +43,7 @@ namespace MugenMvvmToolkit.Test
         [TestInitialize]
         public void SetUp()
         {
-            ApplicationSettings.IsDesignMode = false;
+            ServiceProvider.DesignTimeManager = DesignTimeManagerImpl.Instance;
             ServiceProvider.AttachedValueProvider = new AttachedValueProvider();
             CanBeResolvedTypes = new List<Type>
             {

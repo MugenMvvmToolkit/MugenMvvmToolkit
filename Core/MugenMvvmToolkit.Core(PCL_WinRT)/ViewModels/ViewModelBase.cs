@@ -74,8 +74,8 @@ namespace MugenMvvmToolkit.ViewModels
             _vmEventAggregator = ServiceProvider.InstanceEventAggregatorFactory(this);
 
             ServiceProvider.Tracer.TraceViewModel(AuditAction.Created, this);
-            if (ApplicationSettings.IsDesignMode)
-                MvvmUtils.TryInitializeDesignViewModel(this);
+            if (IsDesignMode)
+                ServiceProvider.DesignTimeManager.InitializeViewModel(this);
             else
                 InitilaizeDefault();
         }
@@ -83,6 +83,14 @@ namespace MugenMvvmToolkit.ViewModels
         #endregion
 
         #region Properties
+
+        /// <summary>
+        ///     Gets the value indicating whether the control is in design mode (running under Blend or Visual Studio).
+        /// </summary>
+        protected static bool IsDesignMode
+        {
+            get { return ServiceProvider.DesignTimeManager.IsDesignMode; }
+        }
 
         /// <summary>
         /// Gets the current <see cref="IEventAggregator"/>.

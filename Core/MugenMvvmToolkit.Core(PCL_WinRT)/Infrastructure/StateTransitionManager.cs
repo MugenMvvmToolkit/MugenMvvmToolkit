@@ -32,7 +32,20 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Gets the instance of <see cref="StateTransitionManager" />.
         /// </summary>
-        public static readonly StateTransitionManager Instance = new StateTransitionManager();
+        public static readonly StateTransitionManager Instance;
+
+        #endregion
+
+        #region Constructors
+
+        static StateTransitionManager()
+        {
+            Instance = new StateTransitionManager();
+        }
+
+        internal StateTransitionManager()
+        {
+        }
 
         #endregion
 

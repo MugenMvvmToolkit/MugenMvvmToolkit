@@ -31,7 +31,20 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Gets an instance of <see cref="ReferenceEqualityComparer" />.
         /// </summary>
-        public static readonly IEqualityComparer<object> Instance = new ReferenceEqualityComparer();
+        public static readonly IEqualityComparer<object> Instance;
+
+        #endregion
+
+        #region Constructors
+
+        static ReferenceEqualityComparer()
+        {
+            Instance = new ReferenceEqualityComparer();
+        }
+
+        internal ReferenceEqualityComparer()
+        {
+        }
 
         #endregion
 

@@ -1083,7 +1083,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         {
             const string converterName = "test";
             const string binding = "Text SourceText, Converter=test";
-            var value = new InverseBooleanConverterCore();
+            var value = new InverseBooleanValueConverter();
             var resolver = new BindingResourceResolver();
             resolver.AddConverter(converterName, value, true);
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
@@ -1124,7 +1124,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         public void ParserShouldParseConverterFromResource()
         {
             const string binding = "Text Text, Converter=$param";
-            var value = new InverseBooleanConverterCore();
+            var value = new InverseBooleanValueConverter();
             var resolver = new BindingResourceResolver();
             resolver.AddObject("param", new BindingResourceObject(value), true);
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());

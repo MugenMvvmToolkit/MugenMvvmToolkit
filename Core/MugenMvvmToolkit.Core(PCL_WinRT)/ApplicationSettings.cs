@@ -14,14 +14,11 @@
 // ****************************************************************************
 #endregion
 using System;
-using System.Collections;
 using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit
 {
@@ -37,7 +34,6 @@ namespace MugenMvvmToolkit
         /// </summary>
         public const string DataContractNamespace = "http://schemas.mugenmvvmtoolkit.com";
         private static IViewModelSettings _viewModelSettings;
-        private static bool? _isDesignMode;
         private static PlatformInfo _platform;
 
         #endregion
@@ -84,24 +80,6 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        ///     Gets the value indicating whether the control is in design mode (running under Blend or Visual Studio).
-        /// </summary>
-        public static bool IsDesignMode
-        {
-            get
-            {
-                if (_isDesignMode.HasValue)
-                    return _isDesignMode.Value;
-                Func<IDesignTimeManager> getManager = GetDesignTimeManager;
-                if (getManager == null)
-                    return false;
-                IDesignTimeManager designTimeManager = getManager();
-                return designTimeManager != null && designTimeManager.IsDesignMode;
-            }
-            set { _isDesignMode = value; }
-        }
-
-        /// <summary>
         ///     Gets the delegate that is responsible to add can execute changed event to external provider.
         /// </summary>
         [CanBeNull]
@@ -112,18 +90,6 @@ namespace MugenMvvmToolkit
         /// </summary>
         [CanBeNull]
         public static Action<RelayCommandBase, EventHandler> RemoveCanExecuteChangedEvent { get; set; }
-
-        /// <summary>
-        ///     Gets the design time manager.
-        /// </summary>
-        [CanBeNull]
-        public static Func<IDesignTimeManager> GetDesignTimeManager { get; set; }
-
-        /// <summary>
-        ///     Gets the delegate that initializes a design view model.
-        /// </summary>
-        [CanBeNull]
-        public static Action<IViewModel> InitializeDesignViewModel { get; set; }
 
         /// <summary>
         ///     Specifies the execution mode for <c>SyncronizedNotifiableCollection</c> by default, if not set explicitly.
@@ -177,12 +143,6 @@ namespace MugenMvvmToolkit
             HandleTaskExceptionWithBusyIndicator = true;
             CommandCanExecuteMode = ExecutionMode.AsynchronousOnUiThread;
             CommandExecutionMode = CommandExecutionMode.CanExecuteBeforeExecute;
-            GetDesignTimeManager = () =>
-            {
-                if (_isDesignMode == null || _isDesignMode.Value)
-                    return DesignTimeInitializer.GetDesignTimeManager();
-                return null;
-            };
         }
 
         #endregion

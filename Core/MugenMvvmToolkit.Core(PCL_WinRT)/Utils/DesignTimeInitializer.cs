@@ -17,41 +17,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.Exceptions;
 
 namespace MugenMvvmToolkit.Utils
 {
+    /// <summary>
+    ///     Represents the static class to work in design mode.
+    /// </summary>
     internal static class DesignTimeInitializer
     {
-        #region Nested types
-
-        private sealed class ModuleTypeComparer : IEqualityComparer<IModule>
-        {
-            #region Fields
-
-            public static readonly ModuleTypeComparer Instance = new ModuleTypeComparer();
-
-            #endregion
-
-            #region Implementation of IEqualityComparer<in IModule>
-
-            public bool Equals(IModule x, IModule y)
-            {
-                return x.GetType().Equals(y.GetType());
-            }
-
-            public int GetHashCode(IModule obj)
-            {
-                return obj.GetType().GetHashCode();
-            }
-
-            #endregion
-        }
-
-        #endregion
-
         #region Fields
 
         private static bool _loading;
@@ -63,7 +41,7 @@ namespace MugenMvvmToolkit.Utils
         private static readonly MethodInfo GetReferencedAssembliesMethod;
         private static IDesignTimeManager _designTimeManager;
 
-        private static readonly Dictionary<Assembly, HashSet<IModule>> LoadedModules;
+        private static readonly HashSet<Assembly> LoadedAssemblies;
 
         #endregion
 
@@ -83,38 +61,37 @@ namespace MugenMvvmToolkit.Utils
                 IsDynamicProperty == null)
                 return;
             Locker = new object();
-            LoadedModules = new Dictionary<Assembly, HashSet<IModule>>();
+            LoadedAssemblies = new HashSet<Assembly>();
         }
 
         #endregion
 
         #region Methods
 
+        /// <summary>
+        /// Gets an instance of <see cref="IDesignTimeManager"/>.
+        /// </summary>
+        [CanBeNull]
         public static IDesignTimeManager GetDesignTimeManager()
         {
             if (Locker == null)
                 return null;
+            if (_loading)
+                return _designTimeManager;
+            bool cycle = false;
+            bool lockTaken = false;
             try
             {
-                lock (Locker)
+                Monitor.Enter(Locker, ref lockTaken);
+                if (_loading)
                 {
-                    if (_loading)
-                        return _designTimeManager;
-                    _loading = true;
-                    IList<Assembly> assemblies = null;
-                    if (_designTimeManager == null || _designTimeManager.IsDesignMode)
-                    {
-                        assemblies = GetAssemblies(true);
-                        InitializeDesignTimeManager(assemblies);
-                    }
-                    if (_designTimeManager == null || _designTimeManager.IsDesignMode)
-                    {
-                        if (assemblies == null)
-                            assemblies = GetAssemblies(true);
-                        InitializeDesignTimeModules(assemblies);
-                    }
+                    cycle = true;
                     return _designTimeManager;
                 }
+                _loading = true;
+                if (_designTimeManager == null || _designTimeManager.IsDesignMode)
+                    InitializeDesignTimeManager();
+                return _designTimeManager;
             }
             catch (Exception exception)
             {
@@ -122,68 +99,78 @@ namespace MugenMvvmToolkit.Utils
             }
             finally
             {
-                _loading = false;
+                if (!cycle)
+                    _loading = false;
+                if (lockTaken)
+                    Monitor.Exit(Locker);
             }
         }
 
-        private static IList<Assembly> GetAssemblies(bool onlyToolkitReferenced)
+        private static void InitializeDesignTimeManager()
         {
-            var currentDomain = CurrentDomainProperty.GetValueEx<object>(null);
-            var assemblies = (IEnumerable<Assembly>)GetAssembliesMethod.InvokeEx(currentDomain);
-            if (assemblies == null)
-                return EmptyValue<Assembly>.ListInstance;
-            var result = new List<Assembly>();
-            foreach (var assembly in assemblies)
-            {
-                if (FilterAssembly(assembly, onlyToolkitReferenced))
-                    result.Add(assembly);
-            }
-            return result;
-        }
+            var assemblies = GetAssemblies(false);
+            if (assemblies.Count == 0)
+                return;
 
-        private static void InitializeDesignTimeManager(IList<Assembly> assemblies)
-        {
-            var managers = new List<IDesignTimeManager>();
+            var managers = new List<ConstructorInfo>();
             for (int index = 0; index < assemblies.Count; index++)
                 TryAddManagers(managers, assemblies[index]);
-
-            var oldManager = _designTimeManager;
-            var manager = managers.OrderByDescending(timeManager => timeManager.Priority).FirstOrDefault();
+            bool isNew = false;
             if (_designTimeManager == null)
-                _designTimeManager = manager;
+            {
+                _designTimeManager = GeMaxPriorityManager(managers);
+                isNew = _designTimeManager != null;
+            }
             else
             {
-                if (manager == null || !_designTimeManager.GetType().Equals(manager.GetType()))
-                    _designTimeManager = manager;
+                if (managers.Count != 1 || !managers[0].DeclaringType.Equals(_designTimeManager.GetType()))
+                {
+                    var manager = GeMaxPriorityManager(managers);
+                    if (manager == null || !_designTimeManager.GetType().Equals(manager.GetType()))
+                    {
+                        _designTimeManager = manager;
+                        isNew = true;
+                    }
+                }
             }
-            if (_designTimeManager != null && !ReferenceEquals(_designTimeManager, oldManager))
-                _designTimeManager.Initialize();
+            if (isNew)
+            {
+                if (_designTimeManager != null)
+                    _designTimeManager.Initialize();
+                InitializeDesignTimeModules(GetAssemblies(true));
+            }
+            else
+                InitializeDesignTimeModules(assemblies);
+        }
+
+        private static IDesignTimeManager GeMaxPriorityManager(List<ConstructorInfo> managers)
+        {
+            IDesignTimeManager maxManager = null;
+            for (int i = 0; i < managers.Count; i++)
+            {
+                var m = (IDesignTimeManager)managers[i].InvokeEx(EmptyValue<object>.ArrayInstance);
+                if (maxManager == null || m.Priority > maxManager.Priority)
+                    maxManager = m;
+            }
+            return maxManager;
         }
 
         private static void InitializeDesignTimeModules(IList<Assembly> assemblies)
         {
             var modules = MvvmUtils.GetModules(assemblies, false);
+            if (modules.Count == 0)
+                return;
+
             var context = _designTimeManager == null
                 ? new ModuleContext(PlatformInfo.Unknown, LoadMode.Design, null, null, assemblies)
                 : new ModuleContext(_designTimeManager.Platform, LoadMode.Design, _designTimeManager.IocContainer,
                     _designTimeManager.Context, assemblies);
 
             for (int i = 0; i < modules.Count; i++)
-            {
-                var module = modules[i];
-                var assembly = module.GetType().GetAssembly();
-                HashSet<IModule> list;
-                if (!LoadedModules.TryGetValue(assembly, out list))
-                {
-                    list = new HashSet<IModule>(ModuleTypeComparer.Instance);
-                    LoadedModules.Add(assembly, list);
-                }
-                if (list.Add(module))
-                    module.Load(context);
-            }
+                modules[i].Load(context);
         }
 
-        private static void TryAddManagers(List<IDesignTimeManager> managers, Assembly assembly)
+        private static void TryAddManagers(List<ConstructorInfo> managers, Assembly assembly)
         {
             foreach (var type in assembly.SafeGetTypes(false))
             {
@@ -197,18 +184,31 @@ namespace MugenMvvmToolkit.Utils
 #endif
                 var constructor = type.GetConstructor(EmptyValue<Type>.ArrayInstance);
                 if (constructor != null)
-                    managers.Add((IDesignTimeManager)constructor.InvokeEx(EmptyValue<object>.ArrayInstance));
+                    managers.Add(constructor);
             }
         }
 
-        private static bool FilterAssembly(Assembly assembly, bool onlyToolkitReferenced)
+        private static IList<Assembly> GetAssemblies(bool ignoreLoaded)
+        {
+            var currentDomain = CurrentDomainProperty.GetValueEx<object>(null);
+            var assemblies = (IEnumerable<Assembly>)GetAssembliesMethod.InvokeEx(currentDomain);
+            if (assemblies == null)
+                return EmptyValue<Assembly>.ListInstance;
+            var result = new List<Assembly>();
+            foreach (var assembly in assemblies)
+            {
+                if ((ignoreLoaded || LoadedAssemblies.Add(assembly)) && FilterAssembly(assembly))
+                    result.Add(assembly);
+            }
+            return result;
+        }
+
+        private static bool FilterAssembly(Assembly assembly)
         {
             if (!MvvmUtils.NonFrameworkAssemblyFilter(assembly))
                 return false;
             if (IsDynamicProperty.GetValueEx<bool>(assembly))
                 return false;
-            if (!onlyToolkitReferenced)
-                return true;
             var assemblyNames = GetReferencedAssembliesMethod.InvokeEx(assembly, null) as IEnumerable<AssemblyName>;
             return assemblyNames != null && assemblyNames.Any(name => name.FullName == ToolkitAssemblyName);
         }

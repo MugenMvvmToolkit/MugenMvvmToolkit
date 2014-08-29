@@ -114,10 +114,6 @@
       <Link>Binding\UiDesigner\Binder.cs</Link>
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\UiDesigner\Binder.designer.cs">
-      <Link>Binding\UiDesigner\Binder.designer.cs</Link>
-      <DependentUpon>Binder.cs</DependentUpon>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\UiDesigner\BindingEditorUITypeEditor.cs">
       <Link>Binding\UiDesigner\BindingEditorUITypeEditor.cs</Link>
     </Compile>

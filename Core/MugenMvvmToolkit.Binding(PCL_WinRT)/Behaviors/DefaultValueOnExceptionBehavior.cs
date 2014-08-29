@@ -32,20 +32,23 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// <summary>
         ///     Gets the instance of a <see cref="DefaultValueOnExceptionBehavior" /> class.
         /// </summary>
-        public static readonly DefaultValueOnExceptionBehavior Instance = new DefaultValueOnExceptionBehavior();
+        public static readonly DefaultValueOnExceptionBehavior Instance;
 
         /// <summary>
         ///     Gets the id of behavior.
         /// </summary>
-        public static readonly Guid IdDefaultValuesOnExceptionBehavior = new Guid("BB266907-520E-4461-9D95-A549326049DA");
+        public static readonly Guid IdDefaultValuesOnExceptionBehavior;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DefaultValueOnExceptionBehavior" /> class.
-        /// </summary>
+        static DefaultValueOnExceptionBehavior()
+        {
+            Instance = new DefaultValueOnExceptionBehavior();
+            IdDefaultValuesOnExceptionBehavior = new Guid("BB266907-520E-4461-9D95-A549326049DA");
+        }
+
         private DefaultValueOnExceptionBehavior()
         {
         }

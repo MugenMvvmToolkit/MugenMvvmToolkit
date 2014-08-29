@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.Infrastructure
 #if !WINDOWS_PHONE && !NETFX_CORE
             ViewManagerEx.Initialize();
 #endif
-            if (DesignTimeManagerBase.IsDesignModeStatic)
+            if (ServiceProvider.DesignTimeManager.IsDesignMode)
 #if WINDOWS_PHONE && V71
                 ServiceProvider.AttachedValueProvider = new WeakReferenceAttachedValueProvider();            
 #else

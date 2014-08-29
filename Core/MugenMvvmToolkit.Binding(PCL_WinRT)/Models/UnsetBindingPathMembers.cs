@@ -30,11 +30,16 @@ namespace MugenMvvmToolkit.Binding.Models
         /// <summary>
         ///     Gets the empty path members instance.
         /// </summary>
-        public static readonly IBindingPathMembers Instance = new UnsetBindingPathMembers();
+        public static readonly IBindingPathMembers Instance;
 
         #endregion
 
         #region Constructors
+
+        static UnsetBindingPathMembers()
+        {
+            Instance = new UnsetBindingPathMembers();
+        }
 
         private UnsetBindingPathMembers()
         {
@@ -89,7 +94,7 @@ namespace MugenMvvmToolkit.Binding.Models
         /// </summary>
         public object PenultimateValue
         {
-            get { return Source; }
+            get { return BindingConstants.UnsetValue; }
         }
 
         #endregion

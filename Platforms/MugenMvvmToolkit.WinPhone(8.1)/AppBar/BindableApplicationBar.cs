@@ -65,7 +65,7 @@ namespace MugenMvvmToolkit.Controls
         private static void OnApplicationBarChanged(DependencyObject dependencyObject,
             DependencyPropertyChangedEventArgs args)
         {
-            if (ApplicationSettings.IsDesignMode)
+            if (ServiceProvider.DesignTimeManager.IsDesignMode)
                 return;
             var applicationPage = (PhoneApplicationPage)dependencyObject;
             var applicationBar = (IBindableApplicationBar)args.OldValue;
@@ -471,7 +471,7 @@ namespace MugenMvvmToolkit.Controls
 
         private void MenuItemsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
-            if (ApplicationSettings.IsDesignMode)
+            if (ServiceProvider.DesignTimeManager.IsDesignMode)
                 return;
             if (MenuItemsSource != null)
                 throw new InvalidOperationException(
@@ -481,7 +481,7 @@ namespace MugenMvvmToolkit.Controls
 
         private void ButtonItemsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
-            if (ApplicationSettings.IsDesignMode)
+            if (ServiceProvider.DesignTimeManager.IsDesignMode)
                 return;
             if (ButtonItemsSource != null)
                 throw new InvalidOperationException(

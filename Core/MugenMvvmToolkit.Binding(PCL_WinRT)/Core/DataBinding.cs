@@ -18,6 +18,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
@@ -432,6 +433,15 @@ namespace MugenMvvmToolkit.Binding.Core
             if (handler != null) handler(this, new BindingEventArgs(action));
         }
 
+        private void InitializeContext()
+        {
+            if (_lazyContext == null)
+            {
+                Interlocked.CompareExchange(ref _lazyContext, new DataContext(), null);
+                _lazyContext.AddOrUpdate(BindingConstants.Binding, this);
+            }
+        }
+
         #endregion
 
         #region Implementation of IDataContext
@@ -468,14 +478,7 @@ namespace MugenMvvmToolkit.Binding.Core
         /// </summary>
         void IDataContext.Add<T>(DataConstant<T> dataConstant, T value)
         {
-            lock (_behaviors)
-            {
-                if (_lazyContext == null)
-                    _lazyContext = new DataContext
-                    {
-                        {BindingConstants.Binding, this}
-                    };
-            }
+            InitializeContext();
             _lazyContext.Add(dataConstant, value);
         }
 
@@ -484,14 +487,7 @@ namespace MugenMvvmToolkit.Binding.Core
         /// </summary>
         void IDataContext.AddOrUpdate<T>(DataConstant<T> dataConstant, T value)
         {
-            lock (_behaviors)
-            {
-                if (_lazyContext == null)
-                    _lazyContext = new DataContext
-                    {
-                        {BindingConstants.Binding, this}
-                    };
-            }
+            InitializeContext();
             _lazyContext.AddOrUpdate(dataConstant, value);
         }
 
@@ -500,14 +496,11 @@ namespace MugenMvvmToolkit.Binding.Core
         /// </summary>
         T IDataContext.GetData<T>(DataConstant<T> dataConstant)
         {
-            lock (_behaviors)
+            if (_lazyContext == null)
             {
-                if (_lazyContext == null)
-                {
-                    if (BindingConstants.Binding.Equals(dataConstant))
-                        return (T)(object)this;
-                    return default(T);
-                }
+                if (BindingConstants.Binding.Equals(dataConstant))
+                    return (T)(object)this;
+                return default(T);
             }
             return _lazyContext.GetData(dataConstant);
         }
@@ -517,18 +510,15 @@ namespace MugenMvvmToolkit.Binding.Core
         /// </summary>
         bool IDataContext.TryGetData<T>(DataConstant<T> dataConstant, out T data)
         {
-            lock (_behaviors)
+            if (_lazyContext == null)
             {
-                if (_lazyContext == null)
+                if (BindingConstants.Binding.Equals(dataConstant))
                 {
-                    if (BindingConstants.Binding.Equals(dataConstant))
-                    {
-                        data = (T)(object)this;
-                        return true;
-                    }
-                    data = default(T);
-                    return false;
+                    data = (T)(object)this;
+                    return true;
                 }
+                data = default(T);
+                return false;
             }
             return _lazyContext.TryGetData(dataConstant, out data);
         }
@@ -538,11 +528,8 @@ namespace MugenMvvmToolkit.Binding.Core
         /// </summary>
         bool IDataContext.Contains(DataConstant dataConstant)
         {
-            lock (_behaviors)
-            {
-                if (_lazyContext == null)
-                    return BindingConstants.Binding.Constant.Equals(dataConstant);
-            }
+            if (_lazyContext == null)
+                return BindingConstants.Binding.Constant.Equals(dataConstant);
             return _lazyContext.Contains(dataConstant);
         }
 
@@ -551,11 +538,8 @@ namespace MugenMvvmToolkit.Binding.Core
         /// </summary>
         bool IDataContext.Remove(DataConstant dataConstant)
         {
-            lock (_behaviors)
-            {
-                if (_lazyContext == null)
-                    return false;
-            }
+            if (_lazyContext == null)
+                return false;
             return _lazyContext.Remove(dataConstant);
         }
 
@@ -564,14 +548,7 @@ namespace MugenMvvmToolkit.Binding.Core
         /// </summary>
         void IDataContext.Update(IDataContext context)
         {
-            lock (_behaviors)
-            {
-                if (_lazyContext == null)
-                    _lazyContext = new DataContext
-                    {
-                        {BindingConstants.Binding, this}
-                    };
-            }
+            InitializeContext();
             _lazyContext.Update(context);
         }
 
@@ -580,11 +557,8 @@ namespace MugenMvvmToolkit.Binding.Core
         /// </summary>
         void IDataContext.Clear()
         {
-            lock (_behaviors)
-            {
-                if (_lazyContext != null)
-                    _lazyContext.Clear();
-            }
+            if (_lazyContext != null)
+                _lazyContext.Clear();
         }
 
         /// <summary>
@@ -592,11 +566,8 @@ namespace MugenMvvmToolkit.Binding.Core
         /// </summary>
         IList<DataConstantValue> IDataContext.ToList()
         {
-            lock (_behaviors)
-            {
-                if (_lazyContext == null)
-                    return new List<DataConstantValue> { BindingConstants.Binding.ToValue(this) };
-            }
+            if (_lazyContext == null)
+                return new List<DataConstantValue> { BindingConstants.Binding.ToValue(this) };
             return _lazyContext.ToList();
         }
 

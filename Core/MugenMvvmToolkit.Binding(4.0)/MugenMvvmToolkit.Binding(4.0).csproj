@@ -149,8 +149,8 @@
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\builders\SyntaxBuilder.cs">
       <Link>Builders\SyntaxBuilder.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\converters\InverseBooleanConverter.cs">
-      <Link>Converters\InverseBooleanConverter.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Converters\InverseBooleanValueConverter.cs">
+      <Link>Converters\InverseBooleanValueConverter.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\converters\ValueConverterBase.cs">
       <Link>Converters\ValueConverterBase.cs</Link>

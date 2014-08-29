@@ -48,11 +48,16 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             #region Fields
 
-            public static readonly MethodDelegateCacheKeyComparer Instance = new MethodDelegateCacheKeyComparer();
+            public static readonly MethodDelegateCacheKeyComparer Instance;
 
             #endregion
 
             #region Constructors
+
+            static MethodDelegateCacheKeyComparer()
+            {
+                Instance = new MethodDelegateCacheKeyComparer();
+            }
 
             private MethodDelegateCacheKeyComparer()
             {

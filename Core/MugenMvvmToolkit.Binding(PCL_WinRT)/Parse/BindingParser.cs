@@ -1081,7 +1081,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                             case 2:
                                 var unaryExressionNode = expression as IUnaryExressionNode;
                                 if (unaryExressionNode != null && unaryExressionNode.Token == TokenType.Exclamation)
-                                    converter = InverseBooleanConverterCore.Instance;
+                                    converter = InverseBooleanValueConverter.Instance;
                                 break;
                             case 3:
                                 var methodCallExpressionNode = expression as IMethodCallExpressionNode;

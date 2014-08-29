@@ -69,7 +69,20 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             #region Fields
 
-            public static readonly CacheKeyComparer Instance = new CacheKeyComparer();
+            public static readonly CacheKeyComparer Instance;
+
+            #endregion
+
+            #region Constructors
+
+            static CacheKeyComparer()
+            {
+                Instance = new CacheKeyComparer();
+            }
+
+            private CacheKeyComparer()
+            {
+            }
 
             #endregion
 

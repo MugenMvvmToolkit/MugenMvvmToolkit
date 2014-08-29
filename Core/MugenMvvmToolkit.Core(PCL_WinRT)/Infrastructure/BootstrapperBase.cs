@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected BootstrapperBase()
         {
-            ApplicationSettings.IsDesignMode = false;
+            ServiceProvider.DesignTimeManager = new DesignTimeManagerImpl(Platform);
         }
 
         #endregion

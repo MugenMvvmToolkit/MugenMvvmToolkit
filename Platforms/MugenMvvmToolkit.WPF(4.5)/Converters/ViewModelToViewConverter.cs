@@ -56,11 +56,16 @@ namespace MugenMvvmToolkit.Converters
         /// <summary>
         /// Gets an instance of <see cref="ViewModelToViewConverter"/>.
         /// </summary>
-        public static readonly ViewModelToViewConverter Instance = new ViewModelToViewConverter();
+        public static readonly ViewModelToViewConverter Instance;
 
         #endregion
 
         #region Constructors
+
+        static ViewModelToViewConverter()
+        {
+            Instance = new ViewModelToViewConverter();
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewModelToViewConverter"/> class.

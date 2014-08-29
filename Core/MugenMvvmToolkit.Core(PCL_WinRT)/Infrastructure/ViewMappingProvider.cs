@@ -269,7 +269,7 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 var assemblies = _assemblies;
                 _assemblies = null;
-                InitializeMapping(assemblies.SelectMany(assembly => assembly.SafeGetTypes(!ApplicationSettings.IsDesignMode)));
+                InitializeMapping(assemblies.SelectMany(assembly => assembly.SafeGetTypes(!ServiceProvider.DesignTimeManager.IsDesignMode)));
             }
         }
 

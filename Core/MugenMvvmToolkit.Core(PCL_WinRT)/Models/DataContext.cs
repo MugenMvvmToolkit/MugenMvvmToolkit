@@ -35,92 +35,53 @@ namespace MugenMvvmToolkit.Models
         {
             #region Implementation of IDataContext
 
-            /// <summary>
-            ///     Gets the number of elements contained in the <see cref="IDataContext" />.
-            /// </summary>
-            /// <returns>
-            ///     The number of elements contained in the <see cref="IDataContext" />.
-            /// </returns>
             public int Count
             {
                 get { return 0; }
             }
 
-            /// <summary>
-            ///     Gets a value indicating whether the <see cref="IDataContext" /> is read-only.
-            /// </summary>
-            /// <returns>
-            ///     true if the <see cref="IDataContext" /> is read-only; otherwise, false.
-            /// </returns>
             public bool IsReadOnly
             {
                 get { return true; }
             }
 
-            /// <summary>
-            ///     Adds the data constant value.
-            /// </summary>
             public void Add<T>(DataConstant<T> dataConstant, T value)
             {
             }
 
-            /// <summary>
-            ///     Adds the data constant value or update existing.
-            /// </summary>
             public void AddOrUpdate<T>(DataConstant<T> dataConstant, T value)
             {
             }
 
-            /// <summary>
-            ///     Gets the data using the specified data constant.
-            /// </summary>
             public T GetData<T>(DataConstant<T> dataConstant)
             {
                 return default(T);
             }
 
-            /// <summary>
-            ///     Gets the data using the specified data constant.
-            /// </summary>
             public bool TryGetData<T>(DataConstant<T> dataConstant, out T data)
             {
                 data = default(T);
                 return false;
             }
 
-            /// <summary>
-            ///     Determines whether the <see cref="IDataContext" /> contains the specified key.
-            /// </summary>
             public bool Contains(DataConstant dataConstant)
             {
                 return false;
             }
 
-            /// <summary>
-            ///     Removes the data constant value.
-            /// </summary>
             public bool Remove(DataConstant dataConstant)
             {
                 return false;
             }
 
-            /// <summary>
-            ///     Updates the current context.
-            /// </summary>
             public void Update(IDataContext context)
             {
             }
-
-            /// <summary>
-            /// Removes all values from current context.
-            /// </summary>
+            
             public void Clear()
             {                
             }
-
-            /// <summary>
-            ///     Creates an instance of <see cref="IList{T}" /> from current context.
-            /// </summary>
+            
             public IList<DataConstantValue> ToList()
             {
                 return EmptyValue<DataConstantValue>.ListInstance;

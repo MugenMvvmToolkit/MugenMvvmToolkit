@@ -23,7 +23,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         public void ResolverShouldRegisterAndResolveConverter()
         {
             const string name = "name";
-            var source = new InverseBooleanConverterCore();
+            var source = new InverseBooleanValueConverter();
             var resolver = CreateBindingResourceResolver();
 
             resolver.ResolveConverter(name, EmptyContext, false).ShouldBeNull();
@@ -35,7 +35,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         public void ResolverShouldUnregisterConverter()
         {
             const string name = "name";
-            var source = new InverseBooleanConverterCore();
+            var source = new InverseBooleanValueConverter();
             var resolver = CreateBindingResourceResolver();
 
             resolver.AddConverter(name, source, true);
@@ -56,7 +56,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         public void ResolverShouldThrowExceptionIfConverterIsAlreadyRegisteredRewriteFalse()
         {
             const string name = "name";
-            var source = new InverseBooleanConverterCore();
+            var source = new InverseBooleanValueConverter();
             var resolver = CreateBindingResourceResolver();
             resolver.AddConverter(name, source, false);
             ShouldThrow(() => resolver.AddConverter(name, source, false));
@@ -66,8 +66,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         public void ResolverShouldNotThrowExceptionIfConverterIsAlreadyRegisteredRewriteTrue()
         {
             const string name = "name";
-            var source = new InverseBooleanConverterCore();
-            var source2 = new InverseBooleanConverterCore();
+            var source = new InverseBooleanValueConverter();
+            var source2 = new InverseBooleanValueConverter();
             var resolver = CreateBindingResourceResolver();
             resolver.AddConverter(name, source, true);
             resolver.AddConverter(name, source2, true);

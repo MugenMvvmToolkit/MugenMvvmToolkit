@@ -78,8 +78,23 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             #region Fields
 
-            public static readonly EmptyTemplateSelector Instance = new EmptyTemplateSelector();
-            public static readonly View EmptyView = new View(Application.Context);
+            public static readonly EmptyTemplateSelector Instance;
+            public static readonly View EmptyView;
+
+            #endregion
+
+            #region Constructors
+
+            static EmptyTemplateSelector()
+            {
+                Instance = new EmptyTemplateSelector();
+                EmptyView = new View(Application.Context);
+            }
+
+            private EmptyTemplateSelector()
+            {
+                
+            }
 
             #endregion
 

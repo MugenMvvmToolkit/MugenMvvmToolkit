@@ -117,7 +117,7 @@ namespace MugenMvvmToolkit.Binding
                 if (constructor == null || !constructor.IsPublic)
                     return;
                 var converter = (IBindingValueConverter)constructor.InvokeEx();
-                string name = RemoveTail(RemoveTail(type.Name, "ValueConverter"), "Converter");
+                string name = RemoveTail(RemoveTail(RemoveTail(type.Name, "BindingValueConverter"), "ValueConverter"), "Converter");
                 if (BindingServiceProvider.ResourceResolver.TryAddConverter(name, converter))
                     Tracer.Info("The {0} converter is registered.", type);
             }
@@ -128,7 +128,7 @@ namespace MugenMvvmToolkit.Binding
         /// </summary>
         protected static string RemoveTail(string name, string word)
         {
-            if (name.EndsWith(word))
+            if (name.EndsWith(word, StringComparison.OrdinalIgnoreCase))
                 name = name.Substring(0, name.Length - word.Length);
             return name;
         }

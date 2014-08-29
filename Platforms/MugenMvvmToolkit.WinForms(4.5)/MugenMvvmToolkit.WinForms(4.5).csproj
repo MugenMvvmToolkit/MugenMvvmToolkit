@@ -109,9 +109,6 @@
     <Compile Include="Binding\UiDesigner\Binder.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Binding\UiDesigner\Binder.Designer.cs">
-      <DependentUpon>Binder.cs</DependentUpon>
-    </Compile>
     <Compile Include="Binding\UiDesigner\BindingEditorView.cs">
       <SubType>Form</SubType>
     </Compile>

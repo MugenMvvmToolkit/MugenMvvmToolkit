@@ -30,6 +30,7 @@ using MugenMvvmToolkit.Models;
 #if NET4
 using AttachedValueProviderDefault = MugenMvvmToolkit.Infrastructure.AttachedValueProvider;    
 #endif
+using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit
 {
@@ -54,6 +55,7 @@ namespace MugenMvvmToolkit
         private static Func<ITrackingCollection, IEqualityComparer<object>> _trackingCollectionEqualityComparerFactory;
         private static Func<object, IEventAggregator> _instanceEventAggregatorFactory;
         private static Func<object, bool, WeakReference> _weakReferenceFactory;
+        private static IDesignTimeManager _designTimeManager;
 
         #endregion
 
@@ -137,7 +139,7 @@ namespace MugenMvvmToolkit
         ///     Gets or sets the default <see cref="IItemsSourceDecorator" />.
         /// </summary>
         [CanBeNull]
-        public static IItemsSourceDecorator ItemsSourceDecorator { get; set; } 
+        public static IItemsSourceDecorator ItemsSourceDecorator { get; set; }
 
         /// <summary>
         ///     Gets or sets the root <see cref="IIocContainer" />.
@@ -257,6 +259,21 @@ namespace MugenMvvmToolkit
             set { _validatorProvider = value; }
         }
 
+        /// <summary>
+        ///     Gets or sets the default <see cref="IDesignTimeManager" />.
+        /// </summary>
+        [NotNull]
+        public static IDesignTimeManager DesignTimeManager
+        {
+            get
+            {
+                if (_designTimeManager == null)
+                    return DesignTimeInitializer.GetDesignTimeManager() ?? DesignTimeManagerImpl.Instance;
+                return _designTimeManager;
+            }
+            set { _designTimeManager = value; }
+        }
+
         #endregion
 
         #region Methods
@@ -277,6 +294,15 @@ namespace MugenMvvmToolkit
             TryInitialize(iocContainer, ref _validatorProvider);
             if (iocContainer.CanResolve<IViewModelSettings>())
                 ApplicationSettings.ViewModelSettings = iocContainer.Get<IViewModelSettings>();
+        }
+
+        /// <summary>
+        ///     Tries to initialize <see cref="IDesignTimeManager" />.
+        /// </summary>
+        public static void InitializeDesignTimeManager()
+        {
+            // ReSharper disable once UnusedVariable
+            var dummy = DesignTimeManager;
         }
 
         internal static IList<T> TryDecorate<T>(IList<T> itemsSource)

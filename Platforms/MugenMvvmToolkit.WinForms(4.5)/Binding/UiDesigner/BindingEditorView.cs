@@ -15,6 +15,7 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
@@ -26,6 +27,9 @@ using MugenMvvmToolkit.Interfaces;
 
 namespace MugenMvvmToolkit.Binding.UiDesigner
 {
+    /// <summary>
+    ///     Represents the data binding editor.
+    /// </summary>
     public partial class BindingEditorView : Form, IXmlHandler
     {
         #region Fields
@@ -39,10 +43,11 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
         private static readonly Color EventColor = ColorTranslator.FromHtml("#FE00FE");
         private static readonly Color AttachedMemberColor = ColorTranslator.FromHtml("#00889B");
 
-        private const string AllControls = "Controls";
-        private const string SourceControl = "Components";
+        private const string ControlsName = "Controls";
+        private const string ComponentsName = "Components";
         private readonly SortedDictionary<string, AutoCompleteItem> _controlsCompleteItems;
         private readonly SortedDictionary<string, SortedDictionary<string, AutoCompleteItem>> _controlsDictionary;
+        private readonly AutoCompleteItem[] _attachedControlAutoCompleteItems;
 
         private readonly TreeNode _allControlsNode;
         private readonly TreeNode _sourceControls;
@@ -56,22 +61,32 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         #region Constructors
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="BindingEditorView" /> class.
+        /// </summary>
         public BindingEditorView()
         {
             InitializeComponent();
             bindingEditor.Handler = this;
             _controlsDictionary = new SortedDictionary<string, SortedDictionary<string, AutoCompleteItem>>(StringComparer.CurrentCulture);
             _controlsCompleteItems = new SortedDictionary<string, AutoCompleteItem>(StringComparer.CurrentCulture);
-            _allControlsNode = GetAllControls(CurrentControl);
-            _sourceControls = GetSourceControls(CurrentControl);
+            _allControlsNode = GetControls(CurrentControl);
+            _sourceControls = GetComponents(CurrentControl);
+            _attachedControlAutoCompleteItems = BindingServiceProvider
+                .MemberProvider
+                .GetAttachedMemberNames(typeof(Control))
+                .ToArrayFast(s => new AutoCompleteItem(s, s, MemberTypes.Custom));
             typeControlComboBox.SelectedIndexChanged += TypeChanged;
-            typeControlComboBox.Items.Add(AllControls);
-            typeControlComboBox.Items.Add(SourceControl);
-            typeControlComboBox.SelectedItem = AllControls;
+            typeControlComboBox.Items.Add(ControlsName);
+            typeControlComboBox.Items.Add(ComponentsName);
+            typeControlComboBox.SelectedItem = ComponentsName;
             _boldFont = new Font(bindingEditor.Font, FontStyle.Bold);
             _italicFont = new Font(bindingEditor.Font, FontStyle.Italic);
         }
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="BindingEditorView" /> class.
+        /// </summary>
         public BindingEditorView(string xmlText)
             : this()
         {
@@ -100,10 +115,10 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             var selectedItem = (string)typeControlComboBox.SelectedItem;
             switch (selectedItem)
             {
-                case AllControls:
+                case ControlsName:
                     controlsTreeView.Nodes.Add(_allControlsNode);
                     break;
-                case SourceControl:
+                case ComponentsName:
                     controlsTreeView.Nodes.Add(_sourceControls);
                     break;
             }
@@ -116,54 +131,45 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             Close();
         }
 
-        private TreeNode GetAllControls(Control container)
+        private TreeNode GetControls(Control container)
         {
             if (container == null)
                 return new TreeNode("Empty");
             var treeNodes = new List<TreeNode>();
-            foreach (var result in container.Controls.OfType<Control>())
+            foreach (var control in container.Controls.OfType<Control>())
             {
                 string name;
                 Type type;
-                if (AddCompleteItem(result, out name, out type))
-                    treeNodes.Add(GetAllControls(result));
+                if (AddCompleteItem(control, out name, out type))
+                    treeNodes.Add(GetControls(control));
             }
-            var node = new TreeNode(GetDisplayName(container, container.Name, container.GetType()), treeNodes.ToArray())
-            {
-                Tag = container.Name
-            };
+            var node = new TreeNode(GetDisplayName(container, container.Name, container.GetType()), treeNodes.ToArray());
             node.Expand();
             return node;
         }
 
-        private TreeNode GetSourceControls(Control container)
+        private TreeNode GetComponents(Control container)
         {
             if (container.Site == null || container.Site.Container == null)
                 return new TreeNode("Empty");
             var treeNodes = new List<TreeNode>();
-            foreach (object result in container.Site.Container.Components)
+            foreach (var component in container.Site.Container.Components.OfType<IComponent>())
             {
                 string name;
                 Type type;
-                if (AddCompleteItem(result, out name, out type) && container != result)
-                    treeNodes.Add(new TreeNode(GetDisplayName(result, name, type))
-                    {
-                        Tag = name
-                    });
+                if (AddCompleteItem(component, out name, out type) && container != component)
+                    treeNodes.Add(new TreeNode(GetDisplayName(component, name, type)));
             }
-            return new TreeNode(GetDisplayName(container, container.Name, container.GetType()), treeNodes.ToArrayFast())
-             {
-                 Tag = container.Name
-             };
+            return new TreeNode(GetDisplayName(container, container.Name, container.GetType()), treeNodes.ToArrayFast());
         }
 
-        private bool AddCompleteItem(object result, out string name, out Type type)
+        private bool AddCompleteItem(IComponent result, out string name, out Type type)
         {
             type = null;
             name = null;
             try
             {
-                name = PlatformExtensions.TryGetValue(result, "Name");
+                name = PlatformExtensions.GetComponentName(result);
                 if (string.IsNullOrWhiteSpace(name))
                     return false;
                 type = result.GetType();
@@ -283,7 +289,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                 SortedDictionary<string, AutoCompleteItem> items;
                 if (_controlsDictionary.TryGetValue(_lastElement.Name, out items))
                     return items.Values;
-                return null;
+                return _attachedControlAutoCompleteItems;
             }
             return null;
         }
@@ -343,7 +349,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                             break;
                         case MemberTypes.Field:
                         case MemberTypes.Property:
-                            bindingEditor.Highlight(PropertyColor, node);                        
+                            bindingEditor.Highlight(PropertyColor, node);
                             break;
                         case MemberTypes.Custom:
                             bindingEditor.Highlight(AttachedMemberColor, node);

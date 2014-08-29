@@ -35,11 +35,16 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Gets the instance of <see cref="ITracer" />.
         /// </summary>
-        internal static readonly Tracer Instance = new Tracer();
+        internal static readonly Tracer Instance;
 
         #endregion
 
         #region Constructors
+
+        static Tracer()
+        {
+            Instance = new Tracer();
+        }
 
         private Tracer()
         {

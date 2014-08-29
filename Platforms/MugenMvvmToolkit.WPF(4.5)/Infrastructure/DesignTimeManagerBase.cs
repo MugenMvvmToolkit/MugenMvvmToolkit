@@ -14,11 +14,10 @@
 // ****************************************************************************
 #endregion
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
@@ -42,7 +41,6 @@ namespace MugenMvvmToolkit.Infrastructure
         private readonly object _locker;
         private bool _isInitialized;
         private IIocContainer _iocContainer;
-        private readonly bool _isDesignMode;
         private readonly PlatformInfo _platform;
         private IDataContext _context;
 
@@ -56,8 +54,6 @@ namespace MugenMvvmToolkit.Infrastructure
         public DesignTimeManagerBase()
         {
             _locker = new object();
-            // ReSharper disable once DoNotCallOverridableMethodsInConstructor
-            _isDesignMode = GetIsDesignMode();
             _platform = PlatformExtensions.GetPlatformInfo();
             _priority = GetType() == typeof(DesignTimeManagerBase) ? int.MinValue : 0;
         }
@@ -69,9 +65,15 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Gets the value indicating whether the control is in design mode (running under Blend or Visual Studio).
         /// </summary>
-        public bool IsDesignMode
+        public virtual bool IsDesignMode
         {
-            get { return _isDesignMode; }
+            get
+            {
+                if (_isDesignModeStatic.HasValue)
+                    return _isDesignModeStatic.Value;
+                _isDesignModeStatic = GetIsDesignMode();
+                return _isDesignModeStatic.Value;
+            }
         }
 
         /// <summary>
@@ -146,28 +148,11 @@ namespace MugenMvvmToolkit.Infrastructure
         public void InitializeViewModel(IViewModel viewModel)
         {
             Should.NotBeNull(viewModel, "viewModel");
-            InitializeViewModelInternal(viewModel);
-            var designViewModel = viewModel as IDesignViewModel;
-            if (designViewModel != null)
-                designViewModel.InitializeViewModel();
-        }
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        ///     Gets the value indicating whether the control is in design mode (running under Blend or Visual Studio).
-        /// </summary>
-        public static bool IsDesignModeStatic
-        {
-            get
-            {
-                if (_isDesignModeStatic.HasValue)
-                    return _isDesignModeStatic.Value;
-                _isDesignModeStatic = GetIsDesignModeStatic();
-                return _isDesignModeStatic.Value;
-            }
+            SynchronizationContext context = SynchronizationContext.Current;
+            if (context == null)
+                Task.Factory.StartNew(() => InitializeViewModelInternal(viewModel));
+            else
+                context.Post(state => InitializeViewModelInternal(viewModel), null);
         }
 
         #endregion
@@ -194,14 +179,6 @@ namespace MugenMvvmToolkit.Infrastructure
         }
 
         /// <summary>
-        ///     Gets the value indicating whether the control is in design mode (running under Blend or Visual Studio).
-        /// </summary>
-        protected virtual bool GetIsDesignMode()
-        {
-            return IsDesignModeStatic;
-        }
-
-        /// <summary>
         ///     Occurs after the manager is fully loaded.
         /// </summary>
         protected virtual void OnInitialized()
@@ -215,12 +192,12 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (IocContainer == null)
                 return;
-            IocContainer
-                .Get<IViewModelProvider>()
-                .InitializeViewModel(viewModel, Context ?? DataContext.Empty);
+            IViewModelProvider service;
+            if (IocContainer.TryGet(out service))
+                service.InitializeViewModel(viewModel, Context ?? DataContext.Empty);
         }
 
-        private static bool GetIsDesignModeStatic()
+        private static bool GetIsDesignMode()
         {
             try
             {
@@ -230,15 +207,10 @@ namespace MugenMvvmToolkit.Infrastructure
                 return DesignerProperties.IsInDesignTool;
 #elif WPF
                 DependencyProperty prop = DesignerProperties.IsInDesignModeProperty;
-                var isInDesignMode = (bool)DependencyPropertyDescriptor
+                return (bool)DependencyPropertyDescriptor
                     .FromProperty(prop, typeof(FrameworkElement))
                     .Metadata
-                    .DefaultValue;
-
-
-                if (!isInDesignMode && IsVsRunning())
-                    isInDesignMode = true;
-                return isInDesignMode;
+                    .DefaultValue || IsVsRunning();
 #elif NETFX_CORE || WINDOWSCOMMON
                 return Windows.ApplicationModel.DesignMode.DesignModeEnabled;
 #endif
@@ -253,7 +225,11 @@ namespace MugenMvvmToolkit.Infrastructure
         private static bool IsVsRunning()
         {
             using (var process = Process.GetCurrentProcess())
-                return process.ProcessName.StartsWith("devenv", StringComparison.Ordinal);
+            {
+                var processName = process.ProcessName;
+                return processName.StartsWith("devenv", StringComparison.OrdinalIgnoreCase) ||
+                       processName.StartsWith("xdesproc", StringComparison.OrdinalIgnoreCase);
+            }
         }
 #endif
         #endregion

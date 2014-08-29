@@ -19,7 +19,6 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Binding
 {
@@ -47,7 +46,7 @@ namespace MugenMvvmToolkit.Binding
         static BindingServiceProvider()
         {
             SetDefaultValues();
-            MvvmUtils.InitializeDesignTimeManager();
+            ServiceProvider.InitializeDesignTimeManager();
         }
 
         #endregion

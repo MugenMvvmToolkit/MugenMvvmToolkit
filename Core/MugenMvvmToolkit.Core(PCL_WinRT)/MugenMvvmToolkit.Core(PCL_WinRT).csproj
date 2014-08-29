@@ -84,6 +84,7 @@
     <Compile Include="Infrastructure\Callbacks\OperationResult.cs" />
     <Compile Include="Infrastructure\DelegateComparer.cs" />
     <Compile Include="Infrastructure\DisplayNameProvider.cs" />
+    <Compile Include="Infrastructure\DesignTimeManagerImpl.cs" />
     <Compile Include="Infrastructure\EntityStateManager.cs" />
     <Compile Include="Infrastructure\EventAggregator.cs" />
     <Compile Include="Infrastructure\ExpressionReflectionManager.cs" />
@@ -177,7 +178,6 @@
     <Compile Include="Interfaces\Validation\IValidatorContext.cs" />
     <Compile Include="Interfaces\Validation\IValidatorProvider.cs" />
     <Compile Include="Interfaces\ViewModels\ICloseableViewModel.cs" />
-    <Compile Include="Interfaces\ViewModels\IDesignViewModel.cs" />
     <Compile Include="Interfaces\ViewModels\IEditableViewModel.cs" />
     <Compile Include="Interfaces\ViewModels\IGridViewModel.cs" />
     <Compile Include="Interfaces\ViewModels\IMultiViewModel.cs" />

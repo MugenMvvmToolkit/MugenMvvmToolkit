@@ -59,7 +59,20 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             #region Fields
 
-            public static readonly MessageSenderCacheComparer Instance = new MessageSenderCacheComparer();
+            public static readonly MessageSenderCacheComparer Instance;
+
+            #endregion
+
+            #region Constructors
+
+            static MessageSenderCacheComparer()
+            {
+                Instance = new MessageSenderCacheComparer();
+            }
+
+            private MessageSenderCacheComparer()
+            {                
+            }
 
             #endregion
 

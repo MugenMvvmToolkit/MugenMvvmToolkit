@@ -356,7 +356,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
                 ? CreateBindingBuilder(targetObject, _targetMemberName).Build()
                 : CreateBinding(targetObject, _targetMemberName);
 
-            if (ApplicationSettings.IsDesignMode && binding is InvalidDataBinding)
+            if (ServiceProvider.DesignTimeManager.IsDesignMode && binding is InvalidDataBinding)
                 throw new DesignTimeException(((InvalidDataBinding)binding).Exception);
             return GetDefaultValue(targetObject, targetProperty, binding, _targetMemberName);
         }
@@ -446,7 +446,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
             return DependencyProperty.UnsetValue;
 #else
             //NOTE Сannot set property values ​​in the designer, this error will handled by MS code.
-            if (ApplicationSettings.IsDesignMode)
+            if (ServiceProvider.DesignTimeManager.IsDesignMode)
                 throw new InvalidOperationException();
             return DependencyProperty.UnsetValue;
 #endif

@@ -31,14 +31,14 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// <summary>
         ///     Gets the id of behavior.
         /// </summary>
-        public static readonly Guid IdValidatesOnExceptionsBehavior = new Guid("046EC76A-0DC9-4024-B893-7E2AF9E4F636");
+        public static readonly Guid IdValidatesOnExceptionsBehavior;
 
         /// <summary>
         ///     Gets the instance of a <see cref="ValidatesOnExceptionsBehavior" /> class.
         /// </summary>
-        public static readonly ValidatesOnExceptionsBehavior Instance = new ValidatesOnExceptionsBehavior();
+        public static readonly ValidatesOnExceptionsBehavior Instance;
 
-        private static readonly SenderType ErrorsConstant = new SenderType("VEB.ErrorsConstant");
+        private static readonly SenderType ErrorsConstant;
 
         #endregion
 
@@ -46,12 +46,12 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         static ValidatesOnExceptionsBehavior()
         {
+            IdValidatesOnExceptionsBehavior = new Guid("046EC76A-0DC9-4024-B893-7E2AF9E4F636");
+            ErrorsConstant = new SenderType("VEB.ErrorsConstant");
             ShowOriginalException = true;
+            Instance = new ValidatesOnExceptionsBehavior();
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ValidatesOnExceptionsBehavior" /> class.
-        /// </summary>
         private ValidatesOnExceptionsBehavior()
         {
         }
