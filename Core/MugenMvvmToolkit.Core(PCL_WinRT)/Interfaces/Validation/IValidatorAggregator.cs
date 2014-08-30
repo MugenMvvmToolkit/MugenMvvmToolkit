@@ -36,13 +36,13 @@ namespace MugenMvvmToolkit.Interfaces.Validation
         ///     <example>
         ///         <code>
         ///       <![CDATA[
-        ///        PropertiesMapping.Add("ModelProperty", new[]{"ViewModelProperty"});
+        ///        PropertyMappings.Add("ModelProperty", new[]{"ViewModelProperty"});
         ///       ]]>
         ///     </code>
         ///     </example>
         /// </summary>
         [NotNull]
-        IDictionary<string, ICollection<string>> PropertiesMapping { get; }
+        IDictionary<string, ICollection<string>> PropertyMappings { get; }
 
         /// <summary>
         ///     Gets the list of properties that will not be validated.

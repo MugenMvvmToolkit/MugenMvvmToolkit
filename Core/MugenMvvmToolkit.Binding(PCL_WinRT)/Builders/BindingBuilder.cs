@@ -19,7 +19,6 @@ using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Binding.Builders
 {

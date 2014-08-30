@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             IValidatorContext validatorContext = viewModel.CreateContext(obj);
             validatorContext.ServiceProvider.ShouldEqual(vm.IocContainer);
             validatorContext.ValidationMetadata.ShouldEqual(viewModel.Settings.Metadata);
-            validatorContext.PropertiesMapping.ShouldEqual(viewModel.PropertiesMapping);
+            validatorContext.PropertyMappings.ShouldEqual(viewModel.PropertyMappings);
             validatorContext.IgnoreProperties.ShouldEqual(viewModel.IgnoreProperties);
             validatorContext.Instance.ShouldEqual(obj);
             validatorContext.ServiceProvider.ShouldEqual(vm.IocContainer);

@@ -25,7 +25,6 @@ using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Sources;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
@@ -44,7 +43,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
             private WeakReference _value;
             private bool _hasParent;
-            
+
             #endregion
 
             #region Constructors
@@ -54,7 +53,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 _node = node;
                 _isElementSource = _node.Type == RelativeSourceExpressionNode.ElementSourceType;
                 _targetReference = ServiceProvider.WeakReferenceFactory(target, true);
-                _value = MvvmUtils.EmptyWeakReference;
+                _value = Empty.WeakReference;
                 var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
                 if (rootMember != null)
                     _subscriber = rootMember.TryObserve(target, this);
@@ -84,7 +83,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                     if (Equals(value, _value.Target))
                         return;
                     _value = value == null
-                        ? MvvmUtils.EmptyWeakReference
+                        ? Empty.WeakReference
                         : ServiceProvider.WeakReferenceFactory(value, true);
                     var handler = ValueChanged;
                     if (handler != null)

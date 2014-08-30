@@ -17,7 +17,6 @@ using System;
 using System.Linq.Expressions;
 using Android.Content;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Core;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
@@ -47,7 +46,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public void SetBoolProperty(Expression<Func<TWrapper, object>> propertyName, string value)
         {
-            SetBoolProperty(MvvmExtensions.GetPropertyName(propertyName), value);
+            SetBoolProperty(Extensions.GetPropertyName(propertyName), value);
         }
 
         public void SetBoolProperty(string propertyName, string value)
@@ -63,7 +62,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public void SetStringProperty(Expression<Func<TWrapper, object>> propertyName, string value, Func<string, object> convertAction = null)
         {
-            SetStringProperty(MvvmExtensions.GetPropertyName(propertyName), value, convertAction);
+            SetStringProperty(Extensions.GetPropertyName(propertyName), value, convertAction);
         }
 
         public void SetStringProperty(string propertyName, string value, Func<string, object> convertAction = null)
@@ -86,7 +85,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public void SetProperty(Expression<Func<TWrapper, object>> propertyName, string value)
         {
-            SetProperty(MvvmExtensions.GetPropertyName(propertyName), value);
+            SetProperty(Extensions.GetPropertyName(propertyName), value);
         }
 
         public void SetProperty(string propertyName, string value)
@@ -109,7 +108,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public void SetBinding(Expression<Func<TWrapper, object>> propertyName, string value, bool required)
         {
-            SetBinding(MvvmExtensions.GetPropertyName(propertyName), value, required);
+            SetBinding(Extensions.GetPropertyName(propertyName), value, required);
         }
 
         public void SetBinding(string propertyName, string value, bool required)

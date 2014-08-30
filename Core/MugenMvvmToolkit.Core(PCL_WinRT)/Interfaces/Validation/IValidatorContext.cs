@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.Interfaces.Validation
         ///     Gets the mapping of model properties.
         /// </summary>
         [NotNull]
-        IDictionary<string, ICollection<string>> PropertiesMapping { get; }
+        IDictionary<string, ICollection<string>> PropertyMappings { get; }
 
         /// <summary>
         ///     Gets the list of properties that will not be validated.

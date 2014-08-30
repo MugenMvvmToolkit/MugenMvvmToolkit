@@ -9,7 +9,6 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
-using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Test.TestModels;
 using MugenMvvmToolkit.ViewModels;
 using Should;
@@ -63,7 +62,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         private sealed class ViewMappingProviderEx : ViewMappingProvider
         {
             public ViewMappingProviderEx(IList<Type> types)
-                : base(EmptyValue<Assembly>.ArrayInstance)
+                : base(Empty.Array<Assembly>())
             {
                 InitializeMapping(types);
             }

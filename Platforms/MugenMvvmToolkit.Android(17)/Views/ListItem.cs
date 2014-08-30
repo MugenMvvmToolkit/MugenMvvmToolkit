@@ -19,7 +19,6 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces;
 
 namespace MugenMvvmToolkit.Views

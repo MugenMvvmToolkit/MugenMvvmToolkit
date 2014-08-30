@@ -776,13 +776,13 @@ namespace MugenMvvmToolkit.Binding.Parse
             if (Tokenizer.Token == TokenType.EmptyParen)
             {
                 NextToken(true);
-                return EmptyValue<IExpressionNode>.ArrayInstance;
+                return Empty.Array<IExpressionNode>();
             }
             ValidateToken(TokenType.OpenParen);
             NextToken(true);
             IList<IExpressionNode> args = Tokenizer.Token != TokenType.CloseParen
                 ? ParseArguments()
-                : EmptyValue<IExpressionNode>.ArrayInstance;
+                : Empty.Array<IExpressionNode>();
             ValidateToken(TokenType.CloseParen);
             NextToken(true);
             return args;
@@ -1149,7 +1149,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                     {
                         var behavior = BindingServiceProvider
                             .ResourceResolver
-                            .ResolveBehavior(left, context, EmptyValue<string>.ListInstance, true);
+                            .ResolveBehavior(left, context, Empty.Array<string>(), true);
                         context.GetOrAddBehaviors().Add(behavior);
                     }
                 };
@@ -1172,7 +1172,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 args = GetMemberNames(method.Arguments);
             }
             else
-                args = EmptyValue<string>.ListInstance;
+                args = Empty.Array<string>();
             return new Action<IDataContext>[]
             {
                 context =>
@@ -1315,7 +1315,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         private static object InvokeMethod(IDataContext context, string methodName, object[] args, string memberPath)
         {
             var method = BindingServiceProvider.ResourceResolver.ResolveMethod(methodName, context, true);
-            var result = method.Invoke(EmptyValue<Type>.ListInstance, args, context);
+            var result = method.Invoke(Empty.Array<Type>(), args, context);
             if (memberPath == null)
                 return result;
             return BindingExtensions.GetValueFromPath(result, memberPath);

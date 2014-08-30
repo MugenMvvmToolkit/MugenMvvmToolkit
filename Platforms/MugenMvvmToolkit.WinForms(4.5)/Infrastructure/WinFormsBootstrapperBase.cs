@@ -25,7 +25,6 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -87,10 +86,10 @@ namespace MugenMvvmToolkit.Infrastructure
         protected override ICollection<Assembly> GetAssemblies()
         {
             var assemblies = new HashSet<Assembly>();
-            foreach (Assembly assembly in MvvmUtils.SkipFrameworkAssemblies(AppDomain.CurrentDomain.GetAssemblies()))
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
             {
                 assemblies.Add(assembly);
-                assemblies.AddRange(MvvmUtils.SkipFrameworkAssemblies(assembly.GetReferencedAssemblies().Select(Assembly.Load)));
+                assemblies.AddRange(assembly.GetReferencedAssemblies().Select(Assembly.Load).SkipFrameworkAssemblies());
             }
             return assemblies;
         }

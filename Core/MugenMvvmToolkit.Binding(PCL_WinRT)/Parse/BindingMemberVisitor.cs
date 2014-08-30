@@ -186,7 +186,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                         staticValue = new ConstantExpressionNode(resourceObject.Value, resourceObject.Type);
                     else
                     {
-                        staticValue = new ConstantExpressionNode(dynamicObject.GetMember(path.Parts[1], EmptyValue<object>.ListInstance));
+                        staticValue = new ConstantExpressionNode(dynamicObject.GetMember(path.Parts[1], Empty.Array<object>()));
                         dynamicMember = true;
                     }
                 }

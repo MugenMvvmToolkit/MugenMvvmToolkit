@@ -22,7 +22,6 @@ using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -132,10 +131,10 @@ namespace MugenMvvmToolkit.Infrastructure
             private HandlerInfo(object target, Dictionary<Type, Func<object, object[], object>> handlers)
             {
                 _target = target;
-                if (handlers.Count != 1 || !(target is ViewModelBase))
-                    _handlers = handlers;
+                if (handlers.Count == 1 && target is ViewModelBase)
+                    _handler = (IHandler<object>) target;
                 else
-                    _handler = (IHandler<object>)target;
+                    _handlers = handlers;
                 _messageToHandlers = new Dictionary<Type, Func<object, object[], object>[]>();
                 _handledMessages = new HashSet<MessageSenderCache>(MessageSenderCacheComparer.Instance);
             }
@@ -379,7 +378,7 @@ namespace MugenMvvmToolkit.Infrastructure
         public IList<object> GetObservers()
         {
             if (_handlerReferences.Count == 0)
-                return EmptyValue<object>.ListInstance;
+                return Empty.Array<object>();
             var objects = new List<object>(_handlerReferences.Count);
             lock (_handlerReferences)
             {

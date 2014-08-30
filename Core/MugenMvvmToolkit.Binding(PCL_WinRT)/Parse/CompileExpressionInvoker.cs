@@ -581,7 +581,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         private Type[] GetTypes(IList<string> types)
         {
             if (types.IsNullOrEmpty())
-                return EmptyValue<Type>.ArrayInstance;
+                return Empty.Array<Type>();
             var resolver = BindingServiceProvider.ResourceResolver;
             var typeArgs = new Type[types.Count];
             for (int i = 0; i < types.Count; i++)

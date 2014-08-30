@@ -17,7 +17,6 @@ using System;
 using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Attributes
 {

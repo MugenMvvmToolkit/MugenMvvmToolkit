@@ -5,7 +5,6 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Test.TestInfrastructure
 {
@@ -54,8 +53,8 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         Task<IView> IViewManager.GetViewAsync(IViewModel viewModel, IDataContext dataContext)
         {
             if (GetViewRawDelegate == null)
-                return MvvmExtensions.FromResult(GetViewDelegate(viewModel, dataContext.GetData(InitializationConstants.ViewName)));
-            return MvvmExtensions.FromResult(GetViewRawDelegate(viewModel, dataContext));
+                return Extensions.FromResult(GetViewDelegate(viewModel, dataContext.GetData(InitializationConstants.ViewName)));
+            return Extensions.FromResult(GetViewRawDelegate(viewModel, dataContext));
         }
 
         /// <summary>
@@ -67,7 +66,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         {
             if (InitializeViewForViewModelDelegate != null)
                 InitializeViewForViewModelDelegate(viewModel, view);
-            return MvvmUtils.FalseTaskResult;
+            return Empty.FalseTask;
         }
 
         /// <summary>
@@ -78,7 +77,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         {
             if (CleanupViewOnlyVmDelegate != null)
                 CleanupViewOnlyVmDelegate(viewModel);
-            return MvvmUtils.FalseTaskResult;
+            return Empty.FalseTask;
         }
 
         #endregion

@@ -280,7 +280,7 @@ namespace MugenMvvmToolkit.Infrastructure
             Should.NotBeNull(item, "item");
             LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, false);
             if (dictionary == null)
-                return EmptyValue<KeyValuePair<string, object>>.ArrayInstance;
+                return Empty.Array<KeyValuePair<string, object>>();
             lock (dictionary)
             {
                 if (predicate == null)

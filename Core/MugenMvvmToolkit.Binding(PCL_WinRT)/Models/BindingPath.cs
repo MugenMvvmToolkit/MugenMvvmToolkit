@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
@@ -70,7 +69,7 @@ namespace MugenMvvmToolkit.Binding.Models
             if (string.IsNullOrEmpty(path))
             {
                 _path = string.Empty;
-                _items = EmptyValue<string>.ArrayInstance;
+                _items = MugenMvvmToolkit.Empty.Array<string>();
                 _isEmpty = true;
                 return;
             }

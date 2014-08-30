@@ -161,7 +161,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     continue;
                 Func<object, object[], object> methodDelegate = ServiceProvider.ReflectionManager.GetMethodDelegate(methodInfo);
                 object value = attr;
-                return () => (string)methodDelegate(value, EmptyValue<object>.ArrayInstance);
+                return () => (string)methodDelegate(value, Empty.Array<object>());
             }
             return null;
         }

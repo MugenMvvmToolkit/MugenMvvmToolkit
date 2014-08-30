@@ -19,7 +19,6 @@ using System.Diagnostics;
 using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Callbacks;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Infrastructure.Callbacks
 {

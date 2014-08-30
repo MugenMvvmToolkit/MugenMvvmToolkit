@@ -75,7 +75,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 MessageBoxResult result = MessageBox.Show(messageBoxText, caption, buttons,
                     ConvertMessageBoxImages(icon),
                     ConvertMessageBoxResults(defaultResult));
-                return MvvmExtensions.FromResult(ConvertMessageBoxResult(result));
+                return Extensions.FromResult(ConvertMessageBoxResult(result));
             }
             var tcs = new TaskCompletionSource<MessageResult>();
             _threadManager.InvokeOnUiThreadAsync(() =>

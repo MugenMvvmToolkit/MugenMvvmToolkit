@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Parse.Nodes
 {
@@ -41,7 +40,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         public IndexExpressionNode(IExpressionNode obj, IList<IExpressionNode> args)
             : base(ExpressionNodeType.Index)
         {
-            _arguments = args == null ? EmptyValue<IExpressionNode>.ArrayInstance : args.ToArrayFast();
+            _arguments = args == null ? Empty.Array<IExpressionNode>() : args.ToArrayFast();
             _object = obj;
         }
 
@@ -54,7 +53,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         /// </summary>
         public IExpressionNode Object
         {
-            get { return _object; }            
+            get { return _object; }
         }
 
         /// <summary>
@@ -74,8 +73,8 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         /// </summary>
         protected override void AcceptInternal(IExpressionVisitor visitor)
         {
-            if (Object != null)
-                _object = AcceptWithCheck(visitor, Object, false);
+            if (_object != null)
+                _object = AcceptWithCheck(visitor, _object, false);
             for (int index = 0; index < Arguments.Count; index++)
             {
                 _arguments[index] = AcceptWithCheck(visitor, _arguments[index], true);
@@ -90,7 +89,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         /// </returns>
         protected override IExpressionNode CloneInternal()
         {
-            return new IndexExpressionNode(Object == null ? null : Object.Clone(), _arguments.ToArrayFast(node => node.Clone()));
+            return new IndexExpressionNode(_object == null ? null : Object.Clone(), _arguments.ToArrayFast(node => node.Clone()));
         }
 
         /// <summary>

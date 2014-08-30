@@ -20,7 +20,6 @@ using Android.App;
 using Android.Content;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;

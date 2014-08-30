@@ -44,11 +44,21 @@ namespace MugenMvvmToolkit
         static Tracer()
         {
             Instance = new Tracer();
+            TraceFinalized = Debugger.IsAttached;
         }
 
         private Tracer()
         {
         }
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Gets or sets the value that is responsible to trace finalized items.
+        /// </summary>
+        public static bool TraceFinalized { get; set; }
 
         #endregion
 
@@ -105,6 +115,15 @@ namespace MugenMvvmToolkit
             ServiceProvider.Tracer.Trace(TraceLevel.Error, format, args);
         }
 
+        /// <summary>
+        /// Writes information about an item.
+        /// </summary>
+        public static void Finalized(object item, string message = null)
+        {
+            if (TraceFinalized)
+                Warn("Finalized - {0} ({1}); {2}", item.GetType(), item.GetHashCode(), message);
+        }
+        
         #endregion
 
         #region Implementation of ITracer

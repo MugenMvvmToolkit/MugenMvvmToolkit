@@ -24,7 +24,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.ViewModels
 {
@@ -50,7 +49,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         static MultiViewModel()
         {
-            IsSelectedPropertyName = MvvmExtensions.GetPropertyName<ISelectable>(selectable => selectable.IsSelected);
+            IsSelectedPropertyName = Extensions.GetPropertyName<ISelectable>(selectable => selectable.IsSelected);
         }
 
         /// <summary>
@@ -135,9 +134,9 @@ namespace MugenMvvmToolkit.ViewModels
             EnsureNotDisposed();
             Should.NotBeNull(viewModel, "viewModel");
             if (!ItemsSource.Contains(viewModel))
-                return MvvmUtils.FalseTaskResult;
-            var result = MvvmUtils
-                .TryCloseAsync(viewModel, parameter, null)
+                return Empty.FalseTask;
+            var result = viewModel
+                .TryCloseAsync(parameter, null)
                 .TryExecuteSynchronously(task =>
                 {
                     if (task.Result)

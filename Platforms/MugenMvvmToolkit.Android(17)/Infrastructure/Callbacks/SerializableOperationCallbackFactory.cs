@@ -101,7 +101,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                             TraceError(field, targetType);
                             return false;
                         }
-                        var builder = createMethod.Invoke(null, EmptyValue<object>.ArrayInstance);
+                        var builder = createMethod.Invoke(null, Empty.Array<object>());
                         field.SetValueEx(target, builder);
                         startMethod.MakeGenericMethod(typeof(IAsyncStateMachine))
                                    .Invoke(builder, new[] { target });
@@ -360,7 +360,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                     stateMachine = (IAsyncStateMachine)GetDefault(type);
                 else
                 {
-                    var constructor = type.GetConstructor(EmptyValue<Type>.ArrayInstance);
+                    var constructor = type.GetConstructor(Empty.Array<Type>());
                     if (constructor == null)
                     {
                         Tracer.Error("The await callback cannot be executed.");

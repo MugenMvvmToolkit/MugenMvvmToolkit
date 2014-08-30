@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -105,22 +104,15 @@ namespace MugenMvvmToolkit.Binding
         /// </summary>
         protected virtual void RegisterType(Type type)
         {
-#if PCL_WINRT
-            if (typeof(IBindingValueConverter).IsAssignableFrom(type) && !type.GetTypeInfo().IsAbstract &&
-                type.GetTypeInfo().IsClass)
-
-#else
-            if (typeof(IBindingValueConverter).IsAssignableFrom(type) && !type.IsAbstract && type.IsClass)
-#endif
-            {
-                var constructor = type.GetConstructor(EmptyValue<Type>.ArrayInstance);
-                if (constructor == null || !constructor.IsPublic)
-                    return;
-                var converter = (IBindingValueConverter)constructor.InvokeEx();
-                string name = RemoveTail(RemoveTail(RemoveTail(type.Name, "BindingValueConverter"), "ValueConverter"), "Converter");
-                if (BindingServiceProvider.ResourceResolver.TryAddConverter(name, converter))
-                    Tracer.Info("The {0} converter is registered.", type);
-            }
+            if (!typeof(IBindingValueConverter).IsAssignableFrom(type) || !type.IsPublicNonAbstractClass())
+                return;
+            var constructor = type.GetConstructor(Empty.Array<Type>());
+            if (constructor == null || !constructor.IsPublic)
+                return;
+            var converter = (IBindingValueConverter)constructor.InvokeEx();
+            string name = RemoveTail(RemoveTail(RemoveTail(type.Name, "BindingValueConverter"), "ValueConverter"), "Converter");
+            if (BindingServiceProvider.ResourceResolver.TryAddConverter(name, converter))
+                Tracer.Info("The {0} converter is registered.", type);
         }
 
         /// <summary>

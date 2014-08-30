@@ -20,7 +20,6 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
@@ -171,7 +170,7 @@ namespace MugenMvvmToolkit.Infrastructure
         [NotNull]
         protected virtual IList<IModule> GetModules()
         {
-            return MvvmUtils.GetModules(GetAssembliesInternal(), true);
+            return GetAssembliesInternal().GetModules(true);
         }
 
         /// <summary>
@@ -190,7 +189,7 @@ namespace MugenMvvmToolkit.Infrastructure
         [NotNull]
         protected virtual IModuleContext CreateModuleContext(IIocContainer iocContainer)
         {
-            return new ModuleContext(Platform, LoadMode.Runtime, iocContainer, DataContext.Empty, GetAssembliesInternal());
+            return new ModuleContext(Platform, LoadMode.Runtime, iocContainer, null, GetAssembliesInternal());
         }
 
         /// <summary>
@@ -203,7 +202,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         /// Tries to add assembly by full name.
         /// </summary>
-        protected static ICollection<Assembly> TryAddAssembly(string assemblyName, ICollection<Assembly> assemblies)
+        protected static void TryAddAssembly(string assemblyName, ICollection<Assembly> assemblies)
         {
             try
             {
@@ -216,10 +215,10 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (assembly != null)
                     assemblies.Add(assembly);
             }
+            // ReSharper disable once EmptyGeneralCatchClause
             catch
             {
             }
-            return assemblies;
         }
 
         private IList<Assembly> GetAssembliesInternal()

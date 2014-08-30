@@ -28,7 +28,6 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.Utils;
 using MugenMvvmToolkit.ViewModels;
 using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 using NavigationContext = MugenMvvmToolkit.Models.NavigationContext;
@@ -395,7 +394,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// </param>
         protected virtual Task<bool> OnNavigatingFrom([NotNull] IViewModel viewModel, INavigationContext context)
         {
-            return MvvmUtils.TryCloseAsync(viewModel, context, context);
+            return viewModel.TryCloseAsync(context, context);
         }
 
         /// <summary>
@@ -474,7 +473,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 var vm = context.ViewModelTo;
                 Task data;
                 if (vm != null && vm.Settings.Metadata.TryGetData(FrameStateManager.RestoreStateConstant, out data))
-                    MvvmUtils.WithTaskExceptionHandler(data.TryExecuteSynchronously(task => CallbackManager.SetResult(viewModel, operationResult)), vm);
+                    data.TryExecuteSynchronously(task => CallbackManager.SetResult(viewModel, operationResult)).WithTaskExceptionHandler(vm);
                 else
                     CallbackManager.SetResult(viewModel, operationResult);
             }, OperationPriority.Low));
@@ -536,7 +535,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             args.Cancel = true;
             var context = CreateContextNavigateFrom(currentViewModel, _navigationTargetVm, args);
             var navigateTask = (_closedFromViewModel || !args.IsCancelable)
-                ? MvvmUtils.TrueTaskResult
+                ? Empty.TrueTask
                 : OnNavigatingFrom(currentViewModel, context);
             var t = navigateTask.TryExecuteSynchronously(task =>
             {
@@ -570,7 +569,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 });
             });
             t.TryExecuteSynchronously(task => _ignoreCloseFromViewModel = false);
-            MvvmUtils.WithTaskExceptionHandler(t, this);
+            t.WithTaskExceptionHandler(this);
         }
 
         protected virtual IViewModel OnNavigated(IOperationCallback callback, IViewModel navigationViewModel, NavigationEventArgsBase args, ref INavigationContext context)
@@ -595,7 +594,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         {
             if (navigationViewModel != null)
             {
-                MvvmUtils.WithTaskExceptionHandler(ViewManager.InitializeViewAsync(navigationViewModel, view), this);
+                ViewManager.InitializeViewAsync(navigationViewModel, view).WithTaskExceptionHandler(this);
                 return navigationViewModel;
             }
             //Trying to get from cache.
@@ -605,7 +604,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
             if (vm == null)
                 vm = ViewModelProvider.GetViewModel(vmType, InitializationConstants.IsRestored.ToValue(true));
-            MvvmUtils.WithTaskExceptionHandler(ViewManager.InitializeViewAsync(vm, view), this);
+            ViewManager.InitializeViewAsync(vm, view).WithTaskExceptionHandler(this);
             return vm;
         }
 

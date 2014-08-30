@@ -77,14 +77,14 @@ namespace MugenMvvmToolkit.Models
             public void Update(IDataContext context)
             {
             }
-            
+
             public void Clear()
-            {                
+            {
             }
-            
+
             public IList<DataConstantValue> ToList()
             {
-                return EmptyValue<DataConstantValue>.ListInstance;
+                return MugenMvvmToolkit.Empty.Array<DataConstantValue>();
             }
 
             #endregion

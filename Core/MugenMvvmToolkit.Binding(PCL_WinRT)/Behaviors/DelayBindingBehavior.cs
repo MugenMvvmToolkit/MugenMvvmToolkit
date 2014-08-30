@@ -21,7 +21,6 @@ using System.Threading.Tasks;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Models.EventArg;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
@@ -221,7 +220,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         {
             var behavior = (DelayBindingBehavior)state;
             if (behavior._context == null)
-                MvvmUtilsInternal.InvokeOnUiThreadAsync(behavior.Callback);
+                Extensions.InvokeOnUiThreadAsync(behavior.Callback);
             else
                 behavior._context.Post(CallbackDelegate, state);
         }

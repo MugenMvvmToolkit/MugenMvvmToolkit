@@ -17,7 +17,6 @@ using System;
 using System.Runtime.Serialization;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Infrastructure
 {

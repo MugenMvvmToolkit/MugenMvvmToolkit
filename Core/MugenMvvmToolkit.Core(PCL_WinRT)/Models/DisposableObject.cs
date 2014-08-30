@@ -16,7 +16,6 @@
 using System;
 using System.Threading;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Models
 {
@@ -39,7 +38,7 @@ namespace MugenMvvmToolkit.Models
         {
             _isDisposed = true;
             OnDispose(false);
-            MvvmUtils.TraceFinalizedItem(this);
+            Tracer.Finalized(this);
         }
 
         #endregion

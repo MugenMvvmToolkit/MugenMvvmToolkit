@@ -25,11 +25,11 @@ using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 
 // ReSharper disable once CheckNamespace
 
@@ -92,7 +92,7 @@ namespace MugenMvvmToolkit.ViewModels
             if (task.IsCompleted)
             {
                 if (handleException.Value)
-                    MvvmExtensions.TryHandleTaskException(task, viewModel, viewModel.GetIocContainer(true));
+                    Extensions.TryHandleTaskException(task, viewModel, viewModel.GetIocContainer(true));
                 return task;
             }
             var beginBusy = viewModel.BeginBusy(message);
@@ -100,7 +100,7 @@ namespace MugenMvvmToolkit.ViewModels
             {
                 viewModel.EndBusy(beginBusy);
                 if (handleException.Value)
-                    MvvmExtensions.TryHandleTaskException(t, viewModel, viewModel.GetIocContainer(true));
+                    Extensions.TryHandleTaskException(t, viewModel, viewModel.GetIocContainer(true));
             });
             return task;
         }
@@ -379,13 +379,68 @@ namespace MugenMvvmToolkit.ViewModels
                 MergeParameters(parentViewModel, useParentIocContainer, observationMode, parameters));
         }
 
-        internal static IIocContainer GetIocContainer([NotNull]this IViewModel viewModel, bool useGlobal, bool throwOnError = true)
+        /// <summary>
+        /// Tries to get parent view model, the result value can be null.
+        /// </summary>
+        [CanBeNull]
+        public static IViewModel GetParentViewModel(this IViewModel viewModel)
+        {
+            var reference = viewModel.Settings.Metadata.GetData(ViewModelConstants.ParentViewModel);
+            if (reference == null)
+                return null;
+            return (IViewModel)reference.Target;
+        }
+
+        /// <summary>
+        /// Tries to close view-model.
+        /// </summary>
+        public static Task<bool> TryCloseAsync([NotNull]this IViewModel viewModel, [CanBeNull] object parameter, [CanBeNull] INavigationContext context)
+        {
+            Should.NotBeNull(viewModel, "viewModel");
+            if (context == null)
+                context = parameter as INavigationContext ??
+                          new NavigationContext(NavigationMode.Back, viewModel, viewModel.GetParentViewModel(), null);
+            if (parameter == null)
+                parameter = context;
+            //NOTE: Close view model only on back navigation.
+            var closeableViewModel = context.NavigationMode == NavigationMode.Back
+                ? viewModel as ICloseableViewModel
+                : null;
+            var navigableViewModel = viewModel as INavigableViewModel;
+            if (closeableViewModel == null && navigableViewModel == null)
+                return Empty.TrueTask;
+            if (closeableViewModel != null && navigableViewModel != null)
+            {
+                var navigatingTask = navigableViewModel.OnNavigatingFrom(context);
+                if (navigatingTask.IsCompleted)
+                {
+                    if (navigatingTask.Result)
+                        return closeableViewModel.CloseAsync(parameter);
+                    return Empty.FalseTask;
+                }
+                return navigatingTask
+                    .TryExecuteSynchronously(task =>
+                    {
+                        if (task.Result)
+                            return closeableViewModel.CloseAsync(parameter);
+                        return Empty.FalseTask;
+                    }).Unwrap();
+            }
+            if (closeableViewModel == null)
+                return navigableViewModel.OnNavigatingFrom(context);
+            return closeableViewModel.CloseAsync(parameter);
+        }
+
+        /// <summary>
+        /// Tries to get an instance of <see cref="IIocContainer"/> from the <see cref="IViewModel"/> or from <see cref="ServiceProvider"/>.
+        /// </summary>
+        public static IIocContainer GetIocContainer([NotNull]this IViewModel viewModel, bool useGlobalContainer, bool throwOnError = true)
         {
             Should.NotBeNull(viewModel, "viewModel");
             IIocContainer iocContainer = null;
             if (!viewModel.IsDisposed)
                 iocContainer = viewModel.IocContainer;
-            if (iocContainer == null && useGlobal)
+            if (iocContainer == null && useGlobalContainer)
                 iocContainer = ServiceProvider.IocContainer;
             if (iocContainer == null && throwOnError)
                 throw ExceptionManager.ObjectNotInitialized("viewModel", viewModel);
@@ -430,7 +485,7 @@ namespace MugenMvvmToolkit.ViewModels
             where T : IValidatorAggregator
         {
             Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            return validatableViewModel.ValidateAsync(MvvmExtensions.GetPropertyName(getProperty));
+            return validatableViewModel.ValidateAsync(Extensions.GetPropertyName(getProperty));
         }
 
         /// <summary>
@@ -442,7 +497,7 @@ namespace MugenMvvmToolkit.ViewModels
             where T : IValidatorAggregator
         {
             Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            return validatableViewModel.DisableValidationAsync(MvvmExtensions.GetPropertyName(getProperty));
+            return validatableViewModel.DisableValidationAsync(Extensions.GetPropertyName(getProperty));
         }
 
         /// <summary>
@@ -468,7 +523,7 @@ namespace MugenMvvmToolkit.ViewModels
             where T : IValidatorAggregator
         {
             Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            return validatableViewModel.EnableValidationAsync(MvvmExtensions.GetPropertyName(getProperty));
+            return validatableViewModel.EnableValidationAsync(Extensions.GetPropertyName(getProperty));
         }
 
         /// <summary>

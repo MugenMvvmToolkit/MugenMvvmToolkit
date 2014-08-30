@@ -125,17 +125,8 @@
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\behaviors\ValidatesOnNotifyDataErrorsBehavior.cs">
       <Link>Behaviors\ValidatesOnNotifyDataErrorsBehavior.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\BindingBuilderExtensions.cs">
-      <Link>BindingBuilderExtensions.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\BindingExceptionManager.cs">
       <Link>BindingExceptionManager.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\BindingExtensions.cs">
-      <Link>BindingExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\BindingReflectionExtensions.cs">
-      <Link>BindingReflectionExtensions.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\BindingServiceProvider.cs">
       <Link>BindingServiceProvider.cs</Link>
@@ -178,6 +169,15 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\dataconstants\BindingConstants.cs">
       <Link>DataConstants\BindingConstants.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Extensions\BindingBuilderExtensions.cs">
+      <Link>Extensions\BindingBuilderExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Extensions\BindingExtensions.cs">
+      <Link>Extensions\BindingExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Extensions\BindingReflectionExtensions.cs">
+      <Link>Extensions\BindingReflectionExtensions.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\infrastructure\BindingMemberProvider.cs">
       <Link>Infrastructure\BindingMemberProvider.cs</Link>

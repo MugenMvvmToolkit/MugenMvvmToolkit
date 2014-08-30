@@ -24,7 +24,6 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.Validation;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Infrastructure.Validation
 {
@@ -449,7 +448,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             ConstructorInfo constructor = type.GetConstructor(ValidationContextThreeTypesConstructor);
             if (constructor != null)
             {
-                //NOTE WinRT allow to get the constructor with three args but it fails on create.
+                //NOTE WinRT allows to get the constructor with three args but it fails on create.
                 try
                 {
                     constructor.InvokeEx(this, ServiceProvider.IocContainer, CheckDictionary);

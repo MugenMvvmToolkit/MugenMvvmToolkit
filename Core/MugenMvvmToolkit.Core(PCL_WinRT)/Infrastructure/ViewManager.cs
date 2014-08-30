@@ -23,7 +23,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -229,7 +228,7 @@ namespace MugenMvvmToolkit.Infrastructure
             Should.NotBeNull(viewModel, "viewModel");
             IView view = viewModel.Settings.Metadata.GetData(ViewModelConstants.View);
             if (view == null)
-                return MvvmUtils.FalseTaskResult;
+                return Empty.Task;
             var tcs = new TaskCompletionSource<bool>();
             ThreadManager.InvokeOnUiThreadAsync(() =>
             {
@@ -261,7 +260,7 @@ namespace MugenMvvmToolkit.Infrastructure
             }
 
             //NOTE: SYNC INVOKE.
-            var viewManager = MvvmUtils.GetIocContainer(vm, true).Get<IViewManager>();
+            var viewManager = vm.GetIocContainer(true).Get<IViewManager>();
             view = viewManager.GetViewAsync(vm, dataContext).Result;
             viewManager.InitializeViewAsync(vm, view);
             return view;
@@ -314,7 +313,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 return;
             CleanupViewInternal(oldView);
             InitializeViewInternal(viewModel, view);
-            PropertyInfo viewProperty = MvvmUtilsInternal.GetViewProperty(viewModel.GetType());
+            PropertyInfo viewProperty = ReflectionExtensions.GetViewProperty(viewModel.GetType());
             if (viewProperty != null)
                 viewProperty.SetValueEx(viewModel, view);
         }
@@ -329,7 +328,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (view != null)
                 viewModel.Unsubscribe(view.GetUnderlyingView());
 
-            PropertyInfo viewProperty = MvvmUtilsInternal.GetViewProperty(viewModel.GetType());
+            PropertyInfo viewProperty = ReflectionExtensions.GetViewProperty(viewModel.GetType());
             if (viewProperty != null && viewProperty.GetValueEx<IView>(viewModel) != null)
                 viewProperty.SetValueEx<IView>(viewModel, null);
             CleanupViewInternal(view);
@@ -347,7 +346,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (viewModel != null)
                 viewModel.Subscribe(underlyingView);
             SetDataContext(underlyingView, viewModel);
-            Action<object, IViewModel> propertySetter = MvvmUtilsInternal.GetViewModelPropertySetter(underlyingView.GetType());
+            Action<object, IViewModel> propertySetter = ReflectionExtensions.GetViewModelPropertySetter(underlyingView.GetType());
             if (propertySetter != null)
                 propertySetter(underlyingView, viewModel);
 

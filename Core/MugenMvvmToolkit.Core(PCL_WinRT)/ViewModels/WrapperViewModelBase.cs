@@ -25,7 +25,6 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.ViewModels
 {
@@ -183,13 +182,13 @@ namespace MugenMvvmToolkit.ViewModels
                 var args = new ViewModelClosingEventArgs(this, parameter);
                 closingEvent(this, args);
                 if (args.Cancel)
-                    return MvvmUtils.FalseTaskResult;
+                    return Empty.FalseTask;
                 closedArgs = args;
             }
             var closedEvent = _internalClosedEvent;
             if (closedEvent != null)
                 closedEvent(this, closedArgs ?? new ViewModelClosedEventArgs(this, parameter));
-            return MvvmUtils.TrueTaskResult;
+            return Empty.TrueTask;
         }
 
         /// <summary>
@@ -373,9 +372,9 @@ namespace MugenMvvmToolkit.ViewModels
         Task<bool> INavigableViewModel.OnNavigatingFrom(INavigationContext context)
         {
             var navigableViewModel = ViewModel as INavigableViewModel;
-            if (navigableViewModel != null)
-                return navigableViewModel.OnNavigatingFrom(context);
-            return MvvmUtils.TrueTaskResult;
+            if (navigableViewModel == null)
+                return Empty.TrueTask;
+            return navigableViewModel.OnNavigatingFrom(context);
         }
 
         /// <summary>
@@ -440,7 +439,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         protected Task<bool> CloseAsync(object parameter = null)
         {
-            var t = MvvmUtils.TryCloseAsync(this, parameter, null);
+            var t = this.TryCloseAsync(parameter, null);
             t.WithTaskExceptionHandler(this);
             return t;
         }

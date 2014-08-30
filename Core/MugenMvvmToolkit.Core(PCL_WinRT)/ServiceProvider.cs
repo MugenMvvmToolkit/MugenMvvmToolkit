@@ -30,7 +30,6 @@ using MugenMvvmToolkit.Models;
 #if NET4
 using AttachedValueProviderDefault = MugenMvvmToolkit.Infrastructure.AttachedValueProvider;    
 #endif
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit
 {
@@ -174,7 +173,7 @@ namespace MugenMvvmToolkit
             {
 #if PCL_Silverlight
                 if (_attachedValueProvider == null)
-                    throw MugenMvvmToolkit.Utils.ExceptionManager.ObjectNotInitialized("AttachedValueProvider", typeof(IAttachedValueProvider));
+                    throw ExceptionManager.ObjectNotInitialized("AttachedValueProvider", typeof(IAttachedValueProvider));
 #else
                 if (_attachedValueProvider == null)
                     Interlocked.CompareExchange(ref _attachedValueProvider, new AttachedValueProviderDefault(), null);
@@ -333,7 +332,7 @@ namespace MugenMvvmToolkit
             {
                 if (!EntityConstructorInfos.TryGetValue(type, out constructor))
                 {
-                    constructor = type.GetConstructor(EmptyValue<Type>.ArrayInstance);
+                    constructor = type.GetConstructor(Empty.Array<Type>());
                     EntityConstructorInfos[type] = constructor;
                 }
             }
@@ -342,7 +341,7 @@ namespace MugenMvvmToolkit
                 MugenMvvmToolkit.Tracer.Warn("Cannot create default entity no default constructor exists for class {0}", type);
                 return null;
             }
-            return constructor.InvokeEx(EmptyValue<object>.ArrayInstance);
+            return constructor.InvokeEx(Empty.Array<object>());
         }
 
         private static IEventAggregator GetInstanceEventAggregator(object o)

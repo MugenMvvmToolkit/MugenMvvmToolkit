@@ -27,8 +27,6 @@ using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -36,7 +34,6 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 using MugenMvvmToolkit.ViewModels;
 using MugenMvvmToolkit.Views;
 
@@ -131,7 +128,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected override ICollection<Assembly> GetAssemblies()
         {
-            return new HashSet<Assembly>(MvvmUtils.SkipFrameworkAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
+            return new HashSet<Assembly>(AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies());
         }
 
         #endregion
@@ -160,7 +157,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 return;
 
             var attributes = new List<BootstrapperAttribute>();
-            foreach (var assembly in MvvmUtils.SkipFrameworkAssemblies(AppDomain.CurrentDomain.GetAssemblies()))
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
             {
                 attributes.AddRange(assembly
                     .GetCustomAttributes(typeof(BootstrapperAttribute), false)
@@ -256,7 +253,7 @@ You must specify the type of application bootstraper using BootstrapperAttribute
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
         {
             var viewName = viewModel.GetViewName(dataContext);
-            var container = MvvmUtils.GetIocContainer(viewModel, true);
+            var container = viewModel.GetIocContainer(true);
             var mappingProvider = container.Get<IViewMappingProvider>();
             var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
             return mappingItem == null || !typeof(Activity).IsAssignableFrom(mappingItem.ViewType);
@@ -265,7 +262,7 @@ You must specify the type of application bootstraper using BootstrapperAttribute
         private static bool CanShowViewModelNavigationPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
         {
             var viewName = viewModel.GetViewName(dataContext);
-            var container = MvvmUtils.GetIocContainer(viewModel, true);
+            var container = viewModel.GetIocContainer(true);
             var mappingProvider = container.Get<IViewMappingProvider>();
             var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
             return mappingItem != null && typeof(Activity).IsAssignableFrom(mappingItem.ViewType);

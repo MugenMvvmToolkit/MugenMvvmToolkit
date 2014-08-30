@@ -2,7 +2,6 @@
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Test.TestInfrastructure
 {
@@ -17,7 +16,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         ///     Gets the empty value.
         /// </summary>
         public static readonly IBindingPathMembers Unset = new BindingPathMembersMock(BindingConstants.UnsetValue, null,
-            BindingConstants.UnsetValue, EmptyValue<IBindingMemberInfo>.ArrayInstance, false);
+            BindingConstants.UnsetValue, Empty.Array<IBindingMemberInfo>(), false);
 
         private IList<IBindingMemberInfo> _members;
 
@@ -34,7 +33,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             AllMembersAvailable = source != null;
             Source = source;
             PenultimateValue = source;
-            _members = EmptyValue<IBindingMemberInfo>.ListInstance;
+            _members = Empty.Array<IBindingMemberInfo>();
             LastMember = BindingMemberInfo.Empty;
         }
 
@@ -50,7 +49,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             {
                 AllMembersAvailable = false;
                 LastMember = BindingMemberInfo.Unset;
-                _members = EmptyValue<IBindingMemberInfo>.ArrayInstance;
+                _members = Empty.Array<IBindingMemberInfo>();
             }
             else
             {
@@ -69,7 +68,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             Source = source;
             PenultimateValue = penultimateValue;
             AllMembersAvailable = allMembersAvailable && penultimateValue != null;
-            _members = members ?? EmptyValue<IBindingMemberInfo>.ArrayInstance;
+            _members = members ?? Empty.Array<IBindingMemberInfo>();
             if (allMembersAvailable && _members.Count != 0)
                 LastMember = _members[_members.Count - 1];
             else
@@ -98,7 +97,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             get
             {
                 if (_members == null)
-                    _members = new[] {LastMember};
+                    _members = new[] { LastMember };
                 return _members;
             }
         }

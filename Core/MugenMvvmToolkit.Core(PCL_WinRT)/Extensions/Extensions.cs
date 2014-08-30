@@ -1,6 +1,6 @@
 #region Copyright
 // ****************************************************************************
-// <copyright file="MvvmExtensions.cs">
+// <copyright file="Extensions.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
 // </copyright>
 // ****************************************************************************
@@ -38,7 +38,6 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
-using MugenMvvmToolkit.Utils;
 using MugenMvvmToolkit.ViewModels;
 
 // ReSharper disable once CheckNamespace
@@ -47,11 +46,11 @@ namespace MugenMvvmToolkit
     /// <summary>
     ///     Represents the extensions method for mvvm application.
     /// </summary>
-    public static class MvvmExtensions
+    public static class Extensions
     {
         #region Constructors
 
-        static MvvmExtensions()
+        static Extensions()
         {
             ShortDuration = 2000;
             LongDuration = 3500;
@@ -467,14 +466,20 @@ namespace MugenMvvmToolkit
             }
         }
 
-        internal static Task WithTaskExceptionHandler(this Task task, IViewModel viewModel)
+        /// <summary>
+        /// Uses the <see cref="ITaskExceptionHandler"/> to notify abount an error.
+        /// </summary>
+        public static Task WithTaskExceptionHandler([NotNull] this Task task, [NotNull] IViewModel viewModel)
         {
             Should.NotBeNull(task, "task");
             Should.NotBeNull(viewModel, "viewModel");
             return task.WithTaskExceptionHandler(viewModel, viewModel.GetIocContainer(true));
         }
 
-        internal static Task WithTaskExceptionHandler(this Task task, object sender, IIocContainer iocContainer)
+        /// <summary>
+        /// Uses the <see cref="ITaskExceptionHandler"/> to notify abount an error.
+        /// </summary>
+        public static Task WithTaskExceptionHandler([NotNull] this Task task, [NotNull] object sender, IIocContainer iocContainer = null)
         {
             Should.NotBeNull(task, "task");
             Should.NotBeNull(sender, "sender");
@@ -488,9 +493,9 @@ namespace MugenMvvmToolkit
         internal static Task WhenAll(Task[] tasks)
         {
             if (tasks == null)
-                return MvvmUtils.TrueTaskResult;
+                return Empty.Task;
             if (tasks.Length == 0)
-                return MvvmUtils.TrueTaskResult;
+                return Empty.Task;
             if (tasks.Length == 1)
                 return tasks[0];
             return Task.Factory.ContinueWhenAll(tasks, waitTasks =>
@@ -508,11 +513,10 @@ namespace MugenMvvmToolkit
                 Tracer.Error(task.Exception.Flatten(true));
             if (iocContainer == null || iocContainer.IsDisposed)
                 iocContainer = ServiceProvider.IocContainer;
-            if (iocContainer != null && !iocContainer.IsDisposed && iocContainer.CanResolve<ITaskExceptionHandler>())
-            {
-                foreach (ITaskExceptionHandler handler in iocContainer.GetAll<ITaskExceptionHandler>())
-                    handler.Handle(sender, task);
-            }
+            if (iocContainer == null || iocContainer.IsDisposed || !iocContainer.CanResolve<ITaskExceptionHandler>())
+                return;
+            foreach (ITaskExceptionHandler handler in iocContainer.GetAll<ITaskExceptionHandler>())
+                handler.Handle(sender, task);
         }
 
         private static Task<T> CreateExceptionTask<T>(Exception exception, bool isCanceled)
@@ -582,7 +586,7 @@ namespace MugenMvvmToolkit
         {
             Should.NotBeNull(list, "list");
             if (list.Count == 0)
-                return EmptyValue<T>.ArrayInstance;
+                return Empty.Array<T>();
             var array = new T[list.Count];
             for (int i = 0; i < list.Count; i++)
                 array[i] = list[i];
@@ -606,7 +610,7 @@ namespace MugenMvvmToolkit
             Should.NotBeNull(list, "list");
             Should.NotBeNull(selector, "selector");
             if (list.Count == 0)
-                return EmptyValue<TResult>.ArrayInstance;
+                return Empty.Array<TResult>();
             var array = new TResult[list.Count];
             for (int i = 0; i < list.Count; i++)
                 array[i] = selector(list[i]);
@@ -630,7 +634,7 @@ namespace MugenMvvmToolkit
             Should.NotBeNull(collection, "collection");
             int count = collection.Count;
             if (count == 0)
-                return EmptyValue<TResult>.ArrayInstance;
+                return Empty.Array<TResult>();
             var array = new TResult[count];
             count = 0;
             foreach (T item in collection)
@@ -653,7 +657,7 @@ namespace MugenMvvmToolkit
             Should.NotBeNull(collection, "collection");
             int count = collection.Count;
             if (count == 0)
-                return EmptyValue<T>.ArrayInstance;
+                return Empty.Array<T>();
             var array = new T[count];
             count = 0;
             foreach (T item in collection)
@@ -1235,7 +1239,7 @@ namespace MugenMvvmToolkit
         [Pure]
         public static bool PropertyNameEqual<T>(string propertyName, [NotNull] Expression<Func<T, object>> getProperty)
         {
-            return MvvmUtilsInternal.ParseMemberExpression(getProperty).Name == propertyName;
+            return getProperty.GetMemberInfo().Name == propertyName;
         }
 
         /// <summary>
@@ -1262,7 +1266,7 @@ namespace MugenMvvmToolkit
         [Pure]
         public static string GetPropertyName<T>([NotNull] Expression<Func<T, object>> expression)
         {
-            return MvvmUtilsInternal.ParseMemberExpression(expression).Name;
+            return expression.GetMemberInfo().Name;
         }
 
         /// <summary>
@@ -1301,7 +1305,7 @@ namespace MugenMvvmToolkit
             Should.NotBeNull(snapshot, "snapshot");
             Should.NotBeNull(item, "item");
             Should.NotBeNull(propertyExpression, "propertyExpression");
-            return snapshot.HasChanges(item, MvvmUtilsInternal.ParseMemberExpression(propertyExpression).Name);
+            return snapshot.HasChanges(item, propertyExpression.GetMemberInfo().Name);
         }
 
         /// <summary>
@@ -1555,6 +1559,11 @@ namespace MugenMvvmToolkit
                     invokeAction(target, arg1);
                     break;
             }
+        }
+
+        internal static void InvokeOnUiThreadAsync(Action action)
+        {
+            ServiceProvider.ThreadManager.InvokeOnUiThreadAsync(action);
         }
 
         [Pure]

@@ -27,7 +27,6 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Syntax;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.Exceptions;
 
 namespace MugenMvvmToolkit.Binding.MarkupExtensions
@@ -557,7 +556,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
                    .ToArrayFast(parameter => System.Linq.Expressions.Expression.Parameter(parameter.ParameterType));
 
                 var callExpression = System.Linq.Expressions.Expression
-                    .Call(System.Linq.Expressions.Expression.Constant(NoDoFunc, typeof(Func<object>)), "Invoke", EmptyValue<Type>.ArrayInstance);
+                    .Call(System.Linq.Expressions.Expression.Constant(NoDoFunc, typeof(Func<object>)), "Invoke", Empty.Array<Type>());
                 value = System.Linq.Expressions.Expression
                     .Lambda(eventInfo.EventHandlerType, callExpression, parameters)
                     .Compile();

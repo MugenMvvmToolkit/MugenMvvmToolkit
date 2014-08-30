@@ -15,46 +15,66 @@
 #endregion
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Data;
+using JetBrains.Annotations;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
     /// <summary>
     /// Represents the class that allows to use default binding validaion mechanism.
     /// </summary>
-    public sealed class ValidationBinder : INotifyDataErrorInfo
+    public sealed class ValidationBinder :
+#if NET4
+ NotifyPropertyChangedBase, IDataErrorInfo
+#else
+ INotifyDataErrorInfo
+#endif
+
     {
-        #region Attached properties
+        #region Fields
 
-        internal static readonly DependencyProperty ErrorContainerProperty =
-            DependencyProperty.RegisterAttached("ErrorContainer", typeof(object), typeof(ValidationBinder), new PropertyMetadata(null));
+#if NET4
+        private static readonly PropertyChangedEventArgs ChangedArgs;
+#else
+        private static readonly DataErrorsChangedEventArgs ChangedArgs;
+#endif
 
-        internal static void SetErrorContainer(DependencyObject element, object value)
-        {
-            element.SetValue(ErrorContainerProperty, value);
-        }
+        private static readonly DependencyProperty ErrorContainerProperty;
 
-        internal static object GetErrorContainer(DependencyObject element)
-        {
-            return element.GetValue(ErrorContainerProperty);
-        }
+        private const string PropertyName = "Value";
+        private IList<object> _errors;
 
         #endregion
 
-        #region Fields
+        #region Constructors
 
-        public const string PropertyName = "Value";
-        private IEnumerable _errors;
-        private static readonly DataErrorsChangedEventArgs ChangedArgs = new DataErrorsChangedEventArgs(PropertyName);
+        static ValidationBinder()
+        {
+            ErrorContainerProperty = DependencyProperty.RegisterAttached("ErrorContainer", typeof(object), typeof(ValidationBinder), new PropertyMetadata(null));
+#if NET4
+            ChangedArgs = new PropertyChangedEventArgs(PropertyName);
+#else
+            ChangedArgs = new DataErrorsChangedEventArgs(PropertyName);
+#endif
+
+        }
+
+        private ValidationBinder()
+        {
+            _errors = Empty.Array<object>();
+        }
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Gets the fake value.
+        ///     Gets the fake value that is used to create binding.
         /// </summary>
         public object Value
         {
@@ -63,61 +83,99 @@ namespace MugenMvvmToolkit.Binding.Models
             set { }
         }
 
+
         #endregion
 
         #region Methods
 
-        internal void SetErrors(IEnumerable enumerable)
+        /// <summary>
+        ///     Sets errors for a control.
+        /// </summary>
+        public static void SetErrors([NotNull] FrameworkElement element, [CanBeNull] IList<object> errors)
         {
-            _errors = enumerable;
-            OnErrorsChanged();
+            Should.NotBeNull(element, "element");
+            if (errors == null)
+                errors = Empty.Array<object>();
+            var binder = (ValidationBinder)element.GetValue(ErrorContainerProperty);
+            if (binder == null)
+            {
+                if (errors.Count == 0)
+                    return;
+                binder = new ValidationBinder();
+                element.SetValue(ErrorContainerProperty, binder);
+                var binding = new System.Windows.Data.Binding(PropertyName)
+                {
+#if WPF && NET4
+                    ValidatesOnDataErrors = true,
+#else
+                    ValidatesOnDataErrors = false,
+                    ValidatesOnNotifyDataErrors = true,
+#endif
+                    Mode = System.Windows.Data.BindingMode.OneWay,
+                    UpdateSourceTrigger = UpdateSourceTrigger.Explicit,
+                    Source = binder,
+                    ValidatesOnExceptions = false,
+                    NotifyOnValidationError = false,
+#if WPF
+                    NotifyOnSourceUpdated = false,
+                    NotifyOnTargetUpdated = false
+#endif
+                };
+                element.SetBinding(ErrorContainerProperty, binding);
+            }
+            binder._errors = errors;
+            binder.OnErrorsChanged();
         }
 
         private void OnErrorsChanged()
         {
+#if NET4
+            OnPropertyChanged(ChangedArgs, ExecutionMode.None);
+#else
             EventHandler<DataErrorsChangedEventArgs> handler = ErrorsChanged;
-            if (handler != null) handler(this, ChangedArgs);
+            if (handler != null)
+                handler(this, ChangedArgs);
+#endif
         }
 
         #endregion
 
-        #region Implementation of INotifyDataErrorInfo
+        #region Implementation of interfaces
 
-        /// <summary>
-        ///     Gets the validation errors for a specified property or for the entire entity.
-        /// </summary>
-        /// <returns>
-        ///     The validation errors for the property or entity.
-        /// </returns>
-        /// <param name="propertyName">
-        ///     The name of the property to retrieve validation errors for; or null or
-        ///     <see cref="F:System.String.Empty" />, to retrieve entity-level errors.
-        /// </param>
+#if NET4
+        string IDataErrorInfo.this[string columnName]
+        {
+            get
+            {
+                var error = _errors.FirstOrDefault();
+                if (error == null)
+                    return null;
+                return error.ToString();
+            }
+        }
+
+        string IDataErrorInfo.Error
+        {
+            get
+            {
+                if (_errors.Count == 0)
+                    return null;
+                return string.Join(Environment.NewLine, _errors);
+            }
+        }
+#else
         IEnumerable INotifyDataErrorInfo.GetErrors(string propertyName)
         {
             return _errors;
         }
 
-        /// <summary>
-        ///     Gets a value that indicates whether the entity has validation errors.
-        /// </summary>
-        /// <returns>
-        ///     true if the entity currently has validation errors; otherwise, false.
-        /// </returns>
         bool INotifyDataErrorInfo.HasErrors
         {
-            get
-            {
-                IEnumerable errors = _errors;
-                return errors == null || errors.OfType<object>().Any();
-            }
+            get { return _errors.Count != 0; }
         }
 
-        /// <summary>
-        ///     Occurs when the validation errors have changed for a property or for the entire entity.
-        /// </summary>
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
-
+#endif
         #endregion
     }
 }

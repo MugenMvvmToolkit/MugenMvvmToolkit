@@ -68,34 +68,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     VisualStateManager.GoToState(control, "Invalid", true);
             }
 #else
-            var binder = (ValidationBinder)ValidationBinder.GetErrorContainer(validatableControl);
-            if (binder == null)
-            {
-                if (errors.Count == 0)
-                    return;
-                binder = new ValidationBinder();
-                ValidationBinder.SetErrorContainer(validatableControl, binder);
-
-                var binding = new System.Windows.Data.Binding(ValidationBinder.PropertyName)
-                {
-#if WPF && NET4
-                    ValidatesOnDataErrors = true,
-#else
-                    ValidatesOnDataErrors = false,
-                    ValidatesOnNotifyDataErrors = true,
-#endif
-                    Mode = System.Windows.Data.BindingMode.OneWay,
-                    Source = binder,
-                    ValidatesOnExceptions = false,
-                    NotifyOnValidationError = false,
-#if WPF
-                    NotifyOnSourceUpdated = false,
-                    NotifyOnTargetUpdated = false
-#endif
-                };
-                validatableControl.SetBinding(ValidationBinder.ErrorContainerProperty, binding);
-            }
-            binder.SetErrors(errors);
+            ValidationBinder.SetErrors(validatableControl, errors);
 #endif
         }
 

@@ -29,7 +29,6 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Collections
 {
@@ -834,21 +833,21 @@ namespace MugenMvvmToolkit.Collections
             {
                 case NotifyCollectionChangedAction.Add:
                     _notificationCount++;
-                    OnPropertyChanged(MvvmUtilsInternal.CountPropertyChangedArgs);
-                    OnPropertyChanged(MvvmUtilsInternal.NotificationCountPropertyChangedArgs);
+                    OnPropertyChanged(Empty.CountPropertyChangedArgs);
+                    OnPropertyChanged(Empty.NotificationCountPropertyChangedArgs);
                     break;
                 case NotifyCollectionChangedAction.Remove:
                     _notificationCount--;
-                    OnPropertyChanged(MvvmUtilsInternal.CountPropertyChangedArgs);
-                    OnPropertyChanged(MvvmUtilsInternal.NotificationCountPropertyChangedArgs);
+                    OnPropertyChanged(Empty.CountPropertyChangedArgs);
+                    OnPropertyChanged(Empty.NotificationCountPropertyChangedArgs);
                     break;
                 case NotifyCollectionChangedAction.Reset:
                     _notificationCount = count;
-                    OnPropertyChanged(MvvmUtilsInternal.CountPropertyChangedArgs);
-                    OnPropertyChanged(MvvmUtilsInternal.NotificationCountPropertyChangedArgs);
+                    OnPropertyChanged(Empty.CountPropertyChangedArgs);
+                    OnPropertyChanged(Empty.NotificationCountPropertyChangedArgs);
                     break;
             }
-            OnPropertyChanged(MvvmUtilsInternal.IndexerPropertyChangedArgs);
+            OnPropertyChanged(Empty.IndexerPropertyChangedArgs);
             OnCollectionChanged(args);
         }
 

@@ -64,17 +64,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (_updating || _disposed)
                     return;
                 bool lockTaken = false;
-                bool cycle = false;
                 try
                 {
                     Monitor.Enter(this, ref lockTaken);
                     if (_disposed)
                         return;
-                    if (_updating)
-                    {
-                        cycle = true;
-                        return;
-                    }
                     _updating = true;
                     object currentItem = _reference.Target;
                     if (currentItem == null)
@@ -101,8 +95,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 }
                 finally
                 {
-                    if (!cycle)
-                        _updating = false;
+                    _updating = false;
                     if (lockTaken)
                         Monitor.Exit(this);
                 }

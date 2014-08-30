@@ -15,7 +15,6 @@
 #endregion
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces;
 

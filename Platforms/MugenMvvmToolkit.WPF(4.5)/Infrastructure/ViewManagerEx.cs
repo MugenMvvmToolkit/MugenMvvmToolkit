@@ -27,15 +27,13 @@ using System.Windows.Forms;
 #elif SILVERLIGHT
 using System.Windows.Controls;
 #elif WINDOWSCOMMON
+using MugenMvvmToolkit.Models;
 using Windows.UI.Xaml;
 using System.Runtime.InteropServices.WindowsRuntime;
 #endif
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
-using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
@@ -49,7 +47,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             private readonly Window _window;
 
-            #endregion
+        #endregion
 
         #region Constructors
 
@@ -59,7 +57,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 _window = window;
             }
 
-            #endregion
+        #endregion
 
         #region Implementation of IWindowView
 
@@ -100,19 +98,19 @@ namespace MugenMvvmToolkit.Infrastructure
                 get { return _window; }
             }
 
-            #endregion
+        #endregion
         }
 #elif WINFORMS
         private sealed class FormView : IWindowView, IDisposable, IViewWrapper
         {
-        #region Fields
+            #region Fields
 
             private readonly Form _form;
             private readonly IBindingContext _context;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             public FormView(Form form)
             {
@@ -121,9 +119,9 @@ namespace MugenMvvmToolkit.Infrastructure
                 _context = BindingServiceProvider.ContextManager.GetBindingContext(form);
             }
 
-        #endregion
+            #endregion
 
-        #region Implementation of IWindowView
+            #region Implementation of IWindowView
 
             public object DataContext
             {
@@ -167,7 +165,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 get { return _form; }
             }
 
-        #endregion
+            #endregion
         }
 #elif SILVERLIGHT
         private sealed class WindowView : IWindowView, IViewWrapper
@@ -229,7 +227,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private sealed class WindowView : DisposableObject, IWindowView
         {
-            #region Fields
+        #region Fields
 
             private static readonly MethodInfo OnClosingMethod = typeof(WindowView).GetMethodEx("OnClosing", MemberFlags.Instance | MemberFlags.NonPublic);
             private static EventInfo _closingEvent;
@@ -242,7 +240,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #endregion
 
-            #region Constructors
+        #region Constructors
 
             public WindowView(FrameworkElement window)
             {
@@ -263,7 +261,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #endregion
 
-            #region Methods
+        #region Methods
 
             [UsedImplicitly]
             private void OnClosing(object sender, object args)
@@ -281,7 +279,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #endregion
 
-            #region Implementation of IWindowView
+        #region Implementation of IWindowView
 
             public object DataContext
             {

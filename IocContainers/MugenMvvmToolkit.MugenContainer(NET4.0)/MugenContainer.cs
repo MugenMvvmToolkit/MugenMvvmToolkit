@@ -119,7 +119,7 @@ namespace MugenMvvmToolkit
         protected IInjectionParameter[] ConvertParameters(IList<IIocParameter> parameters)
         {
             if (parameters == null || parameters.Count == 0)
-                return EmptyValue<IInjectionParameter>.ArrayInstance;
+                return Empty.Array<IInjectionParameter>();
 
             var list = new List<IInjectionParameter>();
             foreach (var iocParameter in parameters)
@@ -159,10 +159,10 @@ namespace MugenMvvmToolkit
         private static IList<IIocParameter> GetParameters(IBindingContext context)
         {
             if (context.Parameters == null || context.Parameters.Count == 0)
-                return EmptyValue<IIocParameter>.ListInstance;
+                return Empty.Array<IIocParameter>();
             var parameterContainer = context.Parameters.OfType<ParameterContainer>().FirstOrDefault();
             if (parameterContainer == null)
-                return EmptyValue<IIocParameter>.ListInstance;
+                return Empty.Array<IIocParameter>();
             return parameterContainer.Parameters;
         }
 

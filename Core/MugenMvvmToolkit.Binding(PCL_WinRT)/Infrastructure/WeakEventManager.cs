@@ -23,7 +23,6 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
@@ -69,7 +68,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             internal WeakListenerInternal(object source, EventInfo eventInfo)
             {
-                _sourceRef = MvvmExtensions.GetWeakReference(source);
+                _sourceRef = Extensions.GetWeakReference(source);
                 _eventInfo = eventInfo;
             }
 
@@ -244,8 +243,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public WeakPropertyChangedListener(INotifyPropertyChanged propertyChanged)
             {
-                _listeners = EmptyValue<KeyValuePair<object, string>>.ArrayInstance;
-                _propertyChanged = MvvmExtensions.GetWeakReference(propertyChanged);
+                _listeners = MugenMvvmToolkit.Empty.Array<KeyValuePair<object, string>>();
+                _propertyChanged = Extensions.GetWeakReference(propertyChanged);
             }
 
             #endregion
@@ -264,7 +263,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                         hasDeadRef = true;
                     else
                     {
-                        if (MvvmExtensions.PropertyNameEqual(args.PropertyName, pair.Value, true))
+                        if (Extensions.PropertyNameEqual(args.PropertyName, pair.Value, true))
                             listener.Handle(sender, args);
                     }
                 }
@@ -311,7 +310,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     {
                         if (ReferenceEquals(_listeners[i].Key, weakItem))
                         {
-                            _listeners[i] = new KeyValuePair<object, string>(MvvmUtils.EmptyWeakReference, string.Empty);
+                            _listeners[i] = new KeyValuePair<object, string>(MugenMvvmToolkit.Empty.WeakReference, string.Empty);
                             Update(null, null);
                             return;
                         }
@@ -417,7 +416,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     .AttachedValueProvider
                     .GetOrAdd(target, EventPrefix + eventInfo.Name, CreateWeakListenerDelegate, eventInfo);
             if (listenerInternal.IsEmpty)
+            {
+                Tracer.Warn("The event '{0}' is not supported by weak event manager", eventInfo);
                 return null;
+            }
             return listenerInternal.AddWithUnsubscriber(listener);
         }
 

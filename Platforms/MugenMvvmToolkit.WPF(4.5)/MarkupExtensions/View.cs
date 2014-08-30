@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
                 BindingFlags.Public | BindingFlags.Instance);
             private readonly DependencyProperty _property;
 
-        #endregion
+            #endregion
 
         #region Constructors
 
@@ -53,7 +53,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
                 _property = property;
             }
 
-        #endregion
+            #endregion
 
         #region Methods
 
@@ -65,7 +65,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
                     bindingExpression.UpdateSource();
             }
 
-        #endregion
+            #endregion
         }
 #endif
 
@@ -81,6 +81,9 @@ namespace MugenMvvmToolkit.MarkupExtensions
 
         public static readonly DependencyProperty CollapsedProperty = DependencyProperty.RegisterAttached(
             "Collapsed", typeof(object), typeof(View), new PropertyMetadata(null, CollapsedChanged));
+
+        public static readonly DependencyProperty DesignDataContextProperty = DependencyProperty.RegisterAttached(
+            "DesignDataContext", typeof(Type), typeof(View), new PropertyMetadata(null, OnDesignDataContextChanged));
 
         private static readonly DependencyProperty VisibilityInternalProperty = DependencyProperty.RegisterAttached(
             "VisibilityInternal", typeof(object), typeof(View),
@@ -113,6 +116,16 @@ namespace MugenMvvmToolkit.MarkupExtensions
             return (bool)element.GetValue(HasErrorsProperty);
         }
 #endif
+        public static void SetDesignDataContext(DependencyObject element, Type value)
+        {
+            element.SetValue(DesignDataContextProperty, value);
+        }
+
+        public static Type GetDesignDataContext(DependencyObject element)
+        {
+            return (Type)element.GetValue(DesignDataContextProperty);
+        }
+
         private static Visibility? GetVisibilityInternal(DependencyObject element)
         {
             return (Visibility?)element.GetValue(VisibilityInternalProperty);
@@ -289,6 +302,24 @@ namespace MugenMvvmToolkit.MarkupExtensions
 #endif
                     Source = sender
                 });
+        }
+
+        private static void OnDesignDataContextChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
+        {
+            if (!ServiceProvider.DesignTimeManager.IsDesignMode)
+                return;
+            var element = sender as FrameworkElement;
+            if (element == null)
+                return;
+            if (args.NewValue == null)
+            {
+                element.DataContext = null;
+                return;
+            }
+            var iocContainer = ServiceProvider.DesignTimeManager.IocContainer;
+            element.DataContext = iocContainer == null
+                ? Activator.CreateInstance((Type)args.NewValue)
+                : iocContainer.Get((Type)args.NewValue);
         }
 
         private static void OnBindChangedCallback(DependencyObject sender, DependencyPropertyChangedEventArgs args)

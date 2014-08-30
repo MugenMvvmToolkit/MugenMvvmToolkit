@@ -164,6 +164,9 @@
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\ThreadManager.cs">
       <Link>Infrastructure\ThreadManager.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\UriUtils.cs">
+      <Link>Infrastructure\UriUtils.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\VisualStateManager.cs">
       <Link>Infrastructure\VisualStateManager.cs</Link>
     </Compile>
@@ -184,9 +187,6 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\models\eventarg\NavigationEventArgsBase.cs">
       <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\utils\UriUtils.cs">
-      <Link>Utils\UriUtils.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>

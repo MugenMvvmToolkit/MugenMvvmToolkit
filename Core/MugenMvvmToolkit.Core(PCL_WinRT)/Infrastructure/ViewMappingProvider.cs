@@ -23,7 +23,6 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
@@ -308,7 +307,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (!_viewTypeToMapping.TryGetValue(viewType, out item) && throwOnError)
                 throw ExceptionManager.ViewModelNotFound(viewType);
             if (item == null)
-                return EmptyValue<IViewMappingItem>.ListInstance;
+                return Empty.Array<IViewMappingItem>();
             return item.ToArrayFast();
         }
 

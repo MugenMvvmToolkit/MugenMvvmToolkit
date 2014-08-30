@@ -156,7 +156,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static WeakReference GetWeakReference(object target)
         {
-            return target as WeakReference ?? MvvmExtensions.GetWeakReference(target);
+            return target as WeakReference ?? Extensions.GetWeakReference(target);
         }
 
         #endregion

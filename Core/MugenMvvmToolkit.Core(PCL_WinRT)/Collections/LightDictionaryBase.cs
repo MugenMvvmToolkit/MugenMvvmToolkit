@@ -19,8 +19,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
+using MugenMvvmToolkit.Infrastructure;
 
 namespace MugenMvvmToolkit.Collections
 {
@@ -387,7 +386,7 @@ namespace MugenMvvmToolkit.Collections
             if (_buckets == null)
                 RestoreState();
             if (_countInternal == 0)
-                return EmptyValue<KeyValuePair<TKey, TValue>>.ArrayInstance;
+                return Empty.Array<KeyValuePair<TKey, TValue>>();
             var result = new KeyValuePair<TKey, TValue>[Count];
             int index = 0;
             for (int i = 0; i < _countInternal; i++)
@@ -432,7 +431,7 @@ namespace MugenMvvmToolkit.Collections
         /// </summary>
         protected void Initialize(int capacity)
         {
-            int prime = MvvmUtilsInternal.GetPrime(capacity);
+            int prime = PrimeNumberHelper.GetPrime(capacity);
             _buckets = new int[prime];
             for (int index = 0; index < _buckets.Length; index++)
                 _buckets[index] = -1;
@@ -483,13 +482,13 @@ namespace MugenMvvmToolkit.Collections
 
         private void Resize()
         {
-            Resize(MvvmUtilsInternal.ExpandPrime(_countInternal));
+            Resize(PrimeNumberHelper.ExpandPrime(_countInternal));
         }
 
         private void TrimExcess()
         {
             int realCount = _countInternal - _freeCount;
-            int newSize = MvvmUtilsInternal.GetPrime(realCount);
+            int newSize = PrimeNumberHelper.GetPrime(realCount);
             var numArray = new int[newSize];
             for (int i = 0; i < numArray.Length; i++)
                 numArray[i] = -1;

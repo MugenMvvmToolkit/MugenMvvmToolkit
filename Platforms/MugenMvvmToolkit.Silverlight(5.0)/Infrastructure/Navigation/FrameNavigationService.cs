@@ -23,7 +23,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.Utils;
 using NavigationMode = System.Windows.Navigation.NavigationMode;
 
 namespace MugenMvvmToolkit.Infrastructure.Navigation

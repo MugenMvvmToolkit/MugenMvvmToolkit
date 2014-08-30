@@ -29,7 +29,6 @@ using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Models.Messages;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Infrastructure.Validation
 {
@@ -228,11 +227,11 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             if (string.IsNullOrEmpty(propertyName))
                 return ValidateAsync();
             if (IgnoreProperties.Contains(propertyName))
-                return MvvmUtils.FalseTaskResult;
+                return Empty.Task;
 
             List<string> properties = null;
             string singleMap = null;
-            foreach (var item in PropertiesMapping)
+            foreach (var item in PropertyMappings)
             {
                 if (!item.Value.Contains(propertyName))
                     continue;
@@ -250,7 +249,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 var tasks = new Task[properties.Count];
                 for (int index = 0; index < properties.Count; index++)
                     tasks[index] = Validate(properties[index]);
-                return MvvmExtensions.WhenAll(tasks);
+                return Extensions.WhenAll(tasks);
             }
             if (singleMap == null)
                 singleMap = propertyName;
@@ -265,7 +264,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             EnsureNotDisposed();
             EnsureInitialized();
             if (IgnoreProperties.Contains(string.Empty))
-                return MvvmUtils.FalseTaskResult;
+                return Empty.Task;
             return Validate(string.Empty);
         }
 
@@ -338,13 +337,13 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         ///     Gets the mapping of error properties.
         /// </summary>
         [NotNull]
-        protected IDictionary<string, ICollection<string>> PropertiesMapping
+        protected IDictionary<string, ICollection<string>> PropertyMappings
         {
             get
             {
                 if (Context == null)
                     return EmptyMappingDictionary;
-                return Context.PropertiesMapping;
+                return Context.PropertyMappings;
             }
         }
 
@@ -357,7 +356,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             get
             {
                 if (Context == null)
-                    return EmptyValue<string>.ListInstance;
+                    return Empty.Array<string>();
                 return Context.IgnoreProperties;
             }
         }
@@ -427,7 +426,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         protected virtual IList<object> GetErrorsInternal(string propertyName)
         {
             if (_internalErrors.Count == 0)
-                return EmptyValue<object>.ListInstance;
+                return Empty.Array<object>();
 
             if (string.IsNullOrEmpty(propertyName))
             {
@@ -439,7 +438,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
             IList<object> list;
             _internalErrors.TryGetValue(propertyName, out list);
-            return list ?? EmptyValue<object>.ListInstance;
+            return list ?? Empty.Array<object>();
         }
 
         /// <summary>
@@ -549,7 +548,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <param name="result">The result to store into the completed task.</param>
         protected static Task<IDictionary<string, IEnumerable>> FromResult(IDictionary<string, IEnumerable> result)
         {
-            return MvvmExtensions.FromResult(result);
+            return Extensions.FromResult(result);
         }
 
         /// <summary>
@@ -576,7 +575,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         [Pure]
         protected static bool PropertyNameEqual<T>(string propertyName, Expression<Func<T, object>> getProperty)
         {
-            return MvvmExtensions.PropertyNameEqual(propertyName, getProperty);
+            return Extensions.PropertyNameEqual(propertyName, getProperty);
         }
 
         /// <summary>
@@ -588,7 +587,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         [Pure]
         protected static string GetPropertyName<T>(Expression<Func<T, object>> expression)
         {
-            return MvvmExtensions.GetPropertyName(expression);
+            return Extensions.GetPropertyName(expression);
         }
 
         /// <summary>
@@ -716,16 +715,16 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             else
             {
                 errors = validatorErrors == null
-                    ? EmptyValue<object>.ListInstance
+                    ? Empty.Array<object>()
                     : validatorErrors.OfType<object>().ToArray();
             }
 
             var hasErrors = errors.Count != 0;
             if (hasErrors && IgnoreProperties.Contains(propertyName))
-                return EmptyValue<string>.ArrayInstance;
+                return Empty.Array<string>();
 
             ICollection<string> mappingProperties;
-            PropertiesMapping.TryGetValue(propertyName, out mappingProperties);
+            PropertyMappings.TryGetValue(propertyName, out mappingProperties);
             if (mappingProperties == null)
             {
                 if (hasErrors)
@@ -785,44 +784,25 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         #region Implementation of IDataErrorInfo
 
 #if NONOTIFYDATAERROR
-        /// <summary>
-        /// Gets the error message for the property with the given name.
-        /// </summary>
-        /// <returns>
-        /// The error message for the property. The default is an empty string ("").
-        /// </returns>
-        /// <param name="columnName">The name of the property whose error message to get. 
-        ///                 </param>
         string IDataErrorInfo.this[string columnName]
         {
             get
             {
-                var errors = GetErrors(columnName);
-                var error = errors.FirstOrDefault();
+                var error = GetErrors(columnName).FirstOrDefault();
                 if (error == null)
                     return null;
                 return error.ToString();
             }
         }
 
-        /// <summary>
-        /// Gets an error message indicating what is wrong with this object.
-        /// </summary>
-        /// <returns>
-        /// An error message indicating what is wrong with this object. The default is an empty string ("").
-        /// </returns>
         string IDataErrorInfo.Error
         {
             get
             {
-                var stB = new System.Text.StringBuilder();
-                IEnumerable enumerable = GetErrors(string.Empty);
-                foreach (var value in enumerable)
-                {
-                    if (value == null) continue;
-                    stB.AppendLine(value.ToString());
-                }
-                return stB.ToString();
+                var errors = GetErrors(string.Empty);
+                if (errors.Count == 0)
+                    return null;
+                return string.Join(Environment.NewLine, errors);
             }
         }
 #endif
@@ -838,7 +818,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         {
             if (instance == this)
                 return false;
-            MvvmUtilsInternal.TraceSubscribe(this, instance);
             return _eventAggregator.Subscribe(instance);
         }
 
@@ -850,7 +829,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         {
             if (instance == this)
                 return false;
-            MvvmUtilsInternal.TraceUnsubscribe(this, instance);
             return _eventAggregator.Unsubscribe(instance);
         }
 
@@ -916,7 +894,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         [Pure]
         protected static string GetPropertyName(Expression<Func<T, object>> expression)
         {
-            return MvvmExtensions.GetPropertyName(expression);
+            return Extensions.GetPropertyName(expression);
         }
 
         #endregion

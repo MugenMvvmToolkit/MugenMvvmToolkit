@@ -29,7 +29,7 @@ namespace MugenMvvmToolkit.Models.Validation
 
         private readonly ICollection<string> _ignoreProperties;
         private readonly object _instance;
-        private readonly IDictionary<string, ICollection<string>> _propertiesMapping;
+        private readonly IDictionary<string, ICollection<string>> _propertyMappings;
         private readonly IServiceProvider _serviceProvider;
         private readonly IDataContext _validationMetadata;
 
@@ -48,13 +48,13 @@ namespace MugenMvvmToolkit.Models.Validation
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValidatorContext" /> class.
         /// </summary>
-        public ValidatorContext(object instanceToValidate, IDictionary<string, ICollection<string>> propertiesMapping,
+        public ValidatorContext(object instanceToValidate, IDictionary<string, ICollection<string>> propertyMappings,
             ICollection<string> ignoredProperties, IDataContext validationMetadata = null,
             IServiceProvider serviceProvider = null)
         {
             Should.NotBeNull(instanceToValidate, "instanceToValidate");
             _instance = instanceToValidate;
-            _propertiesMapping = propertiesMapping ?? new Dictionary<string, ICollection<string>>();
+            _propertyMappings = propertyMappings ?? new Dictionary<string, ICollection<string>>();
             _ignoreProperties = ignoredProperties ?? new HashSet<string>();
             _validationMetadata = validationMetadata ?? new DataContext();
             _serviceProvider = serviceProvider;
@@ -83,9 +83,9 @@ namespace MugenMvvmToolkit.Models.Validation
         /// <summary>
         ///     Gets the error properties mapping.
         /// </summary>
-        public IDictionary<string, ICollection<string>> PropertiesMapping
+        public IDictionary<string, ICollection<string>> PropertyMappings
         {
-            get { return _propertiesMapping; }
+            get { return _propertyMappings; }
         }
 
         /// <summary>

@@ -20,7 +20,6 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
@@ -259,7 +258,7 @@ namespace MugenMvvmToolkit.Binding.Models
                 {
                     if (_memberAttachedHandler != null)
                         RaiseAttached(source);
-                    GetAttachedProperty(this, source).SetValue(source, value, EmptyValue<object>.ArrayInstance);
+                    GetAttachedProperty(this, source).SetValue(source, value, Empty.Array<object>());
                     return null;
                 }
 

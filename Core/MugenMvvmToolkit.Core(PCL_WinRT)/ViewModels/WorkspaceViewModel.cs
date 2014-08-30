@@ -19,7 +19,6 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models.Messages;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.ViewModels
 {
@@ -152,7 +151,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// </param>
         protected virtual Task<bool> OnNavigatingFrom(INavigationContext context)
         {
-            return MvvmUtils.TrueTaskResult;
+            return Empty.TrueTask;
         }
 
         /// <summary>

@@ -97,6 +97,9 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\ThreadManager.cs">
       <Link>Infrastructure\ThreadManager.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\UriUtils.cs">
+      <Link>Infrastructure\UriUtils.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\ViewManagerEx.cs">
       <Link>Infrastructure\ViewManagerEx.cs</Link>
     </Compile>
@@ -141,9 +144,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Utils\UriUtils.cs">
-      <Link>Utils\UriUtils.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>

@@ -85,7 +85,7 @@ namespace MugenMvvmToolkit.Views
                 Tracer.Warn("The activity is null {0}", this);
                 return;
             }
-            
+
             var actionBar = activity.GetActionBar();
             if (_resourceId != int.MinValue)
             {
@@ -103,7 +103,7 @@ namespace MugenMvvmToolkit.Views
                     }
                 }
             }
-            
+
             if (_bindings == null)
                 return;
             for (int i = 0; i < _bindings.Count; i++)
@@ -125,7 +125,7 @@ namespace MugenMvvmToolkit.Views
         public IList<IDataBinding> SetBindings(IList<string> bindings)
         {
             _bindings = bindings;
-            return EmptyValue<IDataBinding>.ListInstance;
+            return Empty.Array<IDataBinding>();
         }
 
         #endregion

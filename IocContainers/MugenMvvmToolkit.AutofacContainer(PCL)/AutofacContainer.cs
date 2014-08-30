@@ -149,7 +149,7 @@ namespace MugenMvvmToolkit
         protected Parameter[] ConvertParameters(IList<IIocParameter> parameters)
         {
             if (parameters == null || parameters.Count == 0)
-                return EmptyValue<Parameter>.ArrayInstance;
+                return Empty.Array<Parameter>();
 
             var list = new List<Parameter>();
             foreach (var iocParameter in parameters)
@@ -197,10 +197,10 @@ namespace MugenMvvmToolkit
         private static IList<IIocParameter> GetParameters(IEnumerable<Parameter> parameters)
         {
             if (parameters == null)
-                return EmptyValue<IIocParameter>.ListInstance;
+                return Empty.Array<IIocParameter>();
             var parameterContainer = parameters.OfType<ParameterContainer>().FirstOrDefault();
             if (parameterContainer == null)
-                return EmptyValue<IIocParameter>.ListInstance;
+                return Empty.Array<IIocParameter>();
             return parameterContainer.Parameters;
         }
 

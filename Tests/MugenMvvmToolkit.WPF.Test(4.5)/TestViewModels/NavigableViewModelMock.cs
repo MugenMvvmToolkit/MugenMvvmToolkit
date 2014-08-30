@@ -6,7 +6,6 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.Utils;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Test.TestViewModels
@@ -34,7 +33,7 @@ namespace MugenMvvmToolkit.Test.TestViewModels
         {
             if (OnNavigatingFromDelegate != null)
                 return OnNavigatingFromDelegate(context);
-            return MvvmUtils.TrueTaskResult;
+            return Empty.TrueTask;
         }
 
         /// <summary>
@@ -80,9 +79,9 @@ namespace MugenMvvmToolkit.Test.TestViewModels
         /// <returns>An instance of task with result.</returns>
         public Task<bool> CloseAsync(object parameter)
         {
-            if (CloseDelegate != null)
-                return CloseDelegate(parameter);
-            return MvvmUtils.TrueTaskResult;
+            if (CloseDelegate == null)
+                return Empty.TrueTask;
+            return CloseDelegate(parameter);
         }
 
         public event EventHandler<ICloseableViewModel, ViewModelClosingEventArgs> Closing;

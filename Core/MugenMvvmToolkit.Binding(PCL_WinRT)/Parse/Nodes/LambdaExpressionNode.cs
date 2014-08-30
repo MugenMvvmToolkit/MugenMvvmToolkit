@@ -19,7 +19,6 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Parse.Nodes
 {
@@ -46,7 +45,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
             Should.NotBeNull(expression, "expression");
             _expression = expression;
             _parameters = parameters == null
-                ? EmptyValue<string>.ListInstance
+                ? Empty.Array<string>()
                 : parameters.ToArray();
             BindingExtensions.CheckDuplicateLambdaParameter(Parameters);
         }

@@ -189,7 +189,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             vm.CloseDelegate = o =>
             {
                 isInvoked = true;
-                return MvvmExtensions.FromResult(result);
+                return Extensions.FromResult(result);
             };
             windowMediator.Show(null, DataContext.Empty);
             windowMediator.CloseAsync(null).Result.ShouldBeFalse();
@@ -269,7 +269,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             {
                 o.ShouldNotBeNull();
                 isInvoked = true;
-                return MvvmExtensions.FromResult(result);
+                return Extensions.FromResult(result);
             };
             windowMediator.Show(null, DataContext.Empty);
             windowMediator.CloseAsync(null).Result.ShouldBeFalse();

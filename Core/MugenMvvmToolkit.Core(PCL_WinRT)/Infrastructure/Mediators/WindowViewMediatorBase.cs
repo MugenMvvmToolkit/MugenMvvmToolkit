@@ -28,7 +28,6 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.Utils;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Mediators
@@ -259,7 +258,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </returns>
         protected virtual Task<bool> OnClosing(object parameter)
         {
-            return MvvmUtils.TryCloseAsync(ViewModel, parameter, CreateCloseContext());
+            return ViewModel.TryCloseAsync(parameter, CreateCloseContext());
         }
 
         /// <summary>

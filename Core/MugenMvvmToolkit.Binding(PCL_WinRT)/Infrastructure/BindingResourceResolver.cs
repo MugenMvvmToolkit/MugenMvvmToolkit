@@ -161,10 +161,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             var binding = arg3.GetData(BindingConstants.Binding);
             if (binding == null)
-                return EmptyValue<object>.ArrayInstance;
+                return Empty.Array<object>();
             var behavior = binding.Behaviors.OfType<NotifyDataErrorsAggregatorBehavior>().FirstOrDefault();
             if (behavior == null)
-                return EmptyValue<object>.ArrayInstance;
+                return Empty.Array<object>();
             return behavior.Errors;
         }
 

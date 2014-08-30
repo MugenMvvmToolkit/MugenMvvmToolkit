@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit.Models
             _mode = mode;
             _iocContainer = iocContainer;
             _context = context ?? new DataContext();
-            _assemblies = assemblies ?? EmptyValue<Assembly>.ArrayInstance;
+            _assemblies = assemblies ?? Empty.Array<Assembly>();
         }
 
         #endregion

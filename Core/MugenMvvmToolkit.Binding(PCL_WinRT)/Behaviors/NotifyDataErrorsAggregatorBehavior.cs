@@ -67,7 +67,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected override void UpdateErrors(IList<object> errors)
         {
-            Errors = errors ?? EmptyValue<object>.ListInstance;
+            Errors = errors ?? Empty.Array<object>();
             IDataBinding dataBinding = Binding;
             if (dataBinding != null)
                 dataBinding.UpdateTarget();

@@ -17,13 +17,21 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
+using System.Windows.Input;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Validation;
+using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using MugenMvvmToolkit.ViewModels;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvmToolkit
@@ -67,7 +75,7 @@ namespace MugenMvvmToolkit
                 Should.NotBeNull(invokeAction, "invokeAction");
                 _invokeAction = invokeAction;
                 _unsubscribeAction = unsubscribeAction;
-                _targetReference = MvvmExtensions.GetWeakReference(target);
+                _targetReference = Extensions.GetWeakReference(target);
             }
 
             #endregion
@@ -93,6 +101,8 @@ namespace MugenMvvmToolkit
 
         #region Fields
 
+        private const MemberFlags PropertyBindingFlag = MemberFlags.Instance | MemberFlags.NonPublic | MemberFlags.Public;
+
         private static readonly Action<object, PropertyChangedEventHandler> UnsubscribePropertyChangedDelegate;
         private static readonly Action<object, EventHandler<DataErrorsChangedEventArgs>> UnsubscribeErrorsChangedDelegate;
         private static readonly Func<IWeakEventHandler<PropertyChangedEventArgs>, PropertyChangedEventHandler> CreatePropertyChangedHandlerDelegate;
@@ -101,6 +111,16 @@ namespace MugenMvvmToolkit
         private static readonly Dictionary<MemberInfo, Attribute[]> CachedAttributes;
         private static readonly Dictionary<Type, Func<object, object>> GetDataContextDelegateCache;
         private static readonly Dictionary<Type, Action<object, object>> SetDataContextDelegateCache;
+
+        private static readonly Func<Assembly, bool> IsNonFrameworkAssemblyDelegate;
+        private static readonly HashSet<string> KnownPublicKeys;
+
+        private static readonly Dictionary<Type, string[]> CachedIgnoreAttributes;
+        private static readonly Dictionary<Type, Dictionary<string, ICollection<string>>> CachedViewModelProperties;
+        private static readonly IList<string> ExcludedProperties;
+        private static readonly Dictionary<Type, Func<object, ICommand>[]> TypesToCommandsProperties;
+        private static readonly Dictionary<Type, Action<object, IViewModel>> ViewToViewModelInterface;
+        private static readonly Dictionary<Type, PropertyInfo> ViewModelToViewInterface;
 
         #endregion
 
@@ -115,6 +135,25 @@ namespace MugenMvvmToolkit
             CachedAttributes = new Dictionary<MemberInfo, Attribute[]>();
             GetDataContextDelegateCache = new Dictionary<Type, Func<object, object>>();
             SetDataContextDelegateCache = new Dictionary<Type, Action<object, object>>();
+            //NOTE: 7cec85d7bea7798e, 31bf3856ad364e35, b03f5f7f11d50a3a, b77a5c561934e089 - NET FRAMEWORK
+            //NOTE: 0738eb9f132ed756, 84e04ff9cfb79065 - MONO
+            //NOTE: 5803cfa389c90ce7 - Telerik
+            //NOTE: 17863af14b0044da - Autofac
+            KnownPublicKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "7cec85d7bea7798e", "31bf3856ad364e35", "b03f5f7f11d50a3a",  "b77a5c561934e089", 
+                "0738eb9f132ed756", "84e04ff9cfb79065", "5803cfa389c90ce7", "17863af14b0044da"
+            };
+            IsNonFrameworkAssemblyDelegate = IsNonFrameworkAssembly;
+
+            CachedViewModelProperties = new Dictionary<Type, Dictionary<string, ICollection<string>>>();
+            CachedIgnoreAttributes = new Dictionary<Type, string[]>();
+            ExcludedProperties = typeof(EditableViewModel<>)
+                .GetPropertiesEx(PropertyBindingFlag)
+                .ToArrayFast(info => info.Name);
+            TypesToCommandsProperties = new Dictionary<Type, Func<object, ICommand>[]>();
+            ViewToViewModelInterface = new Dictionary<Type, Action<object, IViewModel>>();
+            ViewModelToViewInterface = new Dictionary<Type, PropertyInfo>();
         }
 
         #endregion
@@ -200,7 +239,7 @@ namespace MugenMvvmToolkit
                     throw;
                 Tracer.Error("SafeGetTypes {0} - error {1}", assembly.FullName, e.Flatten(true));
             }
-            return EmptyValue<Type>.ListInstance;
+            return Empty.Array<Type>();
         }
 
         /// <summary>
@@ -208,7 +247,7 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static object InvokeEx([NotNull] this ConstructorInfo constructor)
         {
-            return constructor.InvokeEx(EmptyValue<object>.ArrayInstance);
+            return constructor.InvokeEx(Empty.Array<object>());
         }
 
         /// <summary>
@@ -224,7 +263,7 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static object InvokeEx([NotNull] this MethodInfo method, object target)
         {
-            return method.InvokeEx(target, EmptyValue<object>.ArrayInstance);
+            return method.InvokeEx(target, Empty.Array<object>());
         }
 
         /// <summary>
@@ -298,6 +337,90 @@ namespace MugenMvvmToolkit
             return true;
         }
 
+        /// <summary>
+        ///     Gets the modules.
+        /// </summary>
+        public static IList<IModule> GetModules([NotNull] this IEnumerable<Assembly> assemblies, bool throwOnError)
+        {
+            Should.NotBeNull(assemblies, "assemblies");
+            var modulesToLoad = new List<Type>();
+            foreach (var assembly in SkipFrameworkAssemblies(assemblies.Distinct()))
+            {
+                foreach (var type in assembly.SafeGetTypes(throwOnError))
+                {
+                    if (typeof(IModule).IsAssignableFrom(type) && type.IsPublicNonAbstractClass())
+                        modulesToLoad.Add(type);
+                }
+            }
+            var modules = new List<IModule>();
+            for (int index = 0; index < modulesToLoad.Count; index++)
+            {
+                Type moduleType = modulesToLoad[index];
+                var constructor = moduleType.GetConstructor(Empty.Array<Type>());
+#if PCL_WINRT
+                if (constructor == null || modulesToLoad.Any(type => type != moduleType && type.GetTypeInfo().IsSubclassOf(moduleType)))
+#else
+                if (constructor == null || modulesToLoad.Any(type => type != moduleType && type.IsSubclassOf(moduleType)))
+#endif
+                {
+                    modulesToLoad.Remove(moduleType);
+                    index--;
+                    continue;
+                }
+                var module = (IModule)constructor.InvokeEx(Empty.Array<object>());
+                modules.Add(module);
+            }
+            modules.Sort((module, module1) => module1.Priority.CompareTo(module.Priority));
+            return modules;
+        }
+
+        /// <summary>
+        /// Filters assemblies.
+        /// </summary>
+        public static IEnumerable<Assembly> SkipFrameworkAssemblies(this IEnumerable<Assembly> assemblies)
+        {
+            return assemblies.Where(IsNonFrameworkAssemblyDelegate);
+        }
+
+        /// <summary>
+        /// Checks whether the current assembly is the non framework assembly.
+        /// </summary>
+        public static bool IsNonFrameworkAssembly(this Assembly assembly)
+        {
+#if !PCL_Silverlight
+            if (assembly.IsDynamic)
+                return false;
+#endif
+            return !assembly.HasKnownPublicKey();
+        }
+
+        /// <summary>
+        ///     Gets the design time assemblies.
+        /// </summary>
+        public static IList<Assembly> GetDesignAssemblies()
+        {
+            return DesignTimeInitializer.GetAssemblies(true);
+        }
+
+        /// <summary>
+        ///     Checks whether the current type is public non-abstract class.
+        /// </summary>
+        public static bool IsPublicNonAbstractClass(this Type type)
+        {
+#if PCL_WINRT
+            var typeInfo = type.GetTypeInfo();
+            return typeInfo.IsClass && !typeInfo.IsAbstract && typeInfo.IsPublic;
+#else
+            return type.IsClass && !type.IsAbstract && type.IsPublic;
+#endif
+        }
+
+        internal static AssemblyName GetAssemblyName(this Assembly assembly)
+        {
+            Should.NotBeNull(assembly, "assembly");
+            return new AssemblyName(assembly.FullName);
+        }
+
         internal static Attribute[] GetAttributes([NotNull] this MemberInfo member)
         {
             Should.NotBeNull(member, "member");
@@ -313,6 +436,156 @@ namespace MugenMvvmToolkit
                 }
             }
             return attributes;
+        }
+
+        internal static MemberInfo GetMemberInfo([NotNull] this LambdaExpression expression)
+        {
+            Should.NotBeNull(expression, "expression");
+            // Get the last element of the include path
+            var unaryExpression = expression.Body as UnaryExpression;
+            if (unaryExpression != null)
+            {
+                var memberExpression = unaryExpression.Operand as MemberExpression;
+                if (memberExpression != null)
+                    return memberExpression.Member;
+            }
+            var expressionBody = expression.Body as MemberExpression;
+            Should.BeSupported(expressionBody != null, "Expession {0} not supported", expression);
+            // ReSharper disable once PossibleNullReferenceException
+            return expressionBody.Member;
+        }
+
+        internal static HashSet<string> GetIgnoreProperties(this Type type)
+        {
+            string[] result;
+            lock (CachedIgnoreAttributes)
+            {
+                if (!CachedIgnoreAttributes.TryGetValue(type, out result))
+                {
+                    var list = new List<string>(ExcludedProperties);
+                    foreach (PropertyInfo propertyInfo in type.GetPropertiesEx(PropertyBindingFlag))
+                    {
+                        if (propertyInfo.IsDefined(typeof(IgnorePropertyAttribute), true))
+                            list.Add(propertyInfo.Name);
+                    }
+                    result = list.ToArrayFast();
+                    CachedIgnoreAttributes[type] = result;
+                }
+            }
+            return new HashSet<string>(result);
+        }
+
+        internal static Dictionary<string, ICollection<string>> GetViewModelToModelProperties(this Type type)
+        {
+            Dictionary<string, ICollection<string>> result;
+            lock (CachedViewModelProperties)
+            {
+                if (!CachedViewModelProperties.TryGetValue(type, out result))
+                {
+                    result = new Dictionary<string, ICollection<string>>();
+                    foreach (PropertyInfo propertyInfo in type.GetPropertiesEx(PropertyBindingFlag))
+                    {
+                        IEnumerable<ModelPropertyAttribute> attributes = propertyInfo
+                            .GetAttributes()
+                            .OfType<ModelPropertyAttribute>();
+                        foreach (ModelPropertyAttribute viewModelToModelAttribute in attributes)
+                        {
+                            ICollection<string> list;
+                            if (!result.TryGetValue(viewModelToModelAttribute.Property, out list))
+                            {
+                                list = new HashSet<string>();
+                                result[viewModelToModelAttribute.Property] = list;
+                            }
+                            list.Add(propertyInfo.Name);
+                        }
+                    }
+                    CachedViewModelProperties[type] = result;
+                }
+            }
+            return new Dictionary<string, ICollection<string>>(result);
+        }
+
+        internal static void DisposeCommands(IViewModel item)
+        {
+            Should.NotBeNull(item, "item");
+            Func<object, ICommand>[] list;
+            lock (TypesToCommandsProperties)
+            {
+                Type type = item.GetType();
+                if (!TypesToCommandsProperties.TryGetValue(type, out list))
+                {
+                    list = type
+                        .GetPropertiesEx(PropertyBindingFlag)
+                        .Where(c => typeof(ICommand).IsAssignableFrom(c.PropertyType) && c.CanRead &&
+                                    c.GetIndexParameters().Length == 0)
+                        .Select(ServiceProvider.ReflectionManager.GetMemberGetter<ICommand>)
+                        .ToArray();
+                    TypesToCommandsProperties[type] = list;
+                }
+            }
+            if (list.Length == 0) return;
+            for (int index = 0; index < list.Length; index++)
+            {
+                try
+                {
+                    var disposable = list[index].Invoke(item) as IDisposable;
+                    if (disposable != null)
+                        disposable.Dispose();
+                }
+                catch (MemberAccessException)
+                {
+                    //To avoid method access exception.                
+                }
+            }
+        }
+
+        internal static Action<object, IViewModel> GetViewModelPropertySetter(Type viewType)
+        {
+            lock (ViewToViewModelInterface)
+            {
+                Action<object, IViewModel> result;
+                if (!ViewToViewModelInterface.TryGetValue(viewType, out result))
+                {
+#if PCL_WINRT
+                    foreach (Type @interface in viewType.GetInterfaces().Where(type => type.GetTypeInfo().IsGenericType))
+#else
+                    foreach (Type @interface in viewType.GetInterfaces().Where(type => type.IsGenericType))
+#endif
+
+                    {
+                        if (@interface.GetGenericTypeDefinition() != typeof(IViewModelAwareView<>)) continue;
+                        if (result != null)
+                            throw ExceptionManager.DuplicateInterface("view", "IViewModelAwareView<>", viewType);
+                        result = ServiceProvider.ReflectionManager.GetMemberSetter<IViewModel>(@interface.GetPropertyEx("ViewModel", MemberFlags.Public | MemberFlags.Instance));
+                    }
+                    ViewToViewModelInterface[viewType] = result;
+                }
+                return result;
+            }
+        }
+
+        internal static PropertyInfo GetViewProperty(Type viewModelType)
+        {
+            lock (ViewModelToViewInterface)
+            {
+                PropertyInfo result;
+                if (!ViewModelToViewInterface.TryGetValue(viewModelType, out result))
+                {
+#if PCL_WINRT
+                    foreach (Type @interface in viewModelType.GetInterfaces().Where(type => type.GetTypeInfo().IsGenericType))
+#else
+                    foreach (Type @interface in viewModelType.GetInterfaces().Where(type => type.IsGenericType))
+#endif
+                    {
+                        if (@interface.GetGenericTypeDefinition() != typeof(IViewAwareViewModel<>)) continue;
+                        if (result != null)
+                            throw ExceptionManager.DuplicateInterface("view model", "IViewAwareViewModel<>", viewModelType);
+                        result = @interface.GetPropertyEx("View", MemberFlags.Public | MemberFlags.Instance);
+                    }
+                    ViewModelToViewInterface[viewModelType] = result;
+                }
+                return result;
+            }
         }
 
         private static void UnsubscribePropertyChanged(object sender, PropertyChangedEventHandler handler)
@@ -337,6 +610,18 @@ namespace MugenMvvmToolkit
         private static EventHandler<DataErrorsChangedEventArgs> CreateHandler(IWeakEventHandler<DataErrorsChangedEventArgs> weakEventHandler)
         {
             return weakEventHandler.Handle;
+        }
+
+        private static bool HasKnownPublicKey(this Assembly assembly)
+        {
+            var assemblyName = assembly.GetAssemblyName();
+            var bytes = assemblyName.GetPublicKeyToken();
+            if (bytes == null || bytes.Length == 0)
+                return false;
+            var builder = new StringBuilder(16);
+            for (int i = 0; i < bytes.Length; i++)
+                builder.Append(bytes[i].ToString("x2"));
+            return KnownPublicKeys.Contains(builder.ToString());
         }
 
 #if PCL_WINRT
@@ -477,7 +762,8 @@ namespace MugenMvvmToolkit
                         break;
                     }
                 }
-                if (!find) continue;
+                if (!find) 
+                    continue;
                 return constructor;
             }
             return null;

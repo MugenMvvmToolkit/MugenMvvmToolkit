@@ -30,7 +30,6 @@ using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Models.Messages;
 using MugenMvvmToolkit.Models.Validation;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.ViewModels
 {
@@ -46,7 +45,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         private readonly Dictionary<object, List<IValidator>> _instanceToValidators;
         private readonly object _locker;
-        private readonly Dictionary<string, ICollection<string>> _propertiesMapping;
+        private readonly Dictionary<string, ICollection<string>> _propertyMappings;
         private readonly HashSet<string> _ignoreProperties;
         private readonly ManualValidator _validator;
 
@@ -72,12 +71,12 @@ namespace MugenMvvmToolkit.ViewModels
             _validator = new ManualValidator();
             _locker = new object();
             _createContext = CreateContextInternal;
-            _propertiesMapping = MvvmUtilsInternal.GetViewModelToModelProperties(type);
-            _ignoreProperties = new HashSet<string>(MvvmUtilsInternal.GetIgnoreProperties(type));
+            _propertyMappings = type.GetViewModelToModelProperties();
+            _ignoreProperties = type.GetIgnoreProperties();
             _instanceToValidators = new Dictionary<object, List<IValidator>>();
             _weakHandler = ReflectionExtensions.MakeWeakErrorsChangedHandler(this, (validator, o, arg3) => validator.RaiseErrorsChanged(arg3));
 
-            _validator.Initialize(new ValidatorContext(this, _propertiesMapping, _ignoreProperties,
+            _validator.Initialize(new ValidatorContext(this, _propertyMappings, _ignoreProperties,
                 Settings.Metadata));
             AddValidator(_validator);
         }
@@ -125,7 +124,7 @@ namespace MugenMvvmToolkit.ViewModels
         public TValidator AddValidator<TValidator>([NotNull] object instanceToValidate)
             where TValidator : IValidator
         {
-            return MvvmExtensions.AddValidator<TValidator>(this, instanceToValidate);
+            return Extensions.AddValidator<TValidator>(this, instanceToValidate);
         }
 
         /// <summary>
@@ -184,7 +183,7 @@ namespace MugenMvvmToolkit.ViewModels
                 for (int index = 0; index < validators.Count; index++)
                     errors.Add(validators[index].GetErrors());
             }
-            return MvvmExtensions.MergeDictionaries(errors);
+            return Extensions.MergeDictionaries(errors);
         }
 
         /// <summary>
@@ -297,10 +296,10 @@ namespace MugenMvvmToolkit.ViewModels
         {
             List<IValidator> list;
             if (!_instanceToValidators.TryGetValue(instanceToValidate, out list) || list.Count == 0)
-                return MvvmUtils.TrueTaskResult;
+                return Empty.Task;
             if (list.Count == 1)
                 return list[0].ValidateAsync();
-            return MvvmExtensions.WhenAll(list.ToArrayFast(validator => validator.ValidateAsync()));
+            return Extensions.WhenAll(list.ToArrayFast(validator => validator.ValidateAsync()));
         }
 
         /// <summary>
@@ -318,7 +317,7 @@ namespace MugenMvvmToolkit.ViewModels
             }
             if (tasks.Count == 1)
                 return tasks[0];
-            return MvvmExtensions.WhenAll(tasks.ToArrayFast());
+            return Extensions.WhenAll(tasks.ToArrayFast());
         }
 
         /// <summary>
@@ -335,7 +334,7 @@ namespace MugenMvvmToolkit.ViewModels
             }
             if (tasks.Count == 1)
                 return tasks[0];
-            return MvvmExtensions.WhenAll(tasks.ToArrayFast());
+            return Extensions.WhenAll(tasks.ToArrayFast());
         }
 
         /// <summary>
@@ -364,7 +363,7 @@ namespace MugenMvvmToolkit.ViewModels
         {
             Should.NotBeNull(instanceToValidate, "instanceToValidate");
             EnsureNotDisposed();
-            var ctx = new ValidatorContext(instanceToValidate, PropertiesMapping, IgnoreProperties, Settings.Metadata,
+            var ctx = new ValidatorContext(instanceToValidate, PropertyMappings, IgnoreProperties, Settings.Metadata,
                 this.GetIocContainer(true, false));
             ctx.ValidationMetadata.AddOrUpdate(ViewModelConstants.ViewModel, this);
             return ctx;
@@ -383,7 +382,6 @@ namespace MugenMvvmToolkit.ViewModels
             if (errorsMessage == null)
                 return;
             OnErrorsChanged(sender, errorsMessage);
-
 #if NONOTIFYDATAERROR
             //To update property error in UI.
             ThreadManager.InvokeOnUiThreadAsync(() =>
@@ -418,14 +416,14 @@ namespace MugenMvvmToolkit.ViewModels
         ///     <example>
         ///         <code>
         ///       <![CDATA[
-        ///        PropertiesMapping.Add("ModelProperty", new[]{"ViewModelProperty"});
+        ///        PropertyMappings.Add("ModelProperty", new[]{"ViewModelProperty"});
         ///       ]]>
         ///     </code>
         ///     </example>
         /// </summary>
-        public IDictionary<string, ICollection<string>> PropertiesMapping
+        public IDictionary<string, ICollection<string>> PropertyMappings
         {
-            get { return _propertiesMapping; }
+            get { return _propertyMappings; }
         }
 
         /// <summary>
@@ -687,44 +685,25 @@ namespace MugenMvvmToolkit.ViewModels
         #region Implementation of IDataErrorInfo
 
 #if NONOTIFYDATAERROR
-        /// <summary>
-        ///     Gets the error message for the property with the given name.
-        /// </summary>
-        /// <returns>
-        ///     The error message for the property. The default is an empty string ("").
-        /// </returns>
-        /// <param name="columnName">
-        ///     The name of the property whose error message to get.
-        /// </param>
         string IDataErrorInfo.this[string columnName]
         {
             get
             {
-                object error = GetErrors(columnName).FirstOrDefault(o => o != null);
+                var error = GetErrors(columnName).FirstOrDefault();
                 if (error == null)
                     return null;
                 return error.ToString();
             }
         }
 
-        /// <summary>
-        ///     Gets an error message indicating what is wrong with this object.
-        /// </summary>
-        /// <returns>
-        ///     An error message indicating what is wrong with this object. The default is an empty string ("").
-        /// </returns>
         string IDataErrorInfo.Error
         {
             get
             {
-                var stB = new System.Text.StringBuilder();
-                IEnumerable enumerable = GetErrors(string.Empty);
-                foreach (var value in enumerable)
-                {
-                    if (value == null) continue;
-                    stB.AppendLine(value.ToString());
-                }
-                return stB.ToString();
+                var errors = GetErrors(string.Empty);
+                if (errors == null || errors.Count == 0)
+                    return null;
+                return string.Join(Environment.NewLine, errors);
             }
         }
 #endif

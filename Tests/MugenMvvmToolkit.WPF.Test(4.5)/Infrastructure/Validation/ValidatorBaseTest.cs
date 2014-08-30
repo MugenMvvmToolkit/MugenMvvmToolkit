@@ -154,7 +154,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Validation
         }
 
         [TestMethod]
-        public void ValidatorShouldUsePropertiesMapping()
+        public void ValidatorShouldUsePropertyMappings()
         {
             ValidatorBase validator = GetValidator();
             var dictionary = new Dictionary<string, ICollection<string>>

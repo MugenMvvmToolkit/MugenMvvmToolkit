@@ -33,7 +33,6 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -106,10 +105,10 @@ namespace MugenMvvmToolkit.Infrastructure
         protected override ICollection<Assembly> GetAssemblies()
         {
             var assemblies = new HashSet<Assembly>();
-            foreach (Assembly assembly in MvvmUtils.SkipFrameworkAssemblies(AppDomain.CurrentDomain.GetAssemblies()))
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
             {
                 assemblies.Add(assembly);
-                assemblies.AddRange(MvvmUtils.SkipFrameworkAssemblies(assembly.GetReferencedAssemblies().Select(Assembly.Load)));
+                assemblies.AddRange(assembly.GetReferencedAssemblies().Select(Assembly.Load).SkipFrameworkAssemblies());
             }
             TryAddAssembly(BindingAssemblyName, assemblies);
             return assemblies;
@@ -207,7 +206,7 @@ namespace MugenMvvmToolkit.Infrastructure
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
         {
             var viewName = viewModel.GetViewName(dataContext);
-            var container = MvvmUtils.GetIocContainer(viewModel, true);
+            var container = viewModel.GetIocContainer(true);
             var mappingProvider = container.Get<IViewMappingProvider>();
             var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
             return mappingItem == null || !typeof(Page).IsAssignableFrom(mappingItem.ViewType);
@@ -216,7 +215,7 @@ namespace MugenMvvmToolkit.Infrastructure
         private static bool CanShowViewModelNavigationPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
         {
             var viewName = viewModel.GetViewName(dataContext);
-            var container = MvvmUtils.GetIocContainer(viewModel, true);
+            var container = viewModel.GetIocContainer(true);
             var mappingProvider = container.Get<IViewMappingProvider>();
             var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
             return mappingItem != null && typeof(Page).IsAssignableFrom(mappingItem.ViewType);

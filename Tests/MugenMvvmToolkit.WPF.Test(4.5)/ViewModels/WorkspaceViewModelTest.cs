@@ -2,7 +2,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Test.TestViewModels;
-using MugenMvvmToolkit.Utils;
 using Should;
 
 namespace MugenMvvmToolkit.Test.ViewModels
@@ -36,10 +35,10 @@ namespace MugenMvvmToolkit.Test.ViewModels
         public void OnClosingShouldBeCalledWhenVmClosing()
         {
             var viewModel = GetViewModel<WorkspaceViewModelMock>();
-            viewModel.OnClosingCallback = o => MvvmUtils.FalseTaskResult;
+            viewModel.OnClosingCallback = o => Empty.FalseTask;
             viewModel.CloseAsync(null).Result.ShouldBeFalse();
 
-            viewModel.OnClosingCallback = o => MvvmUtils.TrueTaskResult;
+            viewModel.OnClosingCallback = o => Empty.TrueTask;
             viewModel.CloseAsync(null).Result.ShouldBeTrue();
         }
 

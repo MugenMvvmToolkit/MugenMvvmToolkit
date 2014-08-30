@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="DesignTimeInitializer.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,7 +13,9 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,15 +23,16 @@ using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.Exceptions;
 
-namespace MugenMvvmToolkit.Utils
+namespace MugenMvvmToolkit.Infrastructure
 {
     /// <summary>
     ///     Represents the static class to work in design mode.
     /// </summary>
-    internal static class DesignTimeInitializer
+    public static class DesignTimeInitializer
     {
         #region Fields
 
@@ -42,6 +46,9 @@ namespace MugenMvvmToolkit.Utils
         private static IDesignTimeManager _designTimeManager;
 
         private static readonly HashSet<Assembly> LoadedAssemblies;
+        private static readonly HashSet<Assembly> FilteredAssemblies;
+        private static readonly List<IModule> LoadedModules;
+        private static IModuleContext _lastContext;
 
         #endregion
 
@@ -62,6 +69,8 @@ namespace MugenMvvmToolkit.Utils
                 return;
             Locker = new object();
             LoadedAssemblies = new HashSet<Assembly>();
+            FilteredAssemblies = new HashSet<Assembly>();
+            LoadedModules = new List<IModule>();
         }
 
         #endregion
@@ -69,7 +78,7 @@ namespace MugenMvvmToolkit.Utils
         #region Methods
 
         /// <summary>
-        /// Gets an instance of <see cref="IDesignTimeManager"/>.
+        ///     Gets an instance of <see cref="IDesignTimeManager" />.
         /// </summary>
         [CanBeNull]
         public static IDesignTimeManager GetDesignTimeManager()
@@ -78,19 +87,12 @@ namespace MugenMvvmToolkit.Utils
                 return null;
             if (_loading)
                 return _designTimeManager;
-            bool cycle = false;
             bool lockTaken = false;
             try
             {
                 Monitor.Enter(Locker, ref lockTaken);
-                if (_loading)
-                {
-                    cycle = true;
-                    return _designTimeManager;
-                }
                 _loading = true;
-                if (_designTimeManager == null || _designTimeManager.IsDesignMode)
-                    InitializeDesignTimeManager();
+                Initialize();
                 return _designTimeManager;
             }
             catch (Exception exception)
@@ -99,16 +101,15 @@ namespace MugenMvvmToolkit.Utils
             }
             finally
             {
-                if (!cycle)
-                    _loading = false;
+                _loading = false;
                 if (lockTaken)
                     Monitor.Exit(Locker);
             }
         }
 
-        private static void InitializeDesignTimeManager()
+        private static void Initialize()
         {
-            var assemblies = GetAssemblies(false);
+            IList<Assembly> assemblies = GetAssemblies(false);
             if (assemblies.Count == 0)
                 return;
 
@@ -116,27 +117,33 @@ namespace MugenMvvmToolkit.Utils
             for (int index = 0; index < assemblies.Count; index++)
                 TryAddManagers(managers, assemblies[index]);
             bool isNew = false;
+            IDesignTimeManager designTimeManager = null;
             if (_designTimeManager == null)
             {
-                _designTimeManager = GeMaxPriorityManager(managers);
-                isNew = _designTimeManager != null;
+                designTimeManager = GeMaxPriorityManager(managers);
+                isNew = designTimeManager != null;
             }
             else
             {
-                if (managers.Count != 1 || !managers[0].DeclaringType.Equals(_designTimeManager.GetType()))
+                if (managers.Count != 1 || managers[0].DeclaringType != _designTimeManager.GetType())
                 {
-                    var manager = GeMaxPriorityManager(managers);
-                    if (manager == null || !_designTimeManager.GetType().Equals(manager.GetType()))
-                    {
-                        _designTimeManager = manager;
-                        isNew = true;
-                    }
+                    designTimeManager = GeMaxPriorityManager(managers);
+                    isNew = designTimeManager != null && designTimeManager.GetType() != _designTimeManager.GetType();
                 }
             }
             if (isNew)
             {
+                if (_lastContext != null)
+                {
+                    for (int i = 0; i < LoadedModules.Count; i++)
+                        LoadedModules[i].Unload(_lastContext);
+                    LoadedModules.Clear();
+                }
                 if (_designTimeManager != null)
-                    _designTimeManager.Initialize();
+                    _designTimeManager.Dispose();
+
+                _designTimeManager = designTimeManager;
+                _designTimeManager.Initialize();
                 InitializeDesignTimeModules(GetAssemblies(true));
             }
             else
@@ -148,64 +155,71 @@ namespace MugenMvvmToolkit.Utils
             IDesignTimeManager maxManager = null;
             for (int i = 0; i < managers.Count; i++)
             {
-                var m = (IDesignTimeManager)managers[i].InvokeEx(EmptyValue<object>.ArrayInstance);
+                var m = (IDesignTimeManager)managers[i].InvokeEx(Empty.Array<object>());
                 if (maxManager == null || m.Priority > maxManager.Priority)
+                {
+                    if (maxManager != null)
+                        maxManager.Dispose();
                     maxManager = m;
+                }
             }
             return maxManager;
         }
 
         private static void InitializeDesignTimeModules(IList<Assembly> assemblies)
         {
-            var modules = MvvmUtils.GetModules(assemblies, false);
+            if (assemblies.Count == 0 || (_designTimeManager != null && !_designTimeManager.IsDesignMode))
+                return;
+            IList<IModule> modules = assemblies.GetModules(false);
             if (modules.Count == 0)
                 return;
 
-            var context = _designTimeManager == null
-                ? new ModuleContext(PlatformInfo.Unknown, LoadMode.Design, null, null, assemblies)
+            _lastContext = _designTimeManager == null
+                ? new ModuleContext(PlatformInfo.Unknown, LoadMode.Design, null, null, FilteredAssemblies.ToArrayFast())
                 : new ModuleContext(_designTimeManager.Platform, LoadMode.Design, _designTimeManager.IocContainer,
-                    _designTimeManager.Context, assemblies);
+                    _designTimeManager.Context, FilteredAssemblies.ToArrayFast());
 
             for (int i = 0; i < modules.Count; i++)
-                modules[i].Load(context);
+            {
+                IModule module = modules[i];
+                if (module.Load(_lastContext))
+                    LoadedModules.Add(module);
+            }
         }
 
         private static void TryAddManagers(List<ConstructorInfo> managers, Assembly assembly)
         {
-            foreach (var type in assembly.SafeGetTypes(false))
+            foreach (Type type in assembly.SafeGetTypes(false))
             {
-#if PCL_WINRT
-                var typeInfo = type.GetTypeInfo();
-                if (!typeof(IDesignTimeManager).IsAssignableFrom(type) || typeInfo.IsAbstract || !typeInfo.IsClass)
+                if (!typeof(IDesignTimeManager).IsAssignableFrom(type) || !type.IsPublicNonAbstractClass())
                     continue;
-#else
-                if (!typeof(IDesignTimeManager).IsAssignableFrom(type) || type.IsAbstract || !type.IsClass)
-                    continue;
-#endif
-                var constructor = type.GetConstructor(EmptyValue<Type>.ArrayInstance);
+                ConstructorInfo constructor = type.GetConstructor(Empty.Array<Type>());
                 if (constructor != null)
                     managers.Add(constructor);
             }
         }
 
-        private static IList<Assembly> GetAssemblies(bool ignoreLoaded)
+        internal static IList<Assembly> GetAssemblies(bool ignoreLoaded)
         {
             var currentDomain = CurrentDomainProperty.GetValueEx<object>(null);
             var assemblies = (IEnumerable<Assembly>)GetAssembliesMethod.InvokeEx(currentDomain);
             if (assemblies == null)
-                return EmptyValue<Assembly>.ListInstance;
+                return Empty.Array<Assembly>();
             var result = new List<Assembly>();
-            foreach (var assembly in assemblies)
+            foreach (Assembly assembly in assemblies)
             {
                 if ((ignoreLoaded || LoadedAssemblies.Add(assembly)) && FilterAssembly(assembly))
+                {
+                    FilteredAssemblies.Add(assembly);
                     result.Add(assembly);
+                }
             }
             return result;
         }
 
         private static bool FilterAssembly(Assembly assembly)
         {
-            if (!MvvmUtils.NonFrameworkAssemblyFilter(assembly))
+            if (!assembly.IsNonFrameworkAssembly())
                 return false;
             if (IsDynamicProperty.GetValueEx<bool>(assembly))
                 return false;

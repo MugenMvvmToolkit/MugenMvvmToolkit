@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using MugenMvvmToolkit.Utils;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Test.TestViewModels
@@ -40,7 +39,7 @@ namespace MugenMvvmToolkit.Test.TestViewModels
         protected override Task<bool> OnClosing(object parameter)
         {
             if (OnClosingCallback == null)
-                return MvvmUtils.TrueTaskResult;
+                return Empty.TrueTask;
             return OnClosingCallback(parameter);
         }
 

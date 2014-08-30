@@ -19,7 +19,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Validation;
-using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.Validation;
 
 namespace MugenMvvmToolkit.Infrastructure.Validation
@@ -145,7 +144,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         private static IList<IValidationResult> ValidateElements(ICollection<IValidationElement> elements, IValidationContext context)
         {
             if (elements.Count == 0)
-                return EmptyValue<IValidationResult>.ListInstance;
+                return Empty.Array<IValidationResult>();
             var results = new List<IValidationResult>();
             foreach (IValidationElement validationElement in elements)
             {

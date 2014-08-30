@@ -5,11 +5,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using MugenMvvmToolkit.Collections;
-using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.Utils;
-using MugenMvvmToolkit.ViewModels;
 using Should;
 
 namespace MugenMvvmToolkit.Test.TestInfrastructure
@@ -46,10 +42,10 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         private void CollectionOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
         {
             if (propertyChangedEventArgs.PropertyName ==
-                MvvmUtilsInternal.IndexerPropertyChangedArgs.PropertyName)
+                Empty.IndexerPropertyChangedArgs.PropertyName)
                 _indexerRaised = true;
             if (propertyChangedEventArgs.PropertyName ==
-                MvvmUtilsInternal.CountPropertyChangedArgs.PropertyName)
+                Empty.CountPropertyChangedArgs.PropertyName)
                 _countRaised = true;
         }
 

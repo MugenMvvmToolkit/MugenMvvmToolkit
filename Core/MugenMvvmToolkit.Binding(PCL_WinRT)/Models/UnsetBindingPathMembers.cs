@@ -16,7 +16,6 @@
 using System.Collections.Generic;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
@@ -70,7 +69,7 @@ namespace MugenMvvmToolkit.Binding.Models
         /// </summary>
         public IList<IBindingMemberInfo> Members
         {
-            get { return EmptyValue<IBindingMemberInfo>.ListInstance; }
+            get { return Empty.Array<IBindingMemberInfo>(); }
         }
 
         /// <summary>

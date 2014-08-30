@@ -19,7 +19,6 @@ using System.ComponentModel;
 using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Models
 {
@@ -216,7 +215,7 @@ namespace MugenMvvmToolkit.Models
         public IList<object> GetNotifiers()
         {
             if (!HasCanExecuteImpl)
-                return EmptyValue<object>.ListInstance;
+                return Empty.Array<object>();
             var objects = new List<object>();
             lock (_notifiers)
             {
@@ -251,7 +250,7 @@ namespace MugenMvvmToolkit.Models
                 Action<RelayCommandBase, object> notifier = CreateNotifier(item);
                 if (notifier == null)
                     return false;
-                _notifiers.Add(new KeyValuePair<WeakReference, Action<RelayCommandBase, object>>(MvvmExtensions.GetWeakReference(item), notifier));
+                _notifiers.Add(new KeyValuePair<WeakReference, Action<RelayCommandBase, object>>(Extensions.GetWeakReference(item), notifier));
                 return true;
             }
         }

@@ -39,7 +39,6 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Models;
 using BooleanToVisibilityConverter = MugenMvvmToolkit.Binding.Converters.BooleanToVisibilityConverter;
 
 namespace MugenMvvmToolkit.Binding
@@ -257,14 +256,12 @@ namespace MugenMvvmToolkit.Binding
         {
             base.RegisterType(type);
 
+            if (!typeof(IValueConverter).IsAssignableFrom(type) || !type.IsPublicNonAbstractClass())
+                return;
 #if NETFX_CORE || WINDOWSCOMMON
-            if (!typeof(IValueConverter).IsAssignableFrom(type) || type.GetTypeInfo().IsAbstract || !type.GetTypeInfo().IsClass)
-                return;
-            var constructor = type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(info => info.GetParameters().Length == 0);
-#else
-            if (!typeof(IValueConverter).IsAssignableFrom(type) || type.IsAbstract || !type.IsClass)
-                return;
-            var constructor = type.GetConstructor(EmptyValue<Type>.ArrayInstance);
+            var constructor = type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(info => !info.IsStatic && info.GetParameters().Length == 0);
+#else                        
+            var constructor = type.GetConstructor(Empty.Array<Type>());
 #endif
             if (constructor == null || !constructor.IsPublic)
                 return;

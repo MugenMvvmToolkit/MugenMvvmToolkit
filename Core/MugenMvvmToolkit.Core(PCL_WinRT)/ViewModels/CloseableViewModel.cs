@@ -19,7 +19,6 @@ using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.ViewModels
 {
@@ -122,7 +121,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// </returns>
         protected virtual Task<bool> OnClosing(object parameter)
         {
-            return MvvmUtils.TrueTaskResult;
+            return Empty.TrueTask;
         }
 
         /// <summary>
@@ -159,12 +158,12 @@ namespace MugenMvvmToolkit.ViewModels
         {
             OnClosed(parameter);
             RaiseClosedEvent(parameter);
-            return MvvmUtils.TrueTaskResult;
+            return Empty.TrueTask;
         }
 
         private void ExecuteClose(object o)
         {
-            MvvmUtils.TryCloseAsync(this, o, null).WithTaskExceptionHandler(this);
+            this.TryCloseAsync(o, null).WithTaskExceptionHandler(this);
         }
 
         #endregion

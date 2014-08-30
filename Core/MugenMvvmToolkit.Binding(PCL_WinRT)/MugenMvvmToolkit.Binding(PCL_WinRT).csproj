@@ -68,10 +68,10 @@
     <Compile Include="Behaviors\TwoWayBindingMode.cs" />
     <Compile Include="Behaviors\ValidatesOnExceptionsBehavior.cs" />
     <Compile Include="Behaviors\ValidatesOnNotifyDataErrorsBehavior.cs" />
-    <Compile Include="BindingBuilderExtensions.cs" />
+    <Compile Include="Extensions\BindingBuilderExtensions.cs" />
     <Compile Include="BindingExceptionManager.cs" />
-    <Compile Include="BindingExtensions.cs" />
-    <Compile Include="BindingReflectionExtensions.cs" />
+    <Compile Include="Extensions\BindingExtensions.cs" />
+    <Compile Include="Extensions\BindingReflectionExtensions.cs" />
     <Compile Include="BindingServiceProvider.cs" />
     <Compile Include="Builders\BindingBuilder.cs" />
     <Compile Include="Builders\BindingSet.cs" />

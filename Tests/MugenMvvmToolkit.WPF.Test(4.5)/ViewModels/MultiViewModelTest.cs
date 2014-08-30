@@ -4,7 +4,6 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Test.TestViewModels;
-using MugenMvvmToolkit.Utils;
 using MugenMvvmToolkit.ViewModels;
 using Should;
 
@@ -50,7 +49,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             multiViewModel.AddViewModel(viewModel);
             multiViewModel.ItemsSource.ShouldContain(viewModel);
 
-            viewModel.CloseDelegate = o => MvvmUtils.FalseTaskResult;
+            viewModel.CloseDelegate = o => Empty.FalseTask;
             multiViewModel.RemoveViewModelAsync(viewModel).Result.ShouldBeFalse();
             multiViewModel.ItemsSource.ShouldContain(viewModel);
         }
@@ -63,7 +62,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             multiViewModel.AddViewModel(viewModel);
             multiViewModel.ItemsSource.ShouldContain(viewModel);
 
-            viewModel.OnNavigatingFromDelegate = o => MvvmUtils.FalseTaskResult;
+            viewModel.OnNavigatingFromDelegate = o => Empty.FalseTask;
             multiViewModel.RemoveViewModelAsync(viewModel).Result.ShouldBeFalse();
             multiViewModel.ItemsSource.ShouldContain(viewModel);
         }
@@ -92,7 +91,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             multiViewModel.AddViewModel(viewModel);
             multiViewModel.ItemsSource.ShouldContain(viewModel);
 
-            viewModel.CloseDelegate = o => MvvmUtils.TrueTaskResult;
+            viewModel.CloseDelegate = o => Empty.TrueTask;
             multiViewModel.RemoveViewModelAsync(viewModel).Result.ShouldBeTrue();
             multiViewModel.ItemsSource.ShouldNotContain(viewModel);
         }
@@ -105,7 +104,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             multiViewModel.AddViewModel(viewModel);
             multiViewModel.ItemsSource.ShouldContain(viewModel);
 
-            viewModel.OnNavigatingFromDelegate = o => MvvmUtils.TrueTaskResult;
+            viewModel.OnNavigatingFromDelegate = o => Empty.TrueTask;
             multiViewModel.RemoveViewModelAsync(viewModel).Result.ShouldBeTrue();
             multiViewModel.ItemsSource.ShouldNotContain(viewModel);
         }

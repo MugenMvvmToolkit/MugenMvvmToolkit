@@ -2,7 +2,6 @@
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Views;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Test.TestInfrastructure
 {
@@ -22,7 +21,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         /// <param name="context">The specified context.</param>
         public Task<bool> GoToStateAsync(IView view, string stateName, bool useTransitions, IDataContext context)
         {
-            return MvvmUtils.FalseTaskResult;
+            return Empty.FalseTask;
         }
 
         #endregion

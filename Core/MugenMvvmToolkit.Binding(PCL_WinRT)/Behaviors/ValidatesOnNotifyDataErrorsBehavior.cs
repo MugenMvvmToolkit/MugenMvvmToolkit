@@ -139,7 +139,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             {
                 // Ensure that all concurrent adds have completed. 
             }
-            UpdateErrors(EmptyValue<object>.ArrayInstance);
+            UpdateErrors(Empty.Array<object>());
         }
 
         /// <summary>

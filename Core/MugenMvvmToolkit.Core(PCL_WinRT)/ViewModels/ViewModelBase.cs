@@ -28,7 +28,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.Messages;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.ViewModels
 {
@@ -286,7 +285,6 @@ namespace MugenMvvmToolkit.ViewModels
             var vm = instance as IViewModel;
             if (vm != null)
                 NotifyBeginBusy(vm);
-            MvvmUtilsInternal.TraceSubscribe(this, instance);
             return true;
         }
 
@@ -301,7 +299,6 @@ namespace MugenMvvmToolkit.ViewModels
             var vm = instance as IViewModel;
             if (vm != null)
                 NotifyEndBusy(vm);
-            MvvmUtilsInternal.TraceUnsubscribe(this, instance);
             return true;
         }
 
@@ -454,16 +451,6 @@ namespace MugenMvvmToolkit.ViewModels
         #region Methods
 
         /// <summary>
-        /// Creates an instance of <see cref="RelayCommand{TArg}"/> with specified execute and canExecute actions.
-        /// </summary>
-        protected RelayCommand<TArg> CreateCommand<TArg>(Action<TArg> execute, Predicate<TArg> canExecute = null)
-        {
-            if (canExecute == null)
-                return new RelayCommand<TArg>(execute);
-            return new RelayCommand<TArg>(execute, canExecute, this);
-        }
-
-        /// <summary>
         ///     Publishes a message.
         /// </summary>
         /// <param name="message">The message instance.</param>
@@ -519,7 +506,7 @@ namespace MugenMvvmToolkit.ViewModels
             var parentViewModel = context.GetData(InitializationConstants.ParentViewModel);
             if (parentViewModel == null)
                 return;
-            Settings.Metadata.AddOrUpdate(ViewModelConstants.ParentViewModel, MvvmExtensions.GetWeakReference(parentViewModel));
+            Settings.Metadata.AddOrUpdate(ViewModelConstants.ParentViewModel, Extensions.GetWeakReference(parentViewModel));
             ObservationMode observationMode;
             if (!context.TryGetData(InitializationConstants.ObservationMode, out observationMode))
                 observationMode = ApplicationSettings.ViewModelObservationMode;
@@ -627,7 +614,7 @@ namespace MugenMvvmToolkit.ViewModels
         {
             //Disposing commands, if need.
             if (Settings.DisposeCommands)
-                MvvmUtilsInternal.DisposeCommands(this);
+                ReflectionExtensions.DisposeCommands(this);
 
             ClearBusy();
             ClearPropertyChangedSubscribers();

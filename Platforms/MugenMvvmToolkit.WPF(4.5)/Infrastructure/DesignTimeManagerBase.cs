@@ -31,7 +31,7 @@ namespace MugenMvvmToolkit.Infrastructure
     /// <summary>
     ///     Represents the base class for the design time manager.
     /// </summary>
-    public class DesignTimeManagerBase : IDesignTimeManager
+    public class DesignTimeManagerBase : DisposableObject, IDesignTimeManager
     {
         #region Fields
 
@@ -124,7 +124,9 @@ namespace MugenMvvmToolkit.Infrastructure
                     return;
                 _iocContainer = CreateIocContainer();
                 _context = GetContext();
-                if (IocContainer != null)
+                if (IocContainer == null)
+                    ApplicationSettings.Platform = _platform;
+                else
                     ServiceProvider.Initialize(IocContainer, _platform);
                 OnInitialized();
             }
@@ -166,6 +168,20 @@ namespace MugenMvvmToolkit.Infrastructure
         [CanBeNull]
         protected virtual IIocContainer CreateIocContainer()
         {
+            if (!IsDesignMode)
+                return null;
+            foreach (var assembly in ReflectionExtensions.GetDesignAssemblies())
+            {
+                foreach (var type in assembly.SafeGetTypes(false))
+                {
+                    if (!typeof(IIocContainer).IsAssignableFrom(type) || !type.IsPublicNonAbstractClass())
+                        continue;
+                    var constructor = type.GetConstructor(Empty.Array<Type>());
+                    if (constructor != null && constructor.IsPublic)
+                        return (IIocContainer)constructor.InvokeEx();
+                }
+
+            }
             return null;
         }
 
@@ -232,6 +248,20 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 #endif
+        #endregion
+
+        #region Overrides of DisposableObject
+
+        /// <summary>
+        ///     Releases resources held by the object.
+        /// </summary>
+        protected override void OnDispose(bool disposing)
+        {
+            if (disposing && IocContainer != null)
+                IocContainer.Dispose();
+            base.OnDispose(disposing);
+        }
+
         #endregion
     }
 }

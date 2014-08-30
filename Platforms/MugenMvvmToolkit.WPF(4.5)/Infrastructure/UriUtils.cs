@@ -17,13 +17,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MugenMvvmToolkit.Utils
+namespace MugenMvvmToolkit.Infrastructure
 {
     internal static class UriUtils
     {
         #region Fields
 
-        private static readonly Dictionary<string, string> EmptyUriDictionary = new Dictionary<string, string>();
+        private static readonly Dictionary<string, string> EmptyUriDictionary;
+
+        #endregion
+
+        #region Constructors
+
+        static UriUtils()
+        {
+            EmptyUriDictionary = new Dictionary<string, string>();
+        }
 
         #endregion
 

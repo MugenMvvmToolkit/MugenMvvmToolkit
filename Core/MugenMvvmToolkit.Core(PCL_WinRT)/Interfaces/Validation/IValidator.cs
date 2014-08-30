@@ -80,6 +80,7 @@ namespace MugenMvvmToolkit.Interfaces.Validation
         /// <returns>
         ///     The validation errors for the property or entity.
         /// </returns>
+        [NotNull]
         new IList<object> GetErrors(string propertyName);
 
         /// <summary>

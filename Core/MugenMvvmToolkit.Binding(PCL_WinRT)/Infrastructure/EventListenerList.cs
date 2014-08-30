@@ -15,8 +15,6 @@
 #endregion
 using System;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
@@ -79,7 +77,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         public EventListenerList()
         {
-            Listeners = EmptyValue<object>.ArrayInstance;
+            Listeners = Empty.Array<object>();
         }
 
         #endregion
@@ -137,7 +135,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 {
                     if (ReferenceEquals(Listeners[i], weakItem))
                     {
-                        Listeners[i] = MvvmUtils.EmptyWeakReference;
+                        Listeners[i] = Empty.WeakReference;
                         Update(null);
                         return;
                     }
@@ -150,7 +148,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         public void Clear()
         {
-            Listeners = EmptyValue<object>.ArrayInstance;
+            Listeners = Empty.Array<object>();
         }
 
         /// <summary>
@@ -218,7 +216,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         protected virtual void OnEmpty()
         {
-            Listeners = EmptyValue<object>.ArrayInstance;
+            Listeners = Empty.Array<object>();
         }
 
         #endregion

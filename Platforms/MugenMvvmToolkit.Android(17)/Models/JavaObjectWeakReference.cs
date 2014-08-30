@@ -13,7 +13,6 @@
 // </license>
 // ****************************************************************************
 #endregion
-using MugenMvvmToolkit.Utils;
 using Object = Java.Lang.Object;
 using WeakReference = System.WeakReference;
 
@@ -44,7 +43,7 @@ namespace MugenMvvmToolkit.Models
 
         ~JavaObjectWeakReference()
         {
-            MvvmUtils.TraceFinalizedItem(this, _name);
+            Tracer.Finalized(this, _name);
         }
 
         #endregion

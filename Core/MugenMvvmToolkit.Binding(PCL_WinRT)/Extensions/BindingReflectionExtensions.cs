@@ -24,6 +24,7 @@ using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Models;
 
+// ReSharper disable once CheckNamespace
 namespace MugenMvvmToolkit.Binding
 {
     internal static class BindingReflectionExtensions
@@ -186,7 +187,7 @@ namespace MugenMvvmToolkit.Binding
             }
 
 
-            var method = FindBestMethod(target, methods, args, EmptyValue<Type>.ArrayInstance);
+            var method = FindBestMethod(target, methods, args, Empty.Array<Type>());
             if (method == null)
                 throw BindingExceptionManager.InvalidBindingMember(type, "Item[]");
             return method;

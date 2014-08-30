@@ -34,6 +34,7 @@ using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 
+// ReSharper disable once CheckNamespace
 namespace MugenMvvmToolkit.Binding
 {
     /// <summary>
@@ -248,7 +249,7 @@ namespace MugenMvvmToolkit.Binding
         {
             if (target.IsWeak)
                 return target;
-            return MvvmExtensions.GetWeakReference(target);
+            return Extensions.GetWeakReference(target);
         }
 
         /// <summary>
@@ -506,10 +507,10 @@ namespace MugenMvvmToolkit.Binding
                 return false;
             var singleAccessor = accessor as ISingleBindingSourceAccessor;
             if (singleAccessor != null)
-                return MvvmExtensions.PropertyNameEqual(args.PropertyName, singleAccessor.Source.Path.Parts.LastOrDefault(), true);
+                return Extensions.PropertyNameEqual(args.PropertyName, singleAccessor.Source.Path.Parts.LastOrDefault(), true);
             for (int i = 0; i < accessor.Sources.Count; i++)
             {
-                if (MvvmExtensions.PropertyNameEqual(args.PropertyName, accessor.Sources[i].Path.Parts.LastOrDefault(), true))
+                if (Extensions.PropertyNameEqual(args.PropertyName, accessor.Sources[i].Path.Parts.LastOrDefault(), true))
                     return true;
             }
             return false;

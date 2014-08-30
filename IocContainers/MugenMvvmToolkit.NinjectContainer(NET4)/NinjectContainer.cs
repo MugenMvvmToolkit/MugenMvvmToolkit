@@ -131,7 +131,7 @@ namespace MugenMvvmToolkit
         protected IParameter[] ConvertParameters(IList<IIocParameter> parameters)
         {
             if (parameters == null || parameters.Count == 0)
-                return EmptyValue<IParameter>.ArrayInstance;
+                return Empty.Array<IParameter>();
 
             var list = new List<IParameter>();
             foreach (var iocParameter in parameters)
@@ -177,10 +177,10 @@ namespace MugenMvvmToolkit
         private static IList<IIocParameter> GetParameters(IContext context)
         {
             if (context.Parameters == null || context.Parameters.Count == 0)
-                return EmptyValue<IIocParameter>.ListInstance;
+                return Empty.Array<IIocParameter>();
             var parameterContainer = context.Parameters.OfType<ParameterContainer>().FirstOrDefault();
             if (parameterContainer == null)
-                return EmptyValue<IIocParameter>.ListInstance;
+                return Empty.Array<IIocParameter>();
             return parameterContainer.Parameters;
         }
 
@@ -358,7 +358,7 @@ namespace MugenMvvmToolkit
             Func<IBindingMetadata, bool> canResolve = null;
             if (name != null)
                 canResolve = metadata => metadata.Name == name;
-            IRequest req = _kernel.CreateRequest(service, canResolve, EmptyValue<IParameter>.ArrayInstance, false, true);
+            IRequest req = _kernel.CreateRequest(service, canResolve, Empty.Array<IParameter>(), false, true);
             return _kernel.CanResolve(req, true);
         }
 

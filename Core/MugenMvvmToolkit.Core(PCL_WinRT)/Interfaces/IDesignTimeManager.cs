@@ -13,6 +13,8 @@
 // </license>
 // ****************************************************************************
 #endregion
+
+using System;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -20,11 +22,10 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces
 {
-    //TODO FIX REMOVE PROPERTIES, REMOVE IVIEWMODEL, ADD CONSTANT, FIX MODULES.  
     /// <summary>
     ///     Represents the interface for the design time manager.
     /// </summary>
-    public interface IDesignTimeManager
+    public interface IDesignTimeManager : IDisposable
     {
         /// <summary>
         ///     Gets the value indicating whether the control is in design mode (running under Blend or Visual Studio).

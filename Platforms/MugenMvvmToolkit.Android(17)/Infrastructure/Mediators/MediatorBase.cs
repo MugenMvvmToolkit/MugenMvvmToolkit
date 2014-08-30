@@ -19,13 +19,12 @@ using System.Linq;
 using Android.OS;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
+using MugenMvvmToolkit.ViewModels;
 using IViewManager = MugenMvvmToolkit.Interfaces.IViewManager;
 
 namespace MugenMvvmToolkit.Infrastructure.Mediators
@@ -169,7 +168,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             {
                 var viewManager = Get<IViewManager>();
                 var view = Target as IView ?? viewManager.WrapToView(Target, Models.DataContext.Empty);
-                MvvmUtils.WithTaskExceptionHandler(viewManager.InitializeViewAsync(viewModel, view), this);
+                viewManager.InitializeViewAsync(viewModel, view).WithTaskExceptionHandler(this);
                 viewModel.Disposed -= ClearCacheOnDispose;
             }
         }
@@ -186,7 +185,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             var viewModel = BindingContext.Value as IViewModel;
             if (viewModel == null)
                 return ServiceProvider.IocContainer.Get<T>();
-            return MvvmUtils.GetIocContainer(viewModel, true).Get<T>();
+            return viewModel.GetIocContainer(true).Get<T>();
         }
 
         protected void ClearContextCache()

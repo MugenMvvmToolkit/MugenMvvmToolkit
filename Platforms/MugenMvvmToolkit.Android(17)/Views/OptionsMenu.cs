@@ -71,7 +71,7 @@ namespace MugenMvvmToolkit.Views
         public IList<IDataBinding> SetBindings(IList<string> bindings)
         {
             _bindings = bindings;
-            return EmptyValue<IDataBinding>.ListInstance;
+            return Empty.Array<IDataBinding>();
         }
 
         #endregion

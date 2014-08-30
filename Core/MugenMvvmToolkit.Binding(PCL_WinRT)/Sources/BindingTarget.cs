@@ -23,7 +23,6 @@ using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Sources
 {
@@ -197,7 +196,7 @@ namespace MugenMvvmToolkit.Binding.Sources
                 else
                     _errors[senderType] = errors;
                 if (_errors.Count == 0)
-                    errors = EmptyValue<object>.ListInstance;
+                    errors = Empty.Array<object>();
                 else if (_errors.Count == 1)
                     errors = _errors.FirstOrDefault().Value;
                 else

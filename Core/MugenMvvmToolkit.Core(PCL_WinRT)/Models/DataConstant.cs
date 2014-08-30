@@ -20,7 +20,6 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Models
 {
@@ -153,7 +152,7 @@ namespace MugenMvvmToolkit.Models
         private static DataConstant<T> CreateInternal<T>(LambdaExpression getConstant, bool notNull)
         {
             Should.NotBeNull(getConstant, "getConstant");
-            MemberInfo member = MvvmUtilsInternal.ParseMemberExpression(getConstant);
+            MemberInfo member = getConstant.GetMemberInfo();
             Type declaringType = member.DeclaringType ?? typeof (DataConstant);
             return new DataConstant<T>(declaringType.Name + "::" + member.Name, notNull);
         }

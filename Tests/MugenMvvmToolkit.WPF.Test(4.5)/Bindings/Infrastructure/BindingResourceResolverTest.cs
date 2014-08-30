@@ -265,14 +265,14 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var source = new BindingBehaviorMock();
             var resolver = CreateBindingResourceResolver();
 
-            resolver.ResolveBehavior(name, EmptyContext, EmptyValue<string>.ListInstance, false).ShouldBeNull();
+            resolver.ResolveBehavior(name, EmptyContext, Empty.Array<string>(), false).ShouldBeNull();
             resolver.AddBehavior(name, (context, list) =>
             {
                 context.ShouldEqual(EmptyContext);
-                list.ShouldEqual(EmptyValue<string>.ListInstance);
+                list.ShouldEqual(Empty.Array<string>());
                 return source;
             }, true);
-            resolver.ResolveBehavior(name, EmptyContext, EmptyValue<string>.ListInstance, true).ShouldEqual(source);
+            resolver.ResolveBehavior(name, EmptyContext, Empty.Array<string>(), true).ShouldEqual(source);
         }
 
         [TestMethod]
@@ -283,10 +283,10 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var resolver = CreateBindingResourceResolver();
 
             resolver.AddBehavior(name, (context, list) => source, true);
-            resolver.ResolveBehavior(name, EmptyContext, EmptyValue<string>.ListInstance, true).ShouldEqual(source);
+            resolver.ResolveBehavior(name, EmptyContext, Empty.Array<string>(), true).ShouldEqual(source);
 
             resolver.RemoveBehavior(name).ShouldBeTrue();
-            resolver.ResolveBehavior(name, EmptyContext, EmptyValue<string>.ListInstance, false).ShouldBeNull();
+            resolver.ResolveBehavior(name, EmptyContext, Empty.Array<string>(), false).ShouldBeNull();
         }
 
         [TestMethod]

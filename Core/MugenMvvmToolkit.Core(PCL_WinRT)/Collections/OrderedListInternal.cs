@@ -21,8 +21,6 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Xml.Serialization;
-using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Collections
 {
@@ -69,8 +67,8 @@ namespace MugenMvvmToolkit.Collections
         /// </summary>
         public OrderedListInternal()
         {
-            KeysInternal = EmptyValue<TKey>.ArrayInstance;
-            ValuesInternal = EmptyValue<TValue>.ArrayInstance;
+            KeysInternal = Empty.Array<TKey>();
+            ValuesInternal = Empty.Array<TValue>();
             Size = 0;
             Comparer = Comparer<TKey>.Default;
         }
@@ -105,8 +103,8 @@ namespace MugenMvvmToolkit.Collections
                 }
                 else
                 {
-                    KeysInternal = EmptyValue<TKey>.ArrayInstance;
-                    ValuesInternal = EmptyValue<TValue>.ArrayInstance;
+                    KeysInternal = Empty.Array<TKey>();
+                    ValuesInternal = Empty.Array<TValue>();
                 }
             }
         }
@@ -289,7 +287,7 @@ namespace MugenMvvmToolkit.Collections
         public OrderedListInternal(IComparer<T> comparer = null)
         {
             Size = 0;
-            Items = EmptyValue<T>.ArrayInstance;
+            Items = Empty.Array<T>();
             if (comparer == null)
                 comparer = Comparer<T>.Default;
             ComparerInternal = comparer;
@@ -340,7 +338,7 @@ namespace MugenMvvmToolkit.Collections
                 }
                 else
                 {
-                    Items = EmptyValue<T>.ArrayInstance;
+                    Items = Empty.Array<T>();
                 }
             }
         }
@@ -527,7 +525,7 @@ namespace MugenMvvmToolkit.Collections
         /// </summary>
         public IEnumerator<T> GetEnumerator()
         {
-            return Items.Take(Size).GetEnumerator();            
+            return Items.Take(Size).GetEnumerator();
         }
 
         /// <summary>

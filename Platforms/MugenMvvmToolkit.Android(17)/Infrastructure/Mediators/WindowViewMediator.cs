@@ -24,7 +24,7 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
-using MugenMvvmToolkit.Utils;
+using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Mediators
 {
@@ -48,7 +48,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             [NotNull] IViewManager viewManager, [NotNull] IOperationCallbackManager callbackManager)
             : base(viewModel, threadManager, viewManager, callbackManager)
         {
-            _navigationProvider = MvvmUtils.GetIocContainer(viewModel, true).Get<INavigationProvider>();
+            _navigationProvider = viewModel.GetIocContainer(true).Get<INavigationProvider>();
         }
 
         #endregion

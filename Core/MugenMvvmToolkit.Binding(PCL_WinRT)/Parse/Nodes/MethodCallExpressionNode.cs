@@ -18,7 +18,6 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Parse.Nodes
 {
@@ -49,9 +48,9 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
             _target = target;
             _method = methodName;
             _typeArgs = typeArgs == null
-                ? EmptyValue<string>.ListInstance
+                ? Empty.Array<string>()
                 : typeArgs.ToArrayFast();
-            _arguments = args == null ? EmptyValue<IExpressionNode>.ArrayInstance : args.ToArrayFast();
+            _arguments = args == null ? Empty.Array<IExpressionNode>() : args.ToArrayFast();
         }
 
         #endregion

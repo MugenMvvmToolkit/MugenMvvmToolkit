@@ -25,7 +25,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.ViewModels
 {
@@ -155,7 +154,7 @@ namespace MugenMvvmToolkit.ViewModels
                 throw ExceptionManager.EditorNotInitialized(this);
             T entity;
             IList<IEntityStateEntry> result = ApplyChangesInternal(out entity) ??
-                                              EmptyValue<IEntityStateEntry>.ListInstance;
+                                              Empty.Array<IEntityStateEntry>();
             Entity = entity;
             Should.PropertyBeNotNull(Entity, "Entity");
             OnChangesApplied(result);
@@ -294,7 +293,7 @@ namespace MugenMvvmToolkit.ViewModels
         protected Task ValidateAsync(Expression<Func<T, object>> getProperty)
         {
             Should.NotBeNull(getProperty, "getProperty");
-            return ValidateAsync(MvvmExtensions.GetPropertyName(getProperty));
+            return ValidateAsync(Extensions.GetPropertyName(getProperty));
         }
 
         /// <summary>
@@ -406,6 +405,23 @@ namespace MugenMvvmToolkit.ViewModels
             var handler = _changesCanceledNonGeneric;
             if (handler != null)
                 handler(this, args ?? new ChangesCanceledEventArgs<T>(entity));
+        }
+
+        /// <summary>
+        ///     Adds a property mapping to the <see cref="ValidatableViewModel.PropertyMappings" /> dictionary.
+        /// </summary>
+        protected void AddPropertyMapping([NotNull] Expression<Func<object>> viewModelProperty,
+            [NotNull] Expression<Func<T, object>> modelProperty)
+        {
+            var vmProperty = viewModelProperty.GetMemberInfo().Name;
+            var mProperty = modelProperty.GetMemberInfo().Name;
+            ICollection<string> value;
+            if (!PropertyMappings.TryGetValue(vmProperty, out value))
+            {
+                value = new HashSet<string>();
+                PropertyMappings[vmProperty] = value;
+            }
+            value.Add(mProperty);
         }
 
         private void OnBeginEdit()

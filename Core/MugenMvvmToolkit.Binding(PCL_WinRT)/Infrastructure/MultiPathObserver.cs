@@ -95,7 +95,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 IList<IBindingMemberInfo> members)
             {
                 _observerRef = observerReference;
-                _penultimateValueRef = MvvmExtensions.GetWeakReference(penultimateValue);
+                _penultimateValueRef = Extensions.GetWeakReference(penultimateValue);
                 _path = path;
                 _members = members;
                 _lastMember = _members[_members.Count - 1];

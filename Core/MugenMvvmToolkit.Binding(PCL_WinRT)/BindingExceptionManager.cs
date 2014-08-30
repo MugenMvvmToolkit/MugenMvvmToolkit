@@ -23,7 +23,6 @@ using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.Exceptions;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Binding
 {

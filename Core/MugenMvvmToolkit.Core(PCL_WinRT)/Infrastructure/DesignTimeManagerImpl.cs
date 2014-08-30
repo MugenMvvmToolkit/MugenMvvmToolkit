@@ -78,6 +78,10 @@ namespace MugenMvvmToolkit.Infrastructure
         {
         }
 
-        #endregion
+        public void Dispose()
+        {
+        }
+
+        #endregion        
     }
 }

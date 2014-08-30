@@ -24,7 +24,6 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Models
 {
@@ -148,7 +147,7 @@ namespace MugenMvvmToolkit.Models
         protected void OnPropertyChanged<T>(Expression<Func<T>> expression, ExecutionMode executionMode)
         {
             Should.NotBeNull(expression, "expression");
-            OnPropertyChanged(MvvmUtilsInternal.ParseMemberExpression(expression).Name, executionMode);
+            OnPropertyChanged(expression.GetMemberInfo().Name, executionMode);
         }
 
         /// <summary>

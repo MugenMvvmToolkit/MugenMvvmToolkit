@@ -404,7 +404,7 @@ namespace MugenMvvmToolkit.Infrastructure
                         if (fieldInfo == null)
                         {
                             var propertyInfo = (PropertyInfo)member;
-                            result = (o, type) => propertyInfo.SetValue(o, type, EmptyValue<object>.ArrayInstance);
+                            result = (o, type) => propertyInfo.SetValue(o, type, Empty.Array<object>());
                         }
                         else
                             result = (o, type) => fieldInfo.SetValue(o, type);

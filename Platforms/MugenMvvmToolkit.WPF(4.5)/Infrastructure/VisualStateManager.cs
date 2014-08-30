@@ -18,7 +18,6 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Views;
-using MugenMvvmToolkit.Utils;
 #if NETFX_CORE || WINDOWSCOMMON
 using Windows.UI.Xaml.Controls;
 #else
@@ -73,7 +72,7 @@ namespace MugenMvvmToolkit.Infrastructure
             var control = view.GetUnderlyingView() as Control;
 #endif
             if (control == null)
-                return MvvmUtils.FalseTaskResult;
+                return Empty.FalseTask;
             var tcs = new TaskCompletionSource<bool>();
             _threadManager.InvokeOnUiThreadAsync(() =>
             {

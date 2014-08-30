@@ -23,7 +23,6 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
@@ -80,7 +79,7 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 StreamResourceInfo info = Application.GetResourceStream(new Uri(part.Source, UriKind.Relative));
                 Assembly assembly = part.Load(info.Stream);
-                if (MvvmUtils.NonFrameworkAssemblyFilter(assembly))
+                if (assembly.IsNonFrameworkAssembly())
                     listAssembly.Add(assembly);
             }
             return listAssembly;

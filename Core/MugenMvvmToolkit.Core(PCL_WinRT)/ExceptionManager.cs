@@ -13,11 +13,12 @@
 // </license>
 // ****************************************************************************
 #endregion
+
 using System;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Utils
+namespace MugenMvvmToolkit
 {
     /// <summary>
     ///     Represents the class that throws exceptions.

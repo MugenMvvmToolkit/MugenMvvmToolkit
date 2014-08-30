@@ -27,7 +27,6 @@ using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Utils;
 
 namespace MugenMvvmToolkit.Binding.Core
 {
@@ -46,11 +45,6 @@ namespace MugenMvvmToolkit.Binding.Core
 
             private IBindingBehavior[] _items;
             private int _size;
-
-            #endregion
-
-            #region Fields
-
             private readonly DataBinding _dataBinding;
 
             #endregion
@@ -62,7 +56,7 @@ namespace MugenMvvmToolkit.Binding.Core
             /// </summary>
             public BehaviorCollection(DataBinding dataBinding)
             {
-                _items = EmptyValue<IBindingBehavior>.ArrayInstance;
+                _items = Empty.Array<IBindingBehavior>();
                 _dataBinding = dataBinding;
             }
 
@@ -86,7 +80,7 @@ namespace MugenMvvmToolkit.Binding.Core
                         _items = objArray;
                     }
                     else
-                        _items = EmptyValue<IBindingBehavior>.ArrayInstance;
+                        _items = Empty.Array<IBindingBehavior>();
                 }
             }
 

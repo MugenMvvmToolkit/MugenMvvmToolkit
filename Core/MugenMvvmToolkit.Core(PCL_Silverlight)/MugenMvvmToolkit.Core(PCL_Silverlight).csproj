@@ -90,8 +90,14 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Constants.cs">
       <Link>Constants.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Extensions\MvvmExtensions.cs">
-      <Link>Extensions\MvvmExtensions.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Empty.cs">
+      <Link>Empty.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\ExceptionManager.cs">
+      <Link>ExceptionManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Extensions\Extensions.cs">
+      <Link>Extensions\Extensions.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Extensions\ReflectionExtensions.cs">
       <Link>Extensions\ReflectionExtensions.cs</Link>
@@ -138,6 +144,9 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\DelegateComparer.cs">
       <Link>Infrastructure\DelegateComparer.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\DesignTimeInitializer.cs">
+      <Link>Infrastructure\DesignTimeInitializer.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\DesignTimeManagerImpl.cs">
       <Link>Infrastructure\DesignTimeManagerImpl.cs</Link>
     </Compile>
@@ -173,6 +182,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Presenters\ViewModelPresenter.cs">
       <Link>Infrastructure\Presenters\ViewModelPresenter.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\PrimeNumberHelper.cs">
+      <Link>Infrastructure\PrimeNumberHelper.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\ReferenceEqualityComparer.cs">
       <Link>Infrastructure\ReferenceEqualityComparer.cs</Link>
@@ -477,9 +489,6 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\DisposableObject.cs">
       <Link>Models\DisposableObject.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EmptyValue.cs">
-      <Link>Models\EmptyValue.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EntityStateEntry.cs">
       <Link>Models\EntityStateEntry.cs</Link>
     </Compile>
@@ -611,18 +620,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\UnitTestBase.cs">
       <Link>UnitTestBase.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Utils\DesignTimeInitializer.cs">
-      <Link>Utils\DesignTimeInitializer.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Utils\ExceptionManager.cs">
-      <Link>Utils\ExceptionManager.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Utils\MvvmUtils.cs">
-      <Link>Utils\MvvmUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Utils\MvvmUtilsInternal.cs">
-      <Link>Utils\MvvmUtilsInternal.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\ViewModels\CloseableViewModel.cs">
       <Link>ViewModels\CloseableViewModel.cs</Link>

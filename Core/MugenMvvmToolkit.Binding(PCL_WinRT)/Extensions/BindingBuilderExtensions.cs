@@ -30,6 +30,7 @@ using MugenMvvmToolkit.Binding.Sources;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
+// ReSharper disable once CheckNamespace
 namespace MugenMvvmToolkit.Binding
 {
     /// <summary>
