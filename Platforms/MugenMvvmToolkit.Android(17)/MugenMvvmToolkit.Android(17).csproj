@@ -89,16 +89,16 @@
     <Compile Include="DataConstants\ViewFactoryConstants.cs" />
     <Compile Include="Infrastructure\ActionBarTabItemsSourceGenerator.cs" />
     <Compile Include="Infrastructure\ApplicationStateManager.cs" />
-    <Compile Include="Infrastructure\AttachedMembers\AttachedMembersModule.cs" />
-    <Compile Include="Infrastructure\AttachedMembers\AttachedMembersModuleMenu.cs" />
-    <Compile Include="Infrastructure\AttachedMembers\AttachedMembersModuleView.cs" />
-    <Compile Include="Infrastructure\AttachedMembers\AttachedMembersModuleActionBar.cs" />
+    <Compile Include="Modules\PlatformDataBindingModule.cs" />
+    <Compile Include="Modules\PlatformDataBindingModuleMenu.cs" />
+    <Compile Include="Modules\PlatformDataBindingModuleView.cs" />
+    <Compile Include="Modules\PlatformDataBindingModuleActionBar.cs" />
     <Compile Include="Infrastructure\BindableMenuInflater.cs" />
     <Compile Include="Infrastructure\AndroidBootstrapperBase.cs" />
     <Compile Include="Infrastructure\BindingErrorProvider.cs" />
     <Compile Include="Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs" />
     <Compile Include="Infrastructure\GlobalViewParentListener.cs" />
-    <Compile Include="Infrastructure\InitializationModule.cs" />
+    <Compile Include="Modules\InitializationModule.cs" />
     <Compile Include="Infrastructure\Mediators\MediatorBase.cs" />
     <Compile Include="Infrastructure\Mediators\MvvmFragmentMediator.cs" />
     <Compile Include="Infrastructure\Mediators\WindowViewMediator.cs" />
@@ -182,6 +182,7 @@
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

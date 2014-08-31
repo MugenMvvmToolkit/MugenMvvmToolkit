@@ -1,10 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -22,29 +18,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Sources
         #region Methods
 
         [TestMethod]
-        public void SetErrorsShouldCallErrorsMember()
-        {
-            var target = new object();
-            var list = new List<object> { "Test" };
-            bool isInvoked = false;
-
-            BindingServiceProvider.ErrorProvider = new BindingErrorProviderMock
-            {
-                SetErrors = (o, objects) =>
-                {
-                    o.ShouldEqual(target);
-                    objects.SequenceEqual(list).ShouldBeTrue();
-                    isInvoked = true;
-                }
-            };
-            var mock = new ObserverMock { PathMembers = new BindingPathMembersMock(target, BindingPath.Empty) };
-            var bindingTarget = (BindingTarget)CreateBindingSource(mock);
-            bindingTarget.SetErrors(new SenderType("Test"), list);
-            isInvoked.ShouldBeTrue();
-        }
-
-        [TestMethod]
-        public void BindingTargetShouldUseDelegatesForIsEnabledProperty()
+        public void BindingTargetShouldUseDelegateIsEnabledProperty()
         {
             bool isEnabled = false;
             IAttachedBindingMemberInfo<object, bool> member =

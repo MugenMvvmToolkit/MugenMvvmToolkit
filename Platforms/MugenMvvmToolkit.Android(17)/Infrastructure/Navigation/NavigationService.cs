@@ -64,6 +64,8 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         private bool GoBackInternal()
         {
+            if (_currentActivity == null)
+                return false;
             if (!TryPopBackStackImmediate(_currentActivity) ||
                 !RaiseNavigating(new NavigatingCancelEventArgs(_prevIntent, NavigationMode.Back,
                     GetParameterFromIntent(_prevIntent))))

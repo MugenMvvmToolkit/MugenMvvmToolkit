@@ -150,6 +150,9 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Extensions\BindingReflectionExtensions.cs">
       <Link>Extensions\BindingReflectionExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\BindingErrorProviderBase.cs">
+      <Link>Infrastructure\BindingErrorProviderBase.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\BindingMemberProvider.cs">
       <Link>Infrastructure\BindingMemberProvider.cs</Link>
     </Compile>
@@ -389,9 +392,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\MethodData.cs">
       <Link>Models\MethodData.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\SenderType.cs">
-      <Link>Models\SenderType.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\TokenType.cs">
       <Link>Models\TokenType.cs</Link>

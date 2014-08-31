@@ -15,6 +15,7 @@
 #endregion
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces
 {
@@ -27,7 +28,10 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         ///     Sets errors for binding target.
         /// </summary>
         /// <param name="target">The binding target object.</param>
+        /// <param name="senderKey">The source of the errors.</param>
         /// <param name="errors">The collection of errors</param>
-        void SetErrors([NotNull]object target, [NotNull] IList<object> errors);
+        /// <param name="context">The specified context, if any.</param>
+        void SetErrors([NotNull]object target, [NotNull] string senderKey, [NotNull] IList<object> errors,
+            [NotNull] IDataContext context);
     }
 }

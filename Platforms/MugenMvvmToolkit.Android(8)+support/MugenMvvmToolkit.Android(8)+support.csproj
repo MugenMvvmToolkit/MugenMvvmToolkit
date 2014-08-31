@@ -77,18 +77,6 @@
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\ApplicationStateManager.cs">
       <Link>Infrastructure\ApplicationStateManager.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\AttachedMembers\AttachedMembersModule.cs">
-      <Link>Infrastructure\AttachedMembers\AttachedMembersModule.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\AttachedMembers\AttachedMembersModuleActionBar.cs">
-      <Link>Infrastructure\AttachedMembers\AttachedMembersModuleActionBar.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\AttachedMembers\AttachedMembersModuleMenu.cs">
-      <Link>Infrastructure\AttachedMembers\AttachedMembersModuleMenu.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\AttachedMembers\AttachedMembersModuleView.cs">
-      <Link>Infrastructure\AttachedMembers\AttachedMembersModuleView.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\BindableMenuInflater.cs">
       <Link>Infrastructure\BindableMenuInflater.cs</Link>
     </Compile>
@@ -106,9 +94,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\GlobalViewParentListener.cs">
       <Link>Infrastructure\GlobalViewParentListener.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\InitializationModule.cs">
-      <Link>Infrastructure\InitializationModule.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\ItemsSourceAdapter.cs">
       <Link>Infrastructure\ItemsSourceAdapter.cs</Link>
@@ -226,6 +211,21 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Models\ViewResult.cs">
       <Link>Models\ViewResult.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Modules\InitializationModule.cs">
+      <Link>Modules\InitializationModule.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.android%2817%29\modules\PlatformDataBindingModule.cs">
+      <Link>Modules\PlatformDataBindingModule.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.android%2817%29\modules\PlatformDataBindingModuleActionBar.cs">
+      <Link>Modules\PlatformDataBindingModuleActionBar.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.android%2817%29\modules\PlatformDataBindingModuleMenu.cs">
+      <Link>Modules\PlatformDataBindingModuleMenu.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.android%2817%29\modules\PlatformDataBindingModuleView.cs">
+      <Link>Modules\PlatformDataBindingModuleView.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\PlatformExtensions.cs">
       <Link>PlatformExtensions.cs</Link>

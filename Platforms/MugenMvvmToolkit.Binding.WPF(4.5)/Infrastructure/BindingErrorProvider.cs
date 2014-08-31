@@ -14,12 +14,11 @@
 // ****************************************************************************
 #endregion
 using System.Collections.Generic;
-using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.MarkupExtensions;
 #if NETFX_CORE || WINDOWSCOMMON
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using System.Collections.ObjectModel;
-using MugenMvvmToolkit.MarkupExtensions;
 #else
 using System.Windows;
 using MugenMvvmToolkit.Binding.Models;
@@ -27,48 +26,37 @@ using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    internal class BindingErrorProvider : IBindingErrorProvider
+    /// <summary>
+    ///     Represents the class that provides a user interface for indicating that a control on a form has an error associated
+    ///     with it.
+    /// </summary>
+    public class BindingErrorProvider : BindingErrorProviderBase
     {
-        #region Implementation of IBindingErrorProvider
+        #region Overrides of BindingErrorProviderBase
 
         /// <summary>
         ///     Sets errors for binding target.
         /// </summary>
         /// <param name="target">The binding target object.</param>
         /// <param name="errors">The collection of errors</param>
-        public void SetErrors(object target, IList<object> errors)
+        /// <param name="context">The specified context, if any.</param>
+        protected override void SetErrors(object target, IList<object> errors, IDataContext context)
         {
-            var validatableControl = target as FrameworkElement;
-            if (validatableControl == null || PlatformDataBindingModule.DisableValidationMember.GetValue(validatableControl, null))
+            var depObj = target as DependencyObject;
+            if (depObj == null)
+            {
+                base.SetErrors(target, errors, context);
                 return;
-
+            }
+            View.SetErrors(depObj, errors);
 #if NETFX_CORE || WINDOWSCOMMON
-            var items = ServiceProvider
-                .AttachedValueProvider
-                .GetOrAdd(validatableControl, "@$@errors_int", (element, o) =>
-                {
-                    var list = new ObservableCollection<object>();
-                    View.SetErrors(element, new ReadOnlyObservableCollection<object>(list));
-                    return list;
-                }, null);
-            var control = validatableControl as Control;
-            if (errors.Count == 0)
-            {
-                View.SetHasErrors(validatableControl, false);
-                items.Clear();
-                if (control != null)
-                    VisualStateManager.GoToState(control, "Valid", true);
-            }
-            else
-            {
-                items.Clear();
-                items.AddRange(errors);
-                View.SetHasErrors(validatableControl, true);
-                if (control != null)
-                    VisualStateManager.GoToState(control, "Invalid", true);
-            }
+            var control = depObj as Control;
+            if (control != null)
+                VisualStateManager.GoToState(control, errors.Count == 0 ? "Valid" : "Invalid", true);
 #else
-            ValidationBinder.SetErrors(validatableControl, errors);
+            var element = depObj as FrameworkElement;
+            if (element != null)
+                ValidationBinder.SetErrors(element, errors);
 #endif
         }
 

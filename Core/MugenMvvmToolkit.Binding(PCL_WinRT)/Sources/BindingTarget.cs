@@ -14,14 +14,10 @@
 // ****************************************************************************
 #endregion
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Sources;
-using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Sources
@@ -31,48 +27,7 @@ namespace MugenMvvmToolkit.Binding.Sources
     /// </summary>
     public class BindingTarget : BindingSource, IBindingTarget
     {
-        #region Nested types
-
-        private sealed class ErrorsDictionary : LightDictionaryBase<SenderType, IList<object>>
-        {
-            #region Constructors
-
-            public ErrorsDictionary()
-                : base(true)
-            {
-            }
-
-            #endregion
-
-            #region Overrides of LightDictionaryBase<SenderType,IList<object>>
-
-            /// <summary>
-            ///     Determines whether the specified objects are equal.
-            /// </summary>
-            protected override bool Equals(SenderType x, SenderType y)
-            {
-                return x.Equals(y);
-            }
-
-            /// <summary>
-            ///     Returns a hash code for the specified object.
-            /// </summary>
-            protected override int GetHashCode(SenderType key)
-            {
-                return key.GetHashCode();
-            }
-
-            #endregion
-        }
-
-        #endregion
-
-        #region Fields
-
-        private ErrorsDictionary _errors;
-
-        #endregion
-
+        
         #region Constructors
 
         /// <summary>
@@ -133,21 +88,6 @@ namespace MugenMvvmToolkit.Binding.Sources
         }
 
         /// <summary>
-        ///     Gets a value that indicates whether the target supports the validation.
-        /// </summary>
-        /// <returns>
-        ///     true if the target is validatable; otherwise false.
-        /// </returns>
-        public bool Validatable
-        {
-            get
-            {
-                var target = Observer.GetPathMembers(false).PenultimateValue;
-                return target != null && !target.IsUnsetValue();
-            }
-        }
-
-        /// <summary>
         ///     Gets a parameter to pass to the command.
         /// </summary>
         /// <returns>
@@ -168,46 +108,6 @@ namespace MugenMvvmToolkit.Binding.Sources
             if (commandParameterMember == null)
                 return null;
             return commandParameterMember.GetValue(target, new object[] { context });
-        }
-
-        /// <summary>
-        ///     Sets errors for target.
-        /// </summary>
-        /// <param name="senderType">The source of the errors.</param>
-        /// <param name="errors">The collection of errors</param>
-        public void SetErrors(SenderType senderType, IList<object> errors)
-        {
-            var source = Observer.GetPathMembers(false).PenultimateValue;
-            if (source == null || source.IsUnsetValue())
-                return;
-
-            var errorProvider = BindingServiceProvider.ErrorProvider;
-            IBindingMemberInfo propertyMember = BindingServiceProvider
-                .MemberProvider
-                .GetBindingMember(source.GetType(), AttachedMemberConstants.ErrorsPropertyMember, false, false);
-            if (errorProvider == null && propertyMember == null)
-                return;
-            lock (Observer)
-            {
-                if (_errors == null)
-                    _errors = new ErrorsDictionary();
-                if (errors == null || errors.Count == 0)
-                    _errors.Remove(senderType);
-                else
-                    _errors[senderType] = errors;
-                if (_errors.Count == 0)
-                    errors = Empty.Array<object>();
-                else if (_errors.Count == 1)
-                    errors = _errors.FirstOrDefault().Value;
-                else
-                    errors = _errors.SelectMany(list => list.Value).ToList();
-            }
-
-            if (errorProvider != null)
-                errorProvider.SetErrors(source, errors);
-
-            if (propertyMember != null && propertyMember.CanWrite)
-                propertyMember.SetValue(source, new object[] { errors });
         }
 
         #endregion

@@ -213,9 +213,9 @@ namespace MugenMvvmToolkit.Models
             setter.SetProperty(template => template.ActionView, ActionView);
             setter.SetStringProperty(template => template.ActionProvider, ActionProvider);
 #if API8SUPPORT
-            menuItem.SetOnMenuItemClickListener(new AttachedMembersModule.MenuItemOnMenuItemClickListener(menuItem));
+            menuItem.SetOnMenuItemClickListener(new PlatformDataBindingModule.MenuItemOnMenuItemClickListener(menuItem));
 #else
-            menuItem.SetOnMenuItemClickListener(AttachedMembersModule.MenuItemOnMenuItemClickListener.Instance);
+            menuItem.SetOnMenuItemClickListener(PlatformDataBindingModule.MenuItemOnMenuItemClickListener.Instance);
 #endif
         }
 

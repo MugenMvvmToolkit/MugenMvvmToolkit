@@ -75,7 +75,7 @@ namespace MugenMvvmToolkit.Models
                 }
                 if (_content == null)
                 {
-                    _content = AttachedMembersModule.ActionBarTabContentMember.GetValue(tab, null);
+                    _content = PlatformDataBindingModule.ActionBarTabContentMember.GetValue(tab, null);
                     var viewModel = _content as IViewModel;
                     if (viewModel == null)
                     {
@@ -128,7 +128,7 @@ namespace MugenMvvmToolkit.Models
                 var selectedItem = ActionBarTabItemsSourceGenerator.Get(bar) == null
                     ? tab
                     : BindingServiceProvider.ContextManager.GetBindingContext(tab).Value;
-                AttachedMembersModule
+                PlatformDataBindingModule
                     .ActionBarSelectedItemMember
                     .SetValue(bar, selectedItem);
             }

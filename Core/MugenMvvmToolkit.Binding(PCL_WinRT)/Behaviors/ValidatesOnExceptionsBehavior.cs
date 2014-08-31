@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="ValidatesOnExceptionsBehavior.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,12 +13,14 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System;
 using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
-using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
@@ -27,6 +30,8 @@ namespace MugenMvvmToolkit.Binding.Behaviors
     public sealed class ValidatesOnExceptionsBehavior : IBindingBehavior
     {
         #region Fields
+
+        private const string Key = "@@#bexc.";
 
         /// <summary>
         ///     Gets the id of behavior.
@@ -38,7 +43,8 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         public static readonly ValidatesOnExceptionsBehavior Instance;
 
-        private static readonly SenderType ErrorsConstant;
+        private static readonly EventHandler<IDataBinding, BindingEventArgs> BindingUpdatedDelegate;
+        private static readonly EventHandler<IDataBinding, BindingExceptionEventArgs> BindingExceptionDelegate;
 
         #endregion
 
@@ -47,9 +53,10 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         static ValidatesOnExceptionsBehavior()
         {
             IdValidatesOnExceptionsBehavior = new Guid("046EC76A-0DC9-4024-B893-7E2AF9E4F636");
-            ErrorsConstant = new SenderType("VEB.ErrorsConstant");
             ShowOriginalException = true;
             Instance = new ValidatesOnExceptionsBehavior();
+            BindingUpdatedDelegate = OnBindingUpdated;
+            BindingExceptionDelegate = OnBindingException;
         }
 
         private ValidatesOnExceptionsBehavior()
@@ -91,11 +98,10 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// <param name="binding">The binding to attach to.</param>
         public bool Attach(IDataBinding binding)
         {
-            var bindingTarget = binding.TargetAccessor.Source as IBindingTarget;
-            if (bindingTarget == null || !bindingTarget.Validatable)
+            if (BindingServiceProvider.ErrorProvider == null)
                 return false;
-            binding.BindingException += OnBindingException;
-            binding.BindingUpdated += OnBindingUpdated;
+            binding.BindingException += BindingExceptionDelegate;
+            binding.BindingUpdated += BindingUpdatedDelegate;
             return true;
         }
 
@@ -104,8 +110,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         public void Detach(IDataBinding binding)
         {
-            binding.BindingException -= OnBindingException;
-            binding.BindingUpdated -= OnBindingUpdated;
+            binding.BindingException -= BindingExceptionDelegate;
+            binding.BindingUpdated -= BindingUpdatedDelegate;
+            OnBindingUpdated(binding, null);
         }
 
         /// <summary>
@@ -122,15 +129,25 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         private static void OnBindingException(IDataBinding sender, BindingExceptionEventArgs args)
         {
-            var validatableBindingTarget = (IBindingTarget)sender.TargetAccessor.Source;
-            validatableBindingTarget.SetErrors(ErrorsConstant,
-                new object[] { ShowOriginalException ? args.OriginalException.Message : args.Exception.Message });
+            IBindingErrorProvider errorProvider = BindingServiceProvider.ErrorProvider;
+            if (errorProvider != null)
+                SetErrors(errorProvider, sender,
+                    new object[] { ShowOriginalException ? args.OriginalException.Message : args.Exception.Message });
         }
 
-        private static void OnBindingUpdated(IDataBinding sender, BindingEventArgs bindingEventArgs)
+        private static void OnBindingUpdated(IDataBinding sender, BindingEventArgs args)
         {
-            var validatableBindingTarget = (IBindingTarget)sender.TargetAccessor.Source;
-            validatableBindingTarget.SetErrors(ErrorsConstant, null);
+            IBindingErrorProvider errorProvider = BindingServiceProvider.ErrorProvider;
+            if (errorProvider != null)
+                SetErrors(errorProvider, sender, Empty.Array<object>());
+        }
+
+        private static void SetErrors(IBindingErrorProvider errorProvider, IDataBinding sender, object[] errors)
+        {
+            IBindingPathMembers pathMembers = sender.TargetAccessor.Source.GetPathMembers(false);
+            object target = pathMembers.PenultimateValue;
+            if (target != null && !target.IsUnsetValue())
+                errorProvider.SetErrors(target, Key + pathMembers.Path.Path, errors, sender.Context);
         }
 
         #endregion

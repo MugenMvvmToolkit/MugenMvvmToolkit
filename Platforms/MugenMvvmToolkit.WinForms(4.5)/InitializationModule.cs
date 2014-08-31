@@ -15,13 +15,15 @@
 #endregion
 using System.Threading;
 using System.Windows.Forms;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Presenters;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit
 {
     /// <summary>
     ///     Represents the class that is used to initialize the IOC adapter.
@@ -33,6 +35,21 @@ namespace MugenMvvmToolkit.Infrastructure
         static InitializationModule()
         {
             ServiceProvider.ItemsSourceDecorator = new BindingListItemsSourceDecorator();
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="InitializationModule" /> class.
+        /// </summary>
+        public InitializationModule()
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="InitializationModule" /> class.
+        /// </summary>
+        protected InitializationModule(LoadMode mode = LoadMode.All, int priority = InitializationModulePriority)
+            : base(mode, priority)
+        {
         }
 
         #endregion

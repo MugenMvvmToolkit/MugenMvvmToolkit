@@ -1,6 +1,6 @@
 #region Copyright
 // ****************************************************************************
-// <copyright file="AttachedMembersModuleView.cs">
+// <copyright file="PlatformDataBindingModule.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
 // </copyright>
 // ****************************************************************************
@@ -23,9 +23,9 @@ using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Models;
 
 // ReSharper disable once CheckNamespace
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit
 {
-    public partial class AttachedMembersModule
+    public partial class PlatformDataBindingModule
     {
         #region Nested types
 
@@ -148,18 +148,11 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #endregion
 
-        #region Fields
-
-        internal static readonly IAttachedBindingMemberInfo<View, bool> DisableValidationMember;
-
-        #endregion
-
         #region Methods
 
         private static void RegisterViewMembers(IBindingMemberProvider memberProvider)
         {
-            //View
-            memberProvider.Register(DisableValidationMember);
+            //View            
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<View, int>(AttachedMemberNames.MenuTemplate));
 
 #if !API8

@@ -114,8 +114,14 @@ namespace MugenMvvmToolkit.Binding.Core
 
             public void Clear()
             {
-                while (_size != 0)
-                    Remove(_items[0]);
+                for (int i = 0; i < _size; i++)
+                {
+                    var behavior = _items[i];
+                    behavior.Detach(_dataBinding);
+                    _dataBinding.OnBehaviorRemoved(behavior);
+                }
+                _size = 0;
+                _items = Empty.Array<IBindingBehavior>();
             }
 
             public bool Contains(IBindingBehavior item)
@@ -192,7 +198,6 @@ namespace MugenMvvmToolkit.Binding.Core
         private readonly BehaviorCollection _behaviors;
         private readonly IBindingSourceAccessor _sourceAccessor;
         private readonly ISingleBindingSourceAccessor _targetAccessor;
-        private bool _isDisposed;
         private IDataContext _lazyContext;
 
         #endregion
@@ -258,7 +263,7 @@ namespace MugenMvvmToolkit.Binding.Core
         /// </summary>
         public bool IsDisposed
         {
-            get { return _isDisposed; }
+            get { return _lazyContext == DataContext.Empty; }
         }
 
         /// <summary>
@@ -338,28 +343,15 @@ namespace MugenMvvmToolkit.Binding.Core
         /// </summary>
         public void Dispose()
         {
-            if (_isDisposed)
+            if (Interlocked.Exchange(ref _lazyContext, DataContext.Empty) == DataContext.Empty)
                 return;
-            lock (_behaviors)
-            {
-                if (_isDisposed)
-                    return;
-                try
-                {
-                    OnDispose();
-                    var disposed = Disposed;
-                    if (disposed != null)
-                    {
-                        disposed(this, EventArgs.Empty);
-                        Disposed = null;
-                    }
-                }
-                finally
-                {
-                    _isDisposed = true;
-                    BindingServiceProvider.BindingManager.Unregister(this);
-                }
-            }
+            OnDispose();
+            BindingServiceProvider.BindingManager.Unregister(this);
+            BindingUpdated = null;
+            BindingException = null;
+            _behaviors.Clear();
+            _sourceAccessor.Dispose();
+            _targetAccessor.Dispose();
         }
 
         /// <summary>
@@ -371,11 +363,6 @@ namespace MugenMvvmToolkit.Binding.Core
         ///     Occurs when an exception is not caught.
         /// </summary>
         public event EventHandler<IDataBinding, BindingExceptionEventArgs> BindingException;
-
-        /// <summary>
-        ///     Occurs when the object is disposed by a call to the Dispose method.
-        /// </summary>
-        public event EventHandler<IDisposableObject, EventArgs> Disposed;
 
         #endregion
 
@@ -401,11 +388,6 @@ namespace MugenMvvmToolkit.Binding.Core
         /// </summary>
         protected virtual void OnDispose()
         {
-            BindingUpdated = null;
-            BindingException = null;
-            _behaviors.Clear();
-            _sourceAccessor.Dispose();
-            _targetAccessor.Dispose();
         }
 
         /// <summary>

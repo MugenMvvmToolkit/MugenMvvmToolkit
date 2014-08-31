@@ -128,9 +128,6 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\ExpressionReflectionManagerEx.cs">
       <Link>Infrastructure\ExpressionReflectionManagerEx.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\InitializationModule.cs">
-      <Link>Infrastructure\InitializationModule.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\navigation\NavigationProvider.cs">
       <Link>Infrastructure\Navigation\NavigationProvider.cs</Link>
     </Compile>
@@ -145,6 +142,9 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\VisualStateManager.cs">
       <Link>Infrastructure\VisualStateManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\InitializationModule.cs">
+      <Link>InitializationModule.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Interfaces\Navigation\INavigationProviderEx.cs">
       <Link>Interfaces\Navigation\INavigationProviderEx.cs</Link>

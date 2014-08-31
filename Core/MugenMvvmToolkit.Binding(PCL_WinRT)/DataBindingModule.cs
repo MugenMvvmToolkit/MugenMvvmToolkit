@@ -16,7 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -75,16 +75,21 @@ namespace MugenMvvmToolkit.Binding
                     RegisterType(types[j]);
             }
 
-
-            BindingServiceProvider.MemberProvider.Register(
-                AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.CommandParameter,
-                    GetCommandParameter, SetCommandParameter, ObserveCommandParameter));
-            BindingServiceProvider.MemberProvider.Register(
-                AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.Parent,
+            var memberProvider = BindingServiceProvider.MemberProvider;
+            memberProvider
+                .Register(AttachedBindingMember
+                    .CreateMember<object, object>(AttachedMemberConstants.CommandParameter, GetCommandParameter,
+                        SetCommandParameter, ObserveCommandParameter));
+            memberProvider
+                .Register(AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.Parent,
                     GetParent, SetParent, ObserveParent));
+            memberProvider
+                .Register(AttachedBindingMember
+                    .CreateAutoProperty<object, IEnumerable<object>>(AttachedMemberConstants.ErrorsPropertyMember,
+                        getDefaultValue: (o, info) => Empty.Array<object>()));
+            memberProvider.Register(AttachedBindingMember.CreateMember<object, bool>("HasErrors", GetHasErrors, null, ObserveHasErrors));
 
-            BindingServiceProvider.MemberProvider.Register(AttachedBindingMember.CreateAutoProperty<object, IEnumerable<object>>(
-                    AttachedMemberConstants.ErrorsPropertyMember, getDefaultValue: (o, info) => Enumerable.Empty<object>()));
+            BindingServiceProvider.ErrorProvider = GetBindingErrorProvider();
             return true;
         }
 
@@ -116,6 +121,14 @@ namespace MugenMvvmToolkit.Binding
         }
 
         /// <summary>
+        ///     Gets the <see cref="IBindingErrorProvider" /> that will be used by default.
+        /// </summary>
+        protected virtual IBindingErrorProvider GetBindingErrorProvider()
+        {
+            return new BindingErrorProviderBase();
+        }
+
+        /// <summary>
         ///     Removes the tail
         /// </summary>
         protected static string RemoveTail(string name, string word)
@@ -123,6 +136,27 @@ namespace MugenMvvmToolkit.Binding
             if (name.EndsWith(word, StringComparison.OrdinalIgnoreCase))
                 name = name.Substring(0, name.Length - word.Length);
             return name;
+        }
+
+        private static bool GetHasErrors(IBindingMemberInfo bindingMemberInfo, object o, object[] arg3)
+        {
+            var member = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(o.GetType(), AttachedMemberConstants.ErrorsPropertyMember, false, false);
+            if (member == null)
+                return false;
+            var value = member.GetValue(o, arg3) as ICollection<object>;
+            return value != null && value.Count != 0;
+        }
+
+        private static IDisposable ObserveHasErrors(IBindingMemberInfo bindingMemberInfo, object o, IEventListener arg3)
+        {
+            var member = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(o.GetType(), AttachedMemberConstants.ErrorsPropertyMember, false, false);
+            if (member == null)
+                return null;
+            return member.TryObserve(o, arg3);
         }
 
         private static IDisposable ObserveCommandParameter(IBindingMemberInfo bindingMemberInfo, object o, IEventListener arg3)

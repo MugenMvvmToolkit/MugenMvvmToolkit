@@ -125,7 +125,7 @@
     <Compile Include="Controls\ToastMessageControl.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Infrastructure\AttachedMembersModule.cs" />
+    <Compile Include="PlatformDataBindingModule.cs" />
     <Compile Include="Infrastructure\BindingErrorProvider.cs" />
     <Compile Include="Infrastructure\BindingListItemsSourceDecorator.cs" />
     <Compile Include="Infrastructure\CollectionViewManagerBase.cs" />
@@ -134,7 +134,7 @@
     <Compile Include="Infrastructure\ItemsSourceGenerator.cs" />
     <Compile Include="Infrastructure\Presenters\MessagePresenter.cs" />
     <Compile Include="Collections\BindingListWrapper.cs" />
-    <Compile Include="Infrastructure\InitializationModule.cs" />
+    <Compile Include="InitializationModule.cs" />
     <Compile Include="Infrastructure\ThreadManager.cs" />
     <Compile Include="Infrastructure\Presenters\ToastPresenter.cs" />
     <Compile Include="Infrastructure\WinFormsBootstrapperBase.cs" />

@@ -140,9 +140,6 @@
       <Link>Controls\ToastMessageControl.cs</Link>
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\AttachedMembersModule.cs">
-      <Link>Infrastructure\AttachedMembersModule.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\BindingErrorProvider.cs">
       <Link>Infrastructure\BindingErrorProvider.cs</Link>
     </Compile>
@@ -157,9 +154,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\DefaultCollectionViewManager.cs">
       <Link>Infrastructure\DefaultCollectionViewManager.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\InitializationModule.cs">
-      <Link>Infrastructure\InitializationModule.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\ItemsSourceGenerator.cs">
       <Link>Infrastructure\ItemsSourceGenerator.cs</Link>
@@ -176,6 +170,9 @@
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\WinFormsBootstrapperBase.cs">
       <Link>Infrastructure\WinFormsBootstrapperBase.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\InitializationModule.cs">
+      <Link>InitializationModule.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Interfaces\ICollectionViewManager.cs">
       <Link>Interfaces\ICollectionViewManager.cs</Link>
     </Compile>
@@ -187,6 +184,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Interfaces\Views\IWindowView.cs">
       <Link>Interfaces\Views\IWindowView.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\PlatformDataBindingModule.cs">
+      <Link>PlatformDataBindingModule.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\PlatformExtensions.cs">
       <Link>PlatformExtensions.cs</Link>

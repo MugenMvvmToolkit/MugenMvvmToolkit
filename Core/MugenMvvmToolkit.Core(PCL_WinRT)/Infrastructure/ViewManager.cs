@@ -297,7 +297,7 @@ namespace MugenMvvmToolkit.Infrastructure
             IViewMappingItem mappingItem = ViewMappingProvider.FindMappingForViewModel(viewType, viewBindingName, true);
             object viewObj = viewModel.GetIocContainer(true).Get(mappingItem.ViewType);
             IView view = viewObj as IView ?? WrapToView(viewObj, dataContext);
-            Tracer.Info("The view {0} for the view-model {1} was created.", view.GetType(), viewModel.GetType());
+            Tracer.Info("The view {0} for the view-model {1} was created.", view.GetUnderlyingView().GetType(), viewModel.GetType());
             return view;
         }
 

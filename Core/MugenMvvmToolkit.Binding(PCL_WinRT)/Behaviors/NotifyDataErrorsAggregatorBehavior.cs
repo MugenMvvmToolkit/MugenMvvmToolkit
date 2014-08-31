@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models.EventArg;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {

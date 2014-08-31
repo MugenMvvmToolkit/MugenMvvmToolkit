@@ -86,6 +86,7 @@
     <Compile Include="DataBindingModule.cs" />
     <Compile Include="DataConstants\BindingBuilderConstants.cs" />
     <Compile Include="DataConstants\BindingConstants.cs" />
+    <Compile Include="Infrastructure\BindingErrorProviderBase.cs" />
     <Compile Include="Infrastructure\BindingMemberProvider.cs" />
     <Compile Include="Infrastructure\BindingResourceResolver.cs" />
     <Compile Include="Infrastructure\EmptyPathObserver.cs" />
@@ -167,7 +168,6 @@
     <Compile Include="Models\ExpressionNodeType.cs" />
     <Compile Include="Models\MethodData.cs" />
     <Compile Include="Behaviors\RelativeSourceBehavior.cs" />
-    <Compile Include="Models\SenderType.cs" />
     <Compile Include="Models\TokenType.cs" />
     <Compile Include="Models\UnsetBindingPathMembers.cs" />
     <Compile Include="Parse\BindingMemberVisitor.cs" />

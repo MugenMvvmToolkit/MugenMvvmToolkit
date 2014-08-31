@@ -19,6 +19,7 @@ using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
@@ -39,6 +40,8 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         public static readonly Guid IdDefaultValuesOnExceptionBehavior;
 
+        private static readonly EventHandler<IDataBinding, BindingExceptionEventArgs> BindingExceptionDelegate;
+
         #endregion
 
         #region Constructors
@@ -47,6 +50,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         {
             Instance = new DefaultValueOnExceptionBehavior();
             IdDefaultValuesOnExceptionBehavior = new Guid("BB266907-520E-4461-9D95-A549326049DA");
+            BindingExceptionDelegate = OnBindingException;
         }
 
         private DefaultValueOnExceptionBehavior()
@@ -111,7 +115,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// <param name="binding">The binding to attach to.</param>
         public bool Attach(IDataBinding binding)
         {
-            binding.BindingException += OnBindingException;
+            binding.BindingException += BindingExceptionDelegate;
             return true;
         }
 
@@ -120,7 +124,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         public void Detach(IDataBinding binding)
         {
-            binding.BindingException -= OnBindingException;
+            binding.BindingException -= BindingExceptionDelegate;
         }
 
         /// <summary>

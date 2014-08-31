@@ -60,7 +60,6 @@ namespace MugenMvvmToolkit.Binding.Core
             Should.NotBeNull(target, "target");
             Should.NotBeNull(path, "path");
             Should.NotBeNull(binding, "binding");
-            binding.NotBeDisposed();
             var dataBinding = binding as DataBinding;
             if (dataBinding == null)
             {

@@ -1,6 +1,6 @@
 #region Copyright
 // ****************************************************************************
-// <copyright file="AttachedMembersModule.cs">
+// <copyright file="PlatformDataBindingModule.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
 // </copyright>
 // ****************************************************************************
@@ -32,15 +32,16 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using Object = Java.Lang.Object;
 
 // ReSharper disable once CheckNamespace
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit
 {
-    public partial class AttachedMembersModule : IModule
+    public partial class PlatformDataBindingModule : DataBindingModule
     {
         #region Nested types
 
@@ -231,10 +232,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="AttachedMembersModule" /> class.
-        /// </summary>
-        static AttachedMembersModule()
+        static PlatformDataBindingModule()
         {
             //Menu
             MenuItemsSourceMember = AttachedBindingMember.CreateAutoProperty<IMenu, IEnumerable>(AttachedMemberConstants.ItemsSource, MenuItemsSourceChanged);
@@ -264,9 +262,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
             AddToBackStackMember = AttachedBindingMember.CreateAutoProperty<ViewGroup, bool>("AddToBackStack");
 #endif
-            //View
-            DisableValidationMember = AttachedBindingMember.CreateAutoProperty<View, bool>("DisableValidation");
-
             //ViewGroup
             ContentMember = AttachedBindingMember
                 .CreateAutoProperty<ViewGroup, object>(AttachedMemberConstants.Content, ContentMemberChanged, ContentMemberAttached);
@@ -318,6 +313,7 @@ namespace MugenMvvmToolkit.Infrastructure
             //Activity
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Activity, string>("Title",
                 (activity, args) => activity.Title = args.NewValue, getDefaultValue: (activity, info) => activity.Title));
+            memberProvider.Register(AttachedBindingMember.CreateMember<Activity, object>(AttachedMemberConstants.Parent, (info, activity, arg3) => null, null));
 
             //CompoundButton
             memberProvider.Register(AttachedBindingMember
@@ -613,31 +609,23 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #endregion
 
-        #region Implementation of IModule
-
-        /// <summary>
-        ///     Gets the priority.
-        /// </summary>
-        public int Priority
-        {
-            get { return ModuleBase.BindingModulePriority; }
-        }
+        #region Overrides of DataBindingModule
 
         /// <summary>
         ///     Loads the current module.
         /// </summary>
-        public bool Load(IModuleContext context)
+        public override bool Load(IModuleContext context)
         {
             Register(BindingServiceProvider.MemberProvider);
-            BindingServiceProvider.ErrorProvider = new BindingErrorProvider();
-            return true;
+            return base.Load(context);
         }
 
         /// <summary>
-        ///     Unloads the current module.
+        ///     Gets the <see cref="IBindingErrorProvider" /> that will be used by default.
         /// </summary>
-        void IModule.Unload(IModuleContext context)
+        protected override IBindingErrorProvider GetBindingErrorProvider()
         {
+            return new BindingErrorProvider();
         }
 
         #endregion

@@ -13,6 +13,8 @@
 // </license>
 // ****************************************************************************
 #endregion
+
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
@@ -26,8 +28,13 @@ namespace MugenMvvmToolkit.Binding.Interfaces
     ///     Represents the interface that provides high-level access to the definition of a binding, which connects the
     ///     properties of binding target objects and any data source.
     /// </summary>
-    public interface IDataBinding : IDisposableObject
+    public interface IDataBinding : IDisposable
     {
+        /// <summary>
+        ///     Gets a value indicating whether this instance is disposed.
+        /// </summary>
+        bool IsDisposed { get; }
+
         /// <summary>
         ///     Gets the current <see cref="IDataContext" />.
         /// </summary>

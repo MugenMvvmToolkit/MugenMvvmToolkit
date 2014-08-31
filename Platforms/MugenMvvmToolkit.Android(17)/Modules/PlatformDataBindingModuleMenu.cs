@@ -1,6 +1,6 @@
 #region Copyright
 // ****************************************************************************
-// <copyright file="AttachedMembersModuleMenu.cs">
+// <copyright file="PlatformDataBindingModule.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
 // </copyright>
 // ****************************************************************************
@@ -29,6 +29,7 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 using Object = Java.Lang.Object;
@@ -37,9 +38,9 @@ using IMenuItemOnActionExpandListener = Android.Support.V4.View.MenuItemCompat.I
 #endif
 
 // ReSharper disable once CheckNamespace
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit
 {
-    public partial class AttachedMembersModule
+    public partial class PlatformDataBindingModule
     {
         #region Nested types
 

@@ -26,19 +26,19 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Converters;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit
 {
-    public class AttachedMembersModule : IModule
+    public class PlatformDataBindingModule : DataBindingModule
     {
         #region Fields
 
         internal readonly static IAttachedBindingMemberInfo<object, ICollectionViewManager> CollectionViewManagerMember;
-        internal readonly static IAttachedBindingMemberInfo<Control, bool> DisableValidationMember;
-
+        
         private readonly static IAttachedBindingMemberInfo<object, IContentViewManager> ContentViewManagerMember;
         private readonly static IAttachedBindingMemberInfo<object, IEnumerable> ItemsSourceMember;
         private readonly static IAttachedBindingMemberInfo<Control, object> ContenMember;
@@ -48,7 +48,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Constructors
 
-        static AttachedMembersModule()
+        static PlatformDataBindingModule()
         {
             //Object
             ItemsSourceMember = AttachedBindingMember.CreateAutoProperty<object, IEnumerable>(AttachedMemberConstants.ItemsSource, ObjectItemsSourceChanged);
@@ -56,7 +56,6 @@ namespace MugenMvvmToolkit.Infrastructure
             ContentViewManagerMember = AttachedBindingMember.CreateAutoProperty<object, IContentViewManager>("ContentViewManager");
 
             //Control
-            DisableValidationMember = AttachedBindingMember.CreateAutoProperty<Control, bool>("DisableValidation");
             ContenMember = AttachedBindingMember.CreateAutoProperty<Control, object>(AttachedMemberConstants.Content, ContentChanged);
             ContenTemplateMember = AttachedBindingMember.CreateAutoProperty<Control, IDataTemplateSelector>(AttachedMemberConstants.ContentTemplate, ContentTemplateChanged);
         }
@@ -96,8 +95,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             memberProvider.Register(ContenMember);
             memberProvider.Register(ContenTemplateMember);
-            memberProvider.Register(DisableValidationMember);
-
+            
             //DateTimePicker
             memberProvider.Register(AttachedBindingMember.CreateMember<DateTimePicker, DateTime>("Value", (info, picker, arg3) => picker.Value,
                 (info, picker, arg3) =>
@@ -361,31 +359,23 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #endregion
 
-        #region Implementation of IModule
-
-        /// <summary>
-        ///     Gets the priority.
-        /// </summary>
-        public int Priority
-        {
-            get { return ModuleBase.BindingModulePriority; }
-        }
+        #region Overrides of DataBindingModule
 
         /// <summary>
         ///     Loads the current module.
         /// </summary>
-        public bool Load(IModuleContext context)
+        public override bool Load(IModuleContext context)
         {
             Register(BindingServiceProvider.MemberProvider);
-            BindingServiceProvider.ErrorProvider = new BindingErrorProvider();
-            return true;
+            return base.Load(context);
         }
 
         /// <summary>
-        ///     Unloads the current module.
+        ///     Gets the <see cref="IBindingErrorProvider" /> that will be used by default.
         /// </summary>
-        public void Unload(IModuleContext context)
+        protected override IBindingErrorProvider GetBindingErrorProvider()
         {
+            return new BindingErrorProvider();
         }
 
         #endregion

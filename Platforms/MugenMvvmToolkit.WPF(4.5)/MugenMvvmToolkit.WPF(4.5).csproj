@@ -76,7 +76,7 @@
     <Compile Include="Models\EventArg\NavigationEventArgsWrapper.cs" />
     <Compile Include="PlatformExtensions.cs" />
     <Compile Include="Infrastructure\WpfBootstrapperBase.cs" />
-    <Compile Include="Infrastructure\InitializationModule.cs" />
+    <Compile Include="InitializationModule.cs" />
     <Compile Include="Infrastructure\Navigation\FrameNavigationService.cs" />
     <Compile Include="Infrastructure\Navigation\NavigationProvider.cs" />
     <Compile Include="Infrastructure\Navigation\WindowNavigationService.cs" />

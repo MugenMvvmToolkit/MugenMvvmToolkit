@@ -23,7 +23,6 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Sources;
-using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Validation;
@@ -39,16 +38,18 @@ namespace MugenMvvmToolkit.Binding.Behaviors
     {
         #region Fields
 
+        private const string Key = "@$be.";
+
         /// <summary>
         ///     Gets the id of behavior.
         /// </summary>
         public static readonly Guid IdNotifyDataErrorInfoBindingBehavior;
         internal static readonly ValidatesOnNotifyDataErrorsBehavior Prototype;
-        private static readonly SenderType ErrorsConstant;
         private static readonly EventInfo ErrorsChangedEvent;
 
         private List<IDisposable> _subscribers;
         private WeakReference _selfReference;
+        private string _senderKey;
 
         #endregion
 
@@ -59,16 +60,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             ErrorsChangedEvent = typeof(INotifyDataErrorInfo).GetEventEx("ErrorsChanged", MemberFlags.Instance | MemberFlags.Public);
             IdNotifyDataErrorInfoBindingBehavior = new Guid("198CBAA2-CF75-4620-9BDD-A1EBF9B8B2F4");
             Prototype = new ValidatesOnNotifyDataErrorsBehavior();
-            ErrorsConstant = new SenderType("VNDEB.ErrorsConstant");
-        }
-
-        #endregion
-
-        #region Properties
-
-        internal WeakReference SelfReference
-        {
-            get { return _selfReference; }
         }
 
         #endregion
@@ -98,6 +89,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         {
             if (!CanAttach())
                 return false;
+            _senderKey = Key + Binding.TargetAccessor.Source.Path.Path;
             EventHandler<IBindingSource, ValueChangedEventArgs> handler = OnBindingSourceValueChanged;
             var accessor = Binding.SourceAccessor as ISingleBindingSourceAccessor;
             if (_subscribers == null)
@@ -159,8 +151,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected virtual bool CanAttach()
         {
-            var bindingTarget = Binding.TargetAccessor.Source as IBindingTarget;
-            return bindingTarget != null && bindingTarget.Validatable;
+            return BindingServiceProvider.ErrorProvider != null;
         }
 
         /// <summary>
@@ -168,9 +159,13 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected virtual void UpdateErrors([CanBeNull] IList<object> errors)
         {
+            var errorProvider = BindingServiceProvider.ErrorProvider;
             var binding = Binding;
-            if (binding != null)
-                ((IBindingTarget)binding.TargetAccessor.Source).SetErrors(ErrorsConstant, errors);
+            if (errorProvider == null || binding == null)
+                return;
+            var target = binding.TargetAccessor.Source.GetPathMembers(false).PenultimateValue;
+            if (target != null && !target.IsUnsetValue())
+                errorProvider.SetErrors(target, _senderKey, errors ?? Empty.Array<object>(), binding.Context);
         }
 
         private void UpdateSources(bool detach)

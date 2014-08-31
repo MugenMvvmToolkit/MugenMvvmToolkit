@@ -14,8 +14,7 @@
 // ****************************************************************************
 #endregion
 using System;
-using System.Collections.ObjectModel;
-using MugenMvvmToolkit.Infrastructure;
+using System.Collections.Generic;
 #if NETFX_CORE || WINDOWSCOMMON
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
@@ -34,7 +33,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
 #if WINDOWS_PHONE
         public sealed class BindingEventClosure
         {
-        #region Fields
+            #region Fields
 
             internal static readonly MethodInfo HandleMethod = typeof(BindingEventClosure).GetMethod("Handle",
                 BindingFlags.Public | BindingFlags.Instance);
@@ -42,7 +41,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
 
             #endregion
 
-        #region Constructors
+            #region Constructors
 
             /// <summary>
             /// Initializes a new instance of the <see cref="BindingEventClosure"/> class.
@@ -55,7 +54,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
 
             #endregion
 
-        #region Methods
+            #region Methods
 
             public void Handle<TSender, TValue>(TSender sender, TValue value)
             {
@@ -83,47 +82,41 @@ namespace MugenMvvmToolkit.MarkupExtensions
             "Collapsed", typeof(object), typeof(View), new PropertyMetadata(null, CollapsedChanged));
 
         public static readonly DependencyProperty DesignDataContextProperty = DependencyProperty.RegisterAttached(
-            "DesignDataContext", typeof(Type), typeof(View), new PropertyMetadata(null, OnDesignDataContextChanged));
+            "DesignDataContext", typeof(object), typeof(View), new PropertyMetadata(null, OnDesignDataContextChanged));
 
         private static readonly DependencyProperty VisibilityInternalProperty = DependencyProperty.RegisterAttached(
             "VisibilityInternal", typeof(object), typeof(View),
             new PropertyMetadata(null, VisibilityInternalChanged));
 
-#if NETFX_CORE || WINDOWSCOMMON
         public static readonly DependencyProperty ErrorsProperty = DependencyProperty.RegisterAttached(
-                    "Errors", typeof(ReadOnlyObservableCollection<object>), typeof(View), new PropertyMetadata(default(ReadOnlyObservableCollection<object>)));
-
-        public static void SetErrors(DependencyObject element, ReadOnlyObservableCollection<object> value)
-        {
-            element.SetValue(ErrorsProperty, value);
-        }
-
-        public static ReadOnlyObservableCollection<object> GetErrors(DependencyObject element)
-        {
-            return (ReadOnlyObservableCollection<object>)element.GetValue(ErrorsProperty);
-        }
+            "Errors", typeof(ICollection<object>), typeof(View), new PropertyMetadata(null, OnErrorsChanged));
 
         public static readonly DependencyProperty HasErrorsProperty = DependencyProperty.RegisterAttached(
             "HasErrors", typeof(bool), typeof(View), new PropertyMetadata(default(bool)));
 
-        public static void SetHasErrors(DependencyObject element, bool value)
+        public static void SetErrors(DependencyObject element, ICollection<object> value)
         {
-            element.SetValue(HasErrorsProperty, value);
+            element.SetValue(ErrorsProperty, value);
+        }
+
+        public static ICollection<object> GetErrors(DependencyObject element)
+        {
+            return (ICollection<object>)element.GetValue(ErrorsProperty);
         }
 
         public static bool GetHasErrors(DependencyObject element)
         {
             return (bool)element.GetValue(HasErrorsProperty);
         }
-#endif
-        public static void SetDesignDataContext(DependencyObject element, Type value)
+
+        public static void SetDesignDataContext(DependencyObject element, object value)
         {
             element.SetValue(DesignDataContextProperty, value);
         }
 
-        public static Type GetDesignDataContext(DependencyObject element)
+        public static object GetDesignDataContext(DependencyObject element)
         {
-            return (Type)element.GetValue(DesignDataContextProperty);
+            return element.GetValue(DesignDataContextProperty);
         }
 
         private static Visibility? GetVisibilityInternal(DependencyObject element)
@@ -179,7 +172,9 @@ namespace MugenMvvmToolkit.MarkupExtensions
 
         #region Properties
 
-        public static Action<DependencyObject, string> OnBindChanged { get; set; }
+        public static Action<DependencyObject, string> BindChanged { get; set; }
+
+        public static Action<DependencyObject, ICollection<object>> ErrorsChanged { get; set; }
 
         #endregion
 
@@ -243,6 +238,14 @@ namespace MugenMvvmToolkit.MarkupExtensions
             return @event;
         }
 #endif
+        private static void OnErrorsChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
+        {
+            var newValue = (ICollection<object>)args.NewValue;
+            sender.SetValue(HasErrorsProperty, newValue != null && newValue.Count != 0 ? Empty.TrueObject : Empty.FalseObject);
+            var errorsChanged = ErrorsChanged;
+            if (errorsChanged != null)
+                errorsChanged(sender, newValue);
+        }
 
         private static void VisibilityInternalChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
         {
@@ -316,16 +319,45 @@ namespace MugenMvvmToolkit.MarkupExtensions
                 element.DataContext = null;
                 return;
             }
+            var type = args.NewValue as Type;
+            if (type == null)
+            {
+                var typeName = args.NewValue as string;
+                if (typeName == null)
+                {
+                    element.DataContext = args.NewValue;
+                    return;
+                }
+
+                var fullName = typeName.IndexOf('.') >= 0;
+                foreach (var assembly in ReflectionExtensions.GetDesignAssemblies())
+                {
+                    foreach (var t in assembly.SafeGetTypes(false))
+                    {
+                        string name = fullName ? t.FullName : t.Name;
+                        if (name == typeName)
+                        {
+                            type = t;
+                            break;
+                        }
+                    }
+                }
+                if (type == null)
+                {
+                    element.DataContext = null;
+                    return;
+                }
+            }
             var iocContainer = ServiceProvider.DesignTimeManager.IocContainer;
             element.DataContext = iocContainer == null
-                ? Activator.CreateInstance((Type)args.NewValue)
-                : iocContainer.Get((Type)args.NewValue);
+                ? Activator.CreateInstance(type)
+                : iocContainer.Get(type);
         }
 
         private static void OnBindChangedCallback(DependencyObject sender, DependencyPropertyChangedEventArgs args)
         {
-            var bindChanged = OnBindChanged;
-            Should.MethodBeSupported(ServiceProvider.DesignTimeManager.IsDesignMode || bindChanged != null, "OnBindChanged");
+            var bindChanged = BindChanged;
+            Should.MethodBeSupported(ServiceProvider.DesignTimeManager.IsDesignMode || bindChanged != null, "BindChanged");
             if (bindChanged != null)
                 bindChanged(sender, (string)args.NewValue);
         }

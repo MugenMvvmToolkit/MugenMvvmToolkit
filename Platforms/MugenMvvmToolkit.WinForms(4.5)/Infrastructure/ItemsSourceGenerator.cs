@@ -99,7 +99,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private ICollectionViewManager GetCollectionViewManager()
         {
-            return AttachedMembersModule.CollectionViewManagerMember.GetValue(_view, null) ??
+            return PlatformDataBindingModule.CollectionViewManagerMember.GetValue(_view, null) ??
                    DefaultCollectionViewManager.Instance;
         }
 

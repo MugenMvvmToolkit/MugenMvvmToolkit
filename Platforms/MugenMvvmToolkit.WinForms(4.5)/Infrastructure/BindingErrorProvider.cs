@@ -18,7 +18,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Binding.Infrastructure;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
@@ -26,7 +27,7 @@ namespace MugenMvvmToolkit.Infrastructure
     ///     Represents the class that provides a user interface for indicating that a control on a form has an error associated
     ///     with it using the <see cref="ErrorProvider" /> component.
     /// </summary>
-    public class BindingErrorProvider : IBindingErrorProvider
+    public class BindingErrorProvider : BindingErrorProviderBase
     {
         #region Fields
 
@@ -34,24 +35,26 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #endregion
 
-        #region Implementation of IBindingErrorProvider
+        #region Overrides of BindingErrorProviderBase
 
         /// <summary>
         ///     Sets errors for binding target.
         /// </summary>
-        /// <param name="target">The target object.</param>
+        /// <param name="target">The binding target object.</param>
         /// <param name="errors">The collection of errors</param>
-        public void SetErrors(object target, IList<object> errors)
+        /// <param name="context">The specified context, if any.</param>
+        protected sealed override void SetErrors(object target, IList<object> errors, IDataContext context)
         {
+            base.SetErrors(target, errors, context);
             var control = target as Control;
-            if (control == null || AttachedMembersModule.DisableValidationMember.GetValue(control, null))
+            if (control == null)
                 return;
             var rootControl = PlatformExtensions.GetRootControl(control);
             if (rootControl == null)
                 return;
             var errorProvider = GetErrorProvider(rootControl);
             if (errorProvider != null)
-                SetErrors(control, errorProvider, errors);
+                SetErrors(control, errorProvider, errors, context);
         }
 
         #endregion
@@ -62,7 +65,7 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Sets errors for control.
         /// </summary>
         protected virtual void SetErrors([NotNull] Control target, [NotNull] ErrorProvider errorProvider,
-            [NotNull] IList<object> errors)
+            [NotNull] IList<object> errors, [NotNull] IDataContext context)
         {
             errorProvider.SetError(target, errors.Count == 0 ? null : string.Join(Environment.NewLine, errors));
         }

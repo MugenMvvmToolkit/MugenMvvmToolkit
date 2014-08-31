@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.AutofacContainer</id>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <title>MugenMvvmToolkit - Autofac</title>
     <authors>Vyacheslav Volkov</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -13,19 +13,19 @@
     <description>Extension for Autofac providing integration with Mugen MVVM Toolkit.</description>
     <dependencies>
       <group>
-        <dependency id="MugenMvvmToolkit" version="[3.0.0, 3.1.0)" />
+        <dependency id="MugenMvvmToolkit" version="[3.0.14, 3.1.0)" />
         <dependency id="Autofac" version="[3.5.0, 3.6.0)" />
       </group>
       <group targetFramework="wp8">
-        <dependency id="MugenMvvmToolkit" version="[3.0.0, 3.1.0)" />
+        <dependency id="MugenMvvmToolkit" version="[3.0.14, 3.1.0)" />
         <dependency id="Autofac" version="[3.5.0, 3.6.0)" />
       </group>
       <group targetFramework="wp81">
-        <dependency id="MugenMvvmToolkit" version="[3.0.0, 3.1.0)" />
+        <dependency id="MugenMvvmToolkit" version="[3.0.14, 3.1.0)" />
         <dependency id="Autofac" version="[3.5.0, 3.6.0)" />
       </group>
       <group targetFramework="sl4-windowsphone71">
-        <dependency id="MugenMvvmToolkit" version="[3.0.0, 3.1.0)" />
+        <dependency id="MugenMvvmToolkit" version="[3.0.14, 3.1.0)" />
         <dependency id="Autofac" version="2.6.3.862" />
       </group>
     </dependencies>

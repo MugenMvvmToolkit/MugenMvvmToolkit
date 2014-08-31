@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit.Binding
     {
         #region Fields
 
-        internal readonly static IAttachedBindingMemberInfo<FrameworkElement, bool> DisableValidationMember;
+        private const string ErrorsObserverKey = "~~@$errob";
 
         #endregion
 
@@ -55,9 +55,8 @@ namespace MugenMvvmToolkit.Binding
 
         static PlatformDataBindingModule()
         {
-            if (View.OnBindChanged == null)
-                View.OnBindChanged = OnBindChanged;
-            DisableValidationMember = AttachedBindingMember.CreateAutoProperty<FrameworkElement, bool>("DisableValidation");
+            if (View.BindChanged == null)
+                View.BindChanged = OnBindChanged;
         }
 
         #endregion
@@ -67,6 +66,10 @@ namespace MugenMvvmToolkit.Binding
         private static void Register(IBindingMemberProvider memberProvider)
         {
             Should.NotBeNull(memberProvider, "memberProvider");
+            //DependencyObject
+            memberProvider.Register(AttachedBindingMember.CreateMember<DependencyObject, ICollection<object>>(
+                    AttachedMemberConstants.ErrorsPropertyMember, GetErrors, SetErrors, ObserveErrors));
+
             //UIElement
             memberProvider.Register(AttachedBindingMember.CreateMember<UIElement, bool>("Visible",
                     (info, view, arg3) => view.Visibility == Visibility.Visible,
@@ -76,8 +79,7 @@ namespace MugenMvvmToolkit.Binding
                     (info, view, arg3) => view.Visibility = ((bool)arg3[0]) ? Visibility.Collapsed : Visibility.Visible, ObserveVisiblityMember));
 
 
-            //FrameworkElement      
-            memberProvider.Register(DisableValidationMember);
+            //FrameworkElement            
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, object>(AttachedMemberConstants.Parent, GetParentValue, null, ObserveParentMember));
             memberProvider.Register(AttachedBindingMember
@@ -124,6 +126,32 @@ namespace MugenMvvmToolkit.Binding
                 return;
             foreach (InvalidDataBinding binding in list.OfType<InvalidDataBinding>())
                 throw binding.Exception;
+        }
+
+        private static void OnErrorsChanged(DependencyObject sender, ICollection<object> errors)
+        {
+            var list = ServiceProvider.AttachedValueProvider.GetValue<EventListenerList>(sender, ErrorsObserverKey, false);
+            if (list != null)
+                list.Raise(sender, EventArgs.Empty);
+        }
+
+        private static IDisposable ObserveErrors(IBindingMemberInfo bindingMemberInfo, DependencyObject dependencyObject, IEventListener arg3)
+        {
+            return ServiceProvider
+                .AttachedValueProvider
+                .GetOrAdd(dependencyObject, ErrorsObserverKey, (o, o1) => new EventListenerList(), null)
+                .AddWithUnsubscriber(arg3);
+        }
+
+        private static object SetErrors(IBindingMemberInfo bindingMemberInfo, DependencyObject dependencyObject, object[] arg3)
+        {
+            View.SetErrors(dependencyObject, (ICollection<object>)arg3[0]);
+            return null;
+        }
+
+        private static ICollection<object> GetErrors(IBindingMemberInfo bindingMemberInfo, DependencyObject dependencyObject, object[] arg3)
+        {
+            return View.GetErrors(dependencyObject);
         }
 
         private static IDisposable ObserveVisiblityMember(IBindingMemberInfo bindingMemberInfo, UIElement uiElement, IEventListener arg3)
@@ -197,8 +225,9 @@ namespace MugenMvvmToolkit.Binding
         /// </summary>
         public override bool Load(IModuleContext context)
         {
-            if (View.OnBindChanged == null)
-                View.OnBindChanged = OnBindChanged;
+            if (View.BindChanged == null)
+                View.BindChanged = OnBindChanged;
+            View.ErrorsChanged = OnErrorsChanged;
             ViewManager.GetDataContext = o => BindingServiceProvider.ContextManager.GetBindingContext(o).Value;
             ViewManager.SetDataContext = (o, o1) => BindingServiceProvider.ContextManager.GetBindingContext(o).Value = o1;
             base.Load(context);
@@ -211,7 +240,6 @@ namespace MugenMvvmToolkit.Binding
             BindingServiceProvider.ResourceResolver = resolver == null
                 ? new BindingResourceResolverEx()
                 : new BindingResourceResolverEx(resolver);
-            BindingServiceProvider.ErrorProvider = new BindingErrorProvider();
             Register(BindingServiceProvider.MemberProvider);
             var resourceResolver = BindingServiceProvider.ResourceResolver;
             resourceResolver.AddObject("Visible", new BindingResourceObject(Visibility.Visible), true);
@@ -250,6 +278,14 @@ namespace MugenMvvmToolkit.Binding
         }
 
         /// <summary>
+        ///     Gets the <see cref="IBindingErrorProvider" /> that will be used by default.
+        /// </summary>
+        protected override IBindingErrorProvider GetBindingErrorProvider()
+        {
+            return new BindingErrorProvider();
+        }
+
+        /// <summary>
         /// Tries to register type.
         /// </summary>
         protected override void RegisterType(Type type)
@@ -260,7 +296,7 @@ namespace MugenMvvmToolkit.Binding
                 return;
 #if NETFX_CORE || WINDOWSCOMMON
             var constructor = type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(info => !info.IsStatic && info.GetParameters().Length == 0);
-#else                        
+#else
             var constructor = type.GetConstructor(Empty.Array<Type>());
 #endif
             if (constructor == null || !constructor.IsPublic)

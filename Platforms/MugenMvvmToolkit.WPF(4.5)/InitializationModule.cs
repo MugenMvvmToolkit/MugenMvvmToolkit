@@ -14,6 +14,7 @@
 // ****************************************************************************
 #endregion
 using System;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Infrastructure.Navigation;
 using MugenMvvmToolkit.Infrastructure.Presenters;
@@ -21,9 +22,10 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit
 {
     /// <summary>
     ///     Represents the class that is used to initialize the IOC adapter.
@@ -49,6 +51,17 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Initializes a new instance of the <see cref="InitializationModule" /> class.
         /// </summary>
         public InitializationModule()
+        {
+#if WPF
+            UseNativeCommandManager = false;
+#endif
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="InitializationModule" /> class.
+        /// </summary>
+        protected InitializationModule(LoadMode loadMode = LoadMode.All, int priority = InitializationModulePriority)
+            : base(loadMode, priority)
         {
 #if WPF
             UseNativeCommandManager = false;

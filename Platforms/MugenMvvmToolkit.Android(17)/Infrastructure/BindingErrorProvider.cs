@@ -16,7 +16,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Android.Widget;
-using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Binding.Infrastructure;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
@@ -24,21 +25,22 @@ namespace MugenMvvmToolkit.Infrastructure
     ///     Represents the class that provides a user interface for indicating that a control on a form has an error associated
     ///     with it.
     /// </summary>
-    internal class BindingErrorProvider : IBindingErrorProvider
+    public class BindingErrorProvider : BindingErrorProviderBase
     {
-        #region Implementation of IBindingErrorProvider
+        #region Overrides of BindingErrorProviderBase
 
         /// <summary>
-        ///     Sets errors for target.
+        ///     Sets errors for binding target.
         /// </summary>
-        /// <param name="target">The target object.</param>
+        /// <param name="target">The binding target object.</param>
         /// <param name="errors">The collection of errors</param>
-        public void SetErrors(object target, IList<object> errors)
+        /// <param name="context">The specified context, if any.</param>
+        protected override void SetErrors(object target, IList<object> errors, IDataContext context)
         {
             var textView = target as TextView;
-            if (textView != null && !AttachedMembersModule.DisableValidationMember.GetValue(textView, null))
+            if (textView != null)
                 textView.Error = errors.FirstOrDefault().ToStringSafe();
-
+            base.SetErrors(target, errors, context);
         }
 
         #endregion

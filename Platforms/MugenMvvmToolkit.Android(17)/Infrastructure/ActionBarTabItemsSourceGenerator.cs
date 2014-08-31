@@ -97,7 +97,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (itemsSource == null)
                 return;
 
-            var selectedItem = AttachedMembersModule.ActionBarSelectedItemMember.GetValue(_actionBar, null);
+            var selectedItem = PlatformDataBindingModule.ActionBarSelectedItemMember.GetValue(_actionBar, null);
 
             int count = itemsSource.Count();
             for (int index = 0; index < count; index++)
@@ -126,7 +126,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private void OnEmptyTab()
         {
-            AttachedMembersModule
+            PlatformDataBindingModule
                 .ActionBarSelectedItemMember
                 .SetValue(_actionBar, BindingExtensions.NullValue);
             var value = Views.ActionBar.GetTabContentId(_actionBar);

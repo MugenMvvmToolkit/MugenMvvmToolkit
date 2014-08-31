@@ -99,7 +99,7 @@ namespace MugenMvvmToolkit.Collections
             /// <exception cref="T:System.InvalidOperationException">The collection was modified after the enumerator was created. </exception>
             public bool MoveNext()
             {
-                for (; _index < _dictionary._countInternal; ++_index)
+                for (; _index < _dictionary._count; ++_index)
                 {
                     if (_dictionary._entries[_index].HashCode >= 0)
                     {
@@ -109,7 +109,7 @@ namespace MugenMvvmToolkit.Collections
                         return true;
                     }
                 }
-                _index = _dictionary._countInternal + 1;
+                _index = _dictionary._count + 1;
                 _current = new KeyValuePair<TKey, TValue>();
                 return false;
             }
@@ -139,7 +139,7 @@ namespace MugenMvvmToolkit.Collections
         private int[] _buckets;
 
         [IgnoreDataMember, XmlIgnore]
-        private int _countInternal;
+        private int _count;
 
         [IgnoreDataMember, XmlIgnore]
         private Entry[] _entries;
@@ -194,7 +194,7 @@ namespace MugenMvvmToolkit.Collections
             {
                 if (_buckets == null)
                     RestoreState();
-                return _countInternal - _freeCount;
+                return _count - _freeCount;
             }
         }
 
@@ -239,7 +239,7 @@ namespace MugenMvvmToolkit.Collections
             if (_buckets != null)
                 return;
             var oldValues = new List<KeyValuePair<TKey, TValue>>();
-            for (int index = 0; index < _countInternal; ++index)
+            for (int index = 0; index < _count; ++index)
             {
                 if (_entries[index].HashCode >= 0)
                     oldValues.Add(new KeyValuePair<TKey, TValue>(_entries[index].Key, _entries[index].Value));
@@ -274,13 +274,13 @@ namespace MugenMvvmToolkit.Collections
         {
             if (_buckets == null)
                 RestoreState();
-            if (_countInternal <= 0)
+            if (_count <= 0)
                 return;
             for (int index = 0; index < _buckets.Length; index++)
                 _buckets[index] = -1;
-            Array.Clear(_entries, 0, _countInternal);
+            Array.Clear(_entries, 0, _count);
             _freeList = -1;
-            _countInternal = 0;
+            _count = 0;
             _freeCount = 0;
         }
 
@@ -385,11 +385,11 @@ namespace MugenMvvmToolkit.Collections
         {
             if (_buckets == null)
                 RestoreState();
-            if (_countInternal == 0)
+            if (_count == 0)
                 return Empty.Array<KeyValuePair<TKey, TValue>>();
             var result = new KeyValuePair<TKey, TValue>[Count];
             int index = 0;
-            for (int i = 0; i < _countInternal; i++)
+            for (int i = 0; i < _count; i++)
             {
                 Entry entry = _entries[i];
                 if (entry.HashCode >= 0)
@@ -437,18 +437,18 @@ namespace MugenMvvmToolkit.Collections
                 _buckets[index] = -1;
             _entries = new Entry[prime];
             _freeList = -1;
-            _countInternal = 0;
+            _count = 0;
         }
 
         private void Insert(TKey key, TValue value, bool add)
         {
             if (_buckets == null)
                 RestoreState();
-            int num1 = GetHashCodeInternal(key);
-            int index1 = num1 % _buckets.Length;
+            int hashCode = GetHashCodeInternal(key);
+            int index1 = hashCode % _buckets.Length;
             for (int index2 = _buckets[index1]; index2 >= 0; index2 = _entries[index2].Next)
             {
-                if (_entries[index2].HashCode == num1 && Equals(_entries[index2].Key, key))
+                if (_entries[index2].HashCode == hashCode && Equals(_entries[index2].Key, key))
                 {
                     if (add)
                         throw new ArgumentException("An item with the same key has already been added.");
@@ -465,15 +465,15 @@ namespace MugenMvvmToolkit.Collections
             }
             else
             {
-                if (_countInternal == _entries.Length)
+                if (_count == _entries.Length)
                 {
                     Resize();
-                    index1 = num1 % _buckets.Length;
+                    index1 = hashCode % _buckets.Length;
                 }
-                index3 = _countInternal;
-                ++_countInternal;
+                index3 = _count;
+                ++_count;
             }
-            _entries[index3].HashCode = num1;
+            _entries[index3].HashCode = hashCode;
             _entries[index3].Next = _buckets[index1];
             _entries[index3].Key = key;
             _entries[index3].Value = value;
@@ -482,19 +482,19 @@ namespace MugenMvvmToolkit.Collections
 
         private void Resize()
         {
-            Resize(PrimeNumberHelper.ExpandPrime(_countInternal));
+            Resize(PrimeNumberHelper.ExpandPrime(_count));
         }
 
         private void TrimExcess()
         {
-            int realCount = _countInternal - _freeCount;
-            int newSize = PrimeNumberHelper.GetPrime(realCount);
+            int count = _count - _freeCount;
+            int newSize = PrimeNumberHelper.GetPrime(count);
             var numArray = new int[newSize];
             for (int i = 0; i < numArray.Length; i++)
                 numArray[i] = -1;
             var entryArray = new Entry[newSize];
             int index = 0;
-            for (int i = 0; i < _countInternal; i++)
+            for (int i = 0; i < _count; i++)
             {
                 Entry entry = _entries[i];
                 if (entry.HashCode >= 0)
@@ -502,9 +502,9 @@ namespace MugenMvvmToolkit.Collections
             }
             _freeList = -1;
             _freeCount = 0;
-            _countInternal = realCount;
+            _count = count;
 
-            for (int i = 0; i < _countInternal; i++)
+            for (int i = 0; i < _count; i++)
             {
                 int index2 = entryArray[i].HashCode % newSize;
                 entryArray[i].Next = numArray[index2];
@@ -520,8 +520,8 @@ namespace MugenMvvmToolkit.Collections
             for (int index = 0; index < numArray.Length; index++)
                 numArray[index] = -1;
             var entryArray = new Entry[newSize];
-            Array.Copy(_entries, 0, entryArray, 0, _countInternal);
-            for (int i = 0; i < _countInternal; i++)
+            Array.Copy(_entries, 0, entryArray, 0, _count);
+            for (int i = 0; i < _count; i++)
             {
                 int index2 = entryArray[i].HashCode % newSize;
                 entryArray[i].Next = numArray[index2];

@@ -51,6 +51,16 @@ namespace MugenMvvmToolkit
         #region Fields
 
         /// <summary>
+        ///     Gets the boxed true value.
+        /// </summary>
+        public static readonly object TrueObject;
+
+        /// <summary>
+        ///     Gets the boxed false value.
+        /// </summary>
+        public static readonly object FalseObject;
+
+        /// <summary>
         ///     Gets the completed task with true result.
         /// </summary>
         [SuppressTaskBusyHandler]
@@ -83,6 +93,8 @@ namespace MugenMvvmToolkit
 
         static Empty()
         {
+            TrueObject = true;
+            FalseObject = false;
             WeakReference = new WeakReference(null, false);
             TrueTask = Extensions.FromResult(true);
             FalseTask = Extensions.FromResult(false);

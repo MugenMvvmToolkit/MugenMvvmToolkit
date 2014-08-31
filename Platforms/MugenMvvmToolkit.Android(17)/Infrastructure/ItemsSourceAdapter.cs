@@ -217,7 +217,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             var adapterView = Container as AdapterView;
             if (adapterView != null)
-                AttachedMembersModule.AdapterViewSelectedPositionMember.SetValue(adapterView, adapterView.SelectedItemPosition);
+                PlatformDataBindingModule.AdapterViewSelectedPositionMember.SetValue(adapterView, adapterView.SelectedItemPosition);
             NotifyDataSetChanged();
         }
 

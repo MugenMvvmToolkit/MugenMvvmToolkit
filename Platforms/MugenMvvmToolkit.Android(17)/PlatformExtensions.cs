@@ -343,7 +343,7 @@ namespace MugenMvvmToolkit
             {
                 var fragment = (Fragment)content;
                 ValidateViewIdFragment(frameLayout, fragment);
-                var addToBackStack = AttachedMembersModule.AddToBackStackMember.GetValue(frameLayout, null);
+                var addToBackStack = PlatformDataBindingModule.AddToBackStackMember.GetValue(frameLayout, null);
                 FragmentManager manager = null;
                 if (transaction == null)
                 {
