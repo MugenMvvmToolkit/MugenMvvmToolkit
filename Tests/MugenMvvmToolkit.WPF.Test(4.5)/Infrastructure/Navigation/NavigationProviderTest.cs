@@ -233,7 +233,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 isCancelInvoked = true;
                 context.NavigationProvider.ShouldEqual(NavigationProvider);
                 context.NavigationMode.ShouldEqual(mode);
-                return Extensions.FromResult(false);
+                return MvvmExtensions.FromResult(false);
             };
             viewModel.OnNavigatedFromDelegate = context => isNavigatedInvoked = true;
 
@@ -260,7 +260,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 isCancelInvoked = true;
                 context.NavigationProvider.ShouldEqual(NavigationProvider);
                 context.NavigationMode.ShouldEqual(mode);
-                return Extensions.FromResult(false);
+                return MvvmExtensions.FromResult(false);
             };
             viewModel.OnNavigatedFromDelegate = context => isNavigatedInvoked = true;
 
@@ -288,7 +288,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 var context = (INavigationContext)obj;
                 context.NavigationProvider.ShouldEqual(NavigationProvider);
                 context.NavigationMode.ShouldEqual(mode);
-                return Extensions.FromResult(false);
+                return MvvmExtensions.FromResult(false);
             };
             viewModel.OnNavigatedFromDelegate = context => isNavigatedInvoked = true;
 
@@ -315,7 +315,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 var context = (INavigationContext)obj;
                 context.NavigationProvider.ShouldEqual(NavigationProvider);
                 context.NavigationMode.ShouldEqual(mode);
-                return Extensions.FromResult(false);
+                return MvvmExtensions.FromResult(false);
             };
             viewModel.OnNavigatedFromDelegate = context => isNavigatedInvoked = true;
 

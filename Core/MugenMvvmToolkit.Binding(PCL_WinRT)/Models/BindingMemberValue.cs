@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             Should.NotBeNull(memberSource, "memberSource");
             Should.NotBeNull(member, "member");
-            _memberSource = Extensions.GetWeakReference(memberSource);
+            _memberSource = MvvmExtensions.GetWeakReference(memberSource);
             _member = member;
         }
 

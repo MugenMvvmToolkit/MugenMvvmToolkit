@@ -124,7 +124,7 @@ namespace MugenMvvmToolkit.ViewModels
         public TValidator AddValidator<TValidator>([NotNull] object instanceToValidate)
             where TValidator : IValidator
         {
-            return Extensions.AddValidator<TValidator>(this, instanceToValidate);
+            return MvvmExtensions.AddValidator<TValidator>(this, instanceToValidate);
         }
 
         /// <summary>
@@ -183,7 +183,7 @@ namespace MugenMvvmToolkit.ViewModels
                 for (int index = 0; index < validators.Count; index++)
                     errors.Add(validators[index].GetErrors());
             }
-            return Extensions.MergeDictionaries(errors);
+            return MvvmExtensions.MergeDictionaries(errors);
         }
 
         /// <summary>
@@ -299,7 +299,7 @@ namespace MugenMvvmToolkit.ViewModels
                 return Empty.Task;
             if (list.Count == 1)
                 return list[0].ValidateAsync();
-            return Extensions.WhenAll(list.ToArrayFast(validator => validator.ValidateAsync()));
+            return MvvmExtensions.WhenAll(list.ToArrayFast(validator => validator.ValidateAsync()));
         }
 
         /// <summary>
@@ -317,7 +317,7 @@ namespace MugenMvvmToolkit.ViewModels
             }
             if (tasks.Count == 1)
                 return tasks[0];
-            return Extensions.WhenAll(tasks.ToArrayFast());
+            return MvvmExtensions.WhenAll(tasks.ToArrayFast());
         }
 
         /// <summary>
@@ -334,7 +334,7 @@ namespace MugenMvvmToolkit.ViewModels
             }
             if (tasks.Count == 1)
                 return tasks[0];
-            return Extensions.WhenAll(tasks.ToArrayFast());
+            return MvvmExtensions.WhenAll(tasks.ToArrayFast());
         }
 
         /// <summary>

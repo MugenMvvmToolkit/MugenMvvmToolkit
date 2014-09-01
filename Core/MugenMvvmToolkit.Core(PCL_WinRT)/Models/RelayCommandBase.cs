@@ -250,7 +250,7 @@ namespace MugenMvvmToolkit.Models
                 Action<RelayCommandBase, object> notifier = CreateNotifier(item);
                 if (notifier == null)
                     return false;
-                _notifiers.Add(new KeyValuePair<WeakReference, Action<RelayCommandBase, object>>(Extensions.GetWeakReference(item), notifier));
+                _notifiers.Add(new KeyValuePair<WeakReference, Action<RelayCommandBase, object>>(MvvmExtensions.GetWeakReference(item), notifier));
                 return true;
             }
         }

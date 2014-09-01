@@ -75,7 +75,7 @@ namespace MugenMvvmToolkit
                 Should.NotBeNull(invokeAction, "invokeAction");
                 _invokeAction = invokeAction;
                 _unsubscribeAction = unsubscribeAction;
-                _targetReference = Extensions.GetWeakReference(target);
+                _targetReference = MvvmExtensions.GetWeakReference(target);
             }
 
             #endregion
@@ -293,7 +293,7 @@ namespace MugenMvvmToolkit
         /// <summary>
         /// Tries to get data context.
         /// </summary>
-        public static object GetDataContext(object item)
+        internal static object GetDataContext(object item)
         {
             Should.NotBeNull(item, "item");
             var type = item.GetType();
@@ -316,7 +316,7 @@ namespace MugenMvvmToolkit
         /// <summary>
         /// Tries to set data context.
         /// </summary>
-        public static bool SetDataContext(object item, object dataContext)
+        internal static bool SetDataContext(object item, object dataContext)
         {
             Should.NotBeNull(item, "item");
             var type = item.GetType();

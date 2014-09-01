@@ -140,11 +140,21 @@ namespace MugenMvvmToolkit.Test.ViewModels
         }
 
         [TestMethod]
-        public void ReInitializationShouldThrowException()
+        public void ReInitializationShouldThrowExceptionThrowOnMultiInitTrue()
         {
             ThreadManager.ImmediateInvokeAsync = true;
             ViewModelBase viewModel = GetViewModelBase();
+            viewModel.Settings.ThrowOnMultiInitialization = true;
             ShouldThrow<InvalidOperationException>(() => ViewModelProvider.InitializeViewModel(viewModel));
+        }
+
+        [TestMethod]
+        public void ReInitializationShouldNotThrowExceptionThrowOnMultiInitFalse()
+        {
+            ThreadManager.ImmediateInvokeAsync = true;
+            ViewModelBase viewModel = GetViewModelBase();
+            viewModel.Settings.ThrowOnMultiInitialization = false;
+            ViewModelProvider.InitializeViewModel(viewModel);
         }
 
         [TestMethod]

@@ -26,10 +26,7 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding
 {
-    /// <summary>
-    ///     Represents the binding exception manager class.
-    /// </summary>
-    public static class BindingExceptionManager
+    internal static class BindingExceptionManager
     {
         #region Fields
 
@@ -43,7 +40,7 @@ namespace MugenMvvmToolkit.Binding
 
         #region Methods
 
-        public static Exception CannotResolveInstanceByName(object sender, string instanceName, string name)
+        internal static Exception CannotResolveInstanceByName(object sender, string instanceName, string name)
         {
             return
                 new InvalidOperationException(string.Format("The {0} with name '{1}' is not registered in the '{2}'",
@@ -170,10 +167,7 @@ namespace MugenMvvmToolkit.Binding
                 identifier, bindingExpression, expectedSt), tokenizer.Position);
         }
 
-        /// <summary>
-        ///     Creates an instance of exception that indicates that collection has duplicate lambda parameter.
-        /// </summary>
-        public static Exception DuplicateLambdaParameter(string parameterName)
+        internal static Exception DuplicateLambdaParameter(string parameterName)
         {
             return
                 new InvalidOperationException(string.Format("The lambda parameter '{0}' was defined more than once.",
@@ -251,6 +245,6 @@ namespace MugenMvvmToolkit.Binding
                     "The source '{0}' does not contain an event with name '{1}'", source, eventName));
         }
 
-        #endregion        
+        #endregion
     }
 }

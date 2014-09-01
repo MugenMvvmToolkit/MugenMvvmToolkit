@@ -33,7 +33,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
 #if WINDOWS_PHONE
         public sealed class BindingEventClosure
         {
-            #region Fields
+        #region Fields
 
             internal static readonly MethodInfo HandleMethod = typeof(BindingEventClosure).GetMethod("Handle",
                 BindingFlags.Public | BindingFlags.Instance);
@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
 
             #endregion
 
-            #region Constructors
+        #region Constructors
 
             /// <summary>
             /// Initializes a new instance of the <see cref="BindingEventClosure"/> class.
@@ -54,7 +54,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
 
             #endregion
 
-            #region Methods
+        #region Methods
 
             public void Handle<TSender, TValue>(TSender sender, TValue value)
             {
@@ -314,6 +314,10 @@ namespace MugenMvvmToolkit.MarkupExtensions
             var element = sender as FrameworkElement;
             if (element == null)
                 return;
+            var disposable = element.DataContext as IDisposable;
+            if (disposable != null)
+                disposable.Dispose();
+
             if (args.NewValue == null)
             {
                 element.DataContext = null;

@@ -135,8 +135,6 @@ namespace MugenMvvmToolkit.Infrastructure
         public virtual void InitializeViewModel(IViewModel viewModel, IDataContext dataContext = null)
         {
             Should.NotBeNull(viewModel, "viewModel");
-            if (viewModel.IsInitialized)
-                throw ExceptionManager.ObjectInitialized("ViewModel", viewModel);
             dataContext = dataContext.ToNonReadOnly();
             var iocContainer = CreateViewModelIocContainer(dataContext);
             dataContext.Remove(InitializationConstants.IocContainer);

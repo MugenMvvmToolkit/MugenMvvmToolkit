@@ -113,7 +113,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public void Initialize()
         {
-            if (_isInitialized)
+            if (_isInitialized || !IsDesignMode)
                 return;
             bool hasException = false;
             bool lockTaken = false;
@@ -149,6 +149,8 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public void InitializeViewModel(IViewModel viewModel)
         {
+            if (!IsDesignMode)
+                return;
             Should.NotBeNull(viewModel, "viewModel");
             SynchronizationContext context = SynchronizationContext.Current;
             if (context == null)
@@ -168,8 +170,6 @@ namespace MugenMvvmToolkit.Infrastructure
         [CanBeNull]
         protected virtual IIocContainer CreateIocContainer()
         {
-            if (!IsDesignMode)
-                return null;
             foreach (var assembly in ReflectionExtensions.GetDesignAssemblies())
             {
                 foreach (var type in assembly.SafeGetTypes(false))
@@ -206,7 +206,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected virtual void InitializeViewModelInternal([NotNull] IViewModel viewModel)
         {
-            if (IocContainer == null)
+            if (IocContainer == null || viewModel.IsInitialized)
                 return;
             IViewModelProvider service;
             if (IocContainer.TryGet(out service))

@@ -68,7 +68,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             internal WeakListenerInternal(object source, EventInfo eventInfo)
             {
-                _sourceRef = Extensions.GetWeakReference(source);
+                _sourceRef = MvvmExtensions.GetWeakReference(source);
                 _eventInfo = eventInfo;
             }
 
@@ -244,7 +244,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             public WeakPropertyChangedListener(INotifyPropertyChanged propertyChanged)
             {
                 _listeners = MugenMvvmToolkit.Empty.Array<KeyValuePair<object, string>>();
-                _propertyChanged = Extensions.GetWeakReference(propertyChanged);
+                _propertyChanged = MvvmExtensions.GetWeakReference(propertyChanged);
             }
 
             #endregion
@@ -263,7 +263,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                         hasDeadRef = true;
                     else
                     {
-                        if (Extensions.PropertyNameEqual(args.PropertyName, pair.Value, true))
+                        if (MvvmExtensions.PropertyNameEqual(args.PropertyName, pair.Value, true))
                             listener.Handle(sender, args);
                     }
                 }

@@ -59,7 +59,8 @@ namespace MugenMvvmToolkit
 
         internal static bool IsSerializable(this Type type)
         {
-            return type.IsDefined(typeof(DataContractAttribute), false) || type.GetTypeInfo().IsPrimitive;
+            var typeInfo = type.GetTypeInfo();
+            return typeInfo.IsDefined(typeof(DataContractAttribute), false) || typeInfo.IsPrimitive;
         }
 
         internal static PlatformInfo GetPlatformInfo()

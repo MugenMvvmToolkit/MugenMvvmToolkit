@@ -20,10 +20,7 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit
 {
-    /// <summary>
-    ///     Represents the class that throws exceptions.
-    /// </summary>
-    public static class ExceptionManager
+    internal static class ExceptionManager
     {
         #region Fields
 
@@ -34,7 +31,7 @@ namespace MugenMvvmToolkit
 
         #region Methods
 
-        public static Exception ObjectNotInitialized(string objectName, object obj, string hint = null)
+        internal static Exception ObjectNotInitialized(string objectName, object obj, string hint = null)
         {
             var type = obj as Type;
             if (type != null)
@@ -45,7 +42,7 @@ namespace MugenMvvmToolkit
                     typeName, hint));
         }
 
-        public static Exception ObjectInitialized(string objectName, object obj, string hint = null)
+        internal static Exception ObjectInitialized(string objectName, object obj, string hint = null)
         {
             string typeName = obj == null ? "empty" : obj.GetType().FullName;
             return
@@ -54,22 +51,9 @@ namespace MugenMvvmToolkit
                     typeName, hint));
         }
 
-        /// <summary>
-        ///     Returns an exception if enum is out of range.
-        /// </summary>
-        public static Exception EnumOutOfRange(string paramName, Enum @enum)
+        internal static Exception EnumOutOfRange(string paramName, Enum @enum)
         {
             return new ArgumentOutOfRangeException(paramName, string.Format("Unhandled enum - '{0}'", @enum));
-        }
-
-        /// <summary>
-        ///     Returns an exception if navigate method is not supported.
-        /// </summary>
-        public static Exception NavigateNotSupported(Type type, string hint = null)
-        {
-            return
-                new InvalidOperationException(
-                    string.Format("The '{0}' provider doesn't support the DataContext without navigation target, {1}", type, hint));
         }
 
         internal static Exception ValidatorInitialized(object validator)

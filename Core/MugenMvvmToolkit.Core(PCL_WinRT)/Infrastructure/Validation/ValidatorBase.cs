@@ -249,7 +249,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 var tasks = new Task[properties.Count];
                 for (int index = 0; index < properties.Count; index++)
                     tasks[index] = Validate(properties[index]);
-                return Extensions.WhenAll(tasks);
+                return MvvmExtensions.WhenAll(tasks);
             }
             if (singleMap == null)
                 singleMap = propertyName;
@@ -548,7 +548,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <param name="result">The result to store into the completed task.</param>
         protected static Task<IDictionary<string, IEnumerable>> FromResult(IDictionary<string, IEnumerable> result)
         {
-            return Extensions.FromResult(result);
+            return MvvmExtensions.FromResult(result);
         }
 
         /// <summary>
@@ -575,7 +575,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         [Pure]
         protected static bool PropertyNameEqual<T>(string propertyName, Expression<Func<T, object>> getProperty)
         {
-            return Extensions.PropertyNameEqual(propertyName, getProperty);
+            return MvvmExtensions.PropertyNameEqual(propertyName, getProperty);
         }
 
         /// <summary>
@@ -587,7 +587,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         [Pure]
         protected static string GetPropertyName<T>(Expression<Func<T, object>> expression)
         {
-            return Extensions.GetPropertyName(expression);
+            return MvvmExtensions.GetPropertyName(expression);
         }
 
         /// <summary>
@@ -894,7 +894,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         [Pure]
         protected static string GetPropertyName(Expression<Func<T, object>> expression)
         {
-            return Extensions.GetPropertyName(expression);
+            return MvvmExtensions.GetPropertyName(expression);
         }
 
         #endregion

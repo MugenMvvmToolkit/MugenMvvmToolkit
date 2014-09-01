@@ -166,10 +166,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (converter != null)
                     return new ValueConverterWrapper(converter.Convert, converter.ConvertBack);
             }
-
-            if (throwOnError)
-                throw BindingExceptionManager.CannotResolveInstanceByName(this, "converter", name);
-            return null;
+            return base.ResolveConverter(name, context, throwOnError);
         }
 
         /// <summary>
@@ -201,9 +198,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     if (rootMember != null)
                         return new XamlUnresolvedResource(target, name, rootMember);
                 }
-                throw BindingExceptionManager.CannotResolveInstanceByName(this, "resource object", name);
             }
-            return null;
+            return base.ResolveObject(name, context, throwOnError);
         }
 
         #endregion

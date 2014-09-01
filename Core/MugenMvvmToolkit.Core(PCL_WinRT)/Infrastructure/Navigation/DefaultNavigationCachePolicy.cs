@@ -54,7 +54,8 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         {
             if (context.NavigationMode == NavigationMode.Back)
                 return;
-            Type type = view.GetType();
+            Type type = view.GetUnderlyingView().GetType();
+
             List<IViewModel> list;
             if (!_cachedViewModels.TryGetValue(type, out list))
             {
@@ -63,7 +64,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             }
             list.Insert(0, viewModel);
             Tracer.Info("Navigation cache - the view model {0} was cached, navigation mode: {1}, view: {2}",
-                viewModel.GetType(), context.NavigationMode, view.GetType());
+                viewModel.GetType(), context.NavigationMode, type);
         }
 
         /// <summary>
@@ -71,16 +72,17 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// </summary>
         public virtual IViewModel TryTakeViewModelFromCache(INavigationContext context, IView view)
         {
+            var type = view.GetUnderlyingView().GetType();
             List<IViewModel> list;
-            if (!_cachedViewModels.TryGetValue(view.GetType(), out list) || list == null || list.Count == 0)
+            if (!_cachedViewModels.TryGetValue(type, out list) || list == null || list.Count == 0)
             {
-                Tracer.Info("Navigation cache - the view model for the view {0} is not found in the cache, navigation mode: {1}", view.GetType(), context.NavigationMode);
+                Tracer.Info("Navigation cache - the view model for the view {0} is not found in the cache, navigation mode: {1}", type, context.NavigationMode);
                 return null;
             }
             IViewModel vm = list[0];
             list.RemoveAt(0);
             Tracer.Info("Navigation cache - the view model {0} for the view {1} was taken from the cache, navigation mode: {2}",
-                vm.GetType(), view.GetType(), context.NavigationMode);
+                vm.GetType(), type, context.NavigationMode);
             return vm;
         }
 

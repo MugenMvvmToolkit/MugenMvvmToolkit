@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using MugenInjection;
+using MugenInjection.Core;
 using MugenInjection.Interface;
 using MugenInjection.Parameters;
 using MugenInjection.Scope;
@@ -88,12 +89,17 @@ namespace MugenMvvmToolkit
         #endregion
 
         #region Constructor
-
+        
         /// <summary>
         ///     Initializes a new instance of the <see cref="MugenContainer" /> class.
         /// </summary>
         public MugenContainer()
-            : this(new MugenInjector())
+            : this(new MugenInjector(new DefaultInjectorSetting
+            {
+#if NET4                
+                IsAutoScanAssembly = false
+#endif
+            }))
         {
         }
 

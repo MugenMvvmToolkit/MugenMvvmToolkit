@@ -55,6 +55,7 @@ namespace MugenMvvmToolkit.Models
             BroadcastAllMessages = true;
             HandleBusyMessageMode = HandleMode.HandleAndNotifyObservers;
             EventExecutionMode = ExecutionMode.AsynchronousOnUiThread;
+            ThrowOnMultiInitialization = !ServiceProvider.DesignTimeManager.IsDesignMode;
         }
 
         #endregion
@@ -75,6 +76,11 @@ namespace MugenMvvmToolkit.Models
         ///     Gets or sets property, that is responsible for auto dispose all command when the view model disposing.
         /// </summary>
         public bool DisposeCommands { get; set; }
+
+        /// <summary>
+        ///     Gets or sets property, that is responsible for throw an exception on multi initialization.
+        /// </summary>
+        public bool ThrowOnMultiInitialization { get; set; }
 
         /// <summary>
         ///     Gets or sets the value that is responsible for listen busy messages
@@ -157,7 +163,8 @@ namespace MugenMvvmToolkit.Models
                 EventExecutionMode = EventExecutionMode,
                 DefaultBusyMessage = DefaultBusyMessage,
                 ValidationBusyMessage = ValidationBusyMessage,
-                BroadcastAllMessages = BroadcastAllMessages
+                BroadcastAllMessages = BroadcastAllMessages,
+                ThrowOnMultiInitialization = ThrowOnMultiInitialization
             };
         }
 

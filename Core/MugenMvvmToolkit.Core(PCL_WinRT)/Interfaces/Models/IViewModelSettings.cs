@@ -40,6 +40,11 @@ namespace MugenMvvmToolkit.Interfaces.Models
         bool DisposeCommands { get; set; }
 
         /// <summary>
+        ///     Gets or sets property, that is responsible for throw an exception on multi initialization.
+        /// </summary>
+        bool ThrowOnMultiInitialization { get; set; }
+
+        /// <summary>
         ///     Gets or sets the value that is responsible for listen busy messages
         ///     see the <see cref="BeginBusyMessage" /> and the <see cref="EndBusyMessage" />.
         /// </summary>

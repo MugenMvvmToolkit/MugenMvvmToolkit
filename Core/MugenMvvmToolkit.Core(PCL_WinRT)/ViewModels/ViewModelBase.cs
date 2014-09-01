@@ -54,7 +54,6 @@ namespace MugenMvvmToolkit.ViewModels
         private bool _isInitialized;
         private bool _isDisposed;
         private int _disposed;
-        private bool _customVmProvider;
         private bool _isRestored;
         private WeakReference _weakReference;
 
@@ -75,8 +74,6 @@ namespace MugenMvvmToolkit.ViewModels
             ServiceProvider.Tracer.TraceViewModel(AuditAction.Created, this);
             if (IsDesignMode)
                 ServiceProvider.DesignTimeManager.InitializeViewModel(this);
-            else
-                InitilaizeDefault();
         }
 
         #endregion
@@ -104,12 +101,11 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         protected IViewModelProvider ViewModelProvider
         {
-            get { return _viewModelProvider; }
+            get { return _viewModelProvider ?? ServiceProvider.ViewModelProvider; }
             set
             {
                 Should.PropertyBeNotNull(value, "ViewModelProvider");
                 _viewModelProvider = value;
-                _customVmProvider = true;
             }
         }
 
@@ -187,7 +183,15 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         public IIocContainer IocContainer
         {
-            get { return _iocContainer; }
+            get
+            {
+                if (_iocContainer == null)
+                {
+                    Tracer.Warn("The view model '{0}' uses global IocContainer", GetType());
+                    return ServiceProvider.IocContainer;
+                }
+                return _iocContainer;
+            }
         }
 
         /// <summary>
@@ -211,13 +215,15 @@ namespace MugenMvvmToolkit.ViewModels
             lock (_disposeCancellationToken)
             {
                 if (_isInitialized)
-                    throw ExceptionManager.ObjectInitialized("ViewModel", this);
+                {
+                    if (Settings.ThrowOnMultiInitialization)
+                        throw ExceptionManager.ObjectInitialized("ViewModel", this);
+                    return;
+                }
                 context.TryGetData(InitializationConstants.IsRestored, out _isRestored);
-                if (_iocContainer != null)
-                    _iocContainer.Dispose();
                 _iocContainer = context.GetData(InitializationConstants.IocContainer, true);
                 _threadManager = _iocContainer.Get<IThreadManager>();
-                if (!_customVmProvider)
+                if (_viewModelProvider == null)
                     ViewModelProvider = _iocContainer.Get<IViewModelProvider>();
                 _isInitialized = true;
             }
@@ -227,10 +233,10 @@ namespace MugenMvvmToolkit.ViewModels
             OnInitializing(context);
             OnInitializedInternal();
             OnInitialized();
-            var initialized = Initialized;
-            if (initialized != null)
+            var handler = Initialized;
+            if (handler != null)
             {
-                initialized.Invoke(this, EventArgs.Empty);
+                handler(this, EventArgs.Empty);
                 Initialized = null;
             }
             OnPropertyChanged("IsInitialized");
@@ -366,13 +372,7 @@ namespace MugenMvvmToolkit.ViewModels
             get
             {
                 if (_weakReference == null)
-                {
-                    lock (_disposeCancellationToken)
-                    {
-                        if (_weakReference == null)
-                            _weakReference = ServiceProvider.WeakReferenceFactory(this, true);
-                    }
-                }
+                    _weakReference = ServiceProvider.WeakReferenceFactory(this, true);
                 return _weakReference;
             }
         }
@@ -491,22 +491,12 @@ namespace MugenMvvmToolkit.ViewModels
                 Publish(sender, message);
         }
 
-        private void InitilaizeDefault()
-        {
-            var container = ServiceProvider.IocContainer;
-            if (container == null)
-                return;
-
-            _iocContainer = container.CreateChild();
-            _iocContainer.TryGet(out _viewModelProvider);
-        }
-
         private void InitializeParentViewModel(IDataContext context)
         {
             var parentViewModel = context.GetData(InitializationConstants.ParentViewModel);
             if (parentViewModel == null)
                 return;
-            Settings.Metadata.AddOrUpdate(ViewModelConstants.ParentViewModel, Extensions.GetWeakReference(parentViewModel));
+            Settings.Metadata.AddOrUpdate(ViewModelConstants.ParentViewModel, MvvmExtensions.GetWeakReference(parentViewModel));
             ObservationMode observationMode;
             if (!context.TryGetData(InitializationConstants.ObservationMode, out observationMode))
                 observationMode = ApplicationSettings.ViewModelObservationMode;
@@ -519,10 +509,10 @@ namespace MugenMvvmToolkit.ViewModels
         private void InitializeDisplayName()
         {
             var hasDisplayName = this as IHasDisplayName;
+            IDisplayNameProvider displayNameProvider;
             if (hasDisplayName != null && string.IsNullOrEmpty(hasDisplayName.DisplayName)
-                && IocContainer.CanResolve<IDisplayNameProvider>())
-                hasDisplayName.DisplayName = IocContainer
-                    .Get<IDisplayNameProvider>()
+                && IocContainer.TryGet(out displayNameProvider))
+                hasDisplayName.DisplayName = displayNameProvider
 #if PCL_WINRT
 .GetDisplayNameAccessor(GetType().GetTypeInfo())
 #else
@@ -567,9 +557,6 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        /// <summary>
-        ///     Adds busy operation.
-        /// </summary>
         private void AddBusy(Guid idBusy, object message, bool notify)
         {
             lock (_busyCollection)
@@ -585,9 +572,6 @@ namespace MugenMvvmToolkit.ViewModels
                 Publish(new BeginBusyMessage(idBusy, message));
         }
 
-        /// <summary>
-        ///     Removes busy operation.
-        /// </summary>
         private void RemoveBusy(Guid idBusy, bool notify)
         {
             lock (_busyCollection)
@@ -607,9 +591,6 @@ namespace MugenMvvmToolkit.ViewModels
                 Publish(new EndBusyMessage(idBusy));
         }
 
-        /// <summary>
-        ///     Clears all event from view model command and PropertyChanged event.
-        /// </summary>
         private void DisposeInternal()
         {
             //Disposing commands, if need.
@@ -628,8 +609,8 @@ namespace MugenMvvmToolkit.ViewModels
 
             _viewModelProvider = null;
             //Disposing ioc adapter.
-            if (Settings.DisposeIocContainer && IocContainer != null)
-                IocContainer.Dispose();
+            if (Settings.DisposeIocContainer && _iocContainer != null)
+                _iocContainer.Dispose();
 
             _disposeCancellationToken.Cancel();
             ServiceProvider.Tracer.TraceViewModel(AuditAction.Disposed, this);

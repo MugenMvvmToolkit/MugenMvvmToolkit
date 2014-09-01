@@ -220,7 +220,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         {
             var behavior = (DelayBindingBehavior)state;
             if (behavior._context == null)
-                Extensions.InvokeOnUiThreadAsync(behavior.Callback);
+                MvvmExtensions.InvokeOnUiThreadAsync(behavior.Callback);
             else
                 behavior._context.Post(CallbackDelegate, state);
         }

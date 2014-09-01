@@ -1,6 +1,6 @@
 #region Copyright
 // ****************************************************************************
-// <copyright file="Extensions.cs">
+// <copyright file="MvvmExtensions.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
 // </copyright>
 // ****************************************************************************
@@ -46,11 +46,11 @@ namespace MugenMvvmToolkit
     /// <summary>
     ///     Represents the extensions method for mvvm application.
     /// </summary>
-    public static class Extensions
+    public static class MvvmExtensions
     {
         #region Constructors
 
-        static Extensions()
+        static MvvmExtensions()
         {
             ShortDuration = 2000;
             LongDuration = 3500;
@@ -1174,10 +1174,17 @@ namespace MugenMvvmToolkit
             {
                 var load = module.Load(context);
                 if (load)
+                {
                     list.Add(module);
-                Tracer.Info("The module '{0}' was{1} loaded.", module.GetType(), load ? null : " not");
+                    module.TraceModule(true);
+                }
             }
             return list;
+        }
+
+        internal static void TraceModule(this IModule module, bool load)
+        {
+            Tracer.Info("The module '{0}' was {1}loaded.", module.GetType(), load ? null : "un");
         }
 
         /// <summary>
@@ -1628,5 +1635,5 @@ namespace MugenMvvmToolkit
         }
 
         #endregion
-    }
+    }    
 }

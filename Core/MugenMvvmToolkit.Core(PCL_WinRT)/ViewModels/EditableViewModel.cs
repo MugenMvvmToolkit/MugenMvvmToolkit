@@ -293,7 +293,7 @@ namespace MugenMvvmToolkit.ViewModels
         protected Task ValidateAsync(Expression<Func<T, object>> getProperty)
         {
             Should.NotBeNull(getProperty, "getProperty");
-            return ValidateAsync(Extensions.GetPropertyName(getProperty));
+            return ValidateAsync(MvvmExtensions.GetPropertyName(getProperty));
         }
 
         /// <summary>

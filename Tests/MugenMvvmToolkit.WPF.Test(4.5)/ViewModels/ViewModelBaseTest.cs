@@ -465,7 +465,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         }
 
         [TestMethod]
-        public void VmShouldThrowsExceptionIfItIsDisposed()
+        public void VmShouldThrowsExceptionDisposed()
         {
             ViewModelBase viewModel = GetViewModelBase();
             viewModel.Dispose();

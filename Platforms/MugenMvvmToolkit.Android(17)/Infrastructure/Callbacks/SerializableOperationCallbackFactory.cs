@@ -721,7 +721,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         private static bool IsAnonymousClass(Type type)
         {
 #if WINDOWSCOMMON || NETFX_CORE
-            return type.IsDefined(typeof(CompilerGeneratedAttribute), false) && type.GetTypeInfo().IsClass;
+            var typeInfo = type.GetTypeInfo();
+            return typeInfo.IsDefined(typeof(CompilerGeneratedAttribute), false) && typeInfo.IsClass;
 #else
             return type.IsDefined(typeof(CompilerGeneratedAttribute), false) && type.IsClass;
 #endif

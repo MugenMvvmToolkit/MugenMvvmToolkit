@@ -49,7 +49,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         static MultiViewModel()
         {
-            IsSelectedPropertyName = Extensions.GetPropertyName<ISelectable>(selectable => selectable.IsSelected);
+            IsSelectedPropertyName = MvvmExtensions.GetPropertyName<ISelectable>(selectable => selectable.IsSelected);
         }
 
         /// <summary>

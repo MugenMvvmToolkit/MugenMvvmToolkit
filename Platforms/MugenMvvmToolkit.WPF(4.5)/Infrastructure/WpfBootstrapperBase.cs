@@ -104,12 +104,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected override ICollection<Assembly> GetAssemblies()
         {
-            var assemblies = new HashSet<Assembly>();
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
-            {
-                assemblies.Add(assembly);
-                assemblies.AddRange(assembly.GetReferencedAssemblies().Select(Assembly.Load).SkipFrameworkAssemblies());
-            }
+            var assemblies = new HashSet<Assembly>(AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies());
             TryAddAssembly(BindingAssemblyName, assemblies);
             return assemblies;
         }

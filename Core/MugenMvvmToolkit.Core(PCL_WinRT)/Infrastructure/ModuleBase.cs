@@ -53,6 +53,14 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="ModuleBase" /> class.
         /// </summary>
+        protected ModuleBase(bool iocContainerCanBeNull)
+            : this(iocContainerCanBeNull, LoadMode.All)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ModuleBase" /> class.
+        /// </summary>
         protected ModuleBase(bool iocContainerCanBeNull, LoadMode supportedModes = LoadMode.All, int priority = InitializationModulePriority - 1)
         {
             _iocContainerCanBeNull = iocContainerCanBeNull;

@@ -120,7 +120,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 if (_window == null)
                     return base.ViewModel;
                 if (ThreadManager.IsUiThread)
-                    return ReflectionExtensions.GetDataContext(_window.Content) as IViewModel ?? base.ViewModel;
+                    return Infrastructure.ViewManager.GetDataContext(_window.Content) as IViewModel ?? base.ViewModel;
                 return base.ViewModel;
             }
         }

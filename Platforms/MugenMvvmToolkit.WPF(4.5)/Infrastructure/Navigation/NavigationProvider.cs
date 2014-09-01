@@ -275,7 +275,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             Should.NotBeNull(context, "context");
             IViewModel viewModel = context.GetData(NavigationConstants.ViewModel);
             if (viewModel == null)
-                throw ExceptionManager.NavigateNotSupported(GetType());
+                throw new InvalidOperationException(string.Format("The '{0}' provider doesn't support the DataContext without navigation target.", GetType()));
             if (ReferenceEquals(viewModel, CurrentViewModel))
             {
                 if (callback != null)
@@ -660,12 +660,13 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         {
             if (_navigationTargetVm != null && _navigationTargetVm.GetType().Equals(viewModelType))
                 return true;
-            if (view == null || !(view.DataContext is IViewModel))
+            if (view == null)
                 return false;
-            var viewModel = (IViewModel)view.DataContext;
+            var viewModel = view.DataContext as IViewModel;
+            if (viewModel == null)
+                return false;
+
             var vmType = viewModel.GetType();
-
-
 #if NETFX_CORE || WINDOWSCOMMON
             if (!viewModelType.GetTypeInfo().IsGenericType)
 #else

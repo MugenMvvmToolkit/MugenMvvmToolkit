@@ -228,7 +228,7 @@ You must specify the type of application bootstraper using BootstrapperAttribute
                         ? parameterExpression.Type
                         : parameterExpression.Type.MakeByRefType();
                     if (set.Contains(parameterExpression))
-                        throw BindingExceptionManager.DuplicateLambdaParameter(parameterExpression.ToString());
+                        throw BindingExtensions.DuplicateLambdaParameter(parameterExpression.ToString());
                     set.Add(parameterExpression);
                 }
             }

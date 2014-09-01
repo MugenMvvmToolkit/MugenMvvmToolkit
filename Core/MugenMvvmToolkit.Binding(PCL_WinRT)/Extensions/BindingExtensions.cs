@@ -249,7 +249,7 @@ namespace MugenMvvmToolkit.Binding
         {
             if (target.IsWeak)
                 return target;
-            return Extensions.GetWeakReference(target);
+            return MvvmExtensions.GetWeakReference(target);
         }
 
         /// <summary>
@@ -507,10 +507,10 @@ namespace MugenMvvmToolkit.Binding
                 return false;
             var singleAccessor = accessor as ISingleBindingSourceAccessor;
             if (singleAccessor != null)
-                return Extensions.PropertyNameEqual(args.PropertyName, singleAccessor.Source.Path.Parts.LastOrDefault(), true);
+                return MvvmExtensions.PropertyNameEqual(args.PropertyName, singleAccessor.Source.Path.Parts.LastOrDefault(), true);
             for (int i = 0; i < accessor.Sources.Count; i++)
             {
-                if (Extensions.PropertyNameEqual(args.PropertyName, accessor.Sources[i].Path.Parts.LastOrDefault(), true))
+                if (MvvmExtensions.PropertyNameEqual(args.PropertyName, accessor.Sources[i].Path.Parts.LastOrDefault(), true))
                     return true;
             }
             return false;
@@ -527,6 +527,11 @@ namespace MugenMvvmToolkit.Binding
                     throw BindingExceptionManager.DuplicateLambdaParameter(parameter);
                 strings.Add(parameter);
             }
+        }
+
+        public static Exception DuplicateLambdaParameter(string parameterName)
+        {
+            return BindingExceptionManager.DuplicateLambdaParameter(parameterName);
         }
 
         internal static string TryGetMemberName(this IExpressionNode target, bool allowIndexer, bool allowDynamicMember, IList<IExpressionNode> nodes = null, List<string> members = null)

@@ -55,6 +55,7 @@ namespace MugenMvvmToolkit
         private static Func<object, IEventAggregator> _instanceEventAggregatorFactory;
         private static Func<object, bool, WeakReference> _weakReferenceFactory;
         private static IDesignTimeManager _designTimeManager;
+        private static IViewModelProvider _viewModelProvider;
 
         #endregion
 
@@ -273,6 +274,16 @@ namespace MugenMvvmToolkit
             set { _designTimeManager = value; }
         }
 
+        /// <summary>
+        ///     Gets or sets the default <see cref="IViewModelProvider" />.
+        /// </summary>
+        [CanBeNull]
+        public static IViewModelProvider ViewModelProvider
+        {
+            get { return _viewModelProvider; }
+            set { _viewModelProvider = value; }
+        }
+
         #endregion
 
         #region Methods
@@ -291,6 +302,7 @@ namespace MugenMvvmToolkit
             TryInitialize(iocContainer, ref _threadManager);
             TryInitialize(iocContainer, ref _operationCallbackFactory);
             TryInitialize(iocContainer, ref _validatorProvider);
+            TryInitialize(iocContainer, ref _viewModelProvider);
             if (iocContainer.CanResolve<IViewModelSettings>())
                 ApplicationSettings.ViewModelSettings = iocContainer.Get<IViewModelSettings>();
         }

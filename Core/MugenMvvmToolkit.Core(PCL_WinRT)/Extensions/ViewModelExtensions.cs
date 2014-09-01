@@ -92,7 +92,7 @@ namespace MugenMvvmToolkit.ViewModels
             if (task.IsCompleted)
             {
                 if (handleException.Value)
-                    Extensions.TryHandleTaskException(task, viewModel, viewModel.GetIocContainer(true));
+                    MvvmExtensions.TryHandleTaskException(task, viewModel, viewModel.GetIocContainer(true));
                 return task;
             }
             var beginBusy = viewModel.BeginBusy(message);
@@ -100,7 +100,7 @@ namespace MugenMvvmToolkit.ViewModels
             {
                 viewModel.EndBusy(beginBusy);
                 if (handleException.Value)
-                    Extensions.TryHandleTaskException(t, viewModel, viewModel.GetIocContainer(true));
+                    MvvmExtensions.TryHandleTaskException(t, viewModel, viewModel.GetIocContainer(true));
             });
             return task;
         }
@@ -485,7 +485,7 @@ namespace MugenMvvmToolkit.ViewModels
             where T : IValidatorAggregator
         {
             Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            return validatableViewModel.ValidateAsync(Extensions.GetPropertyName(getProperty));
+            return validatableViewModel.ValidateAsync(MvvmExtensions.GetPropertyName(getProperty));
         }
 
         /// <summary>
@@ -497,7 +497,7 @@ namespace MugenMvvmToolkit.ViewModels
             where T : IValidatorAggregator
         {
             Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            return validatableViewModel.DisableValidationAsync(Extensions.GetPropertyName(getProperty));
+            return validatableViewModel.DisableValidationAsync(MvvmExtensions.GetPropertyName(getProperty));
         }
 
         /// <summary>
@@ -523,7 +523,7 @@ namespace MugenMvvmToolkit.ViewModels
             where T : IValidatorAggregator
         {
             Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            return validatableViewModel.EnableValidationAsync(Extensions.GetPropertyName(getProperty));
+            return validatableViewModel.EnableValidationAsync(MvvmExtensions.GetPropertyName(getProperty));
         }
 
         /// <summary>

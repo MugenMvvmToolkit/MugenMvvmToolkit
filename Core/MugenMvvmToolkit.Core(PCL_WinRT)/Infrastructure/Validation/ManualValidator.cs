@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <param name="errors">The collection of errors</param>
         public void SetErrors<TModel>(Expression<Func<TModel, object>> propertyExpresssion, params object[] errors)
         {
-            UpdateErrors(Extensions.GetPropertyName(propertyExpresssion), errors, false);
+            UpdateErrors(MvvmExtensions.GetPropertyName(propertyExpresssion), errors, false);
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <param name="errors">The collection of errors</param>
         public void SetErrors(Expression<Func<T, object>> propertyExpresssion, params object[] errors)
         {
-            UpdateErrors(Extensions.GetPropertyName(propertyExpresssion), errors, false);
+            UpdateErrors(MvvmExtensions.GetPropertyName(propertyExpresssion), errors, false);
         }
 
         /// <summary>

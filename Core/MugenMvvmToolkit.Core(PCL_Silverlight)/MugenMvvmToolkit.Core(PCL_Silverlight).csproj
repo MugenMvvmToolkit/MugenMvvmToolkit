@@ -96,8 +96,8 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\ExceptionManager.cs">
       <Link>ExceptionManager.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Extensions\Extensions.cs">
-      <Link>Extensions\Extensions.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Extensions\MvvmExtensions.cs">
+      <Link>Extensions\MvvmExtensions.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Extensions\ReflectionExtensions.cs">
       <Link>Extensions\ReflectionExtensions.cs</Link>
