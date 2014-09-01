@@ -126,12 +126,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         public CancellationToken DisposeCancellationToken
         {
-            get
-            {
-                if (_disposed == DisposedState)
-                    return new CancellationToken(true);
-                return _disposeCancellationToken.Token;
-            }
+            get { return _disposeCancellationToken.Token; }
         }
 
         /// <summary>
