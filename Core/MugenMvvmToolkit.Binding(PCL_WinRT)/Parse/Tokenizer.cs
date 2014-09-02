@@ -30,23 +30,8 @@ namespace MugenMvvmToolkit.Binding.Parse
     {
         #region Fields
 
-        private static readonly HashSet<char> IntegerSuffixes = new HashSet<char>
-        {
-            'u',
-            'l',
-            'U',
-            'L',
-        };
-
-        private static readonly HashSet<char> RealSuffixes = new HashSet<char>
-        {
-            'f',
-            'd',
-            'm',
-            'F',
-            'D',
-            'M'
-        };
+        private static readonly HashSet<char> IntegerSuffixes;
+        private static readonly HashSet<char> RealSuffixes;
 
         private string _source;
         private readonly bool _throwOnError;
@@ -55,6 +40,26 @@ namespace MugenMvvmToolkit.Binding.Parse
         #endregion
 
         #region Constructors
+
+        static Tokenizer()
+        {
+            IntegerSuffixes = new HashSet<char>
+            {
+                'u',
+                'l',
+                'U',
+                'L',
+            };
+            RealSuffixes = new HashSet<char>
+            {
+                'f',
+                'd',
+                'm',
+                'F',
+                'D',
+                'M'
+            };
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="Tokenizer" /> class.

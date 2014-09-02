@@ -70,7 +70,7 @@ namespace MugenMvvmToolkit.Infrastructure
             }
 
             private MessageSenderCacheComparer()
-            {                
+            {
             }
 
             #endregion
@@ -100,17 +100,15 @@ namespace MugenMvvmToolkit.Infrastructure
             private const string HandlerInfoPath = "```@HandlerInfo";
             private static readonly HandlerInfo EmptyHandler;
             private static readonly Func<object, object, HandlerInfo> CreateDelegate;
-
-            private static readonly Dictionary<Type, Dictionary<Type, Func<object, object[], object>>> TypeHandlers =
-                new Dictionary<Type, Dictionary<Type, Func<object, object[], object>>>();
+            private static readonly Dictionary<Type, Dictionary<Type, Func<object, object[], object>>> TypeHandlers;
 
             private readonly Dictionary<Type, Func<object, object[], object>[]> _messageToHandlers;
             private readonly Dictionary<Type, Func<object, object[], object>> _handlers;
             private readonly HashSet<MessageSenderCache> _handledMessages;
             private readonly object _target;
             private readonly IHandler<object> _handler;
+            
             private MessageSenderCache _lastMessage;
-
             private Type _lastType;
             private Func<object, object[], object>[] _lastValue;
 
@@ -120,6 +118,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             static HandlerInfo()
             {
+                TypeHandlers = new Dictionary<Type, Dictionary<Type, Func<object, object[], object>>>();
                 EmptyHandler = new HandlerInfo();
                 CreateDelegate = Create;
             }
@@ -132,7 +131,7 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 _target = target;
                 if (handlers.Count == 1 && target is ViewModelBase)
-                    _handler = (IHandler<object>) target;
+                    _handler = (IHandler<object>)target;
                 else
                     _handlers = handlers;
                 _messageToHandlers = new Dictionary<Type, Func<object, object[], object>[]>();

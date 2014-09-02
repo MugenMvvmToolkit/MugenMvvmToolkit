@@ -22,25 +22,37 @@ namespace MugenMvvmToolkit.Models
     {
         #region Fields
 
-        public static readonly PlatformType Android = new PlatformType("Android");
+        public static readonly PlatformType Android;
 
-        public static readonly PlatformType Silverlight = new PlatformType("Silverlight");
+        public static readonly PlatformType Silverlight;
 
-        public static readonly PlatformType WinPhone = new PlatformType("WinPhone");
+        public static readonly PlatformType WinPhone;
 
-        public static readonly PlatformType WinForms = new PlatformType("WinForms");
+        public static readonly PlatformType WinForms;
 
-        public static readonly PlatformType WinRT = new PlatformType("WinRT");
+        public static readonly PlatformType WinRT;
 
-        public static readonly PlatformType WPF = new PlatformType("WPF");
+        public static readonly PlatformType WPF;
 
-        public static readonly PlatformType Unknown = new PlatformType("Unknown");
+        public static readonly PlatformType Unknown;
 
-        public static readonly PlatformType UnitTest = new PlatformType("UnitTest");
+        public static readonly PlatformType UnitTest;
 
         #endregion
 
         #region Constructors
+
+        static PlatformType()
+        {
+            Android = new PlatformType("Android");
+            Silverlight = new PlatformType("Silverlight");
+            WinPhone = new PlatformType("WinPhone");
+            WinForms = new PlatformType("WinForms");
+            WinRT = new PlatformType("WinRT");
+            WPF = new PlatformType("WPF");
+            Unknown = new PlatformType("Unknown");
+            UnitTest = new PlatformType("UnitTest");
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="PlatformType" /> class.

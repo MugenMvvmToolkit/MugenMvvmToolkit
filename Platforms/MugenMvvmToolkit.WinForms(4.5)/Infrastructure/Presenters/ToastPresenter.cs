@@ -35,12 +35,17 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         #region Fields
 
         private const int TimerInterval = 45;
-        private static readonly string ControlName = Guid.NewGuid().ToString("n");
+        private static readonly string ControlName;
         private readonly IThreadManager _threadManager;
 
         #endregion
 
         #region Constructors
+
+        static ToastPresenter()
+        {
+            ControlName = Guid.NewGuid().ToString("n");
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ToastPresenter"/> class.

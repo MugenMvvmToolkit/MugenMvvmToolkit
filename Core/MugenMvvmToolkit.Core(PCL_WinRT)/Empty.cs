@@ -96,8 +96,8 @@ namespace MugenMvvmToolkit
             TrueObject = true;
             FalseObject = false;
             WeakReference = new WeakReference(null, false);
-            TrueTask = MvvmExtensions.FromResult(true);
-            FalseTask = MvvmExtensions.FromResult(false);
+            TrueTask = ToolkitExtensions.FromResult(true);
+            FalseTask = ToolkitExtensions.FromResult(false);
             Task = FalseTask;
             CountPropertyChangedArgs = new PropertyChangedEventArgs("Count");
             NotificationCountPropertyChangedArgs = new PropertyChangedEventArgs("NotificationCount");

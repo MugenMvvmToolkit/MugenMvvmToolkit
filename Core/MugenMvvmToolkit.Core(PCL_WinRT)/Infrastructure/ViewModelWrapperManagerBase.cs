@@ -68,13 +68,18 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Fields
 
-        private static readonly Func<IViewModel, IDataContext, bool> TrueCondition = (model, context) => true;
+        private static readonly Func<IViewModel, IDataContext, bool> TrueCondition;
         private readonly Dictionary<Type, List<WrapperRegistration>> _registrations;
         private readonly IViewModelProvider _viewModelProvider;
 
         #endregion
 
         #region Constructors
+
+        static ViewModelWrapperManagerBase()
+        {
+            TrueCondition = (model, context) => true;
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ViewModelWrapperManagerBase" /> class.

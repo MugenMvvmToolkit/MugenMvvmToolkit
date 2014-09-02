@@ -23,13 +23,27 @@ namespace MugenMvvmToolkit.Binding.Parse
     {
         #region Fields
 
-        private static readonly HashSet<TokenType> EndElementTokens = new HashSet<TokenType>
-        {
-            XmlTokens.CloseElement,
-            TokenType.GreaterThan
-        };
+        private static readonly HashSet<TokenType> EndElementTokens;
 
-        private readonly XmlTokenizer _tokenizer = new XmlTokenizer();
+        private readonly XmlTokenizer _tokenizer;
+
+        #endregion
+
+        #region Constructors
+
+        static XmlParser()
+        {
+            EndElementTokens = new HashSet<TokenType>
+            {
+                XmlTokens.CloseElement,
+                TokenType.GreaterThan
+            };
+        }
+
+        public XmlParser()
+        {
+            _tokenizer = new XmlTokenizer();
+        }
 
         #endregion
 

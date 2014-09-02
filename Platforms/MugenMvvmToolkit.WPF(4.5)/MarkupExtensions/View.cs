@@ -15,6 +15,8 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
 #if NETFX_CORE || WINDOWSCOMMON
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
@@ -35,13 +37,17 @@ namespace MugenMvvmToolkit.MarkupExtensions
         {
         #region Fields
 
-            internal static readonly MethodInfo HandleMethod = typeof(BindingEventClosure).GetMethod("Handle",
-                BindingFlags.Public | BindingFlags.Instance);
+            internal static readonly MethodInfo HandleMethod;
             private readonly DependencyProperty _property;
 
-            #endregion
+        #endregion
 
         #region Constructors
+
+            static BindingEventClosure()
+            {
+               HandleMethod = typeof(BindingEventClosure).GetMethod("Handle", BindingFlags.Public | BindingFlags.Instance);
+            }
 
             /// <summary>
             /// Initializes a new instance of the <see cref="BindingEventClosure"/> class.
@@ -52,7 +58,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
                 _property = property;
             }
 
-            #endregion
+        #endregion
 
         #region Methods
 
@@ -64,7 +70,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
                     bindingExpression.UpdateSource();
             }
 
-            #endregion
+        #endregion
         }
 #endif
 

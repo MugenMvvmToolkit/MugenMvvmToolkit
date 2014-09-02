@@ -38,9 +38,7 @@ namespace MugenMvvmToolkit
     {
         #region Fields
 
-        private static readonly Func <ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs>, NotifyCollectionChangedEventHandler> CreateHandlerDelegate;
-
-        private static readonly MethodInfo ToBindingListMethod;
+        private static readonly Func<ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs>, NotifyCollectionChangedEventHandler> CreateHandlerDelegate;
         private static Func<IComponent, string> _getComponentName;
 
         #endregion
@@ -51,7 +49,6 @@ namespace MugenMvvmToolkit
         {
             CreateHandlerDelegate = CreateHandler;
             _getComponentName = GetComponentNameImpl;
-            ToBindingListMethod = typeof (PlatformExtensions).GetMethod("ToBindingList");
         }
 
         #endregion
@@ -121,13 +118,6 @@ namespace MugenMvvmToolkit
         {
             return ReflectionExtensions.CreateWeakDelegate(target, invokeAction, UnsubscribeCollectionChanged,
                 CreateHandlerDelegate);
-        }
-
-        internal static IList ToBindingListInternal(IList list)
-        {
-            Should.NotBeNull(list, "list");
-            Type[] arguments = list.GetType().GetGenericArguments();
-            return (IList) ToBindingListMethod.MakeGenericMethod(arguments).Invoke(null, new object[] {list});
         }
 
         private static void UnsubscribeCollectionChanged(object o, NotifyCollectionChangedEventHandler handler)

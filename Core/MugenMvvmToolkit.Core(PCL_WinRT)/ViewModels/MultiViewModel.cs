@@ -35,8 +35,6 @@ namespace MugenMvvmToolkit.ViewModels
     {
         #region Fields
 
-        private static readonly string IsSelectedPropertyName;
-
         private readonly IList<IViewModel> _itemsSource;
         private IViewModel _selectedItem;
         private int _prevIndex;
@@ -46,11 +44,6 @@ namespace MugenMvvmToolkit.ViewModels
         #endregion
 
         #region Constructors
-
-        static MultiViewModel()
-        {
-            IsSelectedPropertyName = MvvmExtensions.GetPropertyName<ISelectable>(selectable => selectable.IsSelected);
-        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="MultiViewModel" /> class.
@@ -347,7 +340,7 @@ namespace MugenMvvmToolkit.ViewModels
             var selectableModel = sender as ISelectable;
             var vm = sender as IViewModel;
             if (vm == null || selectableModel == null || selectableModel.IsSelected ||
-                args.PropertyName != IsSelectedPropertyName)
+                args.PropertyName != "IsSelected")
                 return;
             if (selectableModel.IsSelected)
                 SelectedItem = vm;

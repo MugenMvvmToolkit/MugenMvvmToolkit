@@ -78,10 +78,7 @@ namespace MugenMvvmToolkit
         {
             if (viewType == null)
                 viewType = typeof(IView);
-            return new InvalidOperationException(
-                string.Format(@"Unable to find a suitable '{0}' for the '{1}'. 
-Make sure that you add a ViewModelAttribute over the desired View or registered it manually.",
-                    viewType, viewModelType));
+            return new InvalidOperationException(string.Format(@"Unable to find a suitable '{0}' for the '{1}'.", viewType, viewModelType));
         }
 
         internal static Exception ViewModelNotFound(Type viewType)
@@ -93,7 +90,7 @@ Make sure that you add a ViewModelAttribute over the desired View or registered 
         internal static Exception ResourceNotFound(string resourceName, Type resourceType)
         {
             return new InvalidOperationException(
-                string.Format("Resource with the name '{0}' is not found in the '{1}'.", resourceName,
+                string.Format("Resource with the name '{0}' was not found in the '{1}'.", resourceName,
                     resourceType));
         }
 
@@ -107,7 +104,7 @@ Make sure that you add a ViewModelAttribute over the desired View or registered 
         internal static Exception ResourceHasNotGetter(string resourceName, Type resourceType)
         {
             return new InvalidOperationException(
-                string.Format("Resource with the name '{0}' in the '{1}', is not have a get method.",
+                string.Format("Resource with the name '{0}' in the '{1}', does not have a get method.",
                     resourceName, resourceType));
         }
 
@@ -134,7 +131,7 @@ Make sure that you add a ViewModelAttribute over the desired View or registered 
         internal static Exception WindowOpened()
         {
             return new InvalidOperationException(
-                "The dialog is open. Before create a new dialog you should to close the previous one.");
+                "The dialog is open. Before create a new dialog you should close the previous one.");
         }
 
         internal static Exception WindowClosed()
@@ -218,13 +215,6 @@ Make sure that you add a ViewModelAttribute over the desired View or registered 
                 string.Format(@"Cannot perform the operation, because the current '{0}' is disposed.", type));
         }
 
-        internal static Exception IocContainerDisposed(Type type)
-        {
-            return new ObjectDisposedException(type.FullName,
-                string.Format(@"Cannot perform the operation, because the '{0}' is disposed.
-If the container has a parent container, check that the parent container was not disposed before.", type));
-        }
-
         internal static Exception WrapperTypeShouldBeNonAbstract(Type wrapperType)
         {
             return new ArgumentException(string.Format("The wrapper type '{0}' must be non abstract", wrapperType),
@@ -234,7 +224,7 @@ If the container has a parent container, check that the parent container was not
 
         internal static Exception WrapperTypeNotSupported(Type wrapperType)
         {
-            return new ArgumentException(string.Format("There no wrapper type for type '{0}'.", wrapperType),
+            return new ArgumentException(string.Format("There are no wrapper type for type '{0}'.", wrapperType),
                 "wrapperType");
         }
 

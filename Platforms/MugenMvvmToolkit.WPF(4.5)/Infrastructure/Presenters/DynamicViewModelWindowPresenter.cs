@@ -40,13 +40,13 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         /// <summary>
         /// Gets the window view mediator data constant.
         /// </summary>
-        public static readonly DataConstant<IWindowViewMediator> WindowViewMediatorConstant = DataConstant.Create(() => WindowViewMediatorConstant, true);
+        public static readonly DataConstant<IWindowViewMediator> WindowViewMediatorConstant;
 
 #if ANDROID
         /// <summary>
         /// Gets the constant that is used to restore state.
         /// </summary>
-        public static readonly DataConstant<IView> RestoreStateConstant = DataConstant.Create(() => RestoreStateConstant, true);
+        public static readonly DataConstant<IView> RestoreStateConstant;
         private static readonly AsyncOperation<bool?> TrueOperation;
 #endif
         private readonly IThreadManager _threadManager;
@@ -60,9 +60,11 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         static DynamicViewModelWindowPresenter()
         {
+            WindowViewMediatorConstant = DataConstant.Create(() => WindowViewMediatorConstant, true);
 #if ANDROID
             TrueOperation = new AsyncOperation<bool?>();
             TrueOperation.SetResult(OperationResult.CreateResult<bool?>(new OperationType("empty"), TrueOperation, true));
+            RestoreStateConstant = DataConstant.Create(() => RestoreStateConstant, true);
 #endif
         }
 

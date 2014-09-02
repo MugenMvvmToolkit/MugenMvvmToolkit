@@ -43,8 +43,8 @@ namespace MugenMvvmToolkit.ViewModels
 
         private static readonly Action<ValidatableViewModel, DataErrorsChangedEventArgs> RaiseErrorsChangedDelegate;
 
-        private readonly Dictionary<object, List<IValidator>> _instanceToValidators;
         private readonly object _locker;
+        private readonly Dictionary<object, List<IValidator>> _instanceToValidators;
         private readonly Dictionary<string, ICollection<string>> _propertyMappings;
         private readonly HashSet<string> _ignoreProperties;
         private readonly ManualValidator _validator;
@@ -76,8 +76,7 @@ namespace MugenMvvmToolkit.ViewModels
             _instanceToValidators = new Dictionary<object, List<IValidator>>();
             _weakHandler = ReflectionExtensions.MakeWeakErrorsChangedHandler(this, (validator, o, arg3) => validator.RaiseErrorsChanged(arg3));
 
-            _validator.Initialize(new ValidatorContext(this, _propertyMappings, _ignoreProperties,
-                Settings.Metadata));
+            _validator.Initialize(new ValidatorContext(this, _propertyMappings, _ignoreProperties, Settings.Metadata));
             AddValidator(_validator);
         }
 
@@ -124,7 +123,7 @@ namespace MugenMvvmToolkit.ViewModels
         public TValidator AddValidator<TValidator>([NotNull] object instanceToValidate)
             where TValidator : IValidator
         {
-            return MvvmExtensions.AddValidator<TValidator>(this, instanceToValidate);
+            return ToolkitExtensions.AddValidator<TValidator>(this, instanceToValidate);
         }
 
         /// <summary>
@@ -183,7 +182,7 @@ namespace MugenMvvmToolkit.ViewModels
                 for (int index = 0; index < validators.Count; index++)
                     errors.Add(validators[index].GetErrors());
             }
-            return MvvmExtensions.MergeDictionaries(errors);
+            return ToolkitExtensions.MergeDictionaries(errors);
         }
 
         /// <summary>
@@ -299,7 +298,7 @@ namespace MugenMvvmToolkit.ViewModels
                 return Empty.Task;
             if (list.Count == 1)
                 return list[0].ValidateAsync();
-            return MvvmExtensions.WhenAll(list.ToArrayFast(validator => validator.ValidateAsync()));
+            return ToolkitExtensions.WhenAll(list.ToArrayFast(validator => validator.ValidateAsync()));
         }
 
         /// <summary>
@@ -317,7 +316,7 @@ namespace MugenMvvmToolkit.ViewModels
             }
             if (tasks.Count == 1)
                 return tasks[0];
-            return MvvmExtensions.WhenAll(tasks.ToArrayFast());
+            return ToolkitExtensions.WhenAll(tasks.ToArrayFast());
         }
 
         /// <summary>
@@ -334,7 +333,7 @@ namespace MugenMvvmToolkit.ViewModels
             }
             if (tasks.Count == 1)
                 return tasks[0];
-            return MvvmExtensions.WhenAll(tasks.ToArrayFast());
+            return ToolkitExtensions.WhenAll(tasks.ToArrayFast());
         }
 
         /// <summary>
@@ -670,7 +669,7 @@ namespace MugenMvvmToolkit.ViewModels
             OnPropertyChanged("HasErrors");
             OnPropertyChanged("IsValid");
             if (ErrorsChanged != null)
-                ThreadManager.Invoke(Settings.EventExecutionMode, this, args, RaiseErrorsChangedStatic);
+                ThreadManager.Invoke(Settings.EventExecutionMode, this, args, RaiseErrorsChangedDelegate);
         }
 
         private static void RaiseErrorsChangedStatic(ValidatableViewModel @this, DataErrorsChangedEventArgs args)

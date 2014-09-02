@@ -30,207 +30,207 @@ namespace MugenMvvmToolkit.Binding.Models
         /// <summary>
         ///     Indictaes that the token is white space (space, tab, newline).
         /// </summary>
-        public static readonly TokenType Whitespace = new TokenType("Whitespace", " ");
+        public static readonly TokenType Whitespace;
 
         /// <summary>
         ///     Indicates that the token is a '!='.
         /// </summary>
-        public static readonly TokenType ExclamationEqual = new TokenType("ExclamationEqual", "!=");
+        public static readonly TokenType ExclamationEqual;
 
         /// <summary>
         ///     Indicates that the token is a '!'.
         /// </summary>
-        public static readonly TokenType Exclamation = new TokenType("Exclamation", "!");
+        public static readonly TokenType Exclamation;
 
         /// <summary>
         ///     Indicates that the token is a '%'.
         /// </summary>
-        public static readonly TokenType Percent = new TokenType("Percent", "%");
+        public static readonly TokenType Percent;
 
         /// <summary>
         ///     Indicates that the token is a '$'.
         /// </summary>
-        public static readonly TokenType Dollar = new TokenType("Dollar", "$");
+        public static readonly TokenType Dollar;
 
         /// <summary>
         ///     Indicates that the token is a '$$'.
         /// </summary>
-        public static readonly TokenType DoubleDollar = new TokenType("DoubleDollar", "$$");
+        public static readonly TokenType DoubleDollar;
 
         /// <summary>
         ///     Indicates that the token is a '&&'.
         /// </summary>
-        public static readonly TokenType DoubleAmphersand = new TokenType("DoubleAmphersand", "&&");
+        public static readonly TokenType DoubleAmphersand;
 
         /// <summary>
         ///     Indicates that the token is a '&'.
         /// </summary>
-        public static readonly TokenType Amphersand = new TokenType("Amphersand", "&");
+        public static readonly TokenType Amphersand;
 
         /// <summary>
         ///     Indicates that the token is a '('.
         /// </summary>
-        public static readonly TokenType OpenParen = new TokenType("OpenParen", "(");
+        public static readonly TokenType OpenParen;
 
         /// <summary>
         ///     Indicates that the token is a ')'.
         /// </summary>
-        public static readonly TokenType CloseParen = new TokenType("CloseParen", ")");
+        public static readonly TokenType CloseParen;
 
         /// <summary>
         ///     Indicates that the token is a '()'.
         /// </summary>
-        public static readonly TokenType EmptyParen = new TokenType("EmptyParen", "()");
+        public static readonly TokenType EmptyParen;
 
         /// <summary>
         ///     Indicates that the token is a '*'.
         /// </summary>
-        public static readonly TokenType Asterisk = new TokenType("Asterisk", "*");
+        public static readonly TokenType Asterisk;
 
         /// <summary>
         ///     Indicates that the token is a '+'.
         /// </summary>
-        public static readonly TokenType Plus = new TokenType("Plus", "+");
+        public static readonly TokenType Plus;
 
         /// <summary>
         ///     Indicates that the token is a ','.
         /// </summary>
-        public static readonly TokenType Comma = new TokenType("Comma", ",");
+        public static readonly TokenType Comma;
 
         /// <summary>
         ///     Indicates that the token is a ';'.
         /// </summary>
-        public static readonly TokenType Semicolon = new TokenType("Semicolon", ";");
+        public static readonly TokenType Semicolon;
 
         /// <summary>
         ///     Indicates that the token is a '-'.
         /// </summary>
-        public static readonly TokenType Minus = new TokenType("Minus", "-");
+        public static readonly TokenType Minus;
 
         /// <summary>
         ///     Indicates that the token is a '.'.
         /// </summary>
-        public static readonly TokenType Dot = new TokenType("Dot", ".");
+        public static readonly TokenType Dot;
 
         /// <summary>
         ///     Indicates that the token is a '/'.
         /// </summary>
-        public static readonly TokenType Slash = new TokenType("Slash", "/");
+        public static readonly TokenType Slash;
 
         /// <summary>
         ///     Indicates that the token is a ':'.
         /// </summary>
-        public static readonly TokenType Colon = new TokenType("Colon", ":");
+        public static readonly TokenType Colon;
 
         /// <summary>
         ///     Indicates that the token is a '=>'.
         /// </summary>
-        public static readonly TokenType Lambda = new TokenType("Lambda", "=>");
+        public static readonly TokenType Lambda;
 
         /// <summary>
         ///     Indicates that the token is a '<='.
         /// </summary>
-        public static readonly TokenType LessThanEqual = new TokenType("LessThanEqual", "<=");
+        public static readonly TokenType LessThanEqual;
 
         /// <summary>
         ///     Indicates that the token is a '<'.
         /// </summary>
-        public static readonly TokenType LessThan = new TokenType("LessThan", "<");
+        public static readonly TokenType LessThan;
 
         /// <summary>
         ///     Indicates that the token is a '=='.
         /// </summary>
-        public static readonly TokenType DoubleEqual = new TokenType("DoubleEqual", "==");
+        public static readonly TokenType DoubleEqual;
 
         /// <summary>
         ///     Indicates that the token is a '='.
         /// </summary>
-        public static readonly TokenType Equal = new TokenType("Equal", "=");
+        public static readonly TokenType Equal;
 
         /// <summary>
         ///     Indicates that the token is a '>='.
         /// </summary>
-        public static readonly TokenType GreaterThanEqual = new TokenType("GreaterThanEqual", ">=");
+        public static readonly TokenType GreaterThanEqual;
 
         /// <summary>
         ///     Indicates that the token is a '>'.
         /// </summary>
-        public static readonly TokenType GreaterThan = new TokenType("GreaterThan", ">");
+        public static readonly TokenType GreaterThan;
 
         /// <summary>
         ///     Indicates that the token is a '?'.
         /// </summary>
-        public static readonly TokenType Question = new TokenType("Question", "?");
+        public static readonly TokenType Question;
 
         /// <summary>
         ///     Indicates that the token is a '??'.
         /// </summary>
-        public static readonly TokenType DoubleQuestion = new TokenType("DoubleQuestion", "??");
+        public static readonly TokenType DoubleQuestion;
 
         /// <summary>
         ///     Indicates that the token is a '['.
         /// </summary>
-        public static readonly TokenType OpenBracket = new TokenType("OpenBracket", "[");
+        public static readonly TokenType OpenBracket;
 
         /// <summary>
         ///     Indicates that the token is a ']'.
         /// </summary>
-        public static readonly TokenType CloseBracket = new TokenType("CloseBracket", "]");
+        public static readonly TokenType CloseBracket;
 
         /// <summary>
         ///     Indicates that the token is a '||'.
         /// </summary>
-        public static readonly TokenType DoubleBar = new TokenType("DoubleBar", "||");
+        public static readonly TokenType DoubleBar;
 
         /// <summary>
         ///     Indicates that the token is a '|'.
         /// </summary>
-        public static readonly TokenType Bar = new TokenType("Bar", "|");
+        public static readonly TokenType Bar;
 
         /// <summary>
         ///     Indicates that the token is a '~'.
         /// </summary>
-        public static readonly TokenType Tilde = new TokenType("Tilde", "~");
+        public static readonly TokenType Tilde;
 
         /// <summary>
         ///     Indicates that the token is a string literal.
         /// </summary>
-        public static readonly TokenType StringLiteral = new TokenType("StringLiteral", string.Empty);
+        public static readonly TokenType StringLiteral;
 
         /// <summary>
         ///     Indicates that the token is an identifier.
         /// </summary>
-        public static readonly TokenType Identifier = new TokenType("Identifier", string.Empty);
+        public static readonly TokenType Identifier;
 
         /// <summary>
         ///     Indicates that the token is an integer literal.
         /// </summary>
-        public static readonly TokenType IntegerLiteral = new TokenType("IntegerLiteral", string.Empty);
+        public static readonly TokenType IntegerLiteral;
 
         /// <summary>
         ///     Indicates that the token is an real literal.
         /// </summary>
-        public static readonly TokenType RealLiteral = new TokenType("RealLiteral", string.Empty);
+        public static readonly TokenType RealLiteral;
 
         /// <summary>
         ///     Indicates that the token is an open brace '{'.
         /// </summary>
-        public static readonly TokenType OpenBrace = new TokenType("OpenBrace", "{");
+        public static readonly TokenType OpenBrace;
 
         /// <summary>
         ///     Indicates that the token is a close brace '}'.
         /// </summary>
-        public static readonly TokenType CloseBrace = new TokenType("CloseBrace", "}");
+        public static readonly TokenType CloseBrace;
 
         /// <summary>
         ///     Indicates that the end of the input stream has been reached.
         /// </summary>
-        public static readonly TokenType Eof = new TokenType("Eof", string.Empty);
+        public static readonly TokenType Eof;
 
         /// <summary>
         /// Indicates that the token was not recognized.
         /// </summary>
-        public static readonly TokenType Unknown = new TokenType("Unknown", string.Empty);
+        public static readonly TokenType Unknown;
 
         /// <summary>
         /// Gets the token value.
@@ -240,6 +240,51 @@ namespace MugenMvvmToolkit.Binding.Models
         #endregion
 
         #region Constructors
+
+        static TokenType()
+        {
+            Whitespace = new TokenType("Whitespace", " ");
+            ExclamationEqual = new TokenType("ExclamationEqual", "!=");
+            Exclamation = new TokenType("Exclamation", "!");
+            Percent = new TokenType("Percent", "%");
+            Dollar = new TokenType("Dollar", "$");
+            DoubleDollar = new TokenType("DoubleDollar", "$$");
+            DoubleAmphersand = new TokenType("DoubleAmphersand", "&&");
+            Amphersand = new TokenType("Amphersand", "&");
+            OpenParen = new TokenType("OpenParen", "(");
+            CloseParen = new TokenType("CloseParen", ")");
+            EmptyParen = new TokenType("EmptyParen", "()");
+            Asterisk = new TokenType("Asterisk", "*");
+            Plus = new TokenType("Plus", "+");
+            Comma = new TokenType("Comma", ",");
+            Semicolon = new TokenType("Semicolon", ";");
+            Minus = new TokenType("Minus", "-");
+            Dot = new TokenType("Dot", ".");
+            Slash = new TokenType("Slash", "/");
+            Colon = new TokenType("Colon", ":");
+            Lambda = new TokenType("Lambda", "=>");
+            LessThanEqual = new TokenType("LessThanEqual", "<=");
+            LessThan = new TokenType("LessThan", "<");
+            DoubleEqual = new TokenType("DoubleEqual", "==");
+            Equal = new TokenType("Equal", "=");
+            GreaterThanEqual = new TokenType("GreaterThanEqual", ">=");
+            GreaterThan = new TokenType("GreaterThan", ">");
+            Question = new TokenType("Question", "?");
+            DoubleQuestion = new TokenType("DoubleQuestion", "??");
+            OpenBracket = new TokenType("OpenBracket", "[");
+            CloseBracket = new TokenType("CloseBracket", "]");
+            DoubleBar = new TokenType("DoubleBar", "||");
+            Bar = new TokenType("Bar", "|");
+            Tilde = new TokenType("Tilde", "~");
+            StringLiteral = new TokenType("StringLiteral", string.Empty);
+            Identifier = new TokenType("Identifier", string.Empty);
+            IntegerLiteral = new TokenType("IntegerLiteral", string.Empty);
+            RealLiteral = new TokenType("RealLiteral", string.Empty);
+            OpenBrace = new TokenType("OpenBrace", "{");
+            CloseBrace = new TokenType("CloseBrace", "}");
+            Eof = new TokenType("Eof", string.Empty);
+            Unknown = new TokenType("Unknown", string.Empty);
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="TokenType" /> class.

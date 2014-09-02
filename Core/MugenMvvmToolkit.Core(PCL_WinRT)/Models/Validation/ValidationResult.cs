@@ -31,7 +31,7 @@ namespace MugenMvvmToolkit.Models.Validation
         /// <summary>
         ///     Represents the success of the validation (true if validation was successful; otherwise, false).
         /// </summary>
-        public static readonly ValidationResult Success = null;
+        public static readonly ValidationResult Success;
 
         private readonly string _errorMessage;
         private readonly IEnumerable<string> _memberNames;
@@ -39,6 +39,11 @@ namespace MugenMvvmToolkit.Models.Validation
         #endregion
 
         #region Constructors
+
+        static ValidationResult()
+        {
+            Success = null;
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValidationResult" /> class by using an error message and a list of

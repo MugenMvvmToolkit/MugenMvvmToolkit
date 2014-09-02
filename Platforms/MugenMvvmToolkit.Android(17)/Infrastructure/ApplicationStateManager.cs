@@ -30,7 +30,7 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Fields
 
-        private static readonly DataConstant<object> ActiveConstant = DataConstant.Create(() => ActiveConstant, false);
+        private static readonly DataConstant<object> ActiveConstant;
         private const string VmStateActivityBundleKey = "~@#actvmstate";
 #if !API8
         private const string VmStateFragmentBundleKey = "~@#fragvmstate";
@@ -40,6 +40,11 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Constructors
+
+        static ApplicationStateManager()
+        {
+            ActiveConstant = DataConstant.Create(() => ActiveConstant, false);
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ApplicationStateManager" /> class.

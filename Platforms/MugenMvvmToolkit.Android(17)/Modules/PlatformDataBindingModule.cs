@@ -225,8 +225,8 @@ namespace MugenMvvmToolkit
         private static readonly IAttachedBindingMemberInfo<ViewGroup, IDataTemplateSelector> ContentTemplateSelectorMember;
 
         private static IBindingMemberInfo _rawAdapterMember;
-        private static readonly object AddViewValue = new object();
-        private readonly static object[] RemoveViewValue = { null };
+        private static readonly object AddViewValue;
+        private static readonly object[] RemoveViewValue;
 
         #endregion
 
@@ -234,6 +234,8 @@ namespace MugenMvvmToolkit
 
         static PlatformDataBindingModule()
         {
+            AddViewValue = new object();
+            RemoveViewValue = new object[] { null };
             //Menu
             MenuItemsSourceMember = AttachedBindingMember.CreateAutoProperty<IMenu, IEnumerable>(AttachedMemberConstants.ItemsSource, MenuItemsSourceChanged);
             IsCheckedMenuItemMember = AttachedBindingMember.CreateNotifiableMember<IMenuItem, bool>("IsChecked",

@@ -21,15 +21,20 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
     {
         #region Fields
 
-        public static readonly ValueChangedEventArgs TrueEventArgs = new ValueChangedEventArgs(true);
-
-        public static readonly ValueChangedEventArgs FalseEventArgs = new ValueChangedEventArgs(false);
+        public static readonly ValueChangedEventArgs TrueEventArgs;
+        public static readonly ValueChangedEventArgs FalseEventArgs;
 
         private readonly bool _lastMemberChanged;
 
         #endregion
 
         #region Constructors
+
+        static ValueChangedEventArgs()
+        {
+            TrueEventArgs = new ValueChangedEventArgs(true);
+            FalseEventArgs = new ValueChangedEventArgs(false);
+        }
 
         protected ValueChangedEventArgs(bool lastMemberChanged)
         {

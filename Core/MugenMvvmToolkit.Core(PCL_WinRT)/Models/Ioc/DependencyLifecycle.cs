@@ -25,16 +25,22 @@ namespace MugenMvvmToolkit.Models.IoC
         /// <summary>
         ///     Singleton scope
         /// </summary>
-        public static readonly DependencyLifecycle SingleInstance = new DependencyLifecycle("SingleInstance");
+        public static readonly DependencyLifecycle SingleInstance;
 
         /// <summary>
         ///     Transient scope.
         /// </summary>
-        public static readonly DependencyLifecycle TransientInstance = new DependencyLifecycle("TransientInstance");
+        public static readonly DependencyLifecycle TransientInstance;
 
         #endregion
 
         #region Constructors
+
+        static DependencyLifecycle()
+        {
+            SingleInstance = new DependencyLifecycle("Single");
+            TransientInstance = new DependencyLifecycle("Transient");
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DependencyLifecycle" /> class.

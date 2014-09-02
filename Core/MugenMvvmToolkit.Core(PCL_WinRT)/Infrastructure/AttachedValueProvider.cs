@@ -21,7 +21,6 @@ using MugenMvvmToolkit.Collections;
 using Windows.UI.Xaml;
 #endif
 
-
 namespace MugenMvvmToolkit.Infrastructure
 {
     /// <summary>

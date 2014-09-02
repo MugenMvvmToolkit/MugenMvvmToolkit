@@ -38,13 +38,13 @@ namespace MugenMvvmToolkit.ViewModels
         #region Fields
 
         private readonly object _locker;
+        private readonly PropertyChangedEventHandler _weakPropertyHandler;
+
         private FilterDelegate<T> _filter;
         private IList<T> _itemsSource;
         private IList<T> _originalData;
         private FilterableNotifiableCollection<T> _filterableItemsSource;
-
         private T _selectedItem;
-        private readonly PropertyChangedEventHandler _weakPropertyHandler;
 
         private EventHandler<IGridViewModel, SelectedItemChangedEventArgs> _selectedItemChangedNonGeneric;
         private EventHandler<IGridViewModel, ItemsSourceChangedEventArgs> _itemsSourceChangedNonGeneric;

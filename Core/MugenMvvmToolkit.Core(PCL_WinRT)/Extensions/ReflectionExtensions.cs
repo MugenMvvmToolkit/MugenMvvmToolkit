@@ -75,7 +75,7 @@ namespace MugenMvvmToolkit
                 Should.NotBeNull(invokeAction, "invokeAction");
                 _invokeAction = invokeAction;
                 _unsubscribeAction = unsubscribeAction;
-                _targetReference = MvvmExtensions.GetWeakReference(target);
+                _targetReference = ToolkitExtensions.GetWeakReference(target);
             }
 
             #endregion

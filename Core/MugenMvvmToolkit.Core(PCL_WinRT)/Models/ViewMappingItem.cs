@@ -26,7 +26,7 @@ namespace MugenMvvmToolkit.Models
     {
         #region Fields
 
-        private static readonly Uri Empty = new Uri("app://empty/", UriKind.Absolute);
+        private static readonly Uri Empty;
 
         private readonly string _name;
         private readonly Uri _uri;
@@ -36,6 +36,11 @@ namespace MugenMvvmToolkit.Models
         #endregion
 
         #region Constructor
+
+        static ViewMappingItem()
+        {
+            Empty = new Uri("app://empty/", UriKind.Absolute);
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ViewMappingItem" /> class.

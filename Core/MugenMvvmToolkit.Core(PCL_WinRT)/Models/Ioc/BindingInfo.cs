@@ -29,7 +29,7 @@ namespace MugenMvvmToolkit.Models.IoC
         /// <summary>
         ///     Gets the empty instance of BindingInfo.
         /// </summary>
-        public static readonly BindingInfo<T> Empty = default(BindingInfo<T>);
+        public static readonly BindingInfo<T> Empty;
 
         /// <summary>
         ///     Gets the constant instance.
@@ -61,6 +61,11 @@ namespace MugenMvvmToolkit.Models.IoC
         #endregion
 
         #region Constructors
+
+        static BindingInfo()
+        {
+            Empty = default(BindingInfo<T>);
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="BindingInfo{T}" /> class.

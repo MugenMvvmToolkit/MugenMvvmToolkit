@@ -34,12 +34,17 @@ namespace MugenMvvmToolkit.ViewModels
         ///     Gets the parameter that can be used to immediately close the closeable view model without any check.
         ///     closeableViewModel.CloseAsync(CloseableMediator.ImmediateCloseParameter);
         /// </summary>
-        public static readonly object ImmediateCloseParameter = new object();
+        public static readonly object ImmediateCloseParameter;
         private ICommand _closeCommand;
 
         #endregion
 
         #region Constructors
+
+        static CloseableViewModel()
+        {
+            ImmediateCloseParameter = new object();
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="CloseableViewModel" /> class.

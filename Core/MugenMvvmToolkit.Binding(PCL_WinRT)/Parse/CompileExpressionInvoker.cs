@@ -112,17 +112,16 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Fields
 
-        private static readonly MethodInfo ProxyMethod = typeof(CompileExpressionInvoker)
-            .GetMethodEx("InvokeDynamicMethod", MemberFlags.Instance | MemberFlags.NonPublic);
-        protected static readonly ParameterExpression DataContextParameter = Expression.Parameter(typeof(IDataContext), "dataContext");
+        private static readonly MethodInfo ProxyMethod;
+        protected static readonly ParameterExpression DataContextParameter;
 
         private readonly Dictionary<ExpressionNodeType, Func<IExpressionNode, Expression>> _nodeToExpressionMapping;
         private readonly Dictionary<TokenType, Func<Expression, Expression>> _unaryToExpressionMapping;
         private readonly Dictionary<TokenType, Func<Expression, Expression, Expression>> _binaryToExpressionMapping;
-        private readonly ConstantExpression _thisExpression;
-
         private readonly Dictionary<string, Expression> _lambdaParameters;
         private readonly Dictionary<CacheKey, Func<object[], object>> _expressionCache;
+
+        private readonly ConstantExpression _thisExpression;
         private readonly IExpressionNode _node;
         private readonly bool _isEmpty;
         private ParameterInfo _lambdaParameter;
@@ -133,6 +132,12 @@ namespace MugenMvvmToolkit.Binding.Parse
         #endregion
 
         #region Constructors
+
+        static CompileExpressionInvoker()
+        {
+            ProxyMethod = typeof(CompileExpressionInvoker).GetMethodEx("InvokeDynamicMethod", MemberFlags.Instance | MemberFlags.NonPublic);
+            DataContextParameter = Expression.Parameter(typeof(IDataContext), "dataContext");
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="CompileExpressionInvoker" /> class.

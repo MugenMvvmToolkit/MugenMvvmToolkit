@@ -67,7 +67,7 @@
     <Compile Include="Collections\SynchronizedNotifiableCollection.cs" />
     <Compile Include="Collections\TrackingCollection.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="Extensions\MvvmExtensions.cs" />
+    <Compile Include="Extensions\ToolkitExtensions.cs" />
     <Compile Include="Extensions\ReflectionExtensions.cs" />
     <Compile Include="Extensions\ViewModelExtensions.cs" />
     <Compile Include="Infrastructure\ActionToken.cs" />

@@ -67,7 +67,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             MessageResult defaultResult = MessageResult.None, IDataContext context = null)
         {
             if (_threadManager.IsUiThread)
-                return MvvmExtensions.FromResult(ShowMessage(messageBoxText, caption, button, icon, defaultResult));
+                return ToolkitExtensions.FromResult(ShowMessage(messageBoxText, caption, button, icon, defaultResult));
             var tcs = new TaskCompletionSource<MessageResult>();
             _threadManager.InvokeOnUiThreadAsync(
                 () => tcs.SetResult(ShowMessage(messageBoxText, caption, button, icon, defaultResult)));

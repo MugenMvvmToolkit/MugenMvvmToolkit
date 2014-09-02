@@ -23,9 +23,8 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
     {
         #region Fields
 
-        public static readonly ResourceExpressionNode StaticInstance = new ResourceExpressionNode("$$", false);
-
-        public static readonly ResourceExpressionNode DynamicInstance = new ResourceExpressionNode("$", true);
+        public static readonly ResourceExpressionNode StaticInstance;
+        public static readonly ResourceExpressionNode DynamicInstance;
 
         private readonly string _name;
         private readonly bool _dynamic;
@@ -33,6 +32,12 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         #endregion
 
         #region Constructors
+
+        static ResourceExpressionNode()
+        {
+            StaticInstance = new ResourceExpressionNode("$$", false);
+            DynamicInstance = new ResourceExpressionNode("$", true);
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ResourceExpressionNode" /> class.
@@ -50,7 +55,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         public bool Dynamic
         {
-            get { return _dynamic; }            
+            get { return _dynamic; }
         }
 
         #endregion

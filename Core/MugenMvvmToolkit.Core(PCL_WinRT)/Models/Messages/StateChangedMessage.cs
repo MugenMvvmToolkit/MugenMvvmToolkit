@@ -29,11 +29,16 @@ namespace MugenMvvmToolkit.Models.Messages
         /// <summary>
         ///     Gets the empty message.
         /// </summary>
-        public static readonly StateChangedMessage Empty = new StateChangedMessage();
+        public static readonly StateChangedMessage Empty;
 
         #endregion
 
         #region Constructors
+
+        static StateChangedMessage()
+        {
+            Empty = new StateChangedMessage();
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="StateChangedMessage" /> class.

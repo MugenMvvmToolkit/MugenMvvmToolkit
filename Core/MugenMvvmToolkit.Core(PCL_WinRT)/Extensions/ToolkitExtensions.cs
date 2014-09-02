@@ -1,6 +1,6 @@
 #region Copyright
 // ****************************************************************************
-// <copyright file="MvvmExtensions.cs">
+// <copyright file="ToolkitExtensions.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
 // </copyright>
 // ****************************************************************************
@@ -46,11 +46,11 @@ namespace MugenMvvmToolkit
     /// <summary>
     ///     Represents the extensions method for mvvm application.
     /// </summary>
-    public static class MvvmExtensions
+    public static class ToolkitExtensions
     {
         #region Constructors
 
-        static MvvmExtensions()
+        static ToolkitExtensions()
         {
             ShortDuration = 2000;
             LongDuration = 3500;

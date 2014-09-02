@@ -36,11 +36,12 @@ namespace MugenMvvmToolkit.ViewModels
     {
         #region Fields
 
+        private IEntitySnapshot _entitySnapshot;
         private T _entity;
+        private T _initializedEntity;
+
         private bool _hasChanges;
         private bool _isNewRecord;
-        private IEntitySnapshot _entitySnapshot;
-        private T _initializedEntity;
 
         private EventHandler<IEditableViewModel, EntityInitializedEventArgs> _entityEntityInitializedNonGeneric;
         private EventHandler<IEditableViewModel, ChangesCanceledEventArgs> _changesCanceledNonGeneric;
@@ -293,7 +294,7 @@ namespace MugenMvvmToolkit.ViewModels
         protected Task ValidateAsync(Expression<Func<T, object>> getProperty)
         {
             Should.NotBeNull(getProperty, "getProperty");
-            return ValidateAsync(MvvmExtensions.GetPropertyName(getProperty));
+            return ValidateAsync(ToolkitExtensions.GetPropertyName(getProperty));
         }
 
         /// <summary>

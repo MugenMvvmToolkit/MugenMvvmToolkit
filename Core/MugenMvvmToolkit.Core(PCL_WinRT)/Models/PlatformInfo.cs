@@ -27,12 +27,12 @@ namespace MugenMvvmToolkit.Models
         /// <summary>
         ///     Gets the unknown platform info.
         /// </summary>
-        public static readonly PlatformInfo Unknown = new PlatformInfo(PlatformType.Unknown, new Version(0, 0));
+        public static readonly PlatformInfo Unknown;
 
         /// <summary>
         ///     Gets the unit test platform info.
         /// </summary>
-        public static readonly PlatformInfo UnitTest = new PlatformInfo(PlatformType.UnitTest, new Version(0, 0));
+        public static readonly PlatformInfo UnitTest;
 
         private readonly PlatformType _platform;
         private readonly Version _version;
@@ -40,6 +40,12 @@ namespace MugenMvvmToolkit.Models
         #endregion
 
         #region Constructors
+
+        static PlatformInfo()
+        {
+            Unknown = new PlatformInfo(PlatformType.Unknown, new Version(0, 0));
+            UnitTest = new PlatformInfo(PlatformType.UnitTest, new Version(0, 0));
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="PlatformInfo" /> class.

@@ -19,15 +19,22 @@ namespace MugenMvvmToolkit.Models
     {
         #region Fields
 
-        public static readonly OperationType TabNavigation = new OperationType("TabNavigation");
+        public static readonly OperationType TabNavigation;
 
-        public static readonly OperationType WindowNavigation = new OperationType("WindowNavigation");
+        public static readonly OperationType WindowNavigation;
 
-        public static readonly OperationType Navigation = new OperationType("Navigation");
+        public static readonly OperationType Navigation;
 
         #endregion
 
         #region Constructors
+
+        static OperationType()
+        {
+            TabNavigation = new OperationType("Tab");
+            WindowNavigation = new OperationType("Window");
+            Navigation = new OperationType("Navigation");
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="OperationType" /> class.

@@ -21,7 +21,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
     {
         #region Fields
 
-        private static readonly ExpressionNodeType XmlType = new ExpressionNodeType("xml");
+        private static readonly ExpressionNodeType XmlType;
         private int _end;
         private int _length;
         private XmlExpressionNode _parent;
@@ -30,6 +30,11 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         #endregion
 
         #region Constructors
+
+        static XmlExpressionNode()
+        {
+            XmlType = new ExpressionNodeType("xml");
+        }
 
         protected XmlExpressionNode(int start, int end)
             : base(XmlType)

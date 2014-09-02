@@ -25,16 +25,22 @@ namespace MugenMvvmToolkit.Models.IoC
         /// <summary>
         ///     Constructor parameter.
         /// </summary>
-        public static readonly IocParameterType Constructor = new IocParameterType("Constructor");
+        public static readonly IocParameterType Constructor;
 
         /// <summary>
         ///     Property parameter.
         /// </summary>
-        public static readonly IocParameterType Property = new IocParameterType("Property");
+        public static readonly IocParameterType Property;
 
         #endregion
 
         #region Constructors
+
+        static IocParameterType()
+        {
+            Constructor = new IocParameterType("Constructor");
+            Property = new IocParameterType("Property");
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="IocParameterType" /> class.

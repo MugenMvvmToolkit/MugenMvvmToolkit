@@ -28,8 +28,16 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Fields
 
-        private static readonly Dictionary<MethodDelegateCacheKey, Func<object, Delegate>> DelegatesCache =
-            new Dictionary<MethodDelegateCacheKey, Func<object, Delegate>>(MethodDelegateCacheKeyComparer.Instance);
+        private static readonly Dictionary<MethodDelegateCacheKey, Func<object, Delegate>> DelegatesCache;
+
+        #endregion
+
+        #region Constructors
+
+        static ExpressionReflectionManagerEx()
+        {
+            DelegatesCache = new Dictionary<MethodDelegateCacheKey, Func<object, Delegate>>(MethodDelegateCacheKeyComparer.Instance);
+        }
 
         #endregion
 
@@ -122,7 +130,7 @@ namespace MugenMvvmToolkit.Infrastructure
             return
                 new DynamicMethod("dynamic_" + type.Name + Guid.NewGuid().ToString("N"), outputValue,
                     inputValue, typeInfo.Module, true);
-#else            
+#else
             return new DynamicMethod("dynamic_" + type.Name + Guid.NewGuid().ToString("N"),
                 outputValue,
                 inputValue);

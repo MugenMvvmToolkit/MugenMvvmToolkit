@@ -39,23 +39,24 @@ namespace MugenMvvmToolkit.ViewModels
     {
         #region Fields
 
-        private const int DisposedState = 1;
+        private const int DisposedState = 2;
+        private const int InitializedState = 1;
+        private const int DefaultState = 0;
+
         private readonly Dictionary<Guid, object> _busyCollection;
-        private readonly CancellationTokenSource _disposeCancellationToken;
         private readonly IEventAggregator _vmEventAggregator;
         private readonly IViewModelSettings _settings;
 
-        private object _busyMessage;
+        private CancellationTokenSource _disposeCancellationToken;
         private IIocContainer _iocContainer;
         private IViewModelProvider _viewModelProvider;
         private IThreadManager _threadManager;
-
-        private bool _isBusy;
-        private bool _isInitialized;
-        private bool _isDisposed;
-        private int _disposed;
-        private bool _isRestored;
         private WeakReference _weakReference;
+        private object _busyMessage;
+
+        private int _state;
+        private bool _isBusy;
+        private bool _isRestored;
 
         #endregion
 
@@ -126,7 +127,12 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         public CancellationToken DisposeCancellationToken
         {
-            get { return _disposeCancellationToken.Token; }
+            get
+            {
+                if (_disposeCancellationToken == null)
+                    Interlocked.CompareExchange(ref _disposeCancellationToken, new CancellationTokenSource(), null);
+                return _disposeCancellationToken.Token;
+            }
         }
 
         /// <summary>
@@ -134,7 +140,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         public bool IsInitialized
         {
-            get { return _isInitialized; }
+            get { return _state == InitializedState; }
         }
 
         /// <summary>
@@ -194,7 +200,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         public bool IsDisposed
         {
-            get { return _isDisposed; }
+            get { return _disposeCancellationToken.IsCancellationRequested; }
         }
 
         /// <summary>
@@ -207,21 +213,17 @@ namespace MugenMvvmToolkit.ViewModels
         {
             EnsureNotDisposed();
             Should.NotBeNull(context, "context");
-            lock (_disposeCancellationToken)
+            if (Interlocked.CompareExchange(ref _state, InitializedState, DefaultState) != DefaultState)
             {
-                if (_isInitialized)
-                {
-                    if (Settings.ThrowOnMultiInitialization)
-                        throw ExceptionManager.ObjectInitialized("ViewModel", this);
-                    return;
-                }
-                context.TryGetData(InitializationConstants.IsRestored, out _isRestored);
-                _iocContainer = context.GetData(InitializationConstants.IocContainer, true);
-                _threadManager = _iocContainer.Get<IThreadManager>();
-                if (_viewModelProvider == null)
-                    ViewModelProvider = _iocContainer.Get<IViewModelProvider>();
-                _isInitialized = true;
+                if (Settings.ThrowOnMultiInitialization)
+                    throw ExceptionManager.ObjectInitialized("ViewModel", this);
+                return;
             }
+            context.TryGetData(InitializationConstants.IsRestored, out _isRestored);
+            _iocContainer = context.GetData(InitializationConstants.IocContainer, true);
+            _threadManager = _iocContainer.Get<IThreadManager>();
+            if (_viewModelProvider == null)
+                ViewModelProvider = _iocContainer.Get<IViewModelProvider>();
 
             InitializeDisplayName();
             InitializeParentViewModel(context);
@@ -308,25 +310,18 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         public void Dispose()
         {
-            if (Interlocked.Exchange(ref _disposed, DisposedState) == DisposedState)
+            if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
                 return;
-            try
+            GC.SuppressFinalize(this);
+            OnDisposeInternal(true);
+            OnDispose(true);
+            var handler = Disposed;
+            if (handler != null)
             {
-                GC.SuppressFinalize(this);
-                OnDisposeInternal(true);
-                OnDispose(true);
-                var handler = Disposed;
-                if (handler != null)
-                {
-                    handler(this, EventArgs.Empty);
-                    Disposed = null;
-                }
-                DisposeInternal();
+                handler(this, EventArgs.Empty);
+                Disposed = null;
             }
-            finally
-            {
-                _isDisposed = true;
-            }
+            DisposeInternal();
         }
 
         /// <summary>
@@ -491,7 +486,7 @@ namespace MugenMvvmToolkit.ViewModels
             var parentViewModel = context.GetData(InitializationConstants.ParentViewModel);
             if (parentViewModel == null)
                 return;
-            Settings.Metadata.AddOrUpdate(ViewModelConstants.ParentViewModel, MvvmExtensions.GetWeakReference(parentViewModel));
+            Settings.Metadata.AddOrUpdate(ViewModelConstants.ParentViewModel, ToolkitExtensions.GetWeakReference(parentViewModel));
             ObservationMode observationMode;
             if (!context.TryGetData(InitializationConstants.ObservationMode, out observationMode))
                 observationMode = ApplicationSettings.ViewModelObservationMode;

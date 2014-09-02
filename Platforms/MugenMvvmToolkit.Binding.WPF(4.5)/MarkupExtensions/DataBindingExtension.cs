@@ -38,7 +38,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
     {
         #region Fields
 
-        private static readonly Func<object> NoDoFunc = () => null;
+        private static readonly Func<object> NoDoFunc;
         private static readonly Dictionary<EventInfo, Delegate> CachedDelegates;
 
         private bool _defaultValueOnException;
@@ -67,6 +67,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
         static DataBindingExtension()
         {
             CachedDelegates = new Dictionary<EventInfo, Delegate>();
+            NoDoFunc = () => null;
         }
 
         /// <summary>

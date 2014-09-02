@@ -60,27 +60,38 @@ namespace MugenMvvmToolkit.Binding
         #region Fields
 
 #if PCL_WINRT
-        private static readonly Dictionary<Type, TypeCode> TypeCodeTable =
-            new Dictionary<Type, TypeCode>
-			{
-				{ typeof( Boolean ), TypeCode.Boolean },
-				{ typeof( Char ), TypeCode.Char },
-				{ typeof( Byte ), TypeCode.Byte },
-				{ typeof( Int16 ), TypeCode.Int16 },
-				{ typeof( Int32 ), TypeCode.Int32 },
-				{ typeof( Int64 ), TypeCode.Int64 },
-				{ typeof( SByte ), TypeCode.SByte },
-				{ typeof( UInt16 ), TypeCode.UInt16 },
-				{ typeof( UInt32 ), TypeCode.UInt32 },
-				{ typeof( UInt64 ), TypeCode.UInt64 },
-				{ typeof( Single ), TypeCode.Single },
-				{ typeof( Double ), TypeCode.Double },
-				{ typeof( DateTime ), TypeCode.DateTime },
-				{ typeof( Decimal ), TypeCode.Decimal },
-				{ typeof( String ), TypeCode.String },
-			};
+        private static readonly Dictionary<Type, TypeCode> TypeCodeTable;
 #endif
-        private static readonly Dictionary<Type, List<MethodInfo>> TypeToExtensionMethods = new Dictionary<Type, List<MethodInfo>>();
+        private static readonly Dictionary<Type, List<MethodInfo>> TypeToExtensionMethods;
+
+        #endregion
+
+        #region Constructors
+
+        static BindingReflectionExtensions()
+        {
+#if PCL_WINRT
+            TypeCodeTable = new Dictionary<Type, TypeCode>
+            {
+                {typeof (Boolean), TypeCode.Boolean},
+                {typeof (Char), TypeCode.Char},
+                {typeof (Byte), TypeCode.Byte},
+                {typeof (Int16), TypeCode.Int16},
+                {typeof (Int32), TypeCode.Int32},
+                {typeof (Int64), TypeCode.Int64},
+                {typeof (SByte), TypeCode.SByte},
+                {typeof (UInt16), TypeCode.UInt16},
+                {typeof (UInt32), TypeCode.UInt32},
+                {typeof (UInt64), TypeCode.UInt64},
+                {typeof (Single), TypeCode.Single},
+                {typeof (Double), TypeCode.Double},
+                {typeof (DateTime), TypeCode.DateTime},
+                {typeof (Decimal), TypeCode.Decimal},
+                {typeof (String), TypeCode.String},
+            };
+#endif
+            TypeToExtensionMethods = new Dictionary<Type, List<MethodInfo>>();
+        }
 
         #endregion
 

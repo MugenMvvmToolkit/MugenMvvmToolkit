@@ -275,11 +275,8 @@ namespace MugenMvvmToolkit
         public static void NotBeDisposed(this IDisposableObject disposableObject)
         {
             NotBeNull(disposableObject, "disposableObject");
-            if (!disposableObject.IsDisposed)
-                return;
-            if (disposableObject is IIocContainer)
-                throw ExceptionManager.IocContainerDisposed(disposableObject.GetType());
-            throw ExceptionManager.ObjectDisposed(disposableObject.GetType());
+            if (disposableObject.IsDisposed)
+                throw ExceptionManager.ObjectDisposed(disposableObject.GetType());
         }
 
         internal static void BeBooleanOrNullable(Type type, string paramName)

@@ -229,7 +229,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
         #region Fields
 
-            private static readonly MethodInfo OnClosingMethod = typeof(WindowView).GetMethodEx("OnClosing", MemberFlags.Instance | MemberFlags.NonPublic);
+            private static readonly MethodInfo OnClosingMethod;
             private static EventInfo _closingEvent;
             private static PropertyInfo _cancelProperty;
             private static MethodInfo _showAsyncMethod;
@@ -241,6 +241,11 @@ namespace MugenMvvmToolkit.Infrastructure
             #endregion
 
         #region Constructors
+
+            static WindowView()
+            {
+                OnClosingMethod = typeof(WindowView).GetMethodEx("OnClosing", MemberFlags.Instance | MemberFlags.NonPublic);
+            }
 
             public WindowView(FrameworkElement window)
             {
@@ -259,7 +264,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 _token = (EventRegistrationToken)_closingEvent.AddMethod.InvokeEx(window, handler);
             }
 
-            #endregion
+        #endregion
 
         #region Methods
 
@@ -277,7 +282,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     _cancelProperty.SetValueEx(args, eventArgs.Cancel);
             }
 
-            #endregion
+        #endregion
 
         #region Implementation of IWindowView
 
@@ -315,7 +320,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 base.OnDispose(disposing);
             }
 
-            #endregion
+        #endregion
         }
 #endif
         #endregion

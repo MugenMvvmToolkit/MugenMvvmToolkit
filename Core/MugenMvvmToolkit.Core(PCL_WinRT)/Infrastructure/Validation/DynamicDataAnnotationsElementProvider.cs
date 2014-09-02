@@ -206,8 +206,8 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         #region Fields
 
-        private const MemberFlags InstancePublicFlags = MemberFlags.Public | MemberFlags.Instance;
         public const string ServiceProviderKey = "_ServiceProviderKey_";
+        private const MemberFlags InstancePublicFlags = MemberFlags.Public | MemberFlags.Instance;
         private const string ValidationContextKey = "``````";
         private const string DataAnnotationsNamespace = "System.ComponentModel.DataAnnotations";
         private const string ValidationContextTypeName = DataAnnotationsNamespace + ".ValidationContext";
@@ -223,34 +223,37 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         private const string MemberNameProperty = "MemberName";
         private const string MetadataClassTypeProperty = "MetadataClassType";
 
-        private static readonly Dictionary<Type, Func<IValidationContext, object>> ValidationContextCache =
-            new Dictionary<Type, Func<IValidationContext, object>>();
-
-        private static readonly Dictionary<Type, Func<object, IValidationResult>> ValidationResultCache =
-            new Dictionary<Type, Func<object, IValidationResult>>();
-
-        private static readonly Dictionary<Type, IDictionary<string, IList<IValidationElement>>> ElementsCache =
-            new Dictionary<Type, IDictionary<string, IList<IValidationElement>>>();
-
-        private static readonly Dictionary<object, object> CheckDictionary = new Dictionary<object, object>();
-        private static readonly Type[] ValidationContextThreeTypesConstructor =
-        {
-            typeof (object),
-            typeof (IServiceProvider),
-            typeof (IDictionary<object, object>)
-        };
-
-        private static readonly Type[] ValidationContextTwoTypesConstructor =
-        {
-            typeof (object),
-            typeof (IDictionary<object, object>)
-        };
+        private static readonly Dictionary<Type, Func<IValidationContext, object>> ValidationContextCache;
+        private static readonly Dictionary<Type, Func<object, IValidationResult>> ValidationResultCache;
+        private static readonly Dictionary<Type, IDictionary<string, IList<IValidationElement>>> ElementsCache;
+        private static readonly Dictionary<object, object> CheckDictionary;
+        private static readonly Type[] ValidationContextThreeTypesConstructor;
+        private static readonly Type[] ValidationContextTwoTypesConstructor;
 
         private readonly IDisplayNameProvider _displayNameProvider;
 
         #endregion
 
         #region Constructors
+
+        static DynamicDataAnnotationsElementProvider()
+        {
+            ValidationContextCache = new Dictionary<Type, Func<IValidationContext, object>>();
+            ValidationResultCache = new Dictionary<Type, Func<object, IValidationResult>>();
+            ElementsCache = new Dictionary<Type, IDictionary<string, IList<IValidationElement>>>();
+            CheckDictionary = new Dictionary<object, object>();
+            ValidationContextThreeTypesConstructor = new[]
+            {
+                typeof (object),
+                typeof (IServiceProvider),
+                typeof (IDictionary<object, object>)
+            };
+            ValidationContextTwoTypesConstructor = new[]
+            {
+                typeof (object),
+                typeof (IDictionary<object, object>)
+            };
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DynamicDataAnnotationsElementProvider" /> class.

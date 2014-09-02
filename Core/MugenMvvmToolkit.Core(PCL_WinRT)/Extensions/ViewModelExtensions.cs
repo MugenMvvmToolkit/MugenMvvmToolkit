@@ -92,7 +92,7 @@ namespace MugenMvvmToolkit.ViewModels
             if (task.IsCompleted)
             {
                 if (handleException.Value)
-                    MvvmExtensions.TryHandleTaskException(task, viewModel, viewModel.GetIocContainer(true));
+                    ToolkitExtensions.TryHandleTaskException(task, viewModel, viewModel.GetIocContainer(true));
                 return task;
             }
             var beginBusy = viewModel.BeginBusy(message);
@@ -100,7 +100,7 @@ namespace MugenMvvmToolkit.ViewModels
             {
                 viewModel.EndBusy(beginBusy);
                 if (handleException.Value)
-                    MvvmExtensions.TryHandleTaskException(t, viewModel, viewModel.GetIocContainer(true));
+                    ToolkitExtensions.TryHandleTaskException(t, viewModel, viewModel.GetIocContainer(true));
             });
             return task;
         }
@@ -432,9 +432,11 @@ namespace MugenMvvmToolkit.ViewModels
         }
 
         /// <summary>
-        /// Tries to get an instance of <see cref="IIocContainer"/> from the <see cref="IViewModel"/> or from <see cref="ServiceProvider"/>.
+        ///     Tries to get an instance of <see cref="IIocContainer" /> from the <see cref="IViewModel" /> or from
+        ///     <see cref="ServiceProvider" />.
         /// </summary>
-        public static IIocContainer GetIocContainer([NotNull]this IViewModel viewModel, bool useGlobalContainer, bool throwOnError = true)
+        public static IIocContainer GetIocContainer([NotNull] this IViewModel viewModel, bool useGlobalContainer,
+            bool throwOnError = true)
         {
             Should.NotBeNull(viewModel, "viewModel");
             IIocContainer iocContainer = null;
@@ -485,7 +487,7 @@ namespace MugenMvvmToolkit.ViewModels
             where T : IValidatorAggregator
         {
             Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            return validatableViewModel.ValidateAsync(MvvmExtensions.GetPropertyName(getProperty));
+            return validatableViewModel.ValidateAsync(ToolkitExtensions.GetPropertyName(getProperty));
         }
 
         /// <summary>
@@ -497,7 +499,7 @@ namespace MugenMvvmToolkit.ViewModels
             where T : IValidatorAggregator
         {
             Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            return validatableViewModel.DisableValidationAsync(MvvmExtensions.GetPropertyName(getProperty));
+            return validatableViewModel.DisableValidationAsync(ToolkitExtensions.GetPropertyName(getProperty));
         }
 
         /// <summary>
@@ -523,7 +525,7 @@ namespace MugenMvvmToolkit.ViewModels
             where T : IValidatorAggregator
         {
             Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            return validatableViewModel.EnableValidationAsync(MvvmExtensions.GetPropertyName(getProperty));
+            return validatableViewModel.EnableValidationAsync(ToolkitExtensions.GetPropertyName(getProperty));
         }
 
         /// <summary>

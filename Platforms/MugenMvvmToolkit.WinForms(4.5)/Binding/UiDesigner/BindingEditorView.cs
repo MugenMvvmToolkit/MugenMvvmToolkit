@@ -34,14 +34,14 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
     {
         #region Fields
 
-        private static readonly Color KnownControlColor = ColorTranslator.FromHtml("#00008A");
-        private static readonly Color UnknownControlColor = Color.Red;
-        private static readonly Color CommentColor = ColorTranslator.FromHtml("#FF007E27");
+        private static readonly Color KnownControlColor;
+        private static readonly Color UnknownControlColor;
+        private static readonly Color CommentColor;
 
-        private static readonly Color ValueColor = ColorTranslator.FromHtml("#0000EA");
-        private static readonly Color PropertyColor = ColorTranslator.FromHtml("#9E277E");
-        private static readonly Color EventColor = ColorTranslator.FromHtml("#FE00FE");
-        private static readonly Color AttachedMemberColor = ColorTranslator.FromHtml("#00889B");
+        private static readonly Color ValueColor;
+        private static readonly Color PropertyColor;
+        private static readonly Color EventColor;
+        private static readonly Color AttachedMemberColor;
 
         private const string ControlsName = "Controls";
         private const string ComponentsName = "Components";
@@ -52,7 +52,6 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
         private readonly TreeNode _allControlsNode;
         private readonly TreeNode _sourceControls;
         private readonly Font _boldFont;
-        private readonly Font _italicFont;
 
         private XmlElementExpressionNode _lastElement;
         private XmlValueExpressionNode _lastValueNode;
@@ -60,6 +59,17 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
         #endregion
 
         #region Constructors
+
+        static BindingEditorView()
+        {
+            KnownControlColor = ColorTranslator.FromHtml("#00008A");
+            UnknownControlColor = Color.Red;
+            CommentColor = ColorTranslator.FromHtml("#FF007E27");
+            ValueColor = ColorTranslator.FromHtml("#0000EA");
+            PropertyColor = ColorTranslator.FromHtml("#9E277E");
+            EventColor = ColorTranslator.FromHtml("#FE00FE");
+            AttachedMemberColor = ColorTranslator.FromHtml("#00889B");
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="BindingEditorView" /> class.
@@ -81,7 +91,6 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             typeControlComboBox.Items.Add(ComponentsName);
             typeControlComboBox.SelectedItem = ComponentsName;
             _boldFont = new Font(bindingEditor.Font, FontStyle.Bold);
-            _italicFont = new Font(bindingEditor.Font, FontStyle.Italic);
         }
 
         /// <summary>
@@ -299,7 +308,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             var commentExpressionNode = node as XmlCommentExpressionNode;
             if (commentExpressionNode != null)
             {
-                bindingEditor.Highlight(CommentColor, node, _italicFont);
+                bindingEditor.Highlight(CommentColor, node);
                 return;
             }
 

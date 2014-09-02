@@ -169,7 +169,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         }
 
         [TestMethod]
-        public void WhenVmDisposedItShouldDisposeVmIfSetToTrue()
+        public void WhenVmDisposedItShouldDisposeVmDisposeViewModelOnRemoveTrue()
         {
             var viewModel = GetViewModel<NavigableViewModelMock>();
             var multiViewModel = (MultiViewModel)GetMultiViewModel();
@@ -183,7 +183,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         }
 
         [TestMethod]
-        public void WhenVmDisposedItShouldNotDisposeVmIfSetToFalse()
+        public void WhenVmDisposedItShouldNotDisposeVmDisposeViewModelOnRemoveFalse()
         {
             var viewModel = GetViewModel<NavigableViewModelMock>();
             var multiViewModel = (MultiViewModel)GetMultiViewModel();

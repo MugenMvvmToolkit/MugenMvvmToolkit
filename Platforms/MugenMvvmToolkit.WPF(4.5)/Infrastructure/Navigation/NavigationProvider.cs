@@ -93,11 +93,11 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         #region Fields
 
-        public static readonly DataConstant<NavigationEventArgsBase> NavigationArgsConstant = DataConstant.Create(() => NavigationArgsConstant, true);
-        public static readonly DataConstant<NavigatingCancelEventArgsBase> NavigatingCancelArgsConstant = DataConstant.Create(() => NavigatingCancelArgsConstant, true);
+        public static readonly DataConstant<NavigationEventArgsBase> NavigationArgsConstant;
+        public static readonly DataConstant<NavigatingCancelEventArgsBase> NavigatingCancelArgsConstant;
 
-        protected static readonly DataConstant<Type> ViewModelType = DataConstant.Create(() => ViewModelType, true);
-        private static readonly DataConstant<string> VmTypeConstant = DataConstant.Create(() => VmTypeConstant, true);
+        protected static readonly DataConstant<Type> ViewModelType;
+        private static readonly DataConstant<string> VmTypeConstant;
 
         private readonly IViewMappingProvider _mappingProvider;
         private readonly IViewManager _viewManager;
@@ -118,6 +118,14 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         #endregion
 
         #region Constructors
+
+        static NavigationProvider()
+        {
+            NavigationArgsConstant = DataConstant.Create(() => NavigationArgsConstant, true);
+            NavigatingCancelArgsConstant = DataConstant.Create(() => NavigatingCancelArgsConstant, true);
+            ViewModelType = DataConstant.Create(() => ViewModelType, true);
+            VmTypeConstant = DataConstant.Create(() => VmTypeConstant, true);
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="NavigationProvider" /> class.

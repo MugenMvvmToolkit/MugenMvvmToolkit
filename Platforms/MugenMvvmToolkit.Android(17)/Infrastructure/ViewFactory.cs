@@ -32,7 +32,16 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Fields
 
-        private static readonly int[] BindingAttrIndex = { Resource.Styleable.Binding_Bind, Resource.Styleable.Binding_Bindings };
+        private static readonly int[] BindingAttrIndex;
+
+        #endregion
+
+        #region Constructors
+
+        static ViewFactory()
+        {
+            BindingAttrIndex = new[] { Resource.Styleable.Binding_Bind, Resource.Styleable.Binding_Bindings };
+        }
 
         #endregion
 
