@@ -116,7 +116,7 @@ namespace MugenMvvmToolkit
         ///     Responsible for handling errors in the WithBusyIndicator method.
         ///     If true errors will be processed using the <see cref="ITaskExceptionHandler" /> interface; otherwise false.
         /// </summary>
-        public static bool HandleTaskExceptionWithBusyIndicator { get; set; }
+        public static bool HandleTaskExceptionBusyIndicator { get; set; }
 
         /// <summary>
         ///     Specifies the execution mode for <c>RaiseCanExecuteChanged</c> method in <c>IRelayCommand</c> by default.
@@ -140,7 +140,7 @@ namespace MugenMvvmToolkit
             SynchronizedCollectionExecutionMode = ExecutionMode.AsynchronousOnUiThread;
             PropertyChangeExecutionMode = ExecutionMode.AsynchronousOnUiThread;
             ViewModelObservationMode = ObservationMode.ParentObserveChild;
-            HandleTaskExceptionWithBusyIndicator = true;
+            HandleTaskExceptionBusyIndicator = true;
             CommandCanExecuteMode = ExecutionMode.AsynchronousOnUiThread;
             CommandExecutionMode = CommandExecutionMode.CanExecuteBeforeExecute;
         }

@@ -168,8 +168,16 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Fields
 
-        private static readonly Dictionary<Type, IList<PropertyInfo>> TypesToProperties =
-            new Dictionary<Type, IList<PropertyInfo>>();
+        private static readonly Dictionary<Type, IList<PropertyInfo>> TypesToProperties;
+
+        #endregion
+
+        #region Constructors
+
+        static EntityStateManager()
+        {
+            TypesToProperties= new Dictionary<Type, IList<PropertyInfo>>();
+        }
 
         #endregion
 

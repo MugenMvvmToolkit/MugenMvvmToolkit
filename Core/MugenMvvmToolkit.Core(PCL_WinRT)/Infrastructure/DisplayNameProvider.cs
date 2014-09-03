@@ -36,8 +36,16 @@ namespace MugenMvvmToolkit.Infrastructure
         private const string DisplayNamePropertyName = "DisplayName";
         private const string GetNameMethodName = "GetName";
 
-        private static readonly Dictionary<MemberInfo, Func<string>> MembersToNames =
-            new Dictionary<MemberInfo, Func<string>>();
+        private static readonly Dictionary<MemberInfo, Func<string>> MembersToNames;
+
+        #endregion
+
+        #region Constructors
+
+        static DisplayNameProvider()
+        {
+            MembersToNames = new Dictionary<MemberInfo, Func<string>>();
+        }
 
         #endregion
 

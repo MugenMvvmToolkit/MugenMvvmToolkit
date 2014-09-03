@@ -22,6 +22,7 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
@@ -428,7 +429,9 @@ namespace MugenMvvmToolkit.ViewModels
         private void OnBeginEdit()
         {
             Should.PropertyBeNotNull(Entity, "Entity");
-            if (_initializedEntity != null)
+            if (_initializedEntity == null)
+                AddInstance(this);
+            else
             {
                 RemoveInstance(_initializedEntity);
                 ClearErrors();
@@ -451,7 +454,8 @@ namespace MugenMvvmToolkit.ViewModels
         {
             if (StateManager == null)
                 StateManager = IocContainer.Get<IEntityStateManager>();
-            base.OnInitializedInternal();
+            if (ValidatorProvider == null)
+                ValidatorProvider = IocContainer.Get<IValidatorProvider>();
         }
 
         /// <summary>

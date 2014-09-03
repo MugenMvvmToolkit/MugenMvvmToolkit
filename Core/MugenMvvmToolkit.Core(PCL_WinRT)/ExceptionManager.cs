@@ -140,7 +140,7 @@ namespace MugenMvvmToolkit
                 "The dialog is closed. Before close the dialog you should show it.");
         }
 
-        internal static Exception NotConvertableState(Enum from, Enum to)
+        internal static Exception NotConvertableState(EntityState from, EntityState to)
         {
             return
                 new InvalidOperationException(string.Format("The '{0}' cannot be converted to the '{1}'.",

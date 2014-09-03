@@ -196,7 +196,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
                 SupportChangeDetection = false
             };
             StateManager.CreateSnapshot = o => mock;
-            
+
             var viewModel = GetViewModel<TestEditableViewModel>();
             viewModel.InitializeEntity(entity, false);
             viewModel.HasChanges.ShouldBeFalse();
@@ -336,7 +336,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             StateManager.CreateSnapshot = o => new EntitySnapshotMock();
             var viewModel = GetViewModel<TestEditableViewModel>();
 
-            ValidatorProvider.Register<SpyValidator>();
+            ValidatorProvider.Register(new SpyValidator() { CanValidate = context => context.Instance == entity });
             viewModel.InitializeEntity(entity, true);
             var validator =
                 (SpyValidator)viewModel.GetValidators().Single(validator1 => validator1 != viewModel.Validator);

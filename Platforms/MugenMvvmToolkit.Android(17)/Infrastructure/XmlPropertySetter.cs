@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public void SetBoolProperty(string propertyName, string value)
         {
-            SetStringProperty(propertyName, value, s => bool.Parse(s));
+            SetStringProperty(propertyName, value, s => Empty.BooleanToObject(bool.Parse(s)));
         }
 
         public void SetEnumProperty<TEnum>(Expression<Func<TWrapper, object>> propertyName, string value)

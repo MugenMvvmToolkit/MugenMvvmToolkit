@@ -39,13 +39,16 @@ namespace MugenMvvmToolkit.ViewModels
 
         private readonly object _locker;
         private readonly Dictionary<string, string> _wrappedPropertyNames;
-        private ICommand _closeCommand;
+
         private string _displayName;
+        private TViewModel _viewModel;
+        private ICommand _closeCommand;
+
+        private bool _isSelected;
+        private bool? _operationResult;
+
         private EventHandler<ICloseableViewModel, ViewModelClosedEventArgs> _internalClosedEvent;
         private EventHandler<ICloseableViewModel, ViewModelClosingEventArgs> _internalClosingEvent;
-        private bool _isSelected;
-        private TViewModel _viewModel;
-        private bool? _operationResult;
 
         #endregion
 

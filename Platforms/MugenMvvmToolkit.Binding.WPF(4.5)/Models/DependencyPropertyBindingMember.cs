@@ -100,7 +100,7 @@ namespace MugenMvvmToolkit.Binding.Models
                 .Register("Value", typeof(object), typeof(DependencyPropertyListener), new PropertyMetadata(null, OnValueChanged));
 
 #if !NETFX_CORE && !WINDOWSCOMMON
-            private static readonly Action<DependencyPropertyListener> DisposeDelegate = member => DisposeInternal(member);
+            private static readonly Action<DependencyPropertyListener> DisposeDelegate = DisposeInternal;
 #endif
             private object _listener;
 

@@ -25,6 +25,14 @@ namespace MugenMvvmToolkit.Binding.Converters
     /// </summary>
     public sealed class BooleanToVisibilityConverter : IValueConverter
     {
+        #region Fields
+
+        private readonly object _trueValue;
+        private readonly object _falseValue;
+        private readonly object _nullValue;
+
+        #endregion
+
         #region Constructors
 
         /// <summary>
@@ -32,29 +40,10 @@ namespace MugenMvvmToolkit.Binding.Converters
         /// </summary>
         public BooleanToVisibilityConverter(Visibility trueValue, Visibility falseValue, Visibility nullValue)
         {
-            TrueValue = trueValue;
-            FalseValue = falseValue;
-            NullValue = nullValue;
+            _trueValue = trueValue;
+            _falseValue = falseValue;
+            _nullValue = nullValue;
         }
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        ///     Mapping for True to Visibility.
-        /// </summary>
-        public Visibility TrueValue { get; private set; }
-
-        /// <summary>
-        ///     Mapping for False to Visibility.
-        /// </summary>
-        public Visibility FalseValue { get; private set; }
-
-        /// <summary>
-        ///     Mapping for null to Visibility.
-        /// </summary>
-        public Visibility NullValue { get; private set; }
 
         #endregion
 
@@ -81,11 +70,11 @@ namespace MugenMvvmToolkit.Binding.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null)
-                return NullValue;
+                return _nullValue;
 
             if (((bool)value))
-                return TrueValue;
-            return FalseValue;
+                return _trueValue;
+            return _falseValue;
         }
 
         /// <summary>
@@ -110,11 +99,11 @@ namespace MugenMvvmToolkit.Binding.Converters
         {
             if (value == null)
                 return null;
-            var visibility = (Visibility)value;
-            if (visibility == TrueValue)
-                return true;
-            if (visibility == FalseValue)
-                return false;
+            Should.BeOfType<Visibility>(value, "value");
+            if (_trueValue.Equals(value))
+                return Empty.TrueObject;
+            if (_falseValue.Equals(value))
+                return Empty.FalseObject;
             return null;
         }
 

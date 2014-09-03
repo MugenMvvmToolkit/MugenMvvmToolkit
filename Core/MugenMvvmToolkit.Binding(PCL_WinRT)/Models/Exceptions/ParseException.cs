@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.Binding.Models.Exceptions
         ///     Initializes a new instance of the <see cref="ParseException" /> class.
         /// </summary>
         public ParseException(string message, int position)
-            : base(string.Format("{0} (at index {1})", message, position))
+            : base(string.Format("{0} (at index {1})", message, position.ToString()))
         {
             _position = position;
         }

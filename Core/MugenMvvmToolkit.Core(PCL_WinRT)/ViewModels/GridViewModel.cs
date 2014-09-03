@@ -37,7 +37,6 @@ namespace MugenMvvmToolkit.ViewModels
     {
         #region Fields
 
-        private readonly object _locker;
         private readonly PropertyChangedEventHandler _weakPropertyHandler;
 
         private FilterDelegate<T> _filter;
@@ -58,10 +57,8 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         public GridViewModel()
         {
-            _locker = new object();
+            _weakPropertyHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, (model, o, arg3) => model.OnSelectedItemPropertyChanged(o, arg3));
             SetOriginalItemsSource(new SynchronizedNotifiableCollection<T>());
-            _weakPropertyHandler = ReflectionExtensions
-                .MakeWeakPropertyChangedHandler(this, (model, o, arg3) => model.OnSelectedItemPropertyChanged(o, arg3));
             ChangeItemSelectedState = true;
         }
 
@@ -228,7 +225,7 @@ namespace MugenMvvmToolkit.ViewModels
         {
             EnsureNotDisposed();
             Should.NotBeNull(originalItemsSource, "originalItemsSource");
-            lock (_locker)
+            lock (_weakPropertyHandler)
             {
                 INotifyCollectionChanging collectionChanging;
                 if (_originalData != null)

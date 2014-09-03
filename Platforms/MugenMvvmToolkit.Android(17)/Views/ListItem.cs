@@ -76,7 +76,7 @@ namespace MugenMvvmToolkit.Views
                 _dataContext = value;
                 var eventHandler = DataContextChanged;
                 if (eventHandler != null)
-                    eventHandler(this, EventArgs.Empty);                
+                    eventHandler(this, EventArgs.Empty);
             }
         }
 
@@ -149,7 +149,7 @@ namespace MugenMvvmToolkit.Views
             var type = view.GetType();
             var member = BindingServiceProvider.MemberProvider.GetBindingMember(type, "Activated", false, false);
             if (member != null && member.CanWrite)
-                member.SetValue(view, new object[] { value });
+                member.SetValue(view, new[] { Empty.BooleanToObject(value) });
 #endif
         }
 

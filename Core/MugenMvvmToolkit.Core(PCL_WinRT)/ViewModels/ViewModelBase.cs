@@ -57,6 +57,7 @@ namespace MugenMvvmToolkit.ViewModels
         private int _state;
         private bool _isBusy;
         private bool _isRestored;
+        private bool _isDisposed;
 
         #endregion
 
@@ -129,8 +130,15 @@ namespace MugenMvvmToolkit.ViewModels
         {
             get
             {
+                if (IsDisposed)
+                    return new CancellationToken(true);
                 if (_disposeCancellationToken == null)
-                    Interlocked.CompareExchange(ref _disposeCancellationToken, new CancellationTokenSource(), null);
+                {
+                    var cts = new CancellationTokenSource();
+                    Interlocked.CompareExchange(ref _disposeCancellationToken, cts, null);
+                    if (!ReferenceEquals(cts, _disposeCancellationToken))
+                        cts.Dispose();
+                }
                 return _disposeCancellationToken.Token;
             }
         }
@@ -200,7 +208,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         public bool IsDisposed
         {
-            get { return _disposeCancellationToken.IsCancellationRequested; }
+            get { return _isDisposed; }
         }
 
         /// <summary>
@@ -312,16 +320,23 @@ namespace MugenMvvmToolkit.ViewModels
         {
             if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
                 return;
-            GC.SuppressFinalize(this);
-            OnDisposeInternal(true);
-            OnDispose(true);
-            var handler = Disposed;
-            if (handler != null)
+            try
             {
-                handler(this, EventArgs.Empty);
-                Disposed = null;
+                GC.SuppressFinalize(this);
+                OnDisposeInternal(true);
+                OnDispose(true);
+                var handler = Disposed;
+                if (handler != null)
+                {
+                    handler(this, EventArgs.Empty);
+                    Disposed = null;
+                }
+                DisposeInternal();
             }
-            DisposeInternal();
+            finally
+            {
+                _isDisposed = true;
+            }
         }
 
         /// <summary>

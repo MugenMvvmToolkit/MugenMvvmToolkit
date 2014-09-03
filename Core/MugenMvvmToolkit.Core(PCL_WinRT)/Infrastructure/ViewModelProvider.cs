@@ -137,8 +137,7 @@ namespace MugenMvvmToolkit.Infrastructure
             Should.NotBeNull(viewModel, "viewModel");
             dataContext = dataContext.ToNonReadOnly();
             var iocContainer = CreateViewModelIocContainer(dataContext);
-            dataContext.Remove(InitializationConstants.IocContainer);
-            dataContext.Add(InitializationConstants.IocContainer, iocContainer);
+            dataContext.AddOrUpdate(InitializationConstants.IocContainer, iocContainer);
             viewModel.InitializeViewModel(dataContext);
             MergeParameters(viewModel, dataContext);
         }
@@ -169,7 +168,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (useParent && parentViewModel != null)
                     container = parentViewModel.GetIocContainer(false).CreateChild();
                 else
-                    container = _iocContainer.GetRoot().CreateChild();
+                    container = _iocContainer.CreateChild();
             }
             if (BindIocContainer)
                 container.BindToConstant(container);

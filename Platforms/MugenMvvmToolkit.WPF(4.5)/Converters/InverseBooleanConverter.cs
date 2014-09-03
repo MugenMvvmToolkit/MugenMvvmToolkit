@@ -59,7 +59,7 @@ namespace MugenMvvmToolkit.Converters
             var b = (bool?)value;
             if (b == null)
                 return null;
-            return !b.Value;
+            return Empty.BooleanToObject(!b.Value);            
         }
 
 #if NETFX_CORE || WINDOWSCOMMON

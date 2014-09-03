@@ -88,7 +88,7 @@ namespace MugenMvvmToolkit.ViewModels
             Should.NotBeNull(task, "task");
             Should.NotBeNull(viewModel, "viewModel");
             if (handleException == null)
-                handleException = ApplicationSettings.HandleTaskExceptionWithBusyIndicator;
+                handleException = ApplicationSettings.HandleTaskExceptionBusyIndicator;
             if (task.IsCompleted)
             {
                 if (handleException.Value)

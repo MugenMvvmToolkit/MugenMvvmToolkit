@@ -626,7 +626,9 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             try
             {
                 validationTask = validateAll ? ValidateInternalAsync() : ValidateInternalAsync(propertyName);
-                if (validationTask == null || ReferenceEquals(validationTask, DoNothingResult))
+                if (validationTask == null)
+                    validationTask = EmptyResult;
+                if (ReferenceEquals(validationTask, DoNothingResult))
                 {
                     validationTask = null;
                     return EmptyResult;

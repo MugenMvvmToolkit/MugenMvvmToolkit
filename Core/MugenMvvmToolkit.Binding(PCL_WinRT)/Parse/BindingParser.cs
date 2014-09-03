@@ -675,12 +675,12 @@ namespace MugenMvvmToolkit.Binding.Parse
                 value = ParseStringLiteral();
             else if (Tokenizer.Value.Equals(TrueLiteral, StringComparison.OrdinalIgnoreCase))
             {
-                value = true;
+                value = Empty.TrueObject;
                 NextToken(true);
             }
             else if (Tokenizer.Value.Equals(FalseLiteral, StringComparison.OrdinalIgnoreCase))
             {
-                value = false;
+                value = Empty.FalseObject;
                 NextToken(true);
             }
             else

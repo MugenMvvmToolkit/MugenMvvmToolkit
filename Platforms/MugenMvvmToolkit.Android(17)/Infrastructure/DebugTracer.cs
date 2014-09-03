@@ -60,11 +60,11 @@ namespace MugenMvvmToolkit.Infrastructure
             var traceLevel = auditAction == AuditAction.Finalized ? TraceLevel.Warning : TraceLevel.Information;
             if (hasDisplayName == null)
                 Trace(traceLevel,
-                    string.Format("{0} ({1}) - {2}", viewModel.GetType(), viewModel.GetHashCode(), auditAction));
+                    string.Format("{0} ({1}) - {2}", viewModel.GetType(), viewModel.GetHashCode().ToString(), auditAction));
             else
                 Trace(traceLevel,
                     string.Format("{0} (Hash - {1}; DisplayName - {2};) - {3}", viewModel.GetType(),
-                        viewModel.GetHashCode(), hasDisplayName.DisplayName, auditAction));
+                        viewModel.GetHashCode().ToString(), hasDisplayName.DisplayName, auditAction));
         }
 
         /// <summary>

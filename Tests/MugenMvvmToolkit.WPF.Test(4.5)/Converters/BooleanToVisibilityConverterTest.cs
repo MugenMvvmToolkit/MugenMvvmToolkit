@@ -33,17 +33,21 @@ namespace MugenMvvmToolkit.Test.Converters
         [TestMethod]
         public void ConvertTest()
         {
-            var converter = new BooleanToVisibilityConverter(Visibility.Collapsed, Visibility.Visible, Visibility.Visible);
-            converter.Convert(true, typeof (Visibility), null, null).ShouldEqual(converter.TrueValue);
-            converter.Convert(false, typeof (Visibility), null, null).ShouldEqual(converter.FalseValue);
+            const Visibility trueValue = Visibility.Collapsed;
+            const Visibility falseValue = Visibility.Visible;
+            var converter = new BooleanToVisibilityConverter(trueValue, falseValue, Visibility.Visible);
+            converter.Convert(true, typeof(Visibility), null, null).ShouldEqual(trueValue);
+            converter.Convert(false, typeof(Visibility), null, null).ShouldEqual(falseValue);
         }
 
         [TestMethod]
         public void ConvertBackTest()
         {
+            const Visibility trueValue = Visibility.Collapsed;
+            const Visibility falseValue = Visibility.Visible;
             var converter = new BooleanToVisibilityConverter(Visibility.Collapsed, Visibility.Visible, Visibility.Visible);
-            converter.ConvertBack(converter.TrueValue, typeof (bool), null, null).ShouldEqual(true);
-            converter.ConvertBack(converter.FalseValue, typeof (bool), null, null).ShouldEqual(false);
+            converter.ConvertBack(trueValue, typeof(bool), null, null).ShouldEqual(true);
+            converter.ConvertBack(falseValue, typeof(bool), null, null).ShouldEqual(false);
         }
     }
 }

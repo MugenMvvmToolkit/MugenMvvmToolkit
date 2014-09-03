@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
@@ -20,6 +21,8 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         #region Properties
 
+        public Func<IValidatorContext, bool> CanValidate { get; set; }
+
         public int ValidateCount { get; set; }
 
         public IList<string> ValidateProperties { get; set; }
@@ -35,6 +38,16 @@ namespace MugenMvvmToolkit.Test.TestModels
         #endregion
 
         #region Overrides of ValidatorBase
+
+        /// <summary>
+        ///     Checks to see whether the validator can validate objects of the specified IValidatorContext.
+        /// </summary>
+        protected override bool CanValidateInternal(IValidatorContext validatorContext)
+        {
+            if (CanValidate == null)
+                return base.CanValidateInternal(validatorContext);
+            return CanValidate(validatorContext);
+        }
 
         /// <summary>
         ///     Determines whether the current model is valid.

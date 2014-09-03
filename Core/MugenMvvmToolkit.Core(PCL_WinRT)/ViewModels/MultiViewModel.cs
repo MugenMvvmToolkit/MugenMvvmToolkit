@@ -38,6 +38,7 @@ namespace MugenMvvmToolkit.ViewModels
         private readonly IList<IViewModel> _itemsSource;
         private IViewModel _selectedItem;
         private int _prevIndex;
+
         private readonly EventHandler<ICloseableViewModel, ViewModelClosedEventArgs> _weakEventHandler;
         private readonly PropertyChangedEventHandler _propertyChangedWeakEventHandler;
 

@@ -133,8 +133,8 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
                 return string.Format("{{ElementSource {0}, Path={1}}}", ElementName, Path);
             }
             if (string.IsNullOrEmpty(Path))
-                return string.Format("{{RelativeSource {0}, Level={1}}}", ElementName, Level);
-            return string.Format("{{RelativeSource {0}, Path={1}, Level={2}}}", Type, Path, Level);
+                return string.Format("{{RelativeSource {0}, Level={1}}}", ElementName, Level.ToString());
+            return string.Format("{{RelativeSource {0}, Path={1}, Level={2}}}", Type, Path, Level.ToString());
         }
 
         #endregion

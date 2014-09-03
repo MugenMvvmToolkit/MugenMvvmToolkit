@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="Empty.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,6 +13,7 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
 
 using System;
@@ -63,23 +65,23 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Gets the completed task with true result.
         /// </summary>
-        [SuppressTaskBusyHandler]
+        [SuppressTaskBusyHandler] 
         public static readonly Task<bool> TrueTask;
 
         /// <summary>
         ///     Gets the completed task with false result.
         /// </summary>
-        [SuppressTaskBusyHandler]
+        [SuppressTaskBusyHandler] 
         public static readonly Task<bool> FalseTask;
 
         /// <summary>
         ///     Gets the completed task.
         /// </summary>
-        [SuppressTaskBusyHandler]
+        [SuppressTaskBusyHandler] 
         public static readonly Task Task;
 
         /// <summary>
-        /// Gets the empty weak reference.
+        ///     Gets the empty weak reference.
         /// </summary>
         public static readonly WeakReference WeakReference;
 
@@ -114,6 +116,16 @@ namespace MugenMvvmToolkit
         public static T[] Array<T>()
         {
             return Value<T>.ArrayInstance;
+        }
+
+        /// <summary>
+        ///     Converts a bool value to boxed value.
+        /// </summary>
+        public static object BooleanToObject(bool value)
+        {
+            if (value)
+                return TrueObject;
+            return FalseObject;
         }
 
         #endregion

@@ -9,16 +9,6 @@ namespace System.ComponentModel
     public class DisplayNameAttribute : Attribute
     {
         /// <summary>
-        ///     Specifies the default value for the <see cref="T:System.ComponentModel.DisplayNameAttribute" />. This field is
-        ///     read-only.
-        /// </summary>
-        public static readonly DisplayNameAttribute Default = new DisplayNameAttribute();
-
-        static DisplayNameAttribute()
-        {
-        }
-
-        /// <summary>
         ///     Initializes a new instance of the <see cref="T:System.ComponentModel.DisplayNameAttribute" /> class.
         /// </summary>
         public DisplayNameAttribute()

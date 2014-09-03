@@ -116,7 +116,7 @@ namespace MugenMvvmToolkit.Binding
                 new InvalidOperationException(
                     string.Format(
                         "The binding behavior with id '{0}' is already in the collection, old value '{1}', new value '{2}'",
-                        oldBehavior.Id, oldBehavior, newBehavior));
+                        oldBehavior.Id.ToString(), oldBehavior, newBehavior));
         }
 
         internal static Exception BindingSourceNotFound(BindingMemberExpressionNode node)
@@ -154,7 +154,7 @@ namespace MugenMvvmToolkit.Binding
         {
             return
                 new ParseException(string.Format("Unexpected character '{0}' while parsing '{1}' contents.",
-                    value, bindingExpression), tokenizer.Position);
+                    value.ToString(), bindingExpression), tokenizer.Position);
         }
 
         internal static Exception UnknownIdentifierParser(string identifier, ITokenizer tokenizer,
@@ -221,7 +221,7 @@ namespace MugenMvvmToolkit.Binding
             return
                 new ParseException(
                     string.Format("Digit expected, current character '{0}' while parsing '{1}' contents.",
-                        value, bindingExpression), tokenizer.Position);
+                        value.ToString(), bindingExpression), tokenizer.Position);
         }
 
         internal static Exception DuplicateDataConstant(DataConstant constant)

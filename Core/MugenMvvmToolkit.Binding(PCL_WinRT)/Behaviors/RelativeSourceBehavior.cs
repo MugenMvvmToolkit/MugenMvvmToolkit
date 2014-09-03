@@ -74,7 +74,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                         if (_isElementSource)
                             Tracer.Warn(BindingExceptionManager.ElementSourceNotFoundFormat2, _targetReference.Target, _node.ElementName);
                         else
-                            Tracer.Warn(BindingExceptionManager.RelativeSourceNotFoundFormat3, _targetReference.Target, _node.Type, _node.Level);
+                            Tracer.Warn(BindingExceptionManager.RelativeSourceNotFoundFormat3, _targetReference.Target, _node.Type, _node.Level.ToString());
                     }
                     return target ?? BindingConstants.UnsetValue;
                 }

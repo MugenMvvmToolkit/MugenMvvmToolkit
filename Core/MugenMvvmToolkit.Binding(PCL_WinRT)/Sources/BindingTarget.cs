@@ -27,7 +27,7 @@ namespace MugenMvvmToolkit.Binding.Sources
     /// </summary>
     public class BindingTarget : BindingSource, IBindingTarget
     {
-        
+
         #region Constructors
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace MugenMvvmToolkit.Binding.Sources
                     Tracer.Warn("The member {0} cannot be obtained on type {1}",
                         AttachedMemberConstants.Enabled, penultimateValue.GetType());
                 else
-                    member.SetValue(penultimateValue, new object[] { value });
+                    member.SetValue(penultimateValue, new[] { Empty.BooleanToObject(value) });
             }
         }
 

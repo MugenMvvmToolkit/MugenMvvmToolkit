@@ -124,7 +124,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         private IExpressionNode VisitRelativeSource(IRelativeSourceExpressionNode rs)
         {
-            string memberName = rs.Type + rs.Path + rs.Level + rs.ElementName;
+            string memberName = rs.Type + rs.Path + rs.Level.ToString() + rs.ElementName;
             return GetOrAddBindingMember(memberName, (s, i) => new BindingMemberExpressionNode(rs, s, i));
         }
 
@@ -217,7 +217,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         private string GetParameterName()
         {
-            return "param_" + _members.Count;
+            return "param_" + _members.Count.ToString();
         }
 
         #endregion

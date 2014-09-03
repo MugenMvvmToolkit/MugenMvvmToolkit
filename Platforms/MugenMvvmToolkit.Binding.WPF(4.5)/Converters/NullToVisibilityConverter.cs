@@ -25,6 +25,13 @@ namespace MugenMvvmToolkit.Binding.Converters
     /// </summary>
     public sealed class NullToVisibilityConverter : IValueConverter
     {
+        #region Fields
+
+        private readonly object _notNullValue;
+        private readonly object _nullValue;
+
+        #endregion
+
         #region Constructors
 
         /// <summary>
@@ -32,23 +39,9 @@ namespace MugenMvvmToolkit.Binding.Converters
         /// </summary>
         public NullToVisibilityConverter(Visibility nullValue, Visibility notNullValue)
         {
-            NotNullValue = notNullValue;
-            NullValue = nullValue;
+            _notNullValue = notNullValue;
+            _nullValue = nullValue;
         }
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        ///     Mapping for False to Visibility.
-        /// </summary>
-        public Visibility NotNullValue { get; set; }
-
-        /// <summary>
-        ///     Mapping for null to Visibility.
-        /// </summary>
-        public Visibility NullValue { get; set; }
 
         #endregion
 
@@ -75,8 +68,8 @@ namespace MugenMvvmToolkit.Binding.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null)
-                return NullValue;
-            return NotNullValue;
+                return _nullValue;
+            return _notNullValue;
         }
 
         /// <summary>

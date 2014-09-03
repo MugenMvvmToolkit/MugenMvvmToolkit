@@ -29,7 +29,6 @@ namespace MugenMvvmToolkit.Binding.Core
     {
         #region Fields
 
-        private readonly static object TrueBoxed = true;
         private const string BindPrefix = "#${Binding}.";
         private const string IsRegisteredMember = "#$BindingIsAssociated";
         private static readonly UpdateValueDelegate<object, IDataBinding, IDataBinding, object> UpdateValueFactoryDelegate;
@@ -65,7 +64,7 @@ namespace MugenMvvmToolkit.Binding.Core
             {
                 if (ServiceProvider.AttachedValueProvider.GetValue<object>(binding, IsRegisteredMember, false) != null)
                     throw BindingExceptionManager.DuplicateBindingRegistration(binding);
-                ServiceProvider.AttachedValueProvider.SetValue(binding, IsRegisteredMember, TrueBoxed);
+                ServiceProvider.AttachedValueProvider.SetValue(binding, IsRegisteredMember, Empty.TrueObject);
             }
             else
             {

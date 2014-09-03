@@ -96,11 +96,11 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\ExceptionManager.cs">
       <Link>ExceptionManager.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Extensions\MvvmExtensions.cs">
-      <Link>Extensions\MvvmExtensions.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Extensions\ReflectionExtensions.cs">
       <Link>Extensions\ReflectionExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Extensions\ToolkitExtensions.cs">
+      <Link>Extensions\ToolkitExtensions.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Extensions\ViewModelExtensions.cs">
       <Link>Extensions\ViewModelExtensions.cs</Link>
