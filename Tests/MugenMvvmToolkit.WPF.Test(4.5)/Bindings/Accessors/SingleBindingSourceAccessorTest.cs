@@ -746,8 +746,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             if (!BindingServiceProvider.MemberProvider.HasMember(typeof(BindingSourceModel), AttachedMemberConstants.Enabled, false))
                 BindingServiceProvider.MemberProvider.Register(typeof(BindingSourceModel),
                     AttachedBindingMember.CreateMember<BindingSourceModel, bool>(AttachedMemberConstants.Enabled,
-                        (info, sourceModel, arg3) => sourceModel.IsEnabled,
-                        (info, sourceModel, arg3) => sourceModel.IsEnabled = (bool)arg3[0]), true);
+                        (info, sourceModel) => sourceModel.IsEnabled,
+                        (info, sourceModel, value) => sourceModel.IsEnabled = value), true);
         }
 
         #endregion

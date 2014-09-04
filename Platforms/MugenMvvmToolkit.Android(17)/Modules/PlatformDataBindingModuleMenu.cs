@@ -317,60 +317,57 @@ namespace MugenMvvmToolkit
 
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<IMenuItem, object>("AlphabeticShortcut",
-                    (info, item, arg3) => item.AlphabeticShortcut,
-                    (info, item, arg3) =>
+                    (info, item) => item.AlphabeticShortcut,
+                    (info, item, value) =>
                     {
-                        if (arg3[0] is char)
-                            item.SetAlphabeticShortcut((char)arg3[0]);
+                        if (value is char)
+                            item.SetAlphabeticShortcut((char)value);
                         else
-                            item.SetAlphabeticShortcut(arg3[0].ToStringSafe()[0]);
-                        return null;
+                            item.SetAlphabeticShortcut(value.ToStringSafe()[0]);
                     }));
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<IMenuItem, object>("Icon", (info, item, arg3) => item.Icon,
-                    (info, item, arg3) =>
+                .CreateMember<IMenuItem, object>("Icon", (info, item) => item.Icon,
+                    (info, item, value) =>
                     {
-                        if (arg3[0] is int)
-                            item.SetIcon((int)arg3[0]);
+                        if (value is int)
+                            item.SetIcon((int)value);
                         else
-                            item.SetIcon((Drawable)arg3[0]);
-                        return null;
+                            item.SetIcon((Drawable)value);
                     }));
 
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<IMenuItem, bool>("IsCheckable",
-                    (info, item, arg3) => item.IsCheckable,
-                    (info, item, arg3) => item.SetCheckable((bool)arg3[0])));
+                    (info, item) => item.IsCheckable,
+                    (info, item, value) => item.SetCheckable(value)));
 
             var menuItemEnabled = AttachedBindingMember.CreateMember<IMenuItem, bool>(AttachedMemberConstants.Enabled,
-                (info, item, arg3) => item.IsEnabled,
-                (info, item, arg3) => item.SetEnabled((bool)arg3[0]));
+                (info, item) => item.IsEnabled,
+                (info, item, value) => item.SetEnabled(value));
             memberProvider.Register(menuItemEnabled);
             memberProvider.Register("IsEnabled", menuItemEnabled);
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<IMenuItem, bool>("IsVisible", (info, item, arg3) => item.IsVisible,
-                    (info, item, arg3) => item.SetVisible((bool)arg3[0])));
+                .CreateMember<IMenuItem, bool>("IsVisible", (info, item) => item.IsVisible,
+                    (info, item, value) => item.SetVisible(value)));
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<IMenuItem, object>("NumericShortcut",
-                    (info, item, arg3) => item.NumericShortcut,
-                    (info, item, arg3) =>
+                    (info, item) => item.NumericShortcut,
+                    (info, item, value) =>
                     {
-                        if (arg3[0] is char)
-                            item.SetNumericShortcut((char)arg3[0]);
+                        if (value is char)
+                            item.SetNumericShortcut((char)value);
                         else
-                            item.SetNumericShortcut(arg3[0].ToStringSafe()[0]);
-                        return null;
+                            item.SetNumericShortcut(value.ToStringSafe()[0]);
                     }));
             memberProvider.Register(AttachedBindingMember.CreateMember<IMenuItem, string>("Title",
-                (info, item, arg3) => item.TitleFormatted.ToString(),
-                (info, item, arg3) => item.SetTitle(arg3[0].ToStringSafe())));
+                (info, item) => item.TitleFormatted.ToString(),
+                (info, item, value) => item.SetTitle(value)));
             memberProvider.Register(AttachedBindingMember.CreateMember<IMenuItem, string>("TitleCondensed",
-                (info, item, arg3) => item.TitleCondensedFormatted.ToString(),
-                (info, item, arg3) => item.SetTitleCondensed(arg3[0].ToStringSafe())));
+                (info, item) => item.TitleCondensedFormatted.ToString(),
+                (info, item, value) => item.SetTitleCondensed(value)));
 
 #if !API8
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<IMenuItem, bool>("IsActionViewExpanded", (info, item, arg3) => item.GetIsActionViewExpanded(), SetIsActionViewExpanded,
+                .CreateMember<IMenuItem, bool>("IsActionViewExpanded", (info, item) => item.GetIsActionViewExpanded(), SetIsActionViewExpanded,
                     ObserveIsActionViewExpanded, (item, args) =>
                     {
 #if API8SUPPORT
@@ -380,12 +377,7 @@ namespace MugenMvvmToolkit
 #endif
                     }));
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<IMenuItem, ShowAsAction>("ShowAsAction", null,
-                    (info, o, arg3) =>
-                    {
-                        o.SetShowAsActionFlags((ShowAsAction)arg3[0]);
-                        return null;
-                    }));
+                .CreateMember<IMenuItem, ShowAsAction>("ShowAsAction", null, (info, o, value) => o.SetShowAsActionFlags(value)));
 #endif
         }
 
@@ -402,7 +394,7 @@ namespace MugenMvvmToolkit
         }
 
 #if !API8
-        private static bool MenuItemUpdateActionView(IMenuItem menuItem, object content)
+        private static bool MenuItemUpdateActionView(IBindingMemberInfo bindingMemberInfo, IMenuItem menuItem, object content)
         {
             var actionView = menuItem.GetActionView();
             if (actionView != null)
@@ -444,7 +436,7 @@ namespace MugenMvvmToolkit
             return true;
         }
 
-        private static bool MenuItemUpdateActionProvider(IMenuItem menuItem, object content)
+        private static bool MenuItemUpdateActionProvider(IBindingMemberInfo bindingMemberInfo, IMenuItem menuItem, object content)
         {
             var selector = MenuItemActionProviderSelectorMember.GetValue(menuItem, null);
             if (selector != null)
@@ -476,13 +468,12 @@ namespace MugenMvvmToolkit
             return true;
         }
 
-        private static object SetIsActionViewExpanded(IBindingMemberInfo bindingMemberInfo, IMenuItem menuItem, object[] arg3)
+        private static void SetIsActionViewExpanded(IBindingMemberInfo bindingMemberInfo, IMenuItem menuItem, bool value)
         {
-            if ((bool)arg3[0])
+            if (value)
                 menuItem.ExpandActionView();
             else
                 menuItem.CollapseActionView();
-            return null;
         }
 
         private static IDisposable ObserveIsActionViewExpanded(IBindingMemberInfo bindingMemberInfo, IMenuItem menuItem, IEventListener arg3)

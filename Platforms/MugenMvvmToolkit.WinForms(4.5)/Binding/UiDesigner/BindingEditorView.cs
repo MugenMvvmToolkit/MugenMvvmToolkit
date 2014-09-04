@@ -76,6 +76,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
         /// </summary>
         public BindingEditorView()
         {
+            ServiceProvider.InitializeDesignTimeManager();
             InitializeComponent();
             bindingEditor.Handler = this;
             _controlsDictionary = new SortedDictionary<string, SortedDictionary<string, AutoCompleteItem>>(StringComparer.CurrentCulture);

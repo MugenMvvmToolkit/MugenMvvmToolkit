@@ -226,6 +226,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         private static readonly Dictionary<Type, Func<IValidationContext, object>> ValidationContextCache;
         private static readonly Dictionary<Type, Func<object, IValidationResult>> ValidationResultCache;
         private static readonly Dictionary<Type, IDictionary<string, IList<IValidationElement>>> ElementsCache;
+        private static readonly Dictionary<Type, IList<Type>> MetadataTypeCache;
         private static readonly Dictionary<object, object> CheckDictionary;
         private static readonly Type[] ValidationContextThreeTypesConstructor;
         private static readonly Type[] ValidationContextTwoTypesConstructor;
@@ -242,6 +243,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             ValidationResultCache = new Dictionary<Type, Func<object, IValidationResult>>();
             ElementsCache = new Dictionary<Type, IDictionary<string, IList<IValidationElement>>>();
             CheckDictionary = new Dictionary<object, object>();
+            MetadataTypeCache = new Dictionary<Type, IList<Type>>();
             ValidationContextThreeTypesConstructor = new[]
             {
                 typeof (object),
@@ -563,54 +565,47 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <summary>
         ///     Gets the metatata types for the specified type.
         /// </summary>
-        protected internal static ICollection<Type> GetMetadataTypes(Type type)
+        protected internal static IList<Type> GetMetadataTypes(Type type)
         {
-            Attribute[] attributes = type.GetAttributes();
-            var provider = ServiceProvider.EntityMetadataTypeProvider;
-            IEnumerable<Type> types = null;
-            if (provider != null)
-                types = provider(type);
-            if (types == null)
-                types = Enumerable.Empty<Type>();
-            else
+            lock (MetadataTypeCache)
             {
-                foreach (var meta in types)
-                    TraceMeta(type, meta);
-            }
-            var result = new HashSet<Type>(types);
-            foreach (Attribute attribute in attributes)
-            {
-                var metadataTypeAttribute = attribute as MetadataTypeAttribute;
-                if (metadataTypeAttribute != null)
+                IList<Type> list;
+                if (!MetadataTypeCache.TryGetValue(type, out list))
                 {
-                    foreach (var meta in metadataTypeAttribute.GetTypes(type))
+                    Attribute[] attributes = type.GetAttributes();
+                    var provider = ServiceProvider.EntityMetadataTypeProvider;
+                    IEnumerable<Type> types = null;
+                    if (provider != null)
+                        types = provider(type);
+
+                    var result = types == null ? new HashSet<Type>() : new HashSet<Type>(types);
+                    foreach (Attribute attribute in attributes)
                     {
-                        if (result.Add(meta))
-                            TraceMeta(type, meta);
+                        var metadataTypeAttribute = attribute as MetadataTypeAttribute;
+                        if (metadataTypeAttribute != null)
+                        {
+                            foreach (var meta in metadataTypeAttribute.GetTypes(type))
+                                result.Add(meta);
+                            continue;
+                        }
+
+                        Type attrType = attribute.GetType();
+                        if (attrType.Name != MetadataTypeAttributeTypeShortName)
+                            continue;
+                        PropertyInfo property = attrType.GetPropertyEx(MetadataClassTypeProperty, InstancePublicFlags);
+                        if (property == null || !property.PropertyType.Equals(typeof(Type)))
+                            continue;
+                        var metaType = property.GetValueEx<Type>(attribute);
+                        if (metaType != null)
+                            result.Add(metaType);
                     }
-                    continue;
+                    foreach (var metaType in result)
+                        Tracer.Info("Added MetadataTypeAttribute for type: {0}, MetadataClassType: {1}", type, metaType);
+                    list = result.ToArrayFast();
+                    MetadataTypeCache[type] = list;
                 }
-
-                Type attrType = attribute.GetType();
-                if (attrType.Name != MetadataTypeAttributeTypeShortName)
-                    continue;
-                PropertyInfo property = attrType.GetPropertyEx(MetadataClassTypeProperty, InstancePublicFlags);
-                if (property == null || !property.PropertyType.Equals(typeof(Type)))
-                    continue;
-                var metaType = property.GetValueEx<Type>(attribute);
-                if (metaType != null)
-                {
-                    if (result.Add(metaType))
-                        TraceMeta(type, metaType);
-                }
+                return list;
             }
-            return result;
-        }
-
-        private static void TraceMeta(Type defType, Type metaType)
-        {
-            if (metaType != null)
-                Tracer.Info("Added MetadataTypeAttribute for type: {0}, MetadataClassType: {1}", defType, metaType);
         }
 
         private static object ConverterValidationContext(IValidationContext context, Type contextType,

@@ -71,7 +71,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
         ///     Sets the member value of a specified object.
         /// </summary>
         /// <param name="source">The object whose member value will be set.</param>
-        /// <param name="args">Optional values for members..</param>
+        /// <param name="args">Optional values for members.</param>
         /// <returns>The member value of the specified object.</returns>
         object SetValue(object source, object[] args);
 

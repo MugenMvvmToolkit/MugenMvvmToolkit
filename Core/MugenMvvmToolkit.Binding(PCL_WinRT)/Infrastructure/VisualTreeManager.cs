@@ -239,7 +239,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return new RootObserver(o, arg3);
         }
 
-        private static object GetRootElement(IBindingMemberInfo bindingMemberInfo, object currentItem, object[] arg3)
+        private static object GetRootElement(IBindingMemberInfo bindingMemberInfo, object currentItem)
         {
             var treeManager = BindingServiceProvider.VisualTreeManager;
             while (currentItem != null)

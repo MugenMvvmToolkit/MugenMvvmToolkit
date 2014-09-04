@@ -150,7 +150,7 @@ namespace MugenMvvmToolkit
             memberProvider.Register(ActionBarContextActionBarVisibleMember);
 
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<ActionBar, object>(AttachedMemberConstants.Parent, (info, bar, arg3) => bar.ThemedContext.GetActivity(), null));
+                .CreateMember<ActionBar, object>(AttachedMemberConstants.Parent, (info, bar) => bar.ThemedContext.GetActivity(), null));
             memberProvider.Register(AttachedBindingMember
                 .CreateAutoProperty<ActionBar, object>("BackgroundDrawable",
                     (actionBar, args) =>
@@ -163,15 +163,15 @@ namespace MugenMvvmToolkit
                     }));
             memberProvider.Register(AttachedBindingMember
                 .CreateNotifiableMember<ActionBar, object>("CustomView",
-                    (info, actionBar, arg3) => actionBar.CustomView,
-                    (info, actionBar, arg3) =>
+                    (info, actionBar) => actionBar.CustomView,
+                    (info, actionBar, value) =>
                     {
                         if (actionBar.CustomView != null)
                             ParentObserver.GetOrAdd(actionBar.CustomView).Parent = null;
-                        if (arg3[0] is int)
-                            actionBar.SetCustomView((int)arg3[0]);
+                        if (value is int)
+                            actionBar.SetCustomView((int)value);
                         else
-                            actionBar.CustomView = (View)arg3[0];
+                            actionBar.CustomView = (View)value;
                         if (actionBar.CustomView != null)
                             ParentObserver.GetOrAdd(actionBar.CustomView).Parent = actionBar;
                         return true;
@@ -182,10 +182,10 @@ namespace MugenMvvmToolkit
 
             memberProvider.Register(AttachedBindingMember
                 .CreateNotifiableMember<ActionBar, ActionBarDisplayOptions>("DisplayOptions",
-                    (info, actionBar, arg3) => actionBar.GetActionBarDisplayOptions(),
-                    (info, actionBar, arg3) =>
+                    (info, actionBar) => actionBar.GetActionBarDisplayOptions(),
+                    (info, actionBar, value) =>
                     {
-                        actionBar.SetActionBarDisplayOptions((ActionBarDisplayOptions)arg3[0]);
+                        actionBar.SetActionBarDisplayOptions(value);
                         return true;
                     }));
             memberProvider.Register(AttachedBindingMember
@@ -221,7 +221,7 @@ namespace MugenMvvmToolkit
                 }));
             memberProvider.Register(AttachedBindingMember
                 .CreateNotifiableMember<ActionBar, ActionBarNavigationMode>("NavigationMode",
-                    (info, actionBar, arg3) => actionBar.GetNavigationMode(), ActionBarSetNavigationMode));
+                    (info, actionBar) => actionBar.GetNavigationMode(), ActionBarSetNavigationMode));
             memberProvider.Register(AttachedBindingMember
                 .CreateAutoProperty<ActionBar, object>("SplitBackgroundDrawable",
                     (actionBar, args) =>
@@ -243,25 +243,23 @@ namespace MugenMvvmToolkit
                             actionBar.SetStackedBackgroundDrawable((Drawable)args.NewValue);
                     }));
             memberProvider.Register(AttachedBindingMember
-                .CreateNotifiableMember<ActionBar, bool>("IsShowing", (info, actionBar, arg3) => actionBar.IsShowing,
-                    SetActionBarIsShowing));
+                .CreateNotifiableMember<ActionBar, bool>("IsShowing", (info, actionBar) => actionBar.IsShowing, SetActionBarIsShowing));
             memberProvider.Register(AttachedBindingMember
                 .CreateNotifiableMember<ActionBar, string>("Subtitle",
-                    (info, actionBar, arg3) => actionBar.Subtitle, (info, actionBar, arg3) =>
+                    (info, actionBar) => actionBar.Subtitle, (info, actionBar, value) =>
                     {
-                        actionBar.Subtitle = arg3[0].ToStringSafe();
+                        actionBar.Subtitle = value;
                         return true;
                     }));
             memberProvider.Register(AttachedBindingMember
                 .CreateNotifiableMember<ActionBar, string>("Title",
-                    (info, actionBar, arg3) => actionBar.Title, (info, actionBar, arg3) =>
+                    (info, actionBar) => actionBar.Title, (info, actionBar, value) =>
                     {
-                        actionBar.Title = arg3[0].ToStringSafe();
+                        actionBar.Title = value;
                         return true;
                     }));
             memberProvider.Register(AttachedBindingMember
-                .CreateNotifiableMember<ActionBar, bool>("Visible", (info, actionBar, arg3) => actionBar.IsShowing,
-                    SetActionBarIsShowing));
+                .CreateNotifiableMember<ActionBar, bool>("Visible", (info, actionBar) => actionBar.IsShowing, SetActionBarIsShowing));
             memberProvider.Register(AttachedBindingMember.CreateMember<ActionBar, View>("HomeButton", GetHomeButton, null));
 
             memberProvider.Register(
@@ -279,73 +277,62 @@ namespace MugenMvvmToolkit
                     AttachedMemberConstants.ContentTemplate));
             memberProvider.Register(AttachedBindingMember
                 .CreateNotifiableMember<ActionBar.Tab, string>("ContentDescription",
-                    (info, tab, arg3) => tab.ContentDescription,
-                    (info, tab, arg3) =>
+                    (info, tab) => tab.ContentDescription,
+                    (info, tab, value) =>
                     {
-                        tab.SetContentDescription(arg3[0].ToStringSafe());
+                        tab.SetContentDescription(value);
                         return true;
                     }));
             memberProvider.Register(AttachedBindingMember
                 .CreateNotifiableMember<ActionBar.Tab, object>("CustomView",
-                    (info, tab, arg3) => tab.CustomView, (info, tab, arg3) =>
+                    (info, tab) => tab.CustomView, (info, tab, value) =>
                     {
                         if (tab.CustomView != null)
                             ParentObserver.GetOrAdd(tab.CustomView).Parent = null;
-                        if (arg3[0] is int)
-                            tab.SetCustomView((int)arg3[0]);
+                        if (value is int)
+                            tab.SetCustomView((int)value);
                         else
-                            tab.SetCustomView((View)arg3[0]);
+                            tab.SetCustomView((View)value);
                         if (tab.CustomView != null)
                             ParentObserver.GetOrAdd(tab.CustomView).Parent = tab;
                         return true;
                     }));
             memberProvider.Register(AttachedBindingMember
                 .CreateNotifiableMember<ActionBar.Tab, object>("Icon",
-                    (info, tab, arg3) => tab.Icon, (info, tab, arg3) =>
+                    (info, tab) => tab.Icon, (info, tab, value) =>
                     {
-                        if (arg3[0] is int)
-                            tab.SetIcon((int)arg3[0]);
+                        if (value is int)
+                            tab.SetIcon((int)value);
                         else
-                            tab.SetIcon((Drawable)arg3[0]);
+                            tab.SetIcon((Drawable)value);
                         return true;
                     }));
             memberProvider.Register(AttachedBindingMember
                 .CreateNotifiableMember<ActionBar.Tab, string>("Text",
-                    (info, tab, arg3) => tab.Text,
-                    (info, tab, arg3) =>
+                    (info, tab) => tab.Text,
+                    (info, tab, value) =>
                     {
-                        tab.SetText(arg3[0].ToStringSafe());
+                        tab.SetText(value);
                         return true;
                     }));
             memberProvider.Register(AttachedBindingMember
                 .CreateNotifiableMember<ActionBar.Tab, Object>("Tag",
-                    (info, tab, arg3) => tab.Tag,
-                    (info, tab, arg3) =>
+                    (info, tab) => tab.Tag,
+                    (info, tab, value) =>
                     {
-                        tab.SetTag((Object)arg3[0]);
+                        tab.SetTag(value);
                         return true;
                     }));
 
             //SearchView
-            memberProvider.Register(AttachedBindingMember
-                .CreateMember<SearchView, string>("Query",
-                    (info, searchView, arg3) => searchView.Query,
-                    (info, searchView, arg3) =>
-                    {
-                        searchView.SetQuery(arg3[0].ToStringSafe(), false);
-                        return null;
-                    }, memberChangeEventName: "QueryTextChange"));
-            memberProvider.Register(AttachedBindingMember
-                .CreateMember<SearchView, string>("Text",
-                    (info, searchView, arg3) => searchView.Query,
-                    (info, searchView, arg3) =>
-                    {
-                        searchView.SetQuery(arg3[0].ToStringSafe(), false);
-                        return null;
-                    }, memberChangeEventName: "QueryTextChange"));
+            var queryMember = AttachedBindingMember.CreateMember<SearchView, string>("Query",
+                (info, searchView) => searchView.Query,
+                (info, searchView, value) => searchView.SetQuery(value, false), "QueryTextChange");
+            memberProvider.Register(queryMember);
+            memberProvider.Register("Text", queryMember);
         }
 
-        private static View GetHomeButton(IBindingMemberInfo bindingMemberInfo, ActionBar actionBar, object[] arg3)
+        private static View GetHomeButton(IBindingMemberInfo bindingMemberInfo, ActionBar actionBar)
         {
             var activity = actionBar.ThemedContext.GetActivity();
             if (activity == null)
@@ -419,17 +406,15 @@ namespace MugenMvvmToolkit
                 attachedValueProvider.Clear(actionBar, ActionBarActionModeKey);
         }
 
-        private static bool ActionBarSetNavigationMode(IBindingMemberInfo bindingMemberInfo, ActionBar actionBar,
-            object[] arg3)
+        private static bool ActionBarSetNavigationMode(IBindingMemberInfo bindingMemberInfo, ActionBar actionBar, ActionBarNavigationMode value)
         {
-            actionBar.SetNavigationMode((ActionBarNavigationMode)arg3[0]);
+            actionBar.SetNavigationMode(value);
             return true;
         }
 
-        private static bool SetActionBarIsShowing(IBindingMemberInfo bindingMemberInfo, ActionBar actionBar,
-            object[] arg3)
+        private static bool SetActionBarIsShowing(IBindingMemberInfo bindingMemberInfo, ActionBar actionBar, bool value)
         {
-            if ((bool)arg3[0])
+            if (value)
                 actionBar.Show();
             else
                 actionBar.Hide();

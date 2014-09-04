@@ -195,9 +195,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var targetType = GetType();
             var provider = CreateMemberProvider();
 
-            var baseMember = AttachedBindingMember.CreateMember(path, typeof(object), null, null);
-            var parentMember = AttachedBindingMember.CreateMember(path, typeof(object), null, null);
-            var targetMember = AttachedBindingMember.CreateMember(path, typeof(object), null, null);
+            var baseMember = AttachedBindingMember.CreateMember(path, typeof(object), (info, o) => null, null);
+            var parentMember = AttachedBindingMember.CreateMember(path, typeof(object), (info, o) => null, null);
+            var targetMember = AttachedBindingMember.CreateMember(path, typeof(object), (info, o) => null, null);
             provider.Register(baseType, baseMember, false);
             provider.Register(parentType, parentMember, false);
             provider.Register(targetType, targetMember, false);

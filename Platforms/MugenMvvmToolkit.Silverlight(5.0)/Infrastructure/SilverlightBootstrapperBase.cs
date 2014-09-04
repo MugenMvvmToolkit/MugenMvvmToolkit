@@ -79,7 +79,7 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 StreamResourceInfo info = Application.GetResourceStream(new Uri(part.Source, UriKind.Relative));
                 Assembly assembly = part.Load(info.Stream);
-                if (assembly.IsNonFrameworkAssembly())
+                if (assembly.IsToolkitAssembly())
                     listAssembly.Add(assembly);
             }
             return listAssembly;

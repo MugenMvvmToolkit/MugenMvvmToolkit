@@ -22,8 +22,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Sources
         {
             bool isEnabled = false;
             IAttachedBindingMemberInfo<object, bool> member =
-                AttachedBindingMember.CreateMember<object, bool>(AttachedMemberConstants.Enabled, (info, o, arg3) => isEnabled,
-                    (info, o, arg3) => isEnabled = (bool)arg3[0]);
+                AttachedBindingMember.CreateMember<object, bool>(AttachedMemberConstants.Enabled,
+                    (info, o) => isEnabled,
+                    (info, o, v) => isEnabled = v);
             var memberProvider = new BindingMemberProvider();
             memberProvider.Register(typeof(object), member, false);
             BindingServiceProvider.MemberProvider = memberProvider;

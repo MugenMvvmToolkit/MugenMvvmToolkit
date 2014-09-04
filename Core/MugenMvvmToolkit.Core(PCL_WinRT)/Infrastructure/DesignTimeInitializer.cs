@@ -32,27 +32,29 @@ namespace MugenMvvmToolkit.Infrastructure
     /// <summary>
     ///     Represents the static class to work in design mode.
     /// </summary>
-    public static class DesignTimeInitializer
+    internal static class DesignTimeInitializer
     {
         #region Fields
 
-        private static bool _loading;
         private static readonly string ToolkitAssemblyName;
         private static readonly object Locker;
-        private static readonly PropertyInfo CurrentDomainProperty;
-        private static readonly PropertyInfo IsDynamicProperty;
-        private static readonly MethodInfo GetAssembliesMethod;
-        private static readonly MethodInfo GetReferencedAssembliesMethod;
-        private static IDesignTimeManager _designTimeManager;
 
-        private static readonly PropertyInfo LocationProperty;
-        private static readonly ConstructorInfo FileInfoConstructor;
-        private static readonly PropertyInfo LastWriteTimeProperty;
+        private static readonly Func<object, object> GetCurrentDomain;
+        private static readonly Func<object, bool> GetIsDynamic;
+        private static readonly Func<object, IEnumerable<Assembly>> GetAssembliesDelegate;
+        private static readonly Func<Assembly, IEnumerable<AssemblyName>> GetReferencedAssemblies;
+
+        private static readonly Func<object, string> GetLocation;
+        private static readonly Func<object[], object> CreateFileInfo;
+        private static readonly Func<object, DateTime> GetLastWriteTimeDelegate;
 
         private static readonly HashSet<Assembly> LoadedAssemblies;
-        private static readonly HashSet<Assembly> FilteredAssemblies;
         private static readonly Dictionary<string, IModule> LoadedModules;
         private static IModuleContext _lastContext;
+        private static IDesignTimeManager _designTimeManager;
+
+        private static bool _isWinRT;
+        private static bool _loading;
 
         #endregion
 
@@ -65,19 +67,28 @@ namespace MugenMvvmToolkit.Infrastructure
             var fileInfoType = Type.GetType("System.IO.FileInfo", false);
             if (appDomainType == null || fileInfoType == null)
                 return;
-            CurrentDomainProperty = appDomainType.GetPropertyEx("CurrentDomain");
-            GetAssembliesMethod = appDomainType.GetMethodEx("GetAssemblies");
-            IsDynamicProperty = typeof(Assembly).GetPropertyEx("IsDynamic");
-            GetReferencedAssembliesMethod = typeof(Assembly).GetMethodEx("GetReferencedAssemblies");
-            LocationProperty = typeof(Assembly).GetPropertyEx("Location");
-            LastWriteTimeProperty = fileInfoType.GetPropertyEx("LastWriteTime");
-            FileInfoConstructor = fileInfoType.GetConstructor(new[] { typeof(string) });
-            if (CurrentDomainProperty == null || LocationProperty == null || LastWriteTimeProperty == null ||
-                GetAssembliesMethod == null || GetReferencedAssembliesMethod == null || FileInfoConstructor == null || IsDynamicProperty == null)
+            var currentDomainProperty = appDomainType.GetPropertyEx("CurrentDomain");
+            var getAssembliesMethod = appDomainType.GetMethodEx("GetAssemblies");
+            var isDynamicProperty = typeof(Assembly).GetPropertyEx("IsDynamic");
+            var getReferencedAssembliesMethod = typeof(Assembly).GetMethodEx("GetReferencedAssemblies");
+            var locationProperty = typeof(Assembly).GetPropertyEx("Location");
+            var lastWriteTimeProperty = fileInfoType.GetPropertyEx("LastWriteTime");
+            var fileInfoConstructor = fileInfoType.GetConstructor(new[] { typeof(string) });
+            if (currentDomainProperty == null || locationProperty == null || lastWriteTimeProperty == null ||
+                getAssembliesMethod == null || getReferencedAssembliesMethod == null || fileInfoConstructor == null || isDynamicProperty == null)
                 return;
+            var reflectionManager = ServiceProvider.ReflectionManager;
+            GetCurrentDomain = reflectionManager.GetMemberGetter<object>(currentDomainProperty);
+            GetIsDynamic = reflectionManager.GetMemberGetter<bool>(isDynamicProperty);
+            GetLocation = reflectionManager.GetMemberGetter<string>(locationProperty);
+            GetLastWriteTimeDelegate = reflectionManager.GetMemberGetter<DateTime>(lastWriteTimeProperty);
+            GetAssembliesDelegate = (Func<object, IEnumerable<Assembly>>)reflectionManager
+                .GetMethodDelegate(typeof(Func<object, IEnumerable<Assembly>>), getAssembliesMethod);
+            GetReferencedAssemblies = (Func<Assembly, IEnumerable<AssemblyName>>)reflectionManager
+                .GetMethodDelegate(typeof(Func<Assembly, IEnumerable<AssemblyName>>), getReferencedAssembliesMethod);
+            CreateFileInfo = reflectionManager.GetActivatorDelegate(fileInfoConstructor);
             Locker = new object();
             LoadedAssemblies = new HashSet<Assembly>();
-            FilteredAssemblies = new HashSet<Assembly>();
             LoadedModules = new Dictionary<string, IModule>(StringComparer.Ordinal);
         }
 
@@ -124,6 +135,21 @@ namespace MugenMvvmToolkit.Infrastructure
             var managers = new List<ConstructorInfo>();
             for (int index = 0; index < assemblies.Count; index++)
                 TryAddManagers(managers, assemblies[index]);
+
+            //Trying to load all assemblies, WinRT designer has problems with loading assemblies with same name.
+            if (_designTimeManager == null && managers.Count == 0)
+            {
+                assemblies.Clear();
+                foreach (var assembly in LoadedAssemblies)
+                {
+                    if (CanLoadAssembly(true, assembly))
+                        assemblies.Add(assembly);
+                }
+                for (int index = 0; index < assemblies.Count; index++)
+                    TryAddManagers(managers, assemblies[index]);
+                _isWinRT = managers.Count != 0;
+            }
+
             bool isNew = false;
             IDesignTimeManager designTimeManager = null;
             if (_designTimeManager == null)
@@ -159,24 +185,23 @@ namespace MugenMvvmToolkit.Infrastructure
                 _designTimeManager = designTimeManager;
                 _designTimeManager.Initialize();
                 Tracer.Info("The design time manager was loaded " + _designTimeManager);
-                InitializeDesignTimeModules(GetAssemblies(true));
+                InitializeDesignTimeModules(GetAssemblies(true), true);
             }
             else
-                InitializeDesignTimeModules(assemblies);
+                InitializeDesignTimeModules(assemblies, false);
         }
 
-        private static void InitializeDesignTimeModules(IList<Assembly> assemblies)
+        private static void InitializeDesignTimeModules(IList<Assembly> assemblies, bool allAssemblies)
         {
-            if (assemblies.Count == 0 || (_designTimeManager != null && !_designTimeManager.IsDesignMode))
+            var designTimeManager = _designTimeManager;
+            if (assemblies.Count == 0 || designTimeManager == null || !designTimeManager.IsDesignMode)
                 return;
             IList<IModule> modules = assemblies.GetModules(false);
             if (modules.Count == 0)
                 return;
 
-            _lastContext = _designTimeManager == null
-                ? new ModuleContext(PlatformInfo.Unknown, LoadMode.Design, null, null, FilteredAssemblies.ToArrayFast())
-                : new ModuleContext(_designTimeManager.Platform, LoadMode.Design, _designTimeManager.IocContainer,
-                    _designTimeManager.Context, FilteredAssemblies.ToArrayFast());
+            var context = new ModuleContext(designTimeManager.Platform, LoadMode.Design, designTimeManager.IocContainer,
+                designTimeManager.Context, allAssemblies ? assemblies : GetAssemblies(true));
             for (int i = 0; i < modules.Count; i++)
             {
                 IModule module = modules[i];
@@ -188,18 +213,19 @@ namespace MugenMvvmToolkit.Infrastructure
                     oldModule.Unload(_lastContext);
                     oldModule.TraceModule(false);
                 }
-                if (module.Load(_lastContext))
+                if (module.Load(context))
                 {
                     LoadedModules[fullName] = module;
                     module.TraceModule(true);
                 }
             }
+            _lastContext = context;
         }
 
         internal static IList<Assembly> GetAssemblies(bool ignoreLoaded)
         {
-            var currentDomain = CurrentDomainProperty.GetValueEx<object>(null);
-            var assemblies = (IEnumerable<Assembly>)GetAssembliesMethod.InvokeEx(currentDomain);
+            var currentDomain = GetCurrentDomain(null);
+            var assemblies = GetAssembliesDelegate(currentDomain);
             if (assemblies == null)
                 return Empty.Array<Assembly>();
 
@@ -224,6 +250,12 @@ namespace MugenMvvmToolkit.Infrastructure
             var result = new List<Assembly>();
             foreach (var list in dictionary.Values)
             {
+                //WinRT designer has problems with loading assemblies, and we should load all.
+                if (_isWinRT)
+                {
+                    result.AddRange(list);
+                    continue;
+                }
                 if (list.Count == 1)
                     result.Add(list[0]);
                 else
@@ -281,21 +313,21 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static bool FilterAssembly(Assembly assembly)
         {
-            if (!assembly.IsNonFrameworkAssembly())
+            if (!assembly.IsToolkitAssembly())
                 return false;
-            if (IsDynamicProperty.GetValueEx<bool>(assembly))
+            if (GetIsDynamic(assembly))
                 return false;
-            var assemblyNames = GetReferencedAssembliesMethod.InvokeEx(assembly, null) as IEnumerable<AssemblyName>;
+            var assemblyNames = GetReferencedAssemblies(assembly);
             return assemblyNames != null && assemblyNames.Any(name => name.FullName == ToolkitAssemblyName);
         }
 
         private static DateTime GetLastWriteTime(Assembly assembly)
         {
-            var value = LocationProperty.GetValueEx<string>(assembly);
+            var value = GetLocation(assembly);
             if (string.IsNullOrEmpty(value))
                 return DateTime.MinValue;
-            var fileInfo = FileInfoConstructor.InvokeEx(new object[] { value });
-            return LastWriteTimeProperty.GetValueEx<DateTime>(fileInfo);
+            var fileInfo = CreateFileInfo(new object[] { value });
+            return GetLastWriteTimeDelegate(fileInfo);
         }
 
         #endregion

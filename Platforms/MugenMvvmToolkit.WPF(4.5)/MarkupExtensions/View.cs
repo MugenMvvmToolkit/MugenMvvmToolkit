@@ -98,7 +98,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
             "Errors", typeof(ICollection<object>), typeof(View), new PropertyMetadata(null, OnErrorsChanged));
 
         public static readonly DependencyProperty HasErrorsProperty = DependencyProperty.RegisterAttached(
-            "HasErrors", typeof(bool), typeof(View), new PropertyMetadata(default(bool)));
+            "HasErrors", typeof(bool), typeof(View), new PropertyMetadata(Empty.FalseObject));
 
         public static void SetErrors(DependencyObject element, ICollection<object> value)
         {
@@ -247,7 +247,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
         private static void OnErrorsChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
         {
             var newValue = (ICollection<object>)args.NewValue;
-            sender.SetValue(HasErrorsProperty, newValue != null && newValue.Count != 0 ? Empty.TrueObject : Empty.FalseObject);
+            sender.SetValue(HasErrorsProperty, Empty.BooleanToObject(newValue != null && newValue.Count != 0));
             var errorsChanged = ErrorsChanged;
             if (errorsChanged != null)
                 errorsChanged(sender, newValue);

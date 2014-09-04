@@ -15,7 +15,6 @@
 #endregion
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -38,7 +37,7 @@ namespace MugenMvvmToolkit
         #region Fields
 
         internal readonly static IAttachedBindingMemberInfo<object, ICollectionViewManager> CollectionViewManagerMember;
-        
+
         private readonly static IAttachedBindingMemberInfo<object, IContentViewManager> ContentViewManagerMember;
         private readonly static IAttachedBindingMemberInfo<object, IEnumerable> ItemsSourceMember;
         private readonly static IAttachedBindingMemberInfo<Control, object> ContenMember;
@@ -78,15 +77,12 @@ namespace MugenMvvmToolkit
 
             //Control
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<Control, object>(AttachedMemberConstants.FindByNameMethod, FindByNameControlMember, null));
+                .CreateMember<Control, object>(AttachedMemberConstants.FindByNameMethod, FindByNameControlMember));
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<Control, bool>(AttachedMemberConstants.Enabled,
-                    (info, control, arg3) => control.Enabled, (info, control, arg3) => control.Enabled = (bool)arg3[0],
-                    memberChangeEventName: "EnabledChanged"));
+                    (info, control) => control.Enabled, (info, control, value) => control.Enabled = value, "EnabledChanged"));
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<Control, bool>(AttachedMemberConstants.Focused,
-                    (info, control, arg3) => control.Focused, null,
-                    memberChangeEventName: "LostFocus"));
+                .CreateMember<Control, bool>(AttachedMemberConstants.Focused, (info, control) => control.Focused, null, "LostFocus"));
 
             //Registering parent member as attached to avoid use the BindingExtensions.AttachedParentMember property.
             var parentMember = memberProvider.GetBindingMember(typeof(Control), AttachedMemberConstants.Parent, true, false);
@@ -95,58 +91,59 @@ namespace MugenMvvmToolkit
 
             memberProvider.Register(ContenMember);
             memberProvider.Register(ContenTemplateMember);
-            
+
             //DateTimePicker
-            memberProvider.Register(AttachedBindingMember.CreateMember<DateTimePicker, DateTime>("Value", (info, picker, arg3) => picker.Value,
-                (info, picker, arg3) =>
+            memberProvider.Register(AttachedBindingMember.CreateMember<DateTimePicker, DateTime>("Value",
+                (info, picker) => picker.Value,
+                (info, picker, value) =>
                 {
-                    var value = (DateTime)arg3[0];
                     if (value < picker.MinDate)
                         picker.Value = picker.MinDate;
                     else if (value > picker.MaxDate)
                         picker.Value = picker.MaxDate;
                     else
                         picker.Value = value;
-                    return null;
-                }, memberChangeEventName: "ValueChanged"));
+                }, "ValueChanged"));
 
             //MenuItem
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<MenuItem, bool>(AttachedMemberConstants.Enabled,
-                    (info, control, arg3) => control.Enabled, (info, control, arg3) => control.Enabled = (bool)arg3[0]));
+                    (info, control) => control.Enabled, (info, control, value) => control.Enabled = value));
 
             //ToolStripItem
             memberProvider.Register(AttachedBindingMember.CreateMember<ToolStripItem, object>(AttachedMemberConstants.Parent,
                     GetParentToolStripItem, null, ObserveParentMemberToolStripItem));
             memberProvider.Register(AttachedBindingMember.CreateMember<ToolStripItem, object>(AttachedMemberConstants.FindByNameMethod,
-                    FindByNameMemberToolStripItem, null));
+                    FindByNameMemberToolStripItem));
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<ToolStripItem, bool>(AttachedMemberConstants.Enabled,
-                    (info, control, arg3) => control.Enabled, (info, control, arg3) => control.Enabled = (bool)arg3[0],
-                    memberChangeEventName: "EnabledChanged"));
+                    (info, control) => control.Enabled, (info, control, value) => control.Enabled = value, "EnabledChanged"));
 
             //TabControl
             memberProvider.Register(AttachedBindingMember.CreateMember<TabControl, object>(AttachedMemberConstants.SelectedItem,
-                GetSelectedItemTabControl, SetSelectedItemTabControl, memberChangeEventName: "Selected"));
+                GetSelectedItemTabControl, SetSelectedItemTabControl, "Selected"));
 
             //ComboBox
-            memberProvider.Register(AttachedBindingMember.CreateMember<ComboBox, object>(AttachedMemberConstants.ItemsSource, (info, box, arg3) => box.DataSource,
-                (info, box, arg3) => box.DataSource = arg3[0], memberChangeEventName: "DataSourceChanged"));
+            memberProvider.Register(
+                AttachedBindingMember.CreateMember<ComboBox, object>(AttachedMemberConstants.ItemsSource,
+                    (info, box) => box.DataSource,
+                    (info, box, value) => box.DataSource = value, "DataSourceChanged"));
             memberProvider.Register(
                 AttachedBindingMember.CreateMember<ComboBox, object>(AttachedMemberConstants.SelectedItem,
-                    (info, box, arg3) => box.SelectedItem, (info, box, arg3) => box.SelectedItem = arg3[0],
-                    memberChangeEventName: "SelectedIndexChanged"));
+                    (info, box) => box.SelectedItem, (info, box, value) => box.SelectedItem = value,
+                    "SelectedIndexChanged"));
 
             //DataGridView
-            memberProvider.Register(AttachedBindingMember.CreateMember<DataGridView, object>(AttachedMemberConstants.ItemsSource,
-                (info, view, arg3) => view.DataSource, (info, view, arg3) =>
-                {
-                    view.DataSource = arg3[0];
-                    view.Refresh();
-                    return null;
-                }, memberChangeEventName: "DataSourceChanged"));
-            memberProvider.Register(AttachedBindingMember.CreateMember<DataGridView, object>(AttachedMemberConstants.SelectedItem,
-                GetSelectedItemDataGridView, SetSelectedItemDataGridView, memberChangeEventName: "CurrentCellChanged"));
+            memberProvider.Register(
+                AttachedBindingMember.CreateMember<DataGridView, object>(AttachedMemberConstants.ItemsSource,
+                    (info, view) => view.DataSource, (info, view, value) =>
+                    {
+                        view.DataSource = value;
+                        view.Refresh();
+                    }, "DataSourceChanged"));
+            memberProvider.Register(
+                AttachedBindingMember.CreateMember<DataGridView, object>(AttachedMemberConstants.SelectedItem,
+                    GetSelectedItemDataGridView, SetSelectedItemDataGridView, "CurrentCellChanged"));
         }
 
         #region Control
@@ -202,7 +199,7 @@ namespace MugenMvvmToolkit
                 viewManager.SetContent(container, content);
         }
 
-        private static object FindByNameControlMember(IBindingMemberInfo bindingMemberInfo, Control control, IList<object> arg3)
+        private static object FindByNameControlMember(IBindingMemberInfo bindingMemberInfo, Control control, object[] arg3)
         {
             var root = PlatformExtensions.GetRootControl(control);
             if (root != null)
@@ -246,8 +243,7 @@ namespace MugenMvvmToolkit
 
         #region ToolStripItem
 
-        private static object FindByNameMemberToolStripItem(IBindingMemberInfo bindingMemberInfo, ToolStripItem target,
-            IList<object> arg3)
+        private static object FindByNameMemberToolStripItem(IBindingMemberInfo bindingMemberInfo, ToolStripItem target, object[] arg3)
         {
             Control control = GetOwner(target);
             if (control == null)
@@ -255,7 +251,7 @@ namespace MugenMvvmToolkit
             return FindByNameControlMember(null, control, arg3);
         }
 
-        private static object GetParentToolStripItem(IBindingMemberInfo bindingMemberInfo, ToolStripItem target, IList<object> arg3)
+        private static object GetParentToolStripItem(IBindingMemberInfo bindingMemberInfo, ToolStripItem target)
         {
             return GetOwner(target);
         }
@@ -300,12 +296,11 @@ namespace MugenMvvmToolkit
 
         #region DataGridView
 
-        private static object SetSelectedItemDataGridView(IBindingMemberInfo bindingMemberInfo, DataGridView dataGridView, object[] arg3)
+        private static void SetSelectedItemDataGridView(IBindingMemberInfo bindingMemberInfo, DataGridView dataGridView, object item)
         {
             dataGridView.ClearSelection();
-            var item = arg3[0];
             if (item == null)
-                return null;
+                return;
             for (int i = 0; i < dataGridView.Rows.Count; i++)
             {
                 if (Equals(dataGridView.Rows[i].DataBoundItem, item))
@@ -314,13 +309,12 @@ namespace MugenMvvmToolkit
                     row.Selected = true;
                     if (row.Cells.Count > 0)
                         row.Cells[0].Selected = true;
-                    return null;
+                    break;
                 }
             }
-            return null;
         }
 
-        private static object GetSelectedItemDataGridView(IBindingMemberInfo bindingMemberInfo, DataGridView dataGridView, object[] arg3)
+        private static object GetSelectedItemDataGridView(IBindingMemberInfo bindingMemberInfo, DataGridView dataGridView)
         {
             var row = dataGridView.CurrentRow;
             if (row == null)
@@ -332,7 +326,7 @@ namespace MugenMvvmToolkit
 
         #region TabControl
 
-        private static object GetSelectedItemTabControl(IBindingMemberInfo bindingMemberInfo, TabControl tabControl, object[] arg3)
+        private static object GetSelectedItemTabControl(IBindingMemberInfo bindingMemberInfo, TabControl tabControl)
         {
             if (tabControl.TabCount == 0 || tabControl.SelectedIndex < 0)
                 return null;
@@ -341,18 +335,16 @@ namespace MugenMvvmToolkit
                 .GetBindingContext(tabControl.TabPages[tabControl.SelectedIndex]).Value;
         }
 
-        private static object SetSelectedItemTabControl(IBindingMemberInfo bindingMemberInfo, TabControl tabControl, object[] arg3)
+        private static void SetSelectedItemTabControl(IBindingMemberInfo bindingMemberInfo, TabControl tabControl, object item)
         {
-            var item = arg3[0];
             foreach (TabPage tabPage in tabControl.TabPages)
             {
                 if (Equals(BindingServiceProvider.ContextManager.GetBindingContext(tabPage).Value, item))
                 {
                     tabControl.SelectedTab = tabPage;
-                    return null;
+                    break;
                 }
             }
-            return null;
         }
 
         #endregion

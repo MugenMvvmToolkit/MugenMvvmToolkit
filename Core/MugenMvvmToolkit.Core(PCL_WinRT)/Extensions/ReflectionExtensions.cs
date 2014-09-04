@@ -112,7 +112,7 @@ namespace MugenMvvmToolkit
         private static readonly Dictionary<Type, Func<object, object>> GetDataContextDelegateCache;
         private static readonly Dictionary<Type, Action<object, object>> SetDataContextDelegateCache;
 
-        private static readonly Func<Assembly, bool> IsNonFrameworkAssemblyDelegate;
+        private static readonly Func<Assembly, bool> IsToolkitAssemblyDelegate;
         private static readonly HashSet<string> KnownPublicKeys;
 
         private static readonly Dictionary<Type, string[]> CachedIgnoreAttributes;
@@ -144,7 +144,7 @@ namespace MugenMvvmToolkit
                 "7cec85d7bea7798e", "31bf3856ad364e35", "b03f5f7f11d50a3a",  "b77a5c561934e089", 
                 "0738eb9f132ed756", "84e04ff9cfb79065", "5803cfa389c90ce7", "17863af14b0044da"
             };
-            IsNonFrameworkAssemblyDelegate = IsNonFrameworkAssembly;
+            IsToolkitAssemblyDelegate = IsToolkitAssembly;
 
             CachedViewModelProperties = new Dictionary<Type, Dictionary<string, ICollection<string>>>();
             CachedIgnoreAttributes = new Dictionary<Type, string[]>();
@@ -379,13 +379,13 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static IEnumerable<Assembly> SkipFrameworkAssemblies(this IEnumerable<Assembly> assemblies)
         {
-            return assemblies.Where(IsNonFrameworkAssemblyDelegate);
+            return assemblies.Where(IsToolkitAssemblyDelegate);
         }
 
         /// <summary>
-        /// Checks whether the current assembly is the non framework assembly.
+        ///     Checks whether the current assembly is toolkit assembly.
         /// </summary>
-        public static bool IsNonFrameworkAssembly(this Assembly assembly)
+        public static bool IsToolkitAssembly(this Assembly assembly)
         {
 #if !PCL_Silverlight
             if (assembly.IsDynamic)
@@ -762,7 +762,7 @@ namespace MugenMvvmToolkit
                         break;
                     }
                 }
-                if (!find) 
+                if (!find)
                     continue;
                 return constructor;
             }

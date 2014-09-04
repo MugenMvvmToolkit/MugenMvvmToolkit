@@ -16,7 +16,6 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Models;
 
@@ -39,8 +38,8 @@ namespace MugenMvvmToolkit.Collections
         ///     for the specified list.
         /// </summary>
         /// <param name="collection">The list that is wrapped by the new collection.</param>
-        public BindingListWrapper([NotNull] SynchronizedNotifiableCollection<T> collection)
-            : base(collection)
+        public BindingListWrapper(SynchronizedNotifiableCollection<T> collection = null)
+            : base(collection ?? new SynchronizedNotifiableCollection<T>())
         {
             _locker = new object();
             CollectionChanged += CollectionOnCollectionChanged;

@@ -278,8 +278,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             var source = new BindingSourceModel();
             const string path = "path";
             Type type = typeof(string);
-            var property = AttachedBindingMember.CreateMember(path, type, (info, o, arg3) => value,
-                (info, o, arg3) => value = arg3[0], member: BindingSourceModel.IntPropertyInfo);
+            var property = AttachedBindingMember.CreateMember(path, type, (info, o) => value,
+                (info, o, v) => value = v, member: BindingSourceModel.IntPropertyInfo);
             property.Path.ShouldEqual(path);
             property.Type.ShouldEqual(type);
             property.CanRead.ShouldBeTrue();
@@ -300,8 +300,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             var source = new BindingSourceModel();
             const string path = "path";
             Type type = typeof(string);
-            var property = AttachedBindingMember.CreateMember<BindingSourceModel, string>(path, (info, o, arg3) => value,
-                (info, o, arg3) => value = (string)arg3[0], member: BindingSourceModel.IntPropertyInfo);
+            var property = AttachedBindingMember.CreateMember<BindingSourceModel, string>(path, (info, o) => value,
+                (info, o, v) => value = v, member: BindingSourceModel.IntPropertyInfo);
             property.Path.ShouldEqual(path);
             property.Type.ShouldEqual(type);
             property.CanRead.ShouldBeTrue();
@@ -327,9 +327,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             {
                 info.ShouldNotBeNull();
                 o.ShouldEqual(source);
-                arg3.ShouldEqual(arg3);
+                arg3.ShouldEqual(args);
                 return value;
-            }, null);
+            });
             property.Path.ShouldEqual(path);
             property.Type.ShouldEqual(type);
             property.CanRead.ShouldBeTrue();
@@ -352,9 +352,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             {
                 info.ShouldNotBeNull();
                 o.ShouldEqual(source);
-                arg3.ShouldEqual(arg3);
+                arg3.ShouldEqual(args);
                 return value;
-            }, null);
+            });
             property.Path.ShouldEqual(path);
             property.Type.ShouldEqual(type);
             property.CanRead.ShouldBeTrue();
@@ -372,14 +372,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             var source = new BindingSourceModel();
             const string path = "path";
             Type type = typeof(string);
-            var property = AttachedBindingMember.CreateMember(path, type, null, (info, o, arg3) =>
+            var property = AttachedBindingMember.CreateMember(path, type, null, (info, o, v) =>
             {
                 info.ShouldNotBeNull();
                 o.ShouldEqual(source);
-                arg3.Length.ShouldEqual(1);
-                arg3[0].ShouldEqual(path);
-                value = arg3[0];
-                return null;
+                v.ShouldEqual(path);
+                value = v;
             });
             property.Path.ShouldEqual(path);
             property.Type.ShouldEqual(type);
@@ -399,15 +397,14 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             var source = new BindingSourceModel();
             const string path = "path";
             Type type = typeof(string);
-            var property = AttachedBindingMember.CreateMember<BindingSourceModel, string>(path, null, (info, o, arg3) =>
-            {
-                info.ShouldNotBeNull();
-                o.ShouldEqual(source);
-                arg3.Length.ShouldEqual(1);
-                arg3[0].ShouldEqual(path);
-                value = arg3[0];
-                return null;
-            });
+            var property = AttachedBindingMember.CreateMember<BindingSourceModel, string>(path, null,
+                (info, o, v) =>
+                {
+                    info.ShouldNotBeNull();
+                    o.ShouldEqual(source);
+                    v.ShouldEqual(path);
+                    value = v;
+                });
             property.Path.ShouldEqual(path);
             property.Type.ShouldEqual(type);
             property.CanRead.ShouldBeFalse();
@@ -425,7 +422,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             bool isInvoked = false;
             var source = new BindingSourceModel();
             const string path = "path";
-            var property = AttachedBindingMember.CreateMember(path, typeof(string), (info, o, arg3) => null, (info, o, arg3) => null,
+            var property = AttachedBindingMember.CreateMember(path, typeof(string), (info, o) => null, (info, o, v) => { }, memberAttachedHandler:
                 (model, args) =>
                 {
                     model.ShouldEqual(source);
@@ -451,7 +448,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             bool isInvoked = false;
             var source = new BindingSourceModel();
             const string path = "path";
-            var property = AttachedBindingMember.CreateMember<BindingSourceModel, string>(path, (info, o, arg3) => null, (info, o, arg3) => null,
+            var property = AttachedBindingMember.CreateMember<BindingSourceModel, string>(path, (info, o) => null, (info, o, v) => { }, memberAttachedHandler:
                 (model, args) =>
                 {
                     model.ShouldEqual(source);
@@ -482,8 +479,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             var source = new BindingSourceModel();
             const string path = "path";
             source.RaiseEvent();
-            var property = AttachedBindingMember.CreateMember(path, typeof(string), (info, o, arg3) => null,
-                (info, o, arg3) => null, memberChangeEventName: BindingSourceModel.EventName);
+            var property = AttachedBindingMember.CreateMember(path, typeof(string), (info, o) => null,
+                (info, o, v) => { }, BindingSourceModel.EventName);
 
             IDisposable subscriber = property.TryObserve(source, listenerMock);
             source.RaiseEvent();
@@ -511,8 +508,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             var source = new BindingSourceModel();
             const string path = "path";
             source.RaiseEvent();
-            var property = AttachedBindingMember.CreateMember<BindingSourceModel, string>(path, (info, o, arg3) => null,
-                (info, o, arg3) => null, memberChangeEventName: BindingSourceModel.EventName);
+            var property = AttachedBindingMember.CreateMember<BindingSourceModel, string>(path, (info, o) => null,
+                (info, o, v) => { }, BindingSourceModel.EventName);
 
             IDisposable subscriber = property.TryObserve(source, listenerMock);
             source.RaiseEvent();
@@ -537,8 +534,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             var listenerMock = new EventListenerMock();
             var source = new BindingSourceModel();
             const string path = "path";
-            var property = AttachedBindingMember.CreateMember(path, typeof(string), (info, o, arg3) => null,
-                (info, o, arg3) => null,
+            var property = AttachedBindingMember.CreateMember(path, typeof(string), (info, o) => null,
+                (info, o, v) => { },
                 (info, o, arg3) =>
                 {
                     isInvoked = true;
@@ -565,8 +562,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             var listenerMock = new EventListenerMock();
             var source = new BindingSourceModel();
             const string path = "path";
-            var property = AttachedBindingMember.CreateMember<BindingSourceModel, string>(path, (info, o, arg3) => null,
-                (info, o, arg3) => null,
+            var property = AttachedBindingMember.CreateMember<BindingSourceModel, string>(path, (info, o) => null,
+                (info, o, v) => { },
                 (info, o, arg3) =>
                 {
                     isInvoked = true;
@@ -595,10 +592,10 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             var source = new BindingSourceModel();
             const string path = "path";
             Type type = typeof(string);
-            var property = AttachedBindingMember.CreateNotifiableMember(path, type, (info, o, arg3) => value,
-                (info, o, arg3) =>
+            var property = AttachedBindingMember.CreateNotifiableMember(path, type, (info, o) => value,
+                (info, o, v) =>
                 {
-                    value = arg3[0];
+                    value = v;
                     return true;
                 }, member: BindingSourceModel.IntPropertyInfo);
             property.Path.ShouldEqual(path);
@@ -621,10 +618,10 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             var source = new BindingSourceModel();
             const string path = "path";
             Type type = typeof(string);
-            var property = AttachedBindingMember.CreateNotifiableMember<BindingSourceModel, string>(path, (info, o, arg3) => value,
-                (info, o, arg3) =>
+            var property = AttachedBindingMember.CreateNotifiableMember<BindingSourceModel, string>(path, (info, o) => value,
+                (info, o, v) =>
                 {
-                    value = (string)arg3[0];
+                    value = v;
                     return true;
                 }, member: BindingSourceModel.IntPropertyInfo);
             property.Path.ShouldEqual(path);
@@ -648,13 +645,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             var source = new BindingSourceModel();
             const string path = "path";
             Type type = typeof(string);
-            var property = AttachedBindingMember.CreateNotifiableMember(path, type, (info, o, arg3) =>
+            var property = AttachedBindingMember.CreateNotifiableMember(path, type, (info, o) =>
             {
                 info.ShouldNotBeNull();
                 o.ShouldEqual(source);
-                arg3.ShouldEqual(arg3);
                 return value;
-            }, (info, o, arg3) => true);
+            }, (info, o, v) => true);
             property.Path.ShouldEqual(path);
             property.Type.ShouldEqual(type);
             property.CanRead.ShouldBeTrue();
@@ -671,13 +667,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             var source = new BindingSourceModel();
             const string path = "path";
             Type type = typeof(string);
-            var property = AttachedBindingMember.CreateNotifiableMember<BindingSourceModel, string>(path, (info, o, arg3) =>
+            var property = AttachedBindingMember.CreateNotifiableMember<BindingSourceModel, string>(path, (info, o) =>
             {
                 info.ShouldNotBeNull();
                 o.ShouldEqual(source);
-                arg3.ShouldEqual(arg3);
                 return value;
-            }, (info, o, arg3) => true);
+            }, (info, o, v) => true);
             property.Path.ShouldEqual(path);
             property.Type.ShouldEqual(type);
             property.CanRead.ShouldBeTrue();
@@ -693,13 +688,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             var source = new BindingSourceModel();
             const string path = "path";
             Type type = typeof(string);
-            var property = AttachedBindingMember.CreateNotifiableMember(path, type, null, (info, o, arg3) =>
+            var property = AttachedBindingMember.CreateNotifiableMember(path, type, null, (info, o, v) =>
             {
                 info.ShouldNotBeNull();
                 o.ShouldEqual(source);
-                arg3.Length.ShouldEqual(1);
-                arg3[0].ShouldEqual(path);
-                value = arg3[0];
+                v.ShouldEqual(path);
+                value = v;
                 return true;
             });
             property.Path.ShouldEqual(path);
@@ -720,13 +714,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             var source = new BindingSourceModel();
             const string path = "path";
             Type type = typeof(string);
-            var property = AttachedBindingMember.CreateNotifiableMember<BindingSourceModel, string>(path, null, (info, o, arg3) =>
+            var property = AttachedBindingMember.CreateNotifiableMember<BindingSourceModel, string>(path, null, (info, o, v) =>
             {
                 info.ShouldNotBeNull();
                 o.ShouldEqual(source);
-                arg3.Length.ShouldEqual(1);
-                arg3[0].ShouldEqual(path);
-                value = arg3[0];
+                v.ShouldEqual(path);
+                value = v;
                 return true;
             });
             property.Path.ShouldEqual(path);
@@ -747,7 +740,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             bool isInvoked = false;
             var source = new BindingSourceModel();
             const string path = "path";
-            var property = AttachedBindingMember.CreateNotifiableMember(path, typeof(string), (info, o, arg3) => null, (info, o, arg3) => true,
+            var property = AttachedBindingMember.CreateNotifiableMember(path, typeof(string), (info, o) => null, (info, o, v) => true,
                 (model, args) =>
                 {
                     model.ShouldEqual(source);
@@ -774,7 +767,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             bool isInvoked = false;
             var source = new BindingSourceModel();
             const string path = "path";
-            var property = AttachedBindingMember.CreateNotifiableMember<BindingSourceModel, string>(path, (info, o, arg3) => null, (info, o, arg3) => true,
+            var property = AttachedBindingMember.CreateNotifiableMember<BindingSourceModel, string>(path, (info, o) => null, (info, o, v) => true,
                 (model, args) =>
                 {
                     model.ShouldEqual(source);
@@ -805,8 +798,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             };
             var source = new BindingSourceModel();
             const string path = "path";
-            var property = AttachedBindingMember.CreateNotifiableMember(path, typeof(string), (info, o, arg3) => null,
-                (info, o, arg3) => raiseEvent);
+            var property = AttachedBindingMember.CreateNotifiableMember(path, typeof(string), (info, o) => null,
+                (info, o, v) => raiseEvent);
 
             IDisposable subscriber = property.TryObserve(source, listenerMock);
             property.SetValue(source, new object[] { path });
@@ -840,8 +833,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             };
             var source = new BindingSourceModel();
             const string path = "path";
-            var property = AttachedBindingMember.CreateNotifiableMember<BindingSourceModel, string>(path, (info, o, arg3) => null,
-                (info, o, arg3) => raiseEvent);
+            var property = AttachedBindingMember.CreateNotifiableMember<BindingSourceModel, string>(path, (info, o) => null,
+                (info, o, v) => raiseEvent);
 
             IDisposable subscriber = property.TryObserve(source, listenerMock);
             property.SetValue(source, new object[] { path });

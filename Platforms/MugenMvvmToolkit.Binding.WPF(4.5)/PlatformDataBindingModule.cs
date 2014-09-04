@@ -72,48 +72,45 @@ namespace MugenMvvmToolkit.Binding
 
             //UIElement
             memberProvider.Register(AttachedBindingMember.CreateMember<UIElement, bool>("Visible",
-                    (info, view, arg3) => view.Visibility == Visibility.Visible,
-                    (info, view, arg3) => view.Visibility = ((bool)arg3[0]) ? Visibility.Visible : Visibility.Collapsed, ObserveVisiblityMember));
+                    (info, view) => view.Visibility == Visibility.Visible,
+                    (info, view, value) => view.Visibility = value ? Visibility.Visible : Visibility.Collapsed, ObserveVisiblityMember));
             memberProvider.Register(AttachedBindingMember.CreateMember<UIElement, bool>("Hidden",
-                    (info, view, arg3) => view.Visibility != Visibility.Visible,
-                    (info, view, arg3) => view.Visibility = ((bool)arg3[0]) ? Visibility.Collapsed : Visibility.Visible, ObserveVisiblityMember));
+                    (info, view) => view.Visibility != Visibility.Visible,
+                    (info, view, value) => view.Visibility = value ? Visibility.Collapsed : Visibility.Visible, ObserveVisiblityMember));
 
 
             //FrameworkElement            
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, object>(AttachedMemberConstants.Parent, GetParentValue, null, ObserveParentMember));
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<FrameworkElement, object>(AttachedMemberConstants.FindByNameMethod, FindByNameMemberImpl, null));
+                .CreateMember<FrameworkElement, object>(AttachedMemberConstants.FindByNameMethod, FindByNameMemberImpl));
 #if SILVERLIGHT || NETFX_CORE || WINDOWSCOMMON
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, bool>(AttachedMemberConstants.Focused,
-                    (info, control, arg3) => FocusManager.GetFocusedElement() == control, null,
-                    memberChangeEventName: "LostFocus"));
+                    (info, control) => FocusManager.GetFocusedElement() == control, null, "LostFocus"));
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<Control, bool>(AttachedMemberConstants.Enabled,
-                    (info, control, arg3) => control.IsEnabled,
-                    (info, control, arg3) => control.IsEnabled = (bool)arg3[0]));
+                    (info, control) => control.IsEnabled,
+                    (info, control, value) => control.IsEnabled = value));
 #else
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, bool>(AttachedMemberConstants.Focused,
-                    (info, control, arg3) => control.IsFocused, null,
-                    memberChangeEventName: "LostFocus"));
+                    (info, control) => control.IsFocused, null, "LostFocus"));
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, bool>(AttachedMemberConstants.Enabled,
-                    (info, control, arg3) => control.IsEnabled,
-                    (info, control, arg3) => control.IsEnabled = (bool)arg3[0],
-                    memberChangeEventName: "IsEnabledChanged"));
+                    (info, control) => control.IsEnabled,
+                    (info, control, value) => control.IsEnabled = value, "IsEnabledChanged"));
 #endif
 
             //TextBox, TextBlock            
 #if WINDOWSCOMMON || NETFX_CORE
             memberProvider.Register(AttachedBindingMember.CreateMember<TextBox, string>("Text",
-                (info, box, arg3) => box.Text,
-                (info, box, arg3) => box.Text = arg3[0] as string ?? string.Empty, memberChangeEventName: "TextChanged"));
+                (info, box) => box.Text,
+                (info, box, value) => box.Text = value ?? string.Empty, "TextChanged"));
 
             memberProvider.Register(AttachedBindingMember.CreateMember<TextBlock, string>("Text",
-                (info, box, arg3) => box.Text,
-                (info, box, arg3) => box.Text = arg3[0] as string ?? string.Empty, ObserveTextTextBlock));
+                (info, box) => box.Text,
+                (info, box, value) => box.Text = value ?? string.Empty, ObserveTextTextBlock));
 #endif
         }
 
@@ -143,13 +140,12 @@ namespace MugenMvvmToolkit.Binding
                 .AddWithUnsubscriber(arg3);
         }
 
-        private static object SetErrors(IBindingMemberInfo bindingMemberInfo, DependencyObject dependencyObject, object[] arg3)
+        private static void SetErrors(IBindingMemberInfo bindingMemberInfo, DependencyObject dependencyObject, ICollection<object> collection)
         {
-            View.SetErrors(dependencyObject, (ICollection<object>)arg3[0]);
-            return null;
+            View.SetErrors(dependencyObject, collection);
         }
 
-        private static ICollection<object> GetErrors(IBindingMemberInfo bindingMemberInfo, DependencyObject dependencyObject, object[] arg3)
+        private static ICollection<object> GetErrors(IBindingMemberInfo bindingMemberInfo, DependencyObject dependencyObject)
         {
             return View.GetErrors(dependencyObject);
         }
@@ -178,7 +174,7 @@ namespace MugenMvvmToolkit.Binding
             return frameworkElement.FindName(name) ?? FindChild(root, name);
         }
 
-        private static DependencyObject GetParentValue(IBindingMemberInfo bindingMemberInfo, FrameworkElement target, object[] arg3)
+        private static DependencyObject GetParentValue(IBindingMemberInfo bindingMemberInfo, FrameworkElement target)
         {
             return ParentObserver.GetOrAdd(target).Parent;
         }

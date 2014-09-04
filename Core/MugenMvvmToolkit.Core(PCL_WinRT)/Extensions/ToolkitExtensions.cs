@@ -16,6 +16,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -1252,6 +1253,32 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Checks whether the properties are equal.
         /// </summary>
+        /// <param name="args">The specified property changed args.</param>
+        /// <param name="getProperty">The expression to get property.</param>
+        /// <returns>If true property is equal, otherwise false.</returns>
+        [Pure]
+        public static bool PropertyNameEqual<T>([NotNull] this PropertyChangedEventArgs args, [NotNull] Expression<Func<T, object>> getProperty)
+        {
+            Should.NotBeNull(args, "args");
+            return PropertyNameEqual(args.PropertyName, getProperty);
+        }
+
+        /// <summary>
+        ///     Checks whether the properties are equal.
+        /// </summary>
+        /// <param name="args">The specified property changed args.</param>
+        /// /// <param name="item">The specified model.</param>
+        /// <param name="getProperty">The expression to get property.</param>
+        /// <returns>If true property is equal, otherwise false.</returns>
+        [Pure]
+        public static bool PropertyNameEqual<T>([NotNull] this PropertyChangedEventArgs args, T item, [NotNull] Expression<Func<T, object>> getProperty)
+        {
+            return PropertyNameEqual(args, getProperty);
+        }
+
+        /// <summary>
+        ///     Checks whether the properties are equal.
+        /// </summary>
         public static bool PropertyNameEqual(string changedProperty, string sourceProperty, bool emptySourcePathResult = false)
         {
             if (string.IsNullOrEmpty(changedProperty) || changedProperty.Equals(sourceProperty))
@@ -1635,5 +1662,5 @@ namespace MugenMvvmToolkit
         }
 
         #endregion
-    }    
+    }
 }

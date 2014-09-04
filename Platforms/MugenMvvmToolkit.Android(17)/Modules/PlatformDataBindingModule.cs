@@ -239,26 +239,21 @@ namespace MugenMvvmToolkit
             //Menu
             MenuItemsSourceMember = AttachedBindingMember.CreateAutoProperty<IMenu, IEnumerable>(AttachedMemberConstants.ItemsSource, MenuItemsSourceChanged);
             IsCheckedMenuItemMember = AttachedBindingMember.CreateNotifiableMember<IMenuItem, bool>("IsChecked",
-                (info, item, arg3) => item.IsChecked,
-                (info, item, arg3) =>
+                (info, item) => item.IsChecked, (info, item, value) =>
                 {
-                    var value = (bool)arg3[0];
-                    if (value != item.IsChecked)
-                    {
-                        item.SetChecked(value);
-                        return true;
-                    }
-                    return false;
-                });
-
+                    if (value == item.IsChecked)
+                        return false;
+                    item.SetChecked(value);
+                    return true;
+                });            
 #if !API8
             MenuItemActionViewMember = AttachedBindingMember
-                .CreateNotifiableMember<IMenuItem, object>("ActionView", (info, item, arg3) => item.GetActionView(), (info, item, arg3) => MenuItemUpdateActionView(item, arg3[0]));
+                .CreateNotifiableMember<IMenuItem, object>("ActionView", (info, item) => item.GetActionView(), MenuItemUpdateActionView);
             MenuItemActionViewSelectorMember = AttachedBindingMember
                 .CreateAutoProperty<IMenuItem, IDataTemplateSelector>("ActionViewTemplateSelector", (o, args) => RefreshValue(o, MenuItemActionViewMember));
 
             MenuItemActionProviderMember = AttachedBindingMember
-                .CreateNotifiableMember<IMenuItem, object>("ActionProvider", (info, item, arg3) => item.GetActionProvider(), (info, item, arg3) => MenuItemUpdateActionProvider(item, arg3[0]));
+                .CreateNotifiableMember<IMenuItem, object>("ActionProvider", (info, item) => item.GetActionProvider(), MenuItemUpdateActionProvider);
             MenuItemActionProviderSelectorMember = AttachedBindingMember
                 .CreateAutoProperty<IMenuItem, IDataTemplateSelector>("ActionProviderTemplateSelector", (o, args) => RefreshValue(o, MenuItemActionProviderMember));
 
@@ -315,17 +310,17 @@ namespace MugenMvvmToolkit
             //Activity
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Activity, string>("Title",
                 (activity, args) => activity.Title = args.NewValue, getDefaultValue: (activity, info) => activity.Title));
-            memberProvider.Register(AttachedBindingMember.CreateMember<Activity, object>(AttachedMemberConstants.Parent, (info, activity, arg3) => null, null));
+            memberProvider.Register(AttachedBindingMember.CreateMember<Activity, object>(AttachedMemberConstants.Parent, (info, activity) => null, null));
 
             //CompoundButton
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<CompoundButton, bool>("Checked", (info, btn, arg3) => btn.Checked,
-                    (info, btn, arg3) => btn.Checked = (bool)arg3[0], null, "CheckedChange"));
+                .CreateMember<CompoundButton, bool>("Checked", (info, btn) => btn.Checked,
+                    (info, btn, value) => btn.Checked = value, "CheckedChange"));
 
             //RatingBar
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<RatingBar, float>("Rating", (info, btn, arg3) => btn.Rating,
-                    (info, btn, arg3) => btn.Rating = (float)arg3[0], null, "RatingBarChange"));
+                .CreateMember<RatingBar, float>("Rating", (info, btn) => btn.Rating,
+                    (info, btn, value) => btn.Rating = value, "RatingBarChange"));
 
             //AdapterView
             _rawAdapterMember = memberProvider.GetBindingMember(typeof(AdapterView), "RawAdapter", false, true);
@@ -374,7 +369,7 @@ namespace MugenMvvmToolkit
 
             //DatePicker
             var selectedDateMember = AttachedBindingMember.CreateMember<DatePicker, DateTime>("SelectedDate",
-                (info, picker, arg3) => picker.DateTime, (info, picker, arg3) => picker.DateTime = (DateTime)arg3[0],
+                (info, picker) => picker.DateTime, (info, picker, value) => picker.DateTime = value,
                 ObserveSelectedDate, SelectedDateMemberAttached);
             memberProvider.Register(selectedDateMember);
             memberProvider.Register("DateTime", selectedDateMember);
@@ -509,17 +504,13 @@ namespace MugenMvvmToolkit
 
         #region TimePicker
 
-        private static object SetTimePickerValue(IBindingMemberInfo bindingMemberInfo, TimePicker timePicker,
-            IList<object> arg3)
+        private static void SetTimePickerValue(IBindingMemberInfo bindingMemberInfo, TimePicker timePicker, TimeSpan value)
         {
-            var value = (TimeSpan)arg3[0];
             timePicker.CurrentHour = new Integer(value.Hours);
             timePicker.CurrentMinute = new Integer(value.Minutes);
-            return null;
         }
 
-        private static TimeSpan GetTimePickerValue(IBindingMemberInfo bindingMemberInfo, TimePicker timePicker,
-            IList<object> arg3)
+        private static TimeSpan GetTimePickerValue(IBindingMemberInfo bindingMemberInfo, TimePicker timePicker)
         {
             int currentHour = timePicker.CurrentHour.IntValue();
             int currentMinute = timePicker.CurrentMinute.IntValue();

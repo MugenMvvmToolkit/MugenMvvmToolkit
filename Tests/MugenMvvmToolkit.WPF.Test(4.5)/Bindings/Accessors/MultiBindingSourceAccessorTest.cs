@@ -113,13 +113,13 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             var sourceModel = new BindingSourceModel();
             var converterMock = new ValueConverterCoreMock
             {
-                Convert = (o, type, arg3, arg4) =>
+                Convert = (o, type, arg3, args) =>
                 {
                     converterInvoked = true;
                     o.ShouldEqual(sourceModel.IntProperty);
                     type.ShouldEqual(typeof(int));
                     arg3.ShouldEqual(parameter);
-                    arg4.ShouldEqual(culture);
+                    args.ShouldEqual(culture);
                     return int.MaxValue;
                 }
             };

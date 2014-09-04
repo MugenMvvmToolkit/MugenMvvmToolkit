@@ -160,25 +160,23 @@ namespace MugenMvvmToolkit
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<View, string>(AttachedMemberNames.PopupMenuEvent, PopupMenuEventChanged));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<View, string>(AttachedMemberNames.PlacementTargetPath));
 #endif
-            memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.Parent,
-                    GetViewParentValue, null, ObserveViewParent));
-            memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.FindByNameMethod,
-                    ViewFindByNameMember, null));
+            memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.Parent, GetViewParentValue, null, ObserveViewParent));
+            memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.FindByNameMethod, ViewFindByNameMember));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, bool>(AttachedMemberConstants.Focused,
-                    (info, view, arg3) => view.IsFocused, null, memberChangeEventName: "FocusChange"));
+                    (info, view) => view.IsFocused, null, "FocusChange"));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, bool>(AttachedMemberConstants.Enabled,
-                    (info, view, arg3) => view.Enabled, (info, view, arg3) => view.Enabled = (bool)arg3[0]));
+                    (info, view) => view.Enabled, (info, view, value) => view.Enabled = value));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, ViewStates>("Visibility",
-                    (info, view, arg3) => view.Visibility, (info, view, arg3) => view.Visibility = (ViewStates)arg3[0],
-                    ObserveViewVisibility));
+                (info, view) => view.Visibility, (info, view, value) => view.Visibility = value,
+                ObserveViewVisibility));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, bool>("Visible",
-                    (info, view, arg3) => view.Visibility == ViewStates.Visible,
-                    (info, view, arg3) => view.Visibility = ((bool)arg3[0]) ? ViewStates.Visible : ViewStates.Gone,
-                    ObserveViewVisibility));
+                (info, view) => view.Visibility == ViewStates.Visible,
+                (info, view, value) => view.Visibility = value ? ViewStates.Visible : ViewStates.Gone,
+                ObserveViewVisibility));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, bool>("Hidden",
-                    (info, view, arg3) => view.Visibility != ViewStates.Visible,
-                    (info, view, arg3) => view.Visibility = ((bool)arg3[0]) ? ViewStates.Gone : ViewStates.Visible,
-                    ObserveViewVisibility));
+                (info, view) => view.Visibility != ViewStates.Visible,
+                (info, view, value) => view.Visibility = value ? ViewStates.Gone : ViewStates.Visible,
+                ObserveViewVisibility));
         }
 
         private static IDisposable ObserveViewVisibility(IBindingMemberInfo bindingMemberInfo, View view, IEventListener arg3)
@@ -191,7 +189,7 @@ namespace MugenMvvmToolkit
             return ParentObserver.GetOrAdd(view).AddWithUnsubscriber(arg3);
         }
 
-        private static object GetViewParentValue(IBindingMemberInfo arg1, View view, object[] arg3)
+        private static object GetViewParentValue(IBindingMemberInfo arg1, View view)
         {
             if (view.Id == Android.Resource.Id.Content)
                 return view.Context.GetActivity();

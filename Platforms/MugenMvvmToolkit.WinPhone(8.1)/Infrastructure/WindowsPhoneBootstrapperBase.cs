@@ -109,7 +109,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 try
                 {
                     Assembly assembly = Assembly.Load(assemblyName);
-                    if (assembly.IsNonFrameworkAssembly())
+                    if (assembly.IsToolkitAssembly())
                         listAssembly.Add(assembly);
                 }
                 catch (Exception e)
