@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.WPF</id>
-    <version>1.0.11</version>
+    <version>1.0.13</version>
     <title>MugenMvvmToolkit - WPF</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -34,7 +34,7 @@
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform</tags>
     <dependencies>
-      <dependency id="MugenMvvmToolkit" version="[3.0.15, 3.1.0)" />
+      <dependency id="MugenMvvmToolkit" version="[3.0.17, 3.1.0)" />
     </dependencies>
   </metadata>  
   <files>

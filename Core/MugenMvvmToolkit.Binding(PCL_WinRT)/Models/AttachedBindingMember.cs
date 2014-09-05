@@ -57,6 +57,7 @@ namespace MugenMvvmToolkit.Binding.Models
             private readonly Func<TTarget, IBindingMemberInfo, TType> _defaultValue;
             private readonly Func<IBindingMemberInfo, TTarget, IEventListener, IDisposable> _observeMemberDelegate;
 
+            private static readonly Func<TType, object> GetValueConverter;
             private readonly string _path;
             private readonly BindingMemberType _memberType;
             private readonly MemberInfo _member;
@@ -74,6 +75,11 @@ namespace MugenMvvmToolkit.Binding.Models
             static AttachedBindingMemberInfo()
             {
                 AttachedPropertyFactoryDelegate = AttachedPropertyFactory;
+                //NOTE Hack to avoid boxing for boolean types.
+                if (typeof(bool) == typeof(TType))
+                    GetValueConverter = (Func<TType, object>)(object)BooleanToObjectConverter;
+                if (typeof(bool?) == typeof(TType))
+                    GetValueConverter = (Func<TType, object>)(object)NullableBooleanToObjectConverter;
             }
 
             /// <summary>
@@ -181,7 +187,9 @@ namespace MugenMvvmToolkit.Binding.Models
             /// <returns>The member value of the specified object.</returns>
             object IBindingMemberInfo.GetValue(object source, object[] args)
             {
-                return GetValue((TTarget)source, args);
+                if (GetValueConverter == null)
+                    return GetValue((TTarget)source, args);
+                return GetValueConverter(GetValue((TTarget)source, args));
             }
 
             /// <summary>
@@ -424,6 +432,8 @@ namespace MugenMvvmToolkit.Binding.Models
         private static int _counter;
         private const string MemberPrefix = "#@$Attached";
         private static readonly Func<object, object, EventListenerList> EventListenerListFactory;
+        private static readonly Func<bool, object> BooleanToObjectConverter;
+        private static readonly Func<bool?, object> NullableBooleanToObjectConverter;
 
         #endregion
 
@@ -432,6 +442,8 @@ namespace MugenMvvmToolkit.Binding.Models
         static AttachedBindingMember()
         {
             EventListenerListFactory = EventListenerListFactoryMethod;
+            BooleanToObjectConverter = Empty.BooleanToObject;
+            NullableBooleanToObjectConverter = NullableBooleanToObject;
         }
 
         #endregion
@@ -619,6 +631,13 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             ((IAttachedBindingMemberInternal)member).MemberChangeEventName = eventName;
             return member;
+        }
+
+        private static object NullableBooleanToObject(bool? b)
+        {
+            if (b == null)
+                return null;
+            return Empty.BooleanToObject(b.Value);
         }
 
         #endregion
