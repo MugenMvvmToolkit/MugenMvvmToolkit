@@ -110,6 +110,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (assemblies.Add(assembly))
                     assemblies.AddRange(assembly.GetReferencedAssemblies().Select(Assembly.Load).SkipFrameworkAssemblies());
             }
+            TryAddAssembly(BindingAssemblyName, assemblies);
             return assemblies;
         }
 

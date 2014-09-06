@@ -89,11 +89,12 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected override ICollection<Assembly> GetAssemblies()
         {
-            var list = new List<Assembly> { GetType().GetAssembly(), typeof(BootstrapperBase).GetAssembly() };
+            var assemblies = new HashSet<Assembly> { GetType().GetAssembly(), typeof(WinRTBootstrapperBase).GetAssembly() };
             var application = Application.Current;
             if (application != null)
-                list.Add(application.GetType().GetAssembly());
-            return list;
+                assemblies.Add(application.GetType().GetAssembly());
+            TryAddAssembly(BindingAssemblyName, assemblies);
+            return assemblies;
         }
 
         #endregion

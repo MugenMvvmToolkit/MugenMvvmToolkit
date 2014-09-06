@@ -43,7 +43,7 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             #region Fields
 
-            private const string IsAttachedHandlerInvokedMember = ".IsAttachedHandlerInvoked";
+            private const string IsAttachedHandlerInvokedMember = ".attached";
             private static readonly Func<TTarget, object, AttachedProperty<TTarget, TType>> AttachedPropertyFactoryDelegate;
 
             private readonly Func<IBindingMemberInfo, TTarget, TType> _getValueSimple;

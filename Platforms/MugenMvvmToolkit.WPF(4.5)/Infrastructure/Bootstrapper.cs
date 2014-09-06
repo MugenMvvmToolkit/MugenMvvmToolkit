@@ -125,17 +125,17 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (_assemblies == null)
                 return base.GetAssemblies();
-#if SILVERLIGHT
+#if WINDOWS_PHONE && V71
             var assemblies = new List<Assembly>(_assemblies);
 #else
             var assemblies = new HashSet<Assembly>(_assemblies);
 #endif
 #if WINDOWSCOMMON || NETFX_CORE
             assemblies.Add(GetType().GetAssembly());
-            assemblies.Add(typeof(ApplicationSettings).GetAssembly());
+            assemblies.Add(typeof(Bootstrapper).GetAssembly());
 #else
             assemblies.Add(GetType().Assembly);
-            assemblies.Add(typeof(ApplicationSettings).Assembly);
+            assemblies.Add(typeof(Bootstrapper).Assembly);
 #endif
 #if !WINFORMS
             TryAddAssembly(BindingAssemblyName, assemblies);

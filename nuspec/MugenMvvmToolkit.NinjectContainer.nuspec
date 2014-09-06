@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.NinjectContainer</id>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
     <title>MugenMvvmToolkit - Ninject</title>
     <authors>Vyacheslav Volkov</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -12,7 +12,7 @@
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ioc di</tags>
     <description>Extension for Ninject providing integration with Mugen MVVM Toolkit.</description>
     <dependencies>
-      <dependency id="MugenMvvmToolkit" version="[3.0.17, 3.1.0)" />
+      <dependency id="MugenMvvmToolkit" version="[3.0.18, 3.1.0)" />
       <dependency id="Ninject" version="[3.2.2.0]" />
       <dependency id="Ninject.Extensions.ChildKernel" version="[3.2.0.0]" />
     </dependencies>
