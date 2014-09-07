@@ -18,6 +18,7 @@ using WeakReference = System.WeakReference;
 
 namespace MugenMvvmToolkit.Models
 {
+    //see https://bugzilla.xamarin.com/show_bug.cgi?id=16343
     internal sealed class JavaObjectWeakReference : WeakReference
     {
         #region Fields
@@ -25,7 +26,7 @@ namespace MugenMvvmToolkit.Models
         private readonly string _name;
 
         #endregion
-        
+
         #region Constructors
 
         /// <summary>

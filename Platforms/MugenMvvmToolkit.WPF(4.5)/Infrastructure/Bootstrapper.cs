@@ -133,9 +133,11 @@ namespace MugenMvvmToolkit.Infrastructure
 #if WINDOWSCOMMON || NETFX_CORE
             assemblies.Add(GetType().GetAssembly());
             assemblies.Add(typeof(Bootstrapper).GetAssembly());
+            assemblies.Add(typeof(ApplicationSettings).GetAssembly());
 #else
             assemblies.Add(GetType().Assembly);
             assemblies.Add(typeof(Bootstrapper).Assembly);
+            assemblies.Add(typeof(ApplicationSettings).Assembly);
 #endif
 #if !WINFORMS
             TryAddAssembly(BindingAssemblyName, assemblies);

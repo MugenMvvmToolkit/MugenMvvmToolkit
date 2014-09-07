@@ -247,7 +247,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (dictionary == null)
                 return Empty.Array<Assembly>();
 
-            var result = new List<Assembly>();
+            var result = new List<Assembly> { typeof(DesignTimeInitializer).GetAssembly() };
             foreach (var list in dictionary.Values)
             {
                 //WinRT designer has problems with loading assemblies, and we should load all.
