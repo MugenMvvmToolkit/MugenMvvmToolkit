@@ -68,19 +68,23 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
         /// <summary>
         ///     Raised as part of the activity lifecycle when an activity is going into the background.
         /// </summary>
-        void OnPauseActivity(Activity activity, IDataContext context = null);
+        void OnPauseActivity([NotNull] Activity activity, IDataContext context = null);
 
         /// <summary>
         ///     Called when the activity had been stopped, but is now again being displayed to the user.
         /// </summary>
-        void OnStartActivity(Activity activity, IDataContext context = null);
+        void OnStartActivity([NotNull] Activity activity, IDataContext context = null);
 
         /// <summary>
         ///     Called when the activity is starting.
         /// </summary>
-        void OnCreateActivity(Activity activity, IDataContext context = null);
-#endif
+        void OnCreateActivity([NotNull] Activity activity, IDataContext context = null);
 
+        /// <summary>
+        ///     Call this when your activity is done and should be closed.
+        /// </summary>
+        bool OnFinishActivity([NotNull] Activity activity, bool isBackNavigation, IDataContext context = null);
+#endif
         /// <summary>
         /// Gets a navigation parameter from event args.
         /// </summary>

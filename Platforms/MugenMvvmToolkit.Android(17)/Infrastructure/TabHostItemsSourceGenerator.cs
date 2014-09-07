@@ -92,7 +92,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             private EmptyTemplateSelector()
             {
-                
+
             }
 
             #endregion
@@ -358,6 +358,7 @@ namespace MugenMvvmToolkit.Infrastructure
             object content = PlatformExtensions.GetContentView(_tabHost, _tabHost.Context, item, templateId, selector);
             if (content == EmptyTemplateSelector.EmptyView)
             {
+                content = null;
                 if (viewModel is IHasDisplayName)
                     BindingServiceProvider.BindingProvider.CreateBindingsFromString(tabSpec, "Title DisplayName", null);
                 else

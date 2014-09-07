@@ -62,51 +62,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         #region Methods
 
-        private bool GoBackInternal()
-        {
-            if (_currentActivity == null)
-                return false;
-            if (!TryPopBackStackImmediate(_currentActivity) ||
-                !RaiseNavigating(new NavigatingCancelEventArgs(_prevIntent, NavigationMode.Back,
-                    GetParameterFromIntent(_prevIntent))))
-                return false;
-
-            _isBack = true;
-            _currentActivity.Finish();
-            //NOTE: If it's the first activity, we need to raise the back navigation event.
-            var mainActivity = _currentActivity.Intent.HasExtra(FirstActivityKey);
-            if (mainActivity || (_prevIntent == null && IsMainLauncher(_currentActivity)))
-            {
-                RaiseNavigated(null, NavigationMode.Back, null);
-                //Trying to dispose main view model.
-                if (!mainActivity)
-                {
-                    var viewModel = BindingServiceProvider
-                        .ContextManager
-                        .GetBindingContext(_currentActivity)
-                        .Value as IViewModel;
-                    if (viewModel != null)
-                        viewModel.Dispose();
-                }
-                _currentActivity = null;
-            }
-            return true;
-        }
-
-        private static bool TryPopBackStackImmediate(Activity activity)
-        {
-#if API8
-            return true;
-#else
-            if (activity == null)
-                return true;
-            var fragmentManager = activity.TryGetFragmentManager();
-            if (fragmentManager == null)
-                return true;
-            return !fragmentManager.PopBackStackImmediate();
-#endif
-        }
-
         private bool RaiseNavigating(NavigatingCancelEventArgs args)
         {
             var handler = Navigating;
@@ -116,15 +71,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 return !args.Cancel;
             }
             return true;
-        }
-
-        private static bool IsMainLauncher(Activity activity)
-        {
-            var attr = activity.GetType()
-                .GetCustomAttributes(typeof(ActivityAttribute), false)
-                .OfType<ActivityAttribute>()
-                .FirstOrDefault();
-            return attr != null && attr.MainLauncher;
         }
 
         private void RaiseNavigated(object content, NavigationMode mode, object parameter)
@@ -181,7 +127,8 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// </summary>
         public virtual void GoBack()
         {
-            GoBackInternal();
+            if (_currentActivity != null)
+                _currentActivity.OnBackPressed();
         }
 
         /// <summary>
@@ -234,6 +181,36 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         }
 
         /// <summary>
+        ///     Call this when your activity is done and should be closed.
+        /// </summary>
+        public bool OnFinishActivity(Activity activity, bool isBackNavigation, IDataContext context = null)
+        {
+            if (!isBackNavigation)
+                return true;
+            if (!RaiseNavigating(new NavigatingCancelEventArgs(_prevIntent, NavigationMode.Back, GetParameterFromIntent(_prevIntent))))
+                return false;
+            //If it's the first activity, we need to raise the back navigation event.
+            var mainActivity = activity.Intent.HasExtra(FirstActivityKey);
+            if (mainActivity || (_prevIntent == null && activity.IsTaskRoot))
+            {
+                RaiseNavigated(null, NavigationMode.Back, null);
+                //Trying to dispose main view model.
+                if (!mainActivity)
+                {
+                    var viewModel = BindingServiceProvider
+                        .ContextManager
+                        .GetBindingContext(activity)
+                        .Value as IViewModel;
+                    if (viewModel != null)
+                        viewModel.Dispose();
+                }
+                _currentActivity = null;
+            }
+            _isBack = true;
+            return true;
+        }
+
+        /// <summary>
         /// Gets a navigation parameter from event args.
         /// </summary>
         public virtual object GetParameterFromArgs(EventArgs args)
@@ -254,7 +231,10 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             var eventArgs = ((NavigatingCancelEventArgs)args);
             if (eventArgs.NavigationMode != NavigationMode.Back && eventArgs.Intent == null)
                 return Navigate(eventArgs.Mapping, eventArgs.Parameter, null);
-            return GoBackInternal();
+
+            var activity = _currentActivity;
+            GoBack();
+            return activity.IsFinishing;
         }
 
         /// <summary>

@@ -38,6 +38,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         private readonly BindableMenuInflater _menuInflater;
         private IList<IDataBinding> _bindings;
         private Bundle _bundle;
+        private bool _isBackNavigation;
 
         #endregion
 
@@ -85,8 +86,9 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 if (args.Cancel)
                     return;
             }
-            var service = Get<INavigationService>();
-            service.GoBack();
+            _isBackNavigation = true;
+            baseOnBackPressed();
+            _isBackNavigation = false;
         }
 
         /// <summary>
@@ -290,6 +292,9 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         public virtual void Finish(Action baseFinish)
         {
+            var navigationService = Get<INavigationService>();
+            if (!navigationService.OnFinishActivity(Activity, _isBackNavigation))
+                return;
             ClearContextCache();
             baseFinish();
         }
