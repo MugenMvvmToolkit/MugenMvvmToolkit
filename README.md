@@ -1,4 +1,4 @@
-![MugenMvvmToolkit](https://raw.githubusercontent.com/MugenMvvmToolkit/MugenMvvmToolkit/master/logo_horizontal.png)
+[![MugenMvvmToolkit](https://raw.githubusercontent.com/MugenMvvmToolkit/MugenMvvmToolkit/master/logo_horizontal.png)](https://github.com/MugenMvvmToolkit/MugenMvvmToolkit)
 
 ----------
 Mugen MVVM Toolkit makes it easier to develop cross-platform application using the Model-View-ViewModel design pattern. The Mugen MVVM Toolkit makes extensive use of Portable Class Libraries to provide maintainable cross platform C# native applications.
