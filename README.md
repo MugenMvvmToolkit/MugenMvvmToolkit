@@ -41,7 +41,7 @@ using (var editorVm = GetViewModel<ProductEditorViewModel>())
  - Binding supports C# language expressions like Linq, Extension methods, method call, ternary operator (?:), coalescing operator (??), etc.
 `(Text Items.First(x => x == Name).Value), (Text $string.Format('{0} {1}', Prop1, Prop2))`.
  - Supports subscription to any control event.
- `(TextChanged ViewModelMethod($args)), (DoulbeClick Command)`.
+ `(TextChanged ViewModelMethod($args)), (DoubleClick Command)`.
  - Built-in support for validation. 
 `(Text Prop1, Validate=True), (Text $GetErrors(Prop1).FirstOrDefault())`
  - You can easily write their own extensions for bindings.
