@@ -10,6 +10,11 @@ The Mugen MVVM Toolkit provides a cross-platform MVVM development framework buil
  - Silverlight for WP7.1, WP8, WP8.1
  - Mono for Android
  - WinRT XAML framework for Windows 8 Store apps
+ 
+#Links:
+ - [Nuget](http://www.nuget.org/packages?q=MugenMvvmToolkit)
+ - [Samples](https://github.com/MugenMvvmToolkit/MugenMvvmToolkit.Samples)
+ - [MugenMvvmToolkit.Fody plugin repository](https://github.com/MugenMvvmToolkit/MugenMvvmToolkit.Fody)
 
 #Features:
 The MVVM framework includes the following features that differs this project from other frameworks:
@@ -35,7 +40,7 @@ using (var editorVm = GetViewModel<ProductEditorViewModel>())
    //Code that will be called after the completion of navigation, and yes, this code will be executed even if the application had been tombstoned and then restored.
 }
 ```
-*For WinRT and WP you should install the [MugenMvvmToolkit.Fody](https://github.com/MugenMvvmToolkit/MugenMvvmToolkit.Fody) plugin to support async operation restore.
+*For WinRT and WP you should install the [MugenMvvmToolkit.Fody](http://www.nuget.org/packages/MugenMvvmToolkit.Fody/) plugin to support async operation restore.*
  - Good design mode support, for xaml platforms supports the creation of design view model with any constructor parameters.
  - Supports bindings on all platforms, all of the native binding features available for WPF platform available on all platforms and even more.
  - Binding supports C# language expressions like Linq, Extension methods, method call, ternary operator (?:), coalescing operator (??), etc.
