@@ -91,6 +91,11 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 }
             }
 
+            public bool IsAlive
+            {
+                get { return _targetReference.Target != null; }
+            }
+
             public bool IsWeak
             {
                 get { return true; }
@@ -98,19 +103,26 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
             public void Handle(object sender, object message)
             {
+                TryHandle(sender, message);
+            }
+
+            public bool TryHandle(object sender, object message)
+            {
                 var target = _targetReference.Target;
                 if (target == null)
                 {
                     Value = null;
                     if (_subscriber != null)
                         _subscriber.Dispose();
-                    return;
+                    return false;
                 }
+
                 var treeManager = BindingServiceProvider.VisualTreeManager;
                 _hasParent = treeManager.FindParent(target) != null;
                 Value = _isElementSource
                     ? treeManager.FindByName(target, _node.ElementName)
                     : treeManager.FindRelativeSource(target, _node.Type, _node.Level);
+                return true;
             }
 
             public event EventHandler<ISourceValue, EventArgs> ValueChanged;

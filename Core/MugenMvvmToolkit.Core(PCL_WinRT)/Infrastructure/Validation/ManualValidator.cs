@@ -23,11 +23,21 @@ using MugenMvvmToolkit.Interfaces.Validation;
 namespace MugenMvvmToolkit.Infrastructure.Validation
 {
     /// <summary>
-    ///     Represents the simple validator that not has validation logic, user sets all erros.
+    ///     Represents a simple validator that does not have validation logic, the user sets all the errors.
     /// </summary>
     public class ManualValidator<T> : ValidatorBase<T>
     {
         #region Methods
+
+        /// <summary>
+        ///     Sets errors for a property
+        /// </summary>
+        /// <param name="propertyExpresssion">The expression for the property</param>
+        /// <param name="errors">The collection of errors</param>
+        public void SetErrors<TValue>(Expression<Func<TValue>> propertyExpresssion, params object[] errors)
+        {
+            UpdateErrors(propertyExpresssion.GetMemberInfo().Name, errors, false);
+        }
 
         /// <summary>
         ///     Sets errors for a property
@@ -37,7 +47,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <param name="errors">The collection of errors</param>
         public void SetErrors<TModel>(Expression<Func<TModel, object>> propertyExpresssion, params object[] errors)
         {
-            UpdateErrors(ToolkitExtensions.GetPropertyName(propertyExpresssion), errors, false);
+            UpdateErrors(ToolkitExtensions.GetMemberName(propertyExpresssion), errors, false);
         }
 
         /// <summary>
@@ -45,9 +55,9 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// </summary>
         /// <param name="propertyExpresssion">The expression for the property</param>
         /// <param name="errors">The collection of errors</param>
-        public void SetErrors(Expression<Func<T, object>> propertyExpresssion, params object[] errors)
+        public void SetErrors<TValue>(Expression<Func<T, TValue>> propertyExpresssion, params object[] errors)
         {
-            UpdateErrors(ToolkitExtensions.GetPropertyName(propertyExpresssion), errors, false);
+            UpdateErrors(ToolkitExtensions.GetMemberName(propertyExpresssion), errors, false);
         }
 
         /// <summary>
@@ -118,7 +128,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
     }
 
     /// <summary>
-    ///     Represents the simple validator that not has validation logic, user sets all erros.
+    ///     Represents a simple validator that does not have validation logic, the user sets all the errors.
     /// </summary>
     public class ManualValidator : ManualValidator<object>
     {

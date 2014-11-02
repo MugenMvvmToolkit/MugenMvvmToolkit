@@ -15,6 +15,14 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         #region Implementation of IBindingContextManager
 
         /// <summary>
+        ///     Gets a value indicating whether the item has binding context.
+        /// </summary>
+        public bool HasBindingContext(object item)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         ///     Gets the binding context for the specified item.
         /// </summary>
         IBindingContext IBindingContextManager.GetBindingContext(object item)

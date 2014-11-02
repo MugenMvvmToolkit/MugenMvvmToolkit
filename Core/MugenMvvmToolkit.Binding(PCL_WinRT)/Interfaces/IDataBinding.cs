@@ -62,12 +62,12 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         /// <summary>
         ///     Sends the current value back to the source.
         /// </summary>
-        void UpdateSource();
+        bool UpdateSource();
 
         /// <summary>
         ///     Forces a data transfer from source to target.
         /// </summary>
-        void UpdateTarget();
+        bool UpdateTarget();
 
         /// <summary>
         ///     Validates the current binding and raises the BindingException event if needed.

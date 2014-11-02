@@ -22,7 +22,7 @@ using MugenMvvmToolkit.Models.EventArg;
 namespace MugenMvvmToolkit.Interfaces.ViewModels
 {
     /// <summary>
-    ///     Represents the view-model that can contains a collection of other <see cref="IViewModel" />.
+    ///     Represents the view model interface that allows to manage a collection of <see cref="IViewModel" />.
     /// </summary>
     public interface IMultiViewModel : IViewModel
     {

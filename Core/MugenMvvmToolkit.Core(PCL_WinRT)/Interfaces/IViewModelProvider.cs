@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="IViewModelProvider.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,7 +13,9 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
@@ -23,7 +26,7 @@ using MugenMvvmToolkit.Models;
 namespace MugenMvvmToolkit.Interfaces
 {
     /// <summary>
-    ///     Represents the provider which creates a view models.
+    ///     Represents the provider that allows to creates and restores the view models.
     /// </summary>
     public interface IViewModelProvider
     {
@@ -59,6 +62,26 @@ namespace MugenMvvmToolkit.Interfaces
         ///     The specified <see cref="IViewModel" />.
         /// </param>
         /// <param name="dataContext">The specified <see cref="IDataContext" />.</param>
-        void InitializeViewModel([NotNull] IViewModel viewModel, [NotNull] IDataContext dataContext);
+        void InitializeViewModel([NotNull] IViewModel viewModel, [CanBeNull] IDataContext dataContext);
+
+        /// <summary>
+        ///     Preserves the view model state.
+        /// </summary>
+        [NotNull, Pure]
+        IDataContext PreserveViewModel([NotNull] IViewModel viewModel, [CanBeNull] IDataContext dataContext);
+
+        /// <summary>
+        ///     Restores the view model from state context.
+        /// </summary>
+        /// <param name="viewModelState">The specified state <see cref="IDataContext" />.</param>
+        /// <param name="throwOnError">
+        ///     <c>true</c> to throw an exception if the view model cannot be restored; <c>false</c> to return null.
+        /// </param>
+        /// <param name="dataContext">The specified <see cref="IDataContext" />.</param>
+        /// <returns>
+        ///     An instance of <see cref="IViewModel" />.
+        /// </returns>
+        [Pure]
+        IViewModel RestoreViewModel([CanBeNull] IDataContext viewModelState, [CanBeNull] IDataContext dataContext, bool throwOnError);
     }
 }

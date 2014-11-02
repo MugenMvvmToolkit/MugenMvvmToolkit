@@ -19,6 +19,8 @@ using Android.Support.V4.App;
 using Android.Support.V7.App;
 using Android.Views;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Builders;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -34,6 +36,16 @@ namespace MugenMvvmToolkit.Models
             #region Fields
 
             private object _content;
+            private readonly DataTemplateProvider _contentTemplateProvider;
+
+            #endregion
+
+            #region Constructors
+
+            public TabListener(DataTemplateProvider contentTemplateProvider)
+            {
+                _contentTemplateProvider = contentTemplateProvider;
+            }
 
             #endregion
 
@@ -46,7 +58,7 @@ namespace MugenMvvmToolkit.Models
                 {
                     var viewModel = BindingServiceProvider.ContextManager.GetBindingContext(fragment).Value as IViewModel;
                     if (viewModel != null)
-                        viewModel.Settings.Metadata.Remove(MvvmFragmentMediator.StateNotNeeded);
+                        viewModel.Settings.Metadata.Remove(ViewModelConstants.StateNotNeeded);
                     var manager = fragment.FragmentManager;
                     if (manager != null)
                         manager.BeginTransaction()
@@ -94,10 +106,9 @@ namespace MugenMvvmToolkit.Models
                             _content = activity.CreateBindableView((int)_content).Item1;
                     }
                     else
-                        viewModel.Settings.Metadata.AddOrUpdate(MvvmFragmentMediator.StateNotNeeded, true);
+                        viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
                     _content = PlatformExtensions.GetContentView(layout, layout.Context, _content,
-                        ValueTemplateManager.GetTemplateId(tab, AttachedMemberConstants.ContentTemplate),
-                        ValueTemplateManager.GetDataTemplateSelector(tab, AttachedMemberConstants.ContentTemplateSelector));
+                        _contentTemplateProvider.GetTemplateId(), _contentTemplateProvider.GetDataTemplateSelector());
                     layout.SetContentView(_content, ft, (@group, fragment, arg3) =>
                     {
                         if (fragment.IsDetached)
@@ -125,7 +136,7 @@ namespace MugenMvvmToolkit.Models
                 var activity = bar.ThemedContext.GetActivity();
                 SetContent(tab, ft, placeHolder, activity, bar);
                 //Set selected item data context or tab
-                var selectedItem = ActionBarTabItemsSourceGenerator.Get(bar) == null
+                var selectedItem = ItemsSourceGeneratorBase.Get(bar) == null
                     ? tab
                     : BindingServiceProvider.ContextManager.GetBindingContext(tab).Value;
                 PlatformDataBindingModule
@@ -217,7 +228,8 @@ namespace MugenMvvmToolkit.Models
         {
             ActionBar.Tab newTab = bar.NewTab();
             BindingExtensions.AttachedParentMember.SetValue(newTab, bar);
-            var setter = new XmlPropertySetter<ActionBarTabTemplate, ActionBar.Tab>(newTab, bar.ThemedContext);
+
+            var setter = new XmlPropertySetter<ActionBarTabTemplate, ActionBar.Tab>(newTab, bar.ThemedContext, new BindingSet());
             if (useContext)
                 BindingServiceProvider.ContextManager.GetBindingContext(newTab).Value = context;
             else
@@ -230,7 +242,10 @@ namespace MugenMvvmToolkit.Models
             setter.SetProperty(template => template.Icon, Icon);
             setter.SetProperty(template => template.Text, Text);
             setter.SetProperty(template => template.Tag, Tag);
-            var tabListener = new TabListener();
+            setter.Apply();
+
+            var tabListener = new TabListener(new DataTemplateProvider(bar, AttachedMemberConstants.ContentTemplate,
+                AttachedMemberConstants.ContentTemplateSelector));
             ServiceProvider.AttachedValueProvider.SetValue(newTab, ListenerKey, tabListener);
             newTab.SetTabListener(tabListener);
             return newTab;

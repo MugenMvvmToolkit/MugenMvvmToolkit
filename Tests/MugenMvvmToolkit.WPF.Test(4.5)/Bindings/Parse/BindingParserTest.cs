@@ -496,6 +496,27 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         }
 
         [TestMethod]
+        public void ParserShouldParseMultiExpression0()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text SourceText1 == \'a\'";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+            target.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { 'a' }).ShouldEqual(true);
+            expression(context, new object[] { 'b' }).ShouldEqual(false);
+
+            var targetObj = new object();
+            context.Add(BindingBuilderConstants.Target, targetObj);
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), "SourceText1");
+        }
+
+        [TestMethod]
         public void ParserShouldParseMultiExpression1()
         {
             const string targetPath = "Text";
@@ -693,6 +714,21 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
             BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseMultiExpression8()
+        {
+            const string targetPath = "Text";
+            const string binding = "Text 1 == 0 ? $param1 : $param2";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath targetBPath = context.GetData(BindingBuilderConstants.TargetPath);
+            targetBPath.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { true, false }).ShouldEqual(false);
         }
 
         [TestMethod]

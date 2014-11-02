@@ -18,7 +18,7 @@ using MugenMvvmToolkit.Interfaces.Views;
 namespace MugenMvvmToolkit.Interfaces.ViewModels
 {
     /// <summary>
-    ///     Represents the interface that adds support for the view in view models.
+    ///     Represents the interface that allows to get access to the view.
     /// </summary>
     public interface IViewAwareViewModel<TView> : IViewModel where TView : IView
     {

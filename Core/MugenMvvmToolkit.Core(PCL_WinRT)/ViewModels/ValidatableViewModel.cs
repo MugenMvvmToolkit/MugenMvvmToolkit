@@ -18,6 +18,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
@@ -68,14 +69,14 @@ namespace MugenMvvmToolkit.ViewModels
         public ValidatableViewModel()
         {
             Type type = GetType();
-            _validator = new ManualValidator();
             _locker = new object();
+            _instanceToValidators = new Dictionary<object, List<IValidator>>();
+            _weakHandler = ReflectionExtensions.MakeWeakErrorsChangedHandler(this, (validator, o, arg3) => validator.RaiseErrorsChanged(arg3));
+            _validator = new ManualValidator();
+
             _createContext = CreateContextInternal;
             _propertyMappings = type.GetViewModelToModelProperties();
             _ignoreProperties = type.GetIgnoreProperties();
-            _instanceToValidators = new Dictionary<object, List<IValidator>>();
-            _weakHandler = ReflectionExtensions.MakeWeakErrorsChangedHandler(this, (validator, o, arg3) => validator.RaiseErrorsChanged(arg3));
-
             _validator.Initialize(new ValidatorContext(this, _propertyMappings, _ignoreProperties, Settings.Metadata));
             AddValidator(_validator);
         }
@@ -100,17 +101,9 @@ namespace MugenMvvmToolkit.ViewModels
             get { return _validatorProvider; }
             set
             {
-                Should.PropertyBeNotNull(value, "ValidatorProvider");
+                Should.PropertyBeNotNull(value);
                 _validatorProvider = value;
             }
-        }
-
-        /// <summary>
-        ///     Gets the validator to manage the errors.
-        /// </summary>
-        protected internal ManualValidator Validator
-        {
-            get { return _validator; }
         }
 
         #endregion
@@ -124,6 +117,52 @@ namespace MugenMvvmToolkit.ViewModels
             where TValidator : IValidator
         {
             return ToolkitExtensions.AddValidator<TValidator>(this, instanceToValidate);
+        }
+
+        /// <summary>
+        ///     Sets errors for a property using the <see cref="Validator"/>.
+        /// </summary>
+        /// <param name="propertyExpresssion">The expression for the property</param>
+        /// <param name="errors">The collection of errors</param>
+        protected void SetValidatorErrors<T>(Expression<Func<T>> propertyExpresssion, params object[] errors)
+        {
+            ToolkitExtensions.SetValidatorErrors(this, propertyExpresssion, errors);
+        }
+
+        /// <summary>
+        ///     Sets errors for a property using the <see cref="Validator"/>.
+        /// </summary>
+        /// <param name="property">The property name</param>
+        /// <param name="errors">The collection of errors</param>
+        protected void SetValidatorErrors(string property, params object[] errors)
+        {
+            ToolkitExtensions.SetValidatorErrors(this, property, errors);
+        }
+
+        /// <summary>
+        ///     Updates information about errors in the specified property.
+        /// </summary>
+        [SuppressTaskBusyHandler]
+        protected Task ValidateAsync<T>(Expression<Func<T>> getProperty)
+        {
+            Should.NotBeNull(getProperty, "getProperty");
+            return ValidateAsync(ToolkitExtensions.GetMemberName(getProperty));
+        }
+
+        /// <summary>
+        ///     Adds a property name to the <see cref="IgnoreProperties" />.
+        /// </summary>
+        protected void AddIgnoreProperty<T>(Expression<Func<T>> getProperty)
+        {
+            IgnoreProperties.Add(getProperty.GetMemberInfo().Name);
+        }
+
+        /// <summary>
+        ///     Removes a property name to the <see cref="IgnoreProperties" />.
+        /// </summary>
+        protected void RemoveIgnoreProperty<T>(Expression<Func<T>> getProperty)
+        {
+            IgnoreProperties.Remove(getProperty.GetMemberInfo().Name);
         }
 
         /// <summary>
@@ -298,7 +337,7 @@ namespace MugenMvvmToolkit.ViewModels
                 return Empty.Task;
             if (list.Count == 1)
                 return list[0].ValidateAsync();
-            return ToolkitExtensions.WhenAll(list.ToArrayFast(validator => validator.ValidateAsync()));
+            return ToolkitExtensions.WhenAll(list.ToArrayEx(validator => validator.ValidateAsync()));
         }
 
         /// <summary>
@@ -316,7 +355,7 @@ namespace MugenMvvmToolkit.ViewModels
             }
             if (tasks.Count == 1)
                 return tasks[0];
-            return ToolkitExtensions.WhenAll(tasks.ToArrayFast());
+            return ToolkitExtensions.WhenAll(tasks.ToArrayEx());
         }
 
         /// <summary>
@@ -333,7 +372,7 @@ namespace MugenMvvmToolkit.ViewModels
             }
             if (tasks.Count == 1)
                 return tasks[0];
-            return ToolkitExtensions.WhenAll(tasks.ToArrayFast());
+            return ToolkitExtensions.WhenAll(tasks.ToArrayEx());
         }
 
         /// <summary>
@@ -356,6 +395,25 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         protected virtual void OnErrorsChanged(object sender, DataErrorsChangedMessage message)
         {
+        }
+
+        /// <summary>
+        ///     Raises this object's ErrorsChangedChanged event.
+        /// </summary>
+        /// <param name="args">The event args.</param>
+        protected void RaiseErrorsChanged(DataErrorsChangedEventArgs args)
+        {
+            OnPropertyChanged("HasErrors");
+            OnPropertyChanged("IsValid");
+            if (ErrorsChanged != null)
+                ThreadManager.Invoke(Settings.EventExecutionMode, this, args, RaiseErrorsChangedDelegate);
+        }
+
+        private static void RaiseErrorsChangedStatic(ValidatableViewModel @this, DataErrorsChangedEventArgs args)
+        {
+            var handler = @this.ErrorsChanged;
+            if (handler != null)
+                handler(@this, args);
         }
 
         private IValidatorContext CreateContextInternal(object instanceToValidate)
@@ -411,6 +469,21 @@ namespace MugenMvvmToolkit.ViewModels
         #region Implementation of IValidatableViewModel
 
         /// <summary>
+        ///     Gets or sets the delegate that allows to create an instance of <see cref="IValidatorContext" />.
+        /// </summary>
+        public virtual Func<object, IValidatorContext> CreateContext
+        {
+            get { return _createContext; }
+            set
+            {
+                if (Equals(_createContext, value))
+                    return;
+                _createContext = value;
+                OnPropertyChanged("CreateContext");
+            }
+        }
+
+        /// <summary>
         ///     Gets the mapping of model properties.
         ///     <example>
         ///         <code>
@@ -434,18 +507,11 @@ namespace MugenMvvmToolkit.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the delegate that allows to create an instance of <see cref="IValidatorContext" />.
+        ///     Gets the validator that allows to set errors manually.
         /// </summary>
-        public virtual Func<object, IValidatorContext> CreateContext
+        public ManualValidator Validator
         {
-            get { return _createContext; }
-            set
-            {
-                if (Equals(_createContext, value))
-                    return;
-                _createContext = value;
-                OnPropertyChanged("CreateContext");
-            }
+            get { return _validator; }
         }
 
         /// <summary>
@@ -596,16 +662,6 @@ namespace MugenMvvmToolkit.ViewModels
         }
 
         /// <summary>
-        ///     Set errors for a property.
-        /// </summary>
-        /// <param name="propertyName">The name of the property</param>
-        /// <param name="errors">The collection of errors</param>
-        void IValidatorAggregator.SetErrors(string propertyName, params object[] errors)
-        {
-            Validator.SetErrors(propertyName, errors);
-        }
-
-        /// <summary>
         ///     Clears errors for a property.
         /// </summary>
         /// <param name="propertyName">The name of the property</param>
@@ -624,10 +680,6 @@ namespace MugenMvvmToolkit.ViewModels
             lock (_locker)
                 ClearErrorsInternal();
         }
-
-        #endregion
-
-        #region Implementation of INotifyDataErrorInfo
 
         /// <summary>
         ///     Gets a value that indicates whether the entity has validation errors.
@@ -659,29 +711,6 @@ namespace MugenMvvmToolkit.ViewModels
         ///     Occurs when the validation errors have changed for a property or for the entire entity.
         /// </summary>
         public virtual event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
-
-        /// <summary>
-        ///     Raises this object's ErrorsChangedChanged event.
-        /// </summary>
-        /// <param name="args">The event args.</param>
-        protected void RaiseErrorsChanged(DataErrorsChangedEventArgs args)
-        {
-            OnPropertyChanged("HasErrors");
-            OnPropertyChanged("IsValid");
-            if (ErrorsChanged != null)
-                ThreadManager.Invoke(Settings.EventExecutionMode, this, args, RaiseErrorsChangedDelegate);
-        }
-
-        private static void RaiseErrorsChangedStatic(ValidatableViewModel @this, DataErrorsChangedEventArgs args)
-        {
-            var handler = @this.ErrorsChanged;
-            if (handler != null)
-                handler(@this, args);
-        }
-
-        #endregion
-
-        #region Implementation of IDataErrorInfo
 
 #if NONOTIFYDATAERROR
         string IDataErrorInfo.this[string columnName]
@@ -736,7 +765,7 @@ namespace MugenMvvmToolkit.ViewModels
             {
                 object[] toRemove;
                 lock (_locker)
-                    toRemove = _instanceToValidators.Keys.ToArrayFast();
+                    toRemove = _instanceToValidators.Keys.ToArrayEx();
 
                 for (int index = 0; index < toRemove.Length; index++)
                     RemoveInstance(toRemove[index]);

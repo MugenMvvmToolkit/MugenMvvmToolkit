@@ -75,10 +75,10 @@ namespace MugenMvvmToolkit.Interfaces
         /// <summary>
         ///     Indicates that the service should be bound to the specified constant value.
         ///     <param name="service">The specified service type.</param>
-        ///     <param name="constValue">The specified value.</param>
+        ///     <param name="instance">The specified value.</param>
         ///     <param name="name">The specified binding name.</param>
         /// </summary>
-        void BindToConstant([NotNull] Type service, object constValue, string name = null);
+        void BindToConstant([NotNull] Type service, object instance, string name = null);
 
         /// <summary>
         ///     Indicates that the service should be bound to the specified method.

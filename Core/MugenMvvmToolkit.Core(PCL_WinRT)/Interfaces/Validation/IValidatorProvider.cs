@@ -21,7 +21,7 @@ using MugenMvvmToolkit.Interfaces.Models;
 namespace MugenMvvmToolkit.Interfaces.Validation
 {
     /// <summary>
-    ///     Represent the factory for create <see cref="IValidator" />.
+    ///     Represents the factory that allows to create an instance of <see cref="IValidator" />.
     /// </summary>
     public interface IValidatorProvider : IDisposableObject
     {
@@ -68,15 +68,6 @@ namespace MugenMvvmToolkit.Interfaces.Validation
         ///     Creates an instance of <see cref="IValidatorAggregator" />.
         /// </summary>
         [NotNull]
-        IValidatorAggregator GetValidatorAggregator();
-
-        /// <summary>
-        ///     Creates a new validator-factory that is a copy of the current instance.
-        /// </summary>
-        /// <returns>
-        ///     A new validator-factory that is a copy of this instance.
-        /// </returns>
-        [NotNull]
-        IValidatorProvider Clone();
+        IValidatorAggregator GetValidatorAggregator();        
     }
 }

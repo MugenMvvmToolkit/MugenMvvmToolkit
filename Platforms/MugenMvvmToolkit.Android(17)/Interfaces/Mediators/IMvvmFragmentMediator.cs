@@ -137,5 +137,10 @@ namespace MugenMvvmToolkit.Interfaces.Mediators
         ///     Occurred on closed window.
         /// </summary>
         event EventHandler<IWindowView, EventArgs> Canceled;
+
+        /// <summary>
+        ///     Occurred on destroyed view.
+        /// </summary>
+        event EventHandler<IWindowView, EventArgs> Destroyed;
     }
 }

@@ -113,7 +113,7 @@ namespace MugenMvvmToolkit.Binding.Core
             get { return _parser; }
             set
             {
-                Should.PropertyBeNotNull(value, "Parser");
+                Should.PropertyBeNotNull(value);
                 _parser = value;
             }
         }
@@ -159,8 +159,7 @@ namespace MugenMvvmToolkit.Binding.Core
         /// <param name="bindingExpression">The specified binding expression.</param>
         /// <param name="sources">The specified sources, if any.</param>
         /// <returns>An instance of <see cref="IBindingBuilder" />.</returns>
-        public IList<IBindingBuilder> CreateBuildersFromString(object target, string bindingExpression,
-            IList<object> sources)
+        public IList<IBindingBuilder> CreateBuildersFromString(object target, string bindingExpression, IList<object> sources = null)
         {
             Should.NotBeNull(target, "target");
             Should.NotBeNullOrWhitespace(bindingExpression, "bindingExpression");
@@ -201,8 +200,7 @@ namespace MugenMvvmToolkit.Binding.Core
         /// <param name="bindingExpression">The specified binding expression.</param>
         /// <param name="sources">The specified sources, if any.</param>
         /// <returns>An instance of <see cref="IDataBinding" />.</returns>
-        public IList<IDataBinding> CreateBindingsFromString(object target, string bindingExpression,
-            IList<object> sources)
+        public IList<IDataBinding> CreateBindingsFromString(object target, string bindingExpression, IList<object> sources = null)
         {
             Should.NotBeNull(target, "target");
             Should.NotBeNullOrWhitespace(bindingExpression, "bindingExpression");

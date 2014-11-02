@@ -41,9 +41,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of ICollectionViewManager
 
-        /// <summary>
-        ///     Inserts an item to the specified index.
-        /// </summary>
         public void Insert(object view, int index, object item)
         {
             var tabControl = view as TabControl;
@@ -52,7 +49,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 tabControl.TabPages.Insert(index, (TabPage)item);
                 return;
             }
-            
+
             var control = view as Control;
             if (control == null)
                 TraceNotSupported(view);
@@ -64,9 +61,6 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Removes an item.
-        /// </summary>
         public void RemoveAt(object view, int index)
         {
             var tabControl = view as TabControl;
@@ -83,9 +77,6 @@ namespace MugenMvvmToolkit.Infrastructure
                 control.Controls.RemoveAt(index);
         }
 
-        /// <summary>
-        ///     Removes all items.
-        /// </summary>
         public void Clear(object view)
         {
             var tabControl = view as TabControl;
@@ -101,7 +92,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 tableLayoutPanel.RowStyles.Clear();
                 tableLayoutPanel.ColumnStyles.Clear();
                 tableLayoutPanel.ColumnCount = 1;
-                tableLayoutPanel.RowCount = 0;                
+                tableLayoutPanel.RowCount = 0;
                 return;
             }
 
@@ -116,9 +107,9 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        private void TraceNotSupported(object view)
+        private static void TraceNotSupported(object view)
         {
-            Tracer.Warn("The view '{0}' is not supported by '{1}'", view, this);
+            Tracer.Warn("The view '{0}' is not supported by '{1}'", view, typeof(DefaultCollectionViewManager));
         }
 
         #endregion

@@ -16,7 +16,6 @@
 using System;
 using System.Windows;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Models;
 using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
@@ -39,7 +38,7 @@ namespace MugenMvvmToolkit
             get { return _defaultViewModelTemplateFactory; }
             set
             {
-                Should.PropertyBeNotNull(value, "DefaultViewModelTemplateFactory");
+                Should.PropertyBeNotNull(value);
                 _defaultViewModelTemplateFactory = value;
             }
         }

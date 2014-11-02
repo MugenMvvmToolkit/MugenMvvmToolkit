@@ -53,4 +53,15 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
         /// </summary>
         IDisposable TryObserve(TTarget source, IEventListener listener);
     }
+
+    /// <summary>
+    ///     Represents the notifiable attached binding member info.
+    /// </summary>
+    public interface INotifiableAttachedBindingMemberInfo<in TTarget, TType> : IAttachedBindingMemberInfo<TTarget, TType>
+    {
+        /// <summary>
+        ///     Raises the member changed event.
+        /// </summary>
+        void Raise(TTarget target, object message);
+    }
 }

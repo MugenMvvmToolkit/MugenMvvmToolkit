@@ -33,7 +33,7 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
         ///     Initializes a new instance of the <see cref="BindingExceptionEventArgs" /> class.
         /// </summary>
         public BindingExceptionEventArgs(BindingAction action, [NotNull] Exception exception, [NotNull] Exception originalException)
-            : base(action)
+            : base(action, false)
         {
             Should.NotBeNull(exception, "exception");
             Should.NotBeNull(originalException, "originalException");

@@ -100,12 +100,7 @@ namespace MugenMvvmToolkit
                         .ThreadManager
                         .InvokeOnUiThreadAsync(() => System.Windows.Input.CommandManager.RequerySuggested -= handler);
                 }
-#elif WINDOWS_PHONE
-                IocContainer.BindToBindingInfo(GetApplicationStateManager());
-                IApplicationStateManager stateManager;
-                if (IocContainer.TryGet(out stateManager))
-                    FrameStateManager.ApplicationStateManager = stateManager;
-#elif NETFX_CORE || WINDOWSCOMMON
+#elif NETFX_CORE || WINDOWSCOMMON || WINDOWS_PHONE
                 IocContainer.BindToBindingInfo(GetApplicationStateManager());
                 IApplicationStateManager stateManager;
                 if (IocContainer.TryGet(out stateManager))

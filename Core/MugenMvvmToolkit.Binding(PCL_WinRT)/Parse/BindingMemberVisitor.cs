@@ -168,8 +168,8 @@ namespace MugenMvvmToolkit.Binding.Parse
             var dynMember = (ResourceExpressionNode)nodes[0];
             if (dynMember.Dynamic && type == null)
             {
-                memberName = path.IsEmpty ? string.Empty : BindingExtensions.MergePath(path.Parts.Skip(1).ToArray());
-                return GetOrAddBindingMember(memberName, (s, i) => new BindingMemberExpressionNode(firstMember, memberName, s, i));
+                memberName = BindingExtensions.MergePath(path.Parts.Skip(1).ToArray());
+                return GetOrAddBindingMember("$" + path.Path, (s, i) => new BindingMemberExpressionNode(firstMember, memberName, s, i));
             }
 
             bool dynamicMember = false;

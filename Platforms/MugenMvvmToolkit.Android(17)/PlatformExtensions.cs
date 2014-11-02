@@ -16,7 +16,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
@@ -29,6 +28,7 @@ using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
@@ -147,13 +147,11 @@ namespace MugenMvvmToolkit
 
         #region Fields
 
-        //NOTE ConditionalWeakTable invokes finalizer for value, even if the key object is still alive https://bugzilla.xamarin.com/show_bug.cgi?id=21620.
+        //NOTE ConditionalWeakTable invokes finalizer for value, even if the key object is still alive https://bugzilla.xamarin.com/show_bug.cgi?id=21620
         private static readonly List<WeakReference> WeakReferences;
-        private static readonly Func<ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs>, NotifyCollectionChangedEventHandler> CreateHandlerDelegate;
         private const string VisitedParentPath = "$``!Visited~";
         private const string AddedToBackStackKey = "@$backstack";
         private static Func<Activity, IDataContext, IMvvmActivityMediator> _mvvmActivityMediatorFactory;
-        private static readonly Action<object, NotifyCollectionChangedEventHandler> UnsubscribeCollectionChangedDelegate;
 #if !API8
         private static Func<Fragment, IDataContext, IMvvmFragmentMediator> _mvvmFragmentMediatorFactory;
 #endif
@@ -163,12 +161,10 @@ namespace MugenMvvmToolkit
 
         static PlatformExtensions()
         {
-            CreateHandlerDelegate = CreateHandler;
 #if !API8
             _mvvmFragmentMediatorFactory = MvvmFragmentMediatorFactoryMethod;
 #endif
             _mvvmActivityMediatorFactory = MvvmActivityMediatorFactoryMethod;
-            UnsubscribeCollectionChangedDelegate = UnsubscribeCollectionChanged;
             WeakReferences = new List<WeakReference>(256);
             // ReSharper disable once ObjectCreationAsStatement
             new WeakReferenceCollector();
@@ -200,7 +196,7 @@ namespace MugenMvvmToolkit
             get { return _mvvmActivityMediatorFactory; }
             set
             {
-                Should.PropertyBeNotNull(value, "MvvmActivityMediatorFactory");
+                Should.PropertyBeNotNull(value);
                 _mvvmActivityMediatorFactory = value;
             }
         }
@@ -215,7 +211,7 @@ namespace MugenMvvmToolkit
             get { return _mvvmFragmentMediatorFactory; }
             set
             {
-                Should.PropertyBeNotNull(value, "MvvmFragmentMediatorFactory");
+                Should.PropertyBeNotNull(value);
                 _mvvmFragmentMediatorFactory = value;
             }
         }
@@ -464,10 +460,35 @@ namespace MugenMvvmToolkit
             }
         }
 
-        public static NotifyCollectionChangedEventHandler MakeWeakCollectionChangedHandler<TTarget>(TTarget target, Action<TTarget, object,
-            NotifyCollectionChangedEventArgs> invokeAction) where TTarget : class
+        public static IList<IDataBinding> SetBindings(this Object item, string bindingExpression,
+            IList<object> sources = null)
         {
-            return ReflectionExtensions.CreateWeakDelegate(target, invokeAction, UnsubscribeCollectionChangedDelegate, CreateHandlerDelegate);
+            return BindingServiceProvider.BindingProvider.CreateBindingsFromString(item, bindingExpression, sources);
+        }
+
+        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
+            [NotNull] string bindings)
+            where T : Object
+            where TBindingSet : BindingSet
+        {
+            Should.NotBeNull(item, "item");
+            Should.NotBeNull(bindingSet, "bindingSet");
+            Should.NotBeNull(bindings, "bindings");
+            bindingSet.BindFromExpression(item, bindings);
+            return item;
+        }
+
+
+        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
+            [NotNull] Action<TBindingSet, T> setBinding)
+            where T : Object
+            where TBindingSet : BindingSet
+        {
+            Should.NotBeNull(item, "item");
+            Should.NotBeNull(bindingSet, "bindingSet");
+            Should.NotBeNull(setBinding, "setBinding");
+            setBinding(bindingSet, item);
+            return item;
         }
 
         internal static PlatformInfo GetPlatformInfo()
@@ -616,13 +637,6 @@ namespace MugenMvvmToolkit
             return newView;
         }
 
-        private static void UnsubscribeCollectionChanged(object o, NotifyCollectionChangedEventHandler handler)
-        {
-            var notifyCollectionChanged = o as INotifyCollectionChanged;
-            if (notifyCollectionChanged != null)
-                notifyCollectionChanged.CollectionChanged -= handler;
-        }
-
         private static object GetContentInternal(object container, Context ctx, object content, IDataTemplateSelector templateSelector)
         {
             object template = templateSelector.SelectTemplate(content, container);
@@ -648,11 +662,6 @@ namespace MugenMvvmToolkit
         private static IMvvmActivityMediator MvvmActivityMediatorFactoryMethod(Activity activity, IDataContext dataContext)
         {
             return new MvvmActivityMediator(activity);
-        }
-
-        private static NotifyCollectionChangedEventHandler CreateHandler(ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs> weakEventHandler)
-        {
-            return weakEventHandler.Handle;
         }
 
         #endregion

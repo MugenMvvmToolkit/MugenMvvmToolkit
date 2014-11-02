@@ -240,7 +240,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         public object Invoke(IDataContext context, IList<object> sourceValues)
         {
-            var key = new CacheKey(sourceValues.ToArrayFast(o => o == null ? null : o.GetType()));
+            var key = new CacheKey(sourceValues.ToArrayEx(o => o == null ? null : o.GetType()));
             Func<object[], object> expression;
             lock (_expressionCache)
             {
@@ -448,7 +448,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                     .ResourceResolver
                     .ResolveMethod(methodCall.Method, _dataContext, false);
                 if (dynamicMethod != null)
-                    returnType = dynamicMethod.GetReturnType(arrayArg.Expressions.ToArrayFast(expression => expression.Type), typeArgs, DataContext);
+                    returnType = dynamicMethod.GetReturnType(arrayArg.Expressions.ToArrayEx(expression => expression.Type), typeArgs, DataContext);
 
                 return ExpressionReflectionManager.ConvertIfNeed(Expression.Call(_thisExpression, ProxyMethod, Expression.Constant(methodCall.Method),
                             DataContextParameter, Expression.Constant(typeArgs, typeof(IList<Type>)), arrayArg), returnType, false);
@@ -459,7 +459,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             var targetData = new ArgumentData(methodCall.Target, target, type);
             var args = methodCall
                 .Arguments
-                .ToArrayFast(node => new ArgumentData(node, node.NodeType == ExpressionNodeType.Lambda ? null : BuildExpression(node), null));
+                .ToArrayEx(node => new ArgumentData(node, node.NodeType == ExpressionNodeType.Lambda ? null : BuildExpression(node), null));
 
             var method = targetData
                 .FindMethod(methodCall.Method, typeArgs, args, BindingServiceProvider.ResourceResolver.GetKnownTypes(), target == null);
@@ -478,7 +478,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             var targetData = new ArgumentData(indexer.Object, target, type);
             var args = indexer
                 .Arguments
-                .ToArrayFast(node => new ArgumentData(node, node.NodeType == ExpressionNodeType.Lambda ? null : BuildExpression(node), null));
+                .ToArrayEx(node => new ArgumentData(node, node.NodeType == ExpressionNodeType.Lambda ? null : BuildExpression(node), null));
 
             var method = targetData.FindIndexer(args, target == null);
             return GenerateMethodCall(method, targetData, args);

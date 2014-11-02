@@ -22,7 +22,7 @@ using MugenMvvmToolkit.Models;
 namespace MugenMvvmToolkit.Interfaces.Models
 {
     /// <summary>
-    ///     An extension to ICommand to provide an ability to raise changed events.
+    ///     An extension to <see cref="ICommand"/> to provide an ability to raise changed events.
     /// </summary>
     public interface IRelayCommand : ICommand, IDisposable, ISuspendNotifications
     {

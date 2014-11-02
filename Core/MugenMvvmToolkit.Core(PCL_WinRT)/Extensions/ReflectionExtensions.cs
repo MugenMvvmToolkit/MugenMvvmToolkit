@@ -15,6 +15,7 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
@@ -105,6 +106,8 @@ namespace MugenMvvmToolkit
 
         private static readonly Action<object, PropertyChangedEventHandler> UnsubscribePropertyChangedDelegate;
         private static readonly Action<object, EventHandler<DataErrorsChangedEventArgs>> UnsubscribeErrorsChangedDelegate;
+        private static readonly Action<object, NotifyCollectionChangedEventHandler> UnsubscribeCollectionChangedDelegate;
+        private static readonly Func<IWeakEventHandler<NotifyCollectionChangedEventArgs>, NotifyCollectionChangedEventHandler> CreateCollectionChangedHandlerDelegate;
         private static readonly Func<IWeakEventHandler<PropertyChangedEventArgs>, PropertyChangedEventHandler> CreatePropertyChangedHandlerDelegate;
         private static readonly Func<IWeakEventHandler<DataErrorsChangedEventArgs>, EventHandler<DataErrorsChangedEventArgs>> CreateErrorsChangedHandlerDelegate;
 
@@ -130,6 +133,8 @@ namespace MugenMvvmToolkit
         {
             CreatePropertyChangedHandlerDelegate = CreateHandler;
             CreateErrorsChangedHandlerDelegate = CreateHandler;
+            CreateCollectionChangedHandlerDelegate = CreateHandler;
+            UnsubscribeCollectionChangedDelegate = UnsubscribeCollectionChanged;
             UnsubscribePropertyChangedDelegate = UnsubscribePropertyChanged;
             UnsubscribeErrorsChangedDelegate = UnsubscribeErrorsChanged;
             CachedAttributes = new Dictionary<MemberInfo, Attribute[]>();
@@ -150,7 +155,7 @@ namespace MugenMvvmToolkit
             CachedIgnoreAttributes = new Dictionary<Type, string[]>();
             ExcludedProperties = typeof(EditableViewModel<>)
                 .GetPropertiesEx(PropertyBindingFlag)
-                .ToArrayFast(info => info.Name);
+                .ToArrayEx(info => info.Name);
             TypesToCommandsProperties = new Dictionary<Type, Func<object, ICommand>[]>();
             ViewToViewModelInterface = new Dictionary<Type, Action<object, IViewModel>>();
             ViewModelToViewInterface = new Dictionary<Type, PropertyInfo>();
@@ -215,6 +220,15 @@ namespace MugenMvvmToolkit
             where TTarget : class
         {
             return CreateWeakDelegate(target, invokeAction, UnsubscribeErrorsChangedDelegate, CreateErrorsChangedHandlerDelegate);
+        }
+
+        /// <summary>
+        ///     Returns a weak-reference version of a delegate.
+        /// </summary>
+        public static NotifyCollectionChangedEventHandler MakeWeakCollectionChangedHandler<TTarget>(TTarget target, Action<TTarget, object,
+            NotifyCollectionChangedEventArgs> invokeAction) where TTarget : class
+        {
+            return CreateWeakDelegate(target, invokeAction, UnsubscribeCollectionChangedDelegate, CreateCollectionChangedHandlerDelegate);
         }
 
         /// <summary>
@@ -450,7 +464,8 @@ namespace MugenMvvmToolkit
                     return memberExpression.Member;
             }
             var expressionBody = expression.Body as MemberExpression;
-            Should.BeSupported(expressionBody != null, "Expession {0} not supported", expression);
+            if (expressionBody == null)
+                throw new NotSupportedException("Expression " + expression + " not supported");
             // ReSharper disable once PossibleNullReferenceException
             return expressionBody.Member;
         }
@@ -468,7 +483,7 @@ namespace MugenMvvmToolkit
                         if (propertyInfo.IsDefined(typeof(IgnorePropertyAttribute), true))
                             list.Add(propertyInfo.Name);
                     }
-                    result = list.ToArrayFast();
+                    result = list.ToArrayEx();
                     CachedIgnoreAttributes[type] = result;
                 }
             }
@@ -488,13 +503,22 @@ namespace MugenMvvmToolkit
                         IEnumerable<ModelPropertyAttribute> attributes = propertyInfo
                             .GetAttributes()
                             .OfType<ModelPropertyAttribute>();
-                        foreach (ModelPropertyAttribute viewModelToModelAttribute in attributes)
+                        foreach (ModelPropertyAttribute modelPropertyAttribute in attributes)
                         {
                             ICollection<string> list;
-                            if (!result.TryGetValue(viewModelToModelAttribute.Property, out list))
+                            if (!result.TryGetValue(modelPropertyAttribute.Property, out list))
                             {
                                 list = new HashSet<string>();
-                                result[viewModelToModelAttribute.Property] = list;
+                                result[modelPropertyAttribute.Property] = list;
+
+                                //to keep default property mapping.
+                                ICollection<string> vmPropertyMap;
+                                if (!result.TryGetValue(propertyInfo.Name, out vmPropertyMap))
+                                {
+                                    vmPropertyMap = new HashSet<string>();
+                                    result[propertyInfo.Name] = vmPropertyMap;
+                                }
+                                vmPropertyMap.Add(propertyInfo.Name);
                             }
                             list.Add(propertyInfo.Name);
                         }
@@ -602,12 +626,24 @@ namespace MugenMvvmToolkit
                 notifyDataErrorInfo.ErrorsChanged -= eventHandler;
         }
 
+        private static void UnsubscribeCollectionChanged(object o, NotifyCollectionChangedEventHandler handler)
+        {
+            var notifyCollectionChanged = o as INotifyCollectionChanged;
+            if (notifyCollectionChanged != null)
+                notifyCollectionChanged.CollectionChanged -= handler;
+        }
+
         private static PropertyChangedEventHandler CreateHandler(IWeakEventHandler<PropertyChangedEventArgs> weakEventHandler)
         {
             return weakEventHandler.Handle;
         }
 
         private static EventHandler<DataErrorsChangedEventArgs> CreateHandler(IWeakEventHandler<DataErrorsChangedEventArgs> weakEventHandler)
+        {
+            return weakEventHandler.Handle;
+        }
+
+        private static NotifyCollectionChangedEventHandler CreateHandler(ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs> weakEventHandler)
         {
             return weakEventHandler.Handle;
         }

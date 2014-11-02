@@ -16,6 +16,9 @@
 using System;
 using System.Collections;
 using System.Collections.Specialized;
+using JetBrains.Annotations;
+using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
 #if ANDROID
 using Android.Content;
 using MugenMvvmToolkit.Interfaces.Views;
@@ -25,11 +28,12 @@ using System.ComponentModel;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    public abstract class ItemsSourceGeneratorBase
+    public abstract class ItemsSourceGeneratorBase : IItemsSourceGenerator
     {
         #region Fields
 
         private readonly NotifyCollectionChangedEventHandler _handler;
+        protected internal const string Key = "#ItemsSourceGeneratorMember";
 
         #endregion
 
@@ -40,25 +44,29 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected ItemsSourceGeneratorBase()
         {
-            _handler = PlatformExtensions.MakeWeakCollectionChangedHandler(this, (@base, o, arg3) => @base.ItemsSourceOnCollectionChanged(arg3));
+            _handler = ReflectionExtensions.MakeWeakCollectionChangedHandler(this, (@base, o, arg3) => @base.ItemsSourceOnCollectionChanged(arg3));
         }
 
         #endregion
 
         #region Properites
 
+        /// <summary>
+        ///     Gets the current items source, if any.
+        /// </summary>
         protected abstract IEnumerable ItemsSource { get; set; }
 
         #endregion
 
         #region Methods
 
-        public virtual void Reset()
+        [CanBeNull]
+        public static IItemsSourceGenerator Get(object item, string key = null)
         {
-            Refresh();
+            return ServiceProvider.AttachedValueProvider.GetValue<IItemsSourceGenerator>(item, key ?? Key, false);
         }
 
-        public virtual void Update(IEnumerable itemsSource)
+        protected virtual void Update(IEnumerable itemsSource, IDataContext context = null)
         {
             if (ReferenceEquals(itemsSource, ItemsSource))
                 return;
@@ -140,8 +148,32 @@ namespace MugenMvvmToolkit.Infrastructure
 
         protected abstract void Replace(int startIndex, int count);
 
-        //TODO OPTIMIZE: CHECK OLD ITEMS
         protected abstract void Refresh();
+
+        #endregion
+
+        #region Implementation of IItemsSourceGenerator
+
+        /// <summary>
+        ///     Gets the current items source, if any.
+        /// </summary>
+        IEnumerable IItemsSourceGenerator.ItemsSource
+        {
+            get { return ItemsSource; }
+        }
+
+        /// <summary>
+        ///     Sets the current items source.
+        /// </summary>
+        void IItemsSourceGenerator.SetItemsSource(IEnumerable itemsSource, IDataContext context)
+        {
+            Update(itemsSource, context);
+        }
+
+        void IItemsSourceGenerator.Reset()
+        {
+            Refresh();
+        }
 
         #endregion
     }

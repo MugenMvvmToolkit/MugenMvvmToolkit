@@ -88,8 +88,7 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
 
         /// <summary>
         ///     Occurs when this <see cref="IViewModel" /> is initialized.
-        ///     This event coincides with cases where the value of the <see cref="IViewModel" /> property changes from false (or
-        ///     undefined) to true.
+        ///     This event coincides with cases where the value of the <see cref="IsInitialized" /> property changes from false to true.
         /// </summary>
         event EventHandler<IViewModel, EventArgs> Initialized;
     }

@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="ViewModelExtensions.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,7 +13,9 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,6 +25,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -43,9 +47,17 @@ namespace MugenMvvmToolkit.ViewModels
         #region View models extension
 
         /// <summary>
-        /// Returns the name of view, if any.
+        /// Gets the unique identifier for the view model.
         /// </summary>
-        public static string GetViewName(this IViewModel viewModel, IDataContext context = null)
+        public static Guid GetViewModelId(this IViewModel viewModel)
+        {
+            return ViewModelProvider.GetOrAddViewModelId(viewModel);
+        }
+
+        /// <summary>
+        ///     Returns the name of view, if any.
+        /// </summary>
+        public static string GetViewName([NotNull] this IViewModel viewModel, IDataContext context = null)
         {
             Should.NotBeNull(viewModel, "viewModel");
             if (context == null)
@@ -95,7 +107,7 @@ namespace MugenMvvmToolkit.ViewModels
                     ToolkitExtensions.TryHandleTaskException(task, viewModel, viewModel.GetIocContainer(true));
                 return task;
             }
-            var beginBusy = viewModel.BeginBusy(message);
+            Guid beginBusy = viewModel.BeginBusy(message);
             task.TryExecuteSynchronously(t =>
             {
                 viewModel.EndBusy(beginBusy);
@@ -147,7 +159,8 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
         /// <param name="parameters">The specified parameters.</param>
         /// <returns>The operation result task, this task returns the result of the operation.</returns>
-        public static IAsyncOperation<bool> ShowAsync([NotNull] this IViewModel viewModel, params DataConstantValue[] parameters)
+        public static IAsyncOperation<bool> ShowAsync([NotNull] this IViewModel viewModel,
+            params DataConstantValue[] parameters)
         {
             IDataContext context = parameters == null ? null : new DataContext(parameters);
             return viewModel.ShowAsync(context);
@@ -178,7 +191,8 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="viewName">The name of view.</param>
         /// <param name="context">The specified context.</param>
         /// <returns>The operation result task, this task returns the result of the operation.</returns>
-        public static IAsyncOperation<bool> ShowAsync([NotNull] this IViewModel viewModel, string viewName, IDataContext context = null)
+        public static IAsyncOperation<bool> ShowAsync([NotNull] this IViewModel viewModel, string viewName,
+            IDataContext context = null)
         {
             Should.NotBeNull(viewModel, "viewModel");
             if (viewName != null)
@@ -197,7 +211,8 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="viewName">The name of view.</param>
         /// <param name="context">The specified context.</param>
         /// <returns>The operation result task, this task returns the result of the operation.</returns>
-        public static IAsyncOperation<bool> ShowAsync<T>([NotNull] this T viewModel, Action<T, IOperationResult<bool>> completeCallback, string viewName = null, IDataContext context = null)
+        public static IAsyncOperation<bool> ShowAsync<T>([NotNull] this T viewModel,
+            Action<T, IOperationResult<bool>> completeCallback, string viewName = null, IDataContext context = null)
             where T : IViewModel
         {
             Should.NotBeNull(viewModel, "viewModel");
@@ -206,7 +221,7 @@ namespace MugenMvvmToolkit.ViewModels
                 context = context.ToNonReadOnly();
                 context.AddOrUpdate(NavigationConstants.ViewName, viewName);
             }
-            var operation = viewModel.ShowAsync(context);
+            IAsyncOperation<bool> operation = viewModel.ShowAsync(context);
             operation.ContinueWith(completeCallback);
             return operation;
         }
@@ -233,10 +248,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="viewModelProvider">The specified <see cref="IViewModelProvider" />.</param>
         /// <param name="getViewModel">The specified delegate to create view model.</param>
         /// <param name="parentViewModel">The parent view model.</param>
-        /// <param name="useParentIocContainer">
-        ///     The value that is responsible to initialize the IocContainer using the IocContainer of
-        ///     parent view model.
-        /// </param>
+        /// <param name="containerCreationMode">The value that is responsible to initialize the IocContainer.</param>
         /// <param name="observationMode">The value that is responsible for listen messages in created view model.</param>
         /// <param name="parameters">The specified parameters to get view-model.</param>
         /// <returns>
@@ -244,11 +256,12 @@ namespace MugenMvvmToolkit.ViewModels
         /// </returns>
         [Pure]
         public static IViewModel GetViewModel([NotNull] this IViewModelProvider viewModelProvider,
-            [NotNull] GetViewModelDelegate<IViewModel> getViewModel, IViewModel parentViewModel = null, ObservationMode? observationMode = null, bool? useParentIocContainer = null,
+            [NotNull] GetViewModelDelegate<IViewModel> getViewModel, IViewModel parentViewModel = null,
+            ObservationMode? observationMode = null, IocContainerCreationMode? containerCreationMode = null,
             params DataConstantValue[] parameters)
         {
             return GetViewModel(viewModelProvider, getViewModel,
-                MergeParameters(parentViewModel, useParentIocContainer, observationMode, parameters));
+                MergeParameters(parentViewModel, containerCreationMode, observationMode, parameters));
         }
 
         /// <summary>
@@ -267,8 +280,7 @@ namespace MugenMvvmToolkit.ViewModels
         {
             Should.NotBeNull(viewModelProvider, "viewModelProvider");
             Should.NotBeNull(getViewModelGeneric, "getViewModelGeneric");
-            return
-                (T)viewModelProvider.GetViewModel(adapter => getViewModelGeneric(adapter), new DataContext(parameters));
+            return (T)viewModelProvider.GetViewModel(adapter => getViewModelGeneric(adapter), new DataContext(parameters));
         }
 
         /// <summary>
@@ -277,10 +289,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="viewModelProvider">The specified <see cref="IViewModelProvider" />.</param>
         /// <param name="getViewModelGeneric">The specified delegate to create view model.</param>
         /// <param name="parentViewModel">The parent view model.</param>
-        /// <param name="useParentIocContainer">
-        ///     The value that is responsible to initialize the IocContainer using the IocContainer of
-        ///     parent view model.
-        /// </param>
+        /// <param name="containerCreationMode">The value that is responsible to initialize the IocContainer.</param>
         /// <param name="observationMode">The value that is responsible for listen messages in created view model.</param>
         /// <param name="parameters">The specified parameters to get view-model.</param>
         /// <returns>
@@ -289,11 +298,11 @@ namespace MugenMvvmToolkit.ViewModels
         [Pure]
         public static T GetViewModel<T>([NotNull] this IViewModelProvider viewModelProvider,
             [NotNull] GetViewModelDelegate<T> getViewModelGeneric, IViewModel parentViewModel = null,
-            ObservationMode? observationMode = null, bool? useParentIocContainer = null,
+            ObservationMode? observationMode = null, IocContainerCreationMode? containerCreationMode = null,
             params DataConstantValue[] parameters) where T : IViewModel
         {
             return GetViewModel(viewModelProvider, getViewModelGeneric,
-                MergeParameters(parentViewModel, useParentIocContainer, observationMode, parameters));
+                MergeParameters(parentViewModel, containerCreationMode, observationMode, parameters));
         }
 
         /// <summary>
@@ -320,10 +329,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="viewModelType">The type of view model.</param>
         /// <param name="viewModelProvider">The specified <see cref="IViewModelProvider" />.</param>
         /// <param name="parentViewModel">The parent view model.</param>
-        /// <param name="useParentIocContainer">
-        ///     The value that is responsible to initialize the IocContainer using the IocContainer of
-        ///     parent view model.
-        /// </param>
+        /// <param name="containerCreationMode">The value that is responsible to initialize the IocContainer.</param>
         /// <param name="observationMode">The value that is responsible for listen messages in created view model.</param>
         /// <param name="parameters">The specified parameters to get view-model.</param>
         /// <returns>
@@ -332,11 +338,11 @@ namespace MugenMvvmToolkit.ViewModels
         [Pure]
         public static IViewModel GetViewModel([NotNull] this IViewModelProvider viewModelProvider,
             [NotNull, ViewModelTypeRequired] Type viewModelType,
-            IViewModel parentViewModel = null, ObservationMode? observationMode = null, bool? useParentIocContainer = null,
-            params DataConstantValue[] parameters)
+            IViewModel parentViewModel = null, ObservationMode? observationMode = null,
+            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
         {
             return GetViewModel(viewModelProvider, viewModelType,
-                MergeParameters(parentViewModel, useParentIocContainer, observationMode, parameters));
+                MergeParameters(parentViewModel, containerCreationMode, observationMode, parameters));
         }
 
         /// <summary>
@@ -361,10 +367,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <typeparam name="T">The type of view model.</typeparam>
         /// <param name="viewModelProvider">The specified <see cref="IViewModelProvider" />.</param>
         /// <param name="parentViewModel">The parent view model.</param>
-        /// <param name="useParentIocContainer">
-        ///     The value that is responsible to initialize the IocContainer using the IocContainer of
-        ///     parent view model.
-        /// </param>
+        /// <param name="containerCreationMode">The value that is responsible to initialize the IocContainer.</param>
         /// <param name="observationMode">The value that is responsible for listen messages in created view model.</param>
         /// <param name="parameters">The specified parameters to get view-model.</param>
         /// <returns>
@@ -372,29 +375,30 @@ namespace MugenMvvmToolkit.ViewModels
         /// </returns>
         [Pure]
         public static T GetViewModel<T>([NotNull] this IViewModelProvider viewModelProvider,
-            IViewModel parentViewModel = null, ObservationMode? observationMode = null, bool? useParentIocContainer = null,
-            params DataConstantValue[] parameters) where T : IViewModel
+            IViewModel parentViewModel = null, ObservationMode? observationMode = null,
+            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters) where T : IViewModel
         {
             return GetViewModel<T>(viewModelProvider,
-                MergeParameters(parentViewModel, useParentIocContainer, observationMode, parameters));
+                MergeParameters(parentViewModel, containerCreationMode, observationMode, parameters));
         }
 
         /// <summary>
-        /// Tries to get parent view model, the result value can be null.
+        ///     Tries to get parent view model, the result value can be null.
         /// </summary>
         [CanBeNull]
         public static IViewModel GetParentViewModel(this IViewModel viewModel)
         {
-            var reference = viewModel.Settings.Metadata.GetData(ViewModelConstants.ParentViewModel);
+            WeakReference reference = viewModel.Settings.Metadata.GetData(ViewModelConstants.ParentViewModel);
             if (reference == null)
                 return null;
             return (IViewModel)reference.Target;
         }
 
         /// <summary>
-        /// Tries to close view-model.
+        ///     Tries to close view-model.
         /// </summary>
-        public static Task<bool> TryCloseAsync([NotNull]this IViewModel viewModel, [CanBeNull] object parameter, [CanBeNull] INavigationContext context)
+        public static Task<bool> TryCloseAsync([NotNull] this IViewModel viewModel, [CanBeNull] object parameter,
+            [CanBeNull] INavigationContext context)
         {
             Should.NotBeNull(viewModel, "viewModel");
             if (context == null)
@@ -403,7 +407,7 @@ namespace MugenMvvmToolkit.ViewModels
             if (parameter == null)
                 parameter = context;
             //NOTE: Close view model only on back navigation.
-            var closeableViewModel = context.NavigationMode == NavigationMode.Back
+            ICloseableViewModel closeableViewModel = context.NavigationMode == NavigationMode.Back
                 ? viewModel as ICloseableViewModel
                 : null;
             var navigableViewModel = viewModel as INavigableViewModel;
@@ -411,7 +415,7 @@ namespace MugenMvvmToolkit.ViewModels
                 return Empty.TrueTask;
             if (closeableViewModel != null && navigableViewModel != null)
             {
-                var navigatingTask = navigableViewModel.OnNavigatingFrom(context);
+                Task<bool> navigatingTask = navigableViewModel.OnNavigatingFrom(context);
                 if (navigatingTask.IsCompleted)
                 {
                     if (navigatingTask.Result)
@@ -450,17 +454,19 @@ namespace MugenMvvmToolkit.ViewModels
         }
 
         private static DataConstantValue[] MergeParameters(IViewModel parentViewModel,
-            bool? useParentIocContainer, ObservationMode? observationMode, DataConstantValue[] parameters)
+            IocContainerCreationMode? containerCreationMode, ObservationMode? observationMode, DataConstantValue[] parameters)
         {
-            if (useParentIocContainer == null && parentViewModel == null && observationMode == null)
+            if (observationMode == null && containerCreationMode == null && parentViewModel == null)
                 return parameters;
+
             var values = new List<DataConstantValue>();
-            if (useParentIocContainer.HasValue)
-                values.Add(InitializationConstants.UseParentIocContainer.ToValue(useParentIocContainer.Value));
-            if (parentViewModel != null)
-                values.Add(InitializationConstants.ParentViewModel.ToValue(parentViewModel));
+            if (containerCreationMode.HasValue)
+                values.Add(InitializationConstants.IocContainerCreationMode.ToValue(containerCreationMode.Value));
             if (observationMode.HasValue)
                 values.Add(InitializationConstants.ObservationMode.ToValue(observationMode.Value));
+
+            if (parentViewModel != null)
+                values.Add(InitializationConstants.ParentViewModel.ToValue(parentViewModel));
             if (parameters != null && parameters.Length != 0)
             {
                 for (int index = 0; index < parameters.Length; index++)
@@ -482,24 +488,24 @@ namespace MugenMvvmToolkit.ViewModels
         ///     Updates information about errors in the specified property.
         /// </summary>
         [SuppressTaskBusyHandler]
-        public static Task ValidateAsync<T>([NotNull] this T validatableViewModel,
-            [NotNull] Expression<Func<T, object>> getProperty)
+        public static Task ValidateAsync<T, TValue>([NotNull] this T validatableViewModel,
+            [NotNull] Expression<Func<T, TValue>> getProperty)
             where T : IValidatorAggregator
         {
             Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            return validatableViewModel.ValidateAsync(ToolkitExtensions.GetPropertyName(getProperty));
+            return validatableViewModel.ValidateAsync(ToolkitExtensions.GetMemberName(getProperty));
         }
 
         /// <summary>
         ///     Disable validation for the specified property.
         /// </summary>
         [SuppressTaskBusyHandler]
-        public static Task DisableValidationAsync<T>([NotNull] this T validatableViewModel,
-            [NotNull] Expression<Func<T, object>> getProperty)
+        public static Task DisableValidationAsync<T, TValue>([NotNull] this T validatableViewModel,
+            [NotNull] Expression<Func<T, TValue>> getProperty)
             where T : IValidatorAggregator
         {
             Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            return validatableViewModel.DisableValidationAsync(ToolkitExtensions.GetPropertyName(getProperty));
+            return validatableViewModel.DisableValidationAsync(ToolkitExtensions.GetMemberName(getProperty));
         }
 
         /// <summary>
@@ -520,12 +526,12 @@ namespace MugenMvvmToolkit.ViewModels
         ///     Enable validation for the specified property.
         /// </summary>
         [SuppressTaskBusyHandler]
-        public static Task EnableValidationAsync<T>([NotNull] this T validatableViewModel,
-            [NotNull] Expression<Func<T, object>> getProperty)
+        public static Task EnableValidationAsync<T, TValue>([NotNull] this T validatableViewModel,
+            [NotNull] Expression<Func<T, TValue>> getProperty)
             where T : IValidatorAggregator
         {
             Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            return validatableViewModel.EnableValidationAsync(ToolkitExtensions.GetPropertyName(getProperty));
+            return validatableViewModel.EnableValidationAsync(ToolkitExtensions.GetMemberName(getProperty));
         }
 
         /// <summary>
@@ -552,13 +558,8 @@ namespace MugenMvvmToolkit.ViewModels
         {
             Should.NotBeNull(gridViewModel, "gridViewModel");
             object selectedItem = gridViewModel.SelectedItem;
-            IList itemsSource = gridViewModel.OriginalItemsSource;
-            if (selectedItem == null || itemsSource == null)
-                return;
-            int indexOf = itemsSource.IndexOf(selectedItem);
-            itemsSource.RemoveAt(indexOf);
-            itemsSource.Insert(indexOf - 1, selectedItem);
-            gridViewModel.SelectedItem = selectedItem;
+            if (gridViewModel.OriginalItemsSource.MoveUpItem(selectedItem))
+                gridViewModel.SelectedItem = selectedItem;
         }
 
         /// <summary>
@@ -568,13 +569,8 @@ namespace MugenMvvmToolkit.ViewModels
         {
             Should.NotBeNull(gridViewModel, "gridViewModel");
             object selectedItem = gridViewModel.SelectedItem;
-            IList itemsSource = gridViewModel.OriginalItemsSource;
-            if (selectedItem == null || itemsSource == null)
-                return;
-            int indexOf = itemsSource.IndexOf(selectedItem);
-            itemsSource.RemoveAt(indexOf);
-            itemsSource.Insert(indexOf + 1, selectedItem);
-            gridViewModel.SelectedItem = selectedItem;
+            if (gridViewModel.OriginalItemsSource.MoveDownItem(selectedItem))
+                gridViewModel.SelectedItem = selectedItem;
         }
 
         /// <summary>
@@ -583,9 +579,7 @@ namespace MugenMvvmToolkit.ViewModels
         public static bool CanMoveUpSelectedItem([NotNull] this IGridViewModel gridViewModel)
         {
             Should.NotBeNull(gridViewModel, "gridViewModel");
-            object selectedItem = gridViewModel.SelectedItem;
-            IList itemsSource = gridViewModel.OriginalItemsSource;
-            return selectedItem != null && itemsSource != null && itemsSource.IndexOf(selectedItem) > 0;
+            return gridViewModel.OriginalItemsSource.CanMoveUpItem(gridViewModel.SelectedItem);
         }
 
         /// <summary>
@@ -594,10 +588,7 @@ namespace MugenMvvmToolkit.ViewModels
         public static bool CanMoveDownSelectedItem([NotNull] this IGridViewModel gridViewModel)
         {
             Should.NotBeNull(gridViewModel, "gridViewModel");
-            object selectedItem = gridViewModel.SelectedItem;
-            IList itemsSource = gridViewModel.OriginalItemsSource;
-            return selectedItem != null && itemsSource != null &&
-                   itemsSource.IndexOf(selectedItem) < itemsSource.Count - 1;
+            return gridViewModel.OriginalItemsSource.CanMoveDownItem(gridViewModel.SelectedItem);
         }
 
         #endregion

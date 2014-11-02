@@ -13,7 +13,6 @@
 // </license>
 // ****************************************************************************
 #endregion
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
@@ -87,7 +86,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
             public void Clear()
             {
-                var values = _list.ToArrayFast();
+                var values = _list.ToArrayEx();
                 _list.Clear();
                 for (int index = 0; index < values.Length; index++)
                     _presenter.OnDynamicPresenterRemoved(values[index]);
@@ -189,6 +188,24 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             throw ExceptionManager.PresenterCannotShowViewModel(GetType(), viewModel.GetType());
         }
 
+        /// <summary>
+        ///     Tries to restore the presenter state of the specified <see cref="IViewModel" />.
+        /// </summary>
+        /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
+        /// <param name="context">The specified context.</param>
+        public virtual void Restore(IViewModel viewModel, IDataContext context)
+        {
+            Should.NotBeNull(viewModel, "viewModel");
+            if (context == null)
+                context = DataContext.Empty;
+            for (int i = 0; i < _dynamicPresenters.Count; i++)
+            {
+                var presenter = _dynamicPresenters[i] as IRestorableDynamicViewModelPresenter;
+                if (presenter != null && presenter.Restore(viewModel, context, this))
+                    return;
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -198,9 +215,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         /// </summary>
         protected virtual void OnDynamicPresenterAdded([NotNull] IDynamicViewModelPresenter presenter)
         {
-            var disposableObject = presenter as IDisposableObject;
-            if (disposableObject != null)
-                disposableObject.Disposed += PresenterOnDisposed;
         }
 
         /// <summary>
@@ -208,16 +222,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         /// </summary>
         protected virtual void OnDynamicPresenterRemoved([NotNull] IDynamicViewModelPresenter presenter)
         {
-            var disposableObject = presenter as IDisposableObject;
-            if (disposableObject != null)
-                disposableObject.Disposed -= PresenterOnDisposed;
-        }
-
-        private void PresenterOnDisposed(object sender, EventArgs eventArgs)
-        {
-            var presenter = sender as IDynamicViewModelPresenter;
-            if (presenter != null)
-                DynamicPresenters.Remove(presenter);
         }
 
         #endregion

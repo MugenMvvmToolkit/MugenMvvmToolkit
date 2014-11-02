@@ -109,7 +109,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// </summary>
         public bool IsInitialized
         {
-            get { return Context != null; }
+            get { return _context != null; }
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             get
             {
                 EnsureInitialized();
-                lock (_eventAggregator)
+                lock (_internalErrors)
                     return IsValidInternal();
             }
         }
@@ -146,11 +146,8 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// </summary>
         public bool CanValidate(IValidatorContext validatorContext)
         {
-            if (IsDisposed)
-                return false;
             Should.NotBeNull(validatorContext, "validatorContext");
-            Should.PropertyBeNotNull(validatorContext.Instance, "validatorContext.Instance");
-            return CanValidateContext(validatorContext) && CanValidateInternal(validatorContext);
+            return !IsDisposed && CanValidateContext(validatorContext) && CanValidateInternal(validatorContext);
         }
 
         /// <summary>
@@ -163,14 +160,11 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         {
             EnsureNotDisposed();
             Should.NotBeNull(context, "context");
-            lock (_eventAggregator)
-            {
-                if (Context != null)
-                    throw ExceptionManager.ValidatorInitialized(this);
-                if (!CanValidate(context))
-                    throw ExceptionManager.InvalidContexValidator(this);
-                _context = context;
-            }
+            if (Interlocked.CompareExchange(ref _context, context, null) != null)
+                throw ExceptionManager.ValidatorInitialized(this);
+            if (!CanValidate(context))
+                throw ExceptionManager.InvalidContexValidator(this);
+
             OnInitialized(context);
 
             _notifyPropertyChanged = Instance as INotifyPropertyChanged ??
@@ -199,7 +193,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         public IList<object> GetErrors(string propertyName)
         {
             EnsureInitialized();
-            lock (_eventAggregator)
+            lock (_internalErrors)
                 return GetErrorsInternal(propertyName);
         }
 
@@ -212,7 +206,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         public IDictionary<string, IList<object>> GetErrors()
         {
             EnsureInitialized();
-            lock (_eventAggregator)
+            lock (_internalErrors)
                 return GetErrorsInternal();
         }
 
@@ -274,9 +268,11 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <param name="propertyName">The name of the property</param>
         public void ClearErrors(string propertyName)
         {
-            Should.NotBeNull(propertyName, "propertyName");
             EnsureInitialized();
-            ClearErrorsInternal(propertyName);
+            if (string.IsNullOrEmpty(propertyName))
+                ClearErrorsInternal();
+            else
+                ClearErrorsInternal(propertyName);
         }
 
         /// <summary>
@@ -301,6 +297,78 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             if (validatorBase != null)
                 validatorBase.ValidateOnPropertyChanged = ValidateOnPropertyChanged;
             return clone;
+        }
+
+        /// <summary>
+        ///     Gets a value that indicates whether the entity has validation errors.
+        /// </summary>
+        /// <returns>
+        ///     true if the entity currently has validation errors; otherwise, false.
+        /// </returns>
+        public bool HasErrors
+        {
+            get { return !IsValid; }
+        }
+
+        /// <summary>
+        ///     Gets the validation errors for a specified property or for the entire entity.
+        /// </summary>
+        /// <returns>
+        ///     The validation errors for the property or entity.
+        /// </returns>
+        /// <param name="propertyName">
+        ///     The name of the property to retrieve validation errors for; or null or <see cref="F:System.String.Empty" />, to
+        ///     retrieve entity-level errors.
+        /// </param>
+        IEnumerable INotifyDataErrorInfo.GetErrors(string propertyName)
+        {
+            return GetErrors(propertyName);
+        }
+
+        /// <summary>
+        ///     Occurs when the validation errors have changed for a property or for the entire entity.
+        /// </summary>
+        public virtual event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
+
+#if NONOTIFYDATAERROR
+        string IDataErrorInfo.this[string columnName]
+        {
+            get
+            {
+                var error = GetErrors(columnName).FirstOrDefault();
+                if (error == null)
+                    return null;
+                return error.ToString();
+            }
+        }
+
+        string IDataErrorInfo.Error
+        {
+            get
+            {
+                var errors = GetErrors(string.Empty);
+                if (errors.Count == 0)
+                    return null;
+                return string.Join(Environment.NewLine, errors);
+            }
+        }
+#endif
+        /// <summary>
+        ///     Subscribes an instance to events.
+        /// </summary>
+        /// <param name="instance">The instance to subscribe for event publication.</param>
+        public bool Subscribe(object instance)
+        {
+            return SubscribeInternal(instance);
+        }
+
+        /// <summary>
+        ///     Unsubscribes the instance from all events.
+        /// </summary>
+        /// <param name="instance">The instance to unsubscribe.</param>
+        public bool Unsubscribe(object instance)
+        {
+            return UnsubscribeInternal(instance);
         }
 
         #endregion
@@ -374,12 +442,30 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// </summary>
         protected object Locker
         {
-            get { return _eventAggregator; }
+            get { return _internalErrors; }
         }
 
         #endregion
 
         #region Virtual-abstract methods
+
+        /// <summary>
+        ///     Subscribes an instance to events.
+        /// </summary>
+        /// <param name="instance">The instance to subscribe for event publication.</param>
+        protected virtual bool SubscribeInternal(object instance)
+        {
+            return instance != this && _eventAggregator.Subscribe(instance);
+        }
+
+        /// <summary>
+        ///     Unsubscribes the instance from all events.
+        /// </summary>
+        /// <param name="instance">The instance to unsubscribe.</param>
+        protected virtual bool UnsubscribeInternal(object instance)
+        {
+            return instance != this && _eventAggregator.Unsubscribe(instance);
+        }
 
         /// <summary>
         ///     Publishes a message.
@@ -467,8 +553,8 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         protected virtual void ClearErrorsInternal()
         {
             string[] keys;
-            lock (_eventAggregator)
-                keys = _internalErrors.Keys.ToArrayFast();
+            lock (_internalErrors)
+                keys = _internalErrors.Keys.ToArrayEx();
             for (int index = 0; index < keys.Length; index++)
                 UpdateErrors(keys[index], null, false);
         }
@@ -560,7 +646,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         protected internal void UpdateErrors([NotNull] string propertyName, [CanBeNull] IEnumerable errors, bool isAsyncValidate)
         {
             ICollection<string> updatedProperties;
-            lock (_eventAggregator)
+            lock (_internalErrors)
                 updatedProperties = UpdateErrorsInternal(propertyName, errors);
             foreach (string name in updatedProperties)
                 RaiseErrorsChanged(name, isAsyncValidate);
@@ -579,15 +665,14 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         }
 
         /// <summary>
-        ///     Gets property name from the specified expression.
+        ///     Gets member name from the specified expression.
         /// </summary>
-        /// <typeparam name="T">The type of model.</typeparam>
         /// <param name="expression">The specified expression.</param>
         /// <returns>An instance of string.</returns>
         [Pure]
         protected static string GetPropertyName<T>(Expression<Func<T, object>> expression)
         {
-            return ToolkitExtensions.GetPropertyName(expression);
+            return ToolkitExtensions.GetMemberName(expression);
         }
 
         /// <summary>
@@ -667,12 +752,12 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                         return;
 
                     var properties = new HashSet<string>(StringComparer.Ordinal);
-                    lock (_eventAggregator)
+                    lock (_internalErrors)
                     {
                         //Clearing old errors
                         if (validateAll)
                         {
-                            var keys = _internalErrors.Keys.ToArrayFast();
+                            var keys = _internalErrors.Keys.ToArrayEx();
                             for (int index = 0; index < keys.Length; index++)
                                 properties.AddRange(UpdateErrorsInternal(keys[index], null));
                         }
@@ -748,94 +833,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         #endregion
 
-        #region Implementation of INotifyDataErrorInfo
-
-        /// <summary>
-        ///     Gets a value that indicates whether the entity has validation errors.
-        /// </summary>
-        /// <returns>
-        ///     true if the entity currently has validation errors; otherwise, false.
-        /// </returns>
-        public bool HasErrors
-        {
-            get { return !IsValid; }
-        }
-
-        /// <summary>
-        ///     Gets the validation errors for a specified property or for the entire entity.
-        /// </summary>
-        /// <returns>
-        ///     The validation errors for the property or entity.
-        /// </returns>
-        /// <param name="propertyName">
-        ///     The name of the property to retrieve validation errors for; or null or <see cref="F:System.String.Empty" />, to
-        ///     retrieve entity-level errors.
-        /// </param>
-        IEnumerable INotifyDataErrorInfo.GetErrors(string propertyName)
-        {
-            return GetErrors(propertyName);
-        }
-
-        /// <summary>
-        ///     Occurs when the validation errors have changed for a property or for the entire entity.
-        /// </summary>
-        public virtual event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
-
-        #endregion
-
-        #region Implementation of IDataErrorInfo
-
-#if NONOTIFYDATAERROR
-        string IDataErrorInfo.this[string columnName]
-        {
-            get
-            {
-                var error = GetErrors(columnName).FirstOrDefault();
-                if (error == null)
-                    return null;
-                return error.ToString();
-            }
-        }
-
-        string IDataErrorInfo.Error
-        {
-            get
-            {
-                var errors = GetErrors(string.Empty);
-                if (errors.Count == 0)
-                    return null;
-                return string.Join(Environment.NewLine, errors);
-            }
-        }
-#endif
-        #endregion
-
-        #region Implementation of IObservable
-
-        /// <summary>
-        ///     Subscribes an instance to events.
-        /// </summary>
-        /// <param name="instance">The instance to subscribe for event publication.</param>
-        public virtual bool Subscribe(object instance)
-        {
-            if (instance == this)
-                return false;
-            return _eventAggregator.Subscribe(instance);
-        }
-
-        /// <summary>
-        ///     Unsubscribes the instance from all events.
-        /// </summary>
-        /// <param name="instance">The instance to unsubscribe.</param>
-        public virtual bool Unsubscribe(object instance)
-        {
-            if (instance == this)
-                return false;
-            return _eventAggregator.Unsubscribe(instance);
-        }
-
-        #endregion
-
         #region Overrides of DisposableObject
 
         /// <summary>
@@ -883,9 +880,12 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <param name="propertyName">The specified property name.</param>
         /// <param name="getProperty">The expression to get property.</param>
         /// <returns>If true property equals, otherwise false.</returns>
-        protected static bool PropertyNameEqual(string propertyName, Expression<Func<T, object>> getProperty)
+        [Pure]
+        protected static bool PropertyNameEqual<TValue>(string propertyName,
+            [NotNull] Expression<Func<T, TValue>> getProperty)
         {
-            return PropertyNameEqual<T>(propertyName, getProperty);
+            Should.NotBeNull(getProperty, "getProperty");
+            return propertyName == getProperty.GetMemberInfo().Name;
         }
 
         /// <summary>
@@ -894,9 +894,9 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <param name="expression">The specified expression.</param>
         /// <returns>An instance of string.</returns>
         [Pure]
-        protected static string GetPropertyName(Expression<Func<T, object>> expression)
+        protected static string GetPropertyName<TValue>(Expression<Func<T, TValue>> expression)
         {
-            return ToolkitExtensions.GetPropertyName(expression);
+            return ToolkitExtensions.GetMemberName(expression);
         }
 
         #endregion

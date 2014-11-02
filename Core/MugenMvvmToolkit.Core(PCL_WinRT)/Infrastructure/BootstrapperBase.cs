@@ -227,7 +227,7 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 var assemblies = GetAssemblies();
                 assemblies.Add(GetType().GetAssembly());
-                _assemblies = assemblies.ToArrayFast();
+                _assemblies = assemblies.ToArrayEx();
             }
             return _assemblies;
         }

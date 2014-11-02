@@ -84,9 +84,7 @@ namespace MugenMvvmToolkit
 #endif
                 if (item.IsCheckable)
                     IsCheckedMenuItemMember.SetValue(item, !item.IsChecked);
-                var list = ServiceProvider.AttachedValueProvider.GetValue<EventListenerList>(item, Key, false);
-                if (list != null)
-                    list.Raise(item, EventArgs.Empty);
+                EventListenerList.Raise(item, Key, EventArgs.Empty);
                 return true;
             }
 
@@ -96,7 +94,7 @@ namespace MugenMvvmToolkit
 
             public static IDisposable AddClickListener(IMenuItem item, IEventListener listener)
             {
-                return ServiceProvider.AttachedValueProvider.GetOrAdd(item, Key, (menuItem, o) => new EventListenerList(), null).AddWithUnsubscriber(listener);
+                return EventListenerList.GetOrAdd(item, Key).AddWithUnsubscriber(listener);
             }
 
             #endregion
@@ -138,16 +136,12 @@ namespace MugenMvvmToolkit
 
             public static IDisposable AddExpandListener(IMenuItem menuItem, IEventListener listener)
             {
-                return ServiceProvider.AttachedValueProvider
-                                      .GetOrAdd(menuItem, Key, (item, o) => new EventListenerList(), null)
-                                      .AddWithUnsubscriber(listener);
+                return EventListenerList.GetOrAdd(menuItem, Key).AddWithUnsubscriber(listener);
             }
 
             private static void Raise(IMenuItem item)
             {
-                EventListenerList list;
-                if (ServiceProvider.AttachedValueProvider.TryGetValue(item, Key, out list))
-                    list.Raise(item, EventArgs.Empty);
+                EventListenerList.Raise(item, Key, EventArgs.Empty);
             }
 
             #endregion
@@ -215,6 +209,11 @@ namespace MugenMvvmToolkit
 
             #region Implementation of IEventListener
 
+            public bool IsAlive
+            {
+                get { return true; }
+            }
+
             public bool IsWeak
             {
                 get { return false; }
@@ -222,19 +221,26 @@ namespace MugenMvvmToolkit
 
             public void Handle(object sender, object message)
             {
+                TryHandle(sender, message);
+            }
+
+            public bool TryHandle(object sender, object message)
+            {
                 var view = _view;
                 if (!view.IsAlive())
                 {
                     Update(null);
-                    return;
+                    return false;
                 }
+
                 var activity = _view.Context.GetActivity();
                 if (activity == null)
                 {
                     Update(null);
                     Tracer.Warn("(PopupMenu) The contex of view is not an activity.");
-                    return;
+                    return false;
                 }
+
                 var templateId = (int)BindingServiceProvider
                     .MemberProvider
                     .GetBindingMember(_viewType, AttachedMemberNames.PopupMenuTemplate, false, true)
@@ -257,6 +263,7 @@ namespace MugenMvvmToolkit
                 activity.MenuInflater.Inflate(templateId, menu.Menu, view);
                 menu.SetOnDismissListener(DismissListener);
                 menu.Show();
+                return true;
             }
 
             #endregion
@@ -383,9 +390,9 @@ namespace MugenMvvmToolkit
 
         private static void MenuItemsSourceChanged(IMenu menu, AttachedMemberChangedEventArgs<IEnumerable> args)
         {
-            var generator = MenuItemsSourceGenerator.Get(menu);
+            var generator = ItemsSourceGeneratorBase.Get(menu);
             if (generator != null)
-                generator.Update(args.NewValue);
+                generator.SetItemsSource(args.NewValue);
         }
 
         private static IDisposable SetClickEventValue(IBindingMemberInfo bindingMemberInfo, IMenuItem menuItem, IEventListener listener)
@@ -459,9 +466,7 @@ namespace MugenMvvmToolkit
             }
             //TODO WRAPPER???
             menuItem.SetActionProvider(actionProvider);
-            BindingServiceProvider
-                .BindingProvider
-                .CreateBindingFromString(actionProvider, AttachedMemberConstants.DataContext, AttachedMemberConstants.DataContext, menuItem);
+            BindingExtensions.AttachedParentMember.SetValue(actionProvider, menuItem);
             var bindings = MenuItemTemplate.GetActionProviderBind(menuItem);
             if (!string.IsNullOrEmpty(bindings))
                 BindingServiceProvider.BindingProvider.CreateBindingsFromString(actionProvider, bindings, null);

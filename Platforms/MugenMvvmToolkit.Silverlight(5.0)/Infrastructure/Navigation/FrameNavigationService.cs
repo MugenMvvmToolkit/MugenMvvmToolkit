@@ -63,7 +63,13 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         {
             var handler = Navigated;
             if (handler != null)
+            {
+#if WINDOWS_PHONE
+                args.InvokeAfterRestoreState(eventArgs => handler(this, new NavigationEventArgsWrapper(eventArgs)));
+#else
                 handler(this, new NavigationEventArgsWrapper(args));
+#endif
+            }
         }
 
         private void OnNavigating(object sender, NavigatingCancelEventArgs args)
@@ -149,8 +155,12 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         {
             Should.NotBeNull(args, "args");
             var cancelArgs = args as NavigatingCancelEventArgsWrapper;
-            var uri = cancelArgs == null ? ((NavigationEventArgsWrapper)args).Args.Uri : cancelArgs.Args.Uri;
-            return GetParameter(uri);
+            if (cancelArgs != null)
+                return GetParameter(cancelArgs.Args.Uri);
+            var eventArgs = args as NavigationEventArgsWrapper;
+            if (eventArgs == null)
+                return null;
+            return GetParameter(eventArgs.Args.Uri);
         }
 
         /// <summary>
@@ -197,14 +207,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 uri = uri.MergeUri(new[] { uriParameter });
             }
             return _frame.Navigate(uri);
-        }
-
-        /// <summary>
-        ///     Raised after navigation.
-        /// </summary>
-        public void OnNavigated(NavigationEventArgs args)
-        {
-            OnNavigated(_frame, args);
         }
 
         /// <summary>

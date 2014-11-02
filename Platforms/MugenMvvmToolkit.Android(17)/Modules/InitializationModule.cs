@@ -35,10 +35,17 @@ namespace MugenMvvmToolkit
     {
         #region Cosntructors
 
+        static InitializationModule()
+        {
+            ViewManagerEx.Initialize();
+            if (ServiceProvider.DesignTimeManager.IsDesignMode)
+                ServiceProvider.AttachedValueProvider = new AttachedValueProvider();
+        }
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="InitializationModule" /> class.
         /// </summary>
-        public InitializationModule()            
+        public InitializationModule()
         {
         }
 
@@ -61,18 +68,7 @@ namespace MugenMvvmToolkit
         {
             Context.IocContainer.BindToBindingInfo(GetViewFactory());
             Context.IocContainer.BindToBindingInfo(GetNavigationService());
-            Context.IocContainer.BindToBindingInfo(GetApplicationStateManager());
             return base.LoadInternal();
-        }
-
-        /// <summary>
-        ///     Gets the <see cref="ISerializer" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="ISerializer" />.</returns>
-        protected override BindingInfo<ISerializer> GetSerializer()
-        {
-            var assemblies = Context.Assemblies;
-            return BindingInfo<ISerializer>.FromMethod((container, list) => new Serializer(assemblies), DependencyLifecycle.SingleInstance);
         }
 
         /// <summary>
@@ -188,15 +184,6 @@ namespace MugenMvvmToolkit
         #endregion
 
         #region Methods
-
-        /// <summary>
-        ///     Gets the <see cref="IApplicationStateManager" /> that will be used in all view models by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IApplicationStateManager" />.</returns>
-        protected virtual BindingInfo<IApplicationStateManager> GetApplicationStateManager()
-        {
-            return BindingInfo<IApplicationStateManager>.FromType<ApplicationStateManager>(DependencyLifecycle.SingleInstance);
-        }
 
         /// <summary>
         ///     Gets the <see cref="INavigationService" /> that will be used in all view models by default.

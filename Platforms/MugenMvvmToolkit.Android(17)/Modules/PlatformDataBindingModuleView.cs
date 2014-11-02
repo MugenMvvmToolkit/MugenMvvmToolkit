@@ -112,7 +112,7 @@ namespace MugenMvvmToolkit
         {
             #region Fields
 
-            private readonly object _listenerRef;
+            private readonly WeakEventListenerWrapper _listenerRef;
             private ViewStates _oldValue;
 
             #endregion
@@ -122,7 +122,7 @@ namespace MugenMvvmToolkit
             public VisiblityObserver(View view, IEventListener handler)
                 : base(view)
             {
-                _listenerRef = handler.ToWeakItem();
+                _listenerRef = handler.ToWeakWrapper();
                 _oldValue = view.Visibility;
             }
 
@@ -136,11 +136,8 @@ namespace MugenMvvmToolkit
                 if (_oldValue == visibility)
                     return;
                 _oldValue = visibility;
-                var listener = BindingExtensions.GetEventListenerFromWeakItem(_listenerRef);
-                if (listener == null)
+                if (!_listenerRef.EventListener.TryHandle(view, eventArgs))
                     Dispose();
-                else
-                    listener.Handle(view, eventArgs);
             }
 
             #endregion

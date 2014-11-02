@@ -72,9 +72,9 @@ namespace MugenMvvmToolkit.Interfaces.Models
         bool Remove([NotNull] DataConstant dataConstant);
 
         /// <summary>
-        ///     Updates the current context.
+        ///     Merges the current context with the specified context.
         /// </summary>
-        void Update([NotNull] IDataContext context);
+        void Merge([NotNull] IDataContext context);
 
         /// <summary>
         /// Removes all values from current context.

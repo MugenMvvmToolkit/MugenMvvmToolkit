@@ -20,6 +20,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using MugenMvvmToolkit.Binding.DataConstants;
+using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Models;
@@ -50,7 +52,6 @@ namespace MugenMvvmToolkit.Binding
             DateTime,
             Decimal,
             Empty,
-            DBNull, // Never used
             Object
         }
 #endif
@@ -63,7 +64,7 @@ namespace MugenMvvmToolkit.Binding
         private static readonly Dictionary<Type, TypeCode> TypeCodeTable;
 #endif
         private static readonly Dictionary<Type, List<MethodInfo>> TypeToExtensionMethods;
-
+        
         #endregion
 
         #region Constructors
@@ -89,7 +90,7 @@ namespace MugenMvvmToolkit.Binding
                 {typeof (Decimal), TypeCode.Decimal},
                 {typeof (String), TypeCode.String},
             };
-#endif
+#endif            
             TypeToExtensionMethods = new Dictionary<Type, List<MethodInfo>>();
         }
 

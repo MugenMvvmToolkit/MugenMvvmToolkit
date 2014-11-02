@@ -24,6 +24,16 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
     public interface IEventListener
     {
         /// <summary>
+        ///     Gets an indication whether the object referenced by the current <see cref="IEventListener" /> object has
+        ///     been garbage collected.
+        /// </summary>
+        /// <returns>
+        ///     true if the object referenced by the current <see cref="IEventListener" /> object has not been garbage
+        ///     collected and is still accessible; otherwise, false.
+        /// </returns>
+        bool IsAlive { get; }
+
+        /// <summary>
         ///     Gets the value that indicates that the listener is weak.
         ///     <c>true</c> the listener can be used without <c>WeakReference</c>.
         ///     <c>false</c> the listener should be wrapped to <c>WeakReference</c>.
@@ -36,5 +46,16 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
         /// <param name="sender">The object that raised the event.</param>
         /// <param name="message">Information about event.</param>
         void Handle(object sender, object message);
+
+        /// <summary>
+        ///     Handles the message.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="message">Information about event.</param>
+        /// <returns>
+        ///     true if the object referenced by the current <see cref="IEventListener" /> object has not been garbage
+        ///     collected and is still accessible; otherwise, false.
+        /// </returns>
+        bool TryHandle(object sender, object message);
     }
 }

@@ -37,6 +37,10 @@ using IValueConverter = MugenMvvmToolkit.Binding.Interfaces.IBindingValueConvert
 using System.Drawing;
 using System.Windows.Forms;
 using IValueConverter = MugenMvvmToolkit.Binding.Interfaces.IBindingValueConverter;
+#elif TOUCH
+using System.Drawing;
+using MonoTouch.UIKit;
+using IValueConverter = MugenMvvmToolkit.Binding.Interfaces.IBindingValueConverter;
 #else
 using System.Windows;
 using System.Windows.Media;
@@ -132,6 +136,8 @@ namespace MugenMvvmToolkit.Converters
                 var txt = new TextView(parameter as Context ?? Application.Context) { Text = exception.Flatten(false) };
                 txt.SetTextColor(Color.Red);
                 return txt;
+#elif TOUCH
+                return new UITextView(new RectangleF(10, 10, 300, 30)) { TextColor = UIColor.Red, Editable = false, DataDetectorTypes = UIDataDetectorType.None, Text = exception.Flatten(false) };
 #else
                 return new TextBox
                 {

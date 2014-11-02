@@ -289,13 +289,19 @@ namespace MugenMvvmToolkit.ViewModels
         #region Methods
 
         /// <summary>
-        ///     Updates information about errors in the specified property.
+        ///     Adds a property name to the <see cref="ValidatableViewModel.IgnoreProperties" />.
         /// </summary>
-        [SuppressTaskBusyHandler]
-        protected Task ValidateAsync(Expression<Func<T, object>> getProperty)
+        protected void AddIgnoreProperty<TValue>(Expression<Func<T, TValue>> getProperty)
         {
-            Should.NotBeNull(getProperty, "getProperty");
-            return ValidateAsync(ToolkitExtensions.GetPropertyName(getProperty));
+            IgnoreProperties.Add(getProperty.GetMemberInfo().Name);
+        }
+
+        /// <summary>
+        ///     Removes a property name to the <see cref="ValidatableViewModel.IgnoreProperties" />.
+        /// </summary>
+        protected void RemoveIgnoreProperty<TValue>(Expression<Func<T, TValue>> getProperty)
+        {
+            IgnoreProperties.Remove(getProperty.GetMemberInfo().Name);
         }
 
         /// <summary>
@@ -412,8 +418,8 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Adds a property mapping to the <see cref="ValidatableViewModel.PropertyMappings" /> dictionary.
         /// </summary>
-        protected void AddPropertyMapping([NotNull] Expression<Func<object>> viewModelProperty,
-            [NotNull] Expression<Func<T, object>> modelProperty)
+        protected void AddPropertyMapping<T1, T2>([NotNull] Expression<Func<T1>> viewModelProperty,
+            [NotNull] Expression<Func<T, T2>> modelProperty)
         {
             var vmProperty = viewModelProperty.GetMemberInfo().Name;
             var mProperty = modelProperty.GetMemberInfo().Name;

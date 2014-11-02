@@ -15,7 +15,9 @@
 #endregion
 using System.Collections;
 using System.ComponentModel;
+#if WINFORMS
 using System.Windows.Forms;
+#endif
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
@@ -33,17 +35,20 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private readonly IBindingMemberInfo _itemTemplateMember;
         private readonly object _view;
+#if WINFORMS
         private readonly bool _isTabControl;
-
+#endif
         #endregion
 
         #region Constructors
 
-        public ItemsSourceGenerator([NotNull] object view)
+        private ItemsSourceGenerator([NotNull] object view)
         {
             Should.NotBeNull(view, "view");
+#if WINFORMS
             ListenDisposeEvent(view as IComponent);
             _isTabControl = view is TabControl;
+#endif
             _view = view;
             _itemTemplateMember = BindingServiceProvider
                 .MemberProvider
@@ -97,10 +102,18 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
+        public static IItemsSourceGenerator GetOrAdd(object item)
+        {
+            return ServiceProvider
+                .AttachedValueProvider
+                .GetOrAdd(item, Key, (o, o1) => new ItemsSourceGenerator(o), null);
+        }
+
         private ICollectionViewManager GetCollectionViewManager()
         {
-            return PlatformDataBindingModule.CollectionViewManagerMember.GetValue(_view, null) ??
-                   DefaultCollectionViewManager.Instance;
+            return PlatformDataBindingModule
+                .CollectionViewManagerMember
+                .GetValue(_view, null) ?? DefaultCollectionViewManager.Instance;
         }
 
         private object GetItemFromTemplate(int index)
@@ -108,21 +121,22 @@ namespace MugenMvvmToolkit.Infrastructure
             object item = GetItem(index);
             if (_itemTemplateMember == null)
             {
+#if WINFORMS
                 if (_isTabControl)
                     return CreateDefaultTabPage(item);
+#endif
                 return GetDefaultTemplate(item);
             }
             var selector = (IDataTemplateSelector)_itemTemplateMember.GetValue(_view, null);
             if (selector == null)
             {
+#if WINFORMS
                 if (_isTabControl)
                     return CreateDefaultTabPage(item);
+#endif
                 return GetDefaultTemplate(item);
             }
-            object template = selector.SelectTemplate(item, _view);
-            if (template != null)
-                BindingServiceProvider.ContextManager.GetBindingContext(template).Value = item;
-            return template;
+            return selector.SelectTemplateWithContext(item, _view);
         }
 
         private static object GetDefaultTemplate(object item)
@@ -132,6 +146,7 @@ namespace MugenMvvmToolkit.Infrastructure
             return item;
         }
 
+#if WINFORMS
         private static TabPage CreateDefaultTabPage(object item)
         {
             var viewModel = item as IViewModel;
@@ -146,7 +161,7 @@ namespace MugenMvvmToolkit.Infrastructure
             BindingServiceProvider.ContextManager.GetBindingContext(page).Value = item;
             return page;
         }
-
+#endif
         #endregion
     }
 }

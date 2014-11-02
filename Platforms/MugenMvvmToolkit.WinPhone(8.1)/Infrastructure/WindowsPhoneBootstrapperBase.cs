@@ -88,11 +88,12 @@ namespace MugenMvvmToolkit.Infrastructure
         protected override void OnInitialize()
         {
             base.OnInitialize();
-            IocContainer.BindToConstant<INavigationService>(new FrameNavigationService(_rootFrame, IocContainer.Get<ISerializer>()));
             FrameStateManager.RegisterFrame(_rootFrame);
+            var service = CreateNavigationService(_rootFrame);
+            if (service != null)
+                IocContainer.BindToConstant(service);
             Should.PropertyBeNotNull(PhoneApplicationService.Current, "PhoneApplicationService.Current");
             PhoneApplicationService.Current.Launching += OnLaunching;
-            var provider = IocContainer.Get<INavigationProvider>();
         }
 
         /// <summary>
@@ -151,6 +152,15 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         [NotNull]
         protected abstract Type GetMainViewModelType();
+
+        /// <summary>
+        ///     Creates an instance of <see cref="INavigationService" />.
+        /// </summary>
+        [CanBeNull]
+        protected virtual INavigationService CreateNavigationService(PhoneApplicationFrame frame)
+        {
+            return new FrameNavigationService(frame, IocContainer.Get<ISerializer>());
+        }
 
         private void OnLaunching(object sender, LaunchingEventArgs args)
         {

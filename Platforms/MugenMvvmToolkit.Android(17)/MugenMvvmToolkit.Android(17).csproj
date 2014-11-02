@@ -18,13 +18,14 @@
     <TargetFrameworkVersion>v4.2</TargetFrameworkVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <NuGetPackageImportStamp>d5ff7e4e</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;ANDROID;API14</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;ANDROID;API17</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -88,7 +89,8 @@
     <Compile Include="Attributes\BootstrapperAttribute.cs" />
     <Compile Include="DataConstants\ViewFactoryConstants.cs" />
     <Compile Include="Infrastructure\ActionBarTabItemsSourceGenerator.cs" />
-    <Compile Include="Infrastructure\ApplicationStateManager.cs" />
+    <Compile Include="Interfaces\IItemsSourceAdapter.cs" />
+    <Compile Include="Interfaces\IItemsSourceGenerator.cs" />
     <Compile Include="Modules\PlatformDataBindingModule.cs" />
     <Compile Include="Modules\PlatformDataBindingModuleMenu.cs" />
     <Compile Include="Modules\PlatformDataBindingModuleView.cs" />
@@ -104,7 +106,7 @@
     <Compile Include="Infrastructure\Mediators\WindowViewMediator.cs" />
     <Compile Include="Infrastructure\Navigation\EmptyNavigationCachePolicy.cs" />
     <Compile Include="Infrastructure\Presenters\ToastPresenter.cs" />
-    <Compile Include="Infrastructure\ValueTemplateManager.cs" />
+    <Compile Include="Infrastructure\DataTemplateProvider.cs" />
     <Compile Include="Infrastructure\ViewGroupItemsSourceGenerator.cs" />
     <Compile Include="Infrastructure\ItemsSourceGeneratorBase.cs" />
     <Compile Include="Infrastructure\MenuItemsSourceGenerator.cs" />
@@ -115,7 +117,6 @@
     <Compile Include="Infrastructure\TypeCache.cs" />
     <Compile Include="Infrastructure\ViewFactory.cs" />
     <Compile Include="Infrastructure\XmlPropertySetter.cs" />
-    <Compile Include="Interfaces\IApplicationStateManager.cs" />
     <Compile Include="Interfaces\Views\IActivityView.cs" />
     <Compile Include="Interfaces\IBindableMenuInflater.cs" />
     <Compile Include="Interfaces\IDataTemplateSelector.cs" />
@@ -190,9 +191,9 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Fody.1.24.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.24.0\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Fody.1.26.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.26.1\build\Fody.targets'))" />
   </Target>
-  <Import Project="..\..\packages\Fody.1.24.0\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.24.0\build\Fody.targets')" />
+  <Import Project="..\..\packages\Fody.1.26.1\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.26.1\build\Fody.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -24,7 +24,7 @@ using MugenMvvmToolkit.ViewModels;
 namespace MugenMvvmToolkit.Infrastructure.Validation
 {
     /// <summary>
-    ///     Represent the factory for create <see cref="IValidator" />.
+    ///     Represents the factory that allows to create an instance of <see cref="IValidator" />.
     /// </summary>
     public class ValidatorProvider : DisposableObject, IValidatorProvider
     {
@@ -40,22 +40,14 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValidatorProvider" /> class.
         /// </summary>
-        private ValidatorProvider(bool registerDefaultValidators, [CanBeNull] IServiceProvider serviceProvider, IDictionary<Type, List<IValidator>> validatorPrototypes)
+        public ValidatorProvider(bool registerDefaultValidators, [CanBeNull] IServiceProvider serviceProvider)
         {
-            _validatorPrototypes = validatorPrototypes;
-            _serviceProvider = serviceProvider;
+            _validatorPrototypes = new Dictionary<Type, List<IValidator>>();
+            _serviceProvider = serviceProvider ?? MugenMvvmToolkit.ServiceProvider.IocContainer;
             if (!registerDefaultValidators)
                 return;
             Register<ValidatableViewModelValidator>();
             Register<ValidationElementValidator>();
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ValidatorProvider" /> class.
-        /// </summary>
-        public ValidatorProvider(bool registerDefaultValidators, [CanBeNull] IServiceProvider serviceProvider)
-            : this(registerDefaultValidators, serviceProvider ?? MugenMvvmToolkit.ServiceProvider.IocContainer, new Dictionary<Type, List<IValidator>>())
-        {
         }
 
         #endregion
@@ -174,23 +166,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         public IValidatorAggregator GetValidatorAggregator()
         {
             return GetValidatorAggregatorInternal();
-        }
-
-        /// <summary>
-        ///     Creates a new validator-factory that is a copy of the current instance.
-        /// </summary>
-        /// <returns>
-        ///     A new validator-factory that is a copy of this instance.
-        /// </returns>
-        public IValidatorProvider Clone()
-        {
-            lock (_validatorPrototypes)
-            {
-                var validators = new Dictionary<Type, List<IValidator>>();
-                foreach (var prototype in _validatorPrototypes)
-                    validators.Add(prototype.Key, new List<IValidator>(prototype.Value));
-                return new ValidatorProvider(false, ServiceProvider, validators);
-            }
         }
 
         #endregion

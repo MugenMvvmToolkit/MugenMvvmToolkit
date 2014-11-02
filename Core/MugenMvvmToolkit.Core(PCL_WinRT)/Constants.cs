@@ -29,6 +29,8 @@ namespace MugenMvvmToolkit.DataConstants
 
         internal static readonly DataConstant<string> ViewModelTypeName;
 
+        internal static readonly DataConstant<IDataContext> ViewModelState;
+
         public static readonly DataConstant<IView> View;
 
         public static readonly DataConstant<object> StateManager;
@@ -36,6 +38,10 @@ namespace MugenMvvmToolkit.DataConstants
         public static readonly DataConstant<WeakReference> ParentViewModel;
 
         public static readonly DataConstant<IViewModel> ViewModel;
+
+        public static readonly DataConstant<bool> StateNotNeeded;
+
+        public static readonly DataConstant<bool> StateRestored;
 
         #endregion
 
@@ -45,9 +51,12 @@ namespace MugenMvvmToolkit.DataConstants
         {
             View = DataConstant.Create(() => View, true);
             ViewModelTypeName = DataConstant.Create(() => ViewModelTypeName, true);
+            ViewModelState = DataConstant.Create(() => ViewModelState, true);
             StateManager = DataConstant.Create(() => StateManager, true);
             ViewModel = DataConstant.Create(() => ViewModel, true);
             ParentViewModel = DataConstant.Create(() => ParentViewModel, true);
+            StateNotNeeded = DataConstant.Create(() => StateNotNeeded);
+            StateRestored = DataConstant.Create(() => StateRestored);
         }
 
         #endregion
@@ -57,7 +66,7 @@ namespace MugenMvvmToolkit.DataConstants
     {
         #region Fields
 
-        public static readonly DataConstant<bool> UseParentIocContainer;
+        public static readonly DataConstant<IocContainerCreationMode> IocContainerCreationMode;
 
         public static readonly DataConstant<IIocContainer> IocContainer;
 
@@ -73,13 +82,17 @@ namespace MugenMvvmToolkit.DataConstants
 
         public static readonly DataConstant<bool> IsRestored;
 
+        public static readonly DataConstant<Type> ViewModelType;
+
+        public static readonly DataConstant<bool> IgnoreRestoredViewModelCache;
+
         #endregion
 
         #region Constructors
 
         static InitializationConstants()
         {
-            UseParentIocContainer = DataConstant.Create(() => UseParentIocContainer);
+            IocContainerCreationMode = DataConstant.Create(() => IocContainerCreationMode);
             IocContainer = DataConstant.Create(() => IocContainer, true);
             ParentViewModel = DataConstant.Create(() => ParentViewModel, true);
             ObservationMode = DataConstant.Create(() => ObservationMode);
@@ -87,6 +100,8 @@ namespace MugenMvvmToolkit.DataConstants
             IocParameters = DataConstant.Create(() => IocParameters, true);
             IsRestored = DataConstant.Create(() => IsRestored);
             ViewName = NavigationConstants.ViewName;
+            ViewModelType = DataConstant.Create(() => ViewModelType, true);
+            IgnoreRestoredViewModelCache = DataConstant.Create(() => IgnoreRestoredViewModelCache);
         }
 
         #endregion

@@ -34,6 +34,14 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Parse
         void Handle(ref string bindingExpression, IDataContext context);
 
         /// <summary>
+        ///     Prepares a target path for the binding.
+        /// </summary>
+        /// <param name="targetPath">The specified target path.</param>
+        /// <param name="context">The specified context.</param>
+        /// <returns>An instance of <see cref="string" />.</returns>
+        void HandleTargetPath(ref string targetPath, IDataContext context);
+
+        /// <summary>
         ///     Prepares an <see cref="IExpressionNode" /> for the binding.
         /// </summary>
         /// <param name="expression">The specified binding expression.</param>

@@ -13,6 +13,8 @@
 // </license>
 // ****************************************************************************
 #endregion
+
+using System;
 using System.Collections;
 using System.Collections.Specialized;
 using Android.Content;
@@ -20,6 +22,8 @@ using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Views;
 using Object = Java.Lang.Object;
@@ -31,7 +35,7 @@ using ActionBarEx = Android.App.ActionBar;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    public class ItemsSourceAdapter : BaseAdapter
+    public class ItemsSourceAdapter : BaseAdapter, IItemsSourceAdapter
     {
         #region Fields
 
@@ -40,12 +44,18 @@ namespace MugenMvvmToolkit.Infrastructure
         private readonly object _container;
         private readonly NotifyCollectionChangedEventHandler _weakHandler;
         private readonly LayoutInflater _layoutInflater;
-        private readonly ValueTemplateManager _dropDownTemplateManager;
-        private readonly ValueTemplateManager _itemTemplateManager;
+        private readonly DataTemplateProvider _dropDownTemplateProvider;
+        private readonly DataTemplateProvider _itemTemplateProvider;
+        private static Func<object, Context, IDataContext, IItemsSourceAdapter> _factory;
 
         #endregion
 
         #region Constructors
+
+        static ItemsSourceAdapter()
+        {
+            _factory = (o, context, arg3) => new ItemsSourceAdapter(o, context, !ReferenceEquals(ViewGroupItemsSourceGenerator.Context, arg3));
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ItemsSourceAdapter" /> class.
@@ -56,17 +66,31 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             Should.NotBeNull(container, "container");
             _container = container;
-            _itemTemplateManager = new ValueTemplateManager(container, itemTemplateIdName, itemTemplateSelectorName);
-            _dropDownTemplateManager = new ValueTemplateManager(container, dropDownItemTemplateIdName,
+            _itemTemplateProvider = new DataTemplateProvider(container, itemTemplateIdName, itemTemplateSelectorName);
+            _dropDownTemplateProvider = new DataTemplateProvider(container, dropDownItemTemplateIdName,
                 dropDownItemTemplateSelectorName);
             _layoutInflater = LayoutInflater.From(context);
             if (listenCollectionChanges)
-                _weakHandler = PlatformExtensions.MakeWeakCollectionChangedHandler(this, (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));
+                _weakHandler = ReflectionExtensions.MakeWeakCollectionChangedHandler(this, (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));
         }
 
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Gets or sets the factory that allows to create items source adapter.
+        /// </summary>
+        [NotNull]
+        public static Func<object, Context, IDataContext, IItemsSourceAdapter> Factory
+        {
+            get { return _factory; }
+            set
+            {
+                Should.PropertyBeNotNull(value);
+                _factory = value;
+            }
+        }
 
         protected object Container
         {
@@ -78,10 +102,29 @@ namespace MugenMvvmToolkit.Infrastructure
             get { return _layoutInflater; }
         }
 
+        #endregion
+
+        #region Implementation of IItemsSourceAdapter
+
+        /// <summary>
+        ///     Gets or sets the items source.
+        /// </summary>
         public virtual IEnumerable ItemsSource
         {
             get { return _itemsSource; }
             set { SetItemsSource(value); }
+        }
+
+        public virtual object GetRawItem(int position)
+        {
+            if (position < 0)
+                return null;
+            return ItemsSource.ElementAtIndex(position);
+        }
+
+        public virtual int GetPosition(object value)
+        {
+            return ItemsSource.IndexOf(value);
         }
 
         #endregion
@@ -97,7 +140,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (ItemsSource == null)
                 return null;
-            return CreateView(GetRawItem(position), convertView, parent, _dropDownTemplateManager, IsSpinner()
+            return CreateView(GetRawItem(position), convertView, parent, _dropDownTemplateProvider, IsSpinner()
                 ? Android.Resource.Layout.SimpleDropDownItem1Line
                 : Android.Resource.Layout.SimpleSpinnerDropDownItem);
         }
@@ -116,33 +159,21 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (ItemsSource == null)
                 return null;
-            return CreateView(GetRawItem(position), convertView, parent, _itemTemplateManager, Android.Resource.Layout.SimpleListItem1);
+            return CreateView(GetRawItem(position), convertView, parent, _itemTemplateProvider, Android.Resource.Layout.SimpleListItem1);
         }
 
         #endregion
 
         #region Methods
 
-        public static ItemsSourceAdapter Get(object container)
+        public static IItemsSourceAdapter Get(object container)
         {
             return ServiceProvider.AttachedValueProvider.GetValue<ItemsSourceAdapter>(container, Key, false);
         }
 
-        public static void Set(object container, ItemsSourceAdapter adapter)
+        public static void Set(object container, IItemsSourceAdapter adapter)
         {
             ServiceProvider.AttachedValueProvider.SetValue(container, Key, adapter);
-        }
-
-        public virtual object GetRawItem(int position)
-        {
-            if (position < 0)
-                return null;
-            return ItemsSource.ElementAtIndex(position);
-        }
-
-        public virtual int GetPosition(object value)
-        {
-            return ItemsSource.IndexOf(value);
         }
 
         protected virtual void SetItemsSource(IEnumerable value)
@@ -164,24 +195,24 @@ namespace MugenMvvmToolkit.Infrastructure
             NotifyDataSetChanged();
         }
 
-        protected virtual View CreateView(object value, View convertView, ViewGroup parent, ValueTemplateManager templateManager, int defaultTemplate)
+        protected virtual View CreateView(object value, View convertView, ViewGroup parent, DataTemplateProvider templateProvider, int defaultTemplate)
         {
             var valueView = value as View;
             if (valueView != null)
                 return valueView;
+
             int? templateId = null;
             object template;
-            if (templateManager.TrySelectTemplate(value, out template))
+            if (templateProvider.TrySelectTemplate(value, out template))
             {
                 if (template != null)
                 {
                     valueView = template as View;
                     if (valueView != null)
                     {
-                        BindingServiceProvider
-                                       .ContextManager
-                                       .GetBindingContext(valueView)
-                                       .Value = value;
+                        BindingServiceProvider.ContextManager
+                                              .GetBindingContext(valueView)
+                                              .Value = value;
                         return valueView;
                     }
                     if (template is int)
@@ -191,7 +222,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 }
             }
             else
-                templateId = templateManager.GetTemplateId();
+                templateId = templateProvider.GetTemplateId();
             if (templateId == null)
             {
                 if (!(convertView is TextView))

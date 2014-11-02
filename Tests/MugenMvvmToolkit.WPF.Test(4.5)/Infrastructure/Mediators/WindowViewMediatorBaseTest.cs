@@ -17,7 +17,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
 {
     [TestClass]
     public abstract class WindowViewMediatorBaseTest<TView> : TestBase
-        where TView : class, IWindowViewBase
+        where TView : class, IView
     {
         #region Methods
 

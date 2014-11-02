@@ -107,6 +107,11 @@ namespace MugenMvvmToolkit.Binding.Models
         public static readonly IBindingMemberInfo Empty;
 
         /// <summary>
+        ///     Gets the empty member.
+        /// </summary>
+        public static readonly IBindingMemberInfo EmptyHasSetter;
+
+        /// <summary>
         ///     Gets the unset member.
         /// </summary>
         public static readonly IBindingMemberInfo Unset;
@@ -137,6 +142,7 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             BindingContextMember = new BindingMemberInfo(AttachedMemberConstants.DataContext, BindingMemberType.BindingContext);
             Empty = new BindingMemberInfo("Empty", BindingMemberType.Empty);
+            EmptyHasSetter = new BindingMemberInfo("Empty", BindingMemberType.Empty, true);
             Unset = new BindingMemberInfo("Unset", BindingMemberType.Unset);
             MultiBindingSourceAccessorMember = new BindingMemberInfo();
         }
@@ -165,7 +171,7 @@ namespace MugenMvvmToolkit.Binding.Models
         /// <summary>
         ///     Initializes a new instance of the <see cref="BindingMemberInfo" /> class.
         /// </summary>
-        private BindingMemberInfo(string path, BindingMemberType memberType)
+        private BindingMemberInfo(string path, BindingMemberType memberType, bool hasSetter = false)
             : this(path, memberType, typeof(object))
         {
             if (memberType == BindingMemberType.BindingContext)
@@ -179,10 +185,18 @@ namespace MugenMvvmToolkit.Binding.Models
             }
             else if (memberType == BindingMemberType.Empty)
             {
-                _getValueAccessorSingle = o => o;
-                _setValueAccessorSingle = NotSupportedSetter;
+                if (hasSetter)
+                {
+                    _getValueAccessorSingle = o => null;
+                    _setValueAccessorSingle = (o, o1) => null;
+                }
+                else
+                {
+                    _getValueAccessorSingle = o => o;
+                    _setValueAccessorSingle = NotSupportedSetter;
+                }
                 _canRead = true;
-                _canWrite = false;
+                _canWrite = _setValueAccessorSingle != null;
                 _isSingleParameter = true;
             }
             else if (memberType == BindingMemberType.Unset)
@@ -266,7 +280,7 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             var indexes = BindingReflectionExtensions
                 .GetIndexerValues(null, path, typeof(int))
-                .ToArrayFast(o => (int)o);
+                .ToArrayEx(o => (int)o);
             var arrayAccessor = new ArrayAccessor(indexes);
             _getValueAccessorSingle = arrayAccessor.GetValue;
             _setValueAccessorSingleAction = arrayAccessor.SetValue;

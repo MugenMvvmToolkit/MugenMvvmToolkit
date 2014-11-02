@@ -60,8 +60,8 @@ namespace MugenMvvmToolkit.Infrastructure
             _assemblies = assemblies;
             _viewPostfix = viewPostfix ?? new[]
             {
-                "ActivityView", "FragmentView", "WindowView", "PageView", "FormView", 
-                "Form", "View", "V", "Activity", "Fragment", "Page", "Window"
+                "ActivityView", "FragmentView", "WindowView", "ViewController", "PageView", "FormView",
+                "Form", "View", "V", "Activity", "Fragment", "Page", "Window", "Controller"
             };
             _viewModelPostfix = viewModelPostfix ?? new[] { "ViewModel", "Vm" };
             _viewTypeToMapping = new Dictionary<Type, List<IViewMappingItem>>();
@@ -113,7 +113,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     continue;
                 ViewModelAttribute[] viewModelAttributes = type
                     .GetCustomAttributes(typeof(ViewModelAttribute), true)
-                    .ToArrayFast(o => (ViewModelAttribute)o);
+                    .ToArrayEx(o => (ViewModelAttribute)o);
 #endif
 
                 if (viewModelAttributes.Length == 0)
@@ -319,7 +319,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 throw ExceptionManager.ViewModelNotFound(viewType);
             if (item == null)
                 return Empty.Array<IViewMappingItem>();
-            return item.ToArrayFast();
+            return item.ToArrayEx();
         }
 
         /// <summary>

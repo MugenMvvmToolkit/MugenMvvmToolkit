@@ -1,4 +1,5 @@
 #region Copyright
+
 // ****************************************************************************
 // <copyright file="IActivityView.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,7 +13,9 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System;
 using System.ComponentModel;
 using Android.App;
@@ -26,7 +29,12 @@ namespace MugenMvvmToolkit.Interfaces.Views
     public interface IActivityView : IView
     {
         /// <summary>
-        /// Gets the current bundle.
+        ///     Gets or sets the data context of the current <see cref="IView" />.
+        /// </summary>
+        object DataContext { get; set; }
+
+        /// <summary>
+        ///     Gets the current bundle.
         /// </summary>
         [CanBeNull]
         Bundle Bundle { get; }
@@ -37,7 +45,7 @@ namespace MugenMvvmToolkit.Interfaces.Views
         event EventHandler<Activity, EventArgs> DataContextChanged;
 
         /// <summary>
-        /// Occurs when the activity has detected the user's press of the back key.
+        ///     Occurs when the activity has detected the user's press of the back key.
         /// </summary>
         event EventHandler<Activity, CancelEventArgs> BackPressing;
 

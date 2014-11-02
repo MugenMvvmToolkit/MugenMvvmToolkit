@@ -21,6 +21,7 @@ using Android.App;
 using Android.OS;
 using Android.Support.V7.App;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models.EventArg;
@@ -127,7 +128,8 @@ namespace MugenMvvmToolkit.Models
         {
             PlatformExtensions.ValidateTemplate(ItemsSource, Tabs);
             var actionBar = activity.GetActionBar();
-            var setter = new XmlPropertySetter<ActionBarTemplate, ActionBar>(actionBar, activity);
+
+            var setter = new XmlPropertySetter<ActionBarTemplate, ActionBar>(actionBar, activity, new BindingSet());
             setter.SetEnumProperty<ActionBarNavigationMode>(template => template.NavigationMode, NavigationMode);
             setter.SetProperty(template => template.DataContext, DataContext);
 
@@ -151,8 +153,7 @@ namespace MugenMvvmToolkit.Models
             setter.SetStringProperty(template => template.Title, Title);
             setter.SetBoolProperty(template => template.Visible, Visible);
             setter.SetBinding("HomeButton.Click", HomeButtonClick, false);
-
-
+            
             if (string.IsNullOrEmpty(ItemsSource))
             {
                 if (Tabs != null)
@@ -174,6 +175,7 @@ namespace MugenMvvmToolkit.Models
                 setter.SetBinding(template => template.ItemsSource, ItemsSource, false);
             }
             setter.SetBinding(template => template.SelectedItem, SelectedItem, false);
+            setter.Apply();
         }
 
         public static void Clear(Activity activity)

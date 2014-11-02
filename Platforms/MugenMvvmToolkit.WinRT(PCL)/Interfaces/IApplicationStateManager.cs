@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="IApplicationStateManager.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,16 +13,18 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
+using MugenMvvmToolkit.Interfaces.Models;
 #if WINDOWS_PHONE
 using System.Windows;
 #else
 using Windows.UI.Xaml;
 #endif
-using JetBrains.Annotations;
-using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Interfaces
 {
@@ -31,20 +34,20 @@ namespace MugenMvvmToolkit.Interfaces
     public interface IApplicationStateManager
     {
         /// <summary>
-        /// Gets the collection of known types.
+        ///     Gets the collection of known types.
         /// </summary>
         IList<Type> KnownTypes { get; }
 
         /// <summary>
         ///     Occurs on save element state.
         /// </summary>
-        void OnSaveState([NotNull] FrameworkElement element, [NotNull] IDictionary<string, object> state,
-            [NotNull] object args, IDataContext context = null);
+        void OnSaveState([NotNull] FrameworkElement element, [NotNull] IDictionary<string, object> state, object args,
+            IDataContext context = null);
 
         /// <summary>
         ///     Occurs on load element state.
         /// </summary>
-        void OnLoadState([NotNull] FrameworkElement element, [NotNull] IDictionary<string, object> state,
-            [NotNull] object args, IDataContext context = null);
+        void OnLoadState([NotNull] FrameworkElement element, [NotNull] IDictionary<string, object> state, object args,
+            IDataContext context = null);
     }
 }

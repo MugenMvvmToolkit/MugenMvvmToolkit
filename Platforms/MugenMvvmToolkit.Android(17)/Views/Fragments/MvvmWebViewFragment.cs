@@ -14,8 +14,10 @@
 // ****************************************************************************
 #endregion
 using System;
+using System.Threading;
 using Android.App;
 using Android.OS;
+using Android.Runtime;
 using Android.Util;
 using Android.Views;
 using Android.Webkit;
@@ -29,17 +31,39 @@ namespace MugenMvvmToolkit.Views.Fragments
     {
         #region Fields
 
-        private readonly IMvvmFragmentMediator _mediator;
+        private IMvvmFragmentMediator _mediator;
         private readonly int? _viewId;
 
         #endregion
 
         #region Constructors
 
+        protected MvvmWebViewFragment(IntPtr javaReference, JniHandleOwnership transfer)
+            : base(javaReference, transfer)
+        {
+        }
+
         protected MvvmWebViewFragment(int? viewId)
         {
             _viewId = viewId;
-            _mediator = PlatformExtensions.MvvmFragmentMediatorFactory(this, Models.DataContext.Empty);
+        }
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        ///     Gets the current <see cref="IMvvmFragmentMediator" />.
+        /// </summary>
+        protected IMvvmFragmentMediator Mediator
+        {
+            get
+            {
+                if (_mediator == null)
+                    Interlocked.CompareExchange(ref _mediator,
+                        PlatformExtensions.MvvmFragmentMediatorFactory(this, Models.DataContext.Empty), null);
+                return _mediator;
+            }
         }
 
         #endregion
@@ -49,19 +73,19 @@ namespace MugenMvvmToolkit.Views.Fragments
         /// <summary>
         ///     Gets or sets the data context of the current <see cref="IView" />.
         /// </summary>
-        public virtual object DataContext
+        public object DataContext
         {
-            get { return _mediator.DataContext; }
-            set { _mediator.DataContext = value; }
+            get { return Mediator.DataContext; }
+            set { Mediator.DataContext = value; }
         }
 
         /// <summary>
         ///     Occurs when the DataContext property changed.
         /// </summary>
-        public virtual event EventHandler<Fragment, EventArgs> DataContextChanged
+        public event EventHandler<Fragment, EventArgs> DataContextChanged
         {
-            add { _mediator.DataContextChanged += value; }
-            remove { _mediator.DataContextChanged -= value; }
+            add { Mediator.DataContextChanged += value; }
+            remove { Mediator.DataContextChanged -= value; }
         }
 
         #endregion
@@ -70,67 +94,67 @@ namespace MugenMvvmToolkit.Views.Fragments
 
         public override void OnAttach(Activity activity)
         {
-            _mediator.OnAttach(activity, base.OnAttach);
+            Mediator.OnAttach(activity, base.OnAttach);
         }
 
         public override void OnCreate(Bundle savedInstanceState)
         {
-            _mediator.OnCreate(savedInstanceState, base.OnCreate);
+            Mediator.OnCreate(savedInstanceState, base.OnCreate);
         }
 
         public override void OnCreateOptionsMenu(IMenu menu, MenuInflater inflater)
         {
-            _mediator.OnCreateOptionsMenu(menu, inflater, base.OnCreateOptionsMenu);
+            Mediator.OnCreateOptionsMenu(menu, inflater, base.OnCreateOptionsMenu);
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            return _mediator.OnCreateView(_viewId, inflater, container, savedInstanceState, base.OnCreateView);
+            return Mediator.OnCreateView(_viewId, inflater, container, savedInstanceState, base.OnCreateView);
         }
 
         public override void OnDestroy()
         {
-            _mediator.OnDestroy(base.OnDestroy);
+            Mediator.OnDestroy(base.OnDestroy);
         }
 
         public override void OnDetach()
         {
-            _mediator.OnDetach(base.OnDetach);
+            Mediator.OnDetach(base.OnDetach);
         }
 
         public override void OnInflate(Activity activity, IAttributeSet attrs, Bundle savedInstanceState)
         {
-            _mediator.OnInflate(activity, attrs, savedInstanceState, base.OnInflate);
+            Mediator.OnInflate(activity, attrs, savedInstanceState, base.OnInflate);
         }
 
         public override void OnPause()
         {
-            _mediator.OnPause(base.OnPause);
+            Mediator.OnPause(base.OnPause);
         }
 
         public override void OnResume()
         {
-            _mediator.OnResume(base.OnResume);
+            Mediator.OnResume(base.OnResume);
         }
 
         public override void OnSaveInstanceState(Bundle outState)
         {
-            _mediator.OnSaveInstanceState(outState, base.OnSaveInstanceState);
+            Mediator.OnSaveInstanceState(outState, base.OnSaveInstanceState);
         }
 
         public override void OnStart()
         {
-            _mediator.OnStart(base.OnStart);
+            Mediator.OnStart(base.OnStart);
         }
 
         public override void OnStop()
         {
-            _mediator.OnStop(base.OnStop);
+            Mediator.OnStop(base.OnStop);
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
-            _mediator.OnViewCreated(view, savedInstanceState, base.OnViewCreated);
+            Mediator.OnViewCreated(view, savedInstanceState, base.OnViewCreated);
         }
 
         #endregion

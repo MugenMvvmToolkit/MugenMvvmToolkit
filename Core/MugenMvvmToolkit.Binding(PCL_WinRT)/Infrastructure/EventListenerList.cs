@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="EventListenerList.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,9 +13,12 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
@@ -30,13 +34,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             #region Fields
 
             private EventListenerList _eventListener;
-            private object _weakItem;
+            private WeakEventListenerWrapper _weakItem;
 
             #endregion
 
             #region Constructors
 
-            public Unsubscriber(EventListenerList eventListener, object weakItem)
+            public Unsubscriber(EventListenerList eventListener, WeakEventListenerWrapper weakItem)
             {
                 _eventListener = eventListener;
                 _weakItem = weakItem;
@@ -48,12 +52,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public void Dispose()
             {
-                var listener = _eventListener;
+                EventListenerList listener = _eventListener;
                 var weakItem = _weakItem;
-                if (listener != null && weakItem != null)
+                if (listener != null && !weakItem.IsEmpty)
                 {
                     _eventListener = null;
-                    _weakItem = null;
+                    _weakItem = WeakEventListenerWrapper.Empty;
                     listener.Remove(weakItem);
                 }
             }
@@ -66,7 +70,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Fields
 
         //Use an array to reduce the cost of memory and do not lock during a call event.
-        protected object[] Listeners;
+        protected WeakEventListenerWrapper[] Listeners;
 
         #endregion
 
@@ -77,7 +81,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         public EventListenerList()
         {
-            Listeners = Empty.Array<object>();
+            Listeners = Empty.Array<WeakEventListenerWrapper>();
         }
 
         #endregion
@@ -85,58 +89,78 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Methods
 
         /// <summary>
+        /// Gets or adds an instance of <see cref="EventListenerList"/> using the attached member path.
+        /// </summary>
+        public static EventListenerList GetOrAdd(object item, string path)
+        {
+            return ServiceProvider.AttachedValueProvider.GetOrAdd(item, path, (o, o1) => new EventListenerList(), null);
+        }
+
+        /// <summary>
+        ///     This method can be used to raise the event handler using the attached member path.
+        /// </summary>
+        public static void Raise(object item, string path, object message)
+        {
+            var list = ServiceProvider.AttachedValueProvider.GetValue<EventListenerList>(item, path, false);
+            if (list != null)
+                list.Raise(item, message);
+        }
+
+        /// <summary>
         ///     This method can be used to raise the event handler.
         /// </summary>
         public void Raise<TArg>(object sender, TArg args)
         {
             bool hasDeadRef = false;
-            object[] listeners = Listeners;
+            WeakEventListenerWrapper[] listeners = Listeners;
             for (int i = 0; i < listeners.Length; i++)
             {
-                IEventListener listener = BindingExtensions.GetEventListenerFromWeakItem(listeners[i]);
-                if (listener == null)
+                if (!listeners[i].EventListener.TryHandle(sender, args))
                     hasDeadRef = true;
-                else
-                    listener.Handle(sender, args);
             }
             if (hasDeadRef)
             {
                 //it's normal here.
                 lock (this)
-                    Update(null);
+                    Update(WeakEventListenerWrapper.Empty);
             }
         }
 
         /// <summary>
-        /// Adds a listener without unsubscriber
+        ///     Adds a listener without unsubscriber
         /// </summary>
         public void Add(IEventListener target)
         {
-            AddInternal(target.ToWeakItem(), false);
+            AddInternal(target.ToWeakWrapper(), false);
         }
 
         /// <summary>
-        /// Adds a listener with unsubscriber
+        ///     Adds a listener with unsubscriber
         /// </summary>
         public IDisposable AddWithUnsubscriber(IEventListener target)
         {
-            return AddInternal(target.ToWeakItem(), true);
+            return AddInternal(target.ToWeakWrapper(), true);
         }
 
         /// <summary>
-        /// Removes a listener by weak item.
+        ///     Removes a listener.
         /// </summary>
-        public void Remove(object weakItem)
+        public void Remove(IEventListener listener)
         {
+            if (listener.IsWeak)
+            {
+                Remove(listener.ToWeakWrapper());
+                return;
+            }
             //it's normal here.
             lock (this)
             {
                 for (int i = 0; i < Listeners.Length; i++)
                 {
-                    if (ReferenceEquals(Listeners[i], weakItem))
+                    if (ReferenceEquals(Listeners[i].EventListener, listener))
                     {
-                        Listeners[i] = Empty.WeakReference;
-                        Update(null);
+                        Listeners[i] = WeakEventListenerWrapper.Empty;
+                        Update(WeakEventListenerWrapper.Empty);
                         return;
                     }
                 }
@@ -144,17 +168,17 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         }
 
         /// <summary>
-        /// Clears the current collection.
+        ///     Clears the current collection.
         /// </summary>
         public void Clear()
         {
-            Listeners = Empty.Array<object>();
+            Listeners = Empty.Array<WeakEventListenerWrapper>();
         }
 
         /// <summary>
-        /// Adds a weak item to list.
+        ///     Adds a weak item to list.
         /// </summary>
-        protected IDisposable AddInternal(object weakItem, bool withUnsubscriber)
+        protected IDisposable AddInternal(WeakEventListenerWrapper weakItem, bool withUnsubscriber)
         {
             //it's normal here.
             lock (this)
@@ -173,21 +197,21 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         }
 
         /// <summary>
-        /// Updates the current list.
+        ///     Updates the current list.
         /// </summary>
-        protected void Update(object newItem)
+        protected void Update(WeakEventListenerWrapper newItem)
         {
-            object[] references = newItem == null
-                ? new object[Listeners.Length]
-                : new object[Listeners.Length + 1];
+            WeakEventListenerWrapper[] references = newItem.IsEmpty
+                ? new WeakEventListenerWrapper[Listeners.Length]
+                : new WeakEventListenerWrapper[Listeners.Length + 1];
             int index = 0;
             for (int i = 0; i < Listeners.Length; i++)
             {
-                object reference = Listeners[i];
-                if (BindingExtensions.GetEventListenerFromWeakItem(reference) != null)
+                WeakEventListenerWrapper reference = Listeners[i];
+                if (reference.EventListener.IsAlive)
                     references[index++] = reference;
             }
-            if (newItem != null)
+            if (!newItem.IsEmpty)
             {
                 references[index] = newItem;
                 index++;
@@ -203,20 +227,37 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         }
 
         /// <summary>
-        /// Occurs on add a listener.
+        ///     Occurs on add a listener.
         /// </summary>
-        protected virtual bool OnAdd(object weakItem, bool withUnsubscriber, out IDisposable unsubscriber)
+        protected virtual bool OnAdd(WeakEventListenerWrapper weakItem, bool withUnsubscriber, out IDisposable unsubscriber)
         {
             unsubscriber = null;
             return false;
         }
 
         /// <summary>
-        /// Occurs on empty collection.
+        ///     Occurs on empty collection.
         /// </summary>
         protected virtual void OnEmpty()
         {
-            Listeners = Empty.Array<object>();
+            Listeners = Empty.Array<WeakEventListenerWrapper>();
+        }
+
+        private void Remove(WeakEventListenerWrapper weakItem)
+        {
+            //it's normal here.
+            lock (this)
+            {
+                for (int i = 0; i < Listeners.Length; i++)
+                {
+                    if (ReferenceEquals(Listeners[i].Source, weakItem.Source))
+                    {
+                        Listeners[i] = WeakEventListenerWrapper.Empty;
+                        Update(WeakEventListenerWrapper.Empty);
+                        return;
+                    }
+                }
+            }
         }
 
         #endregion

@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="DisposableObject.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,7 +13,9 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System;
 using System.Threading;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -26,44 +29,9 @@ namespace MugenMvvmToolkit.Models
     {
         #region Fields
 
-        private const int DisposedState = 1;
+        private const int DisposingState = 1;
+        private const int DisposedState = 2;
         private int _disposed;
-        private bool _isDisposed;
-
-        #endregion
-
-        #region Destructor
-
-        ~DisposableObject()
-        {
-            _isDisposed = true;
-            OnDispose(false);
-            Tracer.Finalized(this);
-        }
-
-        #endregion
-
-        #region Implementation of IDisposable
-
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            if (Interlocked.Exchange(ref _disposed, DisposedState) == DisposedState)
-                return;
-            try
-            {
-                GC.SuppressFinalize(this);
-                OnDispose(true);
-                RaiseDisposed();
-                Disposed = null;
-            }
-            finally
-            {
-                _isDisposed = true;
-            }
-        }
 
         #endregion
 
@@ -86,8 +54,8 @@ namespace MugenMvvmToolkit.Models
 
         private void RaiseDisposed()
         {
-            var handler = Disposed;
-            if (handler != null) 
+            EventHandler<IDisposableObject, EventArgs> handler = Disposed;
+            if (handler != null)
                 handler(this, EventArgs.Empty);
         }
 
@@ -96,17 +64,47 @@ namespace MugenMvvmToolkit.Models
         #region Implementation of IDisposableObject
 
         /// <summary>
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            if (Interlocked.CompareExchange(ref _disposed, DisposingState, 0) != 0)
+                return;
+            try
+            {
+                GC.SuppressFinalize(this);
+                OnDispose(true);
+                RaiseDisposed();
+                Disposed = null;
+            }
+            finally
+            {
+                _disposed = DisposedState;
+            }
+        }
+
+        /// <summary>
         ///     Gets a value indicating whether this instance is disposed.
         /// </summary>
         public bool IsDisposed
         {
-            get { return _isDisposed; }
+            get { return _disposed == DisposedState; }
         }
 
         /// <summary>
         ///     Occurs when the object is disposed by a call to the Dispose method.
         /// </summary>
         public event EventHandler<IDisposableObject, EventArgs> Disposed;
+
+        #endregion
+
+        #region Destructor
+
+        ~DisposableObject()
+        {
+            OnDispose(false);
+            Tracer.Finalized(this);
+        }
 
         #endregion
     }

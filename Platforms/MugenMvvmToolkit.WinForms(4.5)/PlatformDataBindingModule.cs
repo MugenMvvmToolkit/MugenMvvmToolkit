@@ -40,8 +40,8 @@ namespace MugenMvvmToolkit
 
         private readonly static IAttachedBindingMemberInfo<object, IContentViewManager> ContentViewManagerMember;
         private readonly static IAttachedBindingMemberInfo<object, IEnumerable> ItemsSourceMember;
-        private readonly static IAttachedBindingMemberInfo<Control, object> ContenMember;
-        private readonly static IAttachedBindingMemberInfo<Control, IDataTemplateSelector> ContenTemplateMember;
+        private readonly static IAttachedBindingMemberInfo<Control, object> ContentMember;
+        private readonly static IAttachedBindingMemberInfo<Control, IDataTemplateSelector> ContentTemplateMember;
 
         #endregion
 
@@ -55,8 +55,8 @@ namespace MugenMvvmToolkit
             ContentViewManagerMember = AttachedBindingMember.CreateAutoProperty<object, IContentViewManager>("ContentViewManager");
 
             //Control
-            ContenMember = AttachedBindingMember.CreateAutoProperty<Control, object>(AttachedMemberConstants.Content, ContentChanged);
-            ContenTemplateMember = AttachedBindingMember.CreateAutoProperty<Control, IDataTemplateSelector>(AttachedMemberConstants.ContentTemplate, ContentTemplateChanged);
+            ContentMember = AttachedBindingMember.CreateAutoProperty<Control, object>(AttachedMemberConstants.Content, ContentChanged);
+            ContentTemplateMember = AttachedBindingMember.CreateAutoProperty<Control, IDataTemplateSelector>(AttachedMemberConstants.ContentTemplate, ContentTemplateChanged);
         }
 
         #endregion
@@ -79,9 +79,6 @@ namespace MugenMvvmToolkit
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<Control, object>(AttachedMemberConstants.FindByNameMethod, FindByNameControlMember));
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<Control, bool>(AttachedMemberConstants.Enabled,
-                    (info, control) => control.Enabled, (info, control, value) => control.Enabled = value, "EnabledChanged"));
-            memberProvider.Register(AttachedBindingMember
                 .CreateMember<Control, bool>(AttachedMemberConstants.Focused, (info, control) => control.Focused, null, "LostFocus"));
 
             //Registering parent member as attached to avoid use the BindingExtensions.AttachedParentMember property.
@@ -89,8 +86,8 @@ namespace MugenMvvmToolkit
             if (parentMember != null)
                 memberProvider.Register(typeof(Control), parentMember, true);
 
-            memberProvider.Register(ContenMember);
-            memberProvider.Register(ContenTemplateMember);
+            memberProvider.Register(ContentMember);
+            memberProvider.Register(ContentTemplateMember);
 
             //DateTimePicker
             memberProvider.Register(AttachedBindingMember.CreateMember<DateTimePicker, DateTime>("Value",
@@ -105,19 +102,11 @@ namespace MugenMvvmToolkit
                         picker.Value = value;
                 }, "ValueChanged"));
 
-            //MenuItem
-            memberProvider.Register(AttachedBindingMember
-                .CreateMember<MenuItem, bool>(AttachedMemberConstants.Enabled,
-                    (info, control) => control.Enabled, (info, control, value) => control.Enabled = value));
-
             //ToolStripItem
             memberProvider.Register(AttachedBindingMember.CreateMember<ToolStripItem, object>(AttachedMemberConstants.Parent,
                     GetParentToolStripItem, null, ObserveParentMemberToolStripItem));
             memberProvider.Register(AttachedBindingMember.CreateMember<ToolStripItem, object>(AttachedMemberConstants.FindByNameMethod,
                     FindByNameMemberToolStripItem));
-            memberProvider.Register(AttachedBindingMember
-                .CreateMember<ToolStripItem, bool>(AttachedMemberConstants.Enabled,
-                    (info, control) => control.Enabled, (info, control, value) => control.Enabled = value, "EnabledChanged"));
 
             //TabControl
             memberProvider.Register(AttachedBindingMember.CreateMember<TabControl, object>(AttachedMemberConstants.SelectedItem,
@@ -150,24 +139,24 @@ namespace MugenMvvmToolkit
 
         private static void ContentTemplateChanged(Control control, AttachedMemberChangedEventArgs<IDataTemplateSelector> args)
         {
-            UpdateContent(control, ContenMember.GetValue(control, null), args.NewValue);
+            UpdateContent(control, ContentMember.GetValue(control, null), args.NewValue);
         }
 
         private static void ContentChanged(Control control, AttachedMemberChangedEventArgs<object> args)
         {
-            UpdateContent(control, args.NewValue, ContenTemplateMember.GetValue(control, null));
+            UpdateContent(control, args.NewValue, ContentTemplateMember.GetValue(control, null));
         }
 
         private static void UpdateContent(Control container, object value, IDataTemplateSelector selector)
         {
             if (selector != null)
-                value = selector.SelectTemplate(value, container);
+                value = selector.SelectTemplateWithContext(value, container);
             var content = value as Control;
             if (content == null)
             {
                 var viewModel = value as IViewModel;
                 if (viewModel != null)
-                    content = ViewModelToViewConverter.Instance.Convert(viewModel, null, null, null) as Control;
+                    content = ViewModelToViewConverter.Instance.Convert(viewModel) as Control;
             }
             if (content == null && value != null)
             {
@@ -175,7 +164,6 @@ namespace MugenMvvmToolkit
                 content = new TextBox
                 {
                     ReadOnly = true,
-                    ForeColor = Color.Red,
                     Text = value.ToString(),
                     Multiline = true
                 };
@@ -185,13 +173,11 @@ namespace MugenMvvmToolkit
             if (viewManager == null)
             {
                 container.Controls.Clear();
-
                 if (content != null)
                 {
                     content.Dock = DockStyle.Fill;
                     content.AutoSize = true;
                     container.Size = content.Size;
-                    container.Controls.Clear();
                     container.Controls.Add(content);
                 }
             }
@@ -228,9 +214,7 @@ namespace MugenMvvmToolkit
 
         private static void ObjectItemsSourceChanged(object control, AttachedMemberChangedEventArgs<IEnumerable> args)
         {
-            ServiceProvider.AttachedValueProvider
-                .GetOrAdd(control, "@!generator", (o, o1) => new ItemsSourceGenerator(o), null)
-                .Update(args.NewValue);
+            ItemsSourceGenerator.GetOrAdd(control).SetItemsSource(args.NewValue);
         }
 
         private static IBindingMemberInfo GetObjectItemsSourceMember(object component)
@@ -354,12 +338,12 @@ namespace MugenMvvmToolkit
         #region Overrides of DataBindingModule
 
         /// <summary>
-        ///     Loads the current module.
+        ///    Occurs on load the current module.
         /// </summary>
-        public override bool Load(IModuleContext context)
+        protected override void OnLoaded(IModuleContext context)
         {
             Register(BindingServiceProvider.MemberProvider);
-            return base.Load(context);
+            base.OnLoaded(context);
         }
 
         /// <summary>

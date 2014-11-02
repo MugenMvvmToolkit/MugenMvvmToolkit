@@ -133,7 +133,7 @@ namespace MugenMvvmToolkit.Test.Models
         }
 
         [TestMethod]
-        public void CmdShouldNotAddNotifierIfItIsNotSupported()
+        public void CmdShouldNotAddNotifierNotSupportedNotifier()
         {
             var notifier = new object();
             var relayCommand = CreateCommand(NodoAction, o => true);

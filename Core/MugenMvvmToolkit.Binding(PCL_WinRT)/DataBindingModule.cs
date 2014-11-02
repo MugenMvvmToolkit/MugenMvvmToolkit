@@ -16,6 +16,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -34,6 +36,7 @@ namespace MugenMvvmToolkit.Binding
     {
         #region Fields
 
+        internal const string ErrorProviderErrors = "SetBindingErrors";
         private static readonly HashSet<Type> ImplicitParentTypes;
         private static readonly bool DebbugerAttached;
         private static readonly IAttachedBindingMemberInfo<object, object> CommandParameterInternal;
@@ -64,9 +67,13 @@ namespace MugenMvvmToolkit.Binding
         /// <summary>
         ///     Loads the current module.
         /// </summary>
-        public virtual bool Load(IModuleContext context)
+        public bool Load(IModuleContext context)
         {
             Should.NotBeNull(context, "context");
+            if (!CanLoad(context))
+                return false;
+
+            InitilaizeServices();
             var assemblies = context.Assemblies;
             for (int i = 0; i < assemblies.Count; i++)
             {
@@ -83,26 +90,49 @@ namespace MugenMvvmToolkit.Binding
             memberProvider
                 .Register(AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.Parent,
                     GetParent, SetParent, ObserveParent));
-            memberProvider
-                .Register(AttachedBindingMember
-                    .CreateAutoProperty<object, IEnumerable<object>>(AttachedMemberConstants.ErrorsPropertyMember,
-                        getDefaultValue: (o, info) => Empty.Array<object>()));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<object, IEnumerable<object>>(
+                    AttachedMemberConstants.ErrorsPropertyMember, getDefaultValue: (o, info) => Empty.Array<object>()));
             memberProvider.Register(AttachedBindingMember.CreateMember<object, bool>("HasErrors", GetHasErrors, null, ObserveHasErrors));
-
-            BindingServiceProvider.ErrorProvider = GetBindingErrorProvider();
+            memberProvider.Register(AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.FindByNameMethod, FindByName));
+            memberProvider.Register(AttachedBindingMember.CreateMember<object, IEnumerable<object>>(
+                ErrorProviderErrors, getValue: null, setValue: SetErrorProviderErrors));
+            OnLoaded(context);
             return true;
         }
 
         /// <summary>
         ///     Unloads the current module.
         /// </summary>
-        public virtual void Unload(IModuleContext context)
+        public void Unload(IModuleContext context)
         {
+            OnUnloaded(context);
         }
 
         #endregion
 
         #region Methods
+
+        /// <summary>
+        ///     Checks to see whether the module can be loaded with specified context.
+        /// </summary>
+        protected virtual bool CanLoad(IModuleContext context)
+        {
+            return true;
+        }
+
+        /// <summary>
+        ///    Occurs on load the current module.
+        /// </summary>
+        protected virtual void OnLoaded(IModuleContext context)
+        {
+        }
+
+        /// <summary>
+        ///     Occurs on unload the current module.
+        /// </summary>
+        protected virtual void OnUnloaded(IModuleContext context)
+        {
+        }
 
         /// <summary>
         /// Tries to register type.
@@ -123,9 +153,82 @@ namespace MugenMvvmToolkit.Binding
         /// <summary>
         ///     Gets the <see cref="IBindingErrorProvider" /> that will be used by default.
         /// </summary>
+        [CanBeNull]
         protected virtual IBindingErrorProvider GetBindingErrorProvider()
         {
             return new BindingErrorProviderBase();
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="IBindingProvider" /> that will be used by default.
+        /// </summary>
+        [CanBeNull]
+        protected virtual IBindingProvider GetBindingProvider()
+        {
+            return null;
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="IBindingManager" /> that will be used by default.
+        /// </summary>
+        [CanBeNull]
+        protected virtual IBindingManager GetBindingManager()
+        {
+            return null;
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="IBindingMemberProvider" /> that will be used by default.
+        /// </summary>
+        [CanBeNull]
+        protected virtual IBindingMemberProvider GetBindingMemberProvider()
+        {
+            return null;
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="IObserverProvider" /> that will be used by default.
+        /// </summary>
+        [CanBeNull]
+        protected virtual IObserverProvider GetObserverProvider()
+        {
+            return null;
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="IBindingContextManager" /> that will be used by default.
+        /// </summary>
+        [CanBeNull]
+        protected virtual IBindingContextManager GetBindingContextManager()
+        {
+            return null;
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="IBindingResourceResolver" /> that will be used by default.
+        /// </summary>
+        [CanBeNull]
+        protected virtual IBindingResourceResolver GetBindingResourceResolver()
+        {
+            return null;
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="IVisualTreeManager" /> that will be used by default.
+        /// </summary>
+        [CanBeNull]
+        protected virtual IVisualTreeManager GetVisualTreeManager()
+        {
+            return null;
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="IWeakEventManager" /> that will be used by default.
+        /// </summary>
+        [CanBeNull]
+        protected virtual IWeakEventManager GetWeakEventManager()
+        {
+            return null;
         }
 
         /// <summary>
@@ -136,6 +239,19 @@ namespace MugenMvvmToolkit.Binding
             if (name.EndsWith(word, StringComparison.OrdinalIgnoreCase))
                 name = name.Substring(0, name.Length - word.Length);
             return name;
+        }
+
+        private void InitilaizeServices()
+        {
+            BindingServiceProvider.BindingProvider = GetBindingProvider() ?? BindingServiceProvider.BindingProvider;
+            BindingServiceProvider.BindingManager = GetBindingManager() ?? BindingServiceProvider.BindingManager;
+            BindingServiceProvider.MemberProvider = GetBindingMemberProvider() ?? BindingServiceProvider.MemberProvider;
+            BindingServiceProvider.ObserverProvider = GetObserverProvider() ?? BindingServiceProvider.ObserverProvider;
+            BindingServiceProvider.ContextManager = GetBindingContextManager() ?? BindingServiceProvider.ContextManager;
+            BindingServiceProvider.ResourceResolver = GetBindingResourceResolver() ?? BindingServiceProvider.ResourceResolver;
+            BindingServiceProvider.VisualTreeManager = GetVisualTreeManager() ?? BindingServiceProvider.VisualTreeManager;
+            BindingServiceProvider.WeakEventManager = GetWeakEventManager() ?? BindingServiceProvider.WeakEventManager;
+            BindingServiceProvider.ErrorProvider = GetBindingErrorProvider();
         }
 
         private static bool GetHasErrors(IBindingMemberInfo bindingMemberInfo, object o, object[] arg3)
@@ -210,12 +326,38 @@ namespace MugenMvvmToolkit.Binding
             return value;
         }
 
+        private static void SetErrorProviderErrors(IBindingMemberInfo bindingMemberInfo, object o, IEnumerable<object> errors)
+        {
+            var errorProvider = BindingServiceProvider.ErrorProvider;
+            if (errorProvider == null)
+                return;
+            var errorsList = errors as IList<object>;
+            if (errorsList == null)
+                errorsList = errors == null ? Empty.Array<object>() : errors.ToArray();
+            errorProvider.SetErrors(o, ErrorProviderErrors, errorsList, DataContext.Empty);
+        }
+
         private static IBindingMemberInfo GetParentMember(object instance)
         {
             return BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(instance.GetType(), AttachedMemberConstants.Parent, true, false) ??
                    BindingExtensions.AttachedParentMember;
+        }
+
+        private static object FindByName(IBindingMemberInfo member, object item, object[] args)
+        {
+            var name = (string)args[0];
+            var treeManager = BindingServiceProvider.VisualTreeManager;
+            var parent = treeManager.FindParent(item);
+            while (parent != null)
+            {
+                var findByName = treeManager.FindByName(parent, name);
+                if (findByName != null)
+                    return findByName;
+                parent = treeManager.FindParent(parent);
+            }
+            return null;
         }
 
         #endregion

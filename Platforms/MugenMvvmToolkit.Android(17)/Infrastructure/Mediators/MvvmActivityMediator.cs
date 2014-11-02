@@ -99,16 +99,12 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             AndroidBootstrapperBase.EnsureInitialized();
             Tracer.Info("OnCreate activity({0})", Target);
             _bundle = savedInstanceState;
-
             OnCreate(savedInstanceState);
 
             var service = Get<INavigationService>();
             service.OnCreateActivity(Activity);
 
             baseOnCreate(savedInstanceState);
-
-            var stateManager = Get<IApplicationStateManager>();
-            stateManager.OnCreateActivity(Activity, savedInstanceState);
 
             var handler = Created;
             if (handler != null)
@@ -136,9 +132,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         public override void OnSaveInstanceState(Bundle outState, Action<Bundle> baseOnSaveInstanceState)
         {
-            var stateManager = Get<IApplicationStateManager>();
-            stateManager.OnSaveInstanceStateActivity(Activity, outState);
-
             var handler = SaveInstanceState;
             if (handler != null)
                 handler(Activity, new ValueEventArgs<Bundle>(outState));

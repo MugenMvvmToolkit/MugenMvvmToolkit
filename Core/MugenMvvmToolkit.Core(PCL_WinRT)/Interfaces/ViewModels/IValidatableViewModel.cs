@@ -13,12 +13,13 @@
 // </license>
 // ****************************************************************************
 #endregion
+
 using MugenMvvmToolkit.Interfaces.Validation;
 
 namespace MugenMvvmToolkit.Interfaces.ViewModels
 {
     /// <summary>
-    ///     Represents the interface which add validation support to view-model.
+    ///     Represents the interface for view model that allows to validate view model.
     /// </summary>
     public interface IValidatableViewModel : IViewModel, IValidatorAggregator
     {

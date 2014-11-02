@@ -15,7 +15,6 @@
 #endregion
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using Android.App;
 using Android.Graphics;
 using Android.Graphics.Drawables;
@@ -80,16 +79,12 @@ namespace MugenMvvmToolkit
 
             public static IDisposable AddDateChangedListener(DatePicker datePicker, IEventListener listener)
             {
-                return ServiceProvider.AttachedValueProvider
-                    .GetOrAdd(datePicker, Key, (picker, o) => new EventListenerList(), null)
-                    .AddWithUnsubscriber(listener);
+                return EventListenerList.GetOrAdd(datePicker, Key).AddWithUnsubscriber(listener);
             }
 
             private static void Raise(DatePicker picker)
             {
-                EventListenerList list;
-                if (ServiceProvider.AttachedValueProvider.TryGetValue(picker, Key, out list))
-                    list.Raise(picker, EventArgs.Empty);
+                EventListenerList.Raise(picker, Key, EventArgs.Empty);
             }
 
             #endregion
@@ -245,7 +240,7 @@ namespace MugenMvvmToolkit
                         return false;
                     item.SetChecked(value);
                     return true;
-                });            
+                });
 #if !API8
             MenuItemActionViewMember = AttachedBindingMember
                 .CreateNotifiableMember<IMenuItem, object>("ActionView", (info, item) => item.GetActionView(), MenuItemUpdateActionView);
@@ -289,7 +284,6 @@ namespace MugenMvvmToolkit
             //ActioBar.Tab
             ActionBarTabContentMember = AttachedBindingMember.CreateAutoProperty<ActionBar.Tab, object>(AttachedMemberConstants.Content);
 #endif
-
         }
 
         #endregion
@@ -310,6 +304,7 @@ namespace MugenMvvmToolkit
             //Activity
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Activity, string>("Title",
                 (activity, args) => activity.Title = args.NewValue, getDefaultValue: (activity, info) => activity.Title));
+            //to suppress message about parent property.
             memberProvider.Register(AttachedBindingMember.CreateMember<Activity, object>(AttachedMemberConstants.Parent, (info, activity) => null, null));
 
             //CompoundButton
@@ -430,21 +425,21 @@ namespace MugenMvvmToolkit
 
         private static void TabHostSelectedItemChanged(TabHost tabHost, AttachedMemberChangedEventArgs<object> arg)
         {
-            var generator = TabHostItemsSourceGenerator.Get(tabHost);
+            var generator = ItemsSourceGeneratorBase.Get(tabHost) as TabHostItemsSourceGenerator;
             if (generator != null)
                 generator.SetSelectedItem(arg.NewValue);
         }
 
         private static void TabHostTemplateChanged<T>(TabHost tabHost, AttachedMemberChangedEventArgs<T> args)
         {
-            var generator = TabHostItemsSourceGenerator.Get(tabHost);
+            var generator = ItemsSourceGeneratorBase.Get(tabHost);
             if (generator != null)
                 generator.Reset();
         }
 
         private static void TabHostItemsSourceChanged(TabHost tabHost, AttachedMemberChangedEventArgs<IEnumerable> arg)
         {
-            TabHostItemsSourceGenerator.GetOrAdd(tabHost).Update(arg.NewValue);
+            TabHostItemsSourceGenerator.GetOrAdd(tabHost).SetItemsSource(arg.NewValue);
         }
 
         #endregion
@@ -551,13 +546,13 @@ namespace MugenMvvmToolkit
             {
                 var sourceGenerator = ViewGroupItemsSourceGenerator.GetOrAdd(sender);
                 if (sourceGenerator != null)
-                    sourceGenerator.Update(args.NewValue);
+                    sourceGenerator.SetItemsSource(args.NewValue);
                 return;
             }
-            var adapter = GetAdapter(container) as ItemsSourceAdapter;
+            var adapter = GetAdapter(container) as IItemsSourceAdapter;
             if (adapter == null)
             {
-                adapter = new ItemsSourceAdapter(container, container.Context, true);
+                adapter = ItemsSourceAdapter.Factory(container, container.Context, DataContext.Empty);
                 SetAdapter(container, adapter);
             }
             adapter.ItemsSource = args.NewValue;
@@ -605,12 +600,12 @@ namespace MugenMvvmToolkit
         #region Overrides of DataBindingModule
 
         /// <summary>
-        ///     Loads the current module.
+        ///    Occurs on load the current module.
         /// </summary>
-        public override bool Load(IModuleContext context)
+        protected override void OnLoaded(IModuleContext context)
         {
             Register(BindingServiceProvider.MemberProvider);
-            return base.Load(context);
+            base.OnLoaded(context);
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="BindingServiceProvider.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,9 +13,11 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Infrastructure;
@@ -38,6 +41,8 @@ namespace MugenMvvmToolkit.Binding
         private static IBindingResourceResolver _resourceResolver;
         private static IWeakEventManager _weakEventManager;
         private static Func<Type, object, object> _valueConverter;
+        private static readonly Dictionary<string, int> MemberPriorities;
+        private static readonly List<string> FakeMemberPrefixesStatic;
 
         #endregion
 
@@ -45,6 +50,22 @@ namespace MugenMvvmToolkit.Binding
 
         static BindingServiceProvider()
         {
+            MemberPriorities = new Dictionary<string, int>
+            {
+                {AttachedMemberConstants.DataContext, int.MaxValue - 1},
+                {AttachedMemberConstants.ItemTemplate, 1},
+                {AttachedMemberConstants.ItemTemplateSelector, 1},
+                {AttachedMemberConstants.ContentTemplate, 1},
+                {AttachedMemberConstants.ContentTemplateSelector, 1},
+            };
+            FakeMemberPrefixesStatic = new List<string>
+            {
+                "Fake",
+                "Nodo",
+                "Empty",
+                "Exp",
+                "Expression"
+            };
             SetDefaultValues();
             ServiceProvider.InitializeDesignTimeManager();
         }
@@ -54,7 +75,24 @@ namespace MugenMvvmToolkit.Binding
         #region Properties
 
         /// <summary>
-        /// Gets or sets the delegate that allows to convert binding values.
+        ///     Gets the list that contains the prefixes of fake members.
+        /// </summary>
+        public static List<string> FakeMemberPrefixes
+        {
+            get { return FakeMemberPrefixesStatic; }
+        }
+
+        /// <summary>
+        ///     Gets the dictionary that contains the priority of binding members.
+        /// </summary>
+        [NotNull]
+        public static IDictionary<string, int> BindingMemberPriorities
+        {
+            get { return MemberPriorities; }
+        }
+
+        /// <summary>
+        ///     Gets or sets the delegate that allows to convert binding values.
         /// </summary>
         [NotNull]
         public static Func<Type, object, object> ValueConverter
@@ -72,7 +110,7 @@ namespace MugenMvvmToolkit.Binding
             get { return _bindingProvider; }
             set
             {
-                Should.PropertyBeNotNull(value, "BindingProvider");
+                Should.PropertyBeNotNull(value);
                 _bindingProvider = value;
             }
         }
@@ -86,7 +124,7 @@ namespace MugenMvvmToolkit.Binding
             get { return _bindingManager; }
             set
             {
-                Should.PropertyBeNotNull(value, "BindingManager");
+                Should.PropertyBeNotNull(value);
                 _bindingManager = value;
             }
         }
@@ -100,7 +138,7 @@ namespace MugenMvvmToolkit.Binding
             get { return _memberProvider; }
             set
             {
-                Should.PropertyBeNotNull(value, "MemberProvider");
+                Should.PropertyBeNotNull(value);
                 _memberProvider = value;
             }
         }
@@ -114,7 +152,7 @@ namespace MugenMvvmToolkit.Binding
             get { return _observerProvider; }
             set
             {
-                Should.PropertyBeNotNull(value, "ObserverProvider");
+                Should.PropertyBeNotNull(value);
                 _observerProvider = value;
             }
         }
@@ -128,7 +166,7 @@ namespace MugenMvvmToolkit.Binding
             get { return _contextManager; }
             set
             {
-                Should.PropertyBeNotNull(value, "ContextManager");
+                Should.PropertyBeNotNull(value);
                 _contextManager = value;
             }
         }
@@ -142,7 +180,7 @@ namespace MugenMvvmToolkit.Binding
             get { return _resourceResolver; }
             set
             {
-                Should.PropertyBeNotNull(value, "ResourceResolver");
+                Should.PropertyBeNotNull(value);
                 _resourceResolver = value;
             }
         }
@@ -156,7 +194,7 @@ namespace MugenMvvmToolkit.Binding
             get { return _visualTreeManager; }
             set
             {
-                Should.PropertyBeNotNull(value, "VisualTreeManager");
+                Should.PropertyBeNotNull(value);
                 _visualTreeManager = value;
             }
         }
@@ -170,7 +208,7 @@ namespace MugenMvvmToolkit.Binding
             get { return _weakEventManager; }
             set
             {
-                Should.PropertyBeNotNull(value, "WeakEventManager");
+                Should.PropertyBeNotNull(value);
                 _weakEventManager = value;
             }
         }

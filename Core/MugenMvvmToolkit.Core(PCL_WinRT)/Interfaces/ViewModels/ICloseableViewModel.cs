@@ -22,7 +22,7 @@ using MugenMvvmToolkit.Models.EventArg;
 namespace MugenMvvmToolkit.Interfaces.ViewModels
 {
     /// <summary>
-    ///     Represents the base interface for all view models that can be closed.
+    ///     Represents the interface that allows to close a view model.
     /// </summary>
     public interface ICloseableViewModel : IViewModel
     {

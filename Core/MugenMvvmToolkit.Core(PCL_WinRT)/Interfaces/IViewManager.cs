@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.Interfaces
         /// </summary>
         /// <param name="viewModel">The specified view model.</param>
         /// <param name="view">The specified view.</param>
-        Task InitializeViewAsync([NotNull] IViewModel viewModel, [NotNull] IView view);
+        Task InitializeViewAsync([NotNull] IViewModel viewModel, [NotNull] object view);
 
         /// <summary>
         ///     Clears view in the specified view-model

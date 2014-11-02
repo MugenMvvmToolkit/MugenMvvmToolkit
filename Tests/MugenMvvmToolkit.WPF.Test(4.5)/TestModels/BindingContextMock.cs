@@ -14,10 +14,9 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         #region Implementation of IBindingContext
 
-        /// <summary>
-        ///     Gets the source object.
-        /// </summary>
         public object Source { get; set; }
+
+        public bool IsAlive { get; set; }
 
         public object Value
         {

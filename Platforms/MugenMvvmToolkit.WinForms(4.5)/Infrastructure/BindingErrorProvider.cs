@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="BindingErrorProvider.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,10 +13,11 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Infrastructure;
@@ -43,18 +45,29 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <param name="target">The binding target object.</param>
         /// <param name="errors">The collection of errors</param>
         /// <param name="context">The specified context, if any.</param>
-        protected sealed override void SetErrors(object target, IList<object> errors, IDataContext context)
+        protected override sealed void SetErrors(object target, IList<object> errors, IDataContext context)
         {
             base.SetErrors(target, errors, context);
             var control = target as Control;
             if (control == null)
                 return;
-            var rootControl = PlatformExtensions.GetRootControl(control);
+            Control rootControl = PlatformExtensions.GetRootControl(control);
             if (rootControl == null)
                 return;
-            var errorProvider = GetErrorProvider(rootControl);
-            if (errorProvider != null)
-                SetErrors(control, errorProvider, errors, context);
+            ErrorProvider errorProvider = GetErrorProvider(rootControl);
+            if (errorProvider == null)
+                return;
+
+            var oldProvider = ServiceProvider
+                .AttachedValueProvider
+                .GetValue<ErrorProvider>(target, ErrorProviderName, false);
+            if (!ReferenceEquals(oldProvider, errorProvider))
+            {
+                if (oldProvider != null)
+                    oldProvider.SetError(control, null);
+                ServiceProvider.AttachedValueProvider.SetValue(control, ErrorProviderName, errorProvider);
+            }
+            SetErrors(control, errorProvider, errors, context);
         }
 
         #endregion
@@ -71,32 +84,14 @@ namespace MugenMvvmToolkit.Infrastructure
         }
 
         /// <summary>
-        /// Gets an <see cref="ErrorProvider"/> for the specified root <see cref="Control"/>.
+        ///     Gets an instance of <see cref="ErrorProvider" /> for the specified <see cref="Control" />.
         /// </summary>
         [CanBeNull]
         protected virtual ErrorProvider GetErrorProvider(Control rootControl)
         {
-            ErrorProvider errorProvider;
-            Control errorControl = rootControl.Controls.Find(ErrorProviderName, true).FirstOrDefault();
-            if (errorControl == null)
-            {
-                errorProvider = new ErrorProvider
-                {
-                    ContainerControl = (ContainerControl)rootControl.GetContainerControl()
-                };
-                var control = new Control
-                {
-                    Visible = false,
-                    Name = ErrorProviderName,
-                    Width = 0,
-                    Height = 0,
-                    Tag = errorProvider
-                };
-                rootControl.Controls.Add(control);
-            }
-            else
-                errorProvider = (ErrorProvider)errorControl.Tag;
-            return errorProvider;
+            return ServiceProvider
+                .AttachedValueProvider
+                .GetOrAdd(rootControl, ErrorProviderName, (control, o) => new ErrorProvider { ContainerControl = control.GetContainerControl() as ContainerControl }, null);
         }
 
         #endregion

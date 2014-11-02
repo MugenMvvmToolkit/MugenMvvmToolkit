@@ -20,6 +20,7 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
@@ -43,17 +44,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Overrides of LightDictionaryBase<SenderType,IList<object>>
 
-            /// <summary>
-            ///     Determines whether the specified objects are equal.
-            /// </summary>
             protected override bool Equals(string x, string y)
             {
                 return string.Equals(x, y, StringComparison.Ordinal);
             }
 
-            /// <summary>
-            ///     Returns a hash code for the specified object.
-            /// </summary>
             protected override int GetHashCode(string key)
             {
                 return key.GetHashCode();
@@ -88,7 +83,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 errors = dict.FirstOrDefault().Value;
             else
                 errors = dict.SelectMany(list => list.Value).ToList();
-            SetErrors(target, errors, context);
+            SetErrors(target, errors, context ?? DataContext.Empty);
         }
 
         #endregion
@@ -111,6 +106,5 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         }
 
         #endregion
-
     }
 }

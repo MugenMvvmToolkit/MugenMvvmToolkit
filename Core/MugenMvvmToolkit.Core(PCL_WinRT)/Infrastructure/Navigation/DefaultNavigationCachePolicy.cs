@@ -50,11 +50,12 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// <summary>
         ///     Tries to save a view model in the cache.
         /// </summary>
-        public virtual void TryCacheViewModel(INavigationContext context, IView view, IViewModel viewModel)
+        public virtual void TryCacheViewModel(INavigationContext context, object view, IViewModel viewModel)
         {
             if (context.NavigationMode == NavigationMode.Back)
                 return;
-            Type type = view.GetUnderlyingView().GetType();
+            view = GetView(view);
+            Type type = view.GetType();
 
             List<IViewModel> list;
             if (!_cachedViewModels.TryGetValue(type, out list))
@@ -70,9 +71,10 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// <summary>
         ///     Tries to get view model from the cache, and delete it from the cache.
         /// </summary>
-        public virtual IViewModel TryTakeViewModelFromCache(INavigationContext context, IView view)
+        public virtual IViewModel TryTakeViewModelFromCache(INavigationContext context, object view)
         {
-            var type = view.GetUnderlyingView().GetType();
+            view = GetView(view);
+            var type = view.GetType();
             List<IViewModel> list;
             if (!_cachedViewModels.TryGetValue(type, out list) || list == null || list.Count == 0)
             {
@@ -113,5 +115,18 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         }
 
         #endregion
+
+        #region Methods
+
+        private static object GetView(object view)
+        {
+            var viewWrapper = view as IViewWrapper;
+            if (viewWrapper == null)
+                return view;
+            return viewWrapper.View;
+        }
+
+        #endregion
+
     }
 }

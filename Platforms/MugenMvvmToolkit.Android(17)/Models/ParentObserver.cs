@@ -29,7 +29,7 @@ namespace MugenMvvmToolkit.Models
 
         private const string Key = "!#ParentListener";
         private readonly WeakReference _view;
-        private WeakReference _parent;
+        private readonly WeakReference _parent;
         private bool _isAttached;
 
         #endregion
@@ -76,10 +76,11 @@ namespace MugenMvvmToolkit.Models
         /// <summary>
         ///     Gets or adds an instance of <see cref="ParentObserver" />.
         /// </summary>
-        public static ParentObserver GetOrAdd(View element)
+        public static ParentObserver GetOrAdd(View view)
         {
-            return ServiceProvider.AttachedValueProvider.GetOrAdd(element, Key,
-                (frameworkElement, o) => new ParentObserver(frameworkElement), null);
+            return ServiceProvider
+                .AttachedValueProvider
+                .GetOrAdd(view, Key, (v, o) => new ParentObserver(v), null);
         }
 
         /// <summary>
@@ -102,9 +103,7 @@ namespace MugenMvvmToolkit.Models
                 return;
             if (_isAttached || view.Id == Android.Resource.Id.Content || ReferenceEquals(view.Parent, _parent.Target))
                 return;
-            if (ReferenceEquals(view.Parent, _parent.Target))
-                return;
-            _parent = ServiceProvider.WeakReferenceFactory(view.Parent, true);
+            _parent.Target = view.Parent;
             Raise(view, EventArgs.Empty);
         }
 
@@ -116,7 +115,7 @@ namespace MugenMvvmToolkit.Models
 
             if (ReferenceEquals(value, _parent.Target))
                 return;
-            _parent = ServiceProvider.WeakReferenceFactory(value, true);
+            _parent.Target = value;
             Raise(view, EventArgs.Empty);
         }
 

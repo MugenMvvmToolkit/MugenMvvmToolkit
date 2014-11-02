@@ -27,6 +27,8 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         [NotNull]
         public IList<object> Errors;
 
+        private bool _updating;
+
         #endregion
 
         #region Overrides of ValidatesOnNotifyDataErrorsBehavior
@@ -68,8 +70,17 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         {
             Errors = errors ?? Empty.Array<object>();
             IDataBinding dataBinding = Binding;
-            if (dataBinding != null)
+            if (_updating || dataBinding == null || !IsAttached)
+                return;
+            try
+            {
+                _updating = true;
                 dataBinding.UpdateTarget();
+            }
+            finally
+            {
+                _updating = false;
+            }
         }
 
         /// <summary>

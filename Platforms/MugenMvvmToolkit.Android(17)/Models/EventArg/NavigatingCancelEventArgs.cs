@@ -26,6 +26,11 @@ namespace MugenMvvmToolkit.Models.EventArg
     {
         #region Fields
 
+        /// <summary>
+        /// Gets the non cancelable instance of <see cref="NavigatingCancelEventArgs"/>.
+        /// </summary>
+        public static readonly NavigatingCancelEventArgs NonCancelableEventArgs;
+
         private readonly Intent _intent;
         private readonly bool _isCancelable;
         private readonly IViewMappingItem _mapping;
@@ -36,7 +41,12 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Constructors
 
-        public NavigatingCancelEventArgs()
+        static NavigatingCancelEventArgs()
+        {
+            NonCancelableEventArgs = new NavigatingCancelEventArgs();
+        }
+
+        private NavigatingCancelEventArgs()
         {
             _navigationMode = NavigationMode.New;
             _isCancelable = false;

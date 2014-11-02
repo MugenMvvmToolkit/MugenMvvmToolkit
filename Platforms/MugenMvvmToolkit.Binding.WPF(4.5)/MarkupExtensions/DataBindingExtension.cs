@@ -389,7 +389,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
         {
             IBindingBuilder builder = BindingServiceProvider
                 .BindingProvider
-                .CreateBuilderFromString(targetObject, targetPath, Path);
+                .CreateBuildersFromString(targetObject, ToBindingExpression(targetPath))[0];
 
             var syntaxBuilder = new SyntaxBuilder<object, object>(builder);
             SetMode(syntaxBuilder);
@@ -510,7 +510,9 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
 
         private IDataBinding CreateBinding(object targetObject, string targetPath)
         {
-            return BindingServiceProvider.BindingProvider.CreateBindingFromString(targetObject, targetPath, Path);
+            return BindingServiceProvider
+                .BindingProvider
+                .CreateBindingsFromString(targetObject, ToBindingExpression(targetPath))[0];
         }
 
         private void SetMode(IBindingModeSyntax syntax)
@@ -545,6 +547,11 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
             }
         }
 
+        private string ToBindingExpression(string targetPath)
+        {
+            return targetPath + " " + Path + ";";
+        }
+
         private static Delegate CreateDelegateForEvent(EventInfo eventInfo)
         {
             Delegate value;
@@ -554,7 +561,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
                    .EventHandlerType
                    .GetMethod("Invoke")
                    .GetParameters()
-                   .ToArrayFast(parameter => System.Linq.Expressions.Expression.Parameter(parameter.ParameterType));
+                   .ToArrayEx(parameter => System.Linq.Expressions.Expression.Parameter(parameter.ParameterType));
 
                 var callExpression = System.Linq.Expressions.Expression
                     .Call(System.Linq.Expressions.Expression.Constant(NoDoFunc, typeof(Func<object>)), "Invoke", Empty.Array<Type>());

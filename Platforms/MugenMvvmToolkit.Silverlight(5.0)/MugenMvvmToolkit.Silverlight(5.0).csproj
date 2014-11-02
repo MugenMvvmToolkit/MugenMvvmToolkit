@@ -89,6 +89,9 @@
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\ItemsSourceGeneratorBase.cs">
       <Link>Infrastructure\ItemsSourceGeneratorBase.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\IItemsSourceGenerator.cs">
+      <Link>Interfaces\IItemsSourceGenerator.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Converters\InverseBooleanConverter.cs">
       <Link>Converters\InverseBooleanConverter.cs</Link>
     </Compile>
@@ -122,9 +125,6 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\ViewManagerEx.cs">
       <Link>Infrastructure\ViewManagerEx.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\ViewModelDataTemplateModule.cs">
-      <Link>Infrastructure\ViewModelDataTemplateModule.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\VisualStateManager.cs">
       <Link>Infrastructure\VisualStateManager.cs</Link>
     </Compile>
@@ -148,6 +148,9 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\models\eventarg\NavigationEventArgsBase.cs">
       <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\ViewModelDataTemplateModule.cs">
+      <Link>ViewModelDataTemplateModule.cs</Link>
     </Compile>
     <Compile Include="Infrastructure\Mediators\WindowViewMediator.cs" />
     <Compile Include="Infrastructure\Presenters\MessagePresenter.cs" />
@@ -192,14 +195,11 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Fody.1.24.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.24.0\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Fody.1.26.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.26.1\build\Fody.targets'))" />
   </Target>
-  <Import Project="..\..\packages\Fody.1.24.0\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.24.0\build\Fody.targets')" />
-  <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
-  <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
-    <Error Condition="!Exists('..\..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=317567." HelpKeyword="BCLBUILD2001" />
-    <Error Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://go.microsoft.com/fwlink/?LinkID=317568." HelpKeyword="BCLBUILD2002" />
-  </Target>
+  <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
+  <Import Project="..\..\packages\Fody.1.26.1\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.26.1\build\Fody.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -33,22 +33,25 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
     /// <summary>
     ///     Represents the service that allows to show a view model using <see cref="IWindowViewMediator" />.
     /// </summary>
-    public class DynamicViewModelWindowPresenter : IDynamicViewModelPresenter
+    public class DynamicViewModelWindowPresenter : IRestorableDynamicViewModelPresenter
     {
         #region Fields
 
         /// <summary>
-        /// Gets the window view mediator data constant.
+        ///     Gets the window view mediator data constant.
         /// </summary>
         public static readonly DataConstant<IWindowViewMediator> WindowViewMediatorConstant;
 
-#if ANDROID
         /// <summary>
-        /// Gets the constant that is used to restore state.
+        ///     Gets the view data constant that allows to restore mediator state.
         /// </summary>
-        public static readonly DataConstant<IView> RestoreStateConstant;
-        private static readonly AsyncOperation<bool?> TrueOperation;
-#endif
+        public static readonly DataConstant<object> RestoredViewConstant;
+
+        /// <summary>
+        ///     Gets the view data constant that allows to restore mediator state.
+        /// </summary>
+        public static readonly DataConstant<bool> IsOpenViewConstant;
+
         private readonly IThreadManager _threadManager;
         private readonly IOperationCallbackManager _callbackManager;
         private readonly IViewManager _viewManager;
@@ -61,11 +64,8 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         static DynamicViewModelWindowPresenter()
         {
             WindowViewMediatorConstant = DataConstant.Create(() => WindowViewMediatorConstant, true);
-#if ANDROID
-            TrueOperation = new AsyncOperation<bool?>();
-            TrueOperation.SetResult(OperationResult.CreateResult<bool?>(new OperationType("empty"), TrueOperation, true));
-            RestoreStateConstant = DataConstant.Create(() => RestoreStateConstant, true);
-#endif
+            RestoredViewConstant = DataConstant.Create(() => RestoredViewConstant, true);
+            IsOpenViewConstant = DataConstant.Create(() => IsOpenViewConstant);
         }
 
         /// <summary>
@@ -142,39 +142,30 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         public IAsyncOperation<bool?> TryShowAsync(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)
         {
-            bool data;
-            if (context.TryGetData(NavigationConstants.SuppressWindowNavigation, out data) && data)
+            var viewMediator = TryCreateWindowViewMediator(viewModel, context);
+            if (viewMediator == null)
                 return null;
-
-            var viewName = viewModel.GetViewName(context);
-            IViewMappingItem mappingItem = ViewMappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
-            if (mappingItem == null)
-                return null;
-            Type viewType = ViewManager.GetViewType(mappingItem.ViewType, context);
-            if (!typeof(IWindowViewBase).IsAssignableFrom(viewType))
-            {
-#if ANDROID
-                if (context.Contains(RestoreStateConstant))
-                    return TrueOperation;
-#endif
-                return null;
-            }
-
-            IWindowViewMediator viewMediator;
-            if (!viewModel.Settings.Metadata.TryGetData(WindowViewMediatorConstant, out viewMediator))
-            {
-                viewMediator = CreateWindowViewMediator(viewModel, viewType, context);
-                if (viewMediator == null)
-                    return null;
-                viewModel.Settings.Metadata.Add(WindowViewMediatorConstant, viewMediator);
-            }
-#if ANDROID
-            if (context.Contains(RestoreStateConstant))
-                return TrueOperation;
-#endif
             var operation = new AsyncOperation<bool?>();
             viewMediator.Show(operation.ToOperationCallback(), context);
             return operation;
+        }
+
+        /// <summary>
+        /// Tries to restore the presenter state of the specified <see cref="IViewModel" />.
+        /// </summary>
+        /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
+        /// <param name="context">The specified context.</param>
+        /// <param name="parentPresenter">The parent presenter, if any.</param>
+        public bool Restore(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        {
+            var view = context.GetData(RestoredViewConstant);
+            if (view == null)
+                return false;
+            var mediator = TryCreateWindowViewMediator(viewModel, context);
+            if (mediator == null)
+                return false;
+            mediator.UpdateView(ViewManager.WrapToView(view, context), context.GetData(IsOpenViewConstant), context);
+            return true;
         }
 
         #endregion
@@ -188,9 +179,38 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         protected virtual IWindowViewMediator CreateWindowViewMediator([NotNull] IViewModel viewModel, Type viewType,
             [NotNull] IDataContext context)
         {
+#if TOUCH
+            var container = viewModel.GetIocContainer(true);
+            if (typeof(IModalView).IsAssignableFrom(viewType))
+                return new ModalViewMediator(viewModel, ThreadManager, ViewManager, CallbackManager, ViewMappingProvider, container.Get<IViewModelProvider>());
+#else
             if (typeof(IWindowView).IsAssignableFrom(viewType))
                 return new WindowViewMediator(viewModel, ThreadManager, ViewManager, CallbackManager);
+#endif
             return null;
+        }
+
+        private IWindowViewMediator TryCreateWindowViewMediator(IViewModel viewModel, IDataContext context)
+        {
+            bool data;
+            if (context.TryGetData(NavigationConstants.SuppressWindowNavigation, out data) && data)
+                return null;
+
+            var viewName = viewModel.GetViewName(context);
+            IViewMappingItem mappingItem = ViewMappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
+            if (mappingItem == null)
+                return null;
+
+            Type viewType = ViewManager.GetViewType(mappingItem.ViewType, context);
+            IWindowViewMediator viewMediator;
+            if (!viewModel.Settings.Metadata.TryGetData(WindowViewMediatorConstant, out viewMediator))
+            {
+                viewMediator = CreateWindowViewMediator(viewModel, viewType, context);
+                if (viewMediator == null)
+                    return null;
+                viewModel.Settings.Metadata.Add(WindowViewMediatorConstant, viewMediator);
+            }
+            return viewMediator;
         }
 
         #endregion

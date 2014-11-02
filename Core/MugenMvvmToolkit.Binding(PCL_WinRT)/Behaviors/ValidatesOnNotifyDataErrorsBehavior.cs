@@ -64,6 +64,15 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #endregion
 
+        #region Properties
+
+        /// <summary>
+        ///     Gets or sets the error paths.
+        /// </summary>
+        public string[] ErrorPaths { get; set; }
+
+        #endregion
+
         #region Overrides of BindingBehaviorBase
 
         /// <summary>
@@ -139,7 +148,11 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected override IBindingBehavior CloneInternal()
         {
-            return new ValidatesOnNotifyDataErrorsBehavior();
+            var errorPaths = ErrorPaths;
+            var behavior = new ValidatesOnNotifyDataErrorsBehavior();
+            if (errorPaths != null)
+                behavior.ErrorPaths = errorPaths.ToArrayEx();
+            return behavior;
         }
 
         #endregion
@@ -225,16 +238,28 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             UpdateErrors();
         }
 
-        private static void CollectErrors(ref List<object> errors, IBindingSource bindingSource)
+        private void CollectErrors(ref List<object> errors, IBindingSource bindingSource)
         {
             var notifyDataErrorInfo = bindingSource.GetPathMembers(false).PenultimateValue as INotifyDataErrorInfo;
             if (notifyDataErrorInfo == null)
                 return;
             var path = bindingSource.Path.Parts.LastOrDefault();
-            var e = notifyDataErrorInfo.GetErrors(path);
-            if (e == null)
+            var paths = ErrorPaths;
+            if (!string.IsNullOrEmpty(path) || paths == null || paths.Length == 0)
+                CollectErrors(notifyDataErrorInfo, path, ref errors);
+            if (paths != null)
+            {
+                for (int i = 0; i < paths.Length; i++)
+                    CollectErrors(notifyDataErrorInfo, paths[i], ref errors);
+            }
+        }
+
+        private static void CollectErrors(INotifyDataErrorInfo notifyDataErrorInfo, string path, ref List<object> errors)
+        {
+            var values = notifyDataErrorInfo.GetErrors(path ?? string.Empty);
+            if (values == null)
                 return;
-            foreach (var error in e)
+            foreach (var error in values)
             {
                 if (error == null)
                     continue;
@@ -244,9 +269,60 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             }
         }
 
+        private bool Handle(DataErrorsChangedEventArgs message)
+        {
+            var binding = Binding;
+            if (binding == null)
+                return false;
+            if (message == null)
+                return true;
+            if (MemberNameEqual(message.PropertyName, binding.SourceAccessor))
+                UpdateErrors();
+            return true;
+        }
+
+        private bool MemberNameEqual(string memberName, IBindingSourceAccessor accessor)
+        {
+            if (string.IsNullOrEmpty(memberName))
+                return true;
+            var paths = ErrorPaths;
+            bool hasPaths = paths != null && paths.Length != 0;
+            if (hasPaths)
+            {
+                for (int i = 0; i < paths.Length; i++)
+                {
+                    if (ToolkitExtensions.PropertyNameEqual(memberName, paths[i], true))
+                        return true;
+                }
+            }
+            var singleAccessor = accessor as ISingleBindingSourceAccessor;
+            string path;
+            if (singleAccessor != null)
+            {
+                path = singleAccessor.Source.Path.Parts.LastOrDefault();
+                if (hasPaths && string.IsNullOrEmpty(path))
+                    return false;
+                return ToolkitExtensions.PropertyNameEqual(memberName, path, true);
+            }
+            for (int i = 0; i < accessor.Sources.Count; i++)
+            {
+                path = accessor.Sources[i].Path.Parts.LastOrDefault();
+                if (hasPaths && string.IsNullOrEmpty(path))
+                    continue;
+                if (ToolkitExtensions.PropertyNameEqual(memberName, path, true))
+                    return true;
+            }
+            return false;
+        }
+
         #endregion
 
         #region Implementation of interfaces
+
+        bool IEventListener.IsAlive
+        {
+            get { return Binding != null; }
+        }
 
         bool IEventListener.IsWeak
         {
@@ -255,10 +331,12 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         void IEventListener.Handle(object sender, object message)
         {
-            var args = (DataErrorsChangedEventArgs)message;
-            var binding = Binding;
-            if (binding != null && args.PropertyNameEqual(binding.SourceAccessor))
-                UpdateErrors();
+            Handle(message as DataErrorsChangedEventArgs);
+        }
+
+        bool IEventListener.TryHandle(object sender, object message)
+        {
+            return Handle(message as DataErrorsChangedEventArgs);
         }
 
         WeakReference IHasWeakReference.WeakReference

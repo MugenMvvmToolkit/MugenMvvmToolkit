@@ -13,10 +13,13 @@
 // </license>
 // ****************************************************************************
 #endregion
+
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Collections;
@@ -33,7 +36,22 @@ namespace MugenMvvmToolkit.ViewModels
     [BaseViewModel(Priority = 4)]
     public class MultiViewModel : CloseableViewModel, IMultiViewModel
     {
+        #region Nested types
+
+        //NOTE we cannot use default list, because MONO cannot deserialize it correctly.
+        [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable]
+        internal sealed class StateList
+        {
+            [DataMember]
+            public List<IDataContext> State;
+        }
+
+        #endregion
+
         #region Fields
+
+        private static readonly DataConstant<StateList> ViewModelState;
+        private static readonly DataConstant<int> SelectedIndex;
 
         private readonly IList<IViewModel> _itemsSource;
         private IViewModel _selectedItem;
@@ -45,6 +63,12 @@ namespace MugenMvvmToolkit.ViewModels
         #endregion
 
         #region Constructors
+
+        static MultiViewModel()
+        {
+            ViewModelState = DataConstant.Create(() => ViewModelState, true);
+            SelectedIndex = DataConstant.Create(() => SelectedIndex);
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="MultiViewModel" /> class.
@@ -170,6 +194,44 @@ namespace MugenMvvmToolkit.ViewModels
         #endregion
 
         #region Methods
+
+        /// <summary>
+        ///     Preserves the view models state.
+        /// </summary>
+        public void PreserveViewModels(IDataContext context)
+        {
+            if (ItemsSource.Count == 0)
+                return;
+            var states = new StateList { State = new List<IDataContext>() };
+            for (int index = 0; index < ItemsSource.Count; index++)
+            {
+                var viewModel = ItemsSource[index];
+                states.State.Add(ViewModelProvider.PreserveViewModel(viewModel, DataContext.Empty));
+                if (ReferenceEquals(viewModel, SelectedItem))
+                    context.AddOrUpdate(SelectedIndex, index);
+            }
+            if (states.State.Count != 0)
+                context.AddOrUpdate(ViewModelState, states);
+        }
+
+        /// <summary>
+        ///     Restores the view models from state context.
+        /// </summary>
+        public void RestoreViewModels(IDataContext context)
+        {
+            var states = context.GetData(ViewModelState);
+            if (states == null)
+                return;
+            var selectedIndex = context.GetData(SelectedIndex);
+            for (int index = 0; index < states.State.Count; index++)
+            {
+                var state = states.State[index];
+                var viewModel = ViewModelProvider.RestoreViewModel(state, DataContext.Empty, true);
+                ItemsSource.Add(viewModel);
+                if (selectedIndex == index)
+                    SelectedItem = viewModel;
+            }
+        }
 
         /// <summary>
         ///     Occurs when the <c>SelectedItem</c> property is changed.
@@ -340,8 +402,7 @@ namespace MugenMvvmToolkit.ViewModels
         {
             var selectableModel = sender as ISelectable;
             var vm = sender as IViewModel;
-            if (vm == null || selectableModel == null || selectableModel.IsSelected ||
-                args.PropertyName != "IsSelected")
+            if (vm == null || selectableModel == null || args.PropertyName != "IsSelected")
                 return;
             if (selectableModel.IsSelected)
                 SelectedItem = vm;

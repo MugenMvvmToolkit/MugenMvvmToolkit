@@ -163,7 +163,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         }
 
         [TestMethod]
-        public void HasChangesShouldGetValueFromStateManagerIfItIsSupportChangeDetection()
+        public void HasChangesShouldGetValueFromStateManagerSupportChangeDetection()
         {
             bool stateValue = false;
             var entity = new object();
@@ -182,7 +182,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         }
 
         [TestMethod]
-        public void HasChangesShouldNotGetValueFromStateManagerIfItIsNotSupportChangeDetection()
+        public void HasChangesShouldNotGetValueFromStateManagerNotSupportChangeDetection()
         {
             bool isInvoked = false;
             var entity = new object();

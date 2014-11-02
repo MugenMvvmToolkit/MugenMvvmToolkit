@@ -62,7 +62,7 @@ namespace MugenMvvmToolkit
 
             public bool OnNavigationItemSelected(int itemPosition, long itemId)
             {
-                ItemsSourceAdapter adapter = ItemsSourceAdapter.Get(_actionBar);
+                var adapter = ItemsSourceAdapter.Get(_actionBar);
                 if (adapter == null)
                     return false;
                 ActionBarSelectedItemMember.SetValue(_actionBar, adapter.GetRawItem(itemPosition));
@@ -427,7 +427,7 @@ namespace MugenMvvmToolkit
             switch (actionBar.GetNavigationMode())
             {
                 case ActionBarNavigationMode.List:
-                    ItemsSourceAdapter adapter = ItemsSourceAdapter.Get(actionBar);
+                    var adapter = ItemsSourceAdapter.Get(actionBar);
                     if (adapter == null || adapter.ItemsSource == null)
                         return;
                     if (args.NewValue == null)
@@ -436,7 +436,7 @@ namespace MugenMvvmToolkit
                         actionBar.SetSelectedNavigationItem(adapter.GetPosition(args.NewValue));
                     break;
                 case ActionBarNavigationMode.Tabs:
-                    var tabGenerator = ActionBarTabItemsSourceGenerator.Get(actionBar);
+                    var tabGenerator = ItemsSourceGeneratorBase.Get(actionBar) as ActionBarTabItemsSourceGenerator;
                     if (tabGenerator == null)
                     {
                         var tabValue = args.NewValue as ActionBar.Tab;
@@ -453,7 +453,7 @@ namespace MugenMvvmToolkit
                             args.Member.SetValue(actionBar, new[] { ctx });
                         }
                         else
-                            tabGenerator.Select(args.NewValue);
+                            tabGenerator.SetSelectedItem(args.NewValue);
                     }
                     break;
             }
@@ -464,10 +464,10 @@ namespace MugenMvvmToolkit
             switch (actionBar.GetNavigationMode())
             {
                 case ActionBarNavigationMode.List:
-                    ItemsSourceAdapter sourceAdapter = ItemsSourceAdapter.Get(actionBar);
+                    IItemsSourceAdapter sourceAdapter = ItemsSourceAdapter.Get(actionBar);
                     if (sourceAdapter == null)
                     {
-                        sourceAdapter = new ItemsSourceAdapter(actionBar, actionBar.ThemedContext, true);
+                        sourceAdapter = ItemsSourceAdapter.Factory(actionBar, actionBar.ThemedContext, DataContext.Empty);
                         ItemsSourceAdapter.Set(actionBar, sourceAdapter);
                         actionBar.SetListNavigationCallbacks(sourceAdapter, new ActionBarNavigationListener(actionBar));
                     }
@@ -476,17 +476,17 @@ namespace MugenMvvmToolkit
                 case ActionBarNavigationMode.Standard:
                     ActionBarSelectedItemMember.SetValue(actionBar, BindingExtensions.NullValue);
                     actionBar.SetListNavigationCallbacks(null, null);
-                    ActionBarTabItemsSourceGenerator generator = ActionBarTabItemsSourceGenerator.Get(actionBar);
+                    var generator = ItemsSourceGeneratorBase.Get(actionBar);
                     if (generator != null)
-                        generator.Update(null);
-                    ItemsSourceAdapter adapter = ItemsSourceAdapter.Get(actionBar);
+                        generator.SetItemsSource(null);
+                    var adapter = ItemsSourceAdapter.Get(actionBar);
                     if (adapter != null)
                         adapter.ItemsSource = null;
                     break;
                 case ActionBarNavigationMode.Tabs:
-                    ActionBarTabItemsSourceGenerator tabGenerator = ActionBarTabItemsSourceGenerator.Get(actionBar);
+                    var tabGenerator = ItemsSourceGeneratorBase.Get(actionBar);
                     if (tabGenerator != null)
-                        tabGenerator.Update(ActionBarItemsSourceMember.GetValue(actionBar, null));
+                        tabGenerator.SetItemsSource(ActionBarItemsSourceMember.GetValue(actionBar, null));
                     break;
             }
         }

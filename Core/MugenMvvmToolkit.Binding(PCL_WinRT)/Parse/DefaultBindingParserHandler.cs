@@ -15,6 +15,7 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
@@ -37,8 +38,8 @@ namespace MugenMvvmToolkit.Binding.Parse
         internal const string GetErrorsMethod = "GetErrors";
         private const string GetEventArgsDynamicMethod = "$GetEventArgs()";
         private const string Temp = "~~~___~~~";
-        private readonly object _locker;
         private bool _hasGetErrors;
+        private readonly List<string> _errorPathNames;
 
         #endregion
 
@@ -50,8 +51,8 @@ namespace MugenMvvmToolkit.Binding.Parse
             {
                 {"&lt;", "<"},
                 {"&gt;", ">"},
-                {"&amp;", "&"},
                 {"&quot;", "\""},
+                {"&amp;", "&"},
                 {"$self", "{RelativeSource Self}"},
                 {"$this", "{RelativeSource Self}"},
                 {"$context", "{RelativeSource Self, Path=DataContext}"},
@@ -69,7 +70,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         /// </summary>
         public DefaultBindingParserHandler()
         {
-            _locker = new object();
+            _errorPathNames = new List<string>();
         }
 
         #endregion
@@ -92,6 +93,18 @@ namespace MugenMvvmToolkit.Binding.Parse
         }
 
         /// <summary>
+        ///     Prepares a target path for the binding.
+        /// </summary>
+        /// <param name="targetPath">The specified target path.</param>
+        /// <param name="context">The specified context.</param>
+        /// <returns>An instance of <see cref="string" />.</returns>
+        public void HandleTargetPath(ref string targetPath, IDataContext context)
+        {
+            if (targetPath == "BindingErrorProvider.Errors" || targetPath == "ErrorProvider.Errors")
+                targetPath = DataBindingModule.ErrorProviderErrors;
+        }
+
+        /// <summary>
         ///     Prepares an <see cref="IExpressionNode" /> for the binding.
         /// </summary>
         /// <param name="expression">The specified binding expression.</param>
@@ -108,7 +121,8 @@ namespace MugenMvvmToolkit.Binding.Parse
                 return null;
             if (!HasGetErrorsMethod(expression))
                 return null;
-            return UpdateBindingContext;
+            var strings = _errorPathNames.Count == 0 ? null : _errorPathNames.ToArrayEx();
+            return dataContext => UpdateBindingContext(dataContext, strings);
         }
 
         /// <summary>
@@ -123,7 +137,14 @@ namespace MugenMvvmToolkit.Binding.Parse
                 return node;
             if (methodCallExpressionNode.Method == GetErrorsMethod &&
                 methodCallExpressionNode.Target is ResourceExpressionNode)
+            {
+                var paths = methodCallExpressionNode.Arguments
+                                        .OfType<IConstantExpressionNode>()
+                                        .Where(expressionNode => expressionNode.Type == typeof(string))
+                                        .Select(expressionNode => expressionNode.Value as string ?? string.Empty);
+                _errorPathNames.AddRange(paths);
                 _hasGetErrors = true;
+            }
             return node;
         }
 
@@ -133,20 +154,21 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         private bool HasGetErrorsMethod(IExpressionNode node)
         {
-            lock (_locker)
+            lock (_errorPathNames)
             {
                 _hasGetErrors = false;
+                _errorPathNames.Clear();
                 node.Accept(this);
                 return _hasGetErrors;
             }
         }
 
-        private static void UpdateBindingContext(IDataContext dataContext)
+        private static void UpdateBindingContext(IDataContext dataContext, string[] errorPathNames)
         {
             var behaviors = dataContext.GetOrAddBehaviors();
             behaviors.Clear();
-            behaviors.Add(NoneBindingMode.Instance);
-            behaviors.Add(new NotifyDataErrorsAggregatorBehavior());
+            behaviors.Add(new OneTimeBindingMode());
+            behaviors.Add(new NotifyDataErrorsAggregatorBehavior { ErrorPaths = errorPathNames });
         }
 
         #endregion

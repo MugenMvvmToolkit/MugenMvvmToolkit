@@ -20,6 +20,7 @@ using System.Xml.Serialization;
 using Android.Content;
 using Android.Views;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Infrastructure;
 
@@ -55,23 +56,25 @@ namespace MugenMvvmToolkit.Models
         public void Apply(IMenu menu, Context context, object parent)
         {
             PlatformExtensions.ValidateTemplate(ItemsSource, Items);
-            var setter = new XmlPropertySetter<MenuTemplate, IMenu>(menu, context);
+            var setter = new XmlPropertySetter<MenuTemplate, IMenu>(menu, context, new BindingSet());
             BindingExtensions.AttachedParentMember.SetValue(menu, parent);
             setter.SetBinding(template => template.DataContext, DataContext, false);
             setter.SetBoolProperty(template => template.IsVisible, IsVisible);
             setter.SetBoolProperty(template => template.IsEnabled, IsEnabled);
             if (string.IsNullOrEmpty(ItemsSource))
             {
-                if (Items == null)
-                    return;
-                for (int index = 0; index < Items.Count; index++)
-                    Items[index].Apply(menu, context, index, index);
+                if (Items != null)
+                {
+                    for (int index = 0; index < Items.Count; index++)
+                        Items[index].Apply(menu, context, index, index);
+                }
             }
             else
             {
                 MenuItemsSourceGenerator.Set(menu, context, ItemTemplate);
                 setter.SetBinding(template => template.ItemsSource, ItemsSource, true);
             }
+            setter.Apply();
         }
 
         public static void Clear(IMenu menu)

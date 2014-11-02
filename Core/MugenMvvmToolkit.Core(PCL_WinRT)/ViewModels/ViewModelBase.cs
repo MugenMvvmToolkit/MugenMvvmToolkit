@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
@@ -44,7 +43,7 @@ namespace MugenMvvmToolkit.ViewModels
         private const int DefaultState = 0;
 
         private readonly Dictionary<Guid, object> _busyCollection;
-        private readonly IEventAggregator _vmEventAggregator;
+        private readonly IEventAggregator _viewModelEventAggregator;
         private readonly IViewModelSettings _settings;
 
         private CancellationTokenSource _disposeCancellationToken;
@@ -71,9 +70,9 @@ namespace MugenMvvmToolkit.ViewModels
             _busyCollection = new Dictionary<Guid, object>();
             _disposeCancellationToken = new CancellationTokenSource();
             _settings = ApplicationSettings.ViewModelSettings.Clone();
-            _vmEventAggregator = ServiceProvider.InstanceEventAggregatorFactory(this);
+            _viewModelEventAggregator = ServiceProvider.InstanceEventAggregatorFactory(this);
 
-            ServiceProvider.Tracer.TraceViewModel(AuditAction.Created, this);
+            Tracer.TraceViewModel(AuditAction.Created, this);
             if (IsDesignMode)
                 ServiceProvider.DesignTimeManager.InitializeViewModel(this);
         }
@@ -95,7 +94,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         protected internal IEventAggregator ViewModelEventAggregator
         {
-            get { return _vmEventAggregator; }
+            get { return _viewModelEventAggregator; }
         }
 
         /// <summary>
@@ -106,7 +105,7 @@ namespace MugenMvvmToolkit.ViewModels
             get { return _viewModelProvider ?? ServiceProvider.ViewModelProvider; }
             set
             {
-                Should.PropertyBeNotNull(value, "ViewModelProvider");
+                Should.PropertyBeNotNull(value);
                 _viewModelProvider = value;
             }
         }
@@ -195,12 +194,10 @@ namespace MugenMvvmToolkit.ViewModels
             get
             {
                 if (_iocContainer == null)
-                {
-                    Tracer.Warn("The view model '{0}' uses global IocContainer", GetType());
                     return ServiceProvider.IocContainer;
-                }
                 return _iocContainer;
-            }
+            }            
+            internal set { _iocContainer = value; }
         }
 
         /// <summary>
@@ -233,8 +230,6 @@ namespace MugenMvvmToolkit.ViewModels
             if (_viewModelProvider == null)
                 ViewModelProvider = _iocContainer.Get<IViewModelProvider>();
 
-            InitializeDisplayName();
-            InitializeParentViewModel(context);
             OnInitializing(context);
             OnInitializedInternal();
             OnInitialized();
@@ -245,7 +240,7 @@ namespace MugenMvvmToolkit.ViewModels
                 Initialized = null;
             }
             OnPropertyChanged("IsInitialized");
-            ServiceProvider.Tracer.TraceViewModel(AuditAction.Initialized, this);
+            Tracer.TraceViewModel(AuditAction.Initialized, this);
         }
 
         /// <summary>
@@ -280,7 +275,7 @@ namespace MugenMvvmToolkit.ViewModels
         {
             Guid[] guids;
             lock (_busyCollection)
-                guids = _busyCollection.Keys.ToArrayFast();
+                guids = _busyCollection.Keys.ToArrayEx();
             for (int index = 0; index < guids.Length; index++)
                 EndBusy(guids[index]);
         }
@@ -289,9 +284,9 @@ namespace MugenMvvmToolkit.ViewModels
         ///     Subscribes an instance to events.
         /// </summary>
         /// <param name="instance">The instance to subscribe for event publication.</param>
-        public virtual bool Subscribe(object instance)
+        public bool Subscribe(object instance)
         {
-            if (instance == this || !_vmEventAggregator.Subscribe(instance))
+            if (!SubscribeInternal(instance))
                 return false;
             var vm = instance as IViewModel;
             if (vm != null)
@@ -303,9 +298,9 @@ namespace MugenMvvmToolkit.ViewModels
         ///     Unsubscribes the instance from all events.
         /// </summary>
         /// <param name="instance">The instance to unsubscribe.</param>
-        public virtual bool Unsubscribe(object instance)
+        public bool Unsubscribe(object instance)
         {
-            if (instance == this || !_vmEventAggregator.Unsubscribe(instance))
+            if (!UnsubscribeInternal(instance))
                 return false;
             var vm = instance as IViewModel;
             if (vm != null)
@@ -350,10 +345,6 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         public event EventHandler<IDisposableObject, EventArgs> Disposed;
 
-        #endregion
-
-        #region Implementation of IHandler
-
         /// <summary>
         ///     Handles the message.
         /// </summary>
@@ -364,10 +355,6 @@ namespace MugenMvvmToolkit.ViewModels
             HandleInternal(sender, message);
             OnHandle(sender, message);
         }
-
-        #endregion
-
-        #region Implementation of IHasWeakReference
 
         /// <summary>
         ///     Gets the <see cref="System.WeakReference" /> of current object.
@@ -384,76 +371,75 @@ namespace MugenMvvmToolkit.ViewModels
 
         #endregion
 
-        #region Work with IoC
+        #region Methods
 
         /// <summary>
         ///     Creates an instance of the specified view model.
         /// </summary>
         /// <param name="getViewModel">The specified delegate to create view model.</param>
-        /// <param name="useParentIocContainer">The value that is responsible to initialize the IocContainer using the IocContainer of parent view model.</param>
+        /// <param name="containerCreationMode">The value that is responsible to initialize the IocContainer.</param>
         /// <param name="observationMode">The value that is responsible for listen messages in created view model.</param>
         /// <param name="parameters">The specified parameters to get view-model.</param>
         /// <returns>
         ///     An instance of <see cref="IViewModel" />.
         /// </returns>
-        protected internal IViewModel GetViewModel([NotNull] GetViewModelDelegate<IViewModel> getViewModel, ObservationMode? observationMode = null, bool? useParentIocContainer = null,
-            params DataConstantValue[] parameters)
+        protected internal IViewModel GetViewModel([NotNull] GetViewModelDelegate<IViewModel> getViewModel, ObservationMode? observationMode = null,
+            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
         {
             EnsureNotDisposed();
-            return ViewModelProvider.GetViewModel(getViewModel, this, observationMode, useParentIocContainer, parameters);
+            return ViewModelProvider.GetViewModel(getViewModel, this, observationMode, containerCreationMode, parameters);
         }
 
         /// <summary>
         ///     Creates an instance of the specified view model.
         /// </summary>
         /// <param name="getViewModelGeneric">The specified delegate to create view model.</param>
-        /// <param name="useParentIocContainer">The value that is responsible to initialize the IocContainer using the IocContainer of parent view model.</param>
+        /// <param name="containerCreationMode">The value that is responsible to initialize the IocContainer.</param>
         /// <param name="observationMode">The value that is responsible for listen messages in created view model.</param>
         /// <param name="parameters">The specified parameters to get view-model.</param>
         /// <returns>
         ///     An instance of <see cref="IViewModel" />.
         /// </returns>
-        protected internal T GetViewModel<T>([NotNull] GetViewModelDelegate<T> getViewModelGeneric, ObservationMode? observationMode = null, bool? useParentIocContainer = null, params DataConstantValue[] parameters) where T : IViewModel
+        protected internal T GetViewModel<T>([NotNull] GetViewModelDelegate<T> getViewModelGeneric, ObservationMode? observationMode = null,
+            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters) where T : IViewModel
         {
             EnsureNotDisposed();
-            return ViewModelProvider.GetViewModel(getViewModelGeneric, this, observationMode, useParentIocContainer, parameters);
+            return ViewModelProvider.GetViewModel(getViewModelGeneric, this, observationMode, containerCreationMode, parameters);
         }
 
         /// <summary>
         ///     Creates an instance of the specified view model.
         /// </summary>
         /// <param name="viewModelType">The type of view model.</param>
-        /// <param name="useParentIocContainer">The value that is responsible to initialize the IocContainer using the IocContainer of parent view model.</param>
+        /// <param name="containerCreationMode">The value that is responsible to initialize the IocContainer.</param>
         /// <param name="observationMode">The value that is responsible for listen messages in created view model.</param>
         /// <param name="parameters">The specified parameters to get view-model.</param>
         /// <returns>
         ///     An instance of <see cref="IViewModel" />.
         /// </returns>
-        protected internal IViewModel GetViewModel([NotNull, ViewModelTypeRequired] Type viewModelType, ObservationMode? observationMode = null, bool? useParentIocContainer = null, params DataConstantValue[] parameters)
+        protected internal IViewModel GetViewModel([NotNull, ViewModelTypeRequired] Type viewModelType, ObservationMode? observationMode = null,
+            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
         {
             EnsureNotDisposed();
-            return ViewModelProvider.GetViewModel(viewModelType, this, observationMode, useParentIocContainer, parameters);
+            return ViewModelProvider.GetViewModel(viewModelType, this, observationMode, containerCreationMode, parameters);
         }
 
         /// <summary>
         ///     Creates an instance of the specified view model.
         /// </summary>
         /// <typeparam name="T">The type of view model.</typeparam>
-        /// <param name="useParentIocContainer">The value that is responsible to initialize the IocContainer using the IocContainer of parent view model.</param>
+        /// <param name="containerCreationMode">The value that is responsible to initialize the IocContainer.</param>
         /// <param name="observationMode">The value that is responsible for listen messages in created view model.</param>
         /// <param name="parameters">The specified parameters to get view-model.</param>
         /// <returns>
         ///     An instance of <see cref="IViewModel" />.
         /// </returns>
-        protected internal T GetViewModel<T>(ObservationMode? observationMode = null, bool? useParentIocContainer = null, params DataConstantValue[] parameters) where T : IViewModel
+        protected internal T GetViewModel<T>(ObservationMode? observationMode = null,
+            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters) where T : IViewModel
         {
             EnsureNotDisposed();
-            return ViewModelProvider.GetViewModel<T>(this, observationMode, useParentIocContainer, parameters);
+            return ViewModelProvider.GetViewModel<T>(this, observationMode, containerCreationMode, parameters);
         }
-
-        #endregion
-
-        #region Methods
 
         /// <summary>
         ///     Publishes a message.
@@ -494,36 +480,6 @@ namespace MugenMvvmToolkit.ViewModels
             }
             if (Settings.BroadcastAllMessages || message is IBroadcastMessage)
                 Publish(sender, message);
-        }
-
-        private void InitializeParentViewModel(IDataContext context)
-        {
-            var parentViewModel = context.GetData(InitializationConstants.ParentViewModel);
-            if (parentViewModel == null)
-                return;
-            Settings.Metadata.AddOrUpdate(ViewModelConstants.ParentViewModel, ToolkitExtensions.GetWeakReference(parentViewModel));
-            ObservationMode observationMode;
-            if (!context.TryGetData(InitializationConstants.ObservationMode, out observationMode))
-                observationMode = ApplicationSettings.ViewModelObservationMode;
-            if (observationMode.HasFlagEx(ObservationMode.ParentObserveChild))
-                Subscribe(parentViewModel);
-            if (observationMode.HasFlagEx(ObservationMode.ChildObserveParent))
-                parentViewModel.Subscribe(this);
-        }
-
-        private void InitializeDisplayName()
-        {
-            var hasDisplayName = this as IHasDisplayName;
-            IDisplayNameProvider displayNameProvider;
-            if (hasDisplayName != null && string.IsNullOrEmpty(hasDisplayName.DisplayName)
-                && IocContainer.TryGet(out displayNameProvider))
-                hasDisplayName.DisplayName = displayNameProvider
-#if PCL_WINRT
-.GetDisplayNameAccessor(GetType().GetTypeInfo())
-#else
-.GetDisplayNameAccessor(GetType())
-#endif
-.Invoke();
         }
 
         private void NotifyBeginBusy(IViewModel viewModel)
@@ -604,7 +560,7 @@ namespace MugenMvvmToolkit.ViewModels
 
             ClearBusy();
             ClearPropertyChangedSubscribers();
-            var toRemove = _vmEventAggregator.GetObservers();
+            var toRemove = _viewModelEventAggregator.GetObservers();
             for (int index = 0; index < toRemove.Count; index++)
                 Unsubscribe(toRemove[index]);
 
@@ -618,7 +574,7 @@ namespace MugenMvvmToolkit.ViewModels
                 _iocContainer.Dispose();
 
             _disposeCancellationToken.Cancel();
-            ServiceProvider.Tracer.TraceViewModel(AuditAction.Disposed, this);
+            Tracer.TraceViewModel(AuditAction.Disposed, this);
             Settings.Metadata.Clear();
         }
 
@@ -649,6 +605,24 @@ namespace MugenMvvmToolkit.ViewModels
         #region Virtual methods
 
         /// <summary>
+        ///     Subscribes an instance to events.
+        /// </summary>
+        /// <param name="instance">The instance to subscribe for event publication.</param>
+        protected virtual bool SubscribeInternal(object instance)
+        {
+            return instance != this && _viewModelEventAggregator.Subscribe(instance);
+        }
+
+        /// <summary>
+        ///     Unsubscribes the instance from all events.
+        /// </summary>
+        /// <param name="instance">The instance to unsubscribe.</param>
+        protected virtual bool UnsubscribeInternal(object instance)
+        {
+            return instance != this && _viewModelEventAggregator.Unsubscribe(instance);
+        }
+
+        /// <summary>
         ///     Publishes a message.
         /// </summary>
         /// <param name="sender">The specified sender.</param>
@@ -657,7 +631,7 @@ namespace MugenMvvmToolkit.ViewModels
         {
             Should.NotBeNull(sender, "sender");
             Should.NotBeNull(message, "message");
-            _vmEventAggregator.Publish(sender, message);
+            _viewModelEventAggregator.Publish(sender, message);
         }
 
         /// <summary>
@@ -732,7 +706,7 @@ namespace MugenMvvmToolkit.ViewModels
         {
             OnDisposeInternal(false);
             OnDispose(false);
-            ServiceProvider.Tracer.TraceViewModel(AuditAction.Finalized, this);
+            Tracer.TraceViewModel(AuditAction.Finalized, this);
         }
 
         #endregion

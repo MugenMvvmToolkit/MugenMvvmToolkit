@@ -19,6 +19,7 @@
     <RestorePackages>true</RestorePackages>
     <AndroidUseLatestPlatformSdk />
     <TargetFrameworkVersion>v2.2</TargetFrameworkVersion>
+    <NuGetPackageImportStamp>403d8ef6</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -51,11 +52,13 @@
     <Reference Include="System.Windows" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml" />
-    <Reference Include="Xamarin.Android.Support.v4">
-      <HintPath>..\..\packages\Xamarin.Android.Support.v4.20.0.0.3\lib\MonoAndroid10\Xamarin.Android.Support.v4.dll</HintPath>
+    <Reference Include="Xamarin.Android.Support.v4, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Xamarin.Android.Support.v4.20.0.0.4\lib\MonoAndroid10\Xamarin.Android.Support.v4.dll</HintPath>
     </Reference>
-    <Reference Include="Xamarin.Android.Support.v7.AppCompat">
-      <HintPath>..\..\packages\Xamarin.Android.Support.v7.AppCompat.20.0.0\lib\MonoAndroid10\Xamarin.Android.Support.v7.AppCompat.dll</HintPath>
+    <Reference Include="Xamarin.Android.Support.v7.AppCompat, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Xamarin.Android.Support.v7.AppCompat.20.0.0.2\lib\MonoAndroid10\Xamarin.Android.Support.v7.AppCompat.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -74,9 +77,6 @@
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\AndroidBootstrapperBase.cs">
       <Link>Infrastructure\AndroidBootstrapperBase.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\ApplicationStateManager.cs">
-      <Link>Infrastructure\ApplicationStateManager.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\BindableMenuInflater.cs">
       <Link>Infrastructure\BindableMenuInflater.cs</Link>
     </Compile>
@@ -85,6 +85,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs">
       <Link>Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\DataTemplateProvider.cs">
+      <Link>Infrastructure\DataTemplateProvider.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\DataTemplateSelectorBase.cs">
       <Link>Infrastructure\DataTemplateSelectorBase.cs</Link>
@@ -134,9 +137,6 @@
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\TypeCache.cs">
       <Link>Infrastructure\TypeCache.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\ValueTemplateManager.cs">
-      <Link>Infrastructure\ValueTemplateManager.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\ViewFactory.cs">
       <Link>Infrastructure\ViewFactory.cs</Link>
     </Compile>
@@ -146,14 +146,17 @@
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\XmlPropertySetter.cs">
       <Link>Infrastructure\XmlPropertySetter.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\IApplicationStateManager.cs">
-      <Link>Interfaces\IApplicationStateManager.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\IBindableMenuInflater.cs">
       <Link>Interfaces\IBindableMenuInflater.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\IDataTemplateSelector.cs">
       <Link>Interfaces\IDataTemplateSelector.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\IItemsSourceAdapter.cs">
+      <Link>Interfaces\IItemsSourceAdapter.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\IItemsSourceGenerator.cs">
+      <Link>Interfaces\IItemsSourceGenerator.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\IManualBindings.cs">
       <Link>Interfaces\IManualBindings.cs</Link>
@@ -337,9 +340,9 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Fody.1.24.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.24.0\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Fody.1.26.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.26.1\build\Fody.targets'))" />
   </Target>
-  <Import Project="..\..\packages\Fody.1.24.0\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.24.0\build\Fody.targets')" />
+  <Import Project="..\..\packages\Fody.1.26.1\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.26.1\build\Fody.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -49,6 +49,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         protected static readonly DataConstant<object> SourceExpressionConstant;
 
+        private static readonly Comparison<KeyValuePair<string, Action<IDataContext>[]>> MemberComparison;
         private static readonly Func<IDataContext, IBindingSource>[] EmptyBindingSourceDelegates;
         private static readonly HashSet<string> LiteralConstants;
         private static readonly HashSet<TokenType> LiteralTokens;
@@ -70,8 +71,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         private readonly IDictionary<string, TokenType> _unaryOperationAliases;
         private readonly ICollection<TokenType> _unaryOperationTokens;
         private readonly List<IBindingParserHandler> _handlers;
-        private readonly IDictionary<string, int> _memberPriorityOrder;
-        private readonly Comparison<KeyValuePair<string, Action<IDataContext>[]>> _memberComparison;
+        private readonly DataContext _defaultContext;
 
         private IDataContext _context;
         private string _expression;
@@ -87,6 +87,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         static BindingParser()
         {
+            MemberComparison = OrderByMemberPriority;
             SourceExpressionConstant = DataConstant.Create(() => SourceExpressionConstant, true);
             DelimeterTokens = new HashSet<TokenType>
             {
@@ -123,12 +124,8 @@ namespace MugenMvvmToolkit.Binding.Parse
         /// </summary>
         public BindingParser()
         {
-            _memberPriorityOrder = new Dictionary<string, int>
-            {
-                {AttachedMemberConstants.DataContext, 1}
-            };
-            _memberComparison = OrderByMemberPriority;
             _cache = new Dictionary<string, KeyValuePair<string, Action<IDataContext>[]>[]>(StringComparer.Ordinal);
+            _defaultContext = new DataContext();
             _handlers = new List<IBindingParserHandler> { new DefaultBindingParserHandler() };
             _defaultTokenizer = new Tokenizer(true);
             _memberVisitor = new BindingMemberVisitor();
@@ -249,16 +246,20 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {
                     try
                     {
+                        if (ReferenceEquals(context, DataContext.Empty))
+                            context = _defaultContext;
                         _context = context;
                         _expression = Handle(bindingExpression, context);
                         _tokenizer = CreateTokenizer(Expression);
                         var value = ParseInternal();
-                        value.Sort(_memberComparison);
-                        bindingValues = value.ToArrayFast();
+                        value.Sort(MemberComparison);
+                        bindingValues = value.ToArrayEx();
                         _cache[bindingExpression] = bindingValues;
                     }
                     finally
                     {
+                        if (ReferenceEquals(_defaultContext, context))
+                            _defaultContext.Clear();
                         _tokenizer = null;
                         _expression = null;
                         _context = null;
@@ -318,11 +319,6 @@ namespace MugenMvvmToolkit.Binding.Parse
         public IDictionary<string, TokenType> BinaryOperationAliases
         {
             get { return _binaryOperationAliases; }
-        }
-
-        public IDictionary<string, int> MemberPriorityOrder
-        {
-            get { return _memberPriorityOrder; }
         }
 
         /// <summary>
@@ -411,7 +407,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             _parsingTarget = true;
             IExpressionNode target = ParsePrimary();
             _parsingTarget = false;
-            string targetPath = target.TryGetMemberName(true, false);
+            string targetPath = HandleTargetPath(target.TryGetMemberName(true, false), Context);
             if (string.IsNullOrEmpty(targetPath))
                 throw BindingExceptionManager.InvalidExpressionParser(target.ToString(), Tokenizer, Expression);
 
@@ -1065,7 +1061,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             try
             {
                 expression = expression.Accept(_memberVisitor);
-                KeyValuePair<string, BindingMemberExpressionNode>[] members = _memberVisitor.Members.ToArrayFast();
+                KeyValuePair<string, BindingMemberExpressionNode>[] members = _memberVisitor.Members.ToArrayEx();
                 bool isEmpty = members.Length == 0;
                 IExpressionInvoker invoker = null;
                 IBindingValueConverter converter = null;
@@ -1201,7 +1197,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             IBindingBehavior behavior;
             if (!BindingModeToAction.TryGetValue(mode, out behavior))
                 throw BindingExceptionManager.UnknownIdentifierParser(mode, Tokenizer, Expression,
-                    BindingModeToAction.Keys.ToArrayFast());
+                    BindingModeToAction.Keys.ToArrayEx());
             NextToken(true);
             if (behavior == null)
                 return null;
@@ -1299,7 +1295,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 throw BindingExceptionManager.UnknownIdentifierParser(node.ToString(), Tokenizer, Expression);
 
             var method = methodCall.Method;
-            var args = methodCall.Arguments.ToArrayFast(ex => ((IConstantExpressionNode)ex).Value);
+            var args = methodCall.Arguments.ToArrayEx(ex => ((IConstantExpressionNode)ex).Value);
             var memberPath = members.Count == 0 ? null : string.Join(".", members);
 
             if (resourceExpression.Dynamic)
@@ -1462,6 +1458,13 @@ namespace MugenMvvmToolkit.Binding.Parse
                 throw BindingExceptionManager.UnexpectedTokenParser(current, expected, Tokenizer, Expression);
         }
 
+        protected string HandleTargetPath(string targetPath, IDataContext context)
+        {
+            for (int i = 0; i < _handlers.Count; i++)
+                _handlers[i].HandleTargetPath(ref targetPath, context);
+            return targetPath;
+        }
+
         protected string Handle(string bindingExpression, IDataContext context)
         {
             for (int i = 0; i < _handlers.Count; i++)
@@ -1496,12 +1499,12 @@ namespace MugenMvvmToolkit.Binding.Parse
             return index;
         }
 
-        private int OrderByMemberPriority(KeyValuePair<string, Action<IDataContext>[]> path1, KeyValuePair<string, Action<IDataContext>[]> path2)
+        private static int OrderByMemberPriority(KeyValuePair<string, Action<IDataContext>[]> path1, KeyValuePair<string, Action<IDataContext>[]> path2)
         {
             int x1;
             int x2;
-            _memberPriorityOrder.TryGetValue(path1.Key, out x1);
-            _memberPriorityOrder.TryGetValue(path2.Key, out x2);
+            BindingServiceProvider.BindingMemberPriorities.TryGetValue(path1.Key, out x1);
+            BindingServiceProvider.BindingMemberPriorities.TryGetValue(path2.Key, out x2);
             return x2.CompareTo(x1);
         }
 

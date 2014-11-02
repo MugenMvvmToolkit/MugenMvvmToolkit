@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="IWorkspaceViewModel.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,14 +13,15 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Interfaces.ViewModels
 {
     /// <summary>
-    ///     Represents the base class for the view-model, which are displayed in the UI and has <see cref="IView" />.
+    ///     Represents the base interface for the view model, that can be displayed in the UI.
     /// </summary>
     public interface IWorkspaceViewModel : IHasDisplayName, ISelectable, ICloseableViewModel
     {

@@ -76,15 +76,20 @@ namespace MugenMvvmToolkit
 
         internal static Exception ViewNotFound(Type viewModelType, Type viewType = null)
         {
-            if (viewType == null)
-                viewType = typeof(IView);
-            return new InvalidOperationException(string.Format(@"Unable to find a suitable '{0}' for the '{1}'.", viewType, viewModelType));
+            string viewName = viewType == null ? "view" : viewType.FullName;
+            return new InvalidOperationException(string.Format(@"Unable to find a suitable '{0}' for the '{1}'.", viewName,
+                    viewModelType));
         }
 
         internal static Exception ViewModelNotFound(Type viewType)
         {
             return new InvalidOperationException(
                     string.Format(@"Unable to find a suitable view model for the '{0}'.", viewType));
+        }
+
+        internal static Exception ViewModelCannotBeRestored()
+        {
+            return new InvalidOperationException("Unable to restore a view model.");
         }
 
         internal static Exception ResourceNotFound(string resourceName, Type resourceType)

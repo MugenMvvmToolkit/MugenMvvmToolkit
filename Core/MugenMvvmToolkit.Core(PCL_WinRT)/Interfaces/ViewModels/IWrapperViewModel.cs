@@ -19,7 +19,7 @@ using MugenMvvmToolkit.Interfaces.Models;
 namespace MugenMvvmToolkit.Interfaces.ViewModels
 {
     /// <summary>
-    ///     Represents the base inteface for view model wrappers.
+    ///     Represents the base inteface for view model wrapper.
     /// </summary>
     public interface IWrapperViewModel : IViewModel
     {

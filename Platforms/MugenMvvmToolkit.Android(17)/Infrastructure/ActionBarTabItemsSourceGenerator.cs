@@ -14,13 +14,13 @@
 // ****************************************************************************
 #endregion
 
-using System;
 using System.Collections;
 using Android.App;
 using Android.Support.V7.App;
 using Android.Widget;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -31,15 +31,11 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private readonly ActionBar _actionBar;
         private readonly ActionBarTabTemplate _tabTemplate;
-        private const string Key = "#ActionBarTabItemsSourceGenerator";
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ActionBarTabItemsSourceGenerator" /> class.
-        /// </summary>
         private ActionBarTabItemsSourceGenerator(ActionBar actionBar, ActionBarTabTemplate tabTemplate)
         {
             Should.NotBeNull(actionBar, "actionBar");
@@ -114,14 +110,24 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        public static ActionBarTabItemsSourceGenerator Get(ActionBar actionBar)
-        {
-            return ServiceProvider.AttachedValueProvider.GetValue<ActionBarTabItemsSourceGenerator>(actionBar, Key, false);
-        }
-
         public static void Set(ActionBar actionBar, ActionBarTabTemplate tabTemplate)
         {
             ServiceProvider.AttachedValueProvider.SetValue(actionBar, Key, new ActionBarTabItemsSourceGenerator(actionBar, tabTemplate));
+        }
+        
+        public void SetSelectedItem(object selectedItem, IDataContext context = null)
+        {
+            IBindingContextManager contextManager = BindingServiceProvider.ContextManager;
+            for (int i = 0; i < _actionBar.TabCount; i++)
+            {
+                var tab = _actionBar.GetTabAt(i);
+                if (contextManager.GetBindingContext(tab).Value == selectedItem)
+                {
+                    if (tab.Position != _actionBar.SelectedNavigationIndex)
+                        tab.Select();
+                    return;
+                }
+            }
         }
 
         private void OnEmptyTab()
@@ -135,21 +141,6 @@ namespace MugenMvvmToolkit.Infrastructure
             var layout = ((Activity)_actionBar.ThemedContext).FindViewById<FrameLayout>(value.Value);
             if (layout != null)
                 layout.RemoveAllViews();
-        }
-
-        public void Select(object dataContext)
-        {
-            IBindingContextManager contextManager = BindingServiceProvider.ContextManager;
-            for (int i = 0; i < _actionBar.TabCount; i++)
-            {
-                var tab = _actionBar.GetTabAt(i);
-                if (contextManager.GetBindingContext(tab).Value == dataContext)
-                {
-                    if (tab.Position != _actionBar.SelectedNavigationIndex)
-                        tab.Select();
-                    return;
-                }
-            }
         }
 
         private void Remove(int index)

@@ -50,7 +50,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         }
 
         [TestMethod]
-        public void ManagerShouldReturnEmptyBindingsForTargetIfItHasNotBindings()
+        public void ManagerShouldReturnEmptyBindingsForTargetIfItHasNoBindings()
         {
             var manager = GetBindingManager();
             manager.GetBindings(manager).ShouldBeEmpty();
@@ -76,7 +76,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         }
 
         [TestMethod]
-        public void ManagerShouldReturnEmptyBindingsForTargetAndPathIfItHasNotBindings()
+        public void ManagerShouldReturnEmptyBindingsForTargetAndPathIfItHasNoBindings()
         {
             const string path = "test";
             var manager = GetBindingManager();

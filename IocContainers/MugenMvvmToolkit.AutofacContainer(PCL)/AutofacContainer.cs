@@ -139,6 +139,14 @@ namespace MugenMvvmToolkit
         /// </summary>
         public bool ThrowOnUnbind { get; set; }
 
+        /// <summary>
+        ///     Gets the original ioc container.
+        /// </summary>
+        public ILifetimeScope Container
+        {
+            get { return _container; }
+        }
+
         #endregion
 
         #region Methods
@@ -155,7 +163,7 @@ namespace MugenMvvmToolkit
             foreach (var iocParameter in parameters)
                 list.AddIfNotNull(ConvertParameter(iocParameter));
             list.Add(new ParameterContainer(parameters));
-            return list.ToArrayFast();
+            return list.ToArrayEx();
         }
 
         /// <summary>
@@ -227,7 +235,7 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Gets the original ioc container.
         /// </summary>
-        public object Container
+        object IIocContainer.Container
         {
             get { return _container; }
         }
@@ -241,7 +249,7 @@ namespace MugenMvvmToolkit
         public IIocContainer CreateChild()
         {
             this.NotBeDisposed();
-            return new AutofacContainer(_container.BeginLifetimeScope(), this);
+            return new AutofacContainer(_container.BeginLifetimeScope(), this) { ThrowOnUnbind = ThrowOnUnbind };
         }
 
         /// <summary>

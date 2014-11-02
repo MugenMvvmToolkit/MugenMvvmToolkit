@@ -50,17 +50,19 @@ namespace MugenMvvmToolkit.Test.TestModels
         /// <summary>
         ///     Sends the current value back to the source.
         /// </summary>
-        void IDataBinding.UpdateSource()
+        bool IDataBinding.UpdateSource()
         {
             UpdateSource();
+            return true;
         }
 
         /// <summary>
         ///     Forces a data transfer from source to target.
         /// </summary>
-        void IDataBinding.UpdateTarget()
+        bool IDataBinding.UpdateTarget()
         {
             UpdateTarget();
+            return true;
         }
 
         /// <summary>

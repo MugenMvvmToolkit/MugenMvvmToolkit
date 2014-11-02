@@ -201,6 +201,11 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
             #region Implementation of IEventListener
 
+            public bool IsAlive
+            {
+                get { return _sourceReference.Target != null; }
+            }
+
             public bool IsWeak
             {
                 get { return true; }
@@ -208,16 +213,23 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
             public void Handle(object sender, object message)
             {
+                TryHandle(sender, message);
+            }
+
+            public bool TryHandle(object sender, object message)
+            {
                 var target = (BindingSourceAccessor)_sourceReference.Target;
                 if (target == null)
-                    UnsubscribeEventHandler();
-                else
                 {
-                    var value = GetReferenceValue();
-                    var context = LastContext.ToNonReadOnly();
-                    context.AddOrUpdate(BindingConstants.CurrentEventArgs, message);
-                    target.OnEventImpl(value, message, LastContext);
+                    UnsubscribeEventHandler();
+                    return false;
                 }
+
+                var value = GetReferenceValue();
+                var context = LastContext.ToNonReadOnly();
+                context.AddOrUpdate(BindingConstants.CurrentEventArgs, message);
+                target.OnEventImpl(value, message, LastContext);
+                return true;
             }
 
             #endregion
@@ -337,10 +349,20 @@ namespace MugenMvvmToolkit.Binding.Accessors
             object penultimateValue = members.PenultimateValue;
             IBindingMemberInfo lastMember = members.LastMember;
 
-            object oldValue = lastMember.GetValue(penultimateValue, null);
+            object oldValue;
             object newValue = targetAccessor.GetValue(lastMember, context, throwOnError);
-            if (newValue.IsUnsetValueOrDoNothing())
-                return false;
+            if (lastMember.CanRead)
+            {
+                oldValue = lastMember.GetValue(penultimateValue, null);
+                if (ReferenceEquals(oldValue, newValue) || newValue.IsUnsetValueOrDoNothing())
+                    return false;
+            }
+            else
+            {
+                oldValue = BindingConstants.UnsetValue;
+                if (newValue.IsUnsetValueOrDoNothing())
+                    return false;
+            }
 
             ValueAccessorChangingEventArgs args = null;
             if (ValueChanging != null)
@@ -444,7 +466,16 @@ namespace MugenMvvmToolkit.Binding.Accessors
             var target = BindingTarget;
             if (target == null)
                 return null;
-            return target.GetCommandParameter(context);
+            var param = target.GetCommandParameter(context);
+            var path = param as string;
+            if (string.IsNullOrEmpty(path) ||
+                (!path.StartsWith("$args.", StringComparison.Ordinal) &&
+                 !path.StartsWith("$arg.", StringComparison.Ordinal)))
+                return param;
+            var args = context.GetData(BindingConstants.CurrentEventArgs);
+            if (args == null)
+                return null;
+            return BindingExtensions.GetValueFromPath(args, path, 1);
         }
 
         #endregion

@@ -18,6 +18,7 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Reflection;
+using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -35,13 +36,18 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
     {
         #region Fields
 
+        private const int DisposedState = 2;
+        private const int UpdatingState = 1;
+        private const int DefaultState = 0;
+
         private static readonly EventInfo CollectionChangedEvent;
+        private static readonly Exception DisposedException;
 
         private readonly bool _isSourceValue;
         private readonly object _sourceValue;
         private readonly IBindingPath _path;
 
-        private bool _isDisposed;
+        private int _state;
         private Exception _observationException;
         private IHandler<ValueChangedEventArgs> _listener;
 
@@ -52,6 +58,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         static ObserverBase()
         {
             CollectionChangedEvent = typeof(INotifyCollectionChanged).GetEventEx("CollectionChanged", MemberFlags.Instance | MemberFlags.Public);
+            DisposedException = ExceptionManager.ObjectDisposed(typeof(ObserverBase));
         }
 
         /// <summary>
@@ -78,19 +85,29 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Properties
 
         /// <summary>
-        ///     Gets the locker.
-        /// </summary>
-        protected object Locker
-        {
-            get { return _sourceValue; }
-        }
-
-        /// <summary>
         /// Gets the original source object.
         /// </summary>
         protected object OriginalSource
         {
             get { return _sourceValue; }
+        }
+
+        /// <summary>
+        ///     Gets an indication whether the object referenced by the current <see cref="ObserverBase" /> object has
+        ///     been garbage collected.
+        /// </summary>
+        /// <returns>
+        ///     true if the object referenced by the current <see cref="ObserverBase" /> object has not been garbage
+        ///     collected and is still accessible; otherwise, false.
+        /// </returns>
+        protected bool IsAlive
+        {
+            get
+            {
+                if (_isSourceValue)
+                    return ((ISourceValue)_sourceValue).IsAlive;
+                return ((WeakReference)_sourceValue).Target != null;
+            }
         }
 
         #endregion
@@ -154,7 +171,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         }
 
         /// <summary>
-        ///     Gets the actual source if source.
+        ///     Gets the actual source.
         ///     If the source is a <see cref="ISourceValue" /> this property returns the value of Value property.
         /// </summary>
         protected internal object GetActualSource()
@@ -170,20 +187,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private void OnMemberChangedImpl(object sender, object args)
         {
             Update();
-        }
-
-        private bool WeakValidate()
-        {
-            return _observationException == null && !_isDisposed;
-        }
-
-        private void Validate()
-        {
-            if (_isDisposed)
-                throw ExceptionManager.ObjectDisposed(GetType());
-            Exception exception = _observationException;
-            if (exception != null)
-                throw exception;
         }
 
         #endregion
@@ -225,18 +228,21 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         public void Update()
         {
+            if (Interlocked.CompareExchange(ref _state, UpdatingState, DefaultState) != DefaultState)
+                return;
+            Exception ex = null;
             try
             {
-                lock (_sourceValue)
-                    UpdateInternal();
-                _observationException = null;
+                UpdateInternal();
             }
             catch (Exception exception)
             {
-                _observationException = exception;
+                ex = exception;
             }
             finally
             {
+                if (Interlocked.CompareExchange(ref _state, DefaultState, UpdatingState) == UpdatingState)
+                    _observationException = ex;
                 RaiseValueChanged(ValueChangedEventArgs.FalseEventArgs);
             }
         }
@@ -252,12 +258,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </returns>
         public bool Validate(bool throwOnError)
         {
-            if (throwOnError)
-            {
-                Validate();
+            var exception = _observationException;
+            if (exception == null)
                 return true;
-            }
-            return WeakValidate();
+            if (throwOnError)
+                throw exception;
+            return false;
         }
 
         /// <summary>
@@ -266,9 +272,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public object GetActualSource(bool throwOnError)
         {
             if (throwOnError)
-                Validate();
-            else if (!WeakValidate())
-                return null;
+            {
+                var exception = _observationException;
+                if (exception != null)
+                    throw exception;
+            }
             if (_isSourceValue)
                 return ((ISourceValue)_sourceValue).Value;
             return ((WeakReference)_sourceValue).Target;
@@ -279,11 +287,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         public IBindingPathMembers GetPathMembers(bool throwOnError)
         {
+            var exception = _observationException;
+            if (exception == null)
+                return GetPathMembersInternal();
             if (throwOnError)
-                Validate();
-            else if (!WeakValidate())
-                return UnsetBindingPathMembers.Instance;
-            return GetPathMembersInternal();
+                throw exception;
+            return UnsetBindingPathMembers.Instance;
         }
 
         /// <summary>
@@ -291,25 +300,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         public void Dispose()
         {
-            if (_isDisposed)
+            if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
                 return;
-            lock (_sourceValue)
-            {
-                if (_isDisposed)
-                    return;
-                try
-                {
-                    var sourceValue = _sourceValue as ISourceValue;
-                    if (sourceValue != null)
-                        sourceValue.ValueChanged -= OnMemberChangedImpl;
-                    _listener = null;
-                    OnDispose();
-                }
-                finally
-                {
-                    _isDisposed = true;
-                }
-            }
+            _observationException = DisposedException;
+            var sourceValue = _sourceValue as ISourceValue;
+            if (sourceValue != null)
+                sourceValue.ValueChanged -= OnMemberChangedImpl;
+            _listener = null;
+            OnDispose();
         }
 
         #endregion

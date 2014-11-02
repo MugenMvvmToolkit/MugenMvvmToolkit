@@ -126,18 +126,12 @@ namespace MugenMvvmToolkit.Binding.Parse
                 case '"':
                     bool isValid = true;
                     char quote = CurrentChar;
-                    int position = Position;
+                    var position = Position;
                     do
                     {
                         NextChar();
                         while (Position < Length && CurrentChar != quote)
-                        {
-                            if (CurrentChar == '>' && Source[Position - 1] != '=')
-                                break;
-                            if (CurrentChar == '<')
-                                break;
                             NextChar();
-                        }
                         if (Position == Length)
                         {
                             Position = position;
@@ -146,14 +140,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                             NextChar();
                             break;
                         }
-                        if (CurrentChar == quote)
-                            NextChar();
-                        else if (CurrentChar == '>' && Source[Position - 1] == '/')
-                        {
-                            CurrentChar = '/';
-                            --Position;
-                            isValid = false;
-                        }
+                        NextChar();
                     } while (CurrentChar == quote);
                     t = isValid ? TokenType.StringLiteral : TokenType.Unknown;
                     break;

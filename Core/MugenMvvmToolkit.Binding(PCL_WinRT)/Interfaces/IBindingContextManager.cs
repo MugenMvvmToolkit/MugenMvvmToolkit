@@ -24,9 +24,14 @@ namespace MugenMvvmToolkit.Binding.Interfaces
     public interface IBindingContextManager
     {
         /// <summary>
+        ///     Gets a value indicating whether the item has binding context.
+        /// </summary>
+        bool HasBindingContext([NotNull] object item);
+
+        /// <summary>
         ///     Gets the binding context for the specified item.
         /// </summary>
         [NotNull]
-        IBindingContext GetBindingContext([NotNull] object item);        
+        IBindingContext GetBindingContext([NotNull] object item);
     }
 }

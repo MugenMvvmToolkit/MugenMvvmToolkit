@@ -89,7 +89,7 @@ namespace MugenMvvmToolkit
         #endregion
 
         #region Constructor
-        
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="MugenContainer" /> class.
         /// </summary>
@@ -117,6 +117,18 @@ namespace MugenMvvmToolkit
 
         #endregion
 
+        #region Properties
+
+        /// <summary>
+        ///     Gets the original ioc container.
+        /// </summary>
+        public IInjector Container
+        {
+            get { return _injector; }
+        }
+
+        #endregion
+
         #region Methods
 
         /// <summary>
@@ -131,7 +143,7 @@ namespace MugenMvvmToolkit
             foreach (var iocParameter in parameters)
                 list.AddIfNotNull(ConvertParameter(iocParameter));
             list.Add(new ParameterContainer(parameters));
-            return list.ToArrayFast();
+            return list.ToArrayEx();
         }
 
         /// <summary>
@@ -220,7 +232,7 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Gets the original ioc container.
         /// </summary>
-        public object Container
+        object IIocContainer.Container
         {
             get { return _injector; }
         }

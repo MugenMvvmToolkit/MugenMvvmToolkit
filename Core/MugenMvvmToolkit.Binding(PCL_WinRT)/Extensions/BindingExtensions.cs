@@ -15,24 +15,19 @@
 #endregion
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Models.EventArg;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvmToolkit.Binding
@@ -87,6 +82,11 @@ namespace MugenMvvmToolkit.Binding
                 set { _innerContext.Value = value; }
             }
 
+            public bool IsAlive
+            {
+                get { return _innerContext == null || _innerContext.IsAlive; }
+            }
+
             public bool IsWeak
             {
                 get { return true; }
@@ -94,12 +94,18 @@ namespace MugenMvvmToolkit.Binding
 
             public void Handle(object sender, object message)
             {
+                TryHandle(sender, message);
+            }
+
+            public bool TryHandle(object sender, object message)
+            {
                 if (!(sender is IBindingContext) && _innerContext != null)
                 {
                     lock (this)
                         Update(_innerContext.Source);
                 }
                 RaiseValueChanged();
+                return true;
             }
 
             public event EventHandler<ISourceValue, EventArgs> ValueChanged;
@@ -148,7 +154,7 @@ namespace MugenMvvmToolkit.Binding
             #endregion
         }
 
-        private sealed class WeakEventListenerWrapper : IEventListener
+        private sealed class WeakEventListener : IEventListener
         {
             #region Fields
 
@@ -158,7 +164,11 @@ namespace MugenMvvmToolkit.Binding
 
             #region Constructors
 
-            public WeakEventListenerWrapper(IEventListener listener)
+            public WeakEventListener()
+            {
+            }
+
+            public WeakEventListener(IEventListener listener)
             {
                 _listenerRef = ServiceProvider.WeakReferenceFactory(listener, true);
             }
@@ -167,6 +177,15 @@ namespace MugenMvvmToolkit.Binding
 
             #region Implementation of IEventListener
 
+            public bool IsAlive
+            {
+                get
+                {
+                    var listenerRef = _listenerRef;
+                    return listenerRef != null && listenerRef.Target != null;
+                }
+            }
+
             public bool IsWeak
             {
                 get { return true; }
@@ -174,14 +193,21 @@ namespace MugenMvvmToolkit.Binding
 
             public void Handle(object sender, object message)
             {
+                TryHandle(sender, message);
+            }
+
+            public bool TryHandle(object sender, object message)
+            {
                 var reference = _listenerRef;
                 if (reference == null)
-                    return;
+                    return false;
                 var listener = (IEventListener)reference.Target;
                 if (listener == null)
+                {
                     _listenerRef = null;
-                else
-                    listener.Handle(sender, message);
+                    return false;
+                }
+                return listener.TryHandle(sender, message);
             }
 
             #endregion
@@ -199,7 +225,9 @@ namespace MugenMvvmToolkit.Binding
         /// <summary>
         /// Gets the attached parent member.
         /// </summary>
-        public readonly static IAttachedBindingMemberInfo<object, object> AttachedParentMember;
+        public readonly static INotifiableAttachedBindingMemberInfo<object, object> AttachedParentMember;
+
+        internal readonly static IEventListener EmptyListener;
 
         private static readonly Func<string, string, string> MergePathDelegate;
 
@@ -209,6 +237,7 @@ namespace MugenMvvmToolkit.Binding
 
         static BindingExtensions()
         {
+            EmptyListener = new WeakEventListener();
             AttachedParentMember = AttachedBindingMember.CreateAutoProperty<object, object>("#" + AttachedMemberConstants.Parent);
             NullValue = new object[] { null };
             MergePathDelegate = MergePath;
@@ -239,56 +268,15 @@ namespace MugenMvvmToolkit.Binding
         {
             if (listener.IsWeak)
                 return listener;
-            return new WeakEventListenerWrapper(listener);
+            return new WeakEventListener(listener);
         }
 
         /// <summary>
         /// Converts the specified <see cref="IEventListener"/> to a <see cref="WeakReference"/> if listener is not weak.
         /// </summary>
-        public static object ToWeakItem(this IEventListener target)
+        public static WeakEventListenerWrapper ToWeakWrapper(this IEventListener target)
         {
-            if (target.IsWeak)
-                return target;
-            return ToolkitExtensions.GetWeakReference(target);
-        }
-
-        /// <summary>
-        /// Gets the <see cref="IEventListener"/> from an object that was obtained from the <see cref="ToWeakItem"/> method.
-        /// </summary>
-        public static IEventListener GetEventListenerFromWeakItem(object target)
-        {
-            if (target == null)
-                return null;
-            var listener = target as IEventListener;
-            if (listener == null)
-                return (IEventListener)((WeakReference)target).Target;
-            return listener;
-        }
-
-        /// <summary>
-        ///     Creates an instance of <see cref="IBindingBuilder" />.
-        /// </summary>
-        [NotNull]
-        public static IBindingBuilder CreateBuilderFromString(this IBindingProvider bindingProvider, [NotNull] object target,
-             [NotNull] string targetPath, [CanBeNull] string expression, object source = null)
-        {
-            IList<object> sources = null;
-            if (source != null)
-                sources = new[] { source };
-            return bindingProvider.CreateBuildersFromString(target, targetPath + " " + expression + ";", sources)[0];
-        }
-
-        /// <summary>
-        ///     Creates a series of instances of <see cref="IDataBinding" />.
-        /// </summary>
-        [NotNull]
-        public static IDataBinding CreateBindingFromString(this IBindingProvider bindingProvider, [NotNull] object target,
-             [NotNull] string targetPath, [CanBeNull] string expression, object source = null)
-        {
-            IList<object> sources = null;
-            if (source != null)
-                sources = new[] { source };
-            return bindingProvider.CreateBindingsFromString(target, targetPath + " " + expression + ";", sources)[0];
+            return new WeakEventListenerWrapper(target);
         }
 
         /// <summary>
@@ -330,25 +318,6 @@ namespace MugenMvvmToolkit.Binding
             if (targetPath == AttachedMemberConstants.DataContext)
                 return new BindingContextWrapper(target);
             return contextManager.GetBindingContext(target);
-        }
-
-        /// <summary>
-        ///     Gets the value that indicates that type has the member.
-        /// </summary>
-        public static bool HasMember([NotNull] this IBindingMemberProvider memberProvider, Type sourceType, string path, bool ignoreAttachedMembers)
-        {
-            Should.NotBeNull(memberProvider, "memberProvider");
-            return memberProvider.GetBindingMember(sourceType, path, ignoreAttachedMembers, false) != null;
-        }
-
-        /// <summary>
-        ///     Creates an binding set.
-        /// </summary>
-        public static BindingSet<TTarget, TSource> CreateBindingSet<TTarget, TSource>([NotNull] this TTarget target,
-            IBindingProvider bindingProvider = null) where TTarget : class, IView
-        {
-            Should.NotBeNull(target, "target");
-            return new BindingSet<TTarget, TSource>(target, bindingProvider);
         }
 
         /// <summary>
@@ -500,20 +469,23 @@ namespace MugenMvvmToolkit.Binding
             return member;
         }
 
-        public static bool PropertyNameEqual([CanBeNull] this DataErrorsChangedEventArgs args,
-            [NotNull] IBindingSourceAccessor accessor)
+        public static TValue TryGetValue<TValue>([NotNull] this IBindingMemberProvider memberProvider, object item,
+            [NotNull] string memberName, bool ignoreAttachedMembers = false, TValue defaultValue = default(TValue))
         {
-            if (args == null)
-                return false;
-            var singleAccessor = accessor as ISingleBindingSourceAccessor;
-            if (singleAccessor != null)
-                return ToolkitExtensions.PropertyNameEqual(args.PropertyName, singleAccessor.Source.Path.Parts.LastOrDefault(), true);
-            for (int i = 0; i < accessor.Sources.Count; i++)
-            {
-                if (ToolkitExtensions.PropertyNameEqual(args.PropertyName, accessor.Sources[i].Path.Parts.LastOrDefault(), true))
-                    return true;
-            }
-            return false;
+            Should.NotBeNull(memberProvider, "memberProvider");
+            return memberProvider
+                .GetBindingMember(item.GetType(), memberName, ignoreAttachedMembers, false)
+                .TryGetValue(item, defaultValue);
+        }
+
+        public static TValue TryGetValue<TValue>([CanBeNull] this IBindingMemberInfo bindingMember, object item, TValue defaultValue = default(TValue), bool itemCanBeNull = false)
+        {
+            if (bindingMember == null || (!itemCanBeNull && item == null))
+                return defaultValue;
+            var value = bindingMember.GetValue(item, null);
+            if (value is TValue)
+                return (TValue)value;
+            return defaultValue;
         }
 
         internal static void CheckDuplicateLambdaParameter(ICollection<string> parameters)

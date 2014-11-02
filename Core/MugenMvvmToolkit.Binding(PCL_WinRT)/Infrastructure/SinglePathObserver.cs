@@ -149,9 +149,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     IBindingMemberInfo lastMember = BindingServiceProvider
                         .MemberProvider
                         .GetBindingMember(source.GetType(), Path.Path, _ignoreAttachedMembers, true);
-                    _pathMembers = new SingleBindingPathMembers(
-                        OriginalSource as WeakReference ?? ServiceProvider.WeakReferenceFactory(source, true), Path,
-                        lastMember);
+                    _pathMembers = new SingleBindingPathMembers(OriginalSource as WeakReference ?? ToolkitExtensions.GetWeakReference(source), Path, lastMember);
                     _weakEventListener = TryObserveMember(source, lastMember, this, Path.Path);
                 }
             }
@@ -185,23 +183,25 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IEventListener
 
-        /// <summary>
-        ///     Gets the value that indicates that the listener is weak. 
-        ///     <c>true</c> the listener can be used without <c>WeakReference</c>/>.
-        /// </summary>
+        bool IEventListener.IsAlive
+        {
+            get { return IsAlive; }
+        }
+
         bool IEventListener.IsWeak
         {
             get { return false; }
         }
 
-        /// <summary>
-        ///     Handles the message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">Information about event.</param>
         void IEventListener.Handle(object sender, object message)
         {
             RaiseValueChanged(ValueChangedEventArgs.TrueEventArgs);
+        }
+
+        bool IEventListener.TryHandle(object sender, object message)
+        {
+            RaiseValueChanged(ValueChangedEventArgs.TrueEventArgs);
+            return true;
         }
 
         #endregion

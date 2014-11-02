@@ -34,9 +34,6 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Nested types
 
-        /// <summary>
-        ///     Represents the wrapper of view object.
-        /// </summary>
         private sealed class ViewWrapper : IViewWrapper, IDisposable
         {
             #region Fields
@@ -48,9 +45,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Constructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="ViewWrapper" /> class.
-            /// </summary>
             public ViewWrapper(object view)
             {
                 Should.NotBeNull(view, "view");
@@ -61,12 +55,6 @@ namespace MugenMvvmToolkit.Infrastructure
             #endregion
 
             #region Implementation of IViewWrapper
-
-            public object DataContext
-            {
-                get { return GetDataContext(_view); }
-                set { SetDataContext(_view, value); }
-            }
 
             public Type ViewType
             {
@@ -96,6 +84,8 @@ namespace MugenMvvmToolkit.Infrastructure
         private readonly IThreadManager _threadManager;
         private readonly IViewMappingProvider _viewMappingProvider;
         private readonly Func<object, object, IView> _wrapperDelegate;
+        private static Func<object, object> _getDataContext;
+        private static Action<object, object> _setDataContext;
 
         #endregion
 
@@ -129,13 +119,41 @@ namespace MugenMvvmToolkit.Infrastructure
         /// Gets or sets the delegate that allows to get data context of view.
         /// </summary>
         [NotNull]
-        public static Func<object, object> GetDataContext { get; set; }
+        public static Func<object, object> GetDataContext
+        {
+            get { return _getDataContext; }
+            set
+            {
+                Should.PropertyBeNotNull(value);
+                _getDataContext = item =>
+                {
+                    var wrapper = item as IViewWrapper;
+                    if (wrapper != null)
+                        item = wrapper.View;
+                    return value(item);
+                };
+            }
+        }
 
         /// <summary>
         /// Gets or sets the delegate that allows to set data context of view.
         /// </summary>
         [NotNull]
-        public static Action<object, object> SetDataContext { get; set; }
+        public static Action<object, object> SetDataContext
+        {
+            get { return _setDataContext; }
+            set
+            {
+                Should.PropertyBeNotNull(value);
+                _setDataContext = (item, context) =>
+                {
+                    var wrapper = item as IViewWrapper;
+                    if (wrapper != null)
+                        item = wrapper.View;
+                    value(item, context);
+                };
+            }
+        }
 
         /// <summary>
         ///     Gets or sets the default value that indicates that view manager should always create new view.
@@ -208,12 +226,12 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         /// <param name="viewModel">The specified view model.</param>
         /// <param name="view">The specified view.</param>
-        public Task InitializeViewAsync(IViewModel viewModel, IView view)
+        public Task InitializeViewAsync(IViewModel viewModel, object view)
         {
             var tcs = new TaskCompletionSource<bool>();
             ThreadManager.InvokeOnUiThreadAsync(() =>
             {
-                InitializeView(viewModel, view);
+                InitializeView(viewModel, WrapToView(view, DataContext.Empty));
                 tcs.SetResult(true);
             });
             return tcs.Task;

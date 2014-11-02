@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Core(PCL_WinRT)", "Core\MugenMvvmToolkit.Core(PCL_WinRT)\MugenMvvmToolkit.Core(PCL_WinRT).csproj", "{F4323E9E-1608-429B-83DC-6A3670761850}"
 EndProject
@@ -64,6 +64,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinPhone(8.1)", "Platforms\MugenMvvmToolkit.WinPhone(8.1)\MugenMvvmToolkit.WinPhone(8.1).csproj", "{9B02FEE1-51E5-4F58-AC47-2560770EF505}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Binding.WinPhone(8.1)", "Platforms\MugenMvvmToolkit.Binding.WinPhone(8.1)\MugenMvvmToolkit.Binding.WinPhone(8.1).csproj", "{5D794834-E6B9-463A-84C9-5EB9D1EE593F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Touch", "Touch", "{A46F4405-D543-4D0A-B816-9381A0C61203}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Touch", "Platforms\MugenMvvmToolkit.Touch\MugenMvvmToolkit.Touch.csproj", "{AB8F3108-C83F-4169-8DFC-988EC64CCD37}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -353,6 +357,16 @@ Global
 		{5D794834-E6B9-463A-84C9-5EB9D1EE593F}.Release|x64.ActiveCfg = Release|Any CPU
 		{5D794834-E6B9-463A-84C9-5EB9D1EE593F}.Release|x86.ActiveCfg = Release|x86
 		{5D794834-E6B9-463A-84C9-5EB9D1EE593F}.Release|x86.Build.0 = Release|x86
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Release|ARM.ActiveCfg = Release|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Release|x64.ActiveCfg = Release|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -385,5 +399,7 @@ Global
 		{F1185078-9FD9-4E3E-8299-E06B60D07B48} = {0673FE78-64AD-4299-9B6C-077857BFE886}
 		{9B02FEE1-51E5-4F58-AC47-2560770EF505} = {CABD5256-3BD0-49FD-857D-168C33B5ED52}
 		{5D794834-E6B9-463A-84C9-5EB9D1EE593F} = {CABD5256-3BD0-49FD-857D-168C33B5ED52}
+		{A46F4405-D543-4D0A-B816-9381A0C61203} = {F8111B4B-DA6B-4680-83BE-BB8064DED445}
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37} = {A46F4405-D543-4D0A-B816-9381A0C61203}
 	EndGlobalSection
 EndGlobal

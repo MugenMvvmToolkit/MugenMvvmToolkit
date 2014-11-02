@@ -133,10 +133,8 @@ namespace MugenMvvmToolkit.Infrastructure
             if (typeof(Page).IsAssignableFrom(mapping.ViewType))
             {
                 rootWindow = CreateNavigationWindow();
-                var service = UseUriNavigation
-                    ? new WindowNavigationService(rootWindow)
-                    : new WindowNavigationService(rootWindow, type => IocContainer.Get(type));
-                IocContainer.BindToConstant<INavigationService>(service);
+                var service = CreateNavigationService(rootWindow);
+                IocContainer.BindToConstant(service);
             }
             var vm = CreateMainViewModel(viewModelType, context);
             vm.ShowAsync((model, result) =>
@@ -177,6 +175,17 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         [NotNull]
         protected abstract Type GetMainViewModelType();
+
+        /// <summary>
+        ///     Creates an instance of <see cref="INavigationService" />.
+        /// </summary>
+        [NotNull]
+        protected virtual INavigationService CreateNavigationService(NavigationWindow window)
+        {
+            return UseUriNavigation
+                ? new WindowNavigationService(window)
+                : new WindowNavigationService(window, type => IocContainer.Get(type));
+        }
 
         /// <summary>
         ///     Creates an instance of <see cref="NavigationWindow" />, if need.

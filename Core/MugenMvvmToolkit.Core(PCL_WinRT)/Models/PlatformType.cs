@@ -24,6 +24,8 @@ namespace MugenMvvmToolkit.Models
 
         public static readonly PlatformType Android;
 
+        public static readonly PlatformType iOS;
+
         public static readonly PlatformType Silverlight;
 
         public static readonly PlatformType WinPhone;
@@ -45,13 +47,14 @@ namespace MugenMvvmToolkit.Models
         static PlatformType()
         {
             Android = new PlatformType("Android");
+            iOS = new PlatformType("iOS");
             Silverlight = new PlatformType("Silverlight");
             WinPhone = new PlatformType("WinPhone");
             WinForms = new PlatformType("WinForms");
             WinRT = new PlatformType("WinRT");
             WPF = new PlatformType("WPF");
             Unknown = new PlatformType("Unknown");
-            UnitTest = new PlatformType("UnitTest");
+            UnitTest = new PlatformType("UnitTest");            
         }
 
         /// <summary>

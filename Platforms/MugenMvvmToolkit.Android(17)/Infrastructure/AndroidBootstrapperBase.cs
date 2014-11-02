@@ -30,7 +30,6 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -119,8 +118,6 @@ namespace MugenMvvmToolkit.Infrastructure
             //NOTE: to improve startup performance saving the collection of assemblies to use it later.
             ViewAssemblies = GetAndroidViewAssemblies();
             base.OnInitialize();
-            //To activate navigation provider.
-            var provider = IocContainer.Get<INavigationProvider>();
         }
 
         /// <summary>

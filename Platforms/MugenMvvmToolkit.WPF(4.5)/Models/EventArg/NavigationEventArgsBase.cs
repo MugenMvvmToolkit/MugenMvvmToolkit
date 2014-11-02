@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="NavigationEventArgsBase.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,7 +13,9 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System;
 
 namespace MugenMvvmToolkit.Models.EventArg
@@ -23,6 +26,11 @@ namespace MugenMvvmToolkit.Models.EventArg
         ///     Gets the content of the target being navigated to.
         /// </summary>
         public abstract object Content { get; }
+
+        /*/// <summary>
+        ///     Gets the state of content.
+        /// </summary>
+        public abstract Lazy<IDataContext> State { get; }*/
 
         /// <summary>
         ///     Gets a value that indicates the type of navigation that is occurring.

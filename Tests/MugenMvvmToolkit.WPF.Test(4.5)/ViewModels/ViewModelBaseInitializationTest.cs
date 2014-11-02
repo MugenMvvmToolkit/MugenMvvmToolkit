@@ -80,7 +80,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         [TestMethod]
         public void GetViewModelMethodShouldUseCorrectParameters()
         {
-            const bool useParentIocContainer = true;
+            const IocContainerCreationMode iocContainerCreationMode = IocContainerCreationMode.ParentViewModel;
             const ObservationMode listenType = ObservationMode.Both;
             var constantValue = DataConstantValue.Create(new DataConstant<string>("test"), "test");
             bool isInvoked = false;
@@ -98,7 +98,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             {
                 context.GetData((DataConstant<string>)constantValue.DataConstant).ShouldEqual(constantValue.Value);
                 context.GetDataTest(InitializationConstants.ObservationMode).ShouldEqual(listenType);
-                context.GetDataTest(InitializationConstants.UseParentIocContainer).ShouldEqual(useParentIocContainer);
+                context.GetDataTest(InitializationConstants.IocContainerCreationMode).ShouldEqual(iocContainerCreationMode);
                 isInvoked = true;
             };
             providerMock.GetViewModel = (@delegate, context) =>
@@ -114,19 +114,19 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
 
             viewModel.GetViewModel(getViewModel: adapter => new ViewModelBaseWithContext(),
-                useParentIocContainer: useParentIocContainer, observationMode: listenType, parameters: constantValue);
+                containerCreationMode: iocContainerCreationMode, observationMode: listenType, parameters: constantValue);
             isInvoked.ShouldBeTrue();
             isInvoked = false;
 
-            viewModel.GetViewModel(adapter => new ViewModelBaseWithContext(), listenType, useParentIocContainer, constantValue);
+            viewModel.GetViewModel(adapter => new ViewModelBaseWithContext(), listenType, iocContainerCreationMode, constantValue);
             isInvoked.ShouldBeTrue();
             isInvoked = false;
 
-            viewModel.GetViewModel(typeof(ViewModelBaseWithContext), listenType, useParentIocContainer, constantValue);
+            viewModel.GetViewModel(typeof(ViewModelBaseWithContext), listenType, iocContainerCreationMode, constantValue);
             isInvoked.ShouldBeTrue();
             isInvoked = false;
 
-            viewModel.GetViewModel<ViewModelBaseWithContext>(listenType, useParentIocContainer, constantValue);
+            viewModel.GetViewModel<ViewModelBaseWithContext>(listenType, iocContainerCreationMode, constantValue);
             isInvoked.ShouldBeTrue();
         }
 
@@ -135,7 +135,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         {
             var testViewModel = new TestViewModelBase();
             testViewModel.IsInitialized.ShouldBeFalse();
-            ViewModelProvider.InitializeViewModel(testViewModel);
+            ViewModelProvider.InitializeViewModel(testViewModel, null);
             testViewModel.IsInitialized.ShouldBeTrue();
         }
 
@@ -145,7 +145,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             ThreadManager.ImmediateInvokeAsync = true;
             ViewModelBase viewModel = GetViewModelBase();
             viewModel.Settings.ThrowOnMultiInitialization = true;
-            ShouldThrow<InvalidOperationException>(() => ViewModelProvider.InitializeViewModel(viewModel));
+            ShouldThrow<InvalidOperationException>(() => ViewModelProvider.InitializeViewModel(viewModel, null));
         }
 
         [TestMethod]
@@ -154,7 +154,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             ThreadManager.ImmediateInvokeAsync = true;
             ViewModelBase viewModel = GetViewModelBase();
             viewModel.Settings.ThrowOnMultiInitialization = false;
-            ViewModelProvider.InitializeViewModel(viewModel);
+            ViewModelProvider.InitializeViewModel(viewModel, null);
         }
 
         [TestMethod]
@@ -204,7 +204,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             testViewModel.Initialized += (sender, args) => invokeAction();
             isInvoked.ShouldBeFalse();
 
-            ViewModelProvider.InitializeViewModel(testViewModel);
+            ViewModelProvider.InitializeViewModel(testViewModel, null);
             testViewModel.IsInitialized.ShouldBeTrue();
             isInvoked.ShouldBeTrue();
         }

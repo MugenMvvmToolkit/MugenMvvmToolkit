@@ -52,15 +52,6 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         #endregion
 
-        #region Implementation of IView
-
-        /// <summary>
-        ///     Gets or sets the data context of <see cref="IView" />.
-        /// </summary>
-        object IView.DataContext { get; set; }
-
-        #endregion
-
         #region Implementation of IDialogViewBase
 
         /// <summary>

@@ -29,7 +29,7 @@ using MugenMvvmToolkit.Models.EventArg;
 namespace MugenMvvmToolkit.ViewModels
 {
     /// <summary>
-    ///     Represents the base class for linear lists.
+    ///     Represents the base class for view models that have a collection of any objects.
     /// </summary>
     /// <typeparam name="T">The type of model.</typeparam>
     [BaseViewModel(Priority = 7)]

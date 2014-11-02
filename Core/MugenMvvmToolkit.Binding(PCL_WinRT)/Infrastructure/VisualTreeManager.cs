@@ -35,9 +35,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             #region Fields
 
             private bool _updating;
-            private bool _disposed;
             private readonly WeakReference _reference;
-            private readonly object _listener;
+            private WeakEventListenerWrapper _listener;
 
             #endregion
 
@@ -46,13 +45,18 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             public RootObserver(object target, IEventListener listener)
             {
                 _reference = ServiceProvider.WeakReferenceFactory(target, true);
-                _listener = listener.ToWeakItem();
+                _listener = listener.ToWeakWrapper();
                 Handle(null, null);
             }
 
             #endregion
 
             #region Implementation of interfaces
+
+            public bool IsAlive
+            {
+                get { return _reference.Target != null && _listener.EventListener.IsAlive; }
+            }
 
             public bool IsWeak
             {
@@ -61,26 +65,36 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public void Handle(object sender, object message)
             {
-                if (_updating || _disposed)
-                    return;
+                TryHandle(sender, message);
+            }
+
+            public bool TryHandle(object sender, object message)
+            {
+                if (_updating)
+                    return true;
+                if (_listener.IsEmpty)
+                    return false;
                 bool lockTaken = false;
                 try
                 {
                     Monitor.Enter(this, ref lockTaken);
-                    if (_disposed)
-                        return;
+                    if (_listener.IsEmpty)
+                        return false;
                     _updating = true;
                     object currentItem = _reference.Target;
                     if (currentItem == null)
                     {
                         Dispose(true);
-                        return;
+                        return false;
                     }
-                    Dispose(false);
-                    var listener = BindingExtensions.GetEventListenerFromWeakItem(_listener);
-                    if (listener != null)
-                        listener.Handle(currentItem, message);
 
+                    if (!_listener.EventListener.TryHandle(currentItem, message))
+                    {
+                        Dispose(true);
+                        return false;
+                    }
+
+                    Dispose(false);
                     var treeManager = BindingServiceProvider.VisualTreeManager;
                     while (currentItem != null)
                     {
@@ -92,6 +106,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                             Add(observer);
                         currentItem = parentMember.GetValue(currentItem, null);
                     }
+                    return true;
                 }
                 finally
                 {
@@ -113,10 +128,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             private void Dispose(bool dispose)
             {
-                if (_disposed)
+                if (_listener.IsEmpty)
                     return;
                 if (dispose)
-                    _disposed = true;
+                    _listener = WeakEventListenerWrapper.Empty;
                 for (int i = 0; i < Count; i++)
                     this[i].Dispose();
                 Clear();

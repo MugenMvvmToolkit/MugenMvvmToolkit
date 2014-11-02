@@ -154,7 +154,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             if (dataContext == null)
                 dataContext = DataContext.Empty;
-            return dataContext.GetData(BindingConstants.CurrentEventArgs, true);
+            return dataContext.GetData(BindingConstants.CurrentEventArgs);
         }
 
         private static object GetErrorsMethod(IList<Type> types, object[] objects, IDataContext arg3)

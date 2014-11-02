@@ -14,15 +14,10 @@
 // ****************************************************************************
 #endregion
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Navigation;
 using JetBrains.Annotations;
 using Microsoft.Phone.Controls;
-using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Models;
 using NavigationMode = System.Windows.Navigation.NavigationMode;
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -73,26 +68,20 @@ namespace MugenMvvmToolkit.Infrastructure
                 {
                     var phoneApplicationPage = (PhoneApplicationPage)_previousView.Target;
                     if (phoneApplicationPage != null)
-                        ApplicationStateManager.OnSaveState(phoneApplicationPage, phoneApplicationPage.State, args);
+                        PlatformExtensions.ApplicationStateManager.OnSaveState(phoneApplicationPage, phoneApplicationPage.State, args);
                 }
                 var page = args.Content as PhoneApplicationPage;
-                if (page != null)
+                if (page == null)
+                    return;
+                ServiceProvider.AttachedValueProvider.SetValue(args, ActionAfterRestoreStateKey, null);
+                page.Dispatcher.BeginInvoke(() =>
                 {
-                    //NOTE: to make sure that the callback is called after the navigation.
-                    TaskCompletionSource<object> source = null;
-                    var viewModel = page.DataContext as IViewModel;
-                    if (viewModel != null)
-                    {
-                        source = new TaskCompletionSource<object>();
-                        viewModel.Settings.Metadata.AddOrUpdate(RestoreStateConstant, source.Task);
-                    }
-                    page.Dispatcher.BeginInvoke(() =>
-                       {
-                           ApplicationStateManager.OnLoadState(page, page.State, args);
-                           if (source != null)
-                               source.SetResult(null);
-                       });
-                }
+                    PlatformExtensions.ApplicationStateManager.OnLoadState(page, page.State, args);
+                    var action = ServiceProvider.AttachedValueProvider.GetValue<Action<NavigationEventArgs>>(args,
+                        ActionAfterRestoreStateKey, false);
+                    if (action != null)
+                        action(args);
+                });
             }
 
             #endregion
@@ -103,28 +92,17 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         private const string StateObserverMember = "~@#stobs";
-        private static IApplicationStateManager _applicationStateManager;
+        private const string ActionAfterRestoreStateKey = "~AARS";
 
-        internal readonly static DataConstant<Task> RestoreStateConstant = DataConstant.Create(() => RestoreStateConstant, true);
+        private static readonly Func<Frame, object, StateObserver> CreateObserverDelegate;
 
         #endregion
 
-        #region Properties
+        #region Constructors
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IApplicationStateManager" />.
-        /// </summary>
-        [NotNull]
-        public static IApplicationStateManager ApplicationStateManager
+        static FrameStateManager()
         {
-            get
-            {
-                if (_applicationStateManager == null)
-                    Interlocked.CompareExchange(ref _applicationStateManager,
-                        new ApplicationStateManager(ServiceProvider.IocContainer.Get<ISerializer>()), null);
-                return _applicationStateManager;
-            }
-            set { _applicationStateManager = value; }
+            CreateObserverDelegate = CreateObserver;
         }
 
         #endregion
@@ -134,7 +112,17 @@ namespace MugenMvvmToolkit.Infrastructure
         public static void RegisterFrame([NotNull] Frame frame)
         {
             Should.NotBeNull(frame, "frame");
-            ServiceProvider.AttachedValueProvider.GetOrAdd(frame, StateObserverMember, CreateObserver, null);
+            ServiceProvider.AttachedValueProvider.GetOrAdd(frame, StateObserverMember, CreateObserverDelegate, null);
+        }
+
+        public static void InvokeAfterRestoreState([NotNull] this NavigationEventArgs args, Action<NavigationEventArgs> action)
+        {
+            Should.NotBeNull(args, "args");
+            var attachedValueProvider = ServiceProvider.AttachedValueProvider;
+            if (attachedValueProvider.Contains(args, ActionAfterRestoreStateKey))
+                attachedValueProvider.SetValue(args, ActionAfterRestoreStateKey, action);
+            else
+                action(args);
         }
 
         private static StateObserver CreateObserver(Frame frame, object state)

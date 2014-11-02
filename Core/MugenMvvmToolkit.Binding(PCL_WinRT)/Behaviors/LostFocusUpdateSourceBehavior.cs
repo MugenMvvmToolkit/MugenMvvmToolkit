@@ -120,34 +120,37 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 args.Cancel = (bool)_member.GetValue(value, null);
         }
 
-        private void OnLostFocus()
+        private bool OnLostFocus()
         {
             var binding = Binding;
-            if (binding != null)
-                binding.UpdateSource();
+            if (binding == null)
+                return false;
+            binding.UpdateSource();
+            return true;
         }
 
         #endregion
 
         #region Implementation of IEventListener
 
-        /// <summary>
-        ///     Gets the value that indicates that the listener is weak. 
-        ///     <c>true</c> the listener can be used without <c>WeakReference</c>/>.
-        /// </summary>
+        bool IEventListener.IsAlive
+        {
+            get { return Binding != null; }
+        }
+
         bool IEventListener.IsWeak
         {
             get { return false; }
         }
 
-        /// <summary>
-        ///     Handles the message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">Information about event.</param>
         void IEventListener.Handle(object sender, object message)
         {
             OnLostFocus();
+        }
+
+        bool IEventListener.TryHandle(object sender, object message)
+        {
+            return OnLostFocus();
         }
 
         #endregion

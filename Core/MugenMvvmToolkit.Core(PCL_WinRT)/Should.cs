@@ -16,6 +16,7 @@
 using System;
 using System.Collections;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -198,7 +199,7 @@ namespace MugenMvvmToolkit
         [DebuggerStepThrough]
         public static void MethodBeSupported(bool isSupported, string methodName)
         {
-            BeSupported(isSupported, "The method {0} has not been implemented by this class.", methodName);
+            BeSupported(isSupported, "The method " + methodName + " has not been implemented by this class.");
         }
 
         /// <summary>
@@ -247,7 +248,7 @@ namespace MugenMvvmToolkit
         /// <param name="value">Argument value to test.</param>
         /// <param name="propertyName">Name of the parameter being tested. </param>
         [DebuggerStepThrough]
-        public static void PropertyBeNotNull(object value, string propertyName)
+        public static void PropertyBeNotNull(object value, [CallerMemberName] string propertyName = "")
         {
             if (value == null)
                 throw new ArgumentNullException(propertyName,
@@ -277,13 +278,6 @@ namespace MugenMvvmToolkit
             NotBeNull(disposableObject, "disposableObject");
             if (disposableObject.IsDisposed)
                 throw ExceptionManager.ObjectDisposed(disposableObject.GetType());
-        }
-
-        internal static void BeBooleanOrNullable(Type type, string paramName)
-        {
-            if (type != typeof(bool) && type != typeof(bool?))
-                throw new ArgumentException(
-                    string.Format("Type '{0}' should be of type 'boolean', but is not", type.Name), paramName);
         }
 
         #endregion

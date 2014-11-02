@@ -18,7 +18,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 
@@ -47,7 +46,7 @@ namespace MugenMvvmToolkit
             {
                 if (_applicationStateManager == null)
                     Interlocked.CompareExchange(ref _applicationStateManager,
-                        new ApplicationStateManager(ServiceProvider.IocContainer.Get<ISerializer>()), null);
+                        ServiceProvider.IocContainer.Get<IApplicationStateManager>(), null);
                 return _applicationStateManager;
             }
             set { _applicationStateManager = value; }

@@ -60,7 +60,6 @@ namespace MugenMvvmToolkit.ViewModels
         protected WrapperViewModelBase()
         {
             _locker = new object();
-            _closeCommand = new RelayCommand(ExecuteClose);
             _wrappedPropertyNames = new Dictionary<string, string>
             {
                 {"CloseCommand", "CloseCommand"},
@@ -141,27 +140,34 @@ namespace MugenMvvmToolkit.ViewModels
                     throw ExceptionManager.ObjectInitialized("ViewModel", viewModel);
                 _viewModel = (TViewModel)viewModel;
             }
+            //to track state
+            _viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateManager, ViewModelConstants.StateManager);
             ViewModel.PropertyChanged += ViewModelOnPropertyChanged;
             Closed += OnClosed;
             var closeableViewModel = ViewModel as ICloseableViewModel;
-            if (closeableViewModel != null)
+            if (closeableViewModel == null)
+                CloseCommand = new RelayCommand(ExecuteClose);
+            else
             {
                 var internalClosedEvent = _internalClosedEvent;
                 if (internalClosedEvent != null)
                 {
                     _internalClosedEvent = null;
                     foreach (var @delegate in internalClosedEvent.GetInvocationList())
-                        closeableViewModel.Closed += (EventHandler<ICloseableViewModel, ViewModelClosedEventArgs>)@delegate;
+                        closeableViewModel.Closed +=
+                            (EventHandler<ICloseableViewModel, ViewModelClosedEventArgs>)@delegate;
                 }
                 var internalClosingEvent = _internalClosingEvent;
                 if (internalClosingEvent != null)
                 {
                     _internalClosingEvent = null;
                     foreach (var @delegate in internalClosingEvent.GetInvocationList())
-                        closeableViewModel.Closing += (EventHandler<ICloseableViewModel, ViewModelClosingEventArgs>)@delegate;
+                        closeableViewModel.Closing +=
+                            (EventHandler<ICloseableViewModel, ViewModelClosingEventArgs>)@delegate;
                 }
             }
             ViewModel.Subscribe(this);
+            Subscribe(_viewModel);
             OnWrapped(context);
 
             //Invalidating properties.
@@ -403,15 +409,18 @@ namespace MugenMvvmToolkit.ViewModels
                 string typeName;
                 if (state.TryGetData(ViewModelConstants.ViewModelTypeName, out typeName))
                 {
-                    Tracer.Info("Trying to restore view model '{0}' from wrapper '{1}'", typeName, this);
                     var vmType = Type.GetType(typeName, false);
+                    var vmState = state.GetData(ViewModelConstants.ViewModelState);
                     if (vmType != null)
-                        Wrap(GetViewModel(vmType));
+                    {
+                        var viewModel = ViewModelProvider.RestoreViewModel(vmState, new DataContext
+                        {
+                            {InitializationConstants.ViewModelType, vmType}
+                        }, true);
+                        Wrap(viewModel);
+                    }
                 }
             }
-            var hasState = ViewModel as IHasState;
-            if (hasState != null)
-                hasState.LoadState(state);
             OnLoadState(state);
         }
 
@@ -420,17 +429,13 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         void IHasState.SaveState(IDataContext state)
         {
-            OnSaveState(state);
-            if (ViewModel == null)
-                return;
             object data;
-            if (ViewModel.Settings.Metadata.TryGetData(ViewModelConstants.StateManager, out data) && data != null)
-                return;
-
-            state.AddOrUpdate(ViewModelConstants.ViewModelTypeName, ViewModel.GetType().AssemblyQualifiedName);
-            var hasState = ViewModel as IHasState;
-            if (hasState != null)
-                hasState.SaveState(state);
+            if (ViewModel != null && (!ViewModel.Settings.Metadata.TryGetData(ViewModelConstants.StateManager, out data) || ReferenceEquals(data, ViewModelConstants.StateManager)))
+            {
+                state.AddOrUpdate(ViewModelConstants.ViewModelTypeName, ViewModel.GetType().AssemblyQualifiedName);
+                state.AddOrUpdate(ViewModelConstants.ViewModelState, ViewModelProvider.PreserveViewModel(ViewModel, DataContext.Empty));
+            }
+            OnSaveState(state);
         }
 
         #endregion
@@ -469,14 +474,14 @@ namespace MugenMvvmToolkit.ViewModels
         }
 
         /// <summary>
-        ///     Loads state.
+        ///    Occurs on load state.
         /// </summary>
         protected virtual void OnLoadState(IDataContext state)
         {
         }
 
         /// <summary>
-        ///     Saves state.
+        ///     Occurs on save state.
         /// </summary>
         protected virtual void OnSaveState(IDataContext state)
         {

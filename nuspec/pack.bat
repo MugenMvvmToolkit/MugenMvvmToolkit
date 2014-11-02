@@ -7,5 +7,6 @@ nuget pack MugenMvvmToolkit.Binding.nuspec
 nuget pack MugenMvvmToolkit.MugenInjectionContainer.nuspec
 nuget pack MugenMvvmToolkit.NinjectContainer.nuspec
 nuget pack MugenMvvmToolkit.nuspec
+nuget pack MugenMvvmToolkit.Touch.nuspec
 nuget pack MugenMvvmToolkit.WinForms.nuspec
 nuget pack MugenMvvmToolkit.WPF.nuspec

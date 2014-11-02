@@ -139,10 +139,15 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         public object GetParameterFromArgs(EventArgs args)
         {
             Should.NotBeNull(args, "args");
-            var argsWrapper = args as NavigatingCancelEventArgsWrapper;
-            if (argsWrapper == null)
-                return ((NavigationEventArgsWrapper)args).Args.ExtraData;
-            return argsWrapper.Args.ExtraData;
+            var cancelEventArgs = args as NavigatingCancelEventArgsWrapper;
+            if (cancelEventArgs == null)
+            {
+                var eventArgs = args as NavigationEventArgsWrapper;
+                if (eventArgs == null)
+                    return null;
+                return eventArgs.Args.ExtraData;
+            }
+            return cancelEventArgs.Args.ExtraData;
         }
 
         /// <summary>

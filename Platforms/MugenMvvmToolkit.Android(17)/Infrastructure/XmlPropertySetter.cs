@@ -16,15 +16,19 @@
 using System;
 using System.Linq.Expressions;
 using Android.Content;
+using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Builders;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
     public struct XmlPropertySetter<TWrapper, TTarget>
+        where TTarget : class
     {
         #region Fields
 
         private readonly Context _context;
+        private readonly BindingSet _bindingSet;
         private readonly TTarget _target;
 
         #endregion
@@ -34,19 +38,32 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="XmlPropertySetter{TWrapper,TTarget}" /> class.
         /// </summary>
-        public XmlPropertySetter(TTarget target, Context context)
+        public XmlPropertySetter([NotNull]TTarget target, [NotNull] Context context, [NotNull] BindingSet bindingSet)
         {
+            Should.NotBeNull(target, "target");
+            Should.NotBeNull(context, "context");
+            Should.NotBeNull(bindingSet, "bindingSet");
             _target = target;
             _context = context;
+            _bindingSet = bindingSet;
+        }
+
+        #endregion
+
+        #region Properties
+
+        public BindingSet BindingSet
+        {
+            get { return _bindingSet; }
         }
 
         #endregion
 
         #region Methods
 
-        public void SetBoolProperty(Expression<Func<TWrapper, object>> propertyName, string value)
+        public void SetBoolProperty<TValue>(Expression<Func<TWrapper, TValue>> propertyName, string value)
         {
-            SetBoolProperty(ToolkitExtensions.GetPropertyName(propertyName), value);
+            SetBoolProperty(ToolkitExtensions.GetMemberName(propertyName), value);
         }
 
         public void SetBoolProperty(string propertyName, string value)
@@ -60,9 +77,9 @@ namespace MugenMvvmToolkit.Infrastructure
             SetStringProperty(propertyName, value, s => (TEnum)Enum.Parse(typeof(TEnum), s.Replace("|", ","), true));
         }
 
-        public void SetStringProperty(Expression<Func<TWrapper, object>> propertyName, string value, Func<string, object> convertAction = null)
+        public void SetStringProperty<TValue>(Expression<Func<TWrapper, TValue>> propertyName, string value, Func<string, object> convertAction = null)
         {
-            SetStringProperty(ToolkitExtensions.GetPropertyName(propertyName), value, convertAction);
+            SetStringProperty(ToolkitExtensions.GetMemberName(propertyName), value, convertAction);
         }
 
         public void SetStringProperty(string propertyName, string value, Func<string, object> convertAction = null)
@@ -74,7 +91,7 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 if (value.StartsWith("{"))
                 {
-                    BindingServiceProvider.BindingProvider.CreateBindingFromString(_target, propertyName, ToBindingString(value));
+                    _bindingSet.BindFromExpression(_target, propertyName, ToBindingString(value));
                     return;
                 }
                 objectToSet = value;
@@ -83,9 +100,9 @@ namespace MugenMvvmToolkit.Infrastructure
             member.SetValue(_target, new[] { convertAction == null ? objectToSet : convertAction(objectToSet) });
         }
 
-        public void SetProperty(Expression<Func<TWrapper, object>> propertyName, string value)
+        public void SetProperty<TValue>(Expression<Func<TWrapper, TValue>> propertyName, string value)
         {
-            SetProperty(ToolkitExtensions.GetPropertyName(propertyName), value);
+            SetProperty(ToolkitExtensions.GetMemberName(propertyName), value);
         }
 
         public void SetProperty(string propertyName, string value)
@@ -97,7 +114,7 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 if (value.StartsWith("{"))
                 {
-                    BindingServiceProvider.BindingProvider.CreateBindingFromString(_target, propertyName, ToBindingString(value));
+                    _bindingSet.BindFromExpression(_target, propertyName, ToBindingString(value));
                     return;
                 }
                 objectToSet = value;
@@ -106,20 +123,19 @@ namespace MugenMvvmToolkit.Infrastructure
             member.SetValue(_target, new[] { objectToSet });
         }
 
-        public void SetBinding(Expression<Func<TWrapper, object>> propertyName, string value, bool required)
+        public void SetBinding<TValue>(Expression<Func<TWrapper, TValue>> propertyName, string value, bool required)
         {
-            SetBinding(ToolkitExtensions.GetPropertyName(propertyName), value, required);
+            SetBinding(ToolkitExtensions.GetMemberName(propertyName), value, required);
         }
 
         public void SetBinding(string propertyName, string value, bool required)
         {
-            if (value == null)
-            {
-                if (!required)
-                    return;
-                value = string.Empty;
-            }
-            BindingServiceProvider.BindingProvider.CreateBindingFromString(_target, propertyName, ToBindingString(value));
+            AddBinding(_bindingSet, _target, propertyName, value, required);
+        }
+
+        public void Apply()
+        {
+            _bindingSet.Apply();
         }
 
         private string TryGetResourceAsString(string value)
@@ -145,6 +161,17 @@ namespace MugenMvvmToolkit.Infrastructure
             if (result == 0)
                 return null;
             return result;
+        }
+
+        internal static void AddBinding(BindingSet bindingSet, object target, string propertyName, string value, bool required)
+        {
+            if (value == null)
+            {
+                if (!required)
+                    return;
+                value = string.Empty;
+            }
+            bindingSet.BindFromExpression(target, propertyName, ToBindingString(value));
         }
 
         private static string ToBindingString(string expression)

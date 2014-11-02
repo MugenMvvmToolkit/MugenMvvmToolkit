@@ -17,11 +17,8 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Reflection;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
@@ -30,6 +27,7 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Collections;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit
@@ -38,7 +36,6 @@ namespace MugenMvvmToolkit
     {
         #region Fields
 
-        private static readonly Func<ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs>, NotifyCollectionChangedEventHandler> CreateHandlerDelegate;
         private static Func<IComponent, string> _getComponentName;
 
         #endregion
@@ -47,7 +44,6 @@ namespace MugenMvvmToolkit
 
         static PlatformExtensions()
         {
-            CreateHandlerDelegate = CreateHandler;
             _getComponentName = GetComponentNameImpl;
         }
 
@@ -69,14 +65,35 @@ namespace MugenMvvmToolkit
 
         #region Methods
 
-        /// <summary>
-        ///     Creates an binding set.
-        /// </summary>
-        public static BindingSet<TTarget, TSource> CreateBindingSet<TTarget, TSource>([NotNull] this TTarget target,
-            IBindingProvider bindingProvider = null) where TTarget : class, IComponent
+        public static IList<IDataBinding> SetBindings(this IComponent item, string bindingExpression,
+            IList<object> sources = null)
         {
-            Should.NotBeNull(target, "target");
-            return new BindingSet<TTarget, TSource>(target, bindingProvider);
+            return BindingServiceProvider.BindingProvider.CreateBindingsFromString(item, bindingExpression, sources);
+        }
+
+        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
+            [NotNull] string bindings)
+            where T : IComponent
+            where TBindingSet : BindingSet
+        {
+            Should.NotBeNull(item, "item");
+            Should.NotBeNull(bindingSet, "bindingSet");
+            Should.NotBeNull(bindings, "bindings");
+            bindingSet.BindFromExpression(item, bindings);
+            return item;
+        }
+
+
+        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
+            [NotNull] Action<TBindingSet, T> setBinding)
+            where T : IComponent
+            where TBindingSet : BindingSet
+        {
+            Should.NotBeNull(item, "item");
+            Should.NotBeNull(bindingSet, "bindingSet");
+            Should.NotBeNull(setBinding, "setBinding");
+            setBinding(bindingSet, item);
+            return item;
         }
 
         /// <summary>
@@ -105,26 +122,20 @@ namespace MugenMvvmToolkit
             return root;
         }
 
+        internal static object SelectTemplateWithContext(this IDataTemplateSelector selector,
+            [CanBeNull] object item, [NotNull] object container)
+        {
+            var template = selector.SelectTemplate(item, container);
+            if (template != null && item != null)
+                BindingServiceProvider.ContextManager.GetBindingContext(template).Value = item;
+            return template;
+        }
+
         internal static PlatformInfo GetPlatformInfo()
         {
 #if WINFORMS
             return new PlatformInfo(PlatformType.WinForms, Environment.Version);
 #endif
-        }
-
-        public static NotifyCollectionChangedEventHandler MakeWeakCollectionChangedHandler<TTarget>(TTarget target,
-            Action<TTarget, object, NotifyCollectionChangedEventArgs> invokeAction)
-            where TTarget : class
-        {
-            return ReflectionExtensions.CreateWeakDelegate(target, invokeAction, UnsubscribeCollectionChanged,
-                CreateHandlerDelegate);
-        }
-
-        private static void UnsubscribeCollectionChanged(object o, NotifyCollectionChangedEventHandler handler)
-        {
-            var notifyCollectionChanged = o as INotifyCollectionChanged;
-            if (notifyCollectionChanged != null)
-                notifyCollectionChanged.CollectionChanged -= handler;
         }
 
         internal static string TryGetValue(object instance, string name)
@@ -146,12 +157,6 @@ namespace MugenMvvmToolkit
         internal static void Add(this SortedDictionary<string, AutoCompleteItem> dict, AutoCompleteItem item)
         {
             dict[item.Value] = item;
-        }
-
-        private static NotifyCollectionChangedEventHandler CreateHandler(
-            ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs> weakEventHandler)
-        {
-            return weakEventHandler.Handle;
         }
 
         private static string GetComponentNameImpl(IComponent component)

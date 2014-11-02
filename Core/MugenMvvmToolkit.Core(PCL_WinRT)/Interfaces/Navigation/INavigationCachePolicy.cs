@@ -15,7 +15,6 @@
 #endregion
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Interfaces.Navigation
 {
@@ -27,13 +26,13 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
         /// <summary>
         ///     Tries to save a view model in the cache.
         /// </summary>
-        void TryCacheViewModel([NotNull] INavigationContext navigationContext, [NotNull] IView view,
+        void TryCacheViewModel([NotNull] INavigationContext navigationContext, [NotNull] object view,
             [NotNull] IViewModel viewModel);
 
         /// <summary>
         ///     Tries to get view model from cache, and delete it from the cache.
         /// </summary>
-        IViewModel TryTakeViewModelFromCache([NotNull] INavigationContext navigationContext, [NotNull] IView view);
+        IViewModel TryTakeViewModelFromCache([NotNull] INavigationContext navigationContext, [NotNull] object view);
 
         /// <summary>
         ///     Removes the view model from cache.

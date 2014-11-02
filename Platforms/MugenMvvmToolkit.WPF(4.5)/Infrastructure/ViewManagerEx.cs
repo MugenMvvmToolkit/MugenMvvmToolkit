@@ -18,10 +18,11 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Windows;
 using JetBrains.Annotations;
-#if WINFORMS || ANDROID
+#if WINFORMS || ANDROID || TOUCH
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 #endif
+using MugenMvvmToolkit.Interfaces.ViewModels;
 #if WINFORMS
 using System.Windows.Forms;
 #elif SILVERLIGHT
@@ -30,6 +31,11 @@ using System.Windows.Controls;
 using MugenMvvmToolkit.Models;
 using Windows.UI.Xaml;
 using System.Runtime.InteropServices.WindowsRuntime;
+#elif TOUCH
+using MugenMvvmToolkit.Models;
+using MonoTouch.UIKit;
+using MonoTouch.Dialog;
+using MonoTouch.Foundation;
 #endif
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -47,7 +53,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             private readonly Window _window;
 
-        #endregion
+            #endregion
 
         #region Constructors
 
@@ -57,15 +63,9 @@ namespace MugenMvvmToolkit.Infrastructure
                 _window = window;
             }
 
-        #endregion
+            #endregion
 
         #region Implementation of IWindowView
-
-            public object DataContext
-            {
-                get { return _window.DataContext; }
-                set { _window.DataContext = value; }
-            }
 
             public void Show()
             {
@@ -98,36 +98,28 @@ namespace MugenMvvmToolkit.Infrastructure
                 get { return _window; }
             }
 
-        #endregion
+            #endregion
         }
 #elif WINFORMS
         private sealed class FormView : IWindowView, IDisposable, IViewWrapper
         {
-            #region Fields
+        #region Fields
 
             private readonly Form _form;
-            private readonly IBindingContext _context;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             public FormView(Form form)
             {
                 Should.NotBeNull(form, "form");
                 _form = form;
-                _context = BindingServiceProvider.ContextManager.GetBindingContext(form);
             }
 
-            #endregion
+        #endregion
 
-            #region Implementation of IWindowView
-
-            public object DataContext
-            {
-                get { return _context.Value; }
-                set { _context.Value = value; }
-            }
+        #region Implementation of IWindowView
 
             public void Show()
             {
@@ -165,7 +157,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 get { return _form; }
             }
 
-            #endregion
+        #endregion
         }
 #elif SILVERLIGHT
         private sealed class WindowView : IWindowView, IViewWrapper
@@ -187,12 +179,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Implementation of IWindowView
-
-            public object DataContext
-            {
-                get { return _window.DataContext; }
-                set { _window.DataContext = value; }
-            }
 
             public void Show()
             {
@@ -227,7 +213,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private sealed class WindowView : DisposableObject, IWindowView
         {
-        #region Fields
+            #region Fields
 
             private static readonly MethodInfo OnClosingMethod;
             private static EventInfo _closingEvent;
@@ -240,7 +226,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #endregion
 
-        #region Constructors
+            #region Constructors
 
             static WindowView()
             {
@@ -264,9 +250,9 @@ namespace MugenMvvmToolkit.Infrastructure
                 _token = (EventRegistrationToken)_closingEvent.AddMethod.InvokeEx(window, handler);
             }
 
-        #endregion
+            #endregion
 
-        #region Methods
+            #region Methods
 
             [UsedImplicitly]
             private void OnClosing(object sender, object args)
@@ -282,15 +268,9 @@ namespace MugenMvvmToolkit.Infrastructure
                     _cancelProperty.SetValueEx(args, eventArgs.Cancel);
             }
 
-        #endregion
+            #endregion
 
-        #region Implementation of IWindowView
-
-            public object DataContext
-            {
-                get { return _window.DataContext; }
-                set { _window.DataContext = value; }
-            }
+            #region Implementation of IWindowView
 
             public void Show()
             {
@@ -320,14 +300,14 @@ namespace MugenMvvmToolkit.Infrastructure
                 base.OnDispose(disposing);
             }
 
-        #endregion
+            #endregion
         }
 #endif
         #endregion
 
         #region Constructors
 
-#if WINFORMS || ANDROID
+#if WINFORMS || ANDROID || TOUCH
         static ViewManagerEx()
         {
             GetDataContext = o => BindingServiceProvider.ContextManager.GetBindingContext(o).Value;
@@ -400,6 +380,22 @@ namespace MugenMvvmToolkit.Infrastructure
 #endif
             return base.WrapToViewInternal(view, dataContext);
         }
+
+#if TOUCH
+        protected override void InitializeView(IViewModel viewModel, IView view)
+        {
+            base.InitializeView(viewModel, view);
+            if (view == null)
+                return;
+            var underlyingView = view.GetUnderlyingView();
+            var uiView = underlyingView as UIView;
+            if (uiView != null)
+                ParentObserver.Raise(uiView, true);
+            var dialogViewController = underlyingView as DialogViewController;
+            if (dialogViewController != null && dialogViewController.Root != null)
+                BindingExtensions.AttachedParentMember.SetValue(dialogViewController.Root, dialogViewController);
+        }
+#endif
 
 #if WINDOWSCOMMON
         private static bool IsContentDialog(Type type)

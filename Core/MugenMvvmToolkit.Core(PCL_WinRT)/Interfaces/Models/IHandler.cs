@@ -18,7 +18,7 @@ using JetBrains.Annotations;
 namespace MugenMvvmToolkit.Interfaces.Models
 {
     /// <summary>
-    ///     Represents the interface that can handle an event.
+    ///     Represents the interface that allows to handle an event.
     /// </summary>
     public interface IHandler<in TMessage>
     {

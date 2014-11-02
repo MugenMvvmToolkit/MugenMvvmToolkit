@@ -18,7 +18,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #endregion
 
-        #region Constructors
+        #region ConstructorsS
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="IocContainerMock" /> class.
@@ -51,19 +51,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         public Action<Type> UnbindFunc { get; set; }
 
-        public bool IsDisposed { get; set; }
-
-        #endregion
-
-        #region Implementation of IDisposable
-
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        void IDisposable.Dispose()
-        {
-            IsDisposed = true;
-        }
+        public Func<IocContainerMock, IIocContainer> CreateChild { get; set; }
 
         #endregion
 
@@ -95,15 +83,17 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         /// </returns>
         IIocContainer IIocContainer.CreateChild()
         {
-            return new IocContainerMock(this)
-            {
-                GetFunc = GetFunc,
-                BindFunc = BindFunc,
-                CanResolveDelegate = CanResolveDelegate,
-                BindToConstantFunc = BindToConstantFunc,
-                GetAllFunc = GetAllFunc,
-                UnbindFunc = UnbindFunc
-            };
+            if (CreateChild == null)
+                return new IocContainerMock(this)
+                {
+                    GetFunc = GetFunc,
+                    BindFunc = BindFunc,
+                    CanResolveDelegate = CanResolveDelegate,
+                    BindToConstantFunc = BindToConstantFunc,
+                    GetAllFunc = GetAllFunc,
+                    UnbindFunc = UnbindFunc
+                };
+            return CreateChild(this);
         }
 
         /// <summary>

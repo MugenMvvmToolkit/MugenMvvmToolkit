@@ -45,7 +45,7 @@ namespace MugenMvvmToolkit.Binding.Models
     public sealed class DependencyPropertyBindingMember : IBindingMemberInfo
     {
         #region Nested types
-        
+
         //BUG: WP doesn't update DataContextProperty on change in parent.
 #if WINDOWS_PHONE
         private static class DataContextChangedHelper
@@ -102,7 +102,7 @@ namespace MugenMvvmToolkit.Binding.Models
 #if !NETFX_CORE && !WINDOWSCOMMON
             private static readonly Action<DependencyPropertyListener> DisposeDelegate = DisposeInternal;
 #endif
-            private object _listener;
+            private WeakEventListenerWrapper _listener;
 
             #endregion
 
@@ -113,7 +113,7 @@ namespace MugenMvvmToolkit.Binding.Models
             /// </summary>
             public DependencyPropertyListener(object source, string propertyToBind, IEventListener listener)
             {
-                _listener = listener.ToWeakItem();
+                _listener = listener.ToWeakWrapper();
                 BindingOperations.SetBinding(this, ValueProperty,
                     new BindingEx
                     {
@@ -149,7 +149,7 @@ namespace MugenMvvmToolkit.Binding.Models
             /// </summary>
             public DependencyPropertyListener(object source, DependencyProperty propertyToBind, IEventListener listener)
             {
-                _listener = listener.ToWeakItem();
+                _listener = listener.ToWeakWrapper();
                 BindingOperations.SetBinding(this, ValueProperty,
                     new BindingEx
                     {
@@ -188,23 +188,18 @@ namespace MugenMvvmToolkit.Binding.Models
             private static void OnValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
             {
                 var listener = (DependencyPropertyListener)sender;
-                var reference = listener._listener;
-                if (reference != null)
-                {
-                    var target = BindingExtensions.GetEventListenerFromWeakItem(reference);
-                    if (target == null)
-                        DisposeInternal(listener);
-                    else
-                        target.Handle(sender, EventArgs.Empty);
-                }
+                if (!listener._listener.EventListener.TryHandle(sender, EventArgs.Empty))
+                    DisposeInternal(listener);
             }
 
             private static void DisposeInternal(DependencyPropertyListener listener)
             {
                 try
                 {
+                    if (listener._listener.IsEmpty)
+                        return;
                     listener.ClearValue(ValueProperty);
-                    listener._listener = null;
+                    listener._listener = WeakEventListenerWrapper.Empty;
                 }
                 catch (InvalidOperationException e)
                 {

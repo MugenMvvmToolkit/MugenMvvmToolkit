@@ -24,7 +24,7 @@ namespace MugenMvvmToolkit.Interfaces.Views
     /// <summary>
     ///     Represent the base interface for a window view.
     /// </summary>
-    public interface IWindowView : IWindowViewBase
+    public interface IWindowView : IView
     {
         /// <summary>
         ///     Gets or sets the cancelable value.
@@ -50,5 +50,10 @@ namespace MugenMvvmToolkit.Interfaces.Views
         ///     Occurred on closed window.
         /// </summary>
         event EventHandler<IWindowView, EventArgs> Canceled;
+
+        /// <summary>
+        ///     Occurred on destroyed view.
+        /// </summary>
+        event EventHandler<IWindowView, EventArgs> Destroyed;
     }
 }

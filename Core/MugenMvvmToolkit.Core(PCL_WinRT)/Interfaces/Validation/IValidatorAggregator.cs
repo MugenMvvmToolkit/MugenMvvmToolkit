@@ -19,18 +19,25 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
+using MugenMvvmToolkit.Infrastructure.Validation;
 using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Interfaces.Validation
 {
     /// <summary>
-    ///     Represents the interface that allows the use of several models as one.
+    ///     Represents the interface that allows to aggregate validators and use it as one.
     /// </summary>
     public interface IValidatorAggregator : IDisposableObject, INotifyDataErrorInfo
 #if NONOTIFYDATAERROR
       ,IDataErrorInfo  
 #endif
     {
+        /// <summary>
+        ///     Gets or sets the delegate that allows to create an instance of <see cref="IValidatorContext" />.
+        /// </summary>
+        [NotNull]
+        Func<object, IValidatorContext> CreateContext { get; set; }
+
         /// <summary>
         ///     Gets the mapping of model properties.
         ///     <example>
@@ -51,10 +58,9 @@ namespace MugenMvvmToolkit.Interfaces.Validation
         ICollection<string> IgnoreProperties { get; }
 
         /// <summary>
-        /// Gets or sets the delegate that allows to create an instance of <see cref="IValidatorContext" />.
+        ///     Gets the validator that allows to set errors manually.
         /// </summary>
-        [NotNull]
-        Func<object, IValidatorContext> CreateContext { get; set; }
+        ManualValidator Validator { get; }
 
         /// <summary>
         ///     Determines whether the current validator is valid.
@@ -134,13 +140,6 @@ namespace MugenMvvmToolkit.Interfaces.Validation
         /// </returns>
         [NotNull]
         IDictionary<string, IList<object>> GetErrors();
-
-        /// <summary>
-        ///     Set errors for a property.
-        /// </summary>
-        /// <param name="propertyName">The name of the property</param>
-        /// <param name="errors">The collection of errors</param>
-        void SetErrors(string propertyName, params object[] errors);
 
         /// <summary>
         ///     Clears errors for a property.

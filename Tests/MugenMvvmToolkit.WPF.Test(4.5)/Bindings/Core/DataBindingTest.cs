@@ -150,6 +150,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             binding.BindingUpdated += (sender, args) =>
             {
                 args.Action.ShouldEqual(BindingAction.UpdateTarget);
+                args.Result.ShouldBeTrue();
                 isInvoked = true;
             };
             binding.UpdateTarget();
@@ -157,7 +158,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         }
 
         [TestMethod]
-        public virtual void BindingShouldNotRaiseEventWhenUpdateTargetFalse()
+        public virtual void BindingShouldRaiseEventWhenUpdateTargetFalse()
         {
             bool isInvoked = false;
             IBindingPath path = BindingPath.Create("test");
@@ -172,10 +173,11 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             binding.BindingUpdated += (sender, args) =>
             {
                 args.Action.ShouldEqual(BindingAction.UpdateTarget);
+                args.Result.ShouldBeFalse();
                 isInvoked = true;
             };
             binding.UpdateTarget();
-            isInvoked.ShouldBeFalse();
+            isInvoked.ShouldBeTrue();
         }
 
         [TestMethod]
@@ -200,6 +202,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             binding.BindingUpdated += (sender, args) =>
             {
                 args.Action.ShouldEqual(BindingAction.UpdateSource);
+                args.Result.ShouldBeTrue();
                 isInvoked = true;
             };
             binding.UpdateSource();
@@ -207,7 +210,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         }
 
         [TestMethod]
-        public virtual void BindingShouldNotRaiseEventWhenUpdateSourceFalse()
+        public virtual void BindingShouldRaiseEventWhenUpdateSourceFalse()
         {
             bool isInvoked = false;
             IBindingPath path = BindingPath.Create("test");
@@ -223,10 +226,11 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             binding.BindingUpdated += (sender, args) =>
             {
                 args.Action.ShouldEqual(BindingAction.UpdateSource);
+                args.Result.ShouldBeFalse();
                 isInvoked = true;
             };
             binding.UpdateSource();
-            isInvoked.ShouldBeFalse();
+            isInvoked.ShouldBeTrue();
         }
 
         [TestMethod]

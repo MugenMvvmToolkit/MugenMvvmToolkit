@@ -145,6 +145,29 @@ namespace MugenMvvmToolkit.Models
     }
 
     /// <summary>
+    ///     Specifies the ioc container creation mode.
+    /// </summary>
+    [Flags]
+    public enum IocContainerCreationMode
+    {
+
+        /// <summary>
+        ///     The view model uses the default IocContainer.
+        /// </summary>
+        Default = 1,
+
+        /// <summary>
+        ///     The view model uses the IocContainer from parent view model.
+        /// </summary>
+        ParentViewModel = 2,
+
+        /// <summary>
+        ///     The view model combines the default and parent view model container in the one.
+        /// </summary>
+        Mixed = ParentViewModel | Default
+    }
+
+    /// <summary>
     ///     Specifies the hadnle mode.
     /// </summary>
     [Flags]

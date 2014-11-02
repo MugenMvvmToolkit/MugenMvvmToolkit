@@ -17,6 +17,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Models
 {
@@ -24,7 +25,7 @@ namespace MugenMvvmToolkit.Models
     ///     Represents the tracking entity.
     /// </summary>
     [StructLayout(LayoutKind.Auto), Serializable, DataContract(Namespace = ApplicationSettings.DataContractNamespace)]
-    public struct TrackingEntity<TEntity>
+    public struct TrackingEntity<TEntity> : IEntityStateEntry
     {
         #region Fields
 
@@ -55,6 +56,20 @@ namespace MugenMvvmToolkit.Models
 
         #endregion
 
+        #region Implementation of IEntityStateEntry
+
+        EntityState IEntityStateEntry.State
+        {
+            get { return State; }
+        }
+
+        object IEntityStateEntry.Entity
+        {
+            get { return Entity; }
+        }
+
+        #endregion
+
         #region Overrides of Object
 
         /// <summary>
@@ -68,6 +83,6 @@ namespace MugenMvvmToolkit.Models
             return string.Format("{0} - {1}", State, Entity);
         }
 
-        #endregion
+        #endregion        
     }
 }

@@ -743,8 +743,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
         protected override void OnInit()
         {
             base.OnInit();
-            if (!BindingServiceProvider.MemberProvider.HasMember(typeof(BindingSourceModel), AttachedMemberConstants.Enabled, false))
-                BindingServiceProvider.MemberProvider.Register(typeof(BindingSourceModel),
+            BindingServiceProvider.MemberProvider.Register(typeof(BindingSourceModel),
                     AttachedBindingMember.CreateMember<BindingSourceModel, bool>(AttachedMemberConstants.Enabled,
                         (info, sourceModel) => sourceModel.IsEnabled,
                         (info, sourceModel, value) => sourceModel.IsEnabled = value), true);

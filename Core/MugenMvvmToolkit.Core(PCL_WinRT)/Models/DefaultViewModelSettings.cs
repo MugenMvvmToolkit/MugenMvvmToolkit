@@ -96,7 +96,7 @@ namespace MugenMvvmToolkit.Models
             get { return _defaultBusyMessage; }
             set
             {
-                Should.PropertyBeNotNull(value, "DefaultBusyMessage");
+                Should.PropertyBeNotNull(value);
                 _defaultBusyMessage = value;
             }
         }
@@ -109,7 +109,7 @@ namespace MugenMvvmToolkit.Models
             get { return _validationBusyMessage; }
             set
             {
-                Should.PropertyBeNotNull(value, "ValidationBusyMessage");
+                Should.PropertyBeNotNull(value);
                 _validationBusyMessage = value;
             }
         }

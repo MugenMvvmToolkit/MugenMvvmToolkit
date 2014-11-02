@@ -65,19 +65,19 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Gets the completed task with true result.
         /// </summary>
-        [SuppressTaskBusyHandler] 
+        [SuppressTaskBusyHandler]
         public static readonly Task<bool> TrueTask;
 
         /// <summary>
         ///     Gets the completed task with false result.
         /// </summary>
-        [SuppressTaskBusyHandler] 
+        [SuppressTaskBusyHandler]
         public static readonly Task<bool> FalseTask;
 
         /// <summary>
         ///     Gets the completed task.
         /// </summary>
-        [SuppressTaskBusyHandler] 
+        [SuppressTaskBusyHandler]
         public static readonly Task Task;
 
         /// <summary>

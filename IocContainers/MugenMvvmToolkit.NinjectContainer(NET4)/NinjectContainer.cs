@@ -100,6 +100,18 @@ namespace MugenMvvmToolkit
 
         #endregion
 
+        #region Properties
+
+        /// <summary>
+        ///     Gets the original ioc container.
+        /// </summary>
+        public IKernel Container
+        {
+            get { return _kernel; }
+        }
+
+        #endregion
+
         #region Constructor
 
         /// <summary>
@@ -137,7 +149,7 @@ namespace MugenMvvmToolkit
             foreach (var iocParameter in parameters)
                 list.AddIfNotNull(ConvertParameter(iocParameter));
             list.Add(new ParameterContainer(parameters));
-            return list.ToArrayFast();
+            return list.ToArrayEx();
         }
 
         /// <summary>
@@ -226,7 +238,7 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Gets the original ioc container.
         /// </summary>
-        public object Container
+        object IIocContainer.Container
         {
             get { return _kernel; }
         }

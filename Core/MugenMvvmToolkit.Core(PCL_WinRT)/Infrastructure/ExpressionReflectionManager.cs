@@ -164,7 +164,7 @@ namespace MugenMvvmToolkit.Infrastructure
             get { return _createLambdaExpressionByType; }
             set
             {
-                Should.PropertyBeNotNull(value, "CreateLambdaExpressionByType");
+                Should.PropertyBeNotNull(value);
                 _createLambdaExpressionByType = value;
             }
         }
@@ -177,7 +177,7 @@ namespace MugenMvvmToolkit.Infrastructure
             get { return _createLambdaExpression; }
             set
             {
-                Should.PropertyBeNotNull(value, "CreateLambdaExpression");
+                Should.PropertyBeNotNull(value);
                 _createLambdaExpression = value;
             }
         }
@@ -317,12 +317,12 @@ namespace MugenMvvmToolkit.Infrastructure
 
                     Expression callExpression;
                     if (method.IsStatic)
-                        callExpression = Expression.Call(null, method, expressions.ToArrayFast());
+                        callExpression = Expression.Call(null, method, expressions.ToArrayEx());
                     else
                     {
                         Expression @this = expressions[0];
                         expressions.RemoveAt(0);
-                        callExpression = Expression.Call(@this, method, expressions.ToArrayFast());
+                        callExpression = Expression.Call(@this, method, expressions.ToArrayEx());
                     }
 
                     if (delegateMethod.ReturnType != typeof(void))

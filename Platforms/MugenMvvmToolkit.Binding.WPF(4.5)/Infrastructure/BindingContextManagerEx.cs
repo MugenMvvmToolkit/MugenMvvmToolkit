@@ -48,6 +48,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 #else
             private readonly WeakReference _sourceReference;
 #endif
+            private static Type _namedObjectType;
+
             #endregion
 
             #region Constructors
@@ -71,9 +73,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Implementation of IBindingContext
 
-            /// <summary>
-            ///     Gets the source object.
-            /// </summary>
             public object Source
             {
                 get
@@ -86,9 +85,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 }
             }
 
-            /// <summary>
-            ///     Gets the data context.
-            /// </summary>
+            public bool IsAlive
+            {
+                get { return true; }
+            }
+
             public object Value
             {
                 get
@@ -97,7 +98,17 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     if (target == null)
                         return null;
                     object context = target.DataContext;
-                    if (context == null || context.GetType().FullName.Equals("MS.Internal.NamedObject"))
+                    if (context == null)
+                        return null;
+                    if (_namedObjectType == null)
+                    {
+                        if (context.GetType().FullName.Equals("MS.Internal.NamedObject", StringComparison.Ordinal))
+                        {
+                            _namedObjectType = context.GetType();
+                            return null;
+                        }
+                    }
+                    else if (_namedObjectType == context.GetType())
                         return null;
                     return context;
                 }

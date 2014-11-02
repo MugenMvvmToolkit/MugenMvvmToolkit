@@ -341,6 +341,12 @@ namespace MugenMvvmToolkit.Binding
             return syntax.WithBehavior(ValidatesOnExceptionsBehavior.Instance);
         }
 
+        public static IBindingInfoBehaviorSyntax Validate([NotNull] this IBindingBehaviorSyntax syntax)
+        {
+            syntax.ValidatesOnNotifyDataErrors();
+            return syntax.ValidatesOnExceptions();
+        }
+
         public static IBindingBehaviorSyntax WithDelay([NotNull] this IBindingBehaviorSyntax syntax, uint delay)
         {
             return syntax.WithBehavior(new DelayBindingBehavior(delay));

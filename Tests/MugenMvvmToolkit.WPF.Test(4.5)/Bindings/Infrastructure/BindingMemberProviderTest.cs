@@ -18,6 +18,25 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
     [TestClass]
     public class BindingMemberProviderTest : BindingTestBase
     {
+        #region Nested types
+
+        private interface IInterface
+        {
+
+        }
+
+        private class BaseClass : IInterface
+        {
+
+        }
+
+        private class Class : BaseClass
+        {
+
+        }
+
+        #endregion
+
         #region Methods
 
         [TestMethod]
@@ -187,12 +206,43 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         }
 
         [TestMethod]
-        public void ProviderShouldSelectTheBestMember()
+        public void ProviderShouldSelectTheBestMember1()
         {
             const string path = "Test";
             var baseType = typeof(object);
             var parentType = typeof(BindingTestBase);
             var targetType = GetType();
+            var provider = CreateMemberProvider();
+
+            var baseMember = AttachedBindingMember.CreateMember(path, typeof(object), (info, o) => null, null);
+            var parentMember = AttachedBindingMember.CreateMember(path, typeof(object), (info, o) => null, null);
+            var targetMember = AttachedBindingMember.CreateMember(path, typeof(object), (info, o) => null, null);
+            provider.Register(baseType, baseMember, false);
+            provider.Register(parentType, parentMember, false);
+            provider.Register(targetType, targetMember, false);
+
+            provider.GetBindingMember(targetType, path, false, false).ShouldEqual(targetMember);
+            provider.GetBindingMember(parentType, path, false, false).ShouldEqual(parentMember);
+            provider.GetBindingMember(baseType, path, false, false).ShouldEqual(baseMember);
+
+            provider.Unregister(targetType, path);
+            provider.GetBindingMember(targetType, path, false, false).ShouldEqual(parentMember);
+            provider.GetBindingMember(parentType, path, false, false).ShouldEqual(parentMember);
+            provider.GetBindingMember(baseType, path, false, false).ShouldEqual(baseMember);
+
+            provider.Unregister(parentType, path);
+            provider.GetBindingMember(targetType, path, false, false).ShouldEqual(baseMember);
+            provider.GetBindingMember(parentType, path, false, false).ShouldEqual(baseMember);
+            provider.GetBindingMember(baseType, path, false, false).ShouldEqual(baseMember);
+        }
+
+        [TestMethod]
+        public void ProviderShouldSelectTheBestMember2()
+        {
+            const string path = "Test";
+            var baseType = typeof(IInterface);
+            var parentType = typeof(BaseClass);
+            var targetType = typeof(Class);
             var provider = CreateMemberProvider();
 
             var baseMember = AttachedBindingMember.CreateMember(path, typeof(object), (info, o) => null, null);

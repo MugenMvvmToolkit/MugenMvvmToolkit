@@ -33,10 +33,10 @@ namespace MugenMvvmToolkit.Interfaces.Mediators
         bool IsOpen { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IWindowViewBase" />.
+        ///     Gets the <see cref="IView" />.
         /// </summary>
         [CanBeNull]
-        IWindowViewBase View { get; }
+        IView View { get; }
 
         /// <summary>
         ///     Gets the underlying view model.
@@ -60,9 +60,9 @@ namespace MugenMvvmToolkit.Interfaces.Mediators
         Task<bool> CloseAsync([CanBeNull] object parameter);
 
         /// <summary>
-        ///     Updates the current view, for example android platform use this api to update view after recreate a dialog
+        ///     Updates the current view, for example android platform use this API to update view after recreate a dialog
         ///     fragment.
         /// </summary>
-        void UpdateView([CanBeNull] IWindowViewBase view, bool isOpen, [CanBeNull] IDataContext context);
+        void UpdateView([CanBeNull] IView view, bool isOpen, [CanBeNull] IDataContext context);
     }
 }

@@ -19,7 +19,7 @@ using JetBrains.Annotations;
 namespace MugenMvvmToolkit.Interfaces.Models
 {
     /// <summary>
-    ///     Represents the interface which contains information about binding a view to a view model.
+    ///     Represents the interface that contains information about a mapping from view to a view model.
     /// </summary>
     public interface IViewMappingItem
     {

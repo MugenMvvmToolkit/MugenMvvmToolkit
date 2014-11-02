@@ -86,7 +86,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             _attachedControlAutoCompleteItems = BindingServiceProvider
                 .MemberProvider
                 .GetAttachedMemberNames(typeof(Control))
-                .ToArrayFast(s => new AutoCompleteItem(s, s, MemberTypes.Custom));
+                .ToArrayEx(s => new AutoCompleteItem(s, s, MemberTypes.Custom));
             typeControlComboBox.SelectedIndexChanged += TypeChanged;
             typeControlComboBox.Items.Add(ControlsName);
             typeControlComboBox.Items.Add(ComponentsName);
@@ -100,8 +100,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
         public BindingEditorView(string xmlText)
             : this()
         {
-            bindingEditor.Text = xmlText;
-            bindingEditor.UpdateText();
+            bindingEditor.SetBindingText(xmlText);
         }
 
         #endregion
@@ -112,7 +111,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         public string BindingText
         {
-            get { return bindingEditor.Text; }
+            get { return bindingEditor.GetBindingText(); }
         }
 
         #endregion
@@ -170,7 +169,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                 if (AddCompleteItem(component, out name, out type) && container != component)
                     treeNodes.Add(new TreeNode(GetDisplayName(component, name, type)));
             }
-            return new TreeNode(GetDisplayName(container, container.Name, container.GetType()), treeNodes.ToArrayFast());
+            return new TreeNode(GetDisplayName(container, container.Name, container.GetType()), treeNodes.ToArrayEx());
         }
 
         private bool AddCompleteItem(IComponent result, out string name, out Type type)
@@ -179,6 +178,8 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             name = null;
             try
             {
+                if (result is Binder)
+                    return false;
                 name = PlatformExtensions.GetComponentName(result);
                 if (string.IsNullOrWhiteSpace(name))
                     return false;

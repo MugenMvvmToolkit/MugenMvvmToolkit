@@ -16,7 +16,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         public Func<IViewModel, IDataContext, IView> GetViewRawDelegate { get; set; }
 
-        public Action<IViewModel, IView> InitializeViewForViewModelDelegate { get; set; }
+        public Action<IViewModel, object> InitializeViewForViewModelDelegate { get; set; }
 
         public Action<IViewModel> CleanupViewOnlyVmDelegate { get; set; }
 
@@ -62,7 +62,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         /// </summary>
         /// <param name="viewModel">The specified view model.</param>
         /// <param name="view">The specified view.</param>
-        Task IViewManager.InitializeViewAsync(IViewModel viewModel, IView view)
+        Task IViewManager.InitializeViewAsync(IViewModel viewModel, object view)
         {
             if (InitializeViewForViewModelDelegate != null)
                 InitializeViewForViewModelDelegate(viewModel, view);

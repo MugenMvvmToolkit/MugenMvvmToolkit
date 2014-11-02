@@ -107,7 +107,7 @@ namespace MugenMvvmToolkit.Infrastructure
             private readonly HashSet<MessageSenderCache> _handledMessages;
             private readonly object _target;
             private readonly IHandler<object> _handler;
-            
+
             private MessageSenderCache _lastMessage;
             private Type _lastType;
             private Func<object, object[], object>[] _lastValue;
@@ -225,7 +225,7 @@ namespace MugenMvvmToolkit.Infrastructure
                             if (pair.Key.IsAssignableFrom(messageType))
                                 listValue.Add(pair.Value);
                         }
-                        value = listValue.ToArrayFast();
+                        value = listValue.ToArrayEx();
                         _messageToHandlers[messageType] = value;
                     }
                     _lastType = messageType;
@@ -460,8 +460,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static void Trace(object sender, object message, object target)
         {
-            Tracer.Info("The message '{0}' from sender '{1}' was sended to '{2}'", message.GetType(), sender.GetType(),
-                target);
+            Tracer.Warn("The message '{0}' from sender '{1}' was sended to '{2}'", message.GetType(), sender.GetType(), target);
         }
 
         #endregion

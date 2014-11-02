@@ -57,6 +57,19 @@ namespace MugenMvvmToolkit.Binding.Models
         }
 
         /// <summary>
+        ///     Gets an indication whether the object referenced by the current <see cref="ISourceValue" /> object has
+        ///     been garbage collected.
+        /// </summary>
+        /// <returns>
+        ///     true if the object referenced by the current <see cref="ISourceValue" /> object has not been garbage
+        ///     collected and is still accessible; otherwise, false.
+        /// </returns>
+        bool ISourceValue.IsAlive
+        {
+            get { return true; }
+        }
+
+        /// <summary>
         ///     Gets the value.
         /// </summary>
         public object Value
@@ -67,7 +80,7 @@ namespace MugenMvvmToolkit.Binding.Models
         /// <summary>
         ///     Occurs when the <see cref="ISourceValue.Value"/>  property changed.
         /// </summary>
-        public event EventHandler<ISourceValue, EventArgs> ValueChanged
+        event EventHandler<ISourceValue, EventArgs> ISourceValue.ValueChanged
         {
             add { }
             remove { }

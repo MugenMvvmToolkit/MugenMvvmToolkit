@@ -20,7 +20,7 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 namespace MugenMvvmToolkit.Interfaces.ViewModels
 {
     /// <summary>
-    ///     Represents the view-model which can handle navigation events.
+    ///     Represents the view model interface that allows to handle navigation events.
     /// </summary>
     public interface INavigableViewModel : IViewModel
     {

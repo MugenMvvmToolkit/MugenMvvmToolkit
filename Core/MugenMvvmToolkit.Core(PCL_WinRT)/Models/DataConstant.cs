@@ -31,13 +31,13 @@ namespace MugenMvvmToolkit.Models
     {
         #region Fields
 
-        [IgnoreDataMember, XmlIgnore] 
+        [IgnoreDataMember, XmlIgnore]
         private bool _notNull;
 
         [IgnoreDataMember, XmlIgnore]
         private string _typeName;
 
-        [NonSerialized, IgnoreDataMember, XmlIgnore] 
+        [NonSerialized, IgnoreDataMember, XmlIgnore]
         private Type _type;
 
         #endregion
@@ -153,8 +153,8 @@ namespace MugenMvvmToolkit.Models
         {
             Should.NotBeNull(getConstant, "getConstant");
             MemberInfo member = getConstant.GetMemberInfo();
-            Type declaringType = member.DeclaringType ?? typeof (DataConstant);
-            return new DataConstant<T>(declaringType.Name + "::" + member.Name, notNull);
+            Type declaringType = member.DeclaringType ?? typeof(DataConstant);
+            return new DataConstant<T>(declaringType.Name + "_" + declaringType.FullName.Length.ToString() + "::" + member.Name, notNull);
         }
 
         #endregion
@@ -191,7 +191,7 @@ namespace MugenMvvmToolkit.Models
         ///     Initializes a new instance of the <see cref="DataConstant{T}" /> class.
         /// </summary>
         public DataConstant([NotNull] string id, bool notNull = false)
-            : this(id, typeof (T), notNull)
+            : this(id, typeof(T), notNull)
         {
         }
 
@@ -246,7 +246,7 @@ namespace MugenMvvmToolkit.Models
 
         public static implicit operator DataConstant<T>(string dataConstantId)
         {
-            return new DataConstant<T>(dataConstantId, typeof (object), false);
+            return new DataConstant<T>(dataConstantId, typeof(object), false);
         }
 
         public static implicit operator DataConstant(DataConstant<T> dataConstant)

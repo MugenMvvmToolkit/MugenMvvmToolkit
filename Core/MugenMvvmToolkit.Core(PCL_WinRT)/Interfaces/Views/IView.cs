@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="IView.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,28 +13,24 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
-using JetBrains.Annotations;
+
 using MugenMvvmToolkit.Interfaces.ViewModels;
 
 namespace MugenMvvmToolkit.Interfaces.Views
 {
     /// <summary>
-    ///     Represent the base interface for view.
+    ///     Represent the interface-marker for view.
     /// </summary>
     public interface IView
     {
-        /// <summary>
-        ///     Gets or sets the data context of the current <see cref="IView" />.
-        /// </summary>
-        [CanBeNull]
-        object DataContext { get; set; }
     }
 
     /// <summary>
-    ///     Adds support for the view-model in view.
+    ///     Represents the interface that allows to get access to the view model.
     /// </summary>
-    public interface IViewModelAwareView<TViewModel> where TViewModel : IViewModel
+    public interface IViewModelAwareView<TViewModel> : IView where TViewModel : IViewModel
     {
         /// <summary>
         ///     Gets or sets the view-model.

@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="OneTimeBindingMode.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,7 +13,9 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models.EventArg;
@@ -36,7 +39,8 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected override bool OnAttached()
         {
-            SubscribeSources(OneTimeHandler);
+            if (!Binding.UpdateTarget())
+                SubscribeSources(OneTimeHandler);
             return true;
         }
 
@@ -62,12 +66,11 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         private void OneTimeHandler(IBindingSource sender, ValueChangedEventArgs args)
         {
-            var members = sender.GetPathMembers(false);
-            if (!members.AllMembersAvailable)
+            IDataBinding binding = Binding;
+            if (binding == null || !binding.UpdateTarget())
                 return;
             UnsubscribeSources(OneTimeHandler);
-            Binding.UpdateTarget();
-            Binding.Dispose();
+            binding.Dispose();
         }
 
         #endregion

@@ -78,7 +78,6 @@ namespace MugenMvvmToolkit.Binding
                     (info, view) => view.Visibility != Visibility.Visible,
                     (info, view, value) => view.Visibility = value ? Visibility.Collapsed : Visibility.Visible, ObserveVisiblityMember));
 
-
             //FrameworkElement            
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, object>(AttachedMemberConstants.Parent, GetParentValue, null, ObserveParentMember));
@@ -102,12 +101,13 @@ namespace MugenMvvmToolkit.Binding
                     (info, control, value) => control.IsEnabled = value, "IsEnabledChanged"));
 #endif
 
-            //TextBox, TextBlock            
+            //TextBox            
 #if WINDOWSCOMMON || NETFX_CORE
             memberProvider.Register(AttachedBindingMember.CreateMember<TextBox, string>("Text",
                 (info, box) => box.Text,
                 (info, box, value) => box.Text = value ?? string.Empty, "TextChanged"));
 
+            //TextBlock
             memberProvider.Register(AttachedBindingMember.CreateMember<TextBlock, string>("Text",
                 (info, box) => box.Text,
                 (info, box, value) => box.Text = value ?? string.Empty, ObserveTextTextBlock));
@@ -127,17 +127,12 @@ namespace MugenMvvmToolkit.Binding
 
         private static void OnErrorsChanged(DependencyObject sender, ICollection<object> errors)
         {
-            var list = ServiceProvider.AttachedValueProvider.GetValue<EventListenerList>(sender, ErrorsObserverKey, false);
-            if (list != null)
-                list.Raise(sender, EventArgs.Empty);
+            EventListenerList.Raise(sender, ErrorsObserverKey, EventArgs.Empty);
         }
 
         private static IDisposable ObserveErrors(IBindingMemberInfo bindingMemberInfo, DependencyObject dependencyObject, IEventListener arg3)
         {
-            return ServiceProvider
-                .AttachedValueProvider
-                .GetOrAdd(dependencyObject, ErrorsObserverKey, (o, o1) => new EventListenerList(), null)
-                .AddWithUnsubscriber(arg3);
+            return EventListenerList.GetOrAdd(dependencyObject, ErrorsObserverKey).AddWithUnsubscriber(arg3);
         }
 
         private static void SetErrors(IBindingMemberInfo bindingMemberInfo, DependencyObject dependencyObject, ICollection<object> collection)
@@ -217,26 +212,18 @@ namespace MugenMvvmToolkit.Binding
         #region Overrides of DataBindingModule
 
         /// <summary>
-        ///     Loads the current module.
+        ///    Occurs on load the current module.
         /// </summary>
-        public override bool Load(IModuleContext context)
+        protected override void OnLoaded(IModuleContext context)
         {
             if (View.BindChanged == null)
                 View.BindChanged = OnBindChanged;
             View.ErrorsChanged = OnErrorsChanged;
             ViewManager.GetDataContext = o => BindingServiceProvider.ContextManager.GetBindingContext(o).Value;
             ViewManager.SetDataContext = (o, o1) => BindingServiceProvider.ContextManager.GetBindingContext(o).Value = o1;
-            base.Load(context);
-            var oldMember = BindingServiceProvider.MemberProvider as BindingMemberProvider;
-            BindingServiceProvider.MemberProvider = oldMember == null
-                ? new BindingMemberProviderEx()
-                : new BindingMemberProviderEx(oldMember);
-            BindingServiceProvider.ContextManager = new BindingContextManagerEx();
-            var resolver = BindingServiceProvider.ResourceResolver as BindingResourceResolver;
-            BindingServiceProvider.ResourceResolver = resolver == null
-                ? new BindingResourceResolverEx()
-                : new BindingResourceResolverEx(resolver);
+
             Register(BindingServiceProvider.MemberProvider);
+
             var resourceResolver = BindingServiceProvider.ResourceResolver;
             resourceResolver.AddObject("Visible", new BindingResourceObject(Visibility.Visible), true);
             resourceResolver.AddObject("Collapsed", new BindingResourceObject(Visibility.Collapsed), true);
@@ -270,7 +257,7 @@ namespace MugenMvvmToolkit.Binding
             resourceResolver
                 .AddConverter("NotNullToHidden", new ValueConverterWrapper(conv.Convert, conv.ConvertBack), true);
 #endif
-            return true;
+            base.OnLoaded(context);
         }
 
         /// <summary>
@@ -279,6 +266,36 @@ namespace MugenMvvmToolkit.Binding
         protected override IBindingErrorProvider GetBindingErrorProvider()
         {
             return new BindingErrorProvider();
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="IBindingMemberProvider" /> that will be used by default.
+        /// </summary>
+        protected override IBindingMemberProvider GetBindingMemberProvider()
+        {
+            var provider = BindingServiceProvider.MemberProvider as BindingMemberProvider;
+            return provider == null
+                ? new BindingMemberProviderEx()
+                : new BindingMemberProviderEx(provider);
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="IBindingContextManager" /> that will be used by default.
+        /// </summary>
+        protected override IBindingContextManager GetBindingContextManager()
+        {
+            return new BindingContextManagerEx();
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="IBindingResourceResolver" /> that will be used by default.
+        /// </summary>
+        protected override IBindingResourceResolver GetBindingResourceResolver()
+        {
+            var resolver = BindingServiceProvider.ResourceResolver as BindingResourceResolver;
+            return resolver == null
+                ? new BindingResourceResolverEx()
+                : new BindingResourceResolverEx(resolver);
         }
 
         /// <summary>

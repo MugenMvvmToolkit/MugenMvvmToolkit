@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using MugenMvvmToolkit.Binding.Models;
@@ -79,7 +80,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         #region Fields
 
-        private static readonly Dictionary<string, string> ReplaceKeywords;
+        private static readonly List<KeyValuePair<string, string>> ReplaceKeywords;
 
         // ReSharper disable InconsistentNaming
         private const int WM_KEYDOWN = 0x100;
@@ -122,12 +123,12 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         static XmlEditor()
         {
-            ReplaceKeywords = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            ReplaceKeywords = new List<KeyValuePair<string, string>>
             {
-                {"&lt;", "<"},
-                {"&gt;", ">"},
-                {"&amp;", "&"},
-                {"&quot;", "\""}
+                new KeyValuePair<string, string>("&lt;", "<"),
+                new KeyValuePair<string, string>("&gt;", ">"),
+                new KeyValuePair<string, string>("&quot;", "\""),
+                new KeyValuePair<string, string>("&amp;", "&")
             };
         }
 
@@ -168,7 +169,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             get { return _redoStack.Count > 0; }
         }
 
-        public string Text
+        public new string Text
         {
             get { return base.Text; }
             set
@@ -192,9 +193,80 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         #region Methods
 
-        public void UpdateText()
+        public string GetBindingText()
         {
-            OnTextChanged(EventArgs.Empty);
+            if (string.IsNullOrEmpty(Text))
+                return Text;
+            try
+            {
+                var nodes = _parser.Parse(Text);
+                _visitor.Visit(nodes);
+                int delta = 0;
+                string text = Text;
+                foreach (var node in _visitor.Nodes.OfType<XmlValueExpressionNode>())
+                {
+                    if (node.Type != XmlValueExpressionType.AttributeValue)
+                        continue;
+                    var start = node.Start + 1 + delta;
+                    var length = node.Length - 2;
+                    var oldValue = text.Substring(start, length);
+                    int oldLength = oldValue.Length;
+                    foreach (var replaceKeyword in ReplaceKeywords)
+                        oldValue = oldValue.Replace(replaceKeyword.Value, replaceKeyword.Key);
+
+                    var localDelta = oldValue.Length - oldLength;
+                    if (localDelta == 0)
+                        continue;
+
+                    delta += localDelta;
+                    text = text.Remove(start, length).Insert(start, oldValue);
+                }
+                return text;
+            }
+            catch
+            {
+                return Text;
+            }
+        }
+
+        public void SetBindingText(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                Text = text;
+                return;
+            }
+            try
+            {
+                var nodes = _parser.Parse(text);
+                _visitor.Visit(nodes);
+                int delta = 0;
+                foreach (var node in _visitor.Nodes.OfType<XmlValueExpressionNode>())
+                {
+                    if (node.Type != XmlValueExpressionType.AttributeValue)
+                        continue;
+                    var start = node.Start + 1 + delta;
+                    var length = node.Length - 2;
+                    var oldValue = text.Substring(start, length);
+                    int oldLength = oldValue.Length;
+                    for (int i = ReplaceKeywords.Count - 1; i >= 0; i--)
+                    {
+                        var replaceKeyword = ReplaceKeywords[i];
+                        oldValue = oldValue.Replace(replaceKeyword.Key, replaceKeyword.Value);
+                    }
+                    var localDelta = oldValue.Length - oldLength;
+                    if (localDelta == 0)
+                        continue;
+
+                    delta += localDelta;
+                    text = text.Remove(start, length).Insert(start, oldValue);
+                }
+                Text = text;
+            }
+            catch
+            {
+                Text = text;
+            }
         }
 
         public void ShowAutoComplete()
@@ -245,13 +317,12 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                 return;
             try
             {
-                var text = XElement.Parse(Text, LoadOptions.None).ToString();
-                foreach (var replaceKeyword in ReplaceKeywords)
-                    text = text.Replace(replaceKeyword.Key, replaceKeyword.Value);
-                Text = text;
+                var text = XElement.Parse(GetBindingText(), LoadOptions.None).ToString();
+                SetBindingText(text);
                 Highlight();
             }
-            catch (Exception)
+            // ReSharper disable once EmptyGeneralCatchClause
+            catch
             {
             }
         }

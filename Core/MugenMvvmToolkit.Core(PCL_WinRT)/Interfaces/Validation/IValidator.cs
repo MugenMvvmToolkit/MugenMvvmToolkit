@@ -81,7 +81,7 @@ namespace MugenMvvmToolkit.Interfaces.Validation
         ///     The validation errors for the property or entity.
         /// </returns>
         [NotNull]
-        new IList<object> GetErrors(string propertyName);
+        new IList<object> GetErrors([CanBeNull]string propertyName);
 
         /// <summary>
         ///     Gets all validation errors.
@@ -97,7 +97,7 @@ namespace MugenMvvmToolkit.Interfaces.Validation
         /// </summary>
         /// <param name="propertyName">The specified property name.</param>
         [NotNull]
-        Task ValidateAsync([NotNull] string propertyName);
+        Task ValidateAsync([CanBeNull] string propertyName);
 
         /// <summary>
         ///     Updates information about all errors.
@@ -109,7 +109,7 @@ namespace MugenMvvmToolkit.Interfaces.Validation
         ///     Clears errors for a property.
         /// </summary>
         /// <param name="propertyName">The name of the property</param>
-        void ClearErrors([NotNull] string propertyName);
+        void ClearErrors([CanBeNull]string propertyName);
 
         /// <summary>
         ///     Clears all errors.

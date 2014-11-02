@@ -49,8 +49,8 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
             _method = methodName;
             _typeArgs = typeArgs == null
                 ? Empty.Array<string>()
-                : typeArgs.ToArrayFast();
-            _arguments = args == null ? Empty.Array<IExpressionNode>() : args.ToArrayFast();
+                : typeArgs.ToArrayEx();
+            _arguments = args == null ? Empty.Array<IExpressionNode>() : args.ToArrayEx();
         }
 
         #endregion
@@ -115,7 +115,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         protected override IExpressionNode CloneInternal()
         {
             return new MethodCallExpressionNode(Target == null ? null : Target.Clone(), Method,
-                Arguments.ToArrayFast(node => node.Clone()), TypeArgs);
+                Arguments.ToArrayEx(node => node.Clone()), TypeArgs);
         }
 
         /// <summary>

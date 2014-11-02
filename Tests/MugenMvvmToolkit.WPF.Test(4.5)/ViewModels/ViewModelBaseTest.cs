@@ -109,91 +109,58 @@ namespace MugenMvvmToolkit.Test.ViewModels
         #region Test methods
 
         [TestMethod]
-        public void WhenInitialazingVmShouldBindIocContainerIfSettingIsTrue()
-        {
-            ViewModelProvider.BindIocContainer = true;
-            ViewModelBase viewModel = GetViewModelBase();
-            Type typeFrom = null;
-            object item = null;
-            string name = null;
-            IocContainer.BindToConstantFunc = (type, arg2, arg3) =>
-            {
-                typeFrom = type;
-                item = arg2;
-                name = arg3;
-            };
-            var testViewModelBase = viewModel.GetViewModel<TestViewModelBase>();
-
-            typeFrom.ShouldEqual(typeof(IIocContainer));
-            item.ShouldEqual(testViewModelBase.IocContainer);
-            name.ShouldBeNull();
-        }
-
-        [TestMethod]
-        public void WhenInitialazingVmShouldNotBindIocContainerIfSettingIsFalse()
-        {
-            ViewModelProvider.BindIocContainer = false;
-            ViewModelBase viewModel = GetViewModelBase();
-            bool isInvoked = false;
-            IocContainer.BindToConstantFunc = (type, arg2, arg3) => isInvoked = true;
-
-            viewModel.GetViewModel<TestViewModelBase>();
-            isInvoked.ShouldBeFalse();
-        }
-
-        [TestMethod]
         public void WhenInitialazingVmShouldUseObservationModeFromDataContextModeNone()
         {
             const ObservationMode mode = ObservationMode.None;
-            ViewModelBase viewModel = GetViewModelBase();
+            ViewModelBase parentViewModel = GetViewModelBase();
 
-            var testViewModelBase = viewModel.GetViewModel<TestViewModelBase>(observationMode: mode);
-            viewModel.ViewModelEventAggregator.GetObservers().Contains(testViewModelBase).ShouldBeFalse();
-            testViewModelBase.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeFalse();
+            var viewModel = parentViewModel.GetViewModel<TestViewModelBase>(observationMode: mode);
+            parentViewModel.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeFalse();
+            viewModel.ViewModelEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeFalse();
         }
 
         [TestMethod]
         public void WhenInitialazingVmShouldUseObservationModeFromDataContextModeParentObserveChild()
         {
             const ObservationMode mode = ObservationMode.ParentObserveChild;
-            ViewModelBase viewModel = GetViewModelBase();
+            ViewModelBase parentViewModel = GetViewModelBase();
 
-            var testViewModelBase = viewModel.GetViewModel<TestViewModelBase>(observationMode: mode);
-            viewModel.ViewModelEventAggregator.GetObservers().Contains(testViewModelBase).ShouldBeFalse();
-            testViewModelBase.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeTrue();
+            var viewModel = parentViewModel.GetViewModel<TestViewModelBase>(observationMode: mode);
+            parentViewModel.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeFalse();
+            viewModel.ViewModelEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeTrue();
         }
 
         [TestMethod]
         public void WhenInitialazingVmShouldUseObservationModeFromDataContextModeChildObserveParent()
         {
             const ObservationMode mode = ObservationMode.ChildObserveParent;
-            ViewModelBase viewModel = GetViewModelBase();
+            ViewModelBase parentViewModel = GetViewModelBase();
 
-            var testViewModelBase = viewModel.GetViewModel<TestViewModelBase>(observationMode: mode);
-            viewModel.ViewModelEventAggregator.GetObservers().Contains(testViewModelBase).ShouldBeTrue();
-            testViewModelBase.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeFalse();
+            var viewModel = parentViewModel.GetViewModel<TestViewModelBase>(observationMode: mode);
+            parentViewModel.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeTrue();
+            viewModel.ViewModelEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeFalse();
         }
 
         [TestMethod]
         public void WhenInitialazingVmShouldUseObservationModeFromDataContextModeBoth()
         {
             const ObservationMode mode = ObservationMode.Both;
-            ViewModelBase viewModel = GetViewModelBase();
+            ViewModelBase parentViewModel = GetViewModelBase();
 
-            var testViewModelBase = viewModel.GetViewModel<TestViewModelBase>(observationMode: mode);
-            viewModel.ViewModelEventAggregator.GetObservers().Contains(testViewModelBase).ShouldBeTrue();
-            testViewModelBase.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeTrue();
+            var viewModel = parentViewModel.GetViewModel<TestViewModelBase>(observationMode: mode);
+            parentViewModel.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeTrue();
+            viewModel.ViewModelEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeTrue();
         }
 
         [TestMethod]
-        public void WhenInitialazingVmShouldUseObservationModeFromApplicationSettingsIfItIsNotSpecifiedExplicitly()
+        public void WhenInitialazingVmShouldUseObservationModeFromApplicationSettingsNotSpecifiedExplicitly()
         {
             ApplicationSettings.ViewModelObservationMode = ObservationMode.Both;
-            ViewModelBase viewModel = GetViewModelBase();
-            
-            var testViewModelBase = viewModel.GetViewModel<TestViewModelBase>();
-            viewModel.ViewModelEventAggregator.GetObservers().Contains(testViewModelBase).ShouldBeTrue();
-            testViewModelBase.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeTrue();
+            ViewModelBase parentViewModel = GetViewModelBase();
+
+            var viewModel = parentViewModel.GetViewModel<TestViewModelBase>();
+            parentViewModel.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeTrue();
+            viewModel.ViewModelEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeTrue();
         }
 
         [TestMethod]
@@ -238,7 +205,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             viewModel.Settings.HandleBusyMessageMode = HandleMode.None;
             var busyMessage = new BeginBusyMessage(Guid.NewGuid(), busyMessageString);
             IHandler<BeginBusyMessage> beginBusyHandler = viewModel;
-            
+
             beginBusyHandler.Handle(this, busyMessage);
             viewModel.IsBusy.ShouldBeFalse();
             viewModel.BusyMessage.ShouldBeNull();
@@ -472,7 +439,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
             ShouldThrow<ObjectDisposedException>(() => viewModel.GetViewModel<TestViewModelBase>());
             ShouldThrow<ObjectDisposedException>(() => viewModel.GetViewModel(typeof(TestViewModelBase)));
-            ShouldThrow<ObjectDisposedException>(() => viewModel.GetViewModel(adapter => new TestViewModelBase()));            
+            ShouldThrow<ObjectDisposedException>(() => viewModel.GetViewModel(adapter => new TestViewModelBase()));
         }
 
         [TestMethod]

@@ -27,7 +27,7 @@ using MugenMvvmToolkit.Models;
 namespace MugenMvvmToolkit.Collections
 {
     /// <summary>
-    ///     Represents the collection that can track changes.
+    ///     Represents the collection that allows to track the changes of entities.
     /// </summary>
     [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable, KnownType(typeof(StateTransitionManager))]
     public class TrackingCollection : ITrackingCollection
@@ -172,7 +172,7 @@ namespace MugenMvvmToolkit.Collections
             get { return StateTransitionManagerInternal; }
             set
             {
-                Should.PropertyBeNotNull(value, "stateTransitionManager");
+                Should.PropertyBeNotNull(value);
                 StateTransitionManagerInternal = value;
             }
         }

@@ -95,6 +95,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 }
             }
 
+            public bool IsAlive
+            {
+                get { return _reference.Target != null; }
+            }
+
             public bool IsWeak
             {
                 get { return true; }
@@ -102,14 +107,20 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public void Handle(object sender, object message)
             {
+                TryHandle(sender, message);
+            }
+
+            public bool TryHandle(object sender, object message)
+            {
                 var target = _reference.Target;
                 if (target == null)
                 {
                     if (_unsubscriber != null)
                         _unsubscriber.Dispose();
-                    return;
+                    return false;
                 }
                 Value = TryFindResource(Application.Current, target, _key) ?? BindingConstants.UnsetValue;
+                return true;
             }
 
             public event EventHandler<ISourceValue, EventArgs> ValueChanged;

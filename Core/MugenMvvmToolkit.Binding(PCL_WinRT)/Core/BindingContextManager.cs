@@ -90,15 +90,20 @@ namespace MugenMvvmToolkit.Binding.Core
                         }
                         else
                         {
-                            if (ReferenceEquals(_dataContext, value))
-                                return;
                             _isParentContext = false;
                             ClearOldContext();
+                            if (ReferenceEquals(_dataContext, value))
+                                return;
                             _dataContext = value;
                         }
                     }
                     RaiseValueChanged();
                 }
+            }
+
+            public bool IsAlive
+            {
+                get { return true; }
             }
 
             public bool IsWeak
@@ -108,12 +113,18 @@ namespace MugenMvvmToolkit.Binding.Core
 
             public void Handle(object sender, object message)
             {
+                TryHandle(sender, message);
+            }
+
+            public bool TryHandle(object sender, object message)
+            {
                 if (!(sender is IBindingContext))
                 {
                     lock (_targetReference)
                         UpdateContextInternal();
                 }
                 RaiseValueChanged();
+                return true;
             }
 
             public event EventHandler<ISourceValue, EventArgs> ValueChanged;
@@ -199,6 +210,11 @@ namespace MugenMvvmToolkit.Binding.Core
             public object Source
             {
                 get { return _observer.Source; }
+            }
+
+            public bool IsAlive
+            {
+                get { return true; }
             }
 
             public object Value
@@ -306,6 +322,15 @@ namespace MugenMvvmToolkit.Binding.Core
         #endregion
 
         #region Implementation of IBindingContextManager
+
+        /// <summary>
+        ///     Gets a value indicating whether the item has binding context.
+        /// </summary>
+        public bool HasBindingContext(object item)
+        {
+            Should.NotBeNull(item, "item");
+            return ServiceProvider.AttachedValueProvider.Contains(item, ContextMemberPath);
+        }
 
         /// <summary>
         ///     Gets the binding context for the specified item.

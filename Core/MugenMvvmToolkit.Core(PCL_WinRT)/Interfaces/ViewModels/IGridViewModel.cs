@@ -25,7 +25,7 @@ using MugenMvvmToolkit.Models.EventArg;
 namespace MugenMvvmToolkit.Interfaces.ViewModels
 {
     /// <summary>
-    ///     Represents the interface for linear lists.
+    ///     Represents the interface for view models that have a collection of any objects.
     /// </summary>
     public interface IGridViewModel : IViewModel, INotifyCollectionChanging
     {

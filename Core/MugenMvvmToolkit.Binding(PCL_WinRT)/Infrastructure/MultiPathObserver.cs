@@ -51,6 +51,15 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Implementation of IEventListener
 
+            public bool IsAlive
+            {
+                get
+                {
+                    var reference = _reference;
+                    return reference != null && reference.Target != null;
+                }
+            }
+
             public bool IsWeak
             {
                 get { return true; }
@@ -58,9 +67,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public void Handle(object sender, object message)
             {
+                TryHandle(sender, message);
+            }
+
+            public bool TryHandle(object sender, object message)
+            {
                 var reference = _reference;
                 if (reference == null)
-                    return;
+                    return false;
                 var observer = (MultiPathObserver)reference.Target;
                 if (observer == null)
                 {
@@ -69,9 +83,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     Observer = null;
                     if (subscriber != null)
                         subscriber.Dispose();
+                    return false;
                 }
-                else
-                    observer.RaiseValueChanged(ValueChangedEventArgs.TrueEventArgs);
+                observer.RaiseValueChanged(ValueChangedEventArgs.TrueEventArgs);
+                return true;
             }
 
             #endregion
@@ -296,23 +311,25 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of interfaces
 
-        /// <summary>
-        ///     Gets the value that indicates that the listener is weak. 
-        ///     <c>true</c> the listener can be used without <c>WeakReference</c>/>.
-        /// </summary>
+        bool IEventListener.IsAlive
+        {
+            get { return IsAlive; }
+        }
+
         bool IEventListener.IsWeak
         {
             get { return false; }
         }
 
-        /// <summary>
-        ///     Handles the message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">Information about event.</param>
         void IEventListener.Handle(object sender, object message)
         {
             Update();
+        }
+
+        bool IEventListener.TryHandle(object sender, object message)
+        {
+            Update();
+            return true;
         }
 
         WeakReference IHasWeakReference.WeakReference

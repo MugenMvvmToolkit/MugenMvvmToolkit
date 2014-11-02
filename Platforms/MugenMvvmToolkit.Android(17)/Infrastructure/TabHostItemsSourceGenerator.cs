@@ -24,6 +24,7 @@ using Android.Widget;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -134,7 +135,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         private const string SelectedTabIndexKey = "~@tindex";
-        private const string Key = "!#tabgen";
         private bool _isRestored;
 
         private object _currentTabContent;
@@ -143,13 +143,13 @@ namespace MugenMvvmToolkit.Infrastructure
         private readonly Dictionary<string, TabInfo> _tabToContent;
         private readonly IBindingMemberInfo _selectedItemMember;
 
+        private readonly DataTemplateProvider _itemTemplateProvider;
+        private readonly DataTemplateProvider _contentTemplateProvider;
+
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewGroupItemsSourceGenerator" /> class.
-        /// </summary>
         private TabHostItemsSourceGenerator([NotNull] TabHost tabHost)
         {
             Should.NotBeNull(tabHost, "tabHost");
@@ -157,6 +157,10 @@ namespace MugenMvvmToolkit.Infrastructure
             _tabHost.Setup();
             _tabToContent = new Dictionary<string, TabInfo>();
             _tabFactory = new TabFactory(this);
+            _itemTemplateProvider = new DataTemplateProvider(tabHost, AttachedMemberConstants.ItemTemplate,
+                AttachedMemberConstants.ItemTemplateSelector);
+            _contentTemplateProvider = new DataTemplateProvider(tabHost, AttachedMemberConstants.ContentTemplate,
+                AttachedMemberConstants.ContentTemplateSelector);
             _selectedItemMember = BindingServiceProvider
                                                  .MemberProvider
                                                  .GetBindingMember(tabHost.GetType(), AttachedMemberConstants.SelectedItem, false, false);
@@ -168,9 +172,9 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Overrides of ItemsSourceGeneratorBase
 
-        public override void Update(IEnumerable itemsSource)
+        protected override void Update(IEnumerable itemsSource, IDataContext context = null)
         {
-            base.Update(itemsSource);
+            base.Update(itemsSource, context);
             if (!_isRestored)
             {
                 _isRestored = true;
@@ -238,20 +242,15 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        public static TabHostItemsSourceGenerator Get(TabHost tabHost)
-        {
-            return ServiceProvider.AttachedValueProvider.GetValue<TabHostItemsSourceGenerator>(tabHost, Key, false);
-        }
-
-        public static TabHostItemsSourceGenerator GetOrAdd(TabHost tabHost)
+        public static IItemsSourceGenerator GetOrAdd(TabHost tabHost)
         {
             return ServiceProvider.AttachedValueProvider.GetOrAdd(tabHost, Key,
                 (host, o) => new TabHostItemsSourceGenerator(host), null);
         }
 
-        public void SetSelectedItem(object item)
+        public void SetSelectedItem(object selectedItem, IDataContext context = null)
         {
-            if (item == null)
+            if (selectedItem == null)
             {
                 _tabHost.CurrentTab = 0;
                 if (_tabHost.CurrentTabTag != null)
@@ -261,7 +260,7 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 foreach (var pair in _tabToContent)
                 {
-                    if (pair.Value.Item == item)
+                    if (pair.Value.Item == selectedItem)
                     {
                         if (_tabHost.CurrentTabTag != pair.Key)
                             _tabHost.SetCurrentTabByTag(pair.Key);
@@ -348,11 +347,11 @@ namespace MugenMvvmToolkit.Infrastructure
             var viewModel = item as IViewModel;
 #if !API8
             if (viewModel != null)
-                viewModel.Settings.Metadata.AddOrUpdate(MvvmFragmentMediator.StateNotNeeded, true);
+                viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
 #endif
 
-            var templateId = ValueTemplateManager.GetTemplateId(_tabHost, AttachedMemberConstants.ItemTemplate);
-            var selector = ValueTemplateManager.GetDataTemplateSelector(_tabHost, AttachedMemberConstants.ItemTemplateSelector);
+            var templateId = _itemTemplateProvider.GetTemplateId();
+            var selector = _itemTemplateProvider.GetDataTemplateSelector();
             if (templateId == null && selector == null)
                 selector = EmptyTemplateSelector.Instance;
             object content = PlatformExtensions.GetContentView(_tabHost, _tabHost.Context, item, templateId, selector);
@@ -374,8 +373,7 @@ namespace MugenMvvmToolkit.Infrastructure
         private object GetContent(object item)
         {
             return PlatformExtensions.GetContentView(_tabHost, _tabHost.Context,
-                item, ValueTemplateManager.GetTemplateId(_tabHost, AttachedMemberConstants.ContentTemplate),
-                ValueTemplateManager.GetDataTemplateSelector(_tabHost, AttachedMemberConstants.ContentTemplateSelector));
+                item, _contentTemplateProvider.GetTemplateId(), _contentTemplateProvider.GetDataTemplateSelector());
         }
 
         private FragmentTransaction OnTabUnselected(object content)

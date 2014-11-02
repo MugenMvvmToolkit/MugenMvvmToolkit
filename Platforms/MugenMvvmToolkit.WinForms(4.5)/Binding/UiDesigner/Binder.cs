@@ -22,6 +22,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Interfaces;
 
 namespace MugenMvvmToolkit.Binding.UiDesigner
@@ -36,7 +37,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         private readonly Dictionary<object, Dictionary<string, string>> _controlBindings;
         private string _bindings;
-        private readonly List<IDataBinding> _dataBindings;
+        private IList<IDataBinding> _dataBindings;
 
         #endregion
 
@@ -48,7 +49,6 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
         public Binder()
         {
             _controlBindings = new Dictionary<object, Dictionary<string, string>>();
-            _dataBindings = new List<IDataBinding>();
             RootTagName = "Bindings";
             IgnoreControlException = true;
         }
@@ -100,18 +100,13 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
         {
             ClearBindings();
             SetBindings(Bindings);
-            IBindingProvider bindingProvider = BindingServiceProvider.BindingProvider;
+            var bindingSet = new BindingSet();
             foreach (var controlBinding in _controlBindings)
             {
-                string value;
-                if (controlBinding.Value.TryGetValue(AttachedMemberConstants.DataContext, out value))
-                {
-                    controlBinding.Value.Remove(AttachedMemberConstants.DataContext);
-                    _dataBindings.Add(bindingProvider.CreateBindingFromString(controlBinding.Key, AttachedMemberConstants.DataContext, value));
-                }
                 foreach (var binding in controlBinding.Value)
-                    _dataBindings.Add(bindingProvider.CreateBindingFromString(controlBinding.Key, binding.Key, binding.Value));
+                    bindingSet.BindFromExpression(controlBinding.Key, binding.Key, binding.Value);
             }
+            _dataBindings = bindingSet.ApplyWithBindings();
         }
 
         private void SetBindings(string bindingsString)
@@ -192,9 +187,12 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         private void ClearBindings()
         {
-            for (int i = 0; i < _dataBindings.Count; i++)
-                _dataBindings[i].Dispose();
-            _dataBindings.Clear();
+            var dataBindings = _dataBindings;
+            _dataBindings = null;
+            if (dataBindings == null)
+                return;
+            for (int i = 0; i < dataBindings.Count; i++)
+                dataBindings[i].Dispose();
         }
 
         #endregion
@@ -216,7 +214,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                 ContainerControl = componentHost as ContainerControl;
             }
         }
-        
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)

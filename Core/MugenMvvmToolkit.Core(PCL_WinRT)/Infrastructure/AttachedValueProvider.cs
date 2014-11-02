@@ -13,12 +13,15 @@
 // </license>
 // ****************************************************************************
 #endregion
+
 #if !PCL_Silverlight
 using System;
 using System.Runtime.CompilerServices;
 using MugenMvvmToolkit.Collections;
 #if NETFX_CORE || WINDOWSCOMMON
 using Windows.UI.Xaml;
+#else
+using System.Windows;
 #endif
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -71,7 +74,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Fields
 
-#if WINDOWSCOMMON || NETFX_CORE
+#if !WINFORMS && !PCL_WINRT && !PCL_Silverlight && !ANDROID && !TOUCH
         //NOTE ConditionalWeakTable incorrectly tracks WinRT objects https://connect.microsoft.com/VisualStudio/feedback/details/930200/conditionalweaktable-incorrectly-tracks-winrt-objects
         private static readonly DependencyProperty AttachedValueDictionaryProperty = DependencyProperty.RegisterAttached(
             "AttachedValueDictionary", typeof(AttachedValueDictionary), typeof(AttachedValueProvider), new PropertyMetadata(default(AttachedValueDictionary)));
@@ -92,7 +95,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected override bool ClearInternal(object item)
         {
-#if WINDOWSCOMMON || NETFX_CORE
+#if !WINFORMS && !PCL_WINRT && !PCL_Silverlight && !ANDROID && !TOUCH
             var dependencyObject = item as DependencyObject;
             if (dependencyObject != null)
             {
@@ -108,7 +111,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected override LightDictionaryBase<string, object> GetOrAddAttachedDictionary(object item, bool addNew)
         {
-#if WINDOWSCOMMON || NETFX_CORE
+#if !WINFORMS && !PCL_WINRT && !PCL_Silverlight && !ANDROID && !TOUCH
             var dependencyObject = item as DependencyObject;
             if (dependencyObject != null)
             {

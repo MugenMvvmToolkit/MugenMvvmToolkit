@@ -69,10 +69,16 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
         ///     Navigates using the specified data context.
         /// </summary>
         /// <param name="callback">The specified callback, if any.</param>
-        /// <param name="context">
-        ///     The specified <see cref="IDataContext" />.
-        /// </param>
+        /// <param name="context"> The specified <see cref="IDataContext" />.</param>
         void Navigate([CanBeNull] IOperationCallback callback, [NotNull] IDataContext context);
+
+        /// <summary>
+        ///     Raised after the view model navigation.
+        /// </summary>
+        /// <param name="viewModel">The specified view model.</param>
+        /// <param name="mode">The specified navigation mode.</param>
+        /// <param name="context">The specified <see cref="IDataContext" />.</param>
+        void OnNavigated([NotNull] IViewModel viewModel, NavigationMode mode, [CanBeNull] IDataContext context);
 
         /// <summary>
         ///     Occurs after view model was navigated.

@@ -18,7 +18,7 @@ using JetBrains.Annotations;
 namespace MugenMvvmToolkit.Interfaces.Models
 {
     /// <summary>
-    ///     Represents the model that has state.
+    ///     Represents the model that has a state.
     /// </summary>
     public interface IHasState
     {

@@ -34,8 +34,10 @@ using Bootstrapper = MugenMvvmToolkit.Infrastructure.SilverlightBootstrapperBase
 #elif NETFX_CORE || WINDOWSCOMMON
 using Windows.UI.Xaml.Controls;
 using Bootstrapper = MugenMvvmToolkit.Infrastructure.WinRTBootstrapperBase;
+#elif TOUCH
+using MonoTouch.UIKit;
+using Bootstrapper = MugenMvvmToolkit.Infrastructure.TouchBootstrapperBase;
 #endif
-
 
 namespace MugenMvvmToolkit.Infrastructure
 {
@@ -84,6 +86,13 @@ namespace MugenMvvmToolkit.Infrastructure
         public Bootstrapper([NotNull] Frame rootFrame, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
             IViewModelSettings viewModelSettings = null, params IModule[] modules)
             : base(rootFrame)
+#elif TOUCH
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
+        /// </summary>
+        public Bootstrapper([NotNull] UIWindow window, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
+            IViewModelSettings viewModelSettings = null, params IModule[] modules)
+            : base(window)
 #endif
         {
             Should.NotBeNull(iocContainer, "iocContainer");
@@ -139,7 +148,7 @@ namespace MugenMvvmToolkit.Infrastructure
             assemblies.Add(typeof(Bootstrapper).Assembly);
             assemblies.Add(typeof(ApplicationSettings).Assembly);
 #endif
-#if !WINFORMS
+#if !WINFORMS && !TOUCH
             TryAddAssembly(BindingAssemblyName, assemblies);
 #endif
             return assemblies;

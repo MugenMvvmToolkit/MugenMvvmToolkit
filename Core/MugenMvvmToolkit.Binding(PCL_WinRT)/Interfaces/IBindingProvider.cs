@@ -70,8 +70,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         /// <param name="sources">The specified sources, if any.</param>
         /// <returns>An instance of <see cref="IBindingBuilder" />.</returns>
         [NotNull]
-        IList<IBindingBuilder> CreateBuildersFromString([NotNull] object target, [NotNull] string bindingExpression,
-            [CanBeNull] IList<object> sources);
+        IList<IBindingBuilder> CreateBuildersFromString([NotNull] object target, [NotNull] string bindingExpression, IList<object> sources = null);
 
         /// <summary>
         ///     Creates a series of instances of <see cref="IDataBinding" />.
@@ -81,7 +80,6 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         /// <param name="sources">The specified sources, if any.</param>
         /// <returns>An instance of <see cref="IDataBinding" />.</returns>
         [NotNull]
-        IList<IDataBinding> CreateBindingsFromString([NotNull] object target, [NotNull] string bindingExpression,
-            [CanBeNull] IList<object> sources);
+        IList<IDataBinding> CreateBindingsFromString([NotNull] object target, [NotNull] string bindingExpression, IList<object> sources = null);
     }
 }

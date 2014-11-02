@@ -135,9 +135,9 @@ namespace MugenMvvmToolkit.Binding.Builders
         /// <summary>
         ///     Updates the current context.
         /// </summary>
-        public void Update(IDataContext context)
+        public void Merge(IDataContext context)
         {
-            _internalContext.Update(context);
+            _internalContext.Merge(context);
         }
 
         /// <summary>

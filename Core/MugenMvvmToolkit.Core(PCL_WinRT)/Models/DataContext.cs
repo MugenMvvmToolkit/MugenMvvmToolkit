@@ -74,7 +74,7 @@ namespace MugenMvvmToolkit.Models
                 return false;
             }
 
-            public void Update(IDataContext context)
+            public void Merge(IDataContext context)
             {
             }
 
@@ -158,7 +158,7 @@ namespace MugenMvvmToolkit.Models
         {
             Should.NotBeNull(context, "context");
             Initialize(context.Count);
-            Update(context);
+            Merge(context);
         }
 
         #endregion
@@ -278,7 +278,7 @@ namespace MugenMvvmToolkit.Models
         /// <summary>
         ///     Updates the current context.
         /// </summary>
-        public void Update(IDataContext context)
+        public void Merge(IDataContext context)
         {
             Should.NotBeNull(context, "context");
             if (ReferenceEquals(this, context))

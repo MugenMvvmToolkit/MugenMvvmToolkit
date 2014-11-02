@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         public IndexExpressionNode(IExpressionNode obj, IList<IExpressionNode> args)
             : base(ExpressionNodeType.Index)
         {
-            _arguments = args == null ? Empty.Array<IExpressionNode>() : args.ToArrayFast();
+            _arguments = args == null ? Empty.Array<IExpressionNode>() : args.ToArrayEx();
             _object = obj;
         }
 
@@ -89,7 +89,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         /// </returns>
         protected override IExpressionNode CloneInternal()
         {
-            return new IndexExpressionNode(_object == null ? null : Object.Clone(), _arguments.ToArrayFast(node => node.Clone()));
+            return new IndexExpressionNode(_object == null ? null : Object.Clone(), _arguments.ToArrayEx(node => node.Clone()));
         }
 
         /// <summary>

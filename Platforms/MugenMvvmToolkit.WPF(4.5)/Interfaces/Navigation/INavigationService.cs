@@ -20,6 +20,7 @@ using MugenMvvmToolkit.Models.EventArg;
 using Windows.UI.Xaml.Navigation;
 #elif ANDROID
 using Android.App;
+#elif TOUCH
 #else
 using System.Windows.Navigation;
 #endif
@@ -113,13 +114,6 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
         ///     <c>true</c> if the content was successfully displayed; otherwise, <c>false</c>.
         /// </returns>
         bool Navigate([NotNull] IViewMappingItem source, [CanBeNull] object parameter, [CanBeNull] IDataContext dataContext);
-
-#if WINDOWSCOMMON || WINDOWS_PHONE || NETFX_CORE
-        /// <summary>
-        ///     Raised after navigation.
-        /// </summary>
-        void OnNavigated(NavigationEventArgs args);
-#endif
 
         /// <summary>
         ///     Raised prior to navigation.

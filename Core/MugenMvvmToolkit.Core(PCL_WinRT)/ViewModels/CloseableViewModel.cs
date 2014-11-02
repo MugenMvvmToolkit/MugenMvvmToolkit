@@ -23,7 +23,7 @@ using MugenMvvmToolkit.Models.EventArg;
 namespace MugenMvvmToolkit.ViewModels
 {
     /// <summary>
-    ///     Represents the base class for view models that can be closed.
+    ///     Represents the base class that allows to close a view model.
     /// </summary>
     [BaseViewModel(Priority = 8)]
     public abstract class CloseableViewModel : ViewModelBase, ICloseableViewModel
@@ -56,7 +56,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         #endregion
 
-        #region Implementation of interfaces
+        #region Implementation of ICloseableViewModel
 
         /// <summary>
         ///     Gets or sets a command that attempts to remove this workspace from the user interface.

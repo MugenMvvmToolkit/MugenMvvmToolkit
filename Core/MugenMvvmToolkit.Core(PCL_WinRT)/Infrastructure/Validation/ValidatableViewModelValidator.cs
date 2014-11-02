@@ -26,7 +26,7 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 namespace MugenMvvmToolkit.Infrastructure.Validation
 {
     /// <summary>
-    ///     Represents a class that can validate the IValidatableViewModel
+    ///     Represents a class that allows to validate the <see cref="IValidatableViewModel"/>.
     /// </summary>
     public class ValidatableViewModelValidator : ValidatorBase<IValidatableViewModel>
     {

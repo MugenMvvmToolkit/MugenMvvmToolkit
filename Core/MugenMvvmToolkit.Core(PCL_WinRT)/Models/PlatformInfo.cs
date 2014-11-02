@@ -14,6 +14,7 @@
 // ****************************************************************************
 #endregion
 using System;
+using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Models
 {
@@ -52,6 +53,8 @@ namespace MugenMvvmToolkit.Models
         /// </summary>
         public PlatformInfo(PlatformType platform, Version version)
         {
+            Should.NotBeNull(platform, "platform");
+            Should.NotBeNull(version, "version");
             _platform = platform;
             _version = version;
         }
@@ -63,6 +66,7 @@ namespace MugenMvvmToolkit.Models
         /// <summary>
         ///     Gets the current platform.
         /// </summary>
+        [NotNull]
         public PlatformType Platform
         {
             get { return _platform; }
@@ -71,9 +75,19 @@ namespace MugenMvvmToolkit.Models
         /// <summary>
         ///     Gets the current platform version.
         /// </summary>
+        [NotNull]
         public Version Version
         {
             get { return _version; }
+        }
+
+        #endregion
+
+        #region Overrides of Object
+
+        public override string ToString()
+        {
+            return Platform + " - " + Version;
         }
 
         #endregion

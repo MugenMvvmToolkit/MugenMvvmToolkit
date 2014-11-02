@@ -103,7 +103,7 @@ namespace MugenMvvmToolkit.Binding.Core
             return ServiceProvider
                 .AttachedValueProvider
                 .GetValues(target, GetBindingPredicateDelegate)
-                .ToArrayFast(pair => (IDataBinding)pair.Value);
+                .ToArrayEx(pair => (IDataBinding)pair.Value);
         }
 
         /// <summary>

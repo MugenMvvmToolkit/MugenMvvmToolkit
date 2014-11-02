@@ -61,6 +61,30 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             InitializeViewModel(viewModel, dataContext);
         }
 
+        /// <summary>
+        ///     Preserves the view model state.
+        /// </summary>
+        public IDataContext PreserveViewModel(IViewModel viewModel, IDataContext dataContext)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Restores the view model from state context.
+        /// </summary>
+        /// <param name="viewModelState">The specified state <see cref="IDataContext" />.</param>
+        /// <param name="throwOnError">
+        ///     <c>true</c> to throw an exception if the view model cannot be restored; <c>false</c> to return null.
+        /// </param>
+        /// <param name="dataContext">The specified <see cref="IDataContext" />.</param>
+        /// <returns>
+        ///     An instance of <see cref="IViewModel" />.
+        /// </returns>
+        public IViewModel RestoreViewModel(IDataContext viewModelState, IDataContext dataContext, bool throwOnError)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }

@@ -28,8 +28,7 @@ using MugenMvvmToolkit.Models.Validation;
 namespace MugenMvvmToolkit.Infrastructure.Validation
 {
     /// <summary>
-    ///     Represents the dynamic data annotations provider to get the <see cref="IValidationElement" />s for the specified
-    ///     instance.
+    ///     Represents the dynamic data annotations provider that allows to get the <see cref="IValidationElement" />s for the specified instance.
     /// </summary>
     public class DynamicDataAnnotationsElementProvider : IValidationElementProvider
     {
@@ -601,7 +600,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                     }
                     foreach (var metaType in result)
                         Tracer.Info("Added MetadataTypeAttribute for type: {0}, MetadataClassType: {1}", type, metaType);
-                    list = result.ToArrayFast();
+                    list = result.ToArrayEx();
                     MetadataTypeCache[type] = list;
                 }
                 return list;

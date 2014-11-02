@@ -51,9 +51,6 @@ namespace MugenMvvmToolkit.Binding.Core
 
             #region Constructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="BehaviorCollection" /> class that is empty.
-            /// </summary>
             public BehaviorCollection(DataBinding dataBinding)
             {
                 _items = Empty.Array<IBindingBehavior>();
@@ -269,12 +266,16 @@ namespace MugenMvvmToolkit.Binding.Core
         /// <summary>
         ///     Sends the current value back to the source.
         /// </summary>
-        public virtual void UpdateSource()
+        public virtual bool UpdateSource()
         {
             try
             {
                 if (_sourceAccessor.SetValue(_targetAccessor, this, true))
-                    RaiseBindingUpdated(BindingAction.UpdateSource);
+                {
+                    RaiseBindingUpdated(BindingEventArgs.SourceTrueArgs);
+                    return true;
+                }
+                RaiseBindingUpdated(BindingEventArgs.SourceFalseArgs);
             }
             catch (Exception exception)
             {
@@ -282,17 +283,22 @@ namespace MugenMvvmToolkit.Binding.Core
                     BindingExceptionManager.WrapBindingException(this, BindingAction.UpdateSource, exception),
                     exception, BindingAction.UpdateSource);
             }
+            return false;
         }
 
         /// <summary>
         ///     Forces a data transfer from source to target.
         /// </summary>
-        public virtual void UpdateTarget()
+        public virtual bool UpdateTarget()
         {
             try
             {
                 if (_targetAccessor.SetValue(_sourceAccessor, this, true))
-                    RaiseBindingUpdated(BindingAction.UpdateTarget);
+                {
+                    RaiseBindingUpdated(BindingEventArgs.TargetTrueArgs);
+                    return true;
+                }
+                RaiseBindingUpdated(BindingEventArgs.TargetFalseArgs);
             }
             catch (Exception exception)
             {
@@ -300,6 +306,7 @@ namespace MugenMvvmToolkit.Binding.Core
                     BindingExceptionManager.WrapBindingException(this, BindingAction.UpdateTarget, exception), exception,
                     BindingAction.UpdateTarget);
             }
+            return false;
         }
 
         /// <summary>
@@ -403,10 +410,10 @@ namespace MugenMvvmToolkit.Binding.Core
         /// <summary>
         ///     Raises the <see cref="BindingUpdated" /> event.
         /// </summary>
-        protected void RaiseBindingUpdated(BindingAction action)
+        protected void RaiseBindingUpdated(BindingEventArgs args)
         {
             var handler = BindingUpdated;
-            if (handler != null) handler(this, new BindingEventArgs(action));
+            if (handler != null) handler(this, args);
         }
 
         private void InitializeContext()
@@ -522,10 +529,10 @@ namespace MugenMvvmToolkit.Binding.Core
         /// <summary>
         ///     Updates the current context.
         /// </summary>
-        void IDataContext.Update(IDataContext context)
+        void IDataContext.Merge(IDataContext context)
         {
             InitializeContext();
-            _lazyContext.Update(context);
+            _lazyContext.Merge(context);
         }
 
         /// <summary>

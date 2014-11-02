@@ -146,7 +146,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         {
             if (_isNew || _isBack || !ReferenceEquals(activity, _currentActivity))
                 return;
-            RaiseNavigating(new NavigatingCancelEventArgs());
+            RaiseNavigating(NavigatingCancelEventArgs.NonCancelableEventArgs);
             RaiseNavigated(null, NavigationMode.New, null);
             _currentActivity = null;
         }
@@ -217,7 +217,12 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         {
             var cancelArgs = args as NavigatingCancelEventArgs;
             if (cancelArgs == null)
-                return ((NavigationEventArgs)args).Parameter;
+            {
+                var eventArgs = args as NavigationEventArgs;
+                if (eventArgs == null)
+                    return null;
+                return eventArgs.Parameter;
+            }
             return cancelArgs.Parameter;
         }
 

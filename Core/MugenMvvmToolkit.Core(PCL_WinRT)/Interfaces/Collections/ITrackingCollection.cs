@@ -22,7 +22,7 @@ using MugenMvvmToolkit.Models;
 namespace MugenMvvmToolkit.Interfaces.Collections
 {
     /// <summary>
-    ///     Represents the collection that can track changes.
+    ///     Represents the collection that allows to track the changes of entities.
     /// </summary>
     public interface ITrackingCollection : IEnumerable<TrackingEntity<object>>
     {

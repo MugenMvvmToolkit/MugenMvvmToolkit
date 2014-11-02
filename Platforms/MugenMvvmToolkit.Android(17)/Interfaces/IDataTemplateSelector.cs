@@ -23,7 +23,7 @@ namespace MugenMvvmToolkit.Interfaces
     public interface IDataTemplateSelector
     {
         /// <summary>
-        ///     Override this method to return an app specific template.
+        ///     Returns an app specific template.
         /// </summary>
         /// <param name="item">The data content</param>
         /// <param name="container">The element to which the template will be applied</param>

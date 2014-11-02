@@ -1,4 +1,5 @@
 #region Copyright
+
 // ****************************************************************************
 // <copyright file="ViewGroupItemsSourceGenerator.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,10 +13,14 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System.Collections;
 using Android.Views;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
@@ -23,22 +28,24 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Fields
 
-        private const string Key = "@@!gen";
-        private readonly ItemsSourceAdapter _adapter;
+        internal static readonly DataContext Context;
+        private readonly IItemsSourceAdapter _adapter;
         private readonly ViewGroup _viewGroup;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewGroupItemsSourceGenerator" /> class.
-        /// </summary>
+        static ViewGroupItemsSourceGenerator()
+        {
+            Context = new DataContext();
+        }
+
         private ViewGroupItemsSourceGenerator([NotNull] ViewGroup viewGroup)
         {
             Should.NotBeNull(viewGroup, "viewGroup");
             _viewGroup = viewGroup;
-            _adapter = new ItemsSourceAdapter(viewGroup, viewGroup.Context, false);
+            _adapter = ItemsSourceAdapter.Factory(viewGroup, viewGroup.Context, Context);
             TryListenActivity(viewGroup.Context);
         }
 
@@ -46,9 +53,10 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        public static ViewGroupItemsSourceGenerator GetOrAdd(ViewGroup viewGroup)
+        public static IItemsSourceGenerator GetOrAdd(ViewGroup viewGroup)
         {
-            return ServiceProvider.AttachedValueProvider.GetOrAdd(viewGroup, Key, (@group, o) => new ViewGroupItemsSourceGenerator(viewGroup), null);
+            return ServiceProvider.AttachedValueProvider.GetOrAdd(viewGroup, Key,
+                (@group, o) => new ViewGroupItemsSourceGenerator(@group), null);
         }
 
         #endregion
@@ -80,7 +88,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             for (int i = 0; i < count; i++)
             {
-                var index = startIndex + i;
+                int index = startIndex + i;
                 _viewGroup.RemoveViewAt(index);
                 _viewGroup.AddView(_adapter.GetView(index, null, _viewGroup), index);
             }

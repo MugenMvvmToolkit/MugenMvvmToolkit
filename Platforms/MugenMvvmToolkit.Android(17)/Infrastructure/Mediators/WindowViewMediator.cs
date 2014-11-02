@@ -24,6 +24,7 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Mediators
@@ -33,12 +34,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
     /// </summary>
     public class WindowViewMediator : WindowViewMediatorBase<IWindowView>
     {
-        #region Fields
-
-        private readonly INavigationProvider _navigationProvider;
-
-        #endregion
-
         #region Constructors
 
         /// <summary>
@@ -48,7 +43,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             [NotNull] IViewManager viewManager, [NotNull] IOperationCallbackManager callbackManager)
             : base(viewModel, threadManager, viewManager, callbackManager)
         {
-            _navigationProvider = viewModel.GetIocContainer(true).Get<INavigationProvider>();
         }
 
         #endregion
@@ -60,6 +54,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         protected override void ShowView(IWindowView view, bool isDialog, IDataContext context)
         {
+            var navigationProvider = ViewModel.GetIocContainer(true).Get<INavigationProvider>();
             view.Cancelable = !isDialog;
             FragmentManager fragmentManager = null;
             var parentViewModel = ViewModel.GetParentViewModel();
@@ -71,8 +66,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             }
             if (fragmentManager == null)
             {
-                Should.BeOfType<Activity>(_navigationProvider.CurrentContent, "Activity");
-                var activity = (Activity)_navigationProvider.CurrentContent;
+                Should.BeOfType<Activity>(navigationProvider.CurrentContent, "Activity");
+                var activity = (Activity)navigationProvider.CurrentContent;
                 fragmentManager = activity.GetFragmentManager();
             }
             view.Show(fragmentManager, Guid.NewGuid().ToString("n"));
@@ -93,6 +88,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             windowView.Closing += OnViewClosing;
             windowView.Canceled += OnViewClosed;
+            windowView.Destroyed += WindowViewOnDestroyed;
         }
 
         /// <summary>
@@ -103,8 +99,20 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             windowView.Closing -= OnViewClosing;
             windowView.Canceled -= OnViewClosed;
+            windowView.Destroyed -= WindowViewOnDestroyed;
         }
 
         #endregion
+
+        #region Methods
+
+        private void WindowViewOnDestroyed(IWindowView sender, EventArgs args)
+        {
+            sender.Destroyed -= WindowViewOnDestroyed;
+            UpdateView(null, false, DataContext.Empty);
+        }
+
+        #endregion
+
     }
 }

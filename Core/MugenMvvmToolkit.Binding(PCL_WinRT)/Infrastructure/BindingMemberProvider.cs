@@ -64,16 +64,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Overrides of Object
 
-            /// <summary>
-            ///     Returns the fully qualified type name of this instance.
-            /// </summary>
-            /// <returns>
-            ///     A <see cref="T:System.String" /> containing a fully qualified type name.
-            /// </returns>
             public override string ToString()
             {
-                return string.Format("Type: {0}, Path: {1}, IgnoreAttachedMembers: {2}", Type, Path,
-                    IgnoreAttachedMembers);
+                return string.Format("Type: {0}, Path: {1}, IgnoreAttachedMembers: {2}", Type, Path, IgnoreAttachedMembers);
             }
 
             #endregion
@@ -251,9 +244,22 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                             _explicitMembersCache[key] = bindingMember;
                         }
                     }
+
+                    if (bindingMember == null)
+                    {
+                        foreach (var prefix in BindingServiceProvider.FakeMemberPrefixes)
+                        {
+                            if (path.StartsWith(prefix, StringComparison.Ordinal))
+                            {
+                                bindingMember = BindingMemberInfo.EmptyHasSetter;
+                                break;
+                            }
+                        }
+                    }
                     _tempMembersCache[key] = bindingMember;
                 }
             }
+
             if (throwOnError && bindingMember == null)
                 throw BindingExceptionManager.InvalidBindingMember(sourceType, path);
             return bindingMember;
@@ -296,6 +302,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
             lock (_tempMembersCache)
                 _tempMembersCache.Clear();
+            Tracer.Info("The attached property (path: {0}, type: {1}, target type: {2}) was registered.", path, member.Type, type);
         }
 
         /// <summary>
@@ -439,20 +446,22 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             IBindingMemberInfo bindingMember;
             lock (_attachedMembers)
-                _attachedMembers.TryGetValue(key, out bindingMember);
-            if (bindingMember == null)
             {
-                List<KeyValuePair<Type, IBindingMemberInfo>> types = null;
-                foreach (var keyPair in _attachedMembers)
+                _attachedMembers.TryGetValue(key, out bindingMember);
+                if (bindingMember == null)
                 {
-                    if (!IsAssignableFrom(keyPair.Key.Type, key.Type) || keyPair.Key.Path != key.Path)
-                        continue;
-                    if (types == null)
-                        types = new List<KeyValuePair<Type, IBindingMemberInfo>>();
-                    types.Add(new KeyValuePair<Type, IBindingMemberInfo>(keyPair.Key.Type, keyPair.Value));
+                    List<KeyValuePair<Type, IBindingMemberInfo>> types = null;
+                    foreach (var keyPair in _attachedMembers)
+                    {
+                        if (!IsAssignableFrom(keyPair.Key.Type, key.Type) || keyPair.Key.Path != key.Path)
+                            continue;
+                        if (types == null)
+                            types = new List<KeyValuePair<Type, IBindingMemberInfo>>();
+                        types.Add(new KeyValuePair<Type, IBindingMemberInfo>(keyPair.Key.Type, keyPair.Value));
+                    }
+                    if (types != null)
+                        bindingMember = FindBestMember(types);
                 }
-                if (types != null)
-                    bindingMember = FindBestMember(types);
             }
             if (bindingMember == null && key.Path == AttachedMemberConstants.DataContext)
                 return BindingMemberInfo.BindingContextMember;
@@ -470,13 +479,31 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 KeyValuePair<Type, IBindingMemberInfo> memberValue = members[i];
 #if PCL_WINRT
-                if (members.Any(pair => pair.Key != memberValue.Key && pair.Key.GetTypeInfo().IsSubclassOf(memberValue.Key)))
+                bool isInterface = memberValue.Key.GetTypeInfo().IsInterface;
 #else
-                if (members.Any(pair => pair.Key != memberValue.Key && pair.Key.IsSubclassOf(memberValue.Key)))
+                bool isInterface = memberValue.Key.IsInterface;
 #endif
+                for (int j = 0; j < members.Count; j++)
                 {
-                    members.Remove(memberValue);
-                    i--;
+                    if (i == j)
+                        continue;
+                    var pair = members[j];
+                    if (isInterface && memberValue.Key.IsAssignableFrom(pair.Key))
+                    {
+                        members.RemoveAt(i);
+                        i--;
+                        break;
+                    }
+#if PCL_WINRT
+                    if (pair.Key.GetTypeInfo().IsSubclassOf(memberValue.Key))
+#else
+                    if (pair.Key.IsSubclassOf(memberValue.Key))
+#endif
+                    {
+                        members.RemoveAt(i);
+                        i--;
+                        break;
+                    }
                 }
             }
             return members[0].Value;
@@ -489,9 +516,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 BindingReflectionExtensions.FindCommonType(attachedMemberType, sourceType) != null)
 #else
             if (attachedMemberType.IsGenericTypeDefinition &&
-                            BindingReflectionExtensions.FindCommonType(attachedMemberType, sourceType) != null)
+                BindingReflectionExtensions.FindCommonType(attachedMemberType, sourceType) != null)
 #endif
-
                 return true;
             return attachedMemberType.IsAssignableFrom(sourceType);
         }

@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="IViewModelPresenter.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,7 +13,9 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -39,5 +42,12 @@ namespace MugenMvvmToolkit.Interfaces.Presenters
         /// <param name="context">The specified context.</param>
         [NotNull]
         IAsyncOperation<bool?> ShowAsync([NotNull] IViewModel viewModel, [CanBeNull] IDataContext context);
+
+        /// <summary>
+        ///     Tries to restore the presenter state of the specified <see cref="IViewModel" />.
+        /// </summary>
+        /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
+        /// <param name="context">The specified context.</param>
+        void Restore([NotNull] IViewModel viewModel, [CanBeNull] IDataContext context);
     }
 }

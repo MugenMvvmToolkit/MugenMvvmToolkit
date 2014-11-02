@@ -17,21 +17,24 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Runtime.Serialization;
+using System.Threading;
 using System.Windows;
+using System.Windows.Navigation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Navigation;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
 namespace MugenMvvmToolkit
 {
     public static class PlatformExtensions
     {
-        private static readonly Func<ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs>, NotifyCollectionChangedEventHandler> CreateHandlerDelegate = CreateHandler;
-
-#if WINDOWS_PHONE && V71
+#if WINDOWS_PHONE
+#if V71
         //NOTE ConditionalWeakTable not supported on WP 7.8, we should keep references in memory.
         private static readonly List<WeakReference> WeakReferences;
 
@@ -47,8 +50,11 @@ namespace MugenMvvmToolkit
                     {
                         for (int i = 0; i < WeakReferences.Count; i++)
                         {
-                            if (!WeakReferences[i].IsAlive)
+                            if (WeakReferences[i].Target == null)
+                            {
                                 WeakReferences.RemoveAt(i);
+                                i--;
+                            }
                         }
                     }
                 }
@@ -69,6 +75,25 @@ namespace MugenMvvmToolkit
             // ReSharper disable once ObjectCreationAsStatement
             new WeakReferenceCollector();
         }
+#endif
+        private static IApplicationStateManager _applicationStateManager;
+
+        /// <summary>
+        /// Gets or sets the <see cref="IApplicationStateManager"/>.
+        /// </summary>
+        [NotNull]
+        public static IApplicationStateManager ApplicationStateManager
+        {
+            get
+            {
+                if (_applicationStateManager == null)
+                    Interlocked.CompareExchange(ref _applicationStateManager,
+                        ServiceProvider.IocContainer.Get<IApplicationStateManager>(), null);
+                return _applicationStateManager;
+            }
+            set { _applicationStateManager = value; }
+        }
+
 #elif !WINDOWS_PHONE
         #region Fields
 
@@ -99,7 +124,6 @@ namespace MugenMvvmToolkit
         {
             return type.IsDefined(typeof(DataContractAttribute), false) || type.IsPrimitive;
         }
-
 #if V71
         internal static WeakReference CreateWeakReference(object item, bool trackResurrection)
         {
@@ -139,25 +163,6 @@ namespace MugenMvvmToolkit
                 default:
                     return NavigationMode.Undefined;
             }
-        }
-
-        public static NotifyCollectionChangedEventHandler MakeWeakCollectionChangedHandler<TTarget>(TTarget target,
-            Action<TTarget, object, NotifyCollectionChangedEventArgs> invokeAction)
-            where TTarget : class
-        {
-            return ReflectionExtensions.CreateWeakDelegate(target, invokeAction, UnsubscribeCollectionChanged, CreateHandlerDelegate);
-        }
-
-        private static void UnsubscribeCollectionChanged(object o, NotifyCollectionChangedEventHandler handler)
-        {
-            var notifyCollectionChanged = o as INotifyCollectionChanged;
-            if (notifyCollectionChanged != null)
-                notifyCollectionChanged.CollectionChanged -= handler;
-        }
-
-        private static NotifyCollectionChangedEventHandler CreateHandler(ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs> weakEventHandler)
-        {
-            return weakEventHandler.Handle;
         }
 
         #endregion

@@ -284,8 +284,7 @@ namespace MugenMvvmToolkit.Infrastructure
         protected virtual BindingInfo<ISerializer> GetSerializer()
         {
             var assemblies = Context.Assemblies;
-            return BindingInfo<ISerializer>
-                .FromMethod((container, list) => new Serializer(assemblies), DependencyLifecycle.SingleInstance);
+            return BindingInfo<ISerializer>.FromMethod((container, list) => new Serializer(assemblies), DependencyLifecycle.SingleInstance);
         }
 
         /// <summary>

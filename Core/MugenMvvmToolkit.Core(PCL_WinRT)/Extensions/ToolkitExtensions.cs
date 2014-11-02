@@ -188,12 +188,12 @@ namespace MugenMvvmToolkit
         /// <param name="iocContainer">
         ///     The specified <see cref="IIocContainer" />.
         /// </param>
-        /// <param name="constValue">The specified constant value.</param>
+        /// <param name="instance">The specified constant value.</param>
         /// <param name="name">The specified binding name.</param>
-        public static void BindToConstant<T>([NotNull] this IIocContainer iocContainer, T constValue, string name = null)
+        public static void BindToConstant<T>([NotNull] this IIocContainer iocContainer, T instance, string name = null)
         {
             Should.NotBeNull(iocContainer, "iocContainer");
-            iocContainer.BindToConstant(typeof(T), constValue, name);
+            iocContainer.BindToConstant(typeof(T), instance, name);
         }
 
         /// <summary>
@@ -535,6 +535,55 @@ namespace MugenMvvmToolkit
         #region Collection extensions
 
         /// <summary>
+        ///     Moves up the item in the specified <see cref="IList" />.
+        /// </summary>
+        public static bool MoveUpItem([CanBeNull] this IList itemsSource, [CanBeNull] object item)
+        {
+            if (itemsSource == null)
+                return false;
+            int indexOf = itemsSource.IndexOf(item);
+            if (indexOf > 0)
+                return false;
+            itemsSource.RemoveAt(indexOf);
+            itemsSource.Insert(indexOf - 1, item);
+            return true;
+        }
+
+        /// <summary>
+        ///     Moves down the item in the specified <see cref="IList" />.
+        /// </summary>
+        public static bool MoveDownItem([CanBeNull] this IList itemsSource, [CanBeNull] object item)
+        {
+            if (itemsSource == null)
+                return false;
+            int indexOf = itemsSource.IndexOf(item);
+            if (indexOf >= 0 && indexOf < itemsSource.Count - 1)
+                return false;
+            itemsSource.RemoveAt(indexOf);
+            itemsSource.Insert(indexOf + 1, item);
+            return true;
+        }
+
+        /// <summary>
+        ///     Determines whether the collection can move up the item.
+        /// </summary>
+        public static bool CanMoveUpItem([CanBeNull] this IList itemsSource, [CanBeNull] object item)
+        {
+            return itemsSource != null && itemsSource.IndexOf(item) > 0;
+        }
+
+        /// <summary>
+        ///     Determines whether the collection can move down the item.
+        /// </summary>
+        public static bool CanMoveDownItem([CanBeNull] this IList itemsSource, [CanBeNull] object item)
+        {
+            if (itemsSource == null)
+                return false;
+            var indexOf = itemsSource.IndexOf(item);
+            return indexOf >= 0 && indexOf < itemsSource.Count - 1;
+        }
+
+        /// <summary>
         /// Determines the index of a specific item in the <see cref="IEnumerable"/>.
         /// </summary>
         public static int IndexOf([CanBeNull]this IEnumerable enumerable, object value)
@@ -583,7 +632,7 @@ namespace MugenMvvmToolkit
         ///     An array that contains the elements from the input sequence.
         /// </returns>
         /// <param name="list">An <see cref="IList{T}" /> to create an array from.</param>
-        public static T[] ToArrayFast<T>([NotNull] this IList<T> list)
+        public static T[] ToArrayEx<T>([NotNull] this IList<T> list)
         {
             Should.NotBeNull(list, "list");
             if (list.Count == 0)
@@ -605,7 +654,7 @@ namespace MugenMvvmToolkit
         ///     A transform function to apply to each source element; the second parameter of the function
         ///     represents the index of the source element.
         /// </param>
-        public static TResult[] ToArrayFast<T, TResult>([NotNull] this IList<T> list,
+        public static TResult[] ToArrayEx<T, TResult>([NotNull] this IList<T> list,
             [NotNull] Func<T, TResult> selector)
         {
             Should.NotBeNull(list, "list");
@@ -629,7 +678,7 @@ namespace MugenMvvmToolkit
         ///     A transform function to apply to each source element; the second parameter of the function
         ///     represents the index of the source element.
         /// </param>
-        public static TResult[] ToArrayFast<T, TResult>([NotNull] this ICollection<T> collection,
+        public static TResult[] ToArrayEx<T, TResult>([NotNull] this ICollection<T> collection,
             [NotNull] Func<T, TResult> selector)
         {
             Should.NotBeNull(collection, "collection");
@@ -653,7 +702,7 @@ namespace MugenMvvmToolkit
         ///     An array that contains the elements from the input sequence.
         /// </returns>
         /// <param name="collection">An <see cref="ICollection{T}" /> to create an array from.</param>
-        public static T[] ToArrayFast<T>([NotNull] this ICollection<T> collection)
+        public static T[] ToArrayEx<T>([NotNull] this ICollection<T> collection)
         {
             Should.NotBeNull(collection, "collection");
             int count = collection.Count;
@@ -1002,6 +1051,22 @@ namespace MugenMvvmToolkit
         #region Extensions
 
         /// <summary>
+        ///     Gets data context of view.
+        /// </summary>
+        public static object GetDataContext(this IView view)
+        {
+            return ViewManager.GetDataContext(view);
+        }
+
+        /// <summary>
+        ///     Sets data context of view.
+        /// </summary>
+        public static void SetDataContext(this IView view, object dataContext)
+        {
+            ViewManager.SetDataContext(view, dataContext);
+        }
+
+        /// <summary>
         /// Gets or creates an instance of <see cref="WeakReference"/> for the specified item.
         /// </summary>
         public static WeakReference GetWeakReference(object item)
@@ -1037,6 +1102,28 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
+        ///     Sets errors for a property using the <see cref="IValidatorAggregator.Validator"/>.
+        /// </summary>
+        /// <param name="aggregator">The specified validator aggregator.</param>
+        /// <param name="propertyExpresssion">The expression for the property</param>
+        /// <param name="errors">The collection of errors</param>
+        public static void SetValidatorErrors<T>([NotNull] this IValidatorAggregator aggregator, Expression<Func<T>> propertyExpresssion, params object[] errors)
+        {
+            aggregator.Validator.SetErrors(propertyExpresssion, errors);
+        }
+
+        /// <summary>
+        ///     Sets errors for a property using the <see cref="IValidatorAggregator.Validator"/>.
+        /// </summary>
+        /// <param name="aggregator">The specified validator aggregator.</param>
+        /// <param name="property">The property name</param>
+        /// <param name="errors">The collection of errors</param>
+        public static void SetValidatorErrors([NotNull] this IValidatorAggregator aggregator, string property, params object[] errors)
+        {
+            aggregator.Validator.SetErrors(property, errors);
+        }
+
+        /// <summary>
         ///     Adds the specified validator.
         /// </summary>
         public static TValidator AddValidator<TValidator>([NotNull] this IValidatorAggregator aggregator,
@@ -1053,17 +1140,21 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        ///     Sets errors for a property
+        ///     Clears errors for a property.
         /// </summary>
-        /// <typeparam name="TModel">The type of the model.</typeparam>
-        /// <param name="aggregator">The specified validator aggregator.</param>
-        /// <param name="propertyExpresssion">The expression for the property</param>
-        /// <param name="errors">The collection of errors</param>
-        public static void SetErrors<TModel>([NotNull] this IValidatorAggregator aggregator,
-            [NotNull] Expression<Func<TModel, object>> propertyExpresssion, [CanBeNull] params object[] errors)
+        public static void ClearErrors<TModel>([NotNull] this IValidator validator, Expression<Func<TModel, object>> propertyExpresssion)
         {
-            Should.NotBeNull(aggregator, "aggregator");
-            aggregator.SetErrors(GetPropertyName(propertyExpresssion), errors);
+            validator.ClearErrors(GetMemberName(propertyExpresssion));
+        }
+
+        /// <summary>
+        ///     Clears errors for a property.
+        /// </summary>
+        public static void ClearErrors<TValue>([NotNull] this IValidator validator,
+            [NotNull] Expression<Func<TValue>> propertyExpresssion)
+        {
+            Should.NotBeNull(validator, "validator");
+            validator.ClearErrors(propertyExpresssion.GetMemberInfo().Name);
         }
 
         /// <summary>
@@ -1267,13 +1358,13 @@ namespace MugenMvvmToolkit
         ///     Checks whether the properties are equal.
         /// </summary>
         /// <param name="args">The specified property changed args.</param>
-        /// /// <param name="item">The specified model.</param>
+        /// <param name="item">The specified model.</param>
         /// <param name="getProperty">The expression to get property.</param>
         /// <returns>If true property is equal, otherwise false.</returns>
         [Pure]
-        public static bool PropertyNameEqual<T>([NotNull] this PropertyChangedEventArgs args, T item, [NotNull] Expression<Func<T, object>> getProperty)
+        public static bool PropertyNameEqual<T, TValue>([NotNull] this PropertyChangedEventArgs args, T item, [NotNull] Expression<Func<T, TValue>> getProperty)
         {
-            return PropertyNameEqual(args, getProperty);
+            return PropertyNameEqual(args.PropertyName, getProperty.GetMemberInfo().Name);
         }
 
         /// <summary>
@@ -1281,7 +1372,8 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static bool PropertyNameEqual(string changedProperty, string sourceProperty, bool emptySourcePathResult = false)
         {
-            if (string.IsNullOrEmpty(changedProperty) || changedProperty.Equals(sourceProperty))
+            if (string.IsNullOrEmpty(changedProperty) ||
+                changedProperty.Equals(sourceProperty, StringComparison.Ordinal))
                 return true;
             if (string.IsNullOrEmpty(sourceProperty))
                 return emptySourcePathResult;
@@ -1292,28 +1384,50 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        ///     Gets property name from the specified expression.
+        ///     Gets member name from the specified expression.
         /// </summary>
-        /// <typeparam name="T">The type of model.</typeparam>
         /// <param name="expression">The specified expression.</param>
         /// <returns>An instance of string.</returns>
         [Pure]
-        public static string GetPropertyName<T>([NotNull] Expression<Func<T, object>> expression)
+        public static string GetMemberName([NotNull] LambdaExpression expression)
         {
             return expression.GetMemberInfo().Name;
         }
 
         /// <summary>
-        ///     Gets property name from the specified expression.
+        ///     Gets member name from the specified expression.
         /// </summary>
         /// <typeparam name="T">The type of model.</typeparam>
+        /// <param name="expression">The specified expression.</param>
+        /// <returns>An instance of string.</returns>
+        [Pure]
+        public static string GetMemberName<T>([NotNull] Expression<Func<T>> expression)
+        {
+            return expression.GetMemberInfo().Name;
+        }
+
+        /// <summary>
+        ///     Gets member name from the specified expression.
+        /// </summary>
+        /// <typeparam name="T">The type of model.</typeparam>
+        /// <param name="expression">The specified expression.</param>
+        /// <returns>An instance of string.</returns>
+        [Pure]
+        public static string GetMemberName<T>([NotNull] Expression<Func<T, object>> expression)
+        {
+            return expression.GetMemberInfo().Name;
+        }
+
+        /// <summary>
+        ///     Gets member name from the specified expression.
+        /// </summary>
         /// <param name="item">The specified model.</param>
         /// <param name="expression">The specified expression.</param>
         /// <returns>An instance of string.</returns>
         [Pure]
-        public static string GetPropertyName<T>([CanBeNull] T item, [NotNull] Expression<Func<T, object>> expression)
+        public static string GetMemberName<T, TValue>([CanBeNull] T item, [NotNull] Expression<Func<T, TValue>> expression)
         {
-            return GetPropertyName(expression);
+            return GetMemberName(expression);
         }
 
         /// <summary>
@@ -1334,7 +1448,7 @@ namespace MugenMvvmToolkit
         ///     Gets a value indicating whether the entity has changes.
         /// </summary>
         [Pure]
-        public static bool HasChanges<T>(this IEntitySnapshot snapshot, T item, Expression<Func<T, object>> propertyExpression)
+        public static bool HasChanges<T, TValue>(this IEntitySnapshot snapshot, T item, Expression<Func<T, TValue>> propertyExpression)
         {
             Should.NotBeNull(snapshot, "snapshot");
             Should.NotBeNull(item, "item");
@@ -1542,7 +1656,7 @@ namespace MugenMvvmToolkit
         public static DataConstantValue[] ToArray([NotNull] this IDataContext context)
         {
             Should.NotBeNull(context, "context");
-            return context.ToList().ToArrayFast();
+            return context.ToList().ToArrayEx();
         }
 
         internal static void Invoke(this IThreadManager threadManager, ExecutionMode mode, Action invokeAction)

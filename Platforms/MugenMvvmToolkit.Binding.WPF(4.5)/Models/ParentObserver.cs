@@ -35,8 +35,8 @@ namespace MugenMvvmToolkit.Binding.Models
         #region Fields
 
         private readonly WeakReference _view;
+        private readonly WeakReference _parent;
         private bool _isAttached;
-        private WeakReference _parent;
 
         #endregion
 
@@ -87,8 +87,9 @@ namespace MugenMvvmToolkit.Binding.Models
         /// </summary>
         public static ParentObserver GetOrAdd(FrameworkElement element)
         {
-            return ServiceProvider.AttachedValueProvider.GetOrAdd(element, "#ParentListener",
-                (frameworkElement, o) => new ParentObserver(frameworkElement), null);
+            return ServiceProvider
+                .AttachedValueProvider
+                .GetOrAdd(element, "#ParentListener", (frameworkElement, o) => new ParentObserver(frameworkElement), null);
         }
 
         private void OnChanged(object sender, RoutedEventArgs routedEventArgs)
@@ -107,7 +108,7 @@ namespace MugenMvvmToolkit.Binding.Models
                 return;
             if (ReferenceEquals(value, _parent.Target))
                 return;
-            _parent = ServiceProvider.WeakReferenceFactory(value, true);
+            _parent.Target = value;
             Raise(source, EventArgs.Empty);
         }
 

@@ -29,14 +29,14 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// <summary>
         ///     Tries to save a view model in the cache.
         /// </summary>
-        public void TryCacheViewModel(INavigationContext navigationContext, IView view, IViewModel viewModel)
+        public void TryCacheViewModel(INavigationContext navigationContext, object view, IViewModel viewModel)
         {
         }
 
         /// <summary>
         ///     Tries to get view model from cache, and delete it from the cache.
         /// </summary>
-        public IViewModel TryTakeViewModelFromCache(INavigationContext navigationContext, IView view)
+        public IViewModel TryTakeViewModelFromCache(INavigationContext navigationContext, object view)
         {
             return null;
         }

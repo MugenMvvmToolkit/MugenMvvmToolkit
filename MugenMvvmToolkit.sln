@@ -116,6 +116,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinPhone(8
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Binding.WinPhone(8.1)", "Platforms\MugenMvvmToolkit.Binding.WinPhone(8.1)\MugenMvvmToolkit.Binding.WinPhone(8.1).csproj", "{5D794834-E6B9-463A-84C9-5EB9D1EE593F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Touch", "Touch", "{944A6742-0E70-42CE-9193-DA2153347FE2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Touch", "Platforms\MugenMvvmToolkit.Touch\MugenMvvmToolkit.Touch.csproj", "{AB8F3108-C83F-4169-8DFC-988EC64CCD37}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -789,6 +793,20 @@ Global
 		{5D794834-E6B9-463A-84C9-5EB9D1EE593F}.Release|x64.ActiveCfg = Release|Any CPU
 		{5D794834-E6B9-463A-84C9-5EB9D1EE593F}.Release|x86.ActiveCfg = Release|x86
 		{5D794834-E6B9-463A-84C9-5EB9D1EE593F}.Release|x86.Build.0 = Release|x86
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Release|ARM.ActiveCfg = Release|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Release|x64.ActiveCfg = Release|Any CPU
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -843,5 +861,7 @@ Global
 		{E70988D8-B0E9-4CC0-B790-2326E2E8192A} = {4F2AFA9B-4B37-4010-AAE5-435BD2E03940}
 		{9B02FEE1-51E5-4F58-AC47-2560770EF505} = {88CB48B3-0D0A-44A6-8BCC-DDB2AF4A187B}
 		{5D794834-E6B9-463A-84C9-5EB9D1EE593F} = {88CB48B3-0D0A-44A6-8BCC-DDB2AF4A187B}
+		{944A6742-0E70-42CE-9193-DA2153347FE2} = {63CEC54F-6178-413C-9F26-09D0F75F43FA}
+		{AB8F3108-C83F-4169-8DFC-988EC64CCD37} = {944A6742-0E70-42CE-9193-DA2153347FE2}
 	EndGlobalSection
 EndGlobal

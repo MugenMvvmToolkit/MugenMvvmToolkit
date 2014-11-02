@@ -15,6 +15,7 @@
 #endregion
 using System;
 using System.ComponentModel;
+using System.Threading;
 using Android.App;
 using Android.OS;
 using Android.Support.V4.App;
@@ -30,7 +31,7 @@ namespace MugenMvvmToolkit.Views.Activities
     {
         #region Fields
 
-        private readonly IMvvmActivityMediator _mediator;
+        private IMvvmActivityMediator _mediator;
         private readonly int? _viewId;
 
         #endregion
@@ -39,8 +40,24 @@ namespace MugenMvvmToolkit.Views.Activities
 
         protected MvvmFragmentActivity(int? viewId)
         {
-            _viewId = viewId;
-            _mediator = PlatformExtensions.MvvmActivityMediatorFactory(this, Models.DataContext.Empty);
+            _viewId = viewId;            
+        }
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        ///     Gets the current <see cref="IMvvmActivityMediator" />.
+        /// </summary>
+        protected IMvvmActivityMediator Mediator
+        {
+            get
+            {
+                if (_mediator == null)
+                    Interlocked.CompareExchange(ref _mediator, PlatformExtensions.MvvmActivityMediatorFactory(this, Models.DataContext.Empty), null);
+                return _mediator;
+            }
         }
 
         #endregion
@@ -50,10 +67,10 @@ namespace MugenMvvmToolkit.Views.Activities
         /// <summary>
         ///     Gets or sets the data context of the current <see cref="IView" />.
         /// </summary>
-        public virtual object DataContext
+        public object DataContext
         {
-            get { return _mediator.DataContext; }
-            set { _mediator.DataContext = value; }
+            get { return Mediator.DataContext; }
+            set { Mediator.DataContext = value; }
         }
 
         /// <summary>
@@ -61,52 +78,52 @@ namespace MugenMvvmToolkit.Views.Activities
         /// </summary>
         public Bundle Bundle
         {
-            get { return _mediator.Bundle; }
+            get { return Mediator.Bundle; }
         }
 
         /// <summary>
         ///     Occurs when the DataContext property changed.
         /// </summary>
-        public virtual event EventHandler<Activity, EventArgs> DataContextChanged
+        public event EventHandler<Activity, EventArgs> DataContextChanged
         {
-            add { _mediator.DataContextChanged += value; }
-            remove { _mediator.DataContextChanged -= value; }
+            add { Mediator.DataContextChanged += value; }
+            remove { Mediator.DataContextChanged -= value; }
         }
 
         /// <summary>
         /// Occurs when the activity has detected the user's press of the back key.
         /// </summary>
-        public virtual event EventHandler<Activity, CancelEventArgs> BackPressing
+        public event EventHandler<Activity, CancelEventArgs> BackPressing
         {
-            add { _mediator.BackPressing += value; }
-            remove { _mediator.BackPressing -= value; }
+            add { Mediator.BackPressing += value; }
+            remove { Mediator.BackPressing -= value; }
         }
 
         /// <summary>
         ///     Occurred on created activity.
         /// </summary>
-        public virtual event EventHandler<Activity, ValueEventArgs<Bundle>> Created
+        public event EventHandler<Activity, ValueEventArgs<Bundle>> Created
         {
-            add { _mediator.Created += value; }
-            remove { _mediator.Created -= value; }
+            add { Mediator.Created += value; }
+            remove { Mediator.Created -= value; }
         }
 
         /// <summary>
         ///     Occurred on started activity.
         /// </summary>
-        public virtual event EventHandler<Activity, EventArgs> Started
+        public event EventHandler<Activity, EventArgs> Started
         {
-            add { _mediator.Started += value; }
-            remove { _mediator.Started -= value; }
+            add { Mediator.Started += value; }
+            remove { Mediator.Started -= value; }
         }
 
         /// <summary>
         ///     Occurred on paused activity.
         /// </summary>
-        public virtual event EventHandler<Activity, EventArgs> Paused
+        public event EventHandler<Activity, EventArgs> Paused
         {
-            add { _mediator.Paused += value; }
-            remove { _mediator.Paused -= value; }
+            add { Mediator.Paused += value; }
+            remove { Mediator.Paused -= value; }
         }
 
         /// <summary>
@@ -114,44 +131,44 @@ namespace MugenMvvmToolkit.Views.Activities
         /// </summary>
         public event EventHandler<Activity, ValueEventArgs<Bundle>> SaveInstanceState
         {
-            add { _mediator.SaveInstanceState += value; }
-            remove { _mediator.SaveInstanceState -= value; }
+            add { Mediator.SaveInstanceState += value; }
+            remove { Mediator.SaveInstanceState -= value; }
         }
 
         /// <summary>
         ///     Occurred on stoped activity.
         /// </summary>
-        public virtual event EventHandler<Activity, EventArgs> Stoped
+        public event EventHandler<Activity, EventArgs> Stoped
         {
-            add { _mediator.Stoped += value; }
-            remove { _mediator.Stoped -= value; }
+            add { Mediator.Stoped += value; }
+            remove { Mediator.Stoped -= value; }
         }
 
         /// <summary>
         ///     Occurred on restarted activity.
         /// </summary>
-        public virtual event EventHandler<Activity, EventArgs> Restarted
+        public event EventHandler<Activity, EventArgs> Restarted
         {
-            add { _mediator.Restarted += value; }
-            remove { _mediator.Restarted -= value; }
+            add { Mediator.Restarted += value; }
+            remove { Mediator.Restarted -= value; }
         }
 
         /// <summary>
         ///     Occurred on resume activity.
         /// </summary>
-        public virtual event EventHandler<Activity, EventArgs> Resume
+        public event EventHandler<Activity, EventArgs> Resume
         {
-            add { _mediator.Resume += value; }
-            remove { _mediator.Resume -= value; }
+            add { Mediator.Resume += value; }
+            remove { Mediator.Resume -= value; }
         }
 
         /// <summary>
         ///     Occurred on destroyed activity.
         /// </summary>
-        public virtual event EventHandler<Activity, EventArgs> Destroyed
+        public event EventHandler<Activity, EventArgs> Destroyed
         {
-            add { _mediator.Destroyed += value; }
-            remove { _mediator.Destroyed -= value; }
+            add { Mediator.Destroyed += value; }
+            remove { Mediator.Destroyed -= value; }
         }
 
         #endregion
@@ -160,69 +177,69 @@ namespace MugenMvvmToolkit.Views.Activities
 
         public override MenuInflater MenuInflater
         {
-            get { return _mediator.GetMenuInflater(base.MenuInflater); }
-        }
-
-        public override void OnBackPressed()
-        {
-            _mediator.OnBackPressed(base.OnBackPressed);
+            get { return Mediator.GetMenuInflater(base.MenuInflater); }
         }
 
         public override void Finish()
         {
-            _mediator.Finish(base.Finish);
+            Mediator.Finish(base.Finish);
+        }
+
+        public override void OnBackPressed()
+        {
+            Mediator.OnBackPressed(base.OnBackPressed);
         }
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            _mediator.OnCreate(savedInstanceState, base.OnCreate);
+            Mediator.OnCreate(savedInstanceState, base.OnCreate);
             if (_viewId.HasValue)
                 SetContentView(_viewId.Value);
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
         {
-            return _mediator.OnCreateOptionsMenu(menu, base.OnCreateOptionsMenu);
+            return Mediator.OnCreateOptionsMenu(menu, base.OnCreateOptionsMenu);
         }
 
         protected override void OnDestroy()
         {
-            _mediator.OnDestroy(base.OnDestroy);
+            Mediator.OnDestroy(base.OnDestroy);
         }
 
         protected override void OnPause()
         {
-            _mediator.OnPause(base.OnPause);
+            Mediator.OnPause(base.OnPause);
         }
 
         protected override void OnRestart()
         {
-            _mediator.OnRestart(base.OnRestart);
+            Mediator.OnRestart(base.OnRestart);
         }
 
         protected override void OnResume()
         {
-            _mediator.OnResume(base.OnResume);
+            Mediator.OnResume(base.OnResume);
         }
 
         protected override void OnSaveInstanceState(Bundle outState)
         {
-            _mediator.OnSaveInstanceState(outState, base.OnSaveInstanceState);
+            Mediator.OnSaveInstanceState(outState, base.OnSaveInstanceState);
         }
 
         protected override void OnStart()
         {
-            _mediator.OnStart(base.OnStart);
+            Mediator.OnStart(base.OnStart);
         }
 
         protected override void OnStop()
         {
-            _mediator.OnStop(base.OnStop);
+            Mediator.OnStop(base.OnStop);
         }
 
         public override void SetContentView(int layoutResID)
         {
-            _mediator.SetContentView(layoutResID);
+            Mediator.SetContentView(layoutResID);
         }
 
         #endregion

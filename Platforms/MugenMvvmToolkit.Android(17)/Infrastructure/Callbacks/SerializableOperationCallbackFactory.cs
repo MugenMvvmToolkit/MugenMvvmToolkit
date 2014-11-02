@@ -25,6 +25,7 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Callbacks
 {
@@ -77,7 +78,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             #region Methods
 
-            public bool Restore(Type targetType, object target, Dictionary<Type, object> items, string awaiterResultType, IOperationResult result)
+            public bool Restore(Type targetType, object target, Dictionary<Type, object> items, ICollection<IViewModel> viewModels, string awaiterResultType, IOperationResult result)
             {
                 var field = targetType.GetFieldEx(Name, MemberFlags.NonPublic | MemberFlags.Public | MemberFlags.Instance);
                 if (field == null)
@@ -118,7 +119,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                         {
                             anonClass = ServiceProvider.IocContainer.Get(anonType);
                             foreach (var snapshot in Snapshots)
-                                snapshot.Restore(anonType, anonClass, items, awaiterResultType, result);
+                                snapshot.Restore(anonType, anonClass, items, viewModels, awaiterResultType, result);
                             items[anonType] = anonClass;
                         }
                         field.SetValueEx(target, anonClass);
@@ -145,14 +146,13 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                         field.SetValueEx(target, IsType ? Type.GetType((string)State, false) : State);
                         break;
                     case ViewModelField:
-                        var vmType = Type.GetType(TypeName, true);
-                        object value;
-                        if (!items.TryGetValue(vmType, out value))
+                        var viewModel = FindViewModel(viewModels);
+                        if (viewModel == null)
                         {
                             TraceError(field, targetType);
                             return false;
                         }
-                        field.SetValueEx(target, value);
+                        field.SetValueEx(target, viewModel);
                         break;
                 }
                 return true;
@@ -183,14 +183,18 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                     return null;
                 }
 
-                if (typeof(IViewModel).IsAssignableFrom(field.FieldType))
+                var viewModel = value as IViewModel;
+                if (viewModel != null)
+                {
                     return new FieldSnapshot
                     {
                         Name = field.Name,
                         FieldType = ViewModelField,
-                        TypeName = value.GetType().AssemblyQualifiedName
+                        TypeName = value.GetType().AssemblyQualifiedName,
+                        State = viewModel.GetViewModelId()
                     };
-                //If field is type.
+                }
+                //field is type.
                 if (typeof(Type).IsAssignableFrom(field.FieldType))
                     return new FieldSnapshot
                     {
@@ -245,6 +249,26 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                     TypeName = value.GetType().AssemblyQualifiedName,
                     FieldType = NonSerializableField
                 };
+            }
+
+            private IViewModel FindViewModel(ICollection<IViewModel> viewModels)
+            {
+                Guid id = Guid.Empty;
+                var vmType = Type.GetType(TypeName, true);
+                if (State is Guid)
+                    id = (Guid)State;
+
+                var vm = ViewModelProvider.TryGetViewModelById(id);
+                if (vm != null)
+                    return vm;
+                foreach (var viewModel in viewModels)
+                {
+                    if (viewModel.GetViewModelId() == id)
+                        return viewModel;
+                    if (viewModel.GetType() == vmType)
+                        vm = viewModel;
+                }
+                return vm;
             }
 
             private void TraceError(FieldInfo field, Type stateMachineType)
@@ -369,14 +393,15 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                     stateMachine = (IAsyncStateMachine)constructor.InvokeEx();
                 }
 
-                var items = CollectViewModels(result);
+                var viewModels = CollectViewModels(result);
+                var items = new Dictionary<Type, object>();
                 if (result.Source != null)
                     items[result.Source.GetType()] = result.Source;
                 //we need to sort fields, to restore builder as last operation.
                 FieldSnapshots.Sort((x1, x2) => x1.FieldType.CompareTo(x2.FieldType));
                 for (int index = 0; index < FieldSnapshots.Count; index++)
                 {
-                    if (!FieldSnapshots[index].Restore(type, stateMachine, items, AwaiterResultType, result))
+                    if (!FieldSnapshots[index].Restore(type, stateMachine, items, viewModels, AwaiterResultType, result))
                     {
                         Tracer.Error("The await callback cannot be executed.");
                         break;
@@ -569,7 +594,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 var flags = MemberFlags.Public | MemberFlags.NonPublic |
                                                     (IsStatic ? MemberFlags.Static : MemberFlags.Instance);
                 var method = type.GetMethodsEx(flags).First(FilterMethod);
-                var items = CollectViewModels(result);
+                var viewModels = CollectViewModels(result);
+                var items = new Dictionary<Type, object>();
                 if (result.Source != null)
                     items[result.Source.GetType()] = result.Source;
                 object[] args;
@@ -578,7 +604,10 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                     var parameter = method.GetParameters()[0];
                     object firstParam;
                     if (!items.TryGetValue(parameter.ParameterType, out firstParam))
-                        firstParam = result.Source;
+                    {
+                        var viewModel = viewModels.FirstOrDefault(model => model.GetType() == parameter.ParameterType);
+                        firstParam = viewModel ?? result.Source;
+                    }
                     args = new[] { firstParam, result };
                 }
                 else
@@ -598,7 +627,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 if (Snapshots != null)
                 {
                     foreach (var fieldSnapshot in Snapshots)
-                        fieldSnapshot.Restore(type, target, items, null, result);
+                        fieldSnapshot.Restore(type, target, items, viewModels, null, result);
                 }
                 return method.InvokeEx(target, args);
             }
@@ -733,24 +762,35 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             return GetDefaultGenericMethod.MakeGenericMethod(t).InvokeEx(null, null);
         }
 
-        private static Dictionary<Type, object> CollectViewModels(IOperationResult result)
+        private static ICollection<IViewModel> CollectViewModels(IOperationResult result)
         {
+#if (WINDOWS_PHONE && V71) || TEST
             var viewModels = new List<IViewModel>();
+#else
+            var viewModels = new HashSet<IViewModel>();
+#endif
             var context = result.OperationContext as INavigationContext;
             if (context != null)
             {
                 CollectViewModels(viewModels, context.ViewModelTo);
                 CollectViewModels(viewModels, context.ViewModelFrom);
             }
-            return viewModels.ToDictionary(model => model.GetType(), model => (object)model);
+            var viewModel = result.Source as IViewModel;
+            if (viewModel != null)
+                CollectViewModels(viewModels, viewModel);
+            return viewModels;
         }
 
-        private static void CollectViewModels(List<IViewModel> viewModels, IViewModel viewModel)
+        private static void CollectViewModels(ICollection<IViewModel> viewModels, IViewModel viewModel)
         {
             while (true)
             {
                 if (viewModel == null || viewModels.Contains(viewModel))
                     return;
+                var parentViewModel = viewModel.GetParentViewModel();
+                if (parentViewModel != null)
+                    CollectViewModels(viewModels, parentViewModel);
+
                 viewModels.Add(viewModel);
                 var wrapperViewModel = viewModel as IWrapperViewModel;
                 if (wrapperViewModel == null)

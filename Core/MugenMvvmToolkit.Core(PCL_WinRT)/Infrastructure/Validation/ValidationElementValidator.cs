@@ -24,7 +24,7 @@ using MugenMvvmToolkit.Models.Validation;
 namespace MugenMvvmToolkit.Infrastructure.Validation
 {
     /// <summary>
-    ///     Represents a validator that use a <see cref="IValidationElementProvider" /> to validate objects.
+    ///     Represents a validator that uses a <see cref="IValidationElementProvider" /> to validate objects.
     /// </summary>
     public class ValidationElementValidator : ValidatorBase<object>
     {
@@ -120,8 +120,9 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 var validationResult = validationResults[index];
                 if (!validationResult.MemberNames.Any())
                 {
-                    Tracer.Warn("The validation result for member '{0}' does not contain any MemberNames.", context.MemberName);
-                    return;
+                    Tracer.Warn("The validation result for member '{0}' does not contain any MemberNames, ErrorMessage '{1}'.",
+                        context.MemberName, validationResult.ErrorMessage);
+                    continue;
                 }
                 foreach (var member in validationResult.MemberNames)
                 {
@@ -149,8 +150,13 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             foreach (IValidationElement validationElement in elements)
             {
                 IEnumerable<IValidationResult> validationResults = validationElement.Validate(context);
-                if (validationResults != null)
-                    results.AddRange(validationResults.Where(result => result != null && !result.IsValid));
+                if (validationResults == null)
+                    continue;
+                foreach (var result in validationResults)
+                {
+                    if (result != null && !result.IsValid)
+                        results.Add(result);
+                }
             }
             return results;
         }

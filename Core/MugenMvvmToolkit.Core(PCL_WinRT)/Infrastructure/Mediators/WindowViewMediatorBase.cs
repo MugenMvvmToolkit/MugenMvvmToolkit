@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
     ///     Represents the base mediator class for dialog view.
     /// </summary>
     public abstract class WindowViewMediatorBase<TView> : IWindowViewMediator
-        where TView : class, IWindowViewBase
+        where TView : class, IView
     {
         #region Fields
 
@@ -78,7 +78,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         #region Properties
 
         /// <summary>
-        ///     Gets the <see cref="IWindowViewBase" />.
+        ///     Gets the <see cref="TView" />.
         /// </summary>
         public TView View { get; private set; }
 
@@ -124,9 +124,9 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         }
 
         /// <summary>
-        ///     Gets the <see cref="IWindowViewBase" />.
+        ///     Gets the <see cref="IView" />.
         /// </summary>
-        IWindowViewBase IWindowViewMediator.View
+        IView IWindowViewMediator.View
         {
             get { return View; }
         }
@@ -193,10 +193,10 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         }
 
         /// <summary>
-        ///     Updates the current view, for example android platform use this api to update view after recreate a dialog
+        ///     Updates the current view, for example android platform use this API to update view after recreate a dialog
         ///     fragment.
         /// </summary>
-        void IWindowViewMediator.UpdateView(IWindowViewBase view, bool isOpen, IDataContext context)
+        public void UpdateView(IView view, bool isOpen, IDataContext context)
         {
             if (ReferenceEquals(View, view))
                 return;
@@ -206,6 +206,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             View = (TView)view;
             if (View != null)
                 InitializeView(View, context);
+            OnViewUpdated(View, context);
         }
 
         #endregion
@@ -215,18 +216,18 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// <summary>
         ///     Shows the view in the specified mode.
         /// </summary>
-        protected abstract void ShowView([NotNull] TView windowView, bool isDialog, IDataContext context);
+        protected abstract void ShowView([NotNull] TView view, bool isDialog, IDataContext context);
 
         /// <summary>
         ///     Initializes the specified view.
         /// </summary>
-        protected abstract void InitializeView([NotNull] TView windowView, IDataContext context);
+        protected abstract void InitializeView([NotNull] TView view, IDataContext context);
 
         /// <summary>
         ///     Clears the event subscribtions from the specified view.
         /// </summary>
-        /// <param name="windowView">The specified window-view to dispose.</param>
-        protected abstract void CleanupView([NotNull] TView windowView);
+        /// <param name="view">The specified window-view to dispose.</param>
+        protected abstract void CleanupView([NotNull] TView view);
 
         /// <summary>
         ///     Closes the view.
@@ -273,6 +274,13 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             navigableViewModel = context.ViewModelTo as INavigableViewModel;
             if (navigableViewModel != null)
                 navigableViewModel.OnNavigatedTo(context);
+        }
+
+        /// <summary>
+        ///     Occured on update the current view using the <see cref="IWindowViewMediator.UpdateView"/> method.
+        /// </summary>
+        protected virtual void OnViewUpdated(TView view, IDataContext context)
+        {
         }
 
         /// <summary>

@@ -56,6 +56,7 @@ namespace MugenMvvmToolkit
         private static Func<object, bool, WeakReference> _weakReferenceFactory;
         private static IDesignTimeManager _designTimeManager;
         private static IViewModelProvider _viewModelProvider;
+        private static IEventAggregator _eventAggregator;
 
         #endregion
 
@@ -284,6 +285,18 @@ namespace MugenMvvmToolkit
             set { _viewModelProvider = value; }
         }
 
+        [NotNull]
+        public static IEventAggregator EventAggregator
+        {
+            get
+            {
+                if (_eventAggregator == null)
+                    Interlocked.CompareExchange(ref _eventAggregator, new EventAggregator(), null);
+                return _eventAggregator;
+            }
+            set { _eventAggregator = value; }
+        }
+
         #endregion
 
         #region Methods
@@ -303,6 +316,7 @@ namespace MugenMvvmToolkit
             TryInitialize(iocContainer, ref _operationCallbackFactory);
             TryInitialize(iocContainer, ref _validatorProvider);
             TryInitialize(iocContainer, ref _viewModelProvider);
+            TryInitialize(iocContainer, ref _eventAggregator);
             if (iocContainer.CanResolve<IViewModelSettings>())
                 ApplicationSettings.ViewModelSettings = iocContainer.Get<IViewModelSettings>();
         }

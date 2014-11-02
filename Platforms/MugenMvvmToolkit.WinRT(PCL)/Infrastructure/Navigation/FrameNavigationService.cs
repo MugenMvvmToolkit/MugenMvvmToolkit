@@ -125,10 +125,15 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         public object GetParameterFromArgs(EventArgs args)
         {
             Should.NotBeNull(args, "args");
-            var cancelArgs = args as NavigatingCancelEventArgsWrapper;
-            if (cancelArgs == null)
-                return ((NavigationEventArgsWrapper)args).Args.Parameter;
-            return cancelArgs.Parameter;
+            var cancelEventArgs = args as NavigatingCancelEventArgsWrapper;
+            if (cancelEventArgs == null)
+            {
+                var eventArgs = args as NavigationEventArgsWrapper;
+                if (eventArgs == null)
+                    return null;
+                return eventArgs.Args.Parameter;
+            }
+            return cancelEventArgs.Parameter;
         }
 
         /// <summary>
@@ -167,14 +172,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             Should.NotBeNull(source, "source");
             _lastParameter = parameter;
             return Navigate(source.ViewType, parameter);
-        }
-
-        /// <summary>
-        ///     Raised after navigation.
-        /// </summary>
-        public void OnNavigated(NavigationEventArgs args)
-        {
-            OnNavigated(_frame, args);
         }
 
         /// <summary>

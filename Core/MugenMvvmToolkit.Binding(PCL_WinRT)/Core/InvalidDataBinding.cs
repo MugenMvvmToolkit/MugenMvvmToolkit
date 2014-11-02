@@ -75,17 +75,19 @@ namespace MugenMvvmToolkit.Binding.Core
         /// <summary>
         ///     Sends the current value back to the source.
         /// </summary>
-        public override void UpdateSource()
+        public override bool UpdateSource()
         {
             RaiseBindingException(_exception, _exception, BindingAction.UpdateSource);
+            return false;
         }
 
         /// <summary>
         ///     Forces a data transfer from source to target.
         /// </summary>
-        public override void UpdateTarget()
+        public override bool UpdateTarget()
         {
             RaiseBindingException(_exception, _exception, BindingAction.UpdateTarget);
+            return false;
         }
 
         /// <summary>

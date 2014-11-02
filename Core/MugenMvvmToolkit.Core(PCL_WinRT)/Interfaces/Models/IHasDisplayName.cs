@@ -18,7 +18,7 @@ using System.ComponentModel;
 namespace MugenMvvmToolkit.Interfaces.Models
 {
     /// <summary>
-    ///     Represents the model that has display name.
+    ///     Represents the model that has a display name.
     /// </summary>
     public interface IHasDisplayName : INotifyPropertyChanged
     {

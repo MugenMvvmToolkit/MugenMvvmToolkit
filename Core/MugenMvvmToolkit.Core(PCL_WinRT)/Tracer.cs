@@ -14,6 +14,7 @@
 // ****************************************************************************
 #endregion
 #define DEBUG
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -45,6 +46,7 @@ namespace MugenMvvmToolkit
         {
             Instance = new Tracer();
             TraceFinalized = Debugger.IsAttached;
+            TraceSeverity = TraceLevel.Warning;
         }
 
         private Tracer()
@@ -60,16 +62,33 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static bool TraceFinalized { get; set; }
 
+        /// <summary>
+        ///     Gets the trace severity.
+        /// </summary>
+        public static TraceLevel TraceSeverity { get; set; }
+
         #endregion
 
         #region Methods
+
+        /// <summary>
+        ///     Updates information about view-models.
+        /// </summary>
+        public static void TraceViewModel(AuditAction auditAction, IViewModel viewModel)
+        {
+            var handler = TraceViewModelHandler;
+            if (handler != null)
+                handler(auditAction, viewModel);
+            ServiceProvider.Tracer.TraceViewModel(auditAction, viewModel);
+        }
 
         /// <summary>
         /// Writes an info message to the default tracer.
         /// </summary>
         public static void Info(string message)
         {
-            ServiceProvider.Tracer.Trace(TraceLevel.Information, message);
+            if (TraceSeverity == TraceLevel.Information)
+                ServiceProvider.Tracer.Trace(TraceLevel.Information, message);
         }
 
         /// <summary>
@@ -77,7 +96,8 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static void Warn(string message)
         {
-            ServiceProvider.Tracer.Trace(TraceLevel.Warning, message);
+            if (TraceSeverity == TraceLevel.Warning || TraceSeverity == TraceLevel.Error)
+                ServiceProvider.Tracer.Trace(TraceLevel.Warning, message);
         }
 
         /// <summary>
@@ -85,7 +105,8 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static void Error(string message)
         {
-            ServiceProvider.Tracer.Trace(TraceLevel.Error, message);
+            if (TraceSeverity == TraceLevel.Error)
+                ServiceProvider.Tracer.Trace(TraceLevel.Error, message);
         }
 
         /// <summary>
@@ -94,7 +115,8 @@ namespace MugenMvvmToolkit
         [StringFormatMethod("format")]
         public static void Info(string format, params object[] args)
         {
-            ServiceProvider.Tracer.Trace(TraceLevel.Information, format, args);
+            if (TraceSeverity == TraceLevel.Information)
+                ServiceProvider.Tracer.Trace(TraceLevel.Information, format, args);
         }
 
         /// <summary>
@@ -103,7 +125,8 @@ namespace MugenMvvmToolkit
         [StringFormatMethod("format")]
         public static void Warn(string format, params object[] args)
         {
-            ServiceProvider.Tracer.Trace(TraceLevel.Warning, format, args);
+            if (TraceSeverity == TraceLevel.Warning || TraceSeverity == TraceLevel.Error)
+                ServiceProvider.Tracer.Trace(TraceLevel.Warning, format, args);
         }
 
         /// <summary>
@@ -112,7 +135,8 @@ namespace MugenMvvmToolkit
         [StringFormatMethod("format")]
         public static void Error(string format, params object[] args)
         {
-            ServiceProvider.Tracer.Trace(TraceLevel.Error, format, args);
+            if (TraceSeverity == TraceLevel.Error)
+                ServiceProvider.Tracer.Trace(TraceLevel.Error, format, args);
         }
 
         /// <summary>
@@ -123,7 +147,16 @@ namespace MugenMvvmToolkit
             if (TraceFinalized)
                 Warn("Finalized - {0} ({1}); {2}", item.GetType(), item.GetHashCode().ToString(), message);
         }
-        
+
+        #endregion
+
+        #region Events
+
+        /// <summary>
+        ///     Occurs on updates information about view-models.
+        /// </summary>
+        public static event Action<AuditAction, IViewModel> TraceViewModelHandler;
+
         #endregion
 
         #region Implementation of ITracer
@@ -131,7 +164,7 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Updates information about view-models.
         /// </summary>
-        public void TraceViewModel(AuditAction auditAction, IViewModel viewModel)
+        void ITracer.TraceViewModel(AuditAction auditAction, IViewModel viewModel)
         {
             var hasDisplayName = viewModel as IHasDisplayName;
             var traceLevel = auditAction == AuditAction.Finalized ? TraceLevel.Warning : TraceLevel.Information;

@@ -80,8 +80,9 @@ namespace MugenMvvmToolkit.Infrastructure
         protected override void OnInitialize()
         {
             base.OnInitialize();
-            IocContainer.BindToConstant<INavigationService>(new FrameNavigationService(_rootFrame));
-            var provider = IocContainer.Get<INavigationProvider>();
+            var service = CreateNavigationService(_rootFrame);
+            if (service != null)
+                IocContainer.BindToConstant(service);
         }
 
         /// <summary>
@@ -121,6 +122,15 @@ namespace MugenMvvmToolkit.Infrastructure
             return IocContainer
                 .Get<IViewModelProvider>()
                 .GetViewModel(viewModelType, context);
+        }
+
+        /// <summary>
+        ///     Creates an instance of <see cref="INavigationService" />.
+        /// </summary>
+        [CanBeNull]
+        protected virtual INavigationService CreateNavigationService(Frame frame)
+        {
+            return new FrameNavigationService(frame);
         }
 
         /// <summary>

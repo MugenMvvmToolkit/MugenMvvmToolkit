@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\bin_tests\WPF\</OutputPath>
     <DefineConstants>TRACE;DEBUG;WPF;NET45</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -26,7 +26,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\bin_tests\WPF\</OutputPath>
     <DefineConstants>TRACE;WPF;NET45</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -138,6 +138,7 @@
     <Compile Include="Infrastructure\Navigation\NavigationProviderTest.cs" />
     <Compile Include="Collections\OrderedNotifiableCollectionTest.cs" />
     <Compile Include="Infrastructure\Presenters\DynamicMultiViewModelPresenterTest.cs" />
+    <Compile Include="Infrastructure\ViewModelProviderTest.cs" />
     <Compile Include="SerializationTestBase.cs" />
     <Compile Include="Collections\SynchronizedNotifiableCollectionTest.cs" />
     <Compile Include="Infrastructure\Validation\DynamicDataAnnotationsElementProviderTest.cs" />

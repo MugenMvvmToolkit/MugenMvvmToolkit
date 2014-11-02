@@ -113,6 +113,11 @@ namespace MugenMvvmToolkit
         public static ObservationMode ViewModelObservationMode { get; set; }
 
         /// <summary>
+        ///     Gets the value that is responsible to initialize the IocContainer using the IocContainer of parent view model.
+        /// </summary>
+        public static IocContainerCreationMode IocContainerCreationMode { get; set; }
+
+        /// <summary>
         ///     Responsible for handling errors in the WithBusyIndicator method.
         ///     If true errors will be processed using the <see cref="ITaskExceptionHandler" /> interface; otherwise false.
         /// </summary>
@@ -143,6 +148,7 @@ namespace MugenMvvmToolkit
             HandleTaskExceptionBusyIndicator = true;
             CommandCanExecuteMode = ExecutionMode.AsynchronousOnUiThread;
             CommandExecutionMode = CommandExecutionMode.CanExecuteBeforeExecute;
+            IocContainerCreationMode = IocContainerCreationMode.Mixed;
         }
 
         #endregion

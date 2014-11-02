@@ -1,0 +1,208 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">iPhoneSimulator</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{AB8F3108-C83F-4169-8DFC-988EC64CCD37}</ProjectGuid>
+    <ProjectTypeGuids>{6BC8ED88-2882-458C-8E55-DFD12B67127B};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <RootNamespace>MugenMvvmToolkit</RootNamespace>
+    <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
+    <AssemblyName>MugenMvvmToolkit.Touch</AssemblyName>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <NuGetPackageImportStamp>d6aa2764</NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\bin\Platforms\Touch\</OutputPath>
+    <DefineConstants>DEBUG;TOUCH</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <MtouchDebug>true</MtouchDebug>
+    <CodesignKey>iPhone Developer</CodesignKey>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\bin\Platforms\Touch\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <CodesignKey>iPhone Developer</CodesignKey>
+    <DefineConstants>TOUCH</DefineConstants>
+    <DocumentationFile>..\..\bin\Platforms\Touch\MugenMvvmToolkit.Touch.XML</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\AttachedValueProvider.cs">
+      <Link>Infrastructure\AttachedValueProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs">
+      <Link>Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\DataTemplateSelectorBase.cs">
+      <Link>Infrastructure\DataTemplateSelectorBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\ItemsSourceGeneratorBase.cs">
+      <Link>Infrastructure\ItemsSourceGeneratorBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Navigation\EmptyNavigationCachePolicy.cs">
+      <Link>Infrastructure\Navigation\EmptyNavigationCachePolicy.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\IDataTemplateSelector.cs">
+      <Link>Interfaces\IDataTemplateSelector.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\IItemsSourceGenerator.cs">
+      <Link>Interfaces\IItemsSourceGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\CollectionViewManagerBase.cs">
+      <Link>Infrastructure\CollectionViewManagerBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\ContentViewManagerBase.cs">
+      <Link>Infrastructure\ContentViewManagerBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\ItemsSourceGenerator.cs">
+      <Link>Infrastructure\ItemsSourceGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.winforms%284.5%29\infrastructure\ThreadManager.cs">
+      <Link>Infrastructure\ThreadManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Interfaces\ICollectionViewManager.cs">
+      <Link>Interfaces\ICollectionViewManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Interfaces\IContentViewManager.cs">
+      <Link>Interfaces\IContentViewManager.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\converters\ViewModelToViewConverter.cs">
+      <Link>Converters\ViewModelToViewConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Bootstrapper.cs">
+      <Link>Infrastructure\Bootstrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\navigation\NavigationProvider.cs">
+      <Link>Infrastructure\Navigation\NavigationProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\DynamicViewModelWindowPresenter.cs">
+      <Link>Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\ViewManagerEx.cs">
+      <Link>Infrastructure\ViewManagerEx.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\interfaces\navigation\INavigationProviderEx.cs">
+      <Link>Interfaces\Navigation\INavigationProviderEx.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\interfaces\navigation\INavigationService.cs">
+      <Link>Interfaces\Navigation\INavigationService.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\models\eventarg\NavigatingCancelEventArgsBase.cs">
+      <Link>Models\EventArg\NavigatingCancelEventArgsBase.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\models\eventarg\NavigationEventArgsBase.cs">
+      <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
+    </Compile>
+    <Compile Include="Converters\BooleanToCheckmarkAccessoryConverter.cs" />
+    <Compile Include="MonoTouchDialogExtensions.cs" />
+    <Compile Include="Infrastructure\ApplicationStateManager.cs" />
+    <Compile Include="Infrastructure\ArrayItemsSourceGenerator.cs" />
+    <Compile Include="Infrastructure\BindingErrorProvider.cs" />
+    <Compile Include="Infrastructure\CollectionCellTemplateSelectorBase.cs" />
+    <Compile Include="Infrastructure\CollectionViewSourceBase.cs" />
+    <Compile Include="Infrastructure\DefaultCollectionViewManager.cs" />
+    <Compile Include="Infrastructure\ItemsSourceCollectionViewSource.cs" />
+    <Compile Include="Infrastructure\ItemsSourceTableViewSource.cs" />
+    <Compile Include="Infrastructure\Mediators\ModalViewMediator.cs" />
+    <Compile Include="Infrastructure\Mediators\MvvmViewControllerMediator.cs" />
+    <Compile Include="Infrastructure\Presenters\ToastPresenter.cs" />
+    <Compile Include="Infrastructure\TableViewSourceBase.cs" />
+    <Compile Include="Infrastructure\Presenters\MessagePresenter.cs" />
+    <Compile Include="Infrastructure\TouchBootstrapperBase.cs" />
+    <Compile Include="Infrastructure\Navigation\NavigationService.cs" />
+    <Compile Include="Infrastructure\TableCellTemplateSelectorBase.cs" />
+    <Compile Include="Interfaces\IApplicationStateManager.cs" />
+    <Compile Include="Interfaces\ICollectionCellTemplateSelector.cs" />
+    <Compile Include="Interfaces\IOrientationChangeListener.cs" />
+    <Compile Include="Interfaces\ITableCellTemplateSelector.cs" />
+    <Compile Include="Interfaces\ITableViewSource.cs" />
+    <Compile Include="Interfaces\Mediators\IMvvmViewControllerMediator.cs" />
+    <Compile Include="Interfaces\Views\IModalView.cs" />
+    <Compile Include="Interfaces\Views\IMvvmViewController.cs" />
+    <Compile Include="Interfaces\Views\IMvvmNavigationController.cs" />
+    <Compile Include="Models\EventArg\NavigatingCancelEventArgs.cs" />
+    <Compile Include="Models\EventArg\NavigationEventArgs.cs" />
+    <Compile Include="Models\ParentObserver.cs" />
+    <Compile Include="Modules\InitializationModule.cs" />
+    <Compile Include="Modules\PlatformDataBindingModuleDialog.cs" />
+    <Compile Include="Modules\PlatformDataBindingModuleCollectionView.cs" />
+    <Compile Include="Modules\PlatformDataBindingModuleTableView.cs" />
+    <Compile Include="Modules\PlatformDataBindingModule.cs" />
+    <Compile Include="PlatformExtensions.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Infrastructure\MvvmPickerViewModel.cs" />
+    <Compile Include="Views\MvvmTableViewController.cs" />
+    <Compile Include="Views\MvvmTabBarController.cs" />
+    <Compile Include="Views\MvvmCollectionViewController.cs" />
+    <Compile Include="Views\MvvmSplitViewController.cs" />
+    <Compile Include="Views\MvvmDialogViewController.cs" />
+    <Compile Include="Views\MvvmViewController.cs" />
+    <Compile Include="Views\MvvmNavigationController.cs" />
+    <Compile Include="Views\ToastView.cs" />
+    <Compile Include="Views\UICollectionViewCellBindable.cs" />
+    <Compile Include="Views\UITableViewCellBindable.cs" />
+    <Compile Include="Views\ValidationPopup.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Binding%28PCL_WinRT%29\MugenMvvmToolkit.Binding%28PCL_WinRT%29.csproj">
+      <Project>{bd7749ab-822f-4ed2-bb75-0fef2b9ad453}</Project>
+      <Name>MugenMvvmToolkit.Binding%28PCL_WinRT%29</Name>
+      <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\MugenMvvmToolkit.Core%28PCL_WinRT%29.csproj">
+      <Project>{f4323e9e-1608-429b-83dc-6a3670761850}</Project>
+      <Name>MugenMvvmToolkit.Core%28PCL_WinRT%29</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="JetBrains.Annotations">
+      <HintPath>..\..\packages\JetBrainsAnnotations.Fody.1.0.2\Lib\JetBrains.Annotations.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MonoTouch.Dialog-1" />
+    <Reference Include="System" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="monotouch" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <BundleResource Include="Resources\error.png" />
+    <BundleResource Include="Resources\error%402x.png" />
+    <None Include="..\..\Solution Items\licence.txt">
+      <Link>licence.txt</Link>
+    </None>
+    <Content Include="FodyWeavers.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Solution Items\MugenMvvmToolkit.licenseheader">
+      <Link>MugenMvvmToolkit.licenseheader</Link>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Fody.1.26.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.26.1\build\Fody.targets'))" />
+  </Target>
+  <Import Project="..\..\packages\Fody.1.26.1\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.26.1\build\Fody.targets')" />
+</Project>

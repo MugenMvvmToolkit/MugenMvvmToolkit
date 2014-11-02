@@ -83,11 +83,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             return Navigate(source, parameter, dataContext);
         }
 
-        public void OnNavigated(NavigationEventArgs args)
-        {
-            throw new NotSupportedException();
-        }
-
         public event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
 
         public event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
