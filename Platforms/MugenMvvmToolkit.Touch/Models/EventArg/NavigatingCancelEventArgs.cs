@@ -1,5 +1,4 @@
 #region Copyright
-
 // ****************************************************************************
 // <copyright file="NavigatingCancelEventArgs.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -13,7 +12,6 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
-
 #endregion
 
 using JetBrains.Annotations;

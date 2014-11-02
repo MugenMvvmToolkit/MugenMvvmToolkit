@@ -1,6 +1,6 @@
 #region Copyright
 // ****************************************************************************
-// <copyright file="AttachedMembersModule.cs">
+// <copyright file="PlatformDataBindingModule.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
 // </copyright>
 // ****************************************************************************
@@ -13,6 +13,7 @@
 // </license>
 // ****************************************************************************
 #endregion
+
 using System;
 using System.Collections;
 using System.Drawing;

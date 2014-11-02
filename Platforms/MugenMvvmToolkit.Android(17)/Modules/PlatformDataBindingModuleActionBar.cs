@@ -1,6 +1,6 @@
 #region Copyright
 // ****************************************************************************
-// <copyright file="PlatformDataBindingModule.cs">
+// <copyright file="PlatformDataBindingModuleActionBar.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
 // </copyright>
 // ****************************************************************************

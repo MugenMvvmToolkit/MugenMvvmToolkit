@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // ****************************************************************************
-// <copyright file="IHasSelfWeakReference.cs">
+// <copyright file="IHasWeakReference.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
 // </copyright>
 // ****************************************************************************
@@ -13,6 +13,7 @@
 // </license>
 // ****************************************************************************
 #endregion
+
 using System;
 using JetBrains.Annotations;
 

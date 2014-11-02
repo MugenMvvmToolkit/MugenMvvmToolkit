@@ -1,6 +1,6 @@
 #region Copyright
 // ****************************************************************************
-// <copyright file="PlatformDataBindingModule.cs">
+// <copyright file="PlatformDataBindingModuleView.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
 // </copyright>
 // ****************************************************************************
@@ -13,6 +13,7 @@
 // </license>
 // ****************************************************************************
 #endregion
+
 using System;
 using Android.Views;
 using MugenMvvmToolkit.Binding;

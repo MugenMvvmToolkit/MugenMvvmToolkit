@@ -1,6 +1,6 @@
 #region Copyright
 // ****************************************************************************
-// <copyright file="ActionBarView.cs">
+// <copyright file="ActionBar.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
 // </copyright>
 // ****************************************************************************
@@ -13,6 +13,7 @@
 // </license>
 // ****************************************************************************
 #endregion
+
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
