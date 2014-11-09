@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.Touch</id>
-    <version>1.0.0-beta1</version>
+    <version>1.0.0</version>
     <title>MugenMvvmToolkit - iOS</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -53,7 +53,7 @@
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\monotouch\MugenMvvmToolkit.Binding.pdb" />
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\monotouch\MugenMvvmToolkit.Binding.xml" />
     <file src="..\bin\Platforms\Touch\MugenMvvmToolkit.Touch.dll" target="lib\monotouch\MugenMvvmToolkit.Touch.dll" />
-    <file src="..\bin\Platforms\Touch\MugenMvvmToolkit.Touch.pdb" target="lib\monotouch\MugenMvvmToolkit.Touch.pdb" />
+    <!--<file src="..\bin\Platforms\Touch\MugenMvvmToolkit.Touch.pdb" target="lib\monotouch\MugenMvvmToolkit.Touch.pdb" />-->
     <file src="..\bin\Platforms\Touch\MugenMvvmToolkit.Touch.xml" target="lib\monotouch\MugenMvvmToolkit.Touch.xml" />
 
     <file src="TouchContent\Setup.cs.pp" target="content\monotouch\Setup.cs.pp" />

@@ -106,6 +106,7 @@
       <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
     </Compile>
     <Compile Include="Converters\BooleanToCheckmarkAccessoryConverter.cs" />
+    <Compile Include="LinkerInclude.cs" />
     <Compile Include="MonoTouchDialogExtensions.cs" />
     <Compile Include="Infrastructure\ApplicationStateManager.cs" />
     <Compile Include="Infrastructure\ArrayItemsSourceGenerator.cs" />

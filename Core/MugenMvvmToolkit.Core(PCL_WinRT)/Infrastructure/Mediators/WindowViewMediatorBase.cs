@@ -387,10 +387,13 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             TView view = View;
             if (view == null)
                 return;
-            ThreadManager.InvokeOnUiThreadAsync(() => CleanupView(view));
-            _viewManager
-                .CleanupViewAsync(ViewModel)
-                .WithTaskExceptionHandler(ViewModel);
+            ThreadManager.InvokeOnUiThreadAsync(() =>
+            {
+                CleanupView(view);
+                _viewManager
+                    .CleanupViewAsync(ViewModel)
+                    .WithTaskExceptionHandler(ViewModel);
+            });
             View = null;
         }
 

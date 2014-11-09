@@ -526,7 +526,9 @@ namespace MugenMvvmToolkit.Infrastructure
                     if (restoredParentViewModel != null && parentViewModel == null)
                         restoredParentViewModel.AddChildViewModel(viewModel);
                     OnViewModelRestored(viewModel, viewModelState, dataContext);
-                    Tracer.Info("The view model '{0}' was restored", viewModel.GetType());
+                    Tracer.TraceViewModel(AuditAction.Restored, viewModel);
+                    if (ReferenceEquals(viewModelState, DataContext.Empty))
+                        Tracer.Warn("The view model '{0}' was restored without state.", viewModel);
                     return viewModel;
                 }
 
@@ -698,7 +700,7 @@ namespace MugenMvvmToolkit.Infrastructure
 #if PCL_WINRT
 .GetDisplayNameAccessor(viewModel.GetType().GetTypeInfo())
 #else
-.GetDisplayNameAccessor(GetType())
+.GetDisplayNameAccessor(viewModel.GetType())
 #endif
 .Invoke();
         }

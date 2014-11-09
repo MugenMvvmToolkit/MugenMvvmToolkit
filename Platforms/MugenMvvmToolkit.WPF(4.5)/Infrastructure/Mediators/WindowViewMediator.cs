@@ -102,11 +102,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         protected override void CleanupView(IWindowView windowView)
         {
             windowView.Closing -= OnClosing;
-#if WINFORMS
-            var disposable = windowView as IDisposable;
-            if (disposable != null)
-                disposable.Dispose();
-#endif
         }
 
 #if WPF

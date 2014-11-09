@@ -35,6 +35,11 @@ namespace MugenMvvmToolkit.Test.Bindings.Behaviors
         }
 
         [Ignore]
+        public override void ModeShouldNotListenAnySourceChange()
+        {
+        }
+
+        [Ignore]
         public override void ModeShouldListenSourceChange()
         {
         }

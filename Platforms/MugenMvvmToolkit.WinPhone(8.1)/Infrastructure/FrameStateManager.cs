@@ -77,8 +77,9 @@ namespace MugenMvvmToolkit.Infrastructure
                 page.Dispatcher.BeginInvoke(() =>
                 {
                     PlatformExtensions.ApplicationStateManager.OnLoadState(page, page.State, args);
-                    var action = ServiceProvider.AttachedValueProvider.GetValue<Action<NavigationEventArgs>>(args,
-                        ActionAfterRestoreStateKey, false);
+                    var action = ServiceProvider
+                        .AttachedValueProvider
+                        .GetValue<Action<NavigationEventArgs>>(args, ActionAfterRestoreStateKey, false);
                     if (action != null)
                         action(args);
                 });

@@ -196,8 +196,14 @@ namespace MugenMvvmToolkit.ViewModels
                 if (_iocContainer == null)
                     return ServiceProvider.IocContainer;
                 return _iocContainer;
-            }            
-            internal set { _iocContainer = value; }
+            }
+            internal set
+            {
+                if (ReferenceEquals(_iocContainer, value))
+                    return;
+                _iocContainer = value;
+                OnPropertyChanged("IsDisposed");
+            }
         }
 
         /// <summary>
@@ -225,7 +231,7 @@ namespace MugenMvvmToolkit.ViewModels
                 return;
             }
             context.TryGetData(InitializationConstants.IsRestored, out _isRestored);
-            _iocContainer = context.GetData(InitializationConstants.IocContainer, true);
+            IocContainer = context.GetData(InitializationConstants.IocContainer, true);
             _threadManager = _iocContainer.Get<IThreadManager>();
             if (_viewModelProvider == null)
                 ViewModelProvider = _iocContainer.Get<IViewModelProvider>();

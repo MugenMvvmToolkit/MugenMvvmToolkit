@@ -25,8 +25,7 @@ using MugenMvvmToolkit.Binding.Models.EventArg;
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
     /// <summary>
-    ///     Represents the binding behavior that allows to wait before updating the binding source after the value on the
-    ///     target changes.
+    ///     Represents the binding behavior that allows to wait before updating the binding.
     /// </summary>
     public sealed class DelayBindingBehavior : BindingBehaviorBase
     {
@@ -35,7 +34,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 #if PCL_WINRT
         private sealed class Timer
         {
-        #region Fields
+            #region Fields
 
             private readonly Action<object> _callback;
             private readonly object _state;
@@ -43,7 +42,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
             #endregion
 
-        #region Constructors
+            #region Constructors
 
             public Timer(Action<object> callback, object state, int dueTime, int period)
             {
@@ -54,7 +53,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
             #endregion
 
-        #region Methods
+            #region Methods
 
             public void Change(int dueTime, int period)
             {
@@ -102,21 +101,26 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         #region Fields
 
         /// <summary>
-        ///     Gets the id of behavior.
+        ///     Gets the id of source behavior.
         /// </summary>
-        public static readonly Guid IdDelayBindingBehavior;
+        public static readonly Guid IdSourceDelayBindingBehavior;
+
+        /// <summary>
+        ///     Gets the id of target behavior.
+        /// </summary>
+        public static readonly Guid IdTargetDelayBindingBehavior;
 
 #if PCL_WINRT
         private static readonly Action<object> CallbackInternalDelegate;
 #else
         private static readonly TimerCallback CallbackInternalDelegate;
 #endif
-
         private static readonly SendOrPostCallback CallbackDelegate;
 
-        private SynchronizationContext _context;
         private readonly int _delay;
+        private readonly bool _isTarget;
 
+        private SynchronizationContext _context;
         private bool _isUpdating;
         private Timer _timer;
 
@@ -126,7 +130,8 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         static DelayBindingBehavior()
         {
-            IdDelayBindingBehavior = new Guid("5A471157-5E3B-4145-ACC4-9FEA8D1B3A99");
+            IdSourceDelayBindingBehavior = new Guid("5A471157-5E3B-4145-ACC4-9FEA8D1B3A99");
+            IdTargetDelayBindingBehavior = new Guid("B9E2CCDA-1389-49DA-A833-2B777DE04BE2");
             CallbackInternalDelegate = CallbackInternal;
             CallbackDelegate = Callback;
         }
@@ -135,11 +140,12 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         ///     Initializes a new instance of the <see cref="DelayBindingBehavior" /> class.
         /// </summary>
         /// <param name="delay">
-        ///     The amount of time, in milliseconds, to wait before updating the binding source after the value on
-        ///     the target changes.
+        ///     The amount of time, in milliseconds, to wait before updating the binding.
         /// </param>
-        public DelayBindingBehavior(uint delay)
+        /// <param name="isTarget">If <c>true</c> wait before update target, otherwise <c>false</c> wait before update source.</param>
+        public DelayBindingBehavior(uint delay, bool isTarget)
         {
+            _isTarget = isTarget;
             _delay = (int)delay;
         }
 
@@ -148,12 +154,19 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         #region Properties
 
         /// <summary>
-        ///     Gets the amount of time, in milliseconds, to wait before updating the binding source after the value on the target
-        ///     changes.
+        ///     Gets the amount of time, in milliseconds, to wait before updating the binding.
         /// </summary>
         public int Delay
         {
             get { return _delay; }
+        }
+
+        /// <summary>
+        ///     If <c>true</c> wait before update target, otherwise <c>false</c> wait before update source.
+        /// </summary>
+        public bool IsTarget
+        {
+            get { return _isTarget; }
         }
 
         #endregion
@@ -165,7 +178,12 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         public override Guid Id
         {
-            get { return IdDelayBindingBehavior; }
+            get
+            {
+                if (_isTarget)
+                    return IdTargetDelayBindingBehavior;
+                return IdSourceDelayBindingBehavior;
+            }
         }
 
         /// <summary>
@@ -181,7 +199,10 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected override bool OnAttached()
         {
-            Binding.SourceAccessor.ValueChanging += SourceOnValueChanging;
+            if (_isTarget)
+                Binding.TargetAccessor.ValueChanging += OnValueChanging;
+            else
+                Binding.SourceAccessor.ValueChanging += OnValueChanging;
             _timer = new Timer(CallbackInternalDelegate, this, int.MaxValue, int.MaxValue);
             return true;
         }
@@ -192,7 +213,10 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         protected override void OnDetached()
         {
             _timer.Dispose();
-            Binding.SourceAccessor.ValueChanging -= SourceOnValueChanging;
+            if (_isTarget)
+                Binding.TargetAccessor.ValueChanging -= OnValueChanging;
+            else
+                Binding.SourceAccessor.ValueChanging -= OnValueChanging;
         }
 
         /// <summary>
@@ -200,14 +224,14 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected override IBindingBehavior CloneInternal()
         {
-            return new DelayBindingBehavior((uint)Delay);
+            return new DelayBindingBehavior((uint)Delay, _isTarget);
         }
 
         #endregion
 
         #region Methods
 
-        private void SourceOnValueChanging(IBindingSourceAccessor sender, ValueAccessorChangingEventArgs args)
+        private void OnValueChanging(IBindingSourceAccessor sender, ValueAccessorChangingEventArgs args)
         {
             if (args.Cancel || _isUpdating)
                 return;
@@ -238,7 +262,12 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 _timer.Change(int.MaxValue, int.MaxValue);
                 var binding = Binding;
                 if (binding != null)
-                    binding.UpdateSource();
+                {
+                    if (_isTarget)
+                        binding.UpdateTarget();
+                    else
+                        binding.UpdateSource();
+                }
             }
             finally
             {

@@ -20,9 +20,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         ///     Gets a display name for the specified type using the specified member.
         /// </summary>
         /// <param name="memberInfo">The specified member.</param>
-        /// <returns>
-        ///     An instance of string.
-        /// </returns>
         Func<string> IDisplayNameProvider.GetDisplayNameAccessor(MemberInfo memberInfo)
         {
             Member = memberInfo;

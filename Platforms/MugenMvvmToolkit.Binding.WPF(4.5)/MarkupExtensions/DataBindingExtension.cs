@@ -56,6 +56,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
         private IBindingMemberInfo _targetMemberInfo;
         private object _commandParameter;
         private bool? _toggleEnabledState;
+        private uint _targetDelay;
 
         #endregion
 
@@ -265,6 +266,24 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
         }
 
         /// <summary>
+        ///     Gets or sets the amount of time, in milliseconds, to wait before updating the binding target after the value on the
+        ///     source changes.
+        /// </summary>
+        public int TargetDelay
+        {
+            get
+            {
+                return (int)_targetDelay;
+            }
+            set
+            {
+                _targetDelay = (uint)value;
+                if (value != 0)
+                    HasValue = true;
+            }
+        }
+
+        /// <summary>
         ///     Gets or sets value that allows to set default value on a binding exception.
         /// </summary>
         public bool DefaultValueOnException
@@ -414,7 +433,9 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
             if (TargetNullValue != null)
                 syntaxBuilder.WithTargetNullValue(TargetNullValue);
             if (Delay != 0)
-                syntaxBuilder.WithDelay(_delay);
+                syntaxBuilder.WithDelay(_delay, false);
+            if (TargetDelay != 0)
+                syntaxBuilder.WithDelay(_targetDelay, true);
             if (DefaultValueOnException)
                 syntaxBuilder.DefaultValueOnException();
             return builder;

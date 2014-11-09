@@ -267,6 +267,30 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             provider.GetBindingMember(baseType, path, false, false).ShouldEqual(baseMember);
         }
 
+        [TestMethod]
+        public void ProviderShouldReturnFakeMember1()
+        {
+            const string path = "FakeTest";
+            var provider = CreateMemberProvider();
+            var member = provider.GetBindingMember(typeof(object), path, false, false);
+            member.ShouldNotBeNull();
+            member.GetValue(null, null).ShouldBeNull();
+            member.SetValue(null, null).ShouldBeNull();
+        }
+
+        [TestMethod]
+        public void ProviderShouldReturnFakeMember2()
+        {
+            const string path = "NodoTest";
+            BindingServiceProvider.FakeMemberPrefixes.Clear();
+            BindingServiceProvider.FakeMemberPrefixes.Add("Nodo");
+            var provider = CreateMemberProvider();
+            var member = provider.GetBindingMember(typeof(object), path, false, false);
+            member.ShouldNotBeNull();
+            member.GetValue(null, null).ShouldBeNull();
+            member.SetValue(null, null).ShouldBeNull();
+        }
+
         protected virtual IBindingMemberProvider CreateMemberProvider()
         {
             return new BindingMemberProvider();

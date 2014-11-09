@@ -185,7 +185,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             MemberInfo member = typeof(DefaultClass);
 #endif
             var displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
-            displayNameAccessor().ShouldEqual(member.Name);
+            displayNameAccessor().ShouldEqual(string.Empty);
 
             member = typeof(DefaultClass).GetFields()[0];
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);

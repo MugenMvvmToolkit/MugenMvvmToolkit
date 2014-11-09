@@ -22,6 +22,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.DataConstants;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Models;
@@ -113,6 +114,8 @@ namespace MugenMvvmToolkit.Binding.Parse
         #region Fields
 
         private static readonly MethodInfo ProxyMethod;
+        private static readonly MethodInfo BindingMemberGetValueMethod;
+        private static readonly Expression EmptyObjectArrayExpression;
         protected static readonly ParameterExpression DataContextParameter;
 
         private readonly Dictionary<ExpressionNodeType, Func<IExpressionNode, Expression>> _nodeToExpressionMapping;
@@ -137,6 +140,9 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             ProxyMethod = typeof(CompileExpressionInvoker).GetMethodEx("InvokeDynamicMethod", MemberFlags.Instance | MemberFlags.NonPublic);
             DataContextParameter = Expression.Parameter(typeof(IDataContext), "dataContext");
+            BindingMemberGetValueMethod = typeof(IBindingMemberInfo).GetMethodEx("GetValue", new[] { typeof(object), typeof(object[]) });
+            EmptyObjectArrayExpression = Expression.Constant(Empty.Array<object>(), typeof(object[]));
+            Should.BeSupported(BindingMemberGetValueMethod != null, "BindingMemberGetValueMethod");
         }
 
         /// <summary>
@@ -396,6 +402,19 @@ namespace MugenMvvmToolkit.Binding.Parse
             var @enum = BindingReflectionExtensions.TryParseEnum(expression.Member, type);
             if (@enum != null)
                 return Expression.Constant(@enum);
+
+            if (type != null)
+            {
+                var bindingMember = BindingServiceProvider
+                    .MemberProvider
+                    .GetBindingMember(type, expression.Member, false, false);
+                if (bindingMember != null)
+                {
+                    var methodCall = Expression.Call(Expression.Constant(bindingMember), BindingMemberGetValueMethod, target, EmptyObjectArrayExpression);
+                    return Expression.Convert(methodCall, bindingMember.Type);
+                }
+            }
+
             var member = type.FindPropertyOrField(expression.Member, target == null);
             return member is PropertyInfo
                 ? Expression.Property(target, (PropertyInfo)member)

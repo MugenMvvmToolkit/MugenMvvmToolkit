@@ -347,9 +347,9 @@ namespace MugenMvvmToolkit.Binding
             return syntax.ValidatesOnExceptions();
         }
 
-        public static IBindingBehaviorSyntax WithDelay([NotNull] this IBindingBehaviorSyntax syntax, uint delay)
+        public static IBindingBehaviorSyntax WithDelay([NotNull] this IBindingBehaviorSyntax syntax, uint delay, bool isTarget = false)
         {
-            return syntax.WithBehavior(new DelayBindingBehavior(delay));
+            return syntax.WithBehavior(new DelayBindingBehavior(delay, isTarget));
         }
 
         public static IBindingBehaviorSyntax DefaultValueOnException([NotNull] this IBindingBehaviorSyntax syntax)

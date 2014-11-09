@@ -402,7 +402,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         }
 
         /// <summary>
-        ///     Gets the mapping of error properties.
+        ///     Gets the mapping of model properties.
         /// </summary>
         [NotNull]
         protected IDictionary<string, ICollection<string>> PropertyMappings
@@ -430,7 +430,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         }
 
         /// <summary>
-        ///     Gets a value that indicates that the validator at the moment there are threads in which there is a validation.
+        ///     Gets a value that indicates that the validator is now validated.
         /// </summary>
         protected bool IsValidating
         {
@@ -653,22 +653,22 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         }
 
         /// <summary>
-        ///     Checks whether the properties are equal.
+        ///     Checks whether the member names are equal.
         /// </summary>
-        /// <param name="propertyName">The specified property name.</param>
-        /// <param name="getProperty">The expression to get property.</param>
-        /// <returns>If true property equals, otherwise false.</returns>
+        /// <param name="memberName">The specified member name.</param>
+        /// <param name="getMember">The expression to get member.</param>
+        /// <returns>If true member names is equal, otherwise false.</returns>
         [Pure]
-        protected static bool PropertyNameEqual<T>(string propertyName, Expression<Func<T, object>> getProperty)
+        protected static bool PropertyNameEqual<T>(string memberName, Expression<Func<T, object>> getMember)
         {
-            return ToolkitExtensions.PropertyNameEqual(propertyName, getProperty);
+            return ToolkitExtensions.MemberNameEqual(memberName, getMember);
         }
 
         /// <summary>
         ///     Gets member name from the specified expression.
         /// </summary>
         /// <param name="expression">The specified expression.</param>
-        /// <returns>An instance of string.</returns>
+        /// <returns>The member name.</returns>
         [Pure]
         protected static string GetPropertyName<T>(Expression<Func<T, object>> expression)
         {
@@ -875,24 +875,23 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         #region Methods
 
         /// <summary>
-        ///     Checks whether the properties are equal.
+        ///     Checks whether the member names are equal.
         /// </summary>
-        /// <param name="propertyName">The specified property name.</param>
-        /// <param name="getProperty">The expression to get property.</param>
-        /// <returns>If true property equals, otherwise false.</returns>
+        /// <param name="memberName">The specified member name.</param>
+        /// <param name="getMember">The expression to get member.</param>
+        /// <returns>If true member names is equal, otherwise false.</returns>
         [Pure]
-        protected static bool PropertyNameEqual<TValue>(string propertyName,
-            [NotNull] Expression<Func<T, TValue>> getProperty)
+        protected static bool PropertyNameEqual<TValue>(string memberName, [NotNull] Expression<Func<T, TValue>> getMember)
         {
-            Should.NotBeNull(getProperty, "getProperty");
-            return propertyName == getProperty.GetMemberInfo().Name;
+            Should.NotBeNull(getMember, "getMember");
+            return string.Equals(memberName, getMember.GetMemberInfo().Name, StringComparison.Ordinal);
         }
 
         /// <summary>
-        ///     Gets property name from the specified expression.
+        ///     Gets member name from the specified expression.
         /// </summary>
         /// <param name="expression">The specified expression.</param>
-        /// <returns>An instance of string.</returns>
+        /// <returns>The member name.</returns>
         [Pure]
         protected static string GetPropertyName<TValue>(Expression<Func<T, TValue>> expression)
         {

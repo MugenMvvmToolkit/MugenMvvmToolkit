@@ -28,19 +28,19 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
     {
         #region Fields
 
-        [DataMember]
+        [DataMember(EmitDefaultValue = false)]
         internal List<object> Callbacks;
 
-        [DataMember]
+        [DataMember(EmitDefaultValue = false)]
         internal bool IsFunc;
 
-        [DataMember]
+        [DataMember(EmitDefaultValue = false)]
         internal ISerializableCallback MainCallback;
 
-        [DataMember]
+        [DataMember(EmitDefaultValue = false)]
         internal string InputType;
 
-        [DataMember]
+        [DataMember(EmitDefaultValue = false)]
         internal string OutputType;
 
         #endregion

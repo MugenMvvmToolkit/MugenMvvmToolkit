@@ -1330,15 +1330,15 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        ///     Checks whether the properties are equal.
+        ///     Checks whether the member names are equal.
         /// </summary>
-        /// <param name="propertyName">The specified property name.</param>
-        /// <param name="getProperty">The expression to get property.</param>
-        /// <returns>If true property is equal, otherwise false.</returns>
+        /// <param name="memberName">The specified member name.</param>
+        /// <param name="getMember">The expression to get member.</param>
+        /// <returns>If true member names is equal, otherwise false.</returns>
         [Pure]
-        public static bool PropertyNameEqual<T>(string propertyName, [NotNull] Expression<Func<T, object>> getProperty)
+        public static bool MemberNameEqual<T>(string memberName, [NotNull] Expression<Func<T, object>> getMember)
         {
-            return getProperty.GetMemberInfo().Name == propertyName;
+            return string.Equals(getMember.GetMemberInfo().Name, memberName, StringComparison.Ordinal);
         }
 
         /// <summary>
@@ -1351,7 +1351,7 @@ namespace MugenMvvmToolkit
         public static bool PropertyNameEqual<T>([NotNull] this PropertyChangedEventArgs args, [NotNull] Expression<Func<T, object>> getProperty)
         {
             Should.NotBeNull(args, "args");
-            return PropertyNameEqual(args.PropertyName, getProperty);
+            return MemberNameEqual(args.PropertyName, getProperty);
         }
 
         /// <summary>
@@ -1387,7 +1387,7 @@ namespace MugenMvvmToolkit
         ///     Gets member name from the specified expression.
         /// </summary>
         /// <param name="expression">The specified expression.</param>
-        /// <returns>An instance of string.</returns>
+        /// <returns>The member name.</returns>
         [Pure]
         public static string GetMemberName([NotNull] LambdaExpression expression)
         {
@@ -1399,7 +1399,7 @@ namespace MugenMvvmToolkit
         /// </summary>
         /// <typeparam name="T">The type of model.</typeparam>
         /// <param name="expression">The specified expression.</param>
-        /// <returns>An instance of string.</returns>
+        /// <returns>The member name.</returns>
         [Pure]
         public static string GetMemberName<T>([NotNull] Expression<Func<T>> expression)
         {
@@ -1411,7 +1411,7 @@ namespace MugenMvvmToolkit
         /// </summary>
         /// <typeparam name="T">The type of model.</typeparam>
         /// <param name="expression">The specified expression.</param>
-        /// <returns>An instance of string.</returns>
+        /// <returns>The member name.</returns>
         [Pure]
         public static string GetMemberName<T>([NotNull] Expression<Func<T, object>> expression)
         {
@@ -1423,7 +1423,7 @@ namespace MugenMvvmToolkit
         /// </summary>
         /// <param name="item">The specified model.</param>
         /// <param name="expression">The specified expression.</param>
-        /// <returns>An instance of string.</returns>
+        /// <returns>The member name.</returns>
         [Pure]
         public static string GetMemberName<T, TValue>([CanBeNull] T item, [NotNull] Expression<Func<T, TValue>> expression)
         {

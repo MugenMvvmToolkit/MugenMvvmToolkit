@@ -19,7 +19,6 @@ using System.Linq;
 using System.Reflection;
 using MugenMvvmToolkit.Infrastructure.Validation;
 using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -55,9 +54,6 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Gets a display name for the specified type using the specified member.
         /// </summary>
         /// <param name="memberInfo">The specified member.</param>
-        /// <returns>
-        ///     An instance of string.
-        /// </returns>
         public Func<string> GetDisplayNameAccessor(MemberInfo memberInfo)
         {
             Should.NotBeNull(memberInfo, "memberInfo");
@@ -81,9 +77,6 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Gets a display name for the specified type using the specified member.
         /// </summary>
         /// <param name="memberInfo">The specified member.</param>
-        /// <returns>
-        ///     An instance of string.
-        /// </returns>
         protected virtual Func<string> GetDisplayNameInternal(MemberInfo memberInfo)
         {
 #if PCL_WINRT
@@ -112,10 +105,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     if (result != null)
                         return result;
                 }
-                if (typeof(IViewModel).IsAssignableFrom(type))
-                    return () => string.Empty;
-                string name = typeInfo.Name;
-                return () => name;
+                return () => string.Empty;
             }
             Func<string> accessor = TryGetDisplayAttributeAccessor(memberInfo);
             if (accessor != null)

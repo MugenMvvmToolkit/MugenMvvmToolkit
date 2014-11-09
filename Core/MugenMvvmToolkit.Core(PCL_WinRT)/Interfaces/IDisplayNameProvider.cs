@@ -28,9 +28,6 @@ namespace MugenMvvmToolkit.Interfaces
         ///     Gets a display name for the specified type using the specified member.
         /// </summary>
         /// <param name="memberInfo">The specified member.</param>
-        /// <returns>
-        ///     An instance of string.
-        /// </returns>
         [Pure, NotNull]
         Func<string> GetDisplayNameAccessor([NotNull] MemberInfo memberInfo);
     }

@@ -71,7 +71,12 @@ namespace MugenMvvmToolkit
         /// <returns>An instance of <see cref="IViewManager" />.</returns>
         protected override BindingInfo<IViewManager> GetViewManager()
         {
-            return BindingInfo<IViewManager>.FromType<ViewManagerEx>(DependencyLifecycle.SingleInstance);
+            return BindingInfo<IViewManager>
+                .FromMethod((container, list) =>
+                    new ViewManagerEx(container.Get<IThreadManager>(), container.Get<IViewMappingProvider>())
+                    {
+                        DisposeView = true
+                    }, DependencyLifecycle.SingleInstance);
         }
 
         /// <summary>

@@ -15,7 +15,6 @@
 #endregion
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Infrastructure.Navigation
 {

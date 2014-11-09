@@ -300,7 +300,7 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Properties
 
         /// <summary>
-        /// Gets or sets the delegate that allows to notifies listener about an event.
+        ///     Gets or sets the delegate that allows to notifies listener about an event.
         /// </summary>
         [CanBeNull]
         public static Action<object, object, object> PublishCustomAction { get; set; }

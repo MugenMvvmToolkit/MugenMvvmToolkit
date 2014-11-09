@@ -15,6 +15,7 @@
 #endregion
 
 using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 
@@ -37,7 +38,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected override bool OnAttached()
         {
-            if (!Binding.UpdateTarget())
+            if (!IsSourceAvailable() || !Binding.UpdateTarget())
                 SubscribeSources(OneTimeHandler);
             return true;
         }
@@ -62,10 +63,26 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Methods
 
+        private bool IsSourceAvailable()
+        {
+            var sourceAccessor = Binding.SourceAccessor;
+            var singleAccessor = sourceAccessor as ISingleBindingSourceAccessor;
+            if (singleAccessor == null)
+            {
+                foreach (var source in sourceAccessor.Sources)
+                {
+                    if (!source.GetPathMembers(false).AllMembersAvailable)
+                        return false;
+                }
+                return true;
+            }
+            return singleAccessor.Source.GetPathMembers(false).AllMembersAvailable;
+        }
+
         private void OneTimeHandler(IBindingSource sender, ValueChangedEventArgs args)
         {
             IDataBinding binding = Binding;
-            if (binding == null || !binding.UpdateTarget())
+            if (binding == null || !IsSourceAvailable() || !binding.UpdateTarget())
                 return;
             UnsubscribeSources(OneTimeHandler);
             binding.Dispose();

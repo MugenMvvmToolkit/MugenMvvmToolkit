@@ -46,7 +46,8 @@ namespace MugenMvvmToolkit
         {
             Instance = new Tracer();
             TraceFinalized = Debugger.IsAttached;
-            TraceSeverity = TraceLevel.Warning;
+            TraceWarning = true;
+            TraceError = true;
         }
 
         private Tracer()
@@ -63,9 +64,19 @@ namespace MugenMvvmToolkit
         public static bool TraceFinalized { get; set; }
 
         /// <summary>
-        ///     Gets the trace severity.
+        ///     Gets the value that indicates that tracer should trace information messages.
         /// </summary>
-        public static TraceLevel TraceSeverity { get; set; }
+        public static bool TraceInformation { get; set; }
+
+        /// <summary>
+        ///     Gets the value that indicates that tracer should trace warning messages.
+        /// </summary>
+        public static bool TraceWarning { get; set; }
+
+        /// <summary>
+        ///     Gets the value that indicates that tracer should trace error messages.
+        /// </summary>
+        public static bool TraceError { get; set; }
 
         #endregion
 
@@ -87,7 +98,7 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static void Info(string message)
         {
-            if (TraceSeverity == TraceLevel.Information)
+            if (TraceInformation)
                 ServiceProvider.Tracer.Trace(TraceLevel.Information, message);
         }
 
@@ -96,7 +107,7 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static void Warn(string message)
         {
-            if (TraceSeverity == TraceLevel.Warning || TraceSeverity == TraceLevel.Error)
+            if (TraceWarning)
                 ServiceProvider.Tracer.Trace(TraceLevel.Warning, message);
         }
 
@@ -105,7 +116,7 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static void Error(string message)
         {
-            if (TraceSeverity == TraceLevel.Error)
+            if (TraceError)
                 ServiceProvider.Tracer.Trace(TraceLevel.Error, message);
         }
 
@@ -115,7 +126,7 @@ namespace MugenMvvmToolkit
         [StringFormatMethod("format")]
         public static void Info(string format, params object[] args)
         {
-            if (TraceSeverity == TraceLevel.Information)
+            if (TraceInformation)
                 ServiceProvider.Tracer.Trace(TraceLevel.Information, format, args);
         }
 
@@ -125,7 +136,7 @@ namespace MugenMvvmToolkit
         [StringFormatMethod("format")]
         public static void Warn(string format, params object[] args)
         {
-            if (TraceSeverity == TraceLevel.Warning || TraceSeverity == TraceLevel.Error)
+            if (TraceWarning)
                 ServiceProvider.Tracer.Trace(TraceLevel.Warning, format, args);
         }
 
@@ -135,7 +146,7 @@ namespace MugenMvvmToolkit
         [StringFormatMethod("format")]
         public static void Error(string format, params object[] args)
         {
-            if (TraceSeverity == TraceLevel.Error)
+            if (TraceError)
                 ServiceProvider.Tracer.Trace(TraceLevel.Error, format, args);
         }
 

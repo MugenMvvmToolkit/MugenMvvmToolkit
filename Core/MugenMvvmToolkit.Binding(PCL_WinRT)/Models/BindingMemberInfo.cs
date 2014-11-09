@@ -187,17 +187,17 @@ namespace MugenMvvmToolkit.Binding.Models
             {
                 if (hasSetter)
                 {
-                    _getValueAccessorSingle = o => null;
-                    _setValueAccessorSingle = (o, o1) => null;
+                    _getValueAccessor = (o, objects) => null;
+                    _setValueAccessor = (o, objects) => null;
                 }
                 else
                 {
                     _getValueAccessorSingle = o => o;
                     _setValueAccessorSingle = NotSupportedSetter;
+                    _isSingleParameter = true;
                 }
                 _canRead = true;
                 _canWrite = _setValueAccessorSingle != null;
-                _isSingleParameter = true;
             }
             else if (memberType == BindingMemberType.Unset)
             {

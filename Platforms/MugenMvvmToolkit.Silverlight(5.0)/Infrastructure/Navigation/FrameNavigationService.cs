@@ -62,14 +62,14 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         private void OnNavigated(object sender, NavigationEventArgs args)
         {
             var handler = Navigated;
-            if (handler != null)
-            {
+            if (handler == null)
+                return;
 #if WINDOWS_PHONE
-                args.InvokeAfterRestoreState(eventArgs => handler(this, new NavigationEventArgsWrapper(eventArgs)));
+            args.SetHandled(true);
+            args.InvokeAfterRestoreState(eventArgs => handler(this, new NavigationEventArgsWrapper(eventArgs)));
 #else
-                handler(this, new NavigationEventArgsWrapper(args));
+            handler(this, new NavigationEventArgsWrapper(args));
 #endif
-            }
         }
 
         private void OnNavigating(object sender, NavigatingCancelEventArgs args)

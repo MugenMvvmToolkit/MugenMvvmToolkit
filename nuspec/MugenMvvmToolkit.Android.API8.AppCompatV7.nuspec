@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>MugenMvvmToolkit.Android.API8.AppCompactV7</id>
-    <version>1.1.0-beta1</version>
-    <title>MugenMvvmToolkit - Android API8+ AppCompactV7</title>
+    <id>MugenMvvmToolkit.Android.API8.AppCompatV7</id>
+    <version>1.1.0</version>
+    <title>MugenMvvmToolkit - Android API8+ AppCompat v7</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
-      This package contains the Android assemblies for Android with API >= 8 with Support Library AppCompact V7.
+      This package contains the Android assemblies for Android with API >= 8 with Support Library AppCompat V7.
       Mugen MVVM Toolkit makes it easier to develop cross-platform application using the Model-View-ViewModel design pattern.
       The Mugen MVVM Toolkit provides a cross-platform MVVM development framework built on top of:
       - WinForms

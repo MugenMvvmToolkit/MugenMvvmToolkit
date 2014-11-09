@@ -1103,7 +1103,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         }
 
         [TestMethod]
-        public void ParserShouldParseDelay()
+        public void ParserShouldParseDelaySource1()
         {
             const int delayValue = 500;
             const string binding = "Text SourceText, Delay=500";
@@ -1112,6 +1112,33 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
             var bindingBehavior = (DelayBindingBehavior)context.GetData(BindingBuilderConstants.Behaviors).Single();
             bindingBehavior.Delay.ShouldEqual(delayValue);
+            bindingBehavior.IsTarget.ShouldBeFalse();
+        }
+
+        [TestMethod]
+        public void ParserShouldParseDelaySource2()
+        {
+            const int delayValue = 500;
+            const string binding = "Text SourceText, SourceDelay=500";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var bindingBehavior = (DelayBindingBehavior)context.GetData(BindingBuilderConstants.Behaviors).Single();
+            bindingBehavior.Delay.ShouldEqual(delayValue);
+            bindingBehavior.IsTarget.ShouldBeFalse();
+        }
+
+        [TestMethod]
+        public void ParserShouldParseDelayTarget()
+        {
+            const int delayValue = 500;
+            const string binding = "Text SourceText, TargetDelay=500";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var bindingBehavior = (DelayBindingBehavior)context.GetData(BindingBuilderConstants.Behaviors).Single();
+            bindingBehavior.Delay.ShouldEqual(delayValue);
+            bindingBehavior.IsTarget.ShouldBeTrue();
         }
 
         [TestMethod]

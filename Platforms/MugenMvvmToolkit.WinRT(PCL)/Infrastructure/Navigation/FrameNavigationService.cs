@@ -14,6 +14,8 @@
 // ****************************************************************************
 #endregion
 using System;
+using Windows.UI.Core;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -57,8 +59,20 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         {
             _lastParameter = null;
             var handler = Navigated;
-            if (handler != null)
+            if (handler == null)
+                return;
+
+            var dp = args.Content as DependencyObject;
+            if (dp == null)
                 handler(this, new NavigationEventArgsWrapper(args));
+            else
+            {
+                //to indicate that args is handled.
+                args.SetHandled(true);
+                //to restore state before navigate.
+                dp.Dispatcher.RunAsync(CoreDispatcherPriority.Low,
+                    () => handler(this, new NavigationEventArgsWrapper(args)));
+            }
         }
 
         private void OnNavigating(object sender, NavigatingCancelEventArgs args)

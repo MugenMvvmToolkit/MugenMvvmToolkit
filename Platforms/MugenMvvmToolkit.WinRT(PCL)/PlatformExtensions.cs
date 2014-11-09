@@ -17,9 +17,12 @@ using System;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading;
+using Windows.UI.Xaml.Navigation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
+using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
 namespace MugenMvvmToolkit
 {
@@ -31,6 +34,8 @@ namespace MugenMvvmToolkit
         #region Fields
 
         private static IApplicationStateManager _applicationStateManager;
+        private const string HandledPath = "#!~handled";
+        private const string StatePath = "#!~vmstate";
 
         #endregion
 
@@ -55,6 +60,38 @@ namespace MugenMvvmToolkit
         #endregion
 
         #region Methods
+
+        public static bool GetHandled(this NavigationEventArgs args)
+        {
+            if (args.Content == null)
+                return false;
+            return ServiceProvider.AttachedValueProvider.GetValue<bool>(args.Content, HandledPath, false);
+        }
+
+        public static void SetHandled(this NavigationEventArgs args, bool handled)
+        {
+            if (args.Content == null) return;
+            if (handled)
+                ServiceProvider.AttachedValueProvider.SetValue(args.Content, HandledPath, Empty.TrueObject);
+            else
+                ServiceProvider.AttachedValueProvider.Clear(args.Content, HandledPath);
+        }
+
+        public static IDataContext GetViewModelState(object content)
+        {
+            if (content == null)
+                return null;
+            return ServiceProvider.AttachedValueProvider.GetValue<IDataContext>(content, StatePath, false);
+        }
+
+        public static void SetViewModelState(object content, IDataContext state)
+        {
+            if (content == null) return;
+            if (state == null)
+                ServiceProvider.AttachedValueProvider.Clear(content, StatePath);
+            else
+                ServiceProvider.AttachedValueProvider.SetValue(content, StatePath, state);
+        }
 
         internal static bool IsSerializable(this Type type)
         {

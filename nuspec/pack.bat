@@ -1,5 +1,5 @@
 del *.nupkg
-nuget pack MugenMvvmToolkit.Android.API8.AppCompactV7.nuspec
+nuget pack MugenMvvmToolkit.Android.API8.AppCompatV7.nuspec
 nuget pack MugenMvvmToolkit.Android.API8.nuspec
 nuget pack MugenMvvmToolkit.Android.API17.nuspec
 nuget pack MugenMvvmToolkit.AutofacContainer.nuspec

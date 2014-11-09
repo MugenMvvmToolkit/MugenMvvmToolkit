@@ -325,7 +325,7 @@ namespace MugenMvvmToolkit.Binding
         /// </summary>
         /// <param name="expression">The specified expression.</param>
         /// <param name="separator">The specified separator.</param>
-        /// <returns>An instance of string.</returns>
+        /// <returns>The member path.</returns>
         [Pure]
         public static string GetMemberPath([NotNull] LambdaExpression expression, string separator = ".")
         {

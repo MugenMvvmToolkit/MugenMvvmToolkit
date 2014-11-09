@@ -177,7 +177,9 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {"Validate", parser => parser.GetBehaviorSetter(ValidatesOnNotifyDataErrorsBehavior.Prototype, ValidatesOnExceptionsBehavior.Instance)},
                 {"DefaultValueOnException", parser => parser.GetBehaviorSetter(DefaultValueOnExceptionBehavior.Instance) },
                 {"SetDefaultValue", parser => parser.GetBehaviorSetter(DefaultValueOnExceptionBehavior.Instance)},
-                {"Delay", parser => parser.GetDelaySetter()},
+                {"Delay", parser => parser.GetDelaySetter(false)},
+                {"SourceDelay", parser => parser.GetDelaySetter(false)},
+                {"TargetDelay", parser => parser.GetDelaySetter(true)},
                 {"Converter", parser => parser.GetConverterSetter()},
                 {"Conv", parser => parser.GetConverterSetter()},
                 {"ConverterParameter", parser => parser.GetConverterParameterSetter()},
@@ -1224,11 +1226,11 @@ namespace MugenMvvmToolkit.Binding.Parse
             return null;
         }
 
-        private IList<Action<IDataContext>> GetDelaySetter()
+        private IList<Action<IDataContext>> GetDelaySetter(bool isTarget)
         {
             ValidateToken(NextToken(true), TokenType.IntegerLiteral);
             uint delay = uint.Parse(Tokenizer.Value);
-            Action<IDataContext> result = context => context.GetOrAddBehaviors().Add(new DelayBindingBehavior(delay));
+            Action<IDataContext> result = context => context.GetOrAddBehaviors().Add(new DelayBindingBehavior(delay, isTarget));
             NextToken(true);
             return new[] { result };
         }

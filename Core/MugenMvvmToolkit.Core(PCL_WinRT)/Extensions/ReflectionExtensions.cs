@@ -873,22 +873,20 @@ namespace MugenMvvmToolkit
         {
             if (field == null)
                 return false;
-            if (flags.HasMemberFlag(MemberFlags.Static) && !flags.HasMemberFlag(MemberFlags.Instance) && !field.IsStatic)
-                return false;
-            if (flags.HasMemberFlag(MemberFlags.NonPublic))
-                return true;
-            return field.IsPublic;
+            return ((flags.HasMemberFlag(MemberFlags.Static) && field.IsStatic) ||
+                    flags.HasMemberFlag(MemberFlags.Instance) && !field.IsStatic) &&
+                   ((flags.HasMemberFlag(MemberFlags.NonPublic) && !field.IsPublic) ||
+                    flags.HasMemberFlag(MemberFlags.Public) && field.IsPublic);
         }
 
         private static bool FilterMethod(MethodBase method, MemberFlags flags)
         {
             if (method == null)
                 return false;
-            if (flags.HasMemberFlag(MemberFlags.Static) && !flags.HasMemberFlag(MemberFlags.Instance) && !method.IsStatic)
-                return false;
-            if (flags.HasMemberFlag(MemberFlags.NonPublic))
-                return true;
-            return method.IsPublic;
+            return ((flags.HasMemberFlag(MemberFlags.Static) && method.IsStatic) ||
+                    flags.HasMemberFlag(MemberFlags.Instance) && !method.IsStatic) &&
+                   ((flags.HasMemberFlag(MemberFlags.NonPublic) && !method.IsPublic) ||
+                    flags.HasMemberFlag(MemberFlags.Public) && method.IsPublic);
         }
 #else
         /// <summary>

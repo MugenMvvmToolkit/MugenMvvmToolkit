@@ -367,8 +367,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             ValueAccessorChangingEventArgs args = null;
             if (ValueChanging != null)
             {
-                args = RaiseValueChanging(context, penultimateValue, lastMember, oldValue,
-                    newValue);
+                args = RaiseValueChanging(context, penultimateValue, lastMember, oldValue, newValue);
                 if (args != null)
                 {
                     if (args.Cancel)

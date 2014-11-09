@@ -487,11 +487,11 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         [SuppressTaskBusyHandler]
         public static Task ValidateAsync<T, TValue>([NotNull] this T validatableViewModel,
-            [NotNull] Expression<Func<T, TValue>> getProperty)
+            [NotNull] Expression<Func<T, TValue>> getMember)
             where T : IValidatorAggregator
         {
             Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            return validatableViewModel.ValidateAsync(ToolkitExtensions.GetMemberName(getProperty));
+            return validatableViewModel.ValidateAsync(ToolkitExtensions.GetMemberName(getMember));
         }
 
         /// <summary>
@@ -499,11 +499,11 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         [SuppressTaskBusyHandler]
         public static Task DisableValidationAsync<T, TValue>([NotNull] this T validatableViewModel,
-            [NotNull] Expression<Func<T, TValue>> getProperty)
+            [NotNull] Expression<Func<T, TValue>> getMember)
             where T : IValidatorAggregator
         {
             Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            return validatableViewModel.DisableValidationAsync(ToolkitExtensions.GetMemberName(getProperty));
+            return validatableViewModel.DisableValidationAsync(ToolkitExtensions.GetMemberName(getMember));
         }
 
         /// <summary>
@@ -525,11 +525,11 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         [SuppressTaskBusyHandler]
         public static Task EnableValidationAsync<T, TValue>([NotNull] this T validatableViewModel,
-            [NotNull] Expression<Func<T, TValue>> getProperty)
+            [NotNull] Expression<Func<T, TValue>> getMember)
             where T : IValidatorAggregator
         {
             Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            return validatableViewModel.EnableValidationAsync(ToolkitExtensions.GetMemberName(getProperty));
+            return validatableViewModel.EnableValidationAsync(ToolkitExtensions.GetMemberName(getMember));
         }
 
         /// <summary>

@@ -24,8 +24,10 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Navigation;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using MugenMvvmToolkit.ViewModels;
 using MugenMvvmToolkit.Views;
 
 namespace MugenMvvmToolkit.Infrastructure.Mediators
@@ -136,6 +138,25 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             if (handler != null)
                 handler(Activity, new ValueEventArgs<Bundle>(outState));
             base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
+        }
+
+        /// <summary>
+        ///     Tries to restore instance context.
+        /// </summary>
+        protected override void RestoreContext(object dataContext)
+        {
+            base.RestoreContext(dataContext);
+            var viewModel = dataContext as IViewModel;
+            if (viewModel != null)
+            {
+                var container = viewModel.GetIocContainer(true, false);
+                if (container != null)
+                {
+                    //Tries to activate navigation provider.
+                    INavigationProvider service;
+                    container.TryGet(out service);
+                }
+            }
         }
 
         /// <summary>

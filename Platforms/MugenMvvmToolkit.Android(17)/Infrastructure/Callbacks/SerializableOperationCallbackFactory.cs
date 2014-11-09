@@ -301,13 +301,13 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             #region Properties
 
-            [DataMember]
+            [DataMember(EmitDefaultValue = false)]
             public string AwaiterResultType { get; set; }
 
-            [DataMember]
+            [DataMember(EmitDefaultValue = false)]
             public string StateMachineType { get; set; }
 
-            [DataMember]
+            [DataMember(EmitDefaultValue = false)]
             public List<FieldSnapshot> FieldSnapshots { get; set; }
 
             #endregion
@@ -536,22 +536,22 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         {
             #region Fields
 
-            [DataMember]
+            [DataMember(EmitDefaultValue = false)]
             internal string TargetType;
 
-            [DataMember]
+            [DataMember(EmitDefaultValue = false)]
             internal bool FirstParameterSource;
 
-            [DataMember]
+            [DataMember(EmitDefaultValue = false)]
             internal bool IsStatic;
 
-            [DataMember]
+            [DataMember(EmitDefaultValue = false)]
             internal object Target;
 
-            [DataMember]
+            [DataMember(EmitDefaultValue = false)]
             internal string MethodName;
 
-            [DataMember]
+            [DataMember(EmitDefaultValue = false)]
             internal List<FieldSnapshot> Snapshots;
 
             #endregion

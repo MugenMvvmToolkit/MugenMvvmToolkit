@@ -49,13 +49,13 @@ namespace MugenMvvmToolkit.Infrastructure
 #if WPF
         internal sealed class WindowView : IWindowView, IViewWrapper
         {
-        #region Fields
+            #region Fields
 
             private readonly Window _window;
 
             #endregion
 
-        #region Constructors
+            #region Constructors
 
             public WindowView(Window window)
             {
@@ -65,7 +65,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #endregion
 
-        #region Implementation of IWindowView
+            #region Implementation of IWindowView
 
             public void Show()
             {
@@ -213,7 +213,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private sealed class WindowView : DisposableObject, IWindowView
         {
-            #region Fields
+        #region Fields
 
             private static readonly MethodInfo OnClosingMethod;
             private static EventInfo _closingEvent;
@@ -226,7 +226,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #endregion
 
-            #region Constructors
+        #region Constructors
 
             static WindowView()
             {
@@ -252,7 +252,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #endregion
 
-            #region Methods
+        #region Methods
 
             [UsedImplicitly]
             private void OnClosing(object sender, object args)
@@ -270,7 +270,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #endregion
 
-            #region Implementation of IWindowView
+        #region Implementation of IWindowView
 
             public void Show()
             {

@@ -27,8 +27,10 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 #if WINDOWS_PHONE
 using System.Windows;
+using System.Windows.Navigation;
 #else
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Navigation;
 #endif
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -45,10 +47,13 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             #region Fields
 
-            [IgnoreDataMember] private readonly ISerializer _serializer;
+            [IgnoreDataMember]
+            private readonly ISerializer _serializer;
 
-            [IgnoreDataMember] private byte[] _bytes;
-            [IgnoreDataMember] private IDataContext _context;
+            [IgnoreDataMember]
+            private byte[] _bytes;
+            [IgnoreDataMember]
+            private IDataContext _context;
 
             #endregion
 
@@ -91,7 +96,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     if (_bytes == null)
                         return DataContext.Empty;
                     using (var ms = new MemoryStream(_bytes))
-                        _context = (IDataContext) serializer.Deserialize(ms);
+                        _context = (IDataContext)serializer.Deserialize(ms);
                 }
                 return _context;
             }
@@ -104,7 +109,7 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         private const string VmStateKey = "@`vmstate";
-        
+
         private static readonly Type[] KnownTypesStatic;
 
         private readonly ISerializer _serializer;
@@ -118,7 +123,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         static ApplicationStateManager()
         {
-            KnownTypesStatic = new[] {typeof (LazySerializableContainer)};
+            KnownTypesStatic = new[] { typeof(LazySerializableContainer) };
         }
 
         /// <summary>
@@ -211,7 +216,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (!state.TryGetValue(VmStateKey, out value))
                 return;
             state.Remove(VmStateKey);
-            var container = (LazySerializableContainer) value;
+            var container = (LazySerializableContainer)value;
             if (container == null)
                 return;
             object dataContext = element.DataContext;
@@ -221,9 +226,19 @@ namespace MugenMvvmToolkit.Infrastructure
             context = context.ToNonReadOnly();
             context.AddOrUpdate(InitializationConstants.ViewModelType, vmType);
 
-            IViewModel viewModel = _viewModelProvider.RestoreViewModel(container.GetContext(_serializer), context, false);
-            _viewManager.InitializeViewAsync(viewModel, element);
-            _viewModelPresenter.Restore(viewModel, context);
+            //The navigation is already handled.
+            var eventArgs = args as NavigationEventArgs;
+            if (eventArgs != null && eventArgs.GetHandled())
+            {
+                eventArgs.SetHandled(false);
+                PlatformExtensions.SetViewModelState(eventArgs.Content, container.GetContext(_serializer));
+            }
+            else
+            {
+                IViewModel viewModel = _viewModelProvider.RestoreViewModel(container.GetContext(_serializer), context, false);
+                _viewManager.InitializeViewAsync(viewModel, element).WithTaskExceptionHandler(this);
+                _viewModelPresenter.Restore(viewModel, context);
+            }
         }
 
         #endregion

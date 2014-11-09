@@ -30,5 +30,5 @@ using System.Windows.Markup;
 [assembly: ComVisible(false)]
 [assembly: Guid("05fe347f-2cb2-46ce-a2b7-73f6410bf13a")]
 
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.1.0.0")]
+[assembly: AssemblyFileVersion("1.1.0.0")]

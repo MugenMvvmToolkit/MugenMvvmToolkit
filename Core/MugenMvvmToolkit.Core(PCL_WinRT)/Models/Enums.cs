@@ -217,7 +217,12 @@ namespace MugenMvvmToolkit.Models
         /// <summary>
         ///     Finalize action.
         /// </summary>
-        Finalized = 4
+        Finalized = 4,
+
+        /// <summary>
+        ///     Restore action.
+        /// </summary>
+        Restored = 5
     }
 
     /// <summary>

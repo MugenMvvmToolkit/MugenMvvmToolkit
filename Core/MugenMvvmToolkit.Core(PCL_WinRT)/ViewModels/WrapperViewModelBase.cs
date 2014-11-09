@@ -525,7 +525,11 @@ namespace MugenMvvmToolkit.ViewModels
                 _internalClosingEvent = null;
                 _internalClosedEvent = null;
                 if (_viewModel != null)
+                {
                     _viewModel.PropertyChanged -= ViewModelOnPropertyChanged;
+                    _viewModel = null;
+                    OnPropertyChanged("ViewModel");
+                }
             }
             base.OnDisposeInternal(disposing);
         }

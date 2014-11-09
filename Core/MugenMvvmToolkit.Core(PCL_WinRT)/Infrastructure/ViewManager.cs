@@ -81,6 +81,7 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         private const string AttachedViewMember = "~ATT~@$";
+        private const string ViewManagerCreatorPath = "@#vcreator";
         private readonly IThreadManager _threadManager;
         private readonly IViewMappingProvider _viewMappingProvider;
         private readonly Func<object, object, IView> _wrapperDelegate;
@@ -159,6 +160,11 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Gets or sets the default value that indicates that view manager should always create new view.
         /// </summary>
         public static bool AlwaysCreateNewView { get; set; }
+
+        /// <summary>
+        ///     Gets or sets property, that is responsible for auto dispose view when the view model disposing.
+        /// </summary>
+        public bool DisposeView { get; set; }
 
         /// <summary>
         ///     Gets the thread manager.
@@ -314,7 +320,11 @@ namespace MugenMvvmToolkit.Infrastructure
             Type viewType = viewModel.GetType();
             IViewMappingItem mappingItem = ViewMappingProvider.FindMappingForViewModel(viewType, viewBindingName, true);
             object viewObj = viewModel.GetIocContainer(true).Get(mappingItem.ViewType);
-            IView view = viewObj as IView ?? WrapToView(viewObj, dataContext);
+            var view = viewObj as IView;
+            if (view == null)
+                view = WrapToView(viewObj, dataContext);
+            else if (DisposeView)
+                ServiceProvider.AttachedValueProvider.SetValue(viewObj, ViewManagerCreatorPath, null);
             Tracer.Info("The view {0} for the view-model {1} was created.", view.GetUnderlyingView().GetType(), viewModel.GetType());
             return view;
         }
@@ -343,14 +353,34 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <param name="view">The specified view.</param>
         protected virtual void CleanupView(IViewModel viewModel, IView view)
         {
-            if (view != null)
-                viewModel.Unsubscribe(view.GetUnderlyingView());
-
+            CleanupViewInternal(view);
+            viewModel.Settings.Metadata.Remove(ViewModelConstants.View);
             PropertyInfo viewProperty = ReflectionExtensions.GetViewProperty(viewModel.GetType());
             if (viewProperty != null && viewProperty.GetValueEx<IView>(viewModel) != null)
                 viewProperty.SetValueEx<IView>(viewModel, null);
-            CleanupViewInternal(view);
-            viewModel.Settings.Metadata.Remove(ViewModelConstants.View);
+
+            if (view != null)
+            {
+                viewModel.Unsubscribe(view.GetUnderlyingView());
+
+                if (DisposeView)
+                {
+                    IDisposable disposable = null;
+                    var wrapper = view as IViewWrapper;
+                    if (wrapper == null)
+                    {
+                        if (ServiceProvider.AttachedValueProvider.Contains(view, ViewManagerCreatorPath))
+                        {
+                            ServiceProvider.AttachedValueProvider.Clear(view, ViewManagerCreatorPath);
+                            disposable = view as IDisposable;
+                        }
+                    }
+                    else
+                        disposable = view as IDisposable;
+                    if (disposable != null)
+                        disposable.Dispose();
+                }
+            }
         }
 
         /// <summary>

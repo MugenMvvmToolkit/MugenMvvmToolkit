@@ -146,6 +146,9 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                 Tracer.Error(msg);
                 return;
             }
+            var container = ContainerControl;
+            if (container != null && !(component is Control))
+                BindingExtensions.AttachedParentMember.SetValue(component, container);
 
             Dictionary<string, string> bindings;
             if (!_controlBindings.TryGetValue(component, out bindings))
@@ -172,17 +175,18 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                 }
                 return null;
             }
-            if (ContainerControl == null || ContainerControl.Name == name)
-                return ContainerControl;
-            var findByName = BindingServiceProvider.VisualTreeManager.FindByName(ContainerControl, name);
+            var containerControl = ContainerControl;
+            if (containerControl == null || containerControl.Name == name)
+                return containerControl;
+            var findByName = BindingServiceProvider.VisualTreeManager.FindByName(containerControl, name);
             if (findByName != null)
                 return findByName;
 
-            var type = ContainerControl.GetType();
+            var type = containerControl.GetType();
             var field = type.GetField(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             if (field == null)
                 return null;
-            return field.GetValue(ContainerControl);
+            return field.GetValueEx<object>(containerControl);
         }
 
         private void ClearBindings()
