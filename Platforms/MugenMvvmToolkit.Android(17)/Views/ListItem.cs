@@ -155,5 +155,16 @@ namespace MugenMvvmToolkit.Views
         }
 
         #endregion
+
+        #region Overrides of Object
+
+        protected override void JavaFinalize()
+        {
+            base.JavaFinalize();
+            for (int index = 0; index < _bindings.Count; index++)
+                _bindings[index].Dispose();
+        }
+
+        #endregion
     }
 }
