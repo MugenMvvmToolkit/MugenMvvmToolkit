@@ -196,7 +196,16 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             if (dataBindings == null)
                 return;
             for (int i = 0; i < dataBindings.Count; i++)
-                dataBindings[i].Dispose();
+            {
+                try
+                {
+                    dataBindings[i].Dispose();
+                }
+                catch (Exception e)
+                {
+                    Tracer.Error(e.Flatten(true));
+                }
+            }
         }
 
         #endregion

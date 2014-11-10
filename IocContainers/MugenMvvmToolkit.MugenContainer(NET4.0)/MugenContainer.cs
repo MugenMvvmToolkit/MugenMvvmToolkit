@@ -363,8 +363,9 @@ namespace MugenMvvmToolkit
         /// </returns>
         public bool CanResolve(Type service, string name = null)
         {
-            this.NotBeDisposed();
             Should.NotBeNull(service, "service");
+            if (IsDisposed)
+                return false;
             if (name == null)
                 return _injector.CanResolve(service, true, false);
             return _injector.CanResolve(service, name, true, false);

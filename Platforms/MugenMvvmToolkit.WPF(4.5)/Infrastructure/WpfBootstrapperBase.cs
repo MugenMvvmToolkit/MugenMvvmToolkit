@@ -69,7 +69,6 @@ namespace MugenMvvmToolkit.Infrastructure
             Should.NotBeNull(application, "application");
             if (autoStart)
                 application.Startup += ApplicationOnStartup;
-            application.Exit += ApplicationOnExit;
             _platform = PlatformExtensions.GetPlatformInfo();
         }
 
@@ -202,14 +201,6 @@ namespace MugenMvvmToolkit.Infrastructure
             if (application != null)
                 application.Startup -= ApplicationOnStartup;
             Start();
-        }
-
-        private void ApplicationOnExit(object sender, ExitEventArgs args)
-        {
-            var application = sender as Application;
-            if (application != null)
-                application.Exit -= ApplicationOnExit;
-            Stop();
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)

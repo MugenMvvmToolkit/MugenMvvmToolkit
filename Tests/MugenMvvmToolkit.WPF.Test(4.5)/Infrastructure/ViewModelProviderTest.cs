@@ -190,7 +190,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             var provider = GetViewModelProvider(iocContainer);
             var context = new DataContext
             {
-                {InitializationConstants.IocContainerCreationMode, IocContainerCreationMode.Default}
+                {InitializationConstants.IocContainerCreationMode, IocContainerCreationMode.Application}
             };
 
             int initialize = 0;
@@ -691,7 +691,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             var context = new DataContext
             {
                 {InitializationConstants.ObservationMode, ObservationMode.Both},
-                {InitializationConstants.IocContainerCreationMode, IocContainerCreationMode.Default},
+                {InitializationConstants.IocContainerCreationMode, IocContainerCreationMode.Application},
                 {InitializationConstants.ParentViewModel, parentViewModel}
             };
 

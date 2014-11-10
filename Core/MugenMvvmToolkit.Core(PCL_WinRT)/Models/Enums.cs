@@ -152,9 +152,9 @@ namespace MugenMvvmToolkit.Models
     {
 
         /// <summary>
-        ///     The view model uses the default IocContainer.
+        ///     The view model uses the default application IocContainer.
         /// </summary>
-        Default = 1,
+        Application = 1,
 
         /// <summary>
         ///     The view model uses the IocContainer from parent view model.
@@ -162,9 +162,9 @@ namespace MugenMvvmToolkit.Models
         ParentViewModel = 2,
 
         /// <summary>
-        ///     The view model combines the default and parent view model container in the one.
+        ///     The view model combines the application and parent view model container in the one.
         /// </summary>
-        Mixed = ParentViewModel | Default
+        Mixed = ParentViewModel | Application
     }
 
     /// <summary>

@@ -162,7 +162,16 @@ namespace MugenMvvmToolkit.Views
         {
             base.JavaFinalize();
             for (int index = 0; index < _bindings.Count; index++)
-                _bindings[index].Dispose();
+            {
+                try
+                {
+                    _bindings[index].Dispose();
+                }
+                catch (Exception e)
+                {
+                    Tracer.Error(e.Flatten(true));
+                }
+            }
         }
 
         #endregion
