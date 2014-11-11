@@ -20,7 +20,7 @@ The Mugen MVVM Toolkit provides a cross-platform MVVM development framework buil
 #Features:
 The MVVM framework includes the following features that differs this project from other frameworks:
  - Deep integration with each platform.
- - Supports save/restore state for mobile platforms.
+ - Supports state preservation and restoration for mobile platforms.
  - Full Fragment support for Android, you do not need to worry about activity, fragments, sub-fragments or their state all this makes the framework.
  - Solves the nested user controls problem in MVVM, all view models are dynamically created by you, using the `GetViewModel` and `GetViewModel<TViewModel>` methods and you do not need to use the `ViewModelLocator`.
  - Supports all kinds of navigation like modal window, page navigation, tab navigation, back stack fragment navigation for android. You can also easily add a new kind of navigation.
@@ -56,4 +56,4 @@ using (var editorVm = GetViewModel<ProductEditorViewModel>())
  - Special editor for WinForms, you do not need to write code to create bindings.
  - Binding parser builds syntax tree that allows you to easily change or extend the bindings, without manipulation of the raw text.
  - Binding supports fluent syntax.
- - Excellent performance.
+ - Excellent binding performance.
