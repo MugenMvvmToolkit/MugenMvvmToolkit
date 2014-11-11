@@ -31,6 +31,32 @@ namespace MugenMvvmToolkit.Binding.Behaviors
     /// </summary>
     public sealed class OneTimeBindingMode : BindingModeBase
     {
+        #region Fields
+
+        private readonly bool _disposeBinding;
+
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="OneTimeBindingMode" /> class.
+        /// </summary>
+        public OneTimeBindingMode()
+            : this(true)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="OneTimeBindingMode" /> class.
+        /// </summary>
+        public OneTimeBindingMode(bool disposeBinding)
+        {
+            _disposeBinding = disposeBinding;
+        }
+
+        #endregion
+
         #region Overrides of BindingBehaviorBase
 
         /// <summary>
@@ -39,8 +65,13 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         protected override bool OnAttached()
         {
             if (!IsSourceAvailable() || !Binding.UpdateTarget())
+            {
                 SubscribeSources(OneTimeHandler);
-            return true;
+                return true;
+            }
+            if (_disposeBinding)
+                Binding.Dispose();
+            return false;
         }
 
         /// <summary>
@@ -56,7 +87,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected override IBindingBehavior CloneInternal()
         {
-            return new OneTimeBindingMode();
+            return new OneTimeBindingMode(_disposeBinding);
         }
 
         #endregion
@@ -85,7 +116,8 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             if (binding == null || !IsSourceAvailable() || !binding.UpdateTarget())
                 return;
             UnsubscribeSources(OneTimeHandler);
-            binding.Dispose();
+            if (_disposeBinding)
+                binding.Dispose();
         }
 
         #endregion

@@ -61,10 +61,6 @@ namespace MugenMvvmToolkit.Binding.Parse
             };
         }
 
-        #endregion
-
-        #region Constructors
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="DefaultBindingParserHandler" /> class.
         /// </summary>
@@ -167,7 +163,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             var behaviors = dataContext.GetOrAddBehaviors();
             behaviors.Clear();
-            behaviors.Add(new OneTimeBindingMode());
+            behaviors.Add(new OneTimeBindingMode(false));
             behaviors.Add(new NotifyDataErrorsAggregatorBehavior { ErrorPaths = errorPathNames });
         }
 
