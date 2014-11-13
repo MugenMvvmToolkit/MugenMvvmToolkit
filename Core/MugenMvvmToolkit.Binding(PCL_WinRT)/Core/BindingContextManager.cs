@@ -291,7 +291,7 @@ namespace MugenMvvmToolkit.Binding.Core
         [NotNull]
         protected virtual IBindingContext CreateBindingContext([NotNull] object item)
         {
-            IBindingMemberInfo member = GetExplicitDataContext(item);
+            IBindingMemberInfo member = GetExplicitDataContextMember(item);
             if (member == null)
                 return new BindingContext(item);
             return new BindingContextSource(item, member);
@@ -300,7 +300,7 @@ namespace MugenMvvmToolkit.Binding.Core
         /// <summary>
         ///     Tries to get explicit data context member.
         /// </summary>
-        protected static IBindingMemberInfo GetExplicitDataContext(object source)
+        protected virtual IBindingMemberInfo GetExplicitDataContextMember(object source)
         {
             IBindingMemberInfo member = BindingServiceProvider
                 .MemberProvider

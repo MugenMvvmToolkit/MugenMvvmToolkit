@@ -176,7 +176,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         static EntityStateManager()
         {
-            TypesToProperties= new Dictionary<Type, IList<PropertyInfo>>();
+            TypesToProperties = new Dictionary<Type, IList<PropertyInfo>>();
         }
 
         #endregion
@@ -187,8 +187,9 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Creates an instance of <see cref="IEntitySnapshot" />
         /// </summary>
         /// <param name="entity">The specified entity to create snapshot.</param>
+        /// <param name="context">The specified context, if any.</param>
         /// <returns>An instance of <see cref="IEntitySnapshot" /></returns>
-        public IEntitySnapshot CreateSnapshot(object entity)
+        public IEntitySnapshot CreateSnapshot(object entity, IDataContext context = null)
         {
             Should.NotBeNull(entity, "entity");
             Tracer.Info("The state snapshot of entity {0} was created", entity.GetType());

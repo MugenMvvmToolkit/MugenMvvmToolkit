@@ -226,8 +226,7 @@ namespace MugenMvvmToolkit.ViewModels
             Should.NotBeNull(context, "context");
             if (Interlocked.CompareExchange(ref _state, InitializedState, DefaultState) != DefaultState)
             {
-                if (Settings.ThrowOnMultiInitialization)
-                    throw ExceptionManager.ObjectInitialized("ViewModel", this);
+                Tracer.Warn(ExceptionManager.ObjectInitialized("ViewModel", this).Message);
                 return;
             }
             context.TryGetData(InitializationConstants.IsRestored, out _isRestored);

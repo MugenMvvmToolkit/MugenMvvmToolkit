@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Interfaces;
@@ -318,7 +317,7 @@ namespace MugenMvvmToolkit.ViewModels
         protected virtual T SaveEntityState(T entity)
         {
             if (StateManager != null)
-                _entitySnapshot = StateManager.CreateSnapshot(entity);
+                _entitySnapshot = StateManager.CreateSnapshot(entity, Settings.Metadata);
             return entity;
         }
 

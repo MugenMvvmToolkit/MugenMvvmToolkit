@@ -27,7 +27,8 @@ namespace MugenMvvmToolkit.Interfaces
         ///     Creates an instance of <see cref="IEntitySnapshot" />
         /// </summary>
         /// <param name="entity">The specified entity to create snapshot.</param>
+        /// <param name="context">The specified context, if any.</param>
         /// <returns>An instance of <see cref="IEntitySnapshot" /></returns>
-        IEntitySnapshot CreateSnapshot([NotNull] object entity);
+        IEntitySnapshot CreateSnapshot([NotNull] object entity, IDataContext context = null);
     }
 }

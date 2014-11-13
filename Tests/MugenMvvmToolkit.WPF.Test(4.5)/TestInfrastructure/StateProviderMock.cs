@@ -14,12 +14,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of IEntityStateManager
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IEntitySnapshot" />
-        /// </summary>
-        /// <param name="entity">The specified entity to create snapshot.</param>
-        /// <returns>An instance of <see cref="IEntitySnapshot" /></returns>
-        IEntitySnapshot IEntityStateManager.CreateSnapshot(object entity)
+        IEntitySnapshot IEntityStateManager.CreateSnapshot(object entity, IDataContext context)
         {
             return CreateSnapshot(entity);
         }

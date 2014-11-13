@@ -100,6 +100,8 @@ namespace MugenMvvmToolkit.Binding.Core
 
             public void Add(IBindingBehavior item)
             {
+                if (_dataBinding.IsDisposed)
+                    return;
                 CheckBehavior(item);
                 if (!item.Attach(_dataBinding))
                     return;
@@ -260,7 +262,7 @@ namespace MugenMvvmToolkit.Binding.Core
         /// </summary>
         public bool IsDisposed
         {
-            get { return _lazyContext == DataContext.Empty; }
+            get { return ReferenceEquals(DataContext.Empty, _lazyContext); }
         }
 
         /// <summary>

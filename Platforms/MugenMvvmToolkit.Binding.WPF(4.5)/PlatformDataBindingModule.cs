@@ -177,7 +177,6 @@ namespace MugenMvvmToolkit.Binding
         private static IDisposable ObserveParentMember(IBindingMemberInfo bindingMemberInfo, FrameworkElement o, IEventListener arg3)
         {
             return ParentObserver.GetOrAdd(o).AddWithUnsubscriber(arg3);
-
         }
 
 #if WINDOWSCOMMON || NETFX_CORE

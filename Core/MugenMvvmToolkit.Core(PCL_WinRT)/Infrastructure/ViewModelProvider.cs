@@ -433,7 +433,8 @@ namespace MugenMvvmToolkit.Infrastructure
             IIocParameter[] parameters = dataContext.GetData(InitializationConstants.IocParameters);
             IIocContainer iocContainer = CreateViewModelIocContainer(dataContext);
             var viewModel = (IViewModel)iocContainer.Get(viewModelType, viewModelBindingName, parameters);
-            InitializeViewModel(viewModel, dataContext, iocContainer);
+            if (!viewModel.IsInitialized)
+                InitializeViewModel(viewModel, dataContext, iocContainer);
             return viewModel;
         }
 
@@ -654,7 +655,7 @@ namespace MugenMvvmToolkit.Infrastructure
         }
 
         /// <summary>
-        ///     Creates an instance of <see cref="IocContainer" /> using activation policy and the parent view model if any.
+        ///     Creates an instance of <see cref="IocContainer" /> using the specified <see cref="IDataContext"/>.
         /// </summary>
         protected virtual IIocContainer CreateViewModelIocContainer([NotNull] IDataContext dataContext)
         {

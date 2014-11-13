@@ -18,7 +18,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Windows;
 using JetBrains.Annotations;
-#if WINFORMS || ANDROID || TOUCH
+#if WINFORMS || ANDROID || TOUCH || XAMARIN_FORMS
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 #endif
@@ -49,13 +49,13 @@ namespace MugenMvvmToolkit.Infrastructure
 #if WPF
         internal sealed class WindowView : IWindowView, IViewWrapper
         {
-            #region Fields
+        #region Fields
 
             private readonly Window _window;
 
             #endregion
 
-            #region Constructors
+        #region Constructors
 
             public WindowView(Window window)
             {
@@ -65,7 +65,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #endregion
 
-            #region Implementation of IWindowView
+        #region Implementation of IWindowView
 
             public void Show()
             {
@@ -224,7 +224,7 @@ namespace MugenMvvmToolkit.Infrastructure
             private readonly FrameworkElement _window;
             private readonly EventRegistrationToken? _token;
 
-            #endregion
+        #endregion
 
         #region Constructors
 
@@ -250,7 +250,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 _token = (EventRegistrationToken)_closingEvent.AddMethod.InvokeEx(window, handler);
             }
 
-            #endregion
+        #endregion
 
         #region Methods
 
@@ -268,7 +268,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     _cancelProperty.SetValueEx(args, eventArgs.Cancel);
             }
 
-            #endregion
+        #endregion
 
         #region Implementation of IWindowView
 
@@ -300,14 +300,14 @@ namespace MugenMvvmToolkit.Infrastructure
                 base.OnDispose(disposing);
             }
 
-            #endregion
+        #endregion
         }
 #endif
         #endregion
 
         #region Constructors
 
-#if WINFORMS || ANDROID || TOUCH
+#if WINFORMS || ANDROID || TOUCH || XAMARIN_FORMS
         static ViewManagerEx()
         {
             GetDataContext = o => BindingServiceProvider.ContextManager.GetBindingContext(o).Value;
