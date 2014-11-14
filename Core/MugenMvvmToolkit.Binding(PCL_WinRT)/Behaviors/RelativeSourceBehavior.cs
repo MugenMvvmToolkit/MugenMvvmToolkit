@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
                 if (rootMember != null)
                     _subscriber = rootMember.TryObserve(target, this);
-                Handle(null, null);
+                TryHandle(null, null);
             }
 
             #endregion
@@ -99,11 +99,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             public bool IsWeak
             {
                 get { return true; }
-            }
-
-            public void Handle(object sender, object message)
-            {
-                TryHandle(sender, message);
             }
 
             public bool TryHandle(object sender, object message)

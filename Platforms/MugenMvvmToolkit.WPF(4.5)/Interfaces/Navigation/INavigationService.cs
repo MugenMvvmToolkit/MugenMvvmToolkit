@@ -20,7 +20,7 @@ using MugenMvvmToolkit.Models.EventArg;
 using Windows.UI.Xaml.Navigation;
 #elif ANDROID
 using Android.App;
-#elif TOUCH
+#elif TOUCH || XAMARIN_FORMS
 #else
 using System.Windows.Navigation;
 #endif

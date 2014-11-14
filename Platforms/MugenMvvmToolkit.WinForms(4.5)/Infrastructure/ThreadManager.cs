@@ -40,7 +40,23 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             Should.NotBeNull(synchronizationContext, "synchronizationContext");
             _synchronizationContext = synchronizationContext;
-            synchronizationContext.Post(state => ((ThreadManager)state)._mainThreadId = Thread.CurrentThread.ManagedThreadId, this);
+            synchronizationContext.Post(state => ((ThreadManager)state)._mainThreadId = ManagedThreadId, this);
+        }
+
+        #endregion
+
+        #region Properties
+
+        private static int ManagedThreadId
+        {
+            get
+            {
+#if XAMARIN_FORMS
+                return Environment.CurrentManagedThreadId;
+#else
+                return Thread.CurrentThread.ManagedThreadId;
+#endif
+            }
         }
 
         #endregion
@@ -57,7 +73,7 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 if (_mainThreadId == null)
                     return SynchronizationContext.Current == _synchronizationContext;
-                return _mainThreadId.Value == Thread.CurrentThread.ManagedThreadId;
+                return _mainThreadId.Value == ManagedThreadId;
             }
         }
 

@@ -3,10 +3,10 @@ using MonoTouch.UIKit;
 
 namespace MugenMvvmToolkit
 {
-    internal class LinkerInclude
+    internal static partial class LinkerInclude
     {
         [UsedImplicitly]
-        private void Include()
+        private static void Include()
         {
             var barButton = new UIBarButtonItem();
             barButton.Clicked += (sender, args) => { };

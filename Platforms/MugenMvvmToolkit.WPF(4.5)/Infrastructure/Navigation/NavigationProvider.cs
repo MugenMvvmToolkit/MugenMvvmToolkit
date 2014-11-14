@@ -413,7 +413,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                     if (items.Count == 1)
                     {
                         var type = items[0].ViewModelType;
-#if NETFX_CORE || WINDOWSCOMMON
+#if NETFX_CORE || WINDOWSCOMMON || XAMARIN_FORMS
                         if (!type.GetTypeInfo().IsGenericTypeDefinition)
 #else
                         if (!type.IsGenericTypeDefinition)
@@ -703,13 +703,13 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 return false;
 
             var vmType = viewModel.GetType();
-#if NETFX_CORE || WINDOWSCOMMON
+#if NETFX_CORE || WINDOWSCOMMON || XAMARIN_FORMS
             if (!viewModelType.GetTypeInfo().IsGenericType)
 #else
             if (!viewModelType.IsGenericType)
 #endif
                 return vmType.Equals(viewModelType);
-#if NETFX_CORE || WINDOWSCOMMON
+#if NETFX_CORE || WINDOWSCOMMON || XAMARIN_FORMS
             if (!vmType.GetTypeInfo().IsGenericType)
 #else
             if (!vmType.IsGenericType)

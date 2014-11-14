@@ -612,6 +612,48 @@ namespace MugenMvvmToolkit
             }
         }
 
+        /// <summary>
+        ///     This method is used to reduce closure allocation in generatde methods.
+        /// </summary>
+        internal static void SetValue<TValue>(this PropertyInfo property, object target, TValue value)
+        {
+            property.SetValue(target, value, Empty.Array<object>());
+        }
+
+        /// <summary>
+        ///     This method is used to reduce closure allocation in generatde methods.
+        /// </summary>
+        internal static void SetValue<TValue>(this FieldInfo field, object target, TValue value)
+        {
+            field.SetValue(target, value);
+        }
+
+        /// <summary>
+        ///     This method is used to reduce closure allocation in generatde methods.
+        /// </summary>
+        internal static object AsFunc(this Action<object[]> action, object target, object[] args)
+        {
+            action(args);
+            return null;
+        }
+
+        /// <summary>
+        ///     This method is used to reduce closure allocation in generatde methods.
+        /// </summary>
+        internal static object AsFunc(this Action<object, object[]> action, object target, object[] args)
+        {
+            action(target, args);
+            return null;
+        }
+
+        /// <summary>
+        ///     This method is used to reduce closure allocation in generatde methods.
+        /// </summary>
+        internal static object AsFunc(this Func<object[], object> func, object target, object[] args)
+        {
+            return func(args);
+        }
+
         private static void UnsubscribePropertyChanged(object sender, PropertyChangedEventHandler handler)
         {
             var notifyPropertyChanged = sender as INotifyPropertyChanged;

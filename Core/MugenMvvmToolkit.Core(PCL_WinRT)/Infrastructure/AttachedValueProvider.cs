@@ -74,7 +74,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Fields
 
-#if !WINFORMS && !PCL_WINRT && !PCL_Silverlight && !ANDROID && !TOUCH
+#if !WINFORMS && !PCL_WINRT && !PCL_Silverlight && !ANDROID && !TOUCH && !XAMARIN_FORMS
         //NOTE ConditionalWeakTable incorrectly tracks WinRT objects https://connect.microsoft.com/VisualStudio/feedback/details/930200/conditionalweaktable-incorrectly-tracks-winrt-objects
         private static readonly DependencyProperty AttachedValueDictionaryProperty = DependencyProperty.RegisterAttached(
             "AttachedValueDictionary", typeof(AttachedValueDictionary), typeof(AttachedValueProvider), new PropertyMetadata(default(AttachedValueDictionary)));
@@ -95,7 +95,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected override bool ClearInternal(object item)
         {
-#if !WINFORMS && !PCL_WINRT && !PCL_Silverlight && !ANDROID && !TOUCH
+#if !WINFORMS && !PCL_WINRT && !PCL_Silverlight && !ANDROID && !TOUCH && !XAMARIN_FORMS
             var dependencyObject = item as DependencyObject;
             if (dependencyObject != null)
             {
@@ -111,7 +111,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected override LightDictionaryBase<string, object> GetOrAddAttachedDictionary(object item, bool addNew)
         {
-#if !WINFORMS && !PCL_WINRT && !PCL_Silverlight && !ANDROID && !TOUCH
+#if !WINFORMS && !PCL_WINRT && !PCL_Silverlight && !ANDROID && !TOUCH && !XAMARIN_FORMS
             var dependencyObject = item as DependencyObject;
             if (dependencyObject != null)
             {

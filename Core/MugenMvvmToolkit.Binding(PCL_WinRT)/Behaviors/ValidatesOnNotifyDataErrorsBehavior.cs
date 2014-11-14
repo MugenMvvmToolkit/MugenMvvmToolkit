@@ -329,11 +329,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             get { return false; }
         }
 
-        void IEventListener.Handle(object sender, object message)
-        {
-            Handle(message as DataErrorsChangedEventArgs);
-        }
-
         bool IEventListener.TryHandle(object sender, object message)
         {
             return Handle(message as DataErrorsChangedEventArgs);

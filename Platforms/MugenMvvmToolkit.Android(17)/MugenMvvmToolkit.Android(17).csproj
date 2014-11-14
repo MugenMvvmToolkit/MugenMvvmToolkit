@@ -91,6 +91,7 @@
     <Compile Include="Infrastructure\ActionBarTabItemsSourceGenerator.cs" />
     <Compile Include="Interfaces\IItemsSourceAdapter.cs" />
     <Compile Include="Interfaces\IItemsSourceGenerator.cs" />
+    <Compile Include="LinkerIncludeLabmdaExpression.cs" />
     <Compile Include="Modules\PlatformDataBindingModule.cs" />
     <Compile Include="Modules\PlatformDataBindingModuleMenu.cs" />
     <Compile Include="Modules\PlatformDataBindingModuleView.cs" />

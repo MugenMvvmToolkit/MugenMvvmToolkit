@@ -143,11 +143,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             get { return false; }
         }
 
-        void IEventListener.Handle(object sender, object message)
-        {
-            OnLostFocus();
-        }
-
         bool IEventListener.TryHandle(object sender, object message)
         {
             return OnLostFocus();

@@ -193,11 +193,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             get { return false; }
         }
 
-        void IEventListener.Handle(object sender, object message)
-        {
-            RaiseValueChanged(ValueChangedEventArgs.TrueEventArgs);
-        }
-
         bool IEventListener.TryHandle(object sender, object message)
         {
             RaiseValueChanged(ValueChangedEventArgs.TrueEventArgs);

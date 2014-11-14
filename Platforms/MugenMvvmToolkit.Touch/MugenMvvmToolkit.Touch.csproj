@@ -60,6 +60,9 @@
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\IItemsSourceGenerator.cs">
       <Link>Interfaces\IItemsSourceGenerator.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\LinkerIncludeLabmdaExpression.cs">
+      <Link>LinkerIncludeLabmdaExpression.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\CollectionViewManagerBase.cs">
       <Link>Infrastructure\CollectionViewManagerBase.cs</Link>
     </Compile>

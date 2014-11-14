@@ -139,19 +139,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         protected override void CloseView(IModalView view)
         {
-            var parentController = ViewModel
-                .GetIocContainer(true)
-                .Get<INavigationService>()
-                .CurrentContent;
-
-            //Restoring parent view model.
-            if (parentController != null)
-            {
-                var parentViewModel = ViewManagerEx.GetDataContext(parentController) as IViewModel;
-                if (parentViewModel != null)
-                    ViewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.ParentViewModel, ToolkitExtensions.GetWeakReference(parentViewModel));
-            }
-
             var controller = (UIViewController)view.GetUnderlyingView();
             UIViewController presentedController = controller.PresentingViewController ??
                                                    controller.PresentedViewController;

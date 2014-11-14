@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using Android.App;
@@ -26,7 +25,6 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -51,7 +49,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static int _appStateGlobal;
 
-        private static readonly MethodInfo CreateLambdaGeneric;
         private readonly PlatformInfo _platform;
 
         #endregion
@@ -60,13 +57,9 @@ namespace MugenMvvmToolkit.Infrastructure
 
         static AndroidBootstrapperBase()
         {
+            LinkerInclude.Initialize();
             ViewManager.AlwaysCreateNewView = true;
-            Expression body = null;
-            IEnumerable<ParameterExpression> expressions = null;
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
-            CreateLambdaGeneric = GetMethod(() => CreateLambdaExpression<Delegate>(body, expressions)).GetGenericMethodDefinition();
-            ExpressionReflectionManager.CreateLambdaExpressionByType = CreateLambdaExpressionByType;
-            ExpressionReflectionManager.CreateLambdaExpression = CreateLambdaExpression;
             ServiceProvider.WeakReferenceFactory = PlatformExtensions.CreateWeakReference;
             DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
@@ -202,50 +195,6 @@ You must specify the type of application bootstraper using BootstrapperAttribute
         /// </summary>
         [NotNull]
         protected abstract Type GetMainViewModelType();
-
-        private static LambdaExpression CreateLambdaExpressionByType(Type type, Expression expression,
-            IEnumerable<ParameterExpression> arg3)
-        {
-            return (LambdaExpression)CreateLambdaGeneric
-                .MakeGenericMethod(type)
-                .Invoke(null, new object[] { expression, arg3 });
-        }
-
-        private static LambdaExpression CreateLambdaExpression(Expression body,
-            ParameterExpression[] parameterExpressions)
-        {
-            var types = new Type[parameterExpressions.Length + 1];
-            if (parameterExpressions.Length > 0)
-            {
-                var set = new HashSet<ParameterExpression>();
-                for (int index = 0; index < parameterExpressions.Length; ++index)
-                {
-                    ParameterExpression parameterExpression = parameterExpressions[index];
-                    types[index] = !parameterExpression.IsByRef
-                        ? parameterExpression.Type
-                        : parameterExpression.Type.MakeByRefType();
-                    if (set.Contains(parameterExpression))
-                        throw BindingExtensions.DuplicateLambdaParameter(parameterExpression.ToString());
-                    set.Add(parameterExpression);
-                }
-            }
-            types[parameterExpressions.Length] = body.Type;
-            Type delegateType = Expression.GetDelegateType(types);
-            return CreateLambdaExpressionByType(delegateType, body, parameterExpressions);
-        }
-
-        private static LambdaExpression CreateLambdaExpression<T>(Expression body,
-            IEnumerable<ParameterExpression> expressions)
-        {
-            return Expression.Lambda<T>(body, expressions);
-        }
-
-        private static MethodInfo GetMethod(Expression<Action> action)
-        {
-            var callExpression = action.Body as MethodCallExpression;
-            Should.BeSupported(callExpression != null, "The {0} method was not found", action);
-            return callExpression.Method;
-        }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
         {

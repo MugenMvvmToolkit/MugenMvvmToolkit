@@ -30,22 +30,75 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\bin\Platforms\Xamarin.Forms\PCL\</OutputPath>
     <DefineConstants>TRACE;XAMARIN_FORMS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\..\bin\Platforms\Xamarin.Forms\PCL\MugenMvvmToolkit.Xamarin.Forms.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\Solution Items\sigkey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\AttachedValueProvider.cs">
+      <Link>Infrastructure\AttachedValueProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Navigation\EmptyNavigationCachePolicy.cs">
+      <Link>Infrastructure\Navigation\EmptyNavigationCachePolicy.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\LinkerIncludeLabmdaExpression.cs">
+      <Link>LinkerIncludeLabmdaExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Touch\Models\EventArg\NavigatingCancelEventArgs.cs">
+      <Link>Models\EventArg\NavigatingCancelEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Touch\Models\EventArg\NavigationEventArgs.cs">
+      <Link>Models\EventArg\NavigationEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\ThreadManager.cs">
+      <Link>Infrastructure\ThreadManager.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\navigation\NavigationProvider.cs">
+      <Link>Infrastructure\Navigation\NavigationProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\DynamicViewModelWindowPresenter.cs">
+      <Link>Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\ViewManagerEx.cs">
       <Link>Infrastructure\ViewManagerEx.cs</Link>
     </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\interfaces\navigation\INavigationProviderEx.cs">
+      <Link>Interfaces\Navigation\INavigationProviderEx.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\interfaces\navigation\INavigationService.cs">
+      <Link>Interfaces\Navigation\INavigationService.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\models\eventarg\NavigatingCancelEventArgsBase.cs">
+      <Link>Models\EventArg\NavigatingCancelEventArgsBase.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\models\eventarg\NavigationEventArgsBase.cs">
+      <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
+    </Compile>
     <Compile Include="Infrastructure\BindingContextManagerEx.cs" />
     <Compile Include="Infrastructure\BindingErrorProvider.cs" />
+    <Compile Include="Infrastructure\Mediators\ModalViewMediator.cs" />
+    <Compile Include="Infrastructure\Navigation\NavigationService.cs" />
+    <Compile Include="Infrastructure\XamarinFormsBootstrapperBase.cs" />
+    <Compile Include="InitializationModule.cs" />
+    <Compile Include="Interfaces\Views\IModalView.cs" />
+    <Compile Include="MarkupExtensions\View.cs" />
     <Compile Include="Models\ParentObserver.cs" />
     <Compile Include="PlatformDataBindingModule.cs" />
+    <Compile Include="PlatformExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Solution Items\MugenMvvmToolkit.licenseheader">
+      <Link>MugenMvvmToolkit.licenseheader</Link>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -71,8 +124,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Solution Items\licence.txt">
+      <Link>licence.txt</Link>
+    </None>
     <Content Include="FodyWeavers.xml" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

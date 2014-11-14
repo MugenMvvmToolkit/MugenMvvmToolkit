@@ -22,7 +22,7 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit
 {
-    internal class LinkerInclude
+    internal static partial class LinkerInclude
     {
         [UsedImplicitly]
         private abstract class LinkerIncludeAdapter : AdapterView
@@ -35,7 +35,7 @@ namespace MugenMvvmToolkit
         }
 
         [UsedImplicitly]
-        private void Include()
+        private static void Include()
         {
             typeof(LinearLayout).GetHashCode();
             typeof(FrameLayout).GetHashCode();
@@ -86,7 +86,7 @@ namespace MugenMvvmToolkit
         }
 
         [UsedImplicitly]
-        private void IncludeAdapterView<T>(AdapterView<T> adapter) where T : IAdapter
+        private static void IncludeAdapterView<T>(AdapterView<T> adapter) where T : IAdapter
         {
             adapter.Adapter = adapter.Adapter;
         }

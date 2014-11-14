@@ -220,11 +220,6 @@ namespace MugenMvvmToolkit
                 get { return false; }
             }
 
-            public void Handle(object sender, object message)
-            {
-                TryHandle(sender, message);
-            }
-
             public bool TryHandle(object sender, object message)
             {
                 var view = _view;

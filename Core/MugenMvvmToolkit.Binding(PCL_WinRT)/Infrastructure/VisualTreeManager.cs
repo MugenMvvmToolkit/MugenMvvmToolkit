@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 _reference = ServiceProvider.WeakReferenceFactory(target, true);
                 _listener = listener.ToWeakWrapper();
-                Handle(null, null);
+                TryHandle(null, null);
             }
 
             #endregion
@@ -61,11 +61,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             public bool IsWeak
             {
                 get { return true; }
-            }
-
-            public void Handle(object sender, object message)
-            {
-                TryHandle(sender, message);
             }
 
             public bool TryHandle(object sender, object message)

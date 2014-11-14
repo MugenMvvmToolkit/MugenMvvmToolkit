@@ -92,11 +92,6 @@ namespace MugenMvvmToolkit.Binding
                 get { return true; }
             }
 
-            public void Handle(object sender, object message)
-            {
-                TryHandle(sender, message);
-            }
-
             public bool TryHandle(object sender, object message)
             {
                 if (!(sender is IBindingContext) && _innerContext != null)
@@ -191,11 +186,6 @@ namespace MugenMvvmToolkit.Binding
                 get { return true; }
             }
 
-            public void Handle(object sender, object message)
-            {
-                TryHandle(sender, message);
-            }
-
             public bool TryHandle(object sender, object message)
             {
                 var reference = _listenerRef;
@@ -259,6 +249,18 @@ namespace MugenMvvmToolkit.Binding
             if (@event == null)
                 throw BindingExceptionManager.MissingEvent(target, eventName);
             return eventManager.TrySubscribe(target, @event, listener, context);
+        }
+
+        /// <summary>
+        ///     Handles the message.
+        /// </summary>
+        /// <param name="listener">The specified event listener.</param>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="message">Information about event.</param>
+        public static void Handle<TSender, TMessage>(this IEventListener listener, TSender sender, TMessage message)
+        {
+            Should.NotBeNull(listener, "listener");
+            listener.TryHandle(sender, message);
         }
 
         /// <summary>

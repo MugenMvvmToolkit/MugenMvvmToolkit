@@ -156,6 +156,9 @@
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\LinkerInclude.cs">
       <Link>LinkerInclude.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\LinkerIncludeLabmdaExpression.cs">
+      <Link>LinkerIncludeLabmdaExpression.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Models\AttachedMemberNames.cs">
       <Link>Models\AttachedMemberNames.cs</Link>
     </Compile>

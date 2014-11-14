@@ -430,7 +430,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             SetTargetProperty(rotateAnimation, "(UIElement.RenderTransform).(TransformGroup.Children)[1].(RotateTransform.Angle)");
             SetTargetProperty(scaleAnimation, "(UIElement.RenderTransform).(TransformGroup.Children)[2].(ScaleTransform.ScaleY)");
             SetTargetProperty(opacityAnimation, "Opacity");
-            sb.Completed += (sender, args) => completed();
+            sb.Completed += completed.AsEventHandler;
             sb.Begin();
 #endif
         }
@@ -474,7 +474,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             SetTargetProperty(translateAnimation, "(UIElement.RenderTransform).(TransformGroup.Children)[0].(TranslateTransform.Y)");
             SetTargetProperty(scaleAnimation, "(UIElement.RenderTransform).(TransformGroup.Children)[2].(ScaleTransform.ScaleY)");
             SetTargetProperty(opacityAnimation, "Opacity");
-            sb.Completed += (sender, args) => completed();
+            sb.Completed += completed.AsEventHandler;
             sb.Begin();
 #endif
         }

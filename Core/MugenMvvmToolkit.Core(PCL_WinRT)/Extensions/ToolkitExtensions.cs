@@ -212,7 +212,7 @@ namespace MugenMvvmToolkit
         {
             Should.NotBeNull(iocContainer, "iocContainer");
             Should.NotBeNull(methodBindingDelegate, "methodBindingDelegate");
-            iocContainer.BindToMethod(typeof(T), (container, list) => methodBindingDelegate(container, list), lifecycle, name);
+            iocContainer.BindToMethod(typeof(T), methodBindingDelegate.AsMethodBindingDelegateObject, lifecycle, name);
         }
 
         /// <summary>
@@ -997,15 +997,7 @@ namespace MugenMvvmToolkit
         {
             Should.NotBeNull(operation, "operation");
             var tcs = new TaskCompletionSource<T>();
-            operation.ContinueWith(result =>
-            {
-                if (result.IsCanceled)
-                    tcs.SetCanceled();
-                else if (result.IsFaulted)
-                    tcs.SetException(result.Exception);
-                else
-                    tcs.SetResult(result.Result);
-            });
+            operation.ContinueWith(continuationActionGeneric: tcs.AsContinuationAction);
             return tcs.Task;
         }
 
@@ -1016,15 +1008,7 @@ namespace MugenMvvmToolkit
         {
             Should.NotBeNull(operation, "operation");
             var tcs = new TaskCompletionSource<object>();
-            operation.ContinueWith(result =>
-            {
-                if (result.IsCanceled)
-                    tcs.SetCanceled();
-                else if (result.IsFaulted)
-                    tcs.SetException(result.Exception);
-                else
-                    tcs.SetResult(result.Result);
-            });
+            operation.ContinueWith(tcs.AsContinuationAction);
             return tcs.Task;
         }
 
@@ -1773,6 +1757,28 @@ namespace MugenMvvmToolkit
         internal static bool HasFlagEx(this ObservationMode handleType, ObservationMode value)
         {
             return (handleType & value) == value;
+        }
+
+        private static object AsMethodBindingDelegateObject<T>(
+            this Func<IIocContainer, IList<IIocParameter>, T> methodBinding, IIocContainer container,
+            IList<IIocParameter> parameters)
+        {
+            return methodBinding(container, parameters);
+        }
+
+        private static void AsContinuationAction<T>(this TaskCompletionSource<T> tcs, IOperationResult result)
+        {
+            if (result.IsCanceled)
+                tcs.SetCanceled();
+            else if (result.IsFaulted)
+                tcs.SetException(result.Exception);
+            else
+                tcs.SetResult((T)result.Result);
+        }
+
+        private static void AsContinuationAction<T>(this TaskCompletionSource<T> tcs, IOperationResult<T> genericResult)
+        {
+            AsContinuationAction(tcs, result: genericResult);
         }
 
         #endregion

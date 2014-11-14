@@ -16,11 +16,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using MonoTouch.UIKit;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Infrastructure.Navigation;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
@@ -43,7 +41,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private readonly PlatformInfo _platform;
         private readonly UIWindow _window;
-        private static readonly MethodInfo CreateLambdaGeneric;
         private INavigationService _navigationService;
 
         #endregion
@@ -52,13 +49,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         static TouchBootstrapperBase()
         {
-            Expression body = null;
-            IEnumerable<ParameterExpression> expressions = null;
+            LinkerInclude.Initialize();
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
-            CreateLambdaGeneric = GetMethod(() => CreateLambdaExpression<Delegate>(body, expressions)).GetGenericMethodDefinition();
-            ExpressionReflectionManager.CreateLambdaExpressionByType = CreateLambdaExpressionByType;
-            ExpressionReflectionManager.CreateLambdaExpression = CreateLambdaExpression;
-
             DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
         }
@@ -116,7 +108,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (context == null)
                 context = DataContext.Empty;
             Initialize(false);
-            
+
             Type mainViewModelType = GetMainViewModelType();
             IViewModel viewModel = CreateMainViewModel(mainViewModelType, context);
             viewModel.ShowAsync((model, result) => model.Dispose(), null, context);
@@ -146,50 +138,6 @@ namespace MugenMvvmToolkit.Infrastructure
         protected virtual INavigationService CreateNavigationService(UIWindow window)
         {
             return new NavigationService(window);
-        }
-
-        private static LambdaExpression CreateLambdaExpressionByType(Type type, Expression expression,
-            IEnumerable<ParameterExpression> arg3)
-        {
-            return (LambdaExpression)CreateLambdaGeneric
-                .MakeGenericMethod(type)
-                .Invoke(null, new object[] { expression, arg3 });
-        }
-
-        private static LambdaExpression CreateLambdaExpression(Expression body,
-            ParameterExpression[] parameterExpressions)
-        {
-            var types = new Type[parameterExpressions.Length + 1];
-            if (parameterExpressions.Length > 0)
-            {
-                var set = new HashSet<ParameterExpression>();
-                for (int index = 0; index < parameterExpressions.Length; ++index)
-                {
-                    ParameterExpression parameterExpression = parameterExpressions[index];
-                    types[index] = !parameterExpression.IsByRef
-                        ? parameterExpression.Type
-                        : parameterExpression.Type.MakeByRefType();
-                    if (set.Contains(parameterExpression))
-                        throw BindingExtensions.DuplicateLambdaParameter(parameterExpression.ToString());
-                    set.Add(parameterExpression);
-                }
-            }
-            types[parameterExpressions.Length] = body.Type;
-            Type delegateType = Expression.GetDelegateType(types);
-            return CreateLambdaExpressionByType(delegateType, body, parameterExpressions);
-        }
-
-        private static LambdaExpression CreateLambdaExpression<T>(Expression body,
-            IEnumerable<ParameterExpression> expressions)
-        {
-            return Expression.Lambda<T>(body, expressions);
-        }
-
-        private static MethodInfo GetMethod(Expression<Action> action)
-        {
-            var callExpression = action.Body as MethodCallExpression;
-            Should.BeSupported(callExpression != null, "The {0} method was not found", action);
-            return callExpression.Method;
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)

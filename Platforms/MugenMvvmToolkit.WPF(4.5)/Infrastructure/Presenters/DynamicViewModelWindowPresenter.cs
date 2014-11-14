@@ -14,6 +14,7 @@
 // ****************************************************************************
 #endregion
 using System;
+using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
@@ -179,9 +180,9 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         protected virtual IWindowViewMediator CreateWindowViewMediator([NotNull] IViewModel viewModel, Type viewType,
             [NotNull] IDataContext context)
         {
-#if TOUCH
+#if TOUCH || XAMARIN_FORMS
             var container = viewModel.GetIocContainer(true);
-            if (typeof(IModalView).IsAssignableFrom(viewType))
+            if (typeof(IModalView).GetTypeInfo().IsAssignableFrom(viewType.GetTypeInfo()))
                 return new ModalViewMediator(viewModel, ThreadManager, ViewManager, CallbackManager, ViewMappingProvider, container.Get<IViewModelProvider>());
 #else
             if (typeof(IWindowView).IsAssignableFrom(viewType))

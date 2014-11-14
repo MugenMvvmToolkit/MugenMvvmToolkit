@@ -64,7 +64,8 @@ namespace MugenMvvmToolkit.Binding
         private static readonly Dictionary<Type, TypeCode> TypeCodeTable;
 #endif
         private static readonly Dictionary<Type, List<MethodInfo>> TypeToExtensionMethods;
-        
+        private static readonly Func<MethodInfo, bool> IsExtensionMethodDelegate;
+
         #endregion
 
         #region Constructors
@@ -90,8 +91,9 @@ namespace MugenMvvmToolkit.Binding
                 {typeof (Decimal), TypeCode.Decimal},
                 {typeof (String), TypeCode.String},
             };
-#endif            
+#endif
             TypeToExtensionMethods = new Dictionary<Type, List<MethodInfo>>();
+            IsExtensionMethodDelegate = IsExtensionMethod;
         }
 
         #endregion
@@ -607,7 +609,7 @@ namespace MugenMvvmToolkit.Binding
                     {
                         methods = knownType
                             .GetMethodsEx()
-                            .Where(IsExtensionMethod)
+                            .Where(IsExtensionMethodDelegate)
                             .ToList();
                         TypeToExtensionMethods[knownType] = methods;
                     }

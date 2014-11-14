@@ -65,11 +65,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 get { return true; }
             }
 
-            public void Handle(object sender, object message)
-            {
-                TryHandle(sender, message);
-            }
-
             public bool TryHandle(object sender, object message)
             {
                 var reference = _reference;
@@ -319,11 +314,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         bool IEventListener.IsWeak
         {
             get { return false; }
-        }
-
-        void IEventListener.Handle(object sender, object message)
-        {
-            Update();
         }
 
         bool IEventListener.TryHandle(object sender, object message)

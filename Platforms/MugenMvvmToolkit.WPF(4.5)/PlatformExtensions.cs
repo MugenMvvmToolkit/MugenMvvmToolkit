@@ -47,6 +47,11 @@ namespace MugenMvvmToolkit
 
         #region Methods
 
+        internal static void AsEventHandler<TArg>(this Action action, object sender, TArg arg)
+        {
+            action();
+        }
+
         internal static PlatformInfo GetPlatformInfo()
         {
 #if WPF

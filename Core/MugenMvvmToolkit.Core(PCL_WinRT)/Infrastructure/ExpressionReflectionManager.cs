@@ -350,23 +350,18 @@ namespace MugenMvvmToolkit.Infrastructure
                 Delegate value;
                 if (!MemberAccessCache.TryGetValue(member, out value) || !(value is Func<object, TType>))
                 {
+                    ParameterExpression target = Expression.Parameter(typeof(object), "instance");
+                    MemberExpression accessExp;
                     if (IsStatic(member))
-                    {
-                        MemberExpression accessExp = Expression.MakeMemberAccess(null, member);
-                        Func<TType> func = Expression
-                            .Lambda<Func<TType>>(ConvertIfNeed(accessExp, typeof(TType), false))
-                            .Compile();
-                        value = new Func<object, TType>(o => func());
-                    }
+                        accessExp = Expression.MakeMemberAccess(null, member);
                     else
                     {
-                        ParameterExpression target = Expression.Parameter(typeof(object), "instance");
                         Type declaringType = GetDeclaringType(member);
-                        MemberExpression accessExp = Expression.MakeMemberAccess(ConvertIfNeed(target, declaringType, false), member);
-                        value = Expression
-                            .Lambda<Func<object, TType>>(ConvertIfNeed(accessExp, typeof(TType), false), target)
-                            .Compile();
+                        accessExp = Expression.MakeMemberAccess(ConvertIfNeed(target, declaringType, false), member);
                     }
+                    value = Expression
+                        .Lambda<Func<object, TType>>(ConvertIfNeed(accessExp, typeof(TType), false), target)
+                        .Compile();
                     MemberAccessCache[member] = value;
                 }
                 return (Func<object, TType>)value;
@@ -404,10 +399,10 @@ namespace MugenMvvmToolkit.Infrastructure
                         if (fieldInfo == null)
                         {
                             var propertyInfo = (PropertyInfo)member;
-                            result = (o, type) => propertyInfo.SetValue(o, type, Empty.Array<object>());
+                            result = propertyInfo.SetValue<TType>;
                         }
                         else
-                            result = (o, type) => fieldInfo.SetValue(o, type);
+                            result = fieldInfo.SetValue<TType>;
                         MemberAccessCache[member] = result;
                         return result;
                     }
@@ -434,19 +429,9 @@ namespace MugenMvvmToolkit.Infrastructure
                         expression = Expression.Field(fieldInfo.IsStatic ? null : ConvertIfNeed(target, declaringType, false), fieldInfo);
                         expression = Assign(expression, ConvertIfNeed(valueParameter, fieldInfo.FieldType, false));
                     }
-                    if (target == null)
-                    {
-                        Action<TType> stAction = Expression
-                            .Lambda<Action<TType>>(expression, valueParameter)
-                            .Compile();
-                        action = new Action<object, TType>((o, arg2) => stAction(arg2));
-                    }
-                    else
-                    {
-                        action = Expression
-                            .Lambda<Action<object, TType>>(expression, targetParameter, valueParameter)
-                            .Compile();
-                    }
+                    action = Expression
+                        .Lambda<Action<object, TType>>(expression, targetParameter, valueParameter)
+                        .Compile();
                     MemberAccessCache[member] = action;
                 }
                 return (Action<object, TType>)action;
@@ -531,34 +516,26 @@ namespace MugenMvvmToolkit.Infrastructure
                 callExpression = Expression.Call(null, methodInfo, expressions);
                 if (isVoid)
                 {
-                    var action = Expression
+                    return Expression
                         .Lambda<Action<object[]>>(callExpression, parameterExpression)
-                        .Compile();
-                    return (o, objects) =>
-                    {
-                        action(objects);
-                        return null;
-                    };
+                        .Compile()
+                        .AsFunc;
                 }
                 callExpression = ConvertIfNeed(callExpression, typeof(object), false);
-                var func = Expression
+                return Expression
                     .Lambda<Func<object[], object>>(callExpression, parameterExpression)
-                    .Compile();
-                return (o, objects) => func(objects);
+                    .Compile()
+                    .AsFunc;
             }
             Type declaringType = GetDeclaringType(methodInfo);
             var targetExp = Expression.Parameter(typeof(object), "target");
             callExpression = Expression.Call(ConvertIfNeed(targetExp, declaringType, false), methodInfo, expressions);
             if (isVoid)
             {
-                var action = Expression
+                return Expression
                     .Lambda<Action<object, object[]>>(callExpression, targetExp, parameterExpression)
-                    .Compile();
-                return (o, objects) =>
-                {
-                    action(o, objects);
-                    return null;
-                };
+                    .Compile()
+                    .AsFunc;
             }
             callExpression = ConvertIfNeed(callExpression, typeof(object), false);
             return Expression

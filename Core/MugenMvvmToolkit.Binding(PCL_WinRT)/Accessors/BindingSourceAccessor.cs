@@ -211,11 +211,6 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 get { return true; }
             }
 
-            public void Handle(object sender, object message)
-            {
-                TryHandle(sender, message);
-            }
-
             public bool TryHandle(object sender, object message)
             {
                 var target = (BindingSourceAccessor)_sourceReference.Target;

@@ -43,16 +43,6 @@ namespace MugenMvvmToolkit.Test.TestModels
         /// </summary>
         /// <param name="sender">The object that raised the event.</param>
         /// <param name="message">Information about event.</param>
-        void IEventListener.Handle(object sender, object message)
-        {
-            TryHandle(sender, message);
-        }
-
-        /// <summary>
-        ///     Handles the message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">Information about event.</param>
         /// <returns>
         ///     true if the object referenced by the current <see cref="IEventListener" /> object has not been garbage
         ///     collected and is still accessible; otherwise, false.

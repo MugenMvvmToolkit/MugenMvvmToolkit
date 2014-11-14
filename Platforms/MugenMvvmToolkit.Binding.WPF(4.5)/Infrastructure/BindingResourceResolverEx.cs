@@ -105,11 +105,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 get { return true; }
             }
 
-            public void Handle(object sender, object message)
-            {
-                TryHandle(sender, message);
-            }
-
             public bool TryHandle(object sender, object message)
             {
                 var target = _reference.Target;

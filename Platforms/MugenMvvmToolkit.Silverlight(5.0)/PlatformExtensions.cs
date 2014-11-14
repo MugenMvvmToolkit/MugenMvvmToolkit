@@ -180,6 +180,11 @@ namespace MugenMvvmToolkit
 #endif
         }
 
+        internal static void AsEventHandler<TArg>(this Action action, object sender, TArg arg)
+        {
+            action();
+        }
+
         internal static NavigationMode ToNavigationMode(this System.Windows.Navigation.NavigationMode mode)
         {
             switch (mode)

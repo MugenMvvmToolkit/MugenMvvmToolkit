@@ -93,6 +93,11 @@ namespace MugenMvvmToolkit
                 ServiceProvider.AttachedValueProvider.SetValue(content, StatePath, state);
         }
 
+        internal static void AsEventHandler<TArg>(this Action action, object sender, TArg arg)
+        {
+            action();
+        }
+
         internal static bool IsSerializable(this Type type)
         {
             var typeInfo = type.GetTypeInfo();
