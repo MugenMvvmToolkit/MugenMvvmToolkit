@@ -1,4 +1,19 @@
-﻿using System;
+﻿#region Copyright
+// ****************************************************************************
+// <copyright file="PlatformExtensions.cs">
+// Copyright © Vyacheslav Volkov 2012-2014
+// </copyright>
+// ****************************************************************************
+// <author>Vyacheslav Volkov</author>
+// <email>vvs0205@outlook.com</email>
+// <project>MugenMvvmToolkit</project>
+// <web>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</web>
+// <license>
+// See license.txt in this solution or http://opensource.org/licenses/MS-PL
+// </license>
+// ****************************************************************************
+#endregion
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
@@ -21,8 +36,7 @@ namespace MugenMvvmToolkit
         internal static PlatformInfo GetPlatformInfo()
         {
             //TODO Update version.
-            return new PlatformInfo(Device.OnPlatform(PlatformType.iOS, PlatformType.Android, PlatformType.WinPhone),
-                default(Version));
+            return new PlatformInfo(Device.OnPlatform(PlatformType.iOS, PlatformType.Android, PlatformType.WinPhone), new Version(0, 0));
         }
 
         public static void SetNavigationParameter([NotNull] this Page controller, object value)

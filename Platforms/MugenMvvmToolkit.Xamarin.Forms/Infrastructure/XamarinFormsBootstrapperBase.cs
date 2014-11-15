@@ -1,4 +1,19 @@
-﻿using System;
+﻿#region Copyright
+// ****************************************************************************
+// <copyright file="XamarinFormsBootstrapperBase.cs">
+// Copyright © Vyacheslav Volkov 2012-2014
+// </copyright>
+// ****************************************************************************
+// <author>Vyacheslav Volkov</author>
+// <email>vvs0205@outlook.com</email>
+// <project>MugenMvvmToolkit</project>
+// <web>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</web>
+// <license>
+// See license.txt in this solution or http://opensource.org/licenses/MS-PL
+// </license>
+// ****************************************************************************
+#endregion
+using System;
 using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure.Navigation;
@@ -31,13 +46,20 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="XamarinFormsBootstrapperBase" /> class.
         /// </summary>
-        protected XamarinFormsBootstrapperBase()
+        static XamarinFormsBootstrapperBase()
         {
             if (Device.OS != TargetPlatform.WinPhone)
                 LinkerInclude.Initialize();
-            _platform = PlatformExtensions.GetPlatformInfo();
             DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="XamarinFormsBootstrapperBase" /> class.
+        /// </summary>
+        protected XamarinFormsBootstrapperBase()
+        {
+            _platform = PlatformExtensions.GetPlatformInfo();
         }
 
         #endregion
@@ -102,7 +124,9 @@ namespace MugenMvvmToolkit.Infrastructure
             var container = viewModel.GetIocContainer(true);
             var mappingProvider = container.Get<IViewMappingProvider>();
             var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
-            return mappingItem == null || typeof(ITabView).GetTypeInfo().IsAssignableFrom(mappingItem.ViewType.GetTypeInfo());
+            return mappingItem == null ||
+                   typeof(ITabView).GetTypeInfo().IsAssignableFrom(mappingItem.ViewType.GetTypeInfo()) ||
+                   !typeof(Page).GetTypeInfo().IsAssignableFrom(mappingItem.ViewType.GetTypeInfo());
         }
 
         private static bool CanShowViewModelNavigationPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)

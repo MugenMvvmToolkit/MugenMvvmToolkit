@@ -41,6 +41,9 @@ using IValueConverter = MugenMvvmToolkit.Binding.Interfaces.IBindingValueConvert
 using System.Drawing;
 using MonoTouch.UIKit;
 using IValueConverter = MugenMvvmToolkit.Binding.Interfaces.IBindingValueConverter;
+#elif XAMARIN_FORMS
+using Xamarin.Forms;
+using IValueConverter = MugenMvvmToolkit.Binding.Interfaces.IBindingValueConverter;
 #else
 using System.Windows;
 using System.Windows.Media;
@@ -138,6 +141,8 @@ namespace MugenMvvmToolkit.Converters
                 return txt;
 #elif TOUCH
                 return new UITextView(new RectangleF(10, 10, 300, 30)) { TextColor = UIColor.Red, Editable = false, DataDetectorTypes = UIDataDetectorType.None, Text = exception.Flatten(false) };
+#elif XAMARIN_FORMS
+                return new Label{TextColor = Color.Red, Text = exception.Flatten(false) };
 #else
                 return new TextBox
                 {

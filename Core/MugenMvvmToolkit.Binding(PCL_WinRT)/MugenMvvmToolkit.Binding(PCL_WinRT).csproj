@@ -173,7 +173,7 @@
     <Compile Include="Models\WeakEventListenerWrapper.cs" />
     <Compile Include="Parse\BindingMemberVisitor.cs" />
     <Compile Include="Parse\BindingParser.cs" />
-    <Compile Include="Parse\CompileExpressionInvoker.cs" />
+    <Compile Include="Parse\CompiledExpressionInvoker.cs" />
     <Compile Include="Parse\DefaultBindingParserHandler.cs" />
     <Compile Include="Parse\ExpressionCounterVisitor.cs" />
     <Compile Include="Parse\Nodes\BinaryExpressionNode.cs" />

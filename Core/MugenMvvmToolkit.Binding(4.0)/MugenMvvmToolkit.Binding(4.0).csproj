@@ -438,8 +438,8 @@
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\parse\BindingParser.cs">
       <Link>Parse\BindingParser.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\parse\CompileExpressionInvoker.cs">
-      <Link>Parse\CompileExpressionInvoker.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\CompiledExpressionInvoker.cs">
+      <Link>Parse\CompiledExpressionInvoker.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\DefaultBindingParserHandler.cs">
       <Link>Parse\DefaultBindingParserHandler.cs</Link>

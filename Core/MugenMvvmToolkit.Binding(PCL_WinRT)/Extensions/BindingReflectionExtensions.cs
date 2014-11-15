@@ -155,14 +155,14 @@ namespace MugenMvvmToolkit.Binding
             };
         }
 
-        internal static MemberInfo FindPropertyOrField(this Type type, string memberName, bool staticAccess)
+        internal static MemberInfo FindPropertyOrField(this Type type, string memberName, bool staticAccess, bool throwOnError)
         {
             var flags = MemberFlags.Public | (staticAccess ? MemberFlags.Static : MemberFlags.Instance);
             PropertyInfo property = type.GetPropertyEx(memberName, flags);
             if (property != null)
                 return property;
             FieldInfo field = type.GetFieldEx(memberName, flags);
-            if (field == null)
+            if (field == null && throwOnError)
                 throw BindingExceptionManager.InvalidBindingMember(type, memberName);
             return field;
         }

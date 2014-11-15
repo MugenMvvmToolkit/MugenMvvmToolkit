@@ -13,6 +13,8 @@
 // </license>
 // ****************************************************************************
 #endregion
+
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
@@ -179,7 +181,7 @@ namespace MugenMvvmToolkit.Infrastructure
         [NotNull]
         protected virtual ICollection<Assembly> GetAssemblies()
         {
-            return new[] { GetType().GetAssembly(), typeof(BootstrapperBase).GetAssembly() };
+            return new List<Assembly> { GetType().GetAssembly(), typeof(BootstrapperBase).GetAssembly() };
         }
 
         /// <summary>

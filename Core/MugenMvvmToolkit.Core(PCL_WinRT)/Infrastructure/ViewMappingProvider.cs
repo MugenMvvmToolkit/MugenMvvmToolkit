@@ -60,7 +60,7 @@ namespace MugenMvvmToolkit.Infrastructure
             _assemblies = assemblies;
             _viewPostfix = viewPostfix ?? new[]
             {
-                "ActivityView", "FragmentView", "WindowView", "ViewController", "PageView", "FormView",
+                "ActivityView", "FragmentView", "WindowView", "ViewController", "PageView", "FormView", "ModalView",
                 "Form", "View", "V", "Activity", "Fragment", "Page", "Window", "Controller"
             };
             _viewModelPostfix = viewModelPostfix ?? new[] { "ViewModel", "Vm" };

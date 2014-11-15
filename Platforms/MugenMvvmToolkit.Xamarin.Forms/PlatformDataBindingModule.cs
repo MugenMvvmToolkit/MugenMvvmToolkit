@@ -1,8 +1,25 @@
-﻿using System;
+﻿#region Copyright
+// ****************************************************************************
+// <copyright file="PlatformDataBindingModule.cs">
+// Copyright © Vyacheslav Volkov 2012-2014
+// </copyright>
+// ****************************************************************************
+// <author>Vyacheslav Volkov</author>
+// <email>vvs0205@outlook.com</email>
+// <project>MugenMvvmToolkit</project>
+// <web>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</web>
+// <license>
+// See license.txt in this solution or http://opensource.org/licenses/MS-PL
+// </license>
+// ****************************************************************************
+#endregion
+using System;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using Xamarin.Forms;
 
@@ -58,6 +75,35 @@ namespace MugenMvvmToolkit
         private static IDisposable ObserveParentMember(IBindingMemberInfo bindingMemberInfo, VisualElement o, IEventListener arg3)
         {
             return ParentObserver.GetOrAdd(o).AddWithUnsubscriber(arg3);
+        }
+
+        #endregion
+
+        #region Overrides of DataBindingModule
+
+        /// <summary>
+        ///    Occurs on load the current module.
+        /// </summary>
+        protected override void OnLoaded(IModuleContext context)
+        {
+            base.OnLoaded(context);
+            Register(BindingServiceProvider.MemberProvider);
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="IBindingErrorProvider" /> that will be used by default.
+        /// </summary>
+        protected override IBindingErrorProvider GetBindingErrorProvider()
+        {
+            return new BindingErrorProvider();
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="IBindingContextManager" /> that will be used by default.
+        /// </summary>
+        protected override IBindingContextManager GetBindingContextManager()
+        {
+            return new BindingContextManagerEx();
         }
 
         #endregion

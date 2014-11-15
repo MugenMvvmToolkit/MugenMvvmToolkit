@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // ****************************************************************************
-// <copyright file="CompileExpressionInvoker.cs">
+// <copyright file="CompiledExpressionInvoker.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
 // </copyright>
 // ****************************************************************************
@@ -33,7 +33,7 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Parse
 {
-    public class CompileExpressionInvoker : IExpressionInvoker
+    public class CompiledExpressionInvoker : IExpressionInvoker
     {
         #region Nested types
 
@@ -115,6 +115,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         private static readonly MethodInfo ProxyMethod;
         private static readonly MethodInfo BindingMemberGetValueMethod;
+        private static readonly MethodInfo GetMemberValueDynamicMethod;
         private static readonly Expression EmptyObjectArrayExpression;
         protected static readonly ParameterExpression DataContextParameter;
 
@@ -136,19 +137,21 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Constructors
 
-        static CompileExpressionInvoker()
+        static CompiledExpressionInvoker()
         {
-            ProxyMethod = typeof(CompileExpressionInvoker).GetMethodEx("InvokeDynamicMethod", MemberFlags.Instance | MemberFlags.NonPublic);
+            ProxyMethod = typeof(CompiledExpressionInvoker).GetMethodEx("InvokeDynamicMethod", MemberFlags.Instance | MemberFlags.NonPublic);
             DataContextParameter = Expression.Parameter(typeof(IDataContext), "dataContext");
             BindingMemberGetValueMethod = typeof(IBindingMemberInfo).GetMethodEx("GetValue", new[] { typeof(object), typeof(object[]) });
+            GetMemberValueDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx("GetMemberValueDynamic", MemberFlags.Static | MemberFlags.NonPublic);
             EmptyObjectArrayExpression = Expression.Constant(Empty.Array<object>(), typeof(object[]));
             Should.BeSupported(BindingMemberGetValueMethod != null, "BindingMemberGetValueMethod");
+            Should.BeSupported(GetMemberValueDynamicMethod != null, "GetMemberValueDynamicMethod");
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="CompileExpressionInvoker" /> class.
+        ///     Initializes a new instance of the <see cref="CompiledExpressionInvoker" /> class.
         /// </summary>
-        public CompileExpressionInvoker([NotNull] IExpressionNode node, IList<KeyValuePair<string, BindingMemberExpressionNode>> members, bool isEmpty)
+        public CompiledExpressionInvoker([NotNull] IExpressionNode node, IList<KeyValuePair<string, BindingMemberExpressionNode>> members, bool isEmpty)
         {
             Should.NotBeNull(node, "node");
             _node = node;
@@ -415,7 +418,11 @@ namespace MugenMvvmToolkit.Binding.Parse
                 }
             }
 
-            var member = type.FindPropertyOrField(expression.Member, target == null);
+            var member = type.FindPropertyOrField(expression.Member, target == null, false);
+            //Trying to get dynamic value.
+            if (member == null)
+                return Expression.Call(null, GetMemberValueDynamicMethod, target,
+                    Expression.Constant(expression.Member, typeof(string)));
             return member is PropertyInfo
                 ? Expression.Property(target, (PropertyInfo)member)
                 : Expression.Field(target, (FieldInfo)member);
@@ -611,6 +618,14 @@ namespace MugenMvvmToolkit.Binding.Parse
             for (int i = 0; i < types.Count; i++)
                 typeArgs[i] = resolver.ResolveType(types[i], _dataContext, true);
             return typeArgs;
+        }
+
+        private static object GetMemberValueDynamic(object target, string member)
+        {
+            if (target == null)
+                return null;
+            var bindingMember = BindingServiceProvider.MemberProvider.GetBindingMember(target.GetType(), member, false, true);
+            return bindingMember.GetValue(target, Empty.Array<object>());
         }
 
         #endregion

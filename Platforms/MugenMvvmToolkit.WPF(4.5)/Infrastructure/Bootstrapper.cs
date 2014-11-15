@@ -37,6 +37,8 @@ using Bootstrapper = MugenMvvmToolkit.Infrastructure.WinRTBootstrapperBase;
 #elif TOUCH
 using MonoTouch.UIKit;
 using Bootstrapper = MugenMvvmToolkit.Infrastructure.TouchBootstrapperBase;
+#elif XAMARIN_FORMS
+using Bootstrapper = MugenMvvmToolkit.Infrastructure.XamarinFormsBootstrapperBase;
 #endif
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -93,6 +95,12 @@ namespace MugenMvvmToolkit.Infrastructure
         public Bootstrapper([NotNull] UIWindow window, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
             IViewModelSettings viewModelSettings = null, params IModule[] modules)
             : base(window)
+#elif XAMARIN_FORMS
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
+        /// </summary>
+        public Bootstrapper([NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
+            IViewModelSettings viewModelSettings = null, params IModule[] modules)            
 #endif
         {
             Should.NotBeNull(iocContainer, "iocContainer");
@@ -139,16 +147,16 @@ namespace MugenMvvmToolkit.Infrastructure
 #else
             var assemblies = new HashSet<Assembly>(_assemblies);
 #endif
-#if WINDOWSCOMMON || NETFX_CORE
-            assemblies.Add(GetType().GetAssembly());
-            assemblies.Add(typeof(Bootstrapper).GetAssembly());
-            assemblies.Add(typeof(ApplicationSettings).GetAssembly());
+#if WINDOWSCOMMON || NETFX_CORE || XAMARIN_FORMS
+            assemblies.Add(GetType().GetTypeInfo().Assembly);
+            assemblies.Add(typeof(Bootstrapper).GetTypeInfo().Assembly);
+            assemblies.Add(typeof(ApplicationSettings).GetTypeInfo().Assembly);
 #else
             assemblies.Add(GetType().Assembly);
             assemblies.Add(typeof(Bootstrapper).Assembly);
             assemblies.Add(typeof(ApplicationSettings).Assembly);
 #endif
-#if !WINFORMS && !TOUCH
+#if !WINFORMS && !TOUCH && !XAMARIN_FORMS
             TryAddAssembly(BindingAssemblyName, assemblies);
 #endif
             return assemblies;
