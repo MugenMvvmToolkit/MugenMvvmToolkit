@@ -35,8 +35,12 @@ namespace MugenMvvmToolkit
 
         internal static PlatformInfo GetPlatformInfo()
         {
-            //TODO Update version.
             return new PlatformInfo(Device.OnPlatform(PlatformType.iOS, PlatformType.Android, PlatformType.WinPhone), new Version(0, 0));
+        }
+
+        internal static void AsEventHandler<TArg>(this Action action, object sender, TArg arg)
+        {
+            action();
         }
 
         public static void SetNavigationParameter([NotNull] this Page controller, object value)

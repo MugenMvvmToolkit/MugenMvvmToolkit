@@ -1,7 +1,7 @@
-﻿#region Copyright
+#region Copyright
 // ****************************************************************************
 // <copyright file="BindingErrorProvider.cs">
-// Copyright © Vyacheslav Volkov 2012-2014
+// Copyright � Vyacheslav Volkov 2012-2014
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -13,8 +13,9 @@
 // </license>
 // ****************************************************************************
 #endregion
-
 using System.Collections.Generic;
+using System.Linq;
+using Android.Widget;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using Xamarin.Forms;
@@ -29,25 +30,16 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Fields
 
-        private const string TextColorPath = "#@!textColor";
+        protected const string NativeViewKey = "##NativeView";
 
         #endregion
 
         #region Constructors
 
-        public BindingErrorProvider()
+        static BindingErrorProvider()
         {
-            ErrorTextColor = Color.FromRgba(0.7f, 0, 0, 1);
+            Forms.ViewInitialized += FormsOnViewInitialized;
         }
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        ///     Gets or sets the color of the text in case of error.
-        /// </summary>
-        public Color ErrorTextColor { get; set; }
 
         #endregion
 
@@ -62,28 +54,28 @@ namespace MugenMvvmToolkit.Infrastructure
         protected override void SetErrors(object target, IList<object> errors, IDataContext context)
         {
             base.SetErrors(target, errors, context);
-            var inputView = target as Entry;
-            if (inputView != null)
+            
+            var view = target as VisualElement;
+            if (view != null)
             {
-                if (errors.Count == 0)
-                {
-                    var originalColor = ServiceProvider
-                        .AttachedValueProvider
-                        .GetValue<Color?>(inputView, TextColorPath, false);
-                    if (originalColor.HasValue)
-                    {
-                        ServiceProvider.AttachedValueProvider.Clear(inputView, TextColorPath);
-                        inputView.TextColor = originalColor.Value;
-                    }
-                }
-                else
-                {
-                    ServiceProvider
-                        .AttachedValueProvider
-                        .GetOrAdd(inputView, TextColorPath, (entry, o) => entry.TextColor, null);
-                    inputView.TextColor = ErrorTextColor;
-                }
+                var value = ServiceProvider.AttachedValueProvider.GetValue<object>(view, NativeViewKey, false);
+                if (value != null)
+                    target = value;
             }
+
+            var textView = target as TextView;
+            if (textView != null)
+            {
+                object error = errors.FirstOrDefault();
+                textView.Error = error == null ? null : error.ToString();
+            }
+        }
+
+        private static void FormsOnViewInitialized(object sender, ViewInitializedEventArgs args)
+        {
+            var textView = args.NativeView as TextView;
+            if (args.View != null && textView != null)
+                ServiceProvider.AttachedValueProvider.SetValue(args.View, NativeViewKey, textView);
         }
 
         #endregion

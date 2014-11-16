@@ -63,13 +63,8 @@ namespace $rootnamespace$
             {
                 // Create a Frame to act as the navigation context and navigate to the first page
                 rootFrame = new Frame();
-                bootstrapper = new Bootstrapper<MainViewModel>(rootFrame,
-                    new IIocContainer(), new[]
-                    {
-                        GetType().GetTypeInfo().Assembly,
-                        typeof (MainViewModel).GetTypeInfo().Assembly
-                    });
-                bootstrapper.Initialize();
+                bootstrapper = new Bootstrapper<MainViewModel>(rootFrame, new IIocContainer());
+                await bootstrapper.InitializeAsync();
 
                 //Associate the frame with a SuspensionManager key                                
                 SuspensionManager.RegisterFrame(rootFrame, "AppFrame");

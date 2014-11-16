@@ -15,7 +15,9 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using JetBrains.Annotations;
@@ -41,6 +43,8 @@ namespace MugenMvvmToolkit.Infrastructure
         protected const string BindingAssemblyName = "MugenMvvmToolkit.Binding.WinRT";
         private readonly PlatformInfo _platform;
         private readonly Frame _rootFrame;
+        private readonly bool _overrideAssemblies;
+        private List<Assembly> _assemblies;
 
         #endregion
 
@@ -55,10 +59,11 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="WinRTBootstrapperBase" /> class.
         /// </summary>
-        protected WinRTBootstrapperBase([NotNull] Frame rootFrame)
+        protected WinRTBootstrapperBase([NotNull] Frame rootFrame, bool overrideAssemblies)
         {
             Should.NotBeNull(rootFrame, "rootFrame");
             _rootFrame = rootFrame;
+            _overrideAssemblies = overrideAssemblies;
             _platform = PlatformExtensions.GetPlatformInfo();
         }
 
@@ -90,11 +95,13 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected override ICollection<Assembly> GetAssemblies()
         {
+            if (_assemblies != null)
+                return _assemblies;
             var assemblies = new HashSet<Assembly> { GetType().GetAssembly(), typeof(WinRTBootstrapperBase).GetAssembly() };
             var application = Application.Current;
             if (application != null)
                 assemblies.Add(application.GetType().GetAssembly());
-            TryAddAssembly(BindingAssemblyName, assemblies);
+            TryLoadAssembly(BindingAssemblyName, assemblies);
             return assemblies;
         }
 
@@ -111,6 +118,13 @@ namespace MugenMvvmToolkit.Infrastructure
                 context = DataContext.Empty;
             Initialize();
             CreateMainViewModel(GetMainViewModelType(), context).ShowAsync((model, result) => model.Dispose(), context: context);
+        }
+
+        public async Task InitializeAsync()
+        {
+            if (!_overrideAssemblies)
+                _assemblies = await GetAssembliesAsync();
+            Initialize(false);
         }
 
         /// <summary>
@@ -155,6 +169,32 @@ namespace MugenMvvmToolkit.Infrastructure
             var mappingProvider = container.Get<IViewMappingProvider>();
             var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
             return mappingItem != null && typeof(Page).IsAssignableFrom(mappingItem.ViewType);
+        }
+
+        private static async Task<List<Assembly>> GetAssembliesAsync()
+        {
+            var assemblies = new List<Assembly>();
+            try
+            {
+                var files = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFilesAsync();
+
+                foreach (var file in files)
+                {
+                    if ((file.FileType == ".dll") || (file.FileType == ".exe"))
+                    {
+                        var name = new AssemblyName { Name = Path.GetFileNameWithoutExtension(file.Name) };
+                        Assembly asm = Assembly.Load(name);
+                        if (asm.IsToolkitAssembly())
+                            assemblies.Add(asm);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Tracer.Error(e.Flatten(true));
+            }
+
+            return assemblies;
         }
 
         #endregion

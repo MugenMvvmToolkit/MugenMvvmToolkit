@@ -133,13 +133,25 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         private const string ToastWrapperMember = "!@!ToastWrap@$2";
         private const string DisposedEventHandler = "3w4toasthandler3w5rews";
+#if !XAMARIN_FORMS
         private readonly INavigationProvider _navigationProvider;
+#endif
         private readonly IThreadManager _threadManager;
 
         #endregion
 
         #region Constructors
 
+#if XAMARIN_FORMS
+                /// <summary>
+        ///     Initializes a new instance of the <see cref="ToastPresenter" /> class.
+        /// </summary>
+        public ToastPresenter([NotNull] IThreadManager threadManager)
+        {
+            Should.NotBeNull(threadManager, "threadManager");
+            _threadManager = threadManager;
+        }
+#else
         /// <summary>
         ///     Initializes a new instance of the <see cref="ToastPresenter" /> class.
         /// </summary>
@@ -151,7 +163,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             _navigationProvider = navigationProvider;
             _threadManager = threadManager;
         }
-
+#endif
         #endregion
 
         #region Implementation of IToastPresenter
@@ -181,7 +193,11 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         protected virtual void ShowInternal(object content, float duration, ToastPosition position, IDataContext context,
             TaskCompletionSource<object> tcs)
         {
+#if XAMARIN_FORMS
+            var ctx = Xamarin.Forms.Forms.Context;
+#else
             var ctx = _navigationProvider.CurrentContent as Context;
+#endif
             if (ctx == null)
             {
                 tcs.SetResult(null);
@@ -204,6 +220,8 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                     oldValue.Complete();
                     return value(item, state);
                 });
+
+#if !XAMARIN_FORMS
             var activityView = ctx as IActivityView;
             if (activityView == null)
                 return;
@@ -212,16 +230,22 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 view1.Destroyed += ActivityOnDestroyed;
                 return DisposedEventHandler;
             }, null);
+#endif
         }
 
         protected virtual View GetView(object content, Context ctx)
         {
+#if XAMARIN_FORMS
+            return null;
+#else
             if (content == null || content is string)
                 return null;
             var view = PlatformExtensions.GetContentView(ctx, ctx, content, null, null) as View;
             if (view != null)
                 BindingServiceProvider.ContextManager.GetBindingContext(view).Value = content;
             return view;
+#endif
+
         }
 
         private static void ActivityOnDestroyed(object sender, EventArgs eventArgs)

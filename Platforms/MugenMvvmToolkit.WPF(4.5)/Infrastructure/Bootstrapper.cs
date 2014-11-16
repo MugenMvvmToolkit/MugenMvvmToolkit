@@ -87,7 +87,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public Bootstrapper([NotNull] Frame rootFrame, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
             IViewModelSettings viewModelSettings = null, params IModule[] modules)
-            : base(rootFrame)
+            : base(rootFrame, assemblies != null)
 #elif TOUCH
         /// <summary>
         ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
@@ -156,8 +156,8 @@ namespace MugenMvvmToolkit.Infrastructure
             assemblies.Add(typeof(Bootstrapper).Assembly);
             assemblies.Add(typeof(ApplicationSettings).Assembly);
 #endif
-#if !WINFORMS && !TOUCH && !XAMARIN_FORMS
-            TryAddAssembly(BindingAssemblyName, assemblies);
+#if !WINFORMS && !TOUCH
+            TryLoadAssembly(BindingAssemblyName, assemblies);
 #endif
             return assemblies;
         }

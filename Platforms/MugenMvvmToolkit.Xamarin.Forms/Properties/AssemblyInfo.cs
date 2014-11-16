@@ -16,10 +16,7 @@
 
 using System.Reflection;
 using System.Resources;
-
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
+using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("MugenMvvmToolkit.Xamarin.Forms")]
 [assembly: AssemblyDescription("")]
@@ -30,6 +27,8 @@ using System.Resources;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguage("en")]
-
+[assembly: InternalsVisibleTo("MugenMvvmToolkit.Xamarin.Forms.WinPhone")]
+[assembly: InternalsVisibleTo("MugenMvvmToolkit.Xamarin.Forms.Android")]
+[assembly: InternalsVisibleTo("MugenMvvmToolkit.Xamarin.Forms.iOS")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]

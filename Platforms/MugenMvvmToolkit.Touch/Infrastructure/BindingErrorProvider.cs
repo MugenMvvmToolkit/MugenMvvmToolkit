@@ -19,7 +19,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
 using MonoTouch.CoreGraphics;
+#if XAMARIN_FORMS
+using Xamarin.Forms;
+#else
 using MonoTouch.Dialog;
+#endif
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using MugenMvvmToolkit.Binding.Infrastructure;
@@ -179,7 +183,11 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Fields
 
+#if XAMARIN_FORMS
+        protected const string NativeViewKey = "##NativeView";
+#else
         private static readonly Func<object, UITextField> GetEntryField;
+#endif
         private static readonly UIImage DefaultErrorImage;
 
         #endregion
@@ -188,9 +196,13 @@ namespace MugenMvvmToolkit.Infrastructure
 
         static BindingErrorProvider()
         {
+#if XAMARIN_FORMS
+            Forms.ViewInitialized += FormsOnViewInitialized;
+#else
             var field = typeof(EntryElement).GetField("entry", BindingFlags.NonPublic | BindingFlags.Instance);
             if (field != null && field.FieldType == typeof(UITextField))
                 GetEntryField = ServiceProvider.ReflectionManager.GetMemberGetter<UITextField>(field);
+#endif
             DefaultErrorImage = UIImage.FromFile("error.png");
         }
 
@@ -238,6 +250,13 @@ namespace MugenMvvmToolkit.Infrastructure
             return btn;
         }
 
+#if XAMARIN_FORMS
+        private static void FormsOnViewInitialized(object sender, ViewInitializedEventArgs args)
+        {            
+            if (args.View != null && args.NativeView != null)
+                ServiceProvider.AttachedValueProvider.SetValue(args.View, NativeViewKey, args.NativeView);
+        }
+#endif
         #endregion
 
         #region Overrides of BindingErrorProviderBase
@@ -250,11 +269,14 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <param name="context">The specified context, if any.</param>
         protected override void SetErrors(object target, IList<object> errors, IDataContext context)
         {
+            base.SetErrors(target, errors, context);
+
             var hasErrors = errors.Count != 0;
+#if !XAMARIN_FORMS
             var element = target as EntryElement;
             if (element != null && GetEntryField != null)
                 target = GetEntryField(element);
-
+#endif
             var uiView = target as UIView;
             if (uiView != null && ErrorBorderWidth > 0)
             {
@@ -268,7 +290,6 @@ namespace MugenMvvmToolkit.Infrastructure
                 }
                 else
                     LayoutInfo.Restore(uiView);
-
             }
 
             var textField = target as UITextField;
@@ -298,7 +319,6 @@ namespace MugenMvvmToolkit.Infrastructure
                 }
                 errorButton.SetErrors(errors);
             }
-            base.SetErrors(target, errors, context);
         }
 
         #endregion

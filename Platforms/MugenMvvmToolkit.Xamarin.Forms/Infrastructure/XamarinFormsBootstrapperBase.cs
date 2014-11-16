@@ -14,6 +14,8 @@
 // ****************************************************************************
 #endregion
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure.Navigation;
@@ -35,9 +37,21 @@ namespace MugenMvvmToolkit.Infrastructure
     /// </summary>
     public abstract class XamarinFormsBootstrapperBase : BootstrapperBase
     {
+        #region Nested types
+
+        internal interface IPlatformService
+        {
+            PlatformInfo GetPlatformInfo();
+
+            IList<Assembly> GetAssemblies();
+        }
+
+        #endregion
+
         #region Fields
 
         private readonly PlatformInfo _platform;
+        private readonly IPlatformService _platformService;
 
         #endregion
 
@@ -59,7 +73,33 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected XamarinFormsBootstrapperBase()
         {
-            _platform = PlatformExtensions.GetPlatformInfo();
+            var assembly = TryLoadAssembly(BindingAssemblyName, null);
+            if (assembly != null)
+            {
+                var serviceType = typeof(IPlatformService).GetTypeInfo();
+                serviceType = assembly.DefinedTypes.FirstOrDefault(serviceType.IsAssignableFrom);
+                if (serviceType != null)
+                    _platformService = (IPlatformService)Activator.CreateInstance(serviceType.AsType());
+            }
+            _platform = _platformService == null
+                ? PlatformExtensions.GetPlatformInfo()
+                : _platformService.GetPlatformInfo();
+        }
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        ///     Gets the name of binding assembly.
+        /// </summary>
+        protected static string BindingAssemblyName
+        {
+            get
+            {
+                return Device.OnPlatform("MugenMvvmToolkit.Xamarin.Forms.iOS", "MugenMvvmToolkit.Xamarin.Forms.Android",
+                    "MugenMvvmToolkit.Xamarin.Forms.WinPhone");
+            }
         }
 
         #endregion
@@ -72,6 +112,17 @@ namespace MugenMvvmToolkit.Infrastructure
         public override PlatformInfo Platform
         {
             get { return _platform; }
+        }
+
+
+        /// <summary>
+        ///     Gets the application assemblies.
+        /// </summary>
+        protected override ICollection<Assembly> GetAssemblies()
+        {
+            if (_platformService == null)
+                return base.GetAssemblies();
+            return _platformService.GetAssemblies();
         }
 
         #endregion
@@ -139,6 +190,5 @@ namespace MugenMvvmToolkit.Infrastructure
         }
 
         #endregion
-
     }
 }

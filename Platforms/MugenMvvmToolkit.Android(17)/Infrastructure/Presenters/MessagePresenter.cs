@@ -33,13 +33,25 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
     {
         #region Fields
 
+#if !XAMARIN_FORMS
         private readonly INavigationProvider _navigationProvider;
+#endif
         private readonly IThreadManager _threadManager;
 
         #endregion
 
         #region Constructors
 
+#if XAMARIN_FORMS
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="MessagePresenter" /> class.
+        /// </summary>
+        public MessagePresenter(IThreadManager threadManager)
+        {
+            Should.NotBeNull(threadManager, "threadManager");
+            _threadManager = threadManager;
+        }
+#else
         /// <summary>
         ///     Initializes a new instance of the <see cref="MessagePresenter" /> class.
         /// </summary>
@@ -50,6 +62,8 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             _navigationProvider = navigationProvider;
             _threadManager = threadManager;
         }
+#endif
+
 
         #endregion
 
@@ -100,9 +114,13 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             MessageResult defaultResult,
             TaskCompletionSource<MessageResult> tcs)
         {
+#if XAMARIN_FORMS
+            var activity = Xamarin.Forms.Forms.Context;
+#else
             var activity = _navigationProvider.CurrentContent as IActivityView;
+#endif
             Should.BeSupported(activity != null, "The current top activity is null.");
-            AlertDialog.Builder builder = new AlertDialog.Builder((Context) activity)
+            AlertDialog.Builder builder = new AlertDialog.Builder((Context)activity)
                 .SetTitle(caption)
                 .SetMessage(messageBoxText)
                 .SetCancelable(false);
@@ -153,7 +171,9 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             if (drawable != null)
                 builder.SetIcon(drawable.Value);
             AlertDialog dialog = builder.Create();
+#if !XAMARIN_FORMS
             activity.Destroyed += (sender, args) => tcs.TrySetResult(defaultResult);
+#endif
             dialog.Show();
         }
 

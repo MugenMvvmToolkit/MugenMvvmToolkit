@@ -52,6 +52,12 @@
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\LinkerIncludeLabmdaExpression.cs">
       <Link>LinkerIncludeLabmdaExpression.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\MarkupExtensions\DataBindingExtensionCommon.cs">
+      <Link>MarkupExtensions\DataBindingExtensionCommon.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Models\Enums.cs">
+      <Link>Models\Enums.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Touch\Models\EventArg\NavigatingCancelEventArgs.cs">
       <Link>Models\EventArg\NavigatingCancelEventArgs.cs</Link>
     </Compile>
@@ -89,12 +95,12 @@
       <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
     </Compile>
     <Compile Include="Infrastructure\BindingContextManagerEx.cs" />
-    <Compile Include="Infrastructure\BindingErrorProvider.cs" />
     <Compile Include="Infrastructure\Mediators\ModalViewMediator.cs" />
     <Compile Include="Infrastructure\Navigation\NavigationService.cs" />
     <Compile Include="Infrastructure\XamarinFormsBootstrapperBase.cs" />
     <Compile Include="InitializationModule.cs" />
     <Compile Include="Interfaces\Views\IModalView.cs" />
+    <Compile Include="MarkupExtensions\DataBindingExtension.cs" />
     <Compile Include="MarkupExtensions\View.cs" />
     <Compile Include="Models\ParentObserver.cs" />
     <Compile Include="PlatformDataBindingModule.cs" />
@@ -114,9 +120,11 @@
     </Reference>
     <Reference Include="Xamarin.Forms.Core">
       <HintPath>..\..\packages\Xamarin.Forms.1.2.3.6257\lib\portable-win+net45+wp80+MonoAndroid10+MonoTouch10\Xamarin.Forms.Core.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Xamarin.Forms.Xaml">
       <HintPath>..\..\packages\Xamarin.Forms.1.2.3.6257\lib\portable-win+net45+wp80+MonoAndroid10+MonoTouch10\Xamarin.Forms.Xaml.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -202,9 +202,9 @@ namespace MugenMvvmToolkit.Infrastructure
         protected abstract IIocContainer CreateIocContainer();
 
         /// <summary>
-        /// Tries to add assembly by full name.
+        ///     Tries to load assembly by full name.
         /// </summary>
-        protected static void TryAddAssembly(string assemblyName, ICollection<Assembly> assemblies)
+        protected static Assembly TryLoadAssembly(string assemblyName, ICollection<Assembly> assemblies)
         {
             try
             {
@@ -214,12 +214,14 @@ namespace MugenMvvmToolkit.Infrastructure
                 var assembly = Assembly.Load(assemblyName);
 #endif
 
-                if (assembly != null)
+                if (assembly != null && assemblies != null)
                     assemblies.Add(assembly);
+                return assembly;
             }
             // ReSharper disable once EmptyGeneralCatchClause
             catch
             {
+                return null;
             }
         }
 

@@ -91,14 +91,6 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        ///     Gets the <see cref="IBindingErrorProvider" /> that will be used by default.
-        /// </summary>
-        protected override IBindingErrorProvider GetBindingErrorProvider()
-        {
-            return new BindingErrorProvider();
-        }
-
-        /// <summary>
         ///     Gets the <see cref="IBindingContextManager" /> that will be used by default.
         /// </summary>
         protected override IBindingContextManager GetBindingContextManager()

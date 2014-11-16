@@ -52,14 +52,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             Should.NotBeNull(viewModelProvider, "viewModelProvider");
             _viewMappingProvider = viewMappingProvider;
             _viewModelProvider = viewModelProvider;
-            UseAnimations = true;
         }
-
-        #endregion
-
-        #region Properties
-
-        public bool UseAnimations { get; set; }
 
         #endregion
 
@@ -92,6 +85,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         protected override void InitializeView(IModalView view, IDataContext context)
         {
+            ((Page)view).Disappearing += OnViewClosed;
         }
 
         /// <summary>
@@ -100,6 +94,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// <param name="view">The specified window-view to dispose.</param>
         protected override void CleanupView(IModalView view)
         {
+            ((Page)view).Disappearing -= OnViewClosed;
         }
 
         /// <summary>
@@ -108,9 +103,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         protected override void CloseView(IModalView view)
         {
             var page = (Page)view.GetUnderlyingView();
-            page.Navigation
-                .PopModalAsync()
-                .ContinueWith(task => ThreadManager.InvokeOnUiThreadAsync(() => OnViewClosed(page, EventArgs.Empty)));
+            page.Navigation.PopModalAsync();
         }
 
         #endregion
