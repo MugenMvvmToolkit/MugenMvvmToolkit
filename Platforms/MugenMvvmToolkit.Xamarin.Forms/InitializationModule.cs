@@ -79,6 +79,16 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
+        ///     Gets the <see cref="IViewMappingProvider" /> that will be used by default.
+        /// </summary>
+        /// <returns>An instance of <see cref="IViewMappingProvider" />.</returns>
+        protected override BindingInfo<IViewMappingProvider> GetViewMappingProvider()
+        {
+            var assemblies = Context.Assemblies;
+            return BindingInfo<IViewMappingProvider>.FromMethod((adapter, list) => new ViewMappingProviderEx(assemblies), DependencyLifecycle.SingleInstance);
+        }
+
+        /// <summary>
         ///     Gets the <see cref="IViewManager" /> that will be used in the current application by default.
         /// </summary>
         /// <returns>An instance of <see cref="IViewManager" />.</returns>

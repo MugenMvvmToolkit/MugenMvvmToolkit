@@ -129,6 +129,5 @@ namespace MugenMvvmToolkit.MarkupExtensions
         }
 
         #endregion
-
     }
 }

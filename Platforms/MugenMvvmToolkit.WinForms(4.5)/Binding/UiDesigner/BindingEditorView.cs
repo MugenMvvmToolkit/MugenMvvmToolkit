@@ -138,7 +138,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                 string name;
                 Type type;
                 if (AddCompleteItem(component, out name, out type) && container != component)
-                    treeNodes.Add(new TreeNode(GetDisplayName(component, name, type)));
+                    treeNodes.Add(new TreeNode(GetDisplayName(component, name, type)) { Tag = name });
             }
             return new TreeNode(GetDisplayName(container, container.Name, container.GetType()), treeNodes.ToArrayEx())
             {

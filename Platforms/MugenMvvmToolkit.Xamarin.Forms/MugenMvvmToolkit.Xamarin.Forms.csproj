@@ -97,6 +97,7 @@
     <Compile Include="Infrastructure\BindingContextManagerEx.cs" />
     <Compile Include="Infrastructure\Mediators\ModalViewMediator.cs" />
     <Compile Include="Infrastructure\Navigation\NavigationService.cs" />
+    <Compile Include="Infrastructure\ViewMappingProviderEx.cs" />
     <Compile Include="Infrastructure\XamarinFormsBootstrapperBase.cs" />
     <Compile Include="InitializationModule.cs" />
     <Compile Include="Interfaces\Views\IModalView.cs" />
@@ -104,7 +105,7 @@
     <Compile Include="MarkupExtensions\View.cs" />
     <Compile Include="Models\ParentObserver.cs" />
     <Compile Include="PlatformDataBindingModule.cs" />
-    <Compile Include="PlatformExtensions.cs" />
+    <Compile Include="XamarinFormsExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

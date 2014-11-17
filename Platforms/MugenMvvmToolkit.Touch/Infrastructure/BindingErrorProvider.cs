@@ -20,6 +20,9 @@ using System.Drawing;
 using System.Reflection;
 using MonoTouch.CoreGraphics;
 #if XAMARIN_FORMS
+using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Models;
 using Xamarin.Forms;
 #else
 using MonoTouch.Dialog;
@@ -47,13 +50,11 @@ namespace MugenMvvmToolkit.Infrastructure
 
             private const string Key = "@#layoutState";
 
-            public float BorderWidth { get; set; }
-
-            public float CornerRadius { get; set; }
-
-            public CGColor BorderColor { get; set; }
-
-            public bool ClipsToBounds { get; set; }
+            private readonly float _borderWidth;
+            private readonly float _cornerRadius;
+            private readonly CGColor _borderColor;
+            private readonly bool _clipsToBounds;
+            private readonly bool _isEmpty;
 
             #endregion
 
@@ -61,10 +62,16 @@ namespace MugenMvvmToolkit.Infrastructure
 
             private LayoutInfo(UIView view)
             {
-                BorderWidth = view.Layer.BorderWidth;
-                CornerRadius = view.Layer.CornerRadius;
-                BorderColor = view.Layer.BorderColor;
-                ClipsToBounds = view.ClipsToBounds;
+                var layer = view.Layer;
+                if (layer == null)
+                {
+                    _isEmpty = true;
+                    return;
+                }
+                _borderWidth = layer.BorderWidth;
+                _cornerRadius = layer.CornerRadius;
+                _borderColor = layer.BorderColor;
+                _clipsToBounds = view.ClipsToBounds;
             }
 
             #endregion
@@ -79,13 +86,16 @@ namespace MugenMvvmToolkit.Infrastructure
             public static void Restore(UIView view)
             {
                 var info = ServiceProvider.AttachedValueProvider.GetValue<LayoutInfo>(view, Key, false);
-                if (info == null)
+                if (info == null || info._isEmpty)
                     return;
                 ServiceProvider.AttachedValueProvider.Clear(view, Key);
-                view.Layer.BorderColor = info.BorderColor;
-                view.Layer.BorderWidth = info.BorderWidth;
-                view.Layer.CornerRadius = info.CornerRadius;
-                view.ClipsToBounds = info.ClipsToBounds;
+                var layer = view.Layer;
+                if (layer == null)
+                    return;
+                layer.BorderColor = info._borderColor;
+                layer.BorderWidth = info._borderWidth;
+                layer.CornerRadius = info._cornerRadius;
+                view.ClipsToBounds = info._clipsToBounds;
             }
 
             #endregion
@@ -126,6 +136,11 @@ namespace MugenMvvmToolkit.Infrastructure
             private void OnTouchUpInside(object sender, EventArgs eventArgs)
             {
                 var superview = GetTextFieldSuperview();
+                if (superview == null)
+                {
+                    Tracer.Warn("Cannot get superview for " + _textField);
+                    return;
+                }
                 if (_popup == null)
                 {
                     var showOnRect = _textField.ConvertRectToView(Frame, superview);
@@ -159,10 +174,14 @@ namespace MugenMvvmToolkit.Infrastructure
 
             private UIView GetTextFieldSuperview()
             {
-                var superview = _textField.Superview;
-                while (superview is UIScrollView)
-                    superview = superview.Superview;
-                return superview;
+                var current = _textField.Superview;
+                UIView result = null;
+                while (current != null && !(current is UIWindow))
+                {
+                    result = current;
+                    current = current.Superview;
+                }
+                return result;
             }
 
             #endregion
@@ -253,8 +272,22 @@ namespace MugenMvvmToolkit.Infrastructure
 #if XAMARIN_FORMS
         private static void FormsOnViewInitialized(object sender, ViewInitializedEventArgs args)
         {            
-            if (args.View != null && args.NativeView != null)
-                ServiceProvider.AttachedValueProvider.SetValue(args.View, NativeViewKey, args.NativeView);
+            var view = args.View;
+            if (view == null || args.NativeView == null)
+                return;
+            ServiceProvider.AttachedValueProvider.SetValue(view, NativeViewKey, args.NativeView);
+            var errorProvider = BindingServiceProvider.ErrorProvider;
+            if (errorProvider == null)
+                return;
+            var dictionary = GetOrAddErrorsDictionary(view);
+            foreach (var item in dictionary)
+                errorProvider.SetErrors(view, item.Key, item.Value, DataContext.Empty);
+        }
+
+        [CanBeNull]
+        protected virtual UIView GetNativeView([NotNull] Element element)
+        {
+            return ServiceProvider.AttachedValueProvider.GetValue<UIView>(element, NativeViewKey, false);
         }
 #endif
         #endregion
@@ -272,7 +305,11 @@ namespace MugenMvvmToolkit.Infrastructure
             base.SetErrors(target, errors, context);
 
             var hasErrors = errors.Count != 0;
-#if !XAMARIN_FORMS
+#if XAMARIN_FORMS
+            var element = target as Element;
+            if (element != null)
+                target = GetNativeView(element);
+#else
             var element = target as EntryElement;
             if (element != null && GetEntryField != null)
                 target = GetEntryField(element);

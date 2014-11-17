@@ -23,7 +23,7 @@ using Xamarin.Forms;
 
 namespace MugenMvvmToolkit
 {
-    public static class PlatformExtensions
+    public static class XamarinFormsExtensions
     {
         #region Fields
 

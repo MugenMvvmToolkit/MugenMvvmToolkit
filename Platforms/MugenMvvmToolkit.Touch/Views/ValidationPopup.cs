@@ -52,6 +52,7 @@ namespace MugenMvvmToolkit.Views
             FieldFrame = fieldFrame;
             FontSize = 15;
             PaddingInErrorPopUp = 5;
+            Layer.ZPosition = float.MaxValue;
         }
 
         #endregion

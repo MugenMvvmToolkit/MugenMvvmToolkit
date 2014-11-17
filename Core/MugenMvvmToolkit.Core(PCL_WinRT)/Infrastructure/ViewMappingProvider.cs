@@ -27,7 +27,7 @@ using MugenMvvmToolkit.Models;
 namespace MugenMvvmToolkit.Infrastructure
 {
     /// <summary>
-    ///     Represents the <see cref="IViewMappingProvider" /> that uses attributes to fill mappings.
+    ///     Represents the implementation of <see cref="IViewMappingProvider"/> to provide view mappings.
     /// </summary>
     public class ViewMappingProvider : IViewMappingProvider
     {
@@ -133,7 +133,7 @@ namespace MugenMvvmToolkit.Infrastructure
                             viewModels.Add(type);
                         }
                     }
-                    else
+                    else if (IsViewType(type))
                     {
                         List<string> names;
                         if (TryGetNames(type, _viewPostfix, out names))
@@ -177,6 +177,14 @@ namespace MugenMvvmToolkit.Infrastructure
                     }
                 }
             }
+        }
+
+        /// <summary>
+        ///     Defines the method that determines whether the type is view type.
+        /// </summary>
+        protected virtual bool IsViewType(Type type)
+        {
+            return true;
         }
 
         /// <summary>

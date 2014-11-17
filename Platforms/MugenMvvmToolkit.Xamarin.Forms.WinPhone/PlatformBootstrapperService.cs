@@ -41,10 +41,10 @@ namespace MugenMvvmToolkit
 
         }
 
-        public IList<Assembly> GetAssemblies()
+        public ICollection<Assembly> GetAssemblies()
         {
 #if WINDOWS_PHONE
-            var listAssembly = new List<Assembly>();
+            var listAssembly = new HashSet<Assembly>();
             foreach (var part in System.Windows.Deployment.Current.Parts)
             {
                 string assemblyName = part.Source.Replace(".dll", string.Empty);
@@ -63,7 +63,7 @@ namespace MugenMvvmToolkit
             }
             return listAssembly;
 #else
-            return new List<Assembly>(AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies());
+            return new HashSet<Assembly>(AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies());
 #endif
         }
 

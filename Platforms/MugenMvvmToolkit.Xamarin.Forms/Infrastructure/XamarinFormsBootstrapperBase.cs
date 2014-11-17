@@ -43,7 +43,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             PlatformInfo GetPlatformInfo();
 
-            IList<Assembly> GetAssemblies();
+            ICollection<Assembly> GetAssemblies();
         }
 
         #endregion
@@ -82,7 +82,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     _platformService = (IPlatformService)Activator.CreateInstance(serviceType.AsType());
             }
             _platform = _platformService == null
-                ? PlatformExtensions.GetPlatformInfo()
+                ? XamarinFormsExtensions.GetPlatformInfo()
                 : _platformService.GetPlatformInfo();
         }
 

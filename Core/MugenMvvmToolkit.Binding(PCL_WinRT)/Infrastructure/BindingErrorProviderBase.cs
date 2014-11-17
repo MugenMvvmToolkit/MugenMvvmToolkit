@@ -31,13 +31,27 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
     {
         #region Nested types
 
-        private sealed class ErrorsDictionary : LightDictionaryBase<string, IList<object>>
+        protected sealed class ErrorsDictionary : LightDictionaryBase<string, IList<object>>
         {
             #region Constructors
 
             public ErrorsDictionary()
                 : base(true)
             {
+            }
+
+            #endregion
+
+            #region Methods
+
+            public new bool TryGetValue(string key, out IList<object> result)
+            {
+                return base.TryGetValue(key, out result);
+            }
+
+            public new bool ContainsKey(string key)
+            {
+                return base.ContainsKey(key);
             }
 
             #endregion
@@ -72,7 +86,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             Should.NotBeNull(target, "target");
             Should.NotBeNull(senderKey, "senderKey");
-            var dict = ServiceProvider.AttachedValueProvider.GetOrAdd(target, "@#@er", (o, o1) => new ErrorsDictionary(), null);
+            var dict = GetOrAddErrorsDictionary(target);
             if (errors == null || errors.Count == 0)
                 dict.Remove(senderKey);
             else
@@ -89,6 +103,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #endregion
 
         #region Methods
+
+        protected static ErrorsDictionary GetOrAddErrorsDictionary(object target)
+        {
+            return ServiceProvider
+                .AttachedValueProvider
+                .GetOrAdd(target, "@#@er", (o, o1) => new ErrorsDictionary(), null);
+        }
 
         /// <summary>
         ///     Sets errors for binding target.

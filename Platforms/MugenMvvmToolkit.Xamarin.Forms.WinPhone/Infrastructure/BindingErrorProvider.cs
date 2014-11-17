@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="BindingErrorProvider.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,13 +13,16 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
 
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using JetBrains.Annotations;
 using Microsoft.Phone.Controls;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -45,27 +49,38 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             base.SetErrors(target, errors, context);
 
-            var view = target as VisualElement;
-            if (view != null)
+            var element = target as Element;
+            if (element != null)
+                target = GetNativeView(element);
+
+            var frameworkElement = target as FrameworkElement;
+            if (frameworkElement != null)
+                ValidationBinder.SetErrors(frameworkElement, errors);
+        }
+
+        #endregion
+
+        #region Methods
+
+        [CanBeNull]
+        protected virtual FrameworkElement GetNativeView([NotNull] Element element)
+        {
+            var view = element as VisualElement;
+            if (view == null)
+                return null;
+            IVisualElementRenderer renderer = view.GetRenderer();
+            var entryRenderer = renderer as EntryRenderer;
+            if (entryRenderer != null)
             {
-                IVisualElementRenderer renderer = view.GetRenderer();
-                if (renderer is EditorRenderer)
-                    target = ((EditorRenderer)renderer).Control;
-                else if (renderer is DatePickerRenderer)
-                    target = ((DatePickerRenderer)renderer).Control;
-                else if (renderer is EntryRenderer)
-                {
-                    var entryRenderer = (EntryRenderer)renderer;
-                    if (entryRenderer.Element.IsPassword)
-                        target = entryRenderer.Control.Children.OfType<PasswordBox>().FirstOrDefault() ?? target;
-                    else
-                        target = entryRenderer.Control.Children.OfType<PhoneTextBox>().FirstOrDefault() ?? target;
-                }
+                if (entryRenderer.Element.IsPassword)
+                    return entryRenderer.Control.Children.OfType<PasswordBox>().FirstOrDefault();
+                return entryRenderer.Control.Children.OfType<PhoneTextBox>().FirstOrDefault();
             }
 
-            var element = target as FrameworkElement;
-            if (element != null)
-                ValidationBinder.SetErrors(element, errors);
+            var member = BindingServiceProvider.MemberProvider.GetBindingMember(renderer.GetType(), "Control", true, false);
+            if (member == null || !member.CanRead)
+                return null;
+            return member.GetValue(renderer, null) as FrameworkElement;
         }
 
         #endregion
