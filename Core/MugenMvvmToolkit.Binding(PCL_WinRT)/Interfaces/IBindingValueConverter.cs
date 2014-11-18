@@ -15,6 +15,7 @@
 #endregion
 using System;
 using System.Globalization;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces
 {
@@ -33,7 +34,8 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         /// <param name="targetType">The type of the binding target property.</param>
         /// <param name="parameter">The converter parameter to use.</param>
         /// <param name="culture">The culture to use in the converter.</param>
-        object Convert(object value, Type targetType, object parameter, CultureInfo culture);
+		/// <param name="context">The current context to use in the converter.</param>
+        object Convert(object value, Type targetType, object parameter, CultureInfo culture, IDataContext context);
 
         /// <summary>
         ///     Converts a value.
@@ -45,6 +47,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         /// <param name="targetType">The type to convert to.</param>
         /// <param name="parameter">The converter parameter to use.</param>
         /// <param name="culture">The culture to use in the converter.</param>
-        object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture);
+        /// <param name="context">The current context to use in the converter.</param>
+		object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture, IDataContext context);
     }
 }

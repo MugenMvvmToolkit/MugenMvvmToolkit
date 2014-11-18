@@ -114,7 +114,9 @@ namespace MugenMvvmToolkit.Converters
 
 #if NETFX_CORE || WINDOWSCOMMON
         public object Convert(object value, Type targetType = null, object parameter = null, string language = null)
-#else
+#elif ANDROID || WINFORMS || TOUCH || XAMARIN_FORMS
+        public object Convert(object value, Type targetType = null, object parameter = null, CultureInfo culture = null, IDataContext context = null)
+#else 
         public object Convert(object value, Type targetType = null, object parameter = null, CultureInfo culture = null)
 #endif
 
@@ -163,9 +165,11 @@ namespace MugenMvvmToolkit.Converters
         }
 
 #if NETFX_CORE || WINDOWSCOMMON
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        public object ConvertBack(object value, Type targetType = null, object parameter = null, string language = null)
+#elif ANDROID || WINFORMS || TOUCH || XAMARIN_FORMS
+        public object ConvertBack(object value, Type targetType = null, object parameter = null, CultureInfo culture = null, IDataContext context = null)
 #else
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object value, Type targetType = null, object parameter = null, CultureInfo culture = null)
 #endif
 
         {

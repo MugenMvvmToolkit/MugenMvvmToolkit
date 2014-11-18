@@ -15,6 +15,7 @@
 #endregion
 using System;
 using System.Globalization;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Converters
 {
@@ -40,39 +41,19 @@ namespace MugenMvvmToolkit.Binding.Converters
         }
 
         #endregion
-        
+
         #region Overrides of ValueConverterBase
 
-        /// <summary>
-        ///     Converts a value.
-        /// </summary>
-        /// <returns>
-        ///     A converted value. If the method returns null, the valid null value is used.
-        /// </returns>
-        /// <param name="value">The value produced by the binding source.</param>
-        /// <param name="targetType">The type of the binding target property.</param>
-        /// <param name="parameter">The converter parameter to use.</param>
-        /// <param name="culture">The culture to use in the converter.</param>
-        protected override bool? Convert(bool? value, Type targetType, object parameter, CultureInfo culture)
+        protected override bool? Convert(bool? value, Type targetType, object parameter, CultureInfo culture, IDataContext context)
         {
             if (value.HasValue)
                 return !value.Value;
             return null;
         }
 
-        /// <summary>
-        ///     Converts a value.
-        /// </summary>
-        /// <returns>
-        ///     A converted value. If the method returns null, the valid null value is used.
-        /// </returns>
-        /// <param name="value">The value that is produced by the binding target.</param>
-        /// <param name="targetType">The type to convert to.</param>
-        /// <param name="parameter">The converter parameter to use.</param>
-        /// <param name="culture">The culture to use in the converter.</param>
-        protected override bool? ConvertBack(bool? value, Type targetType, object parameter, CultureInfo culture)
+        protected override bool? ConvertBack(bool? value, Type targetType, object parameter, CultureInfo culture, IDataContext context)
         {
-            return Convert(value, targetType, parameter, culture);
+            return Convert(value, targetType, parameter, culture, context);
         }
 
         #endregion

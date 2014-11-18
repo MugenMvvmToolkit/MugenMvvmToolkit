@@ -52,6 +52,12 @@
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\LinkerIncludeLabmdaExpression.cs">
       <Link>LinkerIncludeLabmdaExpression.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Converters\ValueConverterWrapper.cs">
+      <Link>Converters\ValueConverterWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Infrastructure\BindingResourceResolverEx.cs">
+      <Link>Infrastructure\BindingResourceResolverEx.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\MarkupExtensions\DataBindingExtensionCommon.cs">
       <Link>MarkupExtensions\DataBindingExtensionCommon.cs</Link>
     </Compile>

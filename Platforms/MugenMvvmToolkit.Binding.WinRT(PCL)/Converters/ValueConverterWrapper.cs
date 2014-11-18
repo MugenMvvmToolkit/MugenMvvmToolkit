@@ -17,6 +17,7 @@ using System;
 using System.Globalization;
 using Windows.UI.Xaml.Data;
 using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Converters
 {
@@ -58,7 +59,8 @@ namespace MugenMvvmToolkit.Binding.Converters
         /// <param name="targetType">The type of the binding target property.</param>
         /// <param name="parameter">The converter parameter to use.</param>
         /// <param name="culture">The culture to use in the converter.</param>
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        /// <param name="context">The current context to use in the converter.</param>
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture, IDataContext context)
         {
             Should.MethodBeSupported(_convert != null, "Convert");
             return _convert(value, targetType, parameter, culture.Name);
@@ -74,7 +76,8 @@ namespace MugenMvvmToolkit.Binding.Converters
         /// <param name="targetType">The type to convert to.</param>
         /// <param name="parameter">The converter parameter to use.</param>
         /// <param name="culture">The culture to use in the converter.</param>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        /// <param name="context">The current context to use in the converter.</param>
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture, IDataContext context)
         {
             Should.MethodBeSupported(_convertBack != null, "ConvertBack");
             return _convertBack(value, targetType, parameter, culture.Name);

@@ -434,12 +434,6 @@ namespace MugenMvvmToolkit
             return Type.GetType(typeName, false);
         }
 
-        public static bool IsDisposed([NotNull] this NSObject item)
-        {
-            Should.NotBeNull(item, "item");
-            return item.Handle == IntPtr.Zero;
-        }
-
         public static void AddOrientationChangeListener([NotNull] IOrientationChangeListener listener)
         {
             Should.NotBeNull(listener, "listener");
@@ -475,6 +469,12 @@ namespace MugenMvvmToolkit
                     }
                 }
             }
+        }
+
+        internal static bool IsDisposed([NotNull] this NSObject item)
+        {
+            Should.NotBeNull(item, "item");
+            return item.Handle == IntPtr.Zero;
         }
 
         private static void AddButtonOS7([NotNull] this UIActionSheet actionSheet, string title, string binding, IList<object> sources)

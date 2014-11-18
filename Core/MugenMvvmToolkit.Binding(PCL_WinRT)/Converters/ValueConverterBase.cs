@@ -16,6 +16,7 @@
 using System;
 using System.Globalization;
 using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Converters
 {
@@ -36,9 +37,10 @@ namespace MugenMvvmToolkit.Binding.Converters
         /// <param name="targetType">The type of the binding target property.</param>
         /// <param name="parameter">The converter parameter to use.</param>
         /// <param name="culture">The culture to use in the converter.</param>
-        object IBindingValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        /// <param name="context">The current context to use in the converter.</param>
+        object IBindingValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture, IDataContext context)
         {
-            return Convert((TFrom) value, targetType, parameter, culture);
+            return Convert((TFrom)value, targetType, parameter, culture, context);
         }
 
         /// <summary>
@@ -51,9 +53,10 @@ namespace MugenMvvmToolkit.Binding.Converters
         /// <param name="targetType">The type to convert to.</param>
         /// <param name="parameter">The converter parameter to use.</param>
         /// <param name="culture">The culture to use in the converter.</param>
-        object IBindingValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        /// <param name="context">The current context to use in the converter.</param>
+        object IBindingValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture, IDataContext context)
         {
-            return ConvertBack((TTo) value, targetType, parameter, culture);
+            return ConvertBack((TTo)value, targetType, parameter, culture, context);
         }
 
         #endregion
@@ -70,7 +73,8 @@ namespace MugenMvvmToolkit.Binding.Converters
         /// <param name="targetType">The type of the binding target property.</param>
         /// <param name="parameter">The converter parameter to use.</param>
         /// <param name="culture">The culture to use in the converter.</param>
-        protected abstract TTo Convert(TFrom value, Type targetType, object parameter, CultureInfo culture);
+        /// <param name="context">The current context to use in the converter.</param>
+        protected abstract TTo Convert(TFrom value, Type targetType, object parameter, CultureInfo culture, IDataContext context);
 
         /// <summary>
         ///     Converts a value.
@@ -82,7 +86,8 @@ namespace MugenMvvmToolkit.Binding.Converters
         /// <param name="targetType">The type to convert to.</param>
         /// <param name="parameter">The converter parameter to use.</param>
         /// <param name="culture">The culture to use in the converter.</param>
-        protected abstract TFrom ConvertBack(TTo value, Type targetType, object parameter, CultureInfo culture);
+        /// <param name="context">The current context to use in the converter.</param>
+        protected abstract TFrom ConvertBack(TTo value, Type targetType, object parameter, CultureInfo culture, IDataContext context);
 
         #endregion
     }

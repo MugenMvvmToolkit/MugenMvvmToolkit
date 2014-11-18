@@ -16,6 +16,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Android.Widget;
@@ -67,7 +68,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 target = GetNativeView(element);
 
             var textView = target as TextView;
-            if (textView != null)
+            if (textView != null && textView.Handle != IntPtr.Zero)
             {
                 object error = errors.FirstOrDefault();
                 textView.Error = error == null ? null : error.ToString();

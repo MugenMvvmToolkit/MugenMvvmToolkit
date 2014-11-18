@@ -17,6 +17,7 @@ using System;
 using System.Globalization;
 using MonoTouch.UIKit;
 using MugenMvvmToolkit.Binding.Converters;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Converters
 {
@@ -25,13 +26,13 @@ namespace MugenMvvmToolkit.Converters
         #region Overrides of ValueConverterBase<bool,UITableViewCellAccessory>
 
         protected override UITableViewCellAccessory Convert(bool? value, Type targetType, object parameter,
-            CultureInfo culture)
+            CultureInfo culture, IDataContext context)
         {
             return value.GetValueOrDefault() ? UITableViewCellAccessory.Checkmark : UITableViewCellAccessory.None;
         }
 
         protected override bool? ConvertBack(UITableViewCellAccessory value, Type targetType, object parameter,
-            CultureInfo culture)
+            CultureInfo culture, IDataContext context)
         {
             return value == UITableViewCellAccessory.Checkmark;
         }

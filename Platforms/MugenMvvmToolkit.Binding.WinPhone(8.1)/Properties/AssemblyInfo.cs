@@ -30,6 +30,6 @@ using System.Resources;
 [assembly: ComVisible(false)]
 [assembly: Guid("9489f7e3-f3a1-4abd-b152-369ca1b102c8")]
 
-[assembly: AssemblyVersion("1.1.0.0")]
-[assembly: AssemblyFileVersion("1.1.0.0")]
+[assembly: AssemblyVersion("1.2.0.0")]
+[assembly: AssemblyFileVersion("1.2.0.0")]
 [assembly: NeutralResourcesLanguageAttribute("en-US")]

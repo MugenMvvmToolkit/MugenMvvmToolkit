@@ -10,3 +10,4 @@ nuget pack MugenMvvmToolkit.nuspec
 nuget pack MugenMvvmToolkit.Touch.nuspec
 nuget pack MugenMvvmToolkit.WinForms.nuspec
 nuget pack MugenMvvmToolkit.WPF.nuspec
+nuget pack MugenMvvmToolkit.Xamarin.Forms.nuspec

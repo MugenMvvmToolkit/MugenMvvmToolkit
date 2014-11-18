@@ -50,6 +50,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Fields
 
+        protected static readonly DataConstant<bool> WrapToNavigationPageConstant;
         private readonly PlatformInfo _platform;
         private readonly IPlatformService _platformService;
 
@@ -62,6 +63,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         static XamarinFormsBootstrapperBase()
         {
+            WrapToNavigationPageConstant = DataConstant.Create(() => WrapToNavigationPageConstant);
             if (Device.OS != TargetPlatform.WinPhone)
                 LinkerInclude.Initialize();
             DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
@@ -129,8 +131,18 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
+        public Page Start(bool wrapToNavigationPage, IDataContext context = null)
+        {
+            context = context.ToNonReadOnly();
+            context.AddOrUpdate(WrapToNavigationPageConstant, wrapToNavigationPage);
+            return Start(context);
+        }
+
         public virtual Page Start(IDataContext context = null)
         {
+            context = context.ToNonReadOnly();
+            if (!context.Contains(WrapToNavigationPageConstant))
+                context.Add(WrapToNavigationPageConstant, true);
             Initialize();
             context = context.ToNonReadOnly();
             var viewModelType = GetMainViewModelType();
@@ -166,7 +178,9 @@ namespace MugenMvvmToolkit.Infrastructure
         [CanBeNull]
         protected virtual NavigationPage CreateNavigationPage(Page mainPage, IDataContext context)
         {
-            return new NavigationPage(mainPage);
+            if (context.GetData(WrapToNavigationPageConstant))
+                return new NavigationPage(mainPage);
+            return null;
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)

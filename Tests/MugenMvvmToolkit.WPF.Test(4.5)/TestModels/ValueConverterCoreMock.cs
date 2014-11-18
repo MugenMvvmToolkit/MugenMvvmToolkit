@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Test.TestModels
 {
@@ -15,7 +15,7 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         #endregion
 
-        #region Implementation of IValueConverterCore
+        #region Implementation of IBindingValueConverter
 
         /// <summary>
         ///     Converts a value.
@@ -27,7 +27,8 @@ namespace MugenMvvmToolkit.Test.TestModels
         /// <param name="targetType">The type of the binding target property.</param>
         /// <param name="parameter">The converter parameter to use.</param>
         /// <param name="culture">The culture to use in the converter.</param>
-        object IBindingValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        /// <param name="context">The current context to use in the converter.</param>
+        object IBindingValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture, IDataContext context)
         {
             return Convert(value, targetType, parameter, culture);
         }
@@ -42,7 +43,8 @@ namespace MugenMvvmToolkit.Test.TestModels
         /// <param name="targetType">The type to convert to.</param>
         /// <param name="parameter">The converter parameter to use.</param>
         /// <param name="culture">The culture to use in the converter.</param>
-        object IBindingValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        /// <param name="context">The current context to use in the converter.</param>
+        object IBindingValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture, IDataContext context)
         {
             return ConvertBack(value, targetType, parameter, culture);
         }

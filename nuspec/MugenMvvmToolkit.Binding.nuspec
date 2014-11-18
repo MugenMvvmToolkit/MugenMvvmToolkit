@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.Binding</id>
-    <version>1.1.4</version>
+    <version>1.2.0-beta1</version>
     <title>MugenMvvmToolkit - Binding Extensions</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -14,37 +14,46 @@
       - Silverlight 5
       - Silverlight for WP7.1, WP8, WP8.1
       - Xamarin.Android
-	  - Xamarin.iOS
+      - Xamarin.iOS
+      - Xamarin.Forms
       - WinRT XAML framework for Windows 8 Store apps
-      The Mugen MVVM Toolkit makes extensive use of Portable Class Libraries to provide maintainable cross platform C# native applications.
-      The core of toolkit contains a navigation system, windows management system, IocContainer, validation, etc.
-      The Mugen MVVM Toolkit provides a powerful bindings that you can use on any platform, here are some features:	  
-      - All of the features available for WPF platform available on all platforms and even more
-      - Binding supports C# language expressions like Linq, Extension methods, method call, ternary operator (?:), coalescing operator (??), etc. (Text Items.First(x => x == Name).Value), (Text $string.Format('{0} {1}', Prop1, Prop2))
-      - Supports subscription to any control event. (TextChanged ViewModelMethod($args)), (DoubleClick Command).
-      - Built-in support for validation. (Text Prop1, Validate=True), (Text $GetErrors(Prop1).FirstOrDefault())
-      - You can easily write their own extensions for bindings. (Text $i18.MyLocalizableString), (Text $MyCustomMethod(Prop1)).
+      The MVVM framework includes the following features that differs this project from other frameworks:
+      - Deep integration with each platform.
+      - Supports state preservation and restoration for mobile platforms.
+      - Full Fragment support for Android, you do not need to worry about activity, fragments, sub-fragments or their state all this makes the framework.
+      - Solves the nested user controls problem in MVVM, all view models are dynamically created by you, using the GetViewModel and GetViewModel<TViewModel> methods and you do not need to use the ViewModelLocator.
+      - Supports all kinds of navigation like modal window, page navigation, tab navigation, back stack fragment navigation for android. You can also easily add a new kind of navigation.
+      - Navigation system works with view models and allows to expect the completion of the operation. You can pass any parameters between view models.
+      - Good design mode support, for xaml platforms supports the creation of design view model with any constructor parameters.
+      - Supports bindings on all platforms, all of the native binding features available for WPF platform available on all platforms and even more.
+      - Binding supports C# language expressions like Linq, Extension methods, method call, ternary operator (?:), coalescing operator (??), etc.
+      - Supports subscription to any control event.
+      - Built-in support for validation.
+      - You can easily write their own extensions for bindings.
       - Supports attached members (properties, events, methods), you can extend any object as you want.
-      - Special editor for WinForms, you do not need to write code to create bindings
-	  - Parser builds syntax tree that allows you to easily change or extend the bindings, without manipulation of the raw text.
-      - Supports fluent syntax
-      - Excellent performance
+      - Special editor for WinForms, you do not need to write code to create bindings.
+      - Binding parser builds syntax tree that allows you to easily change or extend the bindings, without manipulation of the raw text.
+      - Binding supports fluent syntax.
+      - Excellent binding performance.
     </description>
-	<releaseNotes>
-	  - Added Xamarin.iOS support
-	  - Updated state preservation and restoration algorithm for view models.
-	  - Improved binding performance.
-	  - Extended Binding API.
-	  - Updated extension methods.
-	  - Minor changes.
-	</releaseNotes>
+    <releaseNotes>
+      - Added Xamarin.Forms support
+      - Updated android projects from API8 to API10
+      - Fixed invalid binding validation when using $GetErrors method.
+      - Removed ThrowOnMultiInitialization property from IViewModelSettings.
+      - Moved the Handle method from IEventListener to extension method.
+      - Updated BindingEditor (WinForms).
+      - Optimized delegate allocation.
+      - Updated CompiledExpressionInvoker, now it can invoke dynamic members.
+      - Minor changes.
+    </releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <iconUrl>https://raw.githubusercontent.com/MugenMvvmToolkit/MugenMvvmToolkit/master/logo128_128.png</iconUrl>
     <projectUrl>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</projectUrl>
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
-      <dependency id="MugenMvvmToolkit" version="[3.1.3, 3.2.0)" />
+      <dependency id="MugenMvvmToolkit" version="[3.2.0-beta1, 3.3.0)" />
     </dependencies>
   </metadata>
   <files>

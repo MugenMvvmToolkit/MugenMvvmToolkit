@@ -21,6 +21,9 @@ using MugenMvvmToolkit.Models;
 #if WINDOWSCOMMON || NETFX_CORE
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
+#elif XAMARIN_FORMS
+using Xamarin.Forms;
+using MugenMvvmToolkit.Converters;
 #else
 using System.Windows;
 using System.Windows.Data;
@@ -114,7 +117,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                         _unsubscriber.Dispose();
                     return false;
                 }
-                Value = TryFindResource(Application.Current, target, _key) ?? BindingConstants.UnsetValue;
+                Value = TryFindResource(target, _key) ?? BindingConstants.UnsetValue;
                 return true;
             }
 
@@ -162,7 +165,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (result != null)
                 return result;
 
-            var item = TryFindResource(Application.Current, GetTarget(context), name);
+            var item = TryFindResource(GetTarget(context), name);
             if (item != null)
             {
                 var valueConverter = item as IBindingValueConverter;
@@ -192,7 +195,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return result;
 
             var target = GetTarget(context);
-            var item = TryFindResource(Application.Current, target, name);
+            var item = TryFindResource(target, name);
             if (item != null)
                 return new BindingResourceObject(item);
 
@@ -213,10 +216,23 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Methods
 
         /// <summary>
-        /// Tries to find a resource by key.
+        ///     Tries to find a resource by key.
         /// </summary>
-        protected static object TryFindResource([CanBeNull]Application application, [CanBeNull] object target, [NotNull] string resourceKey)
+        protected static object TryFindResource([CanBeNull] object target, [NotNull] string resourceKey)
         {
+#if XAMARIN_FORMS
+            var currentElement = target as VisualElement;
+            if (currentElement == null)
+                return null;
+            while (currentElement != null)
+            {
+                if (currentElement.Resources != null && currentElement.Resources.ContainsKey(resourceKey))
+                    return currentElement.Resources[resourceKey];
+                currentElement = currentElement.Parent as VisualElement;
+            }
+            return null;
+#else
+            var application = Application.Current;
             var currentElement = target as FrameworkElement;
 #if WPF
             if (currentElement == null)
@@ -229,13 +245,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 #else
             while (currentElement != null)
             {
-                if (currentElement.Resources.Contains(resourceKey))
+                if (currentElement.Resources != null && currentElement.Resources.Contains(resourceKey))
                     return currentElement.Resources[resourceKey];
                 currentElement = currentElement.Parent as FrameworkElement;
             }
             if (application != null && application.Resources.Contains(resourceKey))
                 return application.Resources[resourceKey];
             return null;
+#endif
 #endif
         }
 

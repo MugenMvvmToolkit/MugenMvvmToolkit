@@ -38,7 +38,7 @@ namespace MugenMvvmToolkit.Infrastructure
         protected override void SetErrors(object target, IList<object> errors, IDataContext context)
         {
             var textView = target as TextView;
-            if (textView != null)
+            if (textView != null && textView.IsAlive())
                 textView.Error = errors.FirstOrDefault().ToStringSafe();
             base.SetErrors(target, errors, context);
         }

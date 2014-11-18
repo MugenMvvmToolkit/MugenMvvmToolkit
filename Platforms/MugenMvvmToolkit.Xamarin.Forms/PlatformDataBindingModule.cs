@@ -14,10 +14,14 @@
 // ****************************************************************************
 #endregion
 using System;
+using System.Linq;
+using System.Reflection;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Converters;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
@@ -91,11 +95,42 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
+        /// Tries to register type.
+        /// </summary>
+        protected override void RegisterType(Type type)
+        {
+            base.RegisterType(type);
+
+            var typeInfo = type.GetTypeInfo();
+            if (!typeof(IValueConverter).GetTypeInfo().IsAssignableFrom(typeInfo) || !type.IsPublicNonAbstractClass())
+                return;
+            var constructor = typeInfo.DeclaredConstructors.FirstOrDefault(info => !info.IsStatic && info.GetParameters().Length == 0);
+            if (constructor == null || !constructor.IsPublic)
+                return;
+            var converter = (IValueConverter)constructor.InvokeEx();
+            string name = RemoveTail(RemoveTail(type.Name, "ValueConverter"), "Converter");
+            if (BindingServiceProvider.ResourceResolver.TryAddConverter(name,
+                new ValueConverterWrapper(converter.Convert, converter.ConvertBack)))
+                Tracer.Info("The {0} converter is registered.", type);
+        }
+
+        /// <summary>
         ///     Gets the <see cref="IBindingContextManager" /> that will be used by default.
         /// </summary>
         protected override IBindingContextManager GetBindingContextManager()
         {
             return new BindingContextManagerEx();
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="IBindingResourceResolver" /> that will be used by default.
+        /// </summary>
+        protected override IBindingResourceResolver GetBindingResourceResolver()
+        {
+            var resolver = BindingServiceProvider.ResourceResolver as BindingResourceResolver;
+            return resolver == null
+                ? new BindingResourceResolverEx()
+                : new BindingResourceResolverEx(resolver);
         }
 
         #endregion

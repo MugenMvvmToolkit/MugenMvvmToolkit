@@ -115,10 +115,13 @@ namespace MugenMvvmToolkit.Binding.Parse
             expression = expression.Accept(RelativeSourcePathMergerVisitor.Instance);
             if (!isPrimaryExpression)
                 return null;
-            if (!HasGetErrorsMethod(expression))
-                return null;
-            var strings = _errorPathNames.Count == 0 ? null : _errorPathNames.ToArrayEx();
-            return dataContext => UpdateBindingContext(dataContext, strings);
+            lock (_errorPathNames)
+            {
+                if (!HasGetErrorsMethod(expression))
+                    return null;
+                var strings = _errorPathNames.Count == 0 ? null : _errorPathNames.ToArrayEx();
+                return dataContext => UpdateBindingContext(dataContext, strings);
+            }
         }
 
         /// <summary>
@@ -150,13 +153,10 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         private bool HasGetErrorsMethod(IExpressionNode node)
         {
-            lock (_errorPathNames)
-            {
-                _hasGetErrors = false;
-                _errorPathNames.Clear();
-                node.Accept(this);
-                return _hasGetErrors;
-            }
+            _hasGetErrors = false;
+            _errorPathNames.Clear();
+            node.Accept(this);
+            return _hasGetErrors;
         }
 
         private static void UpdateBindingContext(IDataContext dataContext, string[] errorPathNames)

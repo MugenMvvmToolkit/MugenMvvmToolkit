@@ -20,6 +20,8 @@ using System.Runtime.CompilerServices;
 using MugenMvvmToolkit.Collections;
 #if NETFX_CORE || WINDOWSCOMMON
 using Windows.UI.Xaml;
+#elif XAMARIN_FORMS
+using Xamarin.Forms;
 #else
 using System.Windows;
 #endif
@@ -79,7 +81,11 @@ namespace MugenMvvmToolkit.Infrastructure
         private static readonly DependencyProperty AttachedValueDictionaryProperty = DependencyProperty.RegisterAttached(
             "AttachedValueDictionary", typeof(AttachedValueDictionary), typeof(AttachedValueProvider), new PropertyMetadata(default(AttachedValueDictionary)));
 #endif
-
+#if XAMARIN_FORMS
+        private static readonly BindableProperty AttachedValueDictionaryProperty = BindableProperty
+            .CreateAttached("AttachedValueDictionary", typeof(AttachedValueDictionary), typeof(AttachedValueProvider),
+                null);
+#endif
         private static readonly ConditionalWeakTable<object, AttachedValueDictionary>.CreateValueCallback
             CreateDictionaryDelegate = o => new AttachedValueDictionary();
 
@@ -103,6 +109,14 @@ namespace MugenMvvmToolkit.Infrastructure
                 return true;
             }
 #endif
+#if XAMARIN_FORMS
+            var bindableObject = item as BindableObject;
+            if (bindableObject != null)
+            {
+                bindableObject.ClearValue(AttachedValueDictionaryProperty);
+                return true;
+            }
+#endif
             return _internalDictionary.Remove(item);
         }
 
@@ -120,6 +134,19 @@ namespace MugenMvvmToolkit.Infrastructure
                 {
                     dict = new AttachedValueDictionary();
                     dependencyObject.SetValue(AttachedValueDictionaryProperty, dict);
+                }
+                return dict;
+            }
+#endif
+#if XAMARIN_FORMS
+            var bindableObject = item as BindableObject;
+            if (bindableObject != null)
+            {
+                var dict = (AttachedValueDictionary)bindableObject.GetValue(AttachedValueDictionaryProperty);
+                if (dict == null && addNew)
+                {
+                    dict = new AttachedValueDictionary();
+                    bindableObject.SetValue(AttachedValueDictionaryProperty, dict);
                 }
                 return dict;
             }

@@ -69,12 +69,6 @@ namespace MugenMvvmToolkit
 
         #region Methods
 
-        public static bool IsDisposed([NotNull] this NSObject item)
-        {
-            Should.NotBeNull(item, "item");
-            return item.Handle == IntPtr.Zero;
-        }
-
         public static void AddOrientationChangeListener([NotNull] IOrientationChangeListener listener)
         {
             Should.NotBeNull(listener, "listener");
@@ -112,6 +106,12 @@ namespace MugenMvvmToolkit
             }
         }
 
+        internal static bool IsDisposed([NotNull] this NSObject item)
+        {
+            Should.NotBeNull(item, "item");
+            return item.Handle == IntPtr.Zero;
+        }
+
         private static void DidChangeStatusBarOrientation(object sender,
             UIStatusBarOrientationChangeEventArgs orientation)
         {
@@ -122,7 +122,7 @@ namespace MugenMvvmToolkit
             {
                 for (int i = 0; i < OrientationChangeListeners.Count; i++)
                 {
-                    var target = (IOrientationChangeListener) OrientationChangeListeners[i].Target;
+                    var target = (IOrientationChangeListener)OrientationChangeListeners[i].Target;
                     if (target == null)
                     {
                         OrientationChangeListeners.RemoveAt(i);
