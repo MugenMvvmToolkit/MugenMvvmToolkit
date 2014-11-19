@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>MugenMvvmToolkit.WPF</id>
-    <version>1.2.0-beta1</version>
-    <title>MugenMvvmToolkit - WPF</title>
+    <id>MugenMvvmToolkit.StarterPack.WPF</id>
+    <version>1.0.0-beta1</version>
+    <title>MugenMvvmToolkit - Starter Pack WPF</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
-      This package contains the WPF assemblies.
+      This package contains the 'Getting Started' assemblies for MugenMvvmToolkit.WPF.
       Mugen MVVM Toolkit makes it easier to develop cross-platform application using the Model-View-ViewModel design pattern.
       The Mugen MVVM Toolkit provides a cross-platform MVVM development framework built on top of:
       - WinForms
@@ -53,19 +53,12 @@
     <projectUrl>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</projectUrl>
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
-    <dependencies>
-      <dependency id="MugenMvvmToolkit" version="[3.2.0-beta1, 3.3.0)" />
+    <dependencies>      
+	  <dependency id="MugenMvvmToolkit.WPF" />
     </dependencies>
-  </metadata>  
+  </metadata>
   <files>
-    <!-- NET 4.0 WPF -->
-    <file src="..\bin\Platforms\WPF\4.0\MugenMvvmToolkit.WPF.dll" target="lib\net40-client\MugenMvvmToolkit.WPF.dll" />
-    <file src="..\bin\Platforms\WPF\4.0\MugenMvvmToolkit.WPF.pdb" target="lib\net40-client\MugenMvvmToolkit.WPF.pdb" />
-    <file src="..\bin\Platforms\WPF\4.0\MugenMvvmToolkit.WPF.xml" target="lib\net40-client\MugenMvvmToolkit.WPF.xml" />
-       
-    <!-- NET 4.5 WPF -->
-    <file src="..\bin\Platforms\WPF\4.5\MugenMvvmToolkit.WPF.dll" target="lib\net45\MugenMvvmToolkit.WPF.dll" />
-    <file src="..\bin\Platforms\WPF\4.5\MugenMvvmToolkit.WPF.pdb" target="lib\net45\MugenMvvmToolkit.WPF.pdb" />
-    <file src="..\bin\Platforms\WPF\4.5\MugenMvvmToolkit.WPF.xml" target="lib\net45\MugenMvvmToolkit.WPF.xml" />        
+    <file src="WpfContent\App.Xaml.cs.pp" target="content\net40-client\App.Xaml.cs.pp" />
+    <file src="WpfContent\App.Xaml.cs.pp" target="content\net45\App.Xaml.cs.pp" />
   </files>
 </package>

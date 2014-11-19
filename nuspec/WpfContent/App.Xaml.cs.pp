@@ -1,5 +1,4 @@
-//NOTE you can replace standard App.xaml.cs by this file;
-/*using System.Windows;
+using System.Windows;
 using MugenMvvmToolkit.Infrastructure;
 
 namespace $rootnamespace$
@@ -12,4 +11,4 @@ namespace $rootnamespace$
             new Bootstrapper<MainViewModel>(this, new IIocContainer());
         }
     }
-}*/
+}

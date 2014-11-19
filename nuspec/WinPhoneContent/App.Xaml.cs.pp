@@ -1,5 +1,5 @@
-//NOTE you can replace standard App.xaml.cs by this file; remove Navigation Page from WMAppManifest.xml.
-/*using System;
+//NOTE remove Navigation Page from WMAppManifest.xml.
+using System;
 using System.Diagnostics;
 using System.Resources;
 using System.Windows;
@@ -223,4 +223,4 @@ namespace $rootnamespace$
             }
         }
     }
-}*/
+}

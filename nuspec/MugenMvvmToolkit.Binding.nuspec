@@ -21,7 +21,7 @@
       - Deep integration with each platform.
       - Supports state preservation and restoration for mobile platforms.
       - Full Fragment support for Android, you do not need to worry about activity, fragments, sub-fragments or their state all this makes the framework.
-      - Solves the nested user controls problem in MVVM, all view models are dynamically created by you, using the GetViewModel and GetViewModel<TViewModel> methods and you do not need to use the ViewModelLocator.
+      - Solves the nested user controls problem in MVVM, all view models are dynamically created by you, using the GetViewModel method and you do not need to use the ViewModelLocator.
       - Supports all kinds of navigation like modal window, page navigation, tab navigation, back stack fragment navigation for android. You can also easily add a new kind of navigation.
       - Navigation system works with view models and allows to expect the completion of the operation. You can pass any parameters between view models.
       - Good design mode support, for xaml platforms supports the creation of design view model with any constructor parameters.
@@ -40,6 +40,7 @@
       - Added Xamarin.Forms support
       - Updated android projects from API8 to API10
       - Fixed invalid binding validation when using $GetErrors method.
+      - Added AsyncRelayCommand that allows to use Task in execute method.
       - Removed ThrowOnMultiInitialization property from IViewModelSettings.
       - Moved the Handle method from IEventListener to extension method.
       - Updated BindingEditor (WinForms).
@@ -141,5 +142,8 @@
 
     <!-- Android -->
     <file src="_._" target="lib\monoandroid\_._" />
+	
+	<!-- Touch -->
+	<file src="_._" target="lib\monotouch\_._" />
   </files>
 </package>

@@ -1,4 +1,4 @@
-/*using System;
+using System;
 using System.Collections.Generic;
 using Windows.Foundation.Metadata;
 using Windows.System;
@@ -447,4 +447,4 @@ namespace $rootnamespace$
         /// </summary>
         public Dictionary<string, Object> PageState { get; private set; }
     }
-}*/
+}

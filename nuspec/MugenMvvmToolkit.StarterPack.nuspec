@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>MugenMvvmToolkit.WPF</id>
-    <version>1.2.0-beta1</version>
-    <title>MugenMvvmToolkit - WPF</title>
+    <id>MugenMvvmToolkit.StarterPack</id>
+    <version>1.0.0-beta1</version>
+    <title>MugenMvvmToolkit - Starter Pack</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
-      This package contains the WPF assemblies.
+      This package contains the 'Getting Started' assemblies for MugenMvvmToolkit.
       Mugen MVVM Toolkit makes it easier to develop cross-platform application using the Model-View-ViewModel design pattern.
       The Mugen MVVM Toolkit provides a cross-platform MVVM development framework built on top of:
       - WinForms
@@ -54,18 +54,45 @@
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
-      <dependency id="MugenMvvmToolkit" version="[3.2.0-beta1, 3.3.0)" />
+      <group>
+		<dependency id="MugenMvvmToolkit" />
+      </group>
+	  <group targetFramework="monoandroid">		
+		<dependency id="MugenMvvmToolkit.Android.API17" />
+	  </group>
+	  <group targetFramework="monotouch">		
+		<dependency id="MugenMvvmToolkit.Touch" />
+	  </group>
     </dependencies>
-  </metadata>  
+  </metadata>
   <files>
-    <!-- NET 4.0 WPF -->
-    <file src="..\bin\Platforms\WPF\4.0\MugenMvvmToolkit.WPF.dll" target="lib\net40-client\MugenMvvmToolkit.WPF.dll" />
-    <file src="..\bin\Platforms\WPF\4.0\MugenMvvmToolkit.WPF.pdb" target="lib\net40-client\MugenMvvmToolkit.WPF.pdb" />
-    <file src="..\bin\Platforms\WPF\4.0\MugenMvvmToolkit.WPF.xml" target="lib\net40-client\MugenMvvmToolkit.WPF.xml" />
-       
-    <!-- NET 4.5 WPF -->
-    <file src="..\bin\Platforms\WPF\4.5\MugenMvvmToolkit.WPF.dll" target="lib\net45\MugenMvvmToolkit.WPF.dll" />
-    <file src="..\bin\Platforms\WPF\4.5\MugenMvvmToolkit.WPF.pdb" target="lib\net45\MugenMvvmToolkit.WPF.pdb" />
-    <file src="..\bin\Platforms\WPF\4.5\MugenMvvmToolkit.WPF.xml" target="lib\net45\MugenMvvmToolkit.WPF.xml" />        
+    <!-- Android -->
+    <file src="AndroidContent\Setup.cs.pp" target="content\monoandroid\Setup.cs.pp" />
+    <file src="AndroidContent\SplashScreenActivity.cs.pp" target="content\monoandroid\Views\SplashScreenActivity.cs.pp" />
+    
+    <!-- Touch -->
+    <file src="TouchContent\Setup.cs.pp" target="content\monotouch\AppDelegate.cs.pp" />
+
+    <!-- WP 7.1 -->
+    <file src="WinPhoneContent\App.Xaml71.cs.pp" target="content\sl4-windowsphone71\App.Xaml.cs.pp" />
+
+    <!-- WP 8.0 -->
+    <file src="WinPhoneContent\App.Xaml.cs.pp" target="content\wp8\App.Xaml.cs.pp" />
+
+    <!-- WP 8.1 SILVERLIGHT -->
+    <file src="WinPhoneContent\App.Xaml.cs.pp" target="content\wp81\App.Xaml.cs.pp" />
+
+    <!-- WINRT 8.1 -->
+    <file src="WinRTContent\App.Xaml.cs.pp" target="content\win81\App.Xaml.cs.pp" />
+    <file src="WinRTContent\NavigationHelper.cs.pp" target="content\win81\NavigationHelper.cs.pp" />
+    <file src="WinRTContent\SuspensionManager.cs.pp" target="content\win81\SuspensionManager.cs.pp" />
+
+    <!-- WINRT PCL -->
+    <file src="WinRTContent\App.Xaml.cs.pp" target="content\portable-win81+wpa81\App.Xaml.cs.pp" />
+    <file src="WinRTContent\NavigationHelper.cs.pp" target="content\portable-win81+wpa81\NavigationHelper.cs.pp" />
+    <file src="WinRTContent\SuspensionManager.cs.pp" target="content\portable-win81+wpa81\SuspensionManager.cs.pp" />
+
+    <!-- SILVERLIGHT 5 -->
+    <file src="SilverlightContent\App.Xaml.cs.pp" target="content\sl5\App.Xaml.cs.pp" />
   </files>
 </package>

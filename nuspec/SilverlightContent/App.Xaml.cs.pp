@@ -1,5 +1,4 @@
-//NOTE you can replace standard App.xaml.cs by this file;
-/*using System;
+using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Browser;
@@ -59,4 +58,4 @@ namespace $rootnamespace$
             }
         }
     }
-}*/
+}

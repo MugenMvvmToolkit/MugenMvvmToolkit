@@ -1,5 +1,4 @@
-//NOTE you can replace standard AppDelegate.cs by this file;
-/*using MonoTouch.Foundation;
+using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using MugenMvvmToolkit;
 using MugenMvvmToolkit.Infrastructure;
@@ -73,4 +72,4 @@ namespace $rootnamespace$
 
         #endregion
     }
-}*/
+}

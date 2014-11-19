@@ -492,6 +492,9 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\views\IViewWrapper.cs">
       <Link>Interfaces\Views\IViewWrapper.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\AsyncRelayCommand.cs">
+      <Link>Models\AsyncRelayCommand.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\DataConstant.cs">
       <Link>Models\DataConstant.cs</Link>
     </Compile>
@@ -605,9 +608,6 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\RelayCommandBase.cs">
       <Link>Models\RelayCommandBase.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\RelayCommandGeneric.cs">
-      <Link>Models\RelayCommandGeneric.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\StringConstantBase.cs">
       <Link>Models\StringConstantBase.cs</Link>

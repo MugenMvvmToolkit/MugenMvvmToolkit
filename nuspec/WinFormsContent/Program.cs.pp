@@ -1,5 +1,4 @@
-//NOTE you can replace standard Program.cs by this file;
-/*using System;
+using System;
 using System.Windows.Forms;
 using MugenMvvmToolkit.Infrastructure;
 
@@ -16,4 +15,4 @@ namespace $rootnamespace$
             bootstrapper.Start();
         }
     }
-}*/
+}

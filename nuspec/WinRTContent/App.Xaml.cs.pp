@@ -1,5 +1,4 @@
-//NOTE you can replace standard App.xaml.cs by this file;
-/*using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -144,4 +143,4 @@ namespace $rootnamespace$
             deferral.Complete();
         }
     }
-}*/
+}

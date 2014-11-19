@@ -11,3 +11,7 @@ nuget pack MugenMvvmToolkit.Touch.nuspec
 nuget pack MugenMvvmToolkit.WinForms.nuspec
 nuget pack MugenMvvmToolkit.WPF.nuspec
 nuget pack MugenMvvmToolkit.Xamarin.Forms.nuspec
+nuget pack MugenMvvmToolkit.StarterPack.nuspec
+nuget pack MugenMvvmToolkit.StarterPack.WPF.nuspec
+nuget pack MugenMvvmToolkit.StarterPack.WinForms.nuspec
+nuget pack MugenMvvmToolkit.StarterPack.Xamarin.Forms.nuspec

@@ -229,7 +229,7 @@
     <Compile Include="Models\PlatformType.cs" />
     <Compile Include="Models\RelayCommand.cs" />
     <Compile Include="Models\RelayCommandBase.cs" />
-    <Compile Include="Models\RelayCommandGeneric.cs" />
+    <Compile Include="Models\AsyncRelayCommand.cs" />
     <Compile Include="Models\StringConstantBase.cs" />
     <Compile Include="Models\TrackingEntity.cs" />
     <Compile Include="Models\Validation\ValidationContext.cs" />

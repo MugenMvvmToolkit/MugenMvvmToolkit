@@ -21,7 +21,7 @@
       - Deep integration with each platform.
       - Supports state preservation and restoration for mobile platforms.
       - Full Fragment support for Android, you do not need to worry about activity, fragments, sub-fragments or their state all this makes the framework.
-      - Solves the nested user controls problem in MVVM, all view models are dynamically created by you, using the GetViewModel and GetViewModel<TViewModel> methods and you do not need to use the ViewModelLocator.
+      - Solves the nested user controls problem in MVVM, all view models are dynamically created by you, using the GetViewModel method and you do not need to use the ViewModelLocator.
       - Supports all kinds of navigation like modal window, page navigation, tab navigation, back stack fragment navigation for android. You can also easily add a new kind of navigation.
       - Navigation system works with view models and allows to expect the completion of the operation. You can pass any parameters between view models.
       - Good design mode support, for xaml platforms supports the creation of design view model with any constructor parameters.
@@ -40,6 +40,7 @@
       - Added Xamarin.Forms support
       - Updated android projects from API8 to API10
       - Fixed invalid binding validation when using $GetErrors method.
+      - Added AsyncRelayCommand that allows to use Task in execute method.
       - Removed ThrowOnMultiInitialization property from IViewModelSettings.
       - Moved the Handle method from IEventListener to extension method.
       - Updated BindingEditor (WinForms).
@@ -53,10 +54,72 @@
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios xamarin.forms</tags>
     <dependencies>
-      <dependency id="MugenMvvmToolkit" version="[3.2.0-beta1, 3.3.0)" />
+      <group>
+		<dependency id="MugenMvvmToolkit" version="[3.2.0-beta1, 3.3.0)" />
+		<dependency id="Xamarin.Forms" version="1.2.3.6257" />
+      </group>
+      <group targetFramework="wp8">
+		<dependency id="Xamarin.Forms" version="1.2.3.6257" />
+      </group>
+      <group targetFramework="wp81">
+		<dependency id="Xamarin.Forms" version="1.2.3.6257" />
+      </group>
     </dependencies>
   </metadata>
   <files>
-    <!-- TODO ADD FILES -->
+    <!-- PCL -->
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\portable-net45+win+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\portable-net45+win+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\portable-net45+win+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.Binding.xml" />
+
+    <file src="..\bin\Platforms\Xamarin.Forms\PCL\MugenMvvmToolkit.Xamarin.Forms.dll" target="lib\portable-net45+win+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.Xamarin.Forms.dll" />
+    <file src="..\bin\Platforms\Xamarin.Forms\PCL\MugenMvvmToolkit.Xamarin.Forms.pdb" target="lib\portable-net45+win+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.Xamarin.Forms.pdb" />
+    <file src="..\bin\Platforms\Xamarin.Forms\PCL\MugenMvvmToolkit.Xamarin.Forms.xml" target="lib\portable-net45+win+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.Xamarin.Forms.xml" />
+
+    <!-- Touch -->	
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\monotouch\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\monotouch\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\monotouch\MugenMvvmToolkit.Binding.xml" />
+
+    <file src="..\bin\Platforms\Xamarin.Forms\PCL\MugenMvvmToolkit.Xamarin.Forms.dll" target="lib\monotouch\MugenMvvmToolkit.Xamarin.Forms.dll" />
+    <file src="..\bin\Platforms\Xamarin.Forms\PCL\MugenMvvmToolkit.Xamarin.Forms.pdb" target="lib\monotouch\MugenMvvmToolkit.Xamarin.Forms.pdb" />
+    <file src="..\bin\Platforms\Xamarin.Forms\PCL\MugenMvvmToolkit.Xamarin.Forms.xml" target="lib\monotouch\MugenMvvmToolkit.Xamarin.Forms.xml" />
+
+    <file src="..\bin\Platforms\Xamarin.Forms\Touch\MugenMvvmToolkit.Xamarin.Forms.iOS.dll" target="lib\monotouch\MugenMvvmToolkit.Xamarin.Forms.iOS.dll" />    
+    <file src="..\bin\Platforms\Xamarin.Forms\Touch\MugenMvvmToolkit.Xamarin.Forms.iOS.xml" target="lib\monotouch\MugenMvvmToolkit.Xamarin.Forms.iOS.xml" />
+
+    <file src="TouchContent\error.png" target="content\monotouch\Resources\error.png" />
+    <file src="TouchContent\error@2x.png" target="content\monotouch\Resources\error@2x.png" />
+    <file src="XamarinFormsContent\RuntimeLoadAssembly.cs.pp" target="content\monotouch\RuntimeLoadAssembly.cs.pp" />
+
+    <!-- Android -->
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\monoandroid\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\monoandroid\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\monoandroid\MugenMvvmToolkit.Binding.xml" />
+
+    <file src="..\bin\Platforms\Xamarin.Forms\PCL\MugenMvvmToolkit.Xamarin.Forms.dll" target="lib\monoandroid\MugenMvvmToolkit.Xamarin.Forms.dll" />
+    <file src="..\bin\Platforms\Xamarin.Forms\PCL\MugenMvvmToolkit.Xamarin.Forms.pdb" target="lib\monoandroid\MugenMvvmToolkit.Xamarin.Forms.pdb" />
+    <file src="..\bin\Platforms\Xamarin.Forms\PCL\MugenMvvmToolkit.Xamarin.Forms.xml" target="lib\monoandroid\MugenMvvmToolkit.Xamarin.Forms.xml" />
+
+    <file src="..\bin\Platforms\Xamarin.Forms\Android\MugenMvvmToolkit.Xamarin.Forms.Android.dll" target="lib\monoandroid\MugenMvvmToolkit.Xamarin.Forms.Android.dll" />
+    <file src="..\bin\Platforms\Xamarin.Forms\Android\MugenMvvmToolkit.Xamarin.Forms.Android.pdb" target="lib\monoandroid\MugenMvvmToolkit.Xamarin.Forms.Android.pdb" />
+    <file src="..\bin\Platforms\Xamarin.Forms\Android\MugenMvvmToolkit.Xamarin.Forms.Android.xml" target="lib\monoandroid\MugenMvvmToolkit.Xamarin.Forms.Android.xml" />
+
+    <!-- WP8 -->	
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\wp8\MugenMvvmToolkit.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\wp8\MugenMvvmToolkit.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.xml" target="lib\wp8\MugenMvvmToolkit.xml" />
+	
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\wp8\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\wp8\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\wp8\MugenMvvmToolkit.Binding.xml" />
+
+    <file src="..\bin\Platforms\Xamarin.Forms\PCL\MugenMvvmToolkit.Xamarin.Forms.dll" target="lib\wp8\MugenMvvmToolkit.Xamarin.Forms.dll" />
+    <file src="..\bin\Platforms\Xamarin.Forms\PCL\MugenMvvmToolkit.Xamarin.Forms.pdb" target="lib\wp8\MugenMvvmToolkit.Xamarin.Forms.pdb" />
+    <file src="..\bin\Platforms\Xamarin.Forms\PCL\MugenMvvmToolkit.Xamarin.Forms.xml" target="lib\wp8\MugenMvvmToolkit.Xamarin.Forms.xml" />
+	
+    <file src="..\bin\Platforms\Xamarin.Forms\WinPhone\MugenMvvmToolkit.Xamarin.Forms.WinPhone.dll" target="lib\wp8\MugenMvvmToolkit.Xamarin.Forms.WinPhone.dll" />
+    <file src="..\bin\Platforms\Xamarin.Forms\WinPhone\MugenMvvmToolkit.Xamarin.Forms.WinPhone.pdb" target="lib\wp8\MugenMvvmToolkit.Xamarin.Forms.WinPhone.pdb" />
+    <file src="..\bin\Platforms\Xamarin.Forms\WinPhone\MugenMvvmToolkit.Xamarin.Forms.WinPhone.xml" target="lib\wp8\MugenMvvmToolkit.Xamarin.Forms.WinPhone.xml" />
   </files>
 </package>

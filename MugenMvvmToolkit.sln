@@ -66,7 +66,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{17CA0F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WPF.Test(4.5)", "Tests\MugenMvvmToolkit.WPF.Test(4.5)\MugenMvvmToolkit.WPF.Test(4.5).csproj", "{692023D7-F75C-4C56-948E-B87EBA88A6B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Android(8)", "Platforms\MugenMvvmToolkit.Android(8)\MugenMvvmToolkit.Android(8).csproj", "{0C633168-5733-4788-A463-85AFF0636297}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Android(10)", "Platforms\MugenMvvmToolkit.Android(8)\MugenMvvmToolkit.Android(10).csproj", "{0C633168-5733-4788-A463-85AFF0636297}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinForms(4.0)", "Platforms\MugenMvvmToolkit.WinForms(4.0)\MugenMvvmToolkit.WinForms(4.0).csproj", "{6CC70590-B95D-4A10-9304-89C3BA27AB32}"
 EndProject
@@ -92,7 +92,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Binding.Si
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Android(17)", "Platforms\MugenMvvmToolkit.Android(17)\MugenMvvmToolkit.Android(17).csproj", "{45239A20-0DD7-43CE-ACAA-86249154ADF5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Android(8)+support", "Platforms\MugenMvvmToolkit.Android(8)+support\MugenMvvmToolkit.Android(8)+support.csproj", "{67A42A24-569A-4794-B55E-46191949EA1A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Android(10+AppCompat)", "Platforms\MugenMvvmToolkit.Android(8)+support\MugenMvvmToolkit.Android(10+AppCompat).csproj", "{67A42A24-569A-4794-B55E-46191949EA1A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Binding.WinPhone(7.1)", "Platforms\MugenMvvmToolkit.Binding.WinPhone(7.1)\MugenMvvmToolkit.Binding.WinPhone(7.1).csproj", "{B3F8947A-A2F6-4CAF-B295-743527955501}"
 EndProject

@@ -20,7 +20,7 @@
       - Deep integration with each platform.
       - Supports state preservation and restoration for mobile platforms.
       - Full Fragment support for Android, you do not need to worry about activity, fragments, sub-fragments or their state all this makes the framework.
-      - Solves the nested user controls problem in MVVM, all view models are dynamically created by you, using the GetViewModel and GetViewModel<TViewModel> methods and you do not need to use the ViewModelLocator.
+      - Solves the nested user controls problem in MVVM, all view models are dynamically created by you, using the GetViewModel method and you do not need to use the ViewModelLocator.
       - Supports all kinds of navigation like modal window, page navigation, tab navigation, back stack fragment navigation for android. You can also easily add a new kind of navigation.
       - Navigation system works with view models and allows to expect the completion of the operation. You can pass any parameters between view models.
       - Good design mode support, for xaml platforms supports the creation of design view model with any constructor parameters.
@@ -39,6 +39,7 @@
       - Added Xamarin.Forms support
       - Updated android projects from API8 to API10
       - Fixed invalid binding validation when using $GetErrors method.
+      - Added AsyncRelayCommand that allows to use Task in execute method.
       - Removed ThrowOnMultiInitialization property from IViewModelSettings.
       - Moved the Handle method from IEventListener to extension method.
       - Updated BindingEditor (WinForms).
@@ -101,8 +102,6 @@
     <file src="..\bin\Platforms\Silverlight\MugenMvvmToolkit.Silverlight.pdb" target="lib\sl5\MugenMvvmToolkit.Silverlight.pdb" />
     <file src="..\bin\Platforms\Silverlight\MugenMvvmToolkit.Silverlight.xml" target="lib\sl5\MugenMvvmToolkit.Silverlight.xml" />
 
-    <file src="SilverlightContent\App.Xaml.cs.pp" target="content\sl5\Setup.cs.pp" />
-
     <!-- WINRT PCL -->
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\portable-win81+wpa81\MugenMvvmToolkit.dll" />
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\portable-win81+wpa81\MugenMvvmToolkit.pdb" />
@@ -111,10 +110,6 @@
     <file src="..\bin\Platforms\WinRT\PCL\MugenMvvmToolkit.WinRT.pdb" target="lib\portable-win81+wpa81\MugenMvvmToolkit.WinRT.pdb" />
     <file src="..\bin\Platforms\WinRT\PCL\MugenMvvmToolkit.WinRT.xml" target="lib\portable-win81+wpa81\MugenMvvmToolkit.WinRT.xml" />
 
-    <file src="WinRTContent\App.Xaml.cs.pp" target="content\portable-win81+wpa81\Setup.cs.pp" />
-    <file src="WinRTContent\NavigationHelper.cs.pp" target="content\portable-win81+wpa81\NavigationHelper.cs.pp" />
-    <file src="WinRTContent\SuspensionManager.cs.pp" target="content\portable-win81+wpa81\SuspensionManager.cs.pp" />
-
     <!-- WINRT 8.1 -->
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\win81\MugenMvvmToolkit.dll" />
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\win81\MugenMvvmToolkit.pdb" />
@@ -122,10 +117,6 @@
     <file src="..\bin\Platforms\WinRT\PCL\MugenMvvmToolkit.WinRT.dll" target="lib\win81\MugenMvvmToolkit.WinRT.dll" />
     <file src="..\bin\Platforms\WinRT\PCL\MugenMvvmToolkit.WinRT.pdb" target="lib\win81\MugenMvvmToolkit.WinRT.pdb" />
     <file src="..\bin\Platforms\WinRT\PCL\MugenMvvmToolkit.WinRT.xml" target="lib\win81\MugenMvvmToolkit.WinRT.xml" />
-
-    <file src="WinRTContent\App.Xaml.cs.pp" target="content\win81\Setup.cs.pp" />
-    <file src="WinRTContent\NavigationHelper.cs.pp" target="content\win81\NavigationHelper.cs.pp" />
-    <file src="WinRTContent\SuspensionManager.cs.pp" target="content\win81\SuspensionManager.cs.pp" />
 
     <!-- WINRT 8.0 -->
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\win8\MugenMvvmToolkit.dll" />
@@ -143,8 +134,6 @@
     <file src="..\bin\Platforms\WinPhone\8.1\MugenMvvmToolkit.WinPhone.pdb" target="lib\wp81\MugenMvvmToolkit.WinPhone.pdb" />
     <file src="..\bin\Platforms\WinPhone\8.1\MugenMvvmToolkit.WinPhone.xml" target="lib\wp81\MugenMvvmToolkit.WinPhone.xml" />
 
-    <file src="WinPhoneContent\App.Xaml.cs.pp" target="content\wp81\Setup.cs.pp" />
-
     <!-- WP 8.0 -->
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\wp8\MugenMvvmToolkit.dll" />
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\wp8\MugenMvvmToolkit.pdb" />
@@ -153,8 +142,6 @@
     <file src="..\bin\Platforms\WinPhone\8.0\MugenMvvmToolkit.WinPhone.pdb" target="lib\wp8\MugenMvvmToolkit.WinPhone.pdb" />
     <file src="..\bin\Platforms\WinPhone\8.0\MugenMvvmToolkit.WinPhone.xml" target="lib\wp8\MugenMvvmToolkit.WinPhone.xml" />
 
-    <file src="WinPhoneContent\App.Xaml.cs.pp" target="content\wp8\Setup.cs.pp" />
-
     <!-- WP 7.1 -->
     <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.dll" target="lib\sl4-windowsphone71\MugenMvvmToolkit.dll" />
     <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.pdb" target="lib\sl4-windowsphone71\MugenMvvmToolkit.pdb" />
@@ -162,8 +149,6 @@
     <file src="..\bin\Platforms\WinPhone\7.1\MugenMvvmToolkit.WinPhone.dll" target="lib\sl4-windowsphone71\MugenMvvmToolkit.WinPhone.dll" />
     <file src="..\bin\Platforms\WinPhone\7.1\MugenMvvmToolkit.WinPhone.pdb" target="lib\sl4-windowsphone71\MugenMvvmToolkit.WinPhone.pdb" />
     <file src="..\bin\Platforms\WinPhone\7.1\MugenMvvmToolkit.WinPhone.xml" target="lib\sl4-windowsphone71\MugenMvvmToolkit.WinPhone.xml" />
-
-    <file src="WinPhoneContent\App.Xaml71.cs.pp" target="content\sl4-windowsphone71\Setup.cs.pp" />
 
     <!-- Android -->
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\monoandroid\MugenMvvmToolkit.dll" />

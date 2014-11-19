@@ -35,6 +35,10 @@ namespace MugenMvvmToolkit
 
         private static void Register(IBindingMemberProvider memberProvider)
         {
+            //Element
+            memberProvider.Register(AttachedBindingMember
+                .CreateMember<Element, object>(AttachedMemberConstants.Parent, GetParentValue, null, ObserveParentMember));
+
             //VisualElement
             var visibleMember = memberProvider.GetBindingMember(typeof(VisualElement),
                 ToolkitExtensions.GetMemberName<VisualElement>(element => element.IsVisible), true, false);
@@ -45,8 +49,6 @@ namespace MugenMvvmToolkit
                     (info, element) => !element.IsVisible, (info, element, arg3) => element.IsVisible = !arg3,
                     (info, element, arg3) => visibleMember.TryObserve(element, arg3)));
             }
-            memberProvider.Register(AttachedBindingMember
-                .CreateMember<VisualElement, object>(AttachedMemberConstants.Parent, GetParentValue, null, ObserveParentMember));
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<VisualElement, object>(AttachedMemberConstants.FindByNameMethod, FindByNameMemberImpl));
 
@@ -71,12 +73,12 @@ namespace MugenMvvmToolkit
             return target.FindByName<object>(name);
         }
 
-        private static object GetParentValue(IBindingMemberInfo bindingMemberInfo, VisualElement target)
+        private static object GetParentValue(IBindingMemberInfo bindingMemberInfo, Element target)
         {
             return ParentObserver.GetOrAdd(target).Parent;
         }
 
-        private static IDisposable ObserveParentMember(IBindingMemberInfo bindingMemberInfo, VisualElement o, IEventListener arg3)
+        private static IDisposable ObserveParentMember(IBindingMemberInfo bindingMemberInfo, Element o, IEventListener arg3)
         {
             return ParentObserver.GetOrAdd(o).AddWithUnsubscriber(arg3);
         }

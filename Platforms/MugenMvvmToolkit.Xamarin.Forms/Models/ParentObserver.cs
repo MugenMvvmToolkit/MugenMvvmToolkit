@@ -15,6 +15,7 @@
 #endregion
 
 using System;
+using System.ComponentModel;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using Xamarin.Forms;
@@ -36,11 +37,11 @@ namespace MugenMvvmToolkit.Models
 
         #region Constructors
 
-        private ParentObserver(VisualElement view)
+        private ParentObserver(Element view)
         {
             _view = ServiceProvider.WeakReferenceFactory(view, true);
             _parent = ServiceProvider.WeakReferenceFactory(FindParent(view), true);
-            view.MeasureInvalidated += OnChanged;
+            view.PropertyChanged += OnPropertyChanged;
         }
 
         #endregion
@@ -51,22 +52,28 @@ namespace MugenMvvmToolkit.Models
         ///     Gets the source element.
         /// </summary>
         [CanBeNull]
-        public VisualElement Source
+        public Element Source
         {
-            get { return (VisualElement) _view.Target; }
+            get { return (Element)_view.Target; }
         }
 
         /// <summary>
         ///     Gets or sets the parent of current element.
         /// </summary>
         [CanBeNull]
-        public VisualElement Parent
+        public object Parent
         {
-            get { return _parent.Target as VisualElement; }
+            get { return _parent.Target; }
             set
             {
-                _isAttached = true;
-                SetParent(value);
+                if (!_isAttached)
+                {
+                    _isAttached = true;
+                    var element = Source;
+                    if (element != null)
+                        element.PropertyChanged -= OnPropertyChanged;
+                }
+                SetParent(GetSource(), value);
             }
         }
 
@@ -77,7 +84,7 @@ namespace MugenMvvmToolkit.Models
         /// <summary>
         ///     Gets or adds an instance of <see cref="ParentObserver" />.
         /// </summary>
-        public static ParentObserver GetOrAdd(VisualElement element)
+        public static ParentObserver GetOrAdd(Element element)
         {
             return ServiceProvider
                 .AttachedValueProvider
@@ -85,18 +92,8 @@ namespace MugenMvvmToolkit.Models
                     null);
         }
 
-        private void OnChanged(object sender, EventArgs args)
+        private void SetParent(object source, object value)
         {
-            VisualElement source = GetSource();
-            if (source == null)
-                return;
-            if (!_isAttached)
-                SetParent(FindParent(source));
-        }
-
-        private void SetParent(VisualElement value)
-        {
-            VisualElement source = GetSource();
             if (source == null)
                 return;
             if (ReferenceEquals(value, _parent.Target))
@@ -105,17 +102,23 @@ namespace MugenMvvmToolkit.Models
             Raise(source, EventArgs.Empty);
         }
 
-        private VisualElement GetSource()
+        private Element GetSource()
         {
-            VisualElement source = Source;
+            var source = Source;
             if (source == null)
                 Clear();
             return source;
         }
 
-        private static VisualElement FindParent(VisualElement target)
+        private static Element FindParent(Element target)
         {
             return target.ParentView;
+        }
+
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs args)
+        {
+            if (!_isAttached)
+                SetParent(sender, FindParent((Element)sender));
         }
 
         #endregion
