@@ -1,5 +1,6 @@
 using System.Windows;
 using MugenMvvmToolkit.Infrastructure;
+using $rootnamespace$.ViewModels;
 
 namespace $rootnamespace$
 {

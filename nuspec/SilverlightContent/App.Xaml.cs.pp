@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Browser;
@@ -8,17 +8,23 @@ namespace $rootnamespace$
 {
     public partial class App : Application
     {
+        #region Constructors
+
         public App()
         {
-			var boot = new Bootstrapper<MainViewModel>(this, new IIocContainer());
-			boot.Initialize();
-			
+            var boot = new Bootstrapper<MainViewModel>(this, new IIocContainer());
+            boot.Initialize();
+
             Startup += Application_Startup;
             Exit += Application_Exit;
             UnhandledException += Application_UnhandledException;
 
             InitializeComponent();
         }
+
+        #endregion
+
+        #region Methods
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
@@ -40,7 +46,7 @@ namespace $rootnamespace$
                 // For production applications this error handling should be replaced with something that will 
                 // report the error to the website and stop the application.
                 e.Handled = true;
-                Deployment.Current.Dispatcher.BeginInvoke(delegate { ReportErrorToDOM(e); });
+                Deployment.Current.Dispatcher.BeginInvoke(() => ReportErrorToDOM(e));
             }
         }
 
@@ -57,5 +63,7 @@ namespace $rootnamespace$
             {
             }
         }
+
+        #endregion
     }
 }

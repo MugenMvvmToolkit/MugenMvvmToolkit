@@ -346,7 +346,7 @@ namespace MugenMvvmToolkit.Binding
 
         internal static bool IsExtensionMethod(this MethodInfo method)
         {
-            return method.IsDefined(typeof(ExtensionAttribute), false) && method.IsStatic &&
+            return method.IsStatic && method.IsDefined(typeof(ExtensionAttribute), false) &&
                    method.GetParameters().Length > 0;
         }
 
@@ -616,7 +616,7 @@ namespace MugenMvvmToolkit.Binding
                     for (int index = 0; index < methods.Count; index++)
                     {
                         var method = methods[index];
-                        if (method.Name == methodName && method.IsExtensionMethod())
+                        if (method.Name == methodName)
                             list.Add(method);
                     }
                 }

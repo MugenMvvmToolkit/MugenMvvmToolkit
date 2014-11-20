@@ -65,7 +65,29 @@ namespace MugenMvvmToolkit
                 ToolkitExtensions.GetMemberName<VisualElement>(element => element.IsEnabled), true, false);
             if (enabledMember != null)
                 memberProvider.Register(typeof(VisualElement), AttachedMemberConstants.Enabled, enabledMember, true);
+
+            //TODO ADD CONTENT MEMBER
+            //ContentView
+            /*memberProvider.Register(AttachedBindingMember.CreateMember<ContentView, Element>("Content",
+                (info, view) => view.Content, ContentViewSetContent,
+                (info, view, arg3) => BindingServiceProvider.WeakEventManager.Subscribe(view, "Content", arg3)));*/
         }
+
+        /*private static void ContentViewSetContent(IBindingMemberInfo bindingMemberInfo, ContentView contentView, Element arg3)
+        {
+            var view = arg3 as View;
+            if (view != null)
+            {
+                contentView.Content = view;
+                return;
+            }
+            var page = arg3 as ContentPage;
+            if (page != null)
+            {
+                page.Parent = contentView;
+                contentView.Content = page.Content;
+            }
+        }*/
 
         private static object FindByNameMemberImpl(IBindingMemberInfo bindingMemberInfo, VisualElement target, object[] arg3)
         {

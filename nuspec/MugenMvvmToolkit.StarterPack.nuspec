@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.StarterPack</id>
-    <version>1.0.0-beta1</version>
+    <version>1.0.0-beta2</version>
     <title>MugenMvvmToolkit - Starter Pack</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -55,23 +55,34 @@
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
       <group>
-		<dependency id="MugenMvvmToolkit" />
+        <dependency id="MugenMvvmToolkit" />
       </group>
-	  <group targetFramework="monoandroid">		
-		<dependency id="MugenMvvmToolkit.Android.API17" />
-	  </group>
-	  <group targetFramework="monotouch">		
-		<dependency id="MugenMvvmToolkit.Touch" />
-	  </group>
+      <group targetFramework="monoandroid">
+        <dependency id="MugenMvvmToolkit.Android.API17" />
+      </group>
+      <group targetFramework="monotouch">
+        <dependency id="MugenMvvmToolkit.Touch" />
+      </group>
     </dependencies>
   </metadata>
   <files>
+    <!-- CORE PCL WINRT -->
+    <file src="CoreContent\MainViewModel.cs.pp" target="content\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10\ViewModels\MainViewModel.cs.pp" />
+
+    <!-- CORE PCL SILVERLIGHT -->
+    <file src="CoreContent\MainViewModel.cs.pp" target="content\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10\ViewModels\MainViewModel.cs.pp" />
+
     <!-- Android -->
     <file src="AndroidContent\Setup.cs.pp" target="content\monoandroid\Setup.cs.pp" />
     <file src="AndroidContent\SplashScreenActivity.cs.pp" target="content\monoandroid\Views\SplashScreenActivity.cs.pp" />
-    
+    <file src="AndroidContent\MainView.cs.pp" target="content\monoandroid\Views\MainView.cs.pp" />
+    <file src="AndroidContent\Main.axml.pp" target="content\monoandroid\Resources\layout\Main.axml.pp" />
+    <file src="AndroidContent\Readme.txt" target="content\monoandroid\_MugenMvvmToolkitReadme.txt" />
+
     <!-- Touch -->
     <file src="TouchContent\Setup.cs.pp" target="content\monotouch\AppDelegate.cs.pp" />
+    <file src="TouchContent\MainView.cs.pp" target="content\monotouch\Views\MainView.cs.pp" />
+    <file src="TouchContent\Readme.txt" target="content\monotouch\_MugenMvvmToolkitReadme.txt" />
 
     <!-- WP 7.1 -->
     <file src="WinPhoneContent\App.Xaml71.cs.pp" target="content\sl4-windowsphone71\App.Xaml.cs.pp" />
@@ -94,5 +105,8 @@
 
     <!-- SILVERLIGHT 5 -->
     <file src="SilverlightContent\App.Xaml.cs.pp" target="content\sl5\App.Xaml.cs.pp" />
+    <file src="SilverlightContent\MainView.xaml.cs.pp" target="content\sl5\Views\MainView.xaml.cs.pp" />
+    <file src="SilverlightContent\MainView.xaml.pp" target="content\sl5\Views\MainView.xaml.pp" />
+    <file src="SilverlightContent\Readme.txt" target="content\sl5\_MugenMvvmToolkitReadme.txt" />
   </files>
 </package>

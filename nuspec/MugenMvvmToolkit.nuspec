@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit</id>
-    <version>3.2.0-beta1</version>
+    <version>3.2.0-beta2</version>
     <title>MugenMvvmToolkit</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -154,8 +154,8 @@
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\monoandroid\MugenMvvmToolkit.dll" />
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\monoandroid\MugenMvvmToolkit.pdb" />
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.xml" target="lib\monoandroid\MugenMvvmToolkit.xml" />
-	
-	<!-- Touch -->
+
+    <!-- Touch -->
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\monotouch\MugenMvvmToolkit.dll" />
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\monotouch\MugenMvvmToolkit.pdb" />
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.xml" target="lib\monotouch\MugenMvvmToolkit.xml" />
