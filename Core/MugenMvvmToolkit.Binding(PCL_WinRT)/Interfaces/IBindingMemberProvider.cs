@@ -67,8 +67,8 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         bool Unregister([NotNull] Type type);
 
         /// <summary>
-        ///     Dumps the name of registered members.
+        ///     Gets the list of attached members for the specified type.
         /// </summary>
-        ICollection<string> GetAttachedMemberNames([NotNull] Type type);
+        ICollection<KeyValuePair<string, IBindingMemberInfo>> GetAttachedMembers([NotNull] Type type);
     }
 }

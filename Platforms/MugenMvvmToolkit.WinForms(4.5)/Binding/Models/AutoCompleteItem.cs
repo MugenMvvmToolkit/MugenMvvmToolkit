@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="AutoCompleteItem.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,7 +13,10 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
+using System;
 using System.Reflection;
 
 namespace MugenMvvmToolkit.Binding.Models
@@ -21,47 +25,50 @@ namespace MugenMvvmToolkit.Binding.Models
     {
         #region Fields
 
-        private readonly string _displayName;
-        private readonly MemberTypes _type;
-        private readonly string _value;
+        public readonly string DisplayName;
+        public readonly MemberTypes MemberType;
+        public readonly Type Type;
+        public readonly string Value;
 
         #endregion
 
         #region Constructors
 
-        public AutoCompleteItem(MemberInfo member)
-            : this(member.Name, member.Name, member.MemberType)
+        public AutoCompleteItem(FieldInfo field)
+            : this(field.Name, field.Name, field.MemberType, field.FieldType)
         {
         }
 
-        public AutoCompleteItem(string displayName, string value, MemberTypes? type = null)
+        public AutoCompleteItem(PropertyInfo property)
+            : this(property.Name, property.Name, property.MemberType, property.PropertyType)
+        {
+        }
+
+        public AutoCompleteItem(EventInfo eventInfo)
+            : this(eventInfo.Name, eventInfo.Name, eventInfo.MemberType, eventInfo.EventHandlerType)
+        {
+        }
+
+        public AutoCompleteItem(string displayName, string value, MemberTypes? memberType = null, Type type = null)
         {
             Should.NotBeNull(displayName, "displayName");
             Should.NotBeNull(value, "value");
-            _displayName = type.HasValue
-                ? string.Format("{0} ({1})", displayName, type.Value == MemberTypes.Custom ? "Attached" : type.Value.ToString())
+            Type = type ?? typeof(object);
+            DisplayName = memberType.HasValue
+                ? string.Format("{0} ({1} - {2})", displayName, Type.Name,
+                    memberType.Value == MemberTypes.Custom ? "Attached" : memberType.Value.ToString())
                 : displayName;
-            _value = value;
-            _type = type.GetValueOrDefault(MemberTypes.Custom);
+            Value = value;
+            MemberType = memberType.GetValueOrDefault(MemberTypes.Custom);
         }
 
         #endregion
 
-        #region Properties
+        #region Overrides of ValueType
 
-        public string DisplayName
+        public override string ToString()
         {
-            get { return _displayName; }
-        }
-
-        public string Value
-        {
-            get { return _value; }
-        }
-
-        public MemberTypes Type
-        {
-            get { return _type; }
+            return DisplayName;
         }
 
         #endregion

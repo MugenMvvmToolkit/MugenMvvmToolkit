@@ -80,31 +80,22 @@ namespace MugenMvvmToolkit.MarkupExtensions
             if (targetObject == null)
                 return null;
 
-            var memberProvider = BindingServiceProvider.MemberProvider;
-            if (_getXamlNodeProvider == null)
-                _getXamlNodeProvider = memberProvider.GetBindingMember(serviceProvider.GetType(),
-                        "IXamlNodeProvider", true, true);
+            UpdateMember(ref _getXamlNodeProvider, serviceProvider, "IXamlNodeProvider");
             var xamlNodeProvider = _getXamlNodeProvider.GetValue(serviceProvider, null);
             if (xamlNodeProvider == null)
                 return null;
 
-            if (_getXamlNode == null)
-                _getXamlNode = memberProvider.GetBindingMember(xamlNodeProvider.GetType(),
-                        "XamlNode", true, true);
+            UpdateMember(ref _getXamlNode, xamlNodeProvider, "XamlNode");
             var xamlNode = _getXamlNode.GetValue(xamlNodeProvider, null);
             if (xamlNode == null)
                 return null;
 
-            if (_getParentNode == null)
-                _getParentNode = memberProvider.GetBindingMember(xamlNode.GetType(),
-                    "Parent", true, true);
+            UpdateMember(ref _getParentNode, xamlNode, "Parent");
             var parentNode = _getParentNode.GetValue(xamlNode, null);
             if (parentNode == null)
                 return null;
 
-            if (_getProperties == null)
-                _getProperties = memberProvider.GetBindingMember(parentNode.GetType(),
-                    "Properties", true, true);
+            UpdateMember(ref _getProperties, parentNode, "Properties");
             var properties = (IDictionary)_getProperties.GetValue(parentNode, null);
             if (properties == null)
                 return null;
@@ -121,11 +112,16 @@ namespace MugenMvvmToolkit.MarkupExtensions
             if (xmlName == null)
                 return null;
 
-            if (_getLocalName == null)
-                _getLocalName = memberProvider.GetBindingMember(xmlName.GetType(), "LocalName",
-                    true, true);
+            UpdateMember(ref _getLocalName, xmlName, "LocalName");
             path = (string)_getLocalName.GetValue(xmlName, null);
-            return memberProvider.GetBindingMember(targetObject.GetType(), path, false, false);
+            return BindingServiceProvider.MemberProvider.GetBindingMember(targetObject.GetType(), path, false, false);
+        }
+
+        private static void UpdateMember(ref IBindingMemberInfo member, object target, string path)
+        {
+            var type = target.GetType();
+            if (member == null || member.Member == null || member.Member.DeclaringType != type)
+                member = BindingServiceProvider.MemberProvider.GetBindingMember(type, path, true, true);
         }
 
         #endregion

@@ -42,10 +42,12 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
         private static readonly Color PropertyColor;
         private static readonly Color EventColor;
         private static readonly Color AttachedMemberColor;
+        private static readonly string[] DotSeparator;
 
         private readonly SortedDictionary<string, AutoCompleteItem> _controlsCompleteItems;
         private readonly SortedDictionary<string, SortedDictionary<string, AutoCompleteItem>> _controlsDictionary;
         private readonly AutoCompleteItem[] _attachedControlAutoCompleteItems;
+        private readonly Dictionary<Type, SortedDictionary<string, AutoCompleteItem>> _typeCompleteItems;
 
         private readonly Font _boldFont;
 
@@ -58,6 +60,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         static BindingEditorView()
         {
+            DotSeparator = new[] { "." };
             KnownControlColor = ColorTranslator.FromHtml("#00008A");
             UnknownControlColor = Color.Red;
             CommentColor = ColorTranslator.FromHtml("#FF007E27");
@@ -78,10 +81,11 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             _boldFont = new Font(bindingEditor.Font, FontStyle.Bold);
             _controlsDictionary = new SortedDictionary<string, SortedDictionary<string, AutoCompleteItem>>(StringComparer.CurrentCulture);
             _controlsCompleteItems = new SortedDictionary<string, AutoCompleteItem>(StringComparer.CurrentCulture);
+            _typeCompleteItems = new Dictionary<Type, SortedDictionary<string, AutoCompleteItem>>();
             _attachedControlAutoCompleteItems = BindingServiceProvider
                 .MemberProvider
-                .GetAttachedMemberNames(typeof(Control))
-                .ToArrayEx(s => new AutoCompleteItem(s, s, MemberTypes.Custom));
+                .GetAttachedMembers(typeof(Control))
+                .ToArrayEx(s => new AutoCompleteItem(s.Key, s.Key, MemberTypes.Custom));
             controlsTreeView.Nodes.Add(GetComponents(CurrentControl));
             controlsTreeView.ExpandAll();
         }
@@ -164,39 +168,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                     completeItems = new SortedDictionary<string, AutoCompleteItem>(StringComparer.CurrentCulture);
                     _controlsDictionary[name] = completeItems;
                 }
-                foreach (var member in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
-                    completeItems.Add(new AutoCompleteItem(member));
-                foreach (var member in type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(info => info.CanWrite && info.GetIndexParameters().Length == 0))
-                    completeItems.Add(new AutoCompleteItem(member));
-                foreach (var member in type.GetEvents(BindingFlags.Public | BindingFlags.Instance))
-                    completeItems.Add(new AutoCompleteItem(member));
-
-                completeItems.Add(new AutoCompleteItem(AttachedMemberConstants.DataContext, AttachedMemberConstants.DataContext, MemberTypes.Custom));
-                completeItems.Add(new AutoCompleteItem(AttachedMemberConstants.CommandParameter, AttachedMemberConstants.CommandParameter, MemberTypes.Custom));
-                if (typeof(DataGridView).IsAssignableFrom(type) || typeof(TabControl).IsAssignableFrom(type))
-                {
-                    completeItems.Add(new AutoCompleteItem(AttachedMemberConstants.SelectedItem, AttachedMemberConstants.SelectedItem, MemberTypes.Custom));
-                }
-                if (typeof(Control).IsAssignableFrom(type))
-                {
-                    completeItems.Add(new AutoCompleteItem(AttachedMemberConstants.Content,
-                        AttachedMemberConstants.Content, MemberTypes.Custom));
-                    completeItems.Add(new AutoCompleteItem(AttachedMemberConstants.ContentTemplate,
-                        AttachedMemberConstants.ContentTemplate, MemberTypes.Custom));
-                    completeItems.Add(new AutoCompleteItem(AttachedMemberConstants.ItemsSource,
-                        AttachedMemberConstants.ItemsSource, MemberTypes.Custom));
-                    completeItems.Add(new AutoCompleteItem(AttachedMemberConstants.ItemTemplate,
-                        AttachedMemberConstants.ItemTemplate, MemberTypes.Custom));
-                    completeItems.Add(new AutoCompleteItem("CollectionViewManager", "CollectionViewManager",
-                        MemberTypes.Custom));
-                    completeItems.Add(new AutoCompleteItem("ContentViewManager", "ContentViewManager",
-                        MemberTypes.Custom));
-                }
-                foreach (var attachedName in BindingServiceProvider.MemberProvider.GetAttachedMemberNames(type))
-                {
-                    if (!completeItems.ContainsKey(attachedName) && XmlTokenizer.IsValidName(attachedName))
-                        completeItems.Add(new AutoCompleteItem(attachedName, attachedName, MemberTypes.Custom));
-                }
+                AddCompleteItems(type, completeItems);
                 _controlsCompleteItems.Add(new AutoCompleteItem(string.Format("{0} ({1})", name, type.Name), name));
             }
             catch (Exception)
@@ -206,17 +178,130 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             return true;
         }
 
+        private static void AddCompleteItems(Type type, SortedDictionary<string, AutoCompleteItem> completeItems)
+        {
+            foreach (var member in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
+                completeItems.Add(new AutoCompleteItem(member));
+            foreach (var member in type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(info => info.GetIndexParameters().Length == 0))
+                completeItems.Add(new AutoCompleteItem(member));
+            foreach (var member in type.GetEvents(BindingFlags.Public | BindingFlags.Instance))
+                completeItems.Add(new AutoCompleteItem(member));
+
+            if (!type.IsValueType && !typeof(Delegate).IsAssignableFrom(type))
+                completeItems.Add(new AutoCompleteItem(AttachedMemberConstants.DataContext,
+                    AttachedMemberConstants.DataContext, MemberTypes.Custom));
+            foreach (var attachedName in BindingServiceProvider.MemberProvider.GetAttachedMembers(type))
+            {
+                if (!completeItems.ContainsKey(attachedName.Key) && XmlTokenizer.IsValidName(attachedName.Key))
+                    completeItems.Add(new AutoCompleteItem(attachedName.Key, attachedName.Key, MemberTypes.Custom,
+                        attachedName.Value.Type));
+            }
+        }
+
         private static string GetDisplayName(object instance, string name, Type type)
         {
             string text = instance == null ? null : PlatformExtensions.TryGetValue(instance, "Text");
             return string.Format("{0} ({1}{2})", name, type.Name, string.IsNullOrEmpty(text) ? "" : ", " + text);
         }
 
+        private ICollection<AutoCompleteItem> FindControlMemberItems(Type type, string value)
+        {
+            SortedDictionary<string, AutoCompleteItem> items;
+            if (!_typeCompleteItems.TryGetValue(type, out items))
+            {
+                items = new SortedDictionary<string, AutoCompleteItem>();
+                AddCompleteItems(type, items);
+                _typeCompleteItems[type] = items;
+            }
+            return FindItems(items, value);
+        }
+
         private static ICollection<AutoCompleteItem> FindItems(SortedDictionary<string, AutoCompleteItem> items, string value)
         {
-            if (value == null)
+            if (string.IsNullOrEmpty(value))
                 return items.Values;
-            return items.Values.Where(item => item.Value.SafeContains(value)).ToList();
+            List<AutoCompleteItem> result = null;
+            foreach (var item in items)
+            {
+                if (!item.Value.Value.SafeContains(value))
+                    continue;
+                if (result == null)
+                    result = new List<AutoCompleteItem>();
+                result.Add(item.Value);
+            }
+            return result;
+        }
+
+        private void HighlightMember(MemberTypes memberType, int startIndex, int length)
+        {
+            switch (memberType)
+            {
+                case MemberTypes.Event:
+                    bindingEditor.Highlight(EventColor, startIndex, length);
+                    break;
+                case MemberTypes.Field:
+                case MemberTypes.Property:
+                    bindingEditor.Highlight(PropertyColor, startIndex, length);
+                    break;
+                case MemberTypes.Custom:
+                    bindingEditor.Highlight(AttachedMemberColor, startIndex, length);
+                    break;
+            }
+        }
+
+        private ICollection<AutoCompleteItem> ProvideElementAutoCompleteItems(out int startIndexToReplace, out int endIndexToReplace)
+        {
+            startIndexToReplace = _lastValueNode.Start + 1;
+            endIndexToReplace = _lastValueNode.End;
+
+            string selectedName = null;
+            var length = _lastValueNode.End - startIndexToReplace;
+            if (length != 0)
+                selectedName = bindingEditor.Text.Substring(startIndexToReplace, length);
+            return FindItems(_controlsCompleteItems, selectedName);
+        }
+
+        private ICollection<AutoCompleteItem> ProvideAttributeAutoCompleteItems(XmlElementExpressionNode parent, ref int startIndexToReplace, ref int endIndexToReplace)
+        {
+            SortedDictionary<string, AutoCompleteItem> list;
+            if (!_controlsDictionary.TryGetValue(parent.Name, out list))
+                return null;
+
+            var attributeName = _lastValueNode.GetValue(bindingEditor.Text);
+            var members = attributeName.Split(DotSeparator, StringSplitOptions.None);
+            var path = members[0];
+            var cursorIndex = bindingEditor.SelectionStart - _lastValueNode.Start;
+            AutoCompleteItem member;
+            if (members.Length == 1 || path.Length >= cursorIndex || !list.TryGetValue(path, out member))
+            {
+                startIndexToReplace = _lastValueNode.Start;
+                endIndexToReplace = startIndexToReplace + path.Length;
+                return FindItems(list, attributeName.Substring(0, cursorIndex));
+            }
+
+            Type type = member.Type;
+            int currentLength = members[0].Length;
+            int startIndex = currentLength + 1;
+            for (int i = 1; i < members.Length; i++)
+            {
+                path = members[i];
+                currentLength += path.Length;
+                if (startIndex + path.Length >= cursorIndex)
+                {
+                    startIndexToReplace = startIndex + _lastValueNode.Start;
+                    endIndexToReplace = startIndexToReplace + path.Length;
+                    if (!string.IsNullOrEmpty(path) && currentLength > cursorIndex)
+                        path = path.Substring(0, currentLength - cursorIndex);
+                    return FindControlMemberItems(type, path);
+                }
+                var bindingMember = BindingServiceProvider
+                    .MemberProvider
+                    .GetBindingMember(type, path, false, false);
+                type = bindingMember == null ? typeof(object) : bindingMember.Type;
+                startIndex += path.Length + 1;
+            }
+            return null;
         }
 
         #endregion
@@ -229,7 +314,8 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             _lastValueNode = node as XmlValueExpressionNode;
             if (_lastValueNode != null)
                 return _lastValueNode.Type == XmlValueExpressionType.ElementStartTag ||
-                       _lastValueNode.Type == XmlValueExpressionType.AttributeName;
+                       _lastValueNode.Type == XmlValueExpressionType.AttributeName ||
+                       _lastValueNode.Type == XmlValueExpressionType.AttributeValue;
 
             if (textChanged)
                 return false;
@@ -248,26 +334,17 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             if (_lastValueNode != null)
             {
                 if (_lastValueNode.Type == XmlValueExpressionType.ElementStartTag)
-                {
-                    startIndexToReplace = _lastValueNode.Start + 1;
-                    endIndexToReplace = _lastValueNode.End;
+                    return ProvideElementAutoCompleteItems(out startIndexToReplace, out endIndexToReplace);
 
-                    string selectedName = null;
-                    var length = _lastValueNode.End - startIndexToReplace;
-                    if (length != 0)
-                        selectedName = bindingEditor.Text.Substring(startIndexToReplace, length);
-                    return FindItems(_controlsCompleteItems, selectedName);
-                }
+                XmlElementExpressionNode parent;
+                var attributeExpressionNode = _lastValueNode.Parent as XmlAttributeExpressionNode;
+                if (attributeExpressionNode == null)
+                    parent = _lastValueNode.Parent as XmlElementExpressionNode;
+                else
+                    parent = attributeExpressionNode.Parent;
 
-                var node = _lastValueNode.Parent as XmlElementExpressionNode;
-                if (node == null)
-                    return null;
-                SortedDictionary<string, AutoCompleteItem> list;
-                if (!_controlsDictionary.TryGetValue(node.Name, out list))
-                    return null;
-                startIndexToReplace = _lastValueNode.Start;
-                endIndexToReplace = _lastValueNode.End;
-                return FindItems(list, _lastValueNode.GetValue(bindingEditor.Text));
+                if (parent != null)
+                    return ProvideAttributeAutoCompleteItems(parent, ref startIndexToReplace, ref endIndexToReplace);
             }
             if (_lastElement != null)
             {
@@ -317,28 +394,50 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                     }
                     if (element == null)
                         return;
-                    var memberName = node.GetValue(bindingEditor.Text);
                     _controlsDictionary.TryGetValue(element.Name, out list);
-                    AutoCompleteItem member = null;
-                    if (list != null)
-                        list.TryGetValue(memberName, out member);
-                    if (member == null)
+                    if (list == null)
                     {
                         bindingEditor.Highlight(AttachedMemberColor, node, _boldFont);
                         return;
                     }
-                    switch (member.Type)
+                    var memberName = node.GetValue(bindingEditor.Text);
+                    var members = memberName.Split(DotSeparator, StringSplitOptions.None);
+
+                    AutoCompleteItem member;
+                    if (members.Length == 0 || !list.TryGetValue(members[0], out member))
                     {
-                        case MemberTypes.Event:
-                            bindingEditor.Highlight(EventColor, node);
-                            break;
-                        case MemberTypes.Field:
-                        case MemberTypes.Property:
-                            bindingEditor.Highlight(PropertyColor, node);
-                            break;
-                        case MemberTypes.Custom:
-                            bindingEditor.Highlight(AttachedMemberColor, node);
-                            break;
+                        bindingEditor.Highlight(AttachedMemberColor, node, _boldFont);
+                        return;
+                    }
+
+                    HighlightMember(member.MemberType, node.Start, members[0].Length);
+                    //Highlight for complex path.
+                    if (members.Length > 1)
+                    {
+                        Type type = member.Type;
+                        int startIndex = node.Start + members[0].Length + 1;
+                        for (int i = 1; i < members.Length; i++)
+                        {
+                            var path = members[i];
+                            var memberType = MemberTypes.Custom;
+                            if (type != null)
+                            {
+                                var bindingMember = BindingServiceProvider
+                                    .MemberProvider
+                                    .GetBindingMember(type, path, false, false);
+
+                                if (bindingMember == null)
+                                    type = null;
+                                else
+                                {
+                                    type = bindingMember.Type;
+                                    if (bindingMember.Member != null)
+                                        memberType = bindingMember.Member.MemberType;
+                                }
+                            }
+                            HighlightMember(memberType, startIndex, path.Length);
+                            startIndex += path.Length + 1;
+                        }
                     }
                     break;
                 case XmlValueExpressionType.AttributeEqual:

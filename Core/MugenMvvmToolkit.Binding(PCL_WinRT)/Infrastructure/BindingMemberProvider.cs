@@ -349,18 +349,18 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         }
 
         /// <summary>
-        ///     Dumps the name of registered members.
+        ///     Gets the list of attached members for the specified type.
         /// </summary>
-        public ICollection<string> GetAttachedMemberNames(Type type)
+        public ICollection<KeyValuePair<string, IBindingMemberInfo>> GetAttachedMembers(Type type)
         {
             Should.NotBeNull(type, "type");
-            var names = new HashSet<string>();
+            var names = new HashSet<KeyValuePair<string, IBindingMemberInfo>>();
             lock (_attachedMembers)
             {
                 foreach (var member in _attachedMembers)
                 {
                     if (member.Key.Type.IsAssignableFrom(type))
-                        names.Add(member.Key.Path);
+                        names.Add(new KeyValuePair<string, IBindingMemberInfo>(member.Key.Path, member.Value));
                 }
             }
             return names;

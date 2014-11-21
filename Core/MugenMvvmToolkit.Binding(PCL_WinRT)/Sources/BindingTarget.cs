@@ -27,7 +27,6 @@ namespace MugenMvvmToolkit.Binding.Sources
     /// </summary>
     public class BindingTarget : BindingSource, IBindingTarget
     {
-
         #region Constructors
 
         /// <summary>

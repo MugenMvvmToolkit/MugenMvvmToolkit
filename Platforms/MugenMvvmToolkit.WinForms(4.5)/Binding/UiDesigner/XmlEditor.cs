@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using MugenMvvmToolkit.Binding.Models;
@@ -144,9 +143,8 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             {
                 Visible = false,
                 MaximumSize = new Size(0, 200),
-                DisplayMember = "DisplayName",
                 AutoSize = true,
-                MinimumSize = new Size(250, 0),
+                MinimumSize = new Size(350, 0),
                 Anchor = AnchorStyles.Left | AnchorStyles.Right,
                 HorizontalScrollbar = true,
             };
@@ -362,15 +360,20 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             return selectedNode;
         }
 
-        internal void Highlight(Color color, XmlExpressionNode node, Font font = null)
+        internal void Highlight(Color color, int start, int length, Font font = null)
         {
-            Select(node.Start, node.Length);
+            Select(start, length);
             SelectionColor = color;
             if (font != null)
                 SelectionFont = font;
             SelectionLength = 0;
             SelectionColor = ForeColor;
             SelectionFont = Font;
+        }
+
+        internal void Highlight(Color color, XmlExpressionNode node, Font font = null)
+        {
+            Highlight(color, node.Start, node.End, font);
         }
 
         private void UpdateUndoLimit()

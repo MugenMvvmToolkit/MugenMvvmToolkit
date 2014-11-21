@@ -58,6 +58,7 @@ namespace MugenMvvmToolkit.Binding
             };
             FakeMemberPrefixesStatic = new List<string>
             {
+                "_Fake",
                 "Fake"
             };
             SetDefaultValues();
