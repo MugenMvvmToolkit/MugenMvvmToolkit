@@ -7,7 +7,7 @@ namespace $rootnamespace$
     /// This class allows you to use the bindings from the WinForms designer. 
     /// Drag the class from the Toolbox panel on your form.
     /// </summary>
-    public class ViewBinder : Binder
+    public partial class ViewBinder : Binder
     {
         public ViewBinder()
         {

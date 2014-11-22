@@ -291,8 +291,8 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                 {
                     startIndexToReplace = startIndex + _lastValueNode.Start;
                     endIndexToReplace = startIndexToReplace + path.Length;
-                    if (!string.IsNullOrEmpty(path) && currentLength > cursorIndex)
-                        path = path.Substring(0, currentLength - cursorIndex);
+                    if (!string.IsNullOrEmpty(path) && cursorIndex > startIndex)
+                        path = path.Substring(0, cursorIndex - startIndex);
                     return FindControlMemberItems(type, path);
                 }
                 var bindingMember = BindingServiceProvider
@@ -314,8 +314,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             _lastValueNode = node as XmlValueExpressionNode;
             if (_lastValueNode != null)
                 return _lastValueNode.Type == XmlValueExpressionType.ElementStartTag ||
-                       _lastValueNode.Type == XmlValueExpressionType.AttributeName ||
-                       _lastValueNode.Type == XmlValueExpressionType.AttributeValue;
+                       _lastValueNode.Type == XmlValueExpressionType.AttributeName;
 
             if (textChanged)
                 return false;
@@ -336,15 +335,18 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                 if (_lastValueNode.Type == XmlValueExpressionType.ElementStartTag)
                     return ProvideElementAutoCompleteItems(out startIndexToReplace, out endIndexToReplace);
 
-                XmlElementExpressionNode parent;
-                var attributeExpressionNode = _lastValueNode.Parent as XmlAttributeExpressionNode;
-                if (attributeExpressionNode == null)
-                    parent = _lastValueNode.Parent as XmlElementExpressionNode;
-                else
-                    parent = attributeExpressionNode.Parent;
+                if (_lastValueNode.Type == XmlValueExpressionType.AttributeName)
+                {
+                    XmlElementExpressionNode parent;
+                    var attributeExpressionNode = _lastValueNode.Parent as XmlAttributeExpressionNode;
+                    if (attributeExpressionNode == null)
+                        parent = _lastValueNode.Parent as XmlElementExpressionNode;
+                    else
+                        parent = attributeExpressionNode.Parent;
 
-                if (parent != null)
-                    return ProvideAttributeAutoCompleteItems(parent, ref startIndexToReplace, ref endIndexToReplace);
+                    if (parent != null)
+                        return ProvideAttributeAutoCompleteItems(parent, ref startIndexToReplace, ref endIndexToReplace);
+                }
             }
             if (_lastElement != null)
             {

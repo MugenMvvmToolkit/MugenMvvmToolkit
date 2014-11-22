@@ -6,7 +6,7 @@
     <title>MugenMvvmToolkit - Starter Pack WinForms</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
-      This package contains the 'Getting Started' assemblies for MugenMvvmToolkit.WinForms.
+      This package contains the 'Getting Started' assemblies for WinForms platform.
       Mugen MVVM Toolkit makes it easier to develop cross-platform application using the Model-View-ViewModel design pattern.
       The Mugen MVVM Toolkit provides a cross-platform MVVM development framework built on top of:
       - WinForms

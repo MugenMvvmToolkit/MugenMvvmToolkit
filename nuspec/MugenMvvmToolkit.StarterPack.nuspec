@@ -6,7 +6,7 @@
     <title>MugenMvvmToolkit - Starter Pack</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
-      This package contains the 'Getting Started' assemblies for MugenMvvmToolkit.
+      This package contains the 'Getting Started' assemblies for WinRT, WinPhone, Silverlight, Android, iOS, PCL platforms.
       Mugen MVVM Toolkit makes it easier to develop cross-platform application using the Model-View-ViewModel design pattern.
       The Mugen MVVM Toolkit provides a cross-platform MVVM development framework built on top of:
       - WinForms
@@ -86,22 +86,37 @@
 
     <!-- WP 7.1 -->
     <file src="WinPhoneContent\App.Xaml71.cs.pp" target="content\sl4-windowsphone71\App.Xaml.cs.pp" />
+    <file src="WinPhoneContent\MainView71.xaml.cs.pp" target="content\sl4-windowsphone71\Views\MainView.xaml.cs.pp" />
+    <file src="WinPhoneContent\MainView71.xaml.pp" target="content\sl4-windowsphone71\Views\MainView.xaml.pp" />
+    <file src="WinPhoneContent\Readme.txt" target="content\sl4-windowsphone71\_MugenMvvmToolkitReadme.txt" />
 
     <!-- WP 8.0 -->
     <file src="WinPhoneContent\App.Xaml.cs.pp" target="content\wp8\App.Xaml.cs.pp" />
+    <file src="WinPhoneContent\MainView.xaml.cs.pp" target="content\wp8\Views\MainView.xaml.cs.pp" />
+    <file src="WinPhoneContent\MainView.xaml.pp" target="content\wp8\Views\MainView.xaml.pp" />
+    <file src="WinPhoneContent\Readme.txt" target="content\wp8\_MugenMvvmToolkitReadme.txt" />
 
     <!-- WP 8.1 SILVERLIGHT -->
     <file src="WinPhoneContent\App.Xaml.cs.pp" target="content\wp81\App.Xaml.cs.pp" />
+    <file src="WinPhoneContent\MainView.xaml.cs.pp" target="content\wp81\Views\MainView.xaml.cs.pp" />
+    <file src="WinPhoneContent\MainView.xaml.pp" target="content\wp81\Views\MainView.xaml.pp" />
+    <file src="WinPhoneContent\Readme.txt" target="content\wp81\_MugenMvvmToolkitReadme.txt" />
 
     <!-- WINRT 8.1 -->
     <file src="WinRTContent\App.Xaml.cs.pp" target="content\win81\App.Xaml.cs.pp" />
     <file src="WinRTContent\NavigationHelper.cs.pp" target="content\win81\NavigationHelper.cs.pp" />
     <file src="WinRTContent\SuspensionManager.cs.pp" target="content\win81\SuspensionManager.cs.pp" />
+    <file src="WinRTContent\MainView.xaml.cs.pp" target="content\win81\Views\MainView.xaml.cs.pp" />
+    <file src="WinRTContent\MainView.xaml.pp" target="content\win81\Views\MainView.xaml.pp" />
+    <file src="WinRTContent\Readme.txt" target="content\win81\_MugenMvvmToolkitReadme.txt" />
 
     <!-- WINRT PCL -->
     <file src="WinRTContent\App.Xaml.cs.pp" target="content\portable-win81+wpa81\App.Xaml.cs.pp" />
     <file src="WinRTContent\NavigationHelper.cs.pp" target="content\portable-win81+wpa81\NavigationHelper.cs.pp" />
     <file src="WinRTContent\SuspensionManager.cs.pp" target="content\portable-win81+wpa81\SuspensionManager.cs.pp" />
+    <file src="WinRTContent\MainView.xaml.cs.pp" target="content\portable-win81+wpa81\Views\MainView.xaml.cs.pp" />
+    <file src="WinRTContent\MainView.xaml.pp" target="content\portable-win81+wpa81\Views\MainView.xaml.pp" />
+    <file src="WinRTContent\Readme.txt" target="content\portable-win81+wpa81\_MugenMvvmToolkitReadme.txt" />
 
     <!-- SILVERLIGHT 5 -->
     <file src="SilverlightContent\App.Xaml.cs.pp" target="content\sl5\App.Xaml.cs.pp" />
