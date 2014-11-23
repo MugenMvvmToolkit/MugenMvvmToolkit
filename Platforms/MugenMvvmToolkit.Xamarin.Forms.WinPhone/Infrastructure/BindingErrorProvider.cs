@@ -22,8 +22,10 @@ using JetBrains.Annotations;
 using Microsoft.Phone.Controls;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.WinPhone;
 
@@ -33,7 +35,7 @@ namespace MugenMvvmToolkit.Infrastructure
     ///     Represents the class that provides a user interface for indicating that a control on a form has an error associated
     ///     with it.
     /// </summary>
-    public class BindingErrorProvider : BindingErrorProviderBase
+    public class BindingErrorProvider : BindingErrorProviderBase, IEventListener
     {
         #region Overrides of BindingErrorProviderBase
 
@@ -66,7 +68,18 @@ namespace MugenMvvmToolkit.Infrastructure
             var view = element as VisualElement;
             if (view == null)
                 return null;
+
+            //Listen renderer change.
+            ServiceProvider
+                .AttachedValueProvider
+                .GetOrAdd(element, "~~#@rendereListener", (el, o) =>
+                {
+                    BindingServiceProvider.WeakEventManager.Subscribe(el, "Renderer", (IEventListener)o);
+                    return (object)null;
+                }, this);
             IVisualElementRenderer renderer = view.GetRenderer();
+            if (renderer == null)
+                return null;
             var entryRenderer = renderer as EntryRenderer;
             if (entryRenderer != null)
             {
@@ -79,6 +92,32 @@ namespace MugenMvvmToolkit.Infrastructure
             if (member == null || !member.CanRead)
                 return null;
             return member.GetValue(renderer, null) as FrameworkElement;
+        }
+
+        #endregion
+
+        #region Implementation of IEventListener
+
+        bool IEventListener.IsAlive
+        {
+            get { return true; }
+        }
+
+        bool IEventListener.IsWeak
+        {
+            get { return true; }
+        }
+
+        bool IEventListener.TryHandle(object sender, object message)
+        {
+            var errorProvider = BindingServiceProvider.ErrorProvider;
+            if (errorProvider != null)
+            {
+                var dictionary = GetOrAddErrorsDictionary(sender);
+                foreach (var item in dictionary)
+                    errorProvider.SetErrors(sender, item.Key, item.Value, DataContext.Empty);
+            }
+            return true;
         }
 
         #endregion

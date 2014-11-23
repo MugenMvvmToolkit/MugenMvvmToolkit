@@ -59,6 +59,10 @@
       </group>
       <group targetFramework="net45">
       </group>
+      <group targetFramework="portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10">
+        <dependency id="Microsoft.Bcl" />
+        <dependency id="Microsoft.Bcl.Build" />
+      </group>
       <group targetFramework="net40-client">
         <dependency id="Microsoft.Bcl" />
         <dependency id="Microsoft.Bcl.Build" />
