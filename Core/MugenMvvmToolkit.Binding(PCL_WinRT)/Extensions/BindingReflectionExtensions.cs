@@ -357,7 +357,7 @@ namespace MugenMvvmToolkit.Binding
             var actualArgs = new List<ArgumentData> { target };
             actualArgs.AddRange(args);
             return actualArgs;
-        }
+        }        
 
         private static Type GetNonNullableType(this Type type)
         {

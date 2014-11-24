@@ -60,16 +60,22 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
             public static UndoRedoInfo Create(XmlEditor editor)
             {
-                return new UndoRedoInfo(editor.Text, editor.GetScrollPos(), editor.SelectionStart, editor.SelectionLength);
+                return new UndoRedoInfo(editor.Rtf, editor.GetScrollPos(), editor.SelectionStart, editor.SelectionLength);
             }
 
             public void Restore(XmlEditor editor, bool restoreText, bool restoreScroll = true)
             {
                 if (restoreText)
-                    editor.Text = Text;
+                {
+                    editor._highlighting = true;
+                    editor.Rtf = Text;
+                    editor._highlighting = false;
+                }
                 editor.Select(CursorLocation, Length);
                 if (restoreScroll)
                     editor.SetScrollPos(ScrollPos);
+                if (restoreText)
+                    editor.OnTextChanged(EventArgs.Empty);
             }
 
             #endregion
@@ -373,7 +379,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         internal void Highlight(Color color, XmlExpressionNode node, Font font = null)
         {
-            Highlight(color, node.Start, node.End, font);
+            Highlight(color, node.Start, node.Length, font);
         }
 
         private void UpdateUndoLimit()

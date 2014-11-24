@@ -38,6 +38,7 @@ namespace MugenMvvmToolkit
             //Element
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<Element, object>(AttachedMemberConstants.Parent, GetParentValue, null, ObserveParentMember));
+            memberProvider.Register(typeof(Element), "BindingContext", BindingMemberProvider.BindingContextMember, true);
 
             //VisualElement
             var visibleMember = memberProvider.GetBindingMember(typeof(VisualElement),

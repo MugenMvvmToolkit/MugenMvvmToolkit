@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="BindingResourceMethod.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,7 +13,9 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
@@ -28,9 +31,9 @@ namespace MugenMvvmToolkit.Binding.Models
     {
         #region Fields
 
-        private readonly Type _returnType;
         private readonly Func<IList<Type>, IList<Type>, IDataContext, Type> _getReturnType;
         private readonly Func<IList<Type>, object[], IDataContext, object> _method;
+        private readonly Type _returnType;
 
         #endregion
 
@@ -39,7 +42,8 @@ namespace MugenMvvmToolkit.Binding.Models
         /// <summary>
         ///     Initializes a new instance of the <see cref="BindingResourceMethod" /> class.
         /// </summary>
-        public BindingResourceMethod([NotNull] Func<IList<Type>, object[], IDataContext, object> method, [NotNull] Type returnType)
+        public BindingResourceMethod([NotNull] Func<IList<Type>, object[], IDataContext, object> method,
+            [NotNull] Type returnType)
         {
             Should.NotBeNull(method, "method");
             Should.NotBeNull(returnType, "returnType");

@@ -42,14 +42,13 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
         private static readonly Color PropertyColor;
         private static readonly Color EventColor;
         private static readonly Color AttachedMemberColor;
+        private static readonly Color UnknownAttachedMemberColor;
         private static readonly string[] DotSeparator;
 
         private readonly SortedDictionary<string, AutoCompleteItem> _controlsCompleteItems;
         private readonly SortedDictionary<string, SortedDictionary<string, AutoCompleteItem>> _controlsDictionary;
         private readonly AutoCompleteItem[] _attachedControlAutoCompleteItems;
         private readonly Dictionary<Type, SortedDictionary<string, AutoCompleteItem>> _typeCompleteItems;
-
-        private readonly Font _boldFont;
 
         private XmlElementExpressionNode _lastElement;
         private XmlValueExpressionNode _lastValueNode;
@@ -68,6 +67,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             PropertyColor = ColorTranslator.FromHtml("#9E277E");
             EventColor = ColorTranslator.FromHtml("#FE00FE");
             AttachedMemberColor = ColorTranslator.FromHtml("#00889B");
+            UnknownAttachedMemberColor = Color.FromArgb(0, 0, 39);
         }
 
         /// <summary>
@@ -78,7 +78,6 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             ServiceProvider.InitializeDesignTimeManager();
             InitializeComponent();
             bindingEditor.Handler = this;
-            _boldFont = new Font(bindingEditor.Font, FontStyle.Bold);
             _controlsDictionary = new SortedDictionary<string, SortedDictionary<string, AutoCompleteItem>>(StringComparer.CurrentCulture);
             _controlsCompleteItems = new SortedDictionary<string, AutoCompleteItem>(StringComparer.CurrentCulture);
             _typeCompleteItems = new Dictionary<Type, SortedDictionary<string, AutoCompleteItem>>();
@@ -233,9 +232,14 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             return result;
         }
 
-        private void HighlightMember(MemberTypes memberType, int startIndex, int length)
+        private void HighlightMember(MemberTypes? memberType, int startIndex, int length)
         {
-            switch (memberType)
+            if (memberType == null)
+            {
+                bindingEditor.Highlight(UnknownAttachedMemberColor, startIndex, length);
+                return;
+            }
+            switch (memberType.Value)
             {
                 case MemberTypes.Event:
                     bindingEditor.Highlight(EventColor, startIndex, length);
@@ -383,8 +387,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                     var elementColor = (element.Parent == null || _controlsDictionary.TryGetValue(element.Name, out list))
                         ? KnownControlColor
                         : UnknownControlColor;
-                    var fontStyle = list == null ? _boldFont : null;
-                    bindingEditor.Highlight(elementColor, node, fontStyle);
+                    bindingEditor.Highlight(elementColor, node);
                     break;
                 case XmlValueExpressionType.AttributeName:
                     element = node.Parent as XmlElementExpressionNode;
@@ -399,7 +402,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                     _controlsDictionary.TryGetValue(element.Name, out list);
                     if (list == null)
                     {
-                        bindingEditor.Highlight(AttachedMemberColor, node, _boldFont);
+                        bindingEditor.Highlight(UnknownAttachedMemberColor, node);
                         return;
                     }
                     var memberName = node.GetValue(bindingEditor.Text);
@@ -408,7 +411,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                     AutoCompleteItem member;
                     if (members.Length == 0 || !list.TryGetValue(members[0], out member))
                     {
-                        bindingEditor.Highlight(AttachedMemberColor, node, _boldFont);
+                        bindingEditor.Highlight(UnknownAttachedMemberColor, node);
                         return;
                     }
 
@@ -421,7 +424,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                         for (int i = 1; i < members.Length; i++)
                         {
                             var path = members[i];
-                            var memberType = MemberTypes.Custom;
+                            MemberTypes? memberType = null;
                             if (type != null)
                             {
                                 var bindingMember = BindingServiceProvider
@@ -433,8 +436,9 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                                 else
                                 {
                                     type = bindingMember.Type;
-                                    if (bindingMember.Member != null)
-                                        memberType = bindingMember.Member.MemberType;
+                                    memberType = bindingMember.Member == null
+                                        ? MemberTypes.Custom
+                                        : bindingMember.Member.MemberType;
                                 }
                             }
                             HighlightMember(memberType, startIndex, path.Length);
