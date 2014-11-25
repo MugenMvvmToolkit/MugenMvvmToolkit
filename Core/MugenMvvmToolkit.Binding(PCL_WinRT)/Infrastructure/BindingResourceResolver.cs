@@ -34,6 +34,74 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
     /// </summary>
     public class BindingResourceResolver : IBindingResourceResolver
     {
+        #region Nested types
+
+        private sealed class RootResourceObject : IBindingResourceObject, IEventListener
+        {
+            #region Fields
+
+            private readonly WeakReference _target;
+            private readonly IBindingMemberInfo _rootMemberInfo;
+
+            #endregion
+
+            #region Constructors
+
+            public RootResourceObject([NotNull] object target, [NotNull] IBindingMemberInfo rootMemberInfo)
+            {
+                _target = ToolkitExtensions.GetWeakReference(target);
+                _rootMemberInfo = rootMemberInfo;
+            }
+
+            #endregion
+
+            #region Implementation of IBindingResourceObject
+
+            public bool IsAlive
+            {
+                get { return _target.Target != null; }
+            }
+
+            public bool IsWeak
+            {
+                get { return true; }
+            }
+
+            public bool TryHandle(object sender, object message)
+            {
+                var changed = ValueChanged;
+                if (changed != null)
+                    changed(this, EventArgs.Empty);
+                return IsAlive;
+            }
+
+            public object Value
+            {
+                get
+                {
+                    var target = _target.Target;
+                    if (target == null)
+                        return null;
+                    return _rootMemberInfo.GetValue(target, null);
+                }
+            }
+
+            public Type Type
+            {
+                get
+                {
+                    var value = Value;
+                    return value == null ? typeof(object) : value.GetType();
+                }
+            }
+
+            public event EventHandler<ISourceValue, EventArgs> ValueChanged;
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         private readonly Dictionary<string, IBindingValueConverter> _converters;
@@ -118,6 +186,19 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #endregion
 
         #region Methods
+
+        protected static object TryGetTarget(IDataContext context)
+        {
+            if (context == null)
+                return null;
+            object target;
+            if (context.TryGetData(BindingBuilderConstants.Target, out target))
+                return target;
+            IDataBinding data;
+            if (context.TryGetData(BindingConstants.Binding, out data))
+                return data.TargetAccessor.Source.GetSource(false);
+            return null;
+        }
 
         private static object FormatImpl(IList<Type> typeArgs, object[] args, IDataContext arg3)
         {
@@ -266,7 +347,20 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 IBindingResourceObject value;
                 if (!_objects.TryGetValue(name, out value) && throwOnError)
+                {
+                    if ("root".Equals(name, StringComparison.OrdinalIgnoreCase) ||
+                        "rootElement".Equals(name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var target = TryGetTarget(context);
+                        if (target != null)
+                        {
+                            var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
+                            if (rootMember != null)
+                                return new RootResourceObject(target, rootMember);
+                        }
+                    }
                     throw BindingExceptionManager.CannotResolveInstanceByName(this, "resource object", name);
+                }
                 return value;
             }
         }

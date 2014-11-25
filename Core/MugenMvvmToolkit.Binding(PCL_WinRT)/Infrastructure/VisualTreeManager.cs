@@ -159,8 +159,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         public virtual IBindingMemberInfo GetRootMember(Type type)
         {
-            if (GetParentMember(type) == null)
-                return null;
+            Should.NotBeNull(type, "type");
             return BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(type, AttachedMemberConstants.RootElement, false, false) ?? RootMember;

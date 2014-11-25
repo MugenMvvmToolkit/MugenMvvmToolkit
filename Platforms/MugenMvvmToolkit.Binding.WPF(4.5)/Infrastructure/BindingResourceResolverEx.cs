@@ -165,7 +165,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (result != null)
                 return result;
 
-            var item = TryFindResource(GetTarget(context), name);
+            var item = TryFindResource(TryGetTarget(context), name);
             if (item != null)
             {
                 var valueConverter = item as IBindingValueConverter;
@@ -194,7 +194,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (result != null)
                 return result;
 
-            var target = GetTarget(context);
+            var target = TryGetTarget(context);
             var item = TryFindResource(target, name);
             if (item != null)
                 return new BindingResourceObject(item);
@@ -254,19 +254,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return null;
 #endif
 #endif
-        }
-
-        private static object GetTarget(IDataContext context)
-        {
-            if (context == null)
-                return null;
-            object target;
-            if (context.TryGetData(BindingBuilderConstants.Target, out target))
-                return target;
-            IDataBinding data;
-            if (context.TryGetData(BindingConstants.Binding, out data))
-                return data.TargetAccessor.Source.GetSource(false);
-            return null;
         }
 
         #endregion

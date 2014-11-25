@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.Android.API8.AppCompatV7</id>
-    <version>1.2.0-beta2</version>
+    <version>1.2.0-beta4</version>
     <title>MugenMvvmToolkit - Android API10+ AppCompat v7</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -54,7 +54,7 @@
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
-      <dependency id="MugenMvvmToolkit" version="[3.2.0-beta2, 3.3.0)" />
+      <dependency id="MugenMvvmToolkit" version="[3.2.0-beta4, 3.3.0)" />
       <dependency id="Xamarin.Android.Support.v4" />
       <dependency id="Xamarin.Android.Support.v7.AppCompat" />
     </dependencies>
