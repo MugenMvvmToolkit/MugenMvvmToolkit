@@ -19,7 +19,6 @@ using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure.Mediators
 {
@@ -31,11 +30,11 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         #region Constructors
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="NotifyPropertyChangedBase" /> class.
+        ///     Initializes a new instance of the <see cref="WindowViewMediator" /> class.
         /// </summary>
         public WindowViewMediator([NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
-            [NotNull] IViewManager viewManager, [NotNull] IOperationCallbackManager callbackManager)
-            : base(viewModel, threadManager, viewManager, callbackManager)
+            [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IOperationCallbackManager callbackManager)
+            : base(viewModel, threadManager, viewManager, wrapperManager, callbackManager)
         {
         }
 

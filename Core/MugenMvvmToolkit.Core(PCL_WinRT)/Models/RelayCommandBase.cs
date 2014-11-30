@@ -193,6 +193,7 @@ namespace MugenMvvmToolkit.Models
             ClearNotifiers();
             _canExecuteChangedInternal = null;
             OnDispose();
+            ServiceProvider.AttachedValueProvider.Clear(this);
         }
 
         /// <summary>

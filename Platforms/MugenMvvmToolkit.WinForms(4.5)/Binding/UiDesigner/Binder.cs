@@ -78,7 +78,8 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
         {
             get
             {
-                BindingEditorView.CurrentControl = ContainerControl;
+                if (DesignMode)
+                    BindingEditorView.CurrentControl = ContainerControl;
                 if (DesignMode && string.IsNullOrEmpty(_bindings))
                     return string.Format(@"<{0}>
 </{0}>", RootTagName);
@@ -107,6 +108,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                     bindingSet.BindFromExpression(controlBinding.Key, binding.Key, binding.Value);
             }
             _dataBindings = bindingSet.ApplyWithBindings();
+            _controlBindings.Clear();
         }
 
         private void SetBindings(string bindingsString)

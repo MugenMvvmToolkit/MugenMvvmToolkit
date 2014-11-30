@@ -847,6 +847,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 _weakPropertyHandler = null;
                 _notifyPropertyChanged = null;
                 ErrorsChanged = null;
+                ServiceProvider.AttachedValueProvider.Clear(this);
             }
             base.OnDispose(disposing);
         }

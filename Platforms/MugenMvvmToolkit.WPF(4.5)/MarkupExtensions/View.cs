@@ -15,15 +15,15 @@
 #endregion
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
 #if NETFX_CORE || WINDOWSCOMMON
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
+using BindingEx = Windows.UI.Xaml.Data.Binding;
 #else
 using System.Reflection;
 using System.Windows;
 using System.Windows.Data;
+using BindingEx = System.Windows.Data.Binding;
 #endif
 
 namespace MugenMvvmToolkit.MarkupExtensions
@@ -296,7 +296,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
         private static void TrySetVisibilityBinding(DependencyObject sender)
         {
             if (!GetVisibilityInternal(sender).HasValue)
-                BindingOperations.SetBinding(sender, VisibilityInternalProperty, new Binding
+                BindingOperations.SetBinding(sender, VisibilityInternalProperty, new BindingEx
                 {
                     Path = new PropertyPath("Visibility"),
                     Mode = BindingMode.OneWay,

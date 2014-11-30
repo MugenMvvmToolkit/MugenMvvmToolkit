@@ -18,7 +18,6 @@ using System.Collections;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit

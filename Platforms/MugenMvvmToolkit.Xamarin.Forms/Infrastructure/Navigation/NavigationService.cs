@@ -182,7 +182,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             if (viewModel == null)
                 page = (Page)ServiceProvider.IocContainer.Get(source.ViewType);
             else
-                page = (Page)ViewManager.GetOrCreateView(viewModel, null, dataContext).GetUnderlyingView();
+                page = (Page)ViewManager.GetOrCreateView(viewModel, null, dataContext);
             page.SetNavigationParameter(parameter);
             _rootPage.PushAsync(page);
             return true;

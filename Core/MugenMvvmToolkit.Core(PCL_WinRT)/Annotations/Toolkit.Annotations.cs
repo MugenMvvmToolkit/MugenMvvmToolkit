@@ -16,7 +16,6 @@
 using System;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Annotations
 {
@@ -24,7 +23,6 @@ namespace MugenMvvmToolkit.Annotations
     ///     Indicates that the interface can be used in context action implement view.
     /// </summary>
     [AttributeUsage(AttributeTargets.Interface, AllowMultiple = false, Inherited = false)]
-    [BaseTypeRequired(typeof (IView))]
     public sealed class BaseViewAttribute : Attribute
     {
         #region Properties
@@ -51,7 +49,7 @@ namespace MugenMvvmToolkit.Annotations
     ///     Indicates that the class can be used in context action inherit from.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    [BaseTypeRequired(typeof (IViewModel))]
+    [BaseTypeRequired(typeof(IViewModel))]
     public sealed class BaseViewModelAttribute : Attribute
     {
         #region Properties
@@ -73,7 +71,7 @@ namespace MugenMvvmToolkit.Annotations
     ///     Indicates that the class can be used in context action wrap to.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = false)]
-    [BaseTypeRequired(typeof (IViewModel))]
+    [BaseTypeRequired(typeof(IViewModel))]
     public sealed class WrapperAttribute : Attribute
     {
         #region Properties

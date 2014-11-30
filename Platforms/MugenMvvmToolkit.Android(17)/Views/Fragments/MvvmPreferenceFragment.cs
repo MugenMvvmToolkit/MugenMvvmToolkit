@@ -23,12 +23,11 @@ using Android.Runtime;
 using Android.Util;
 using Android.Views;
 using MugenMvvmToolkit.Interfaces.Mediators;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Views.Fragments
 {
-    public abstract class MvvmPreferenceFragment : PreferenceFragment, IView
+    public abstract class MvvmPreferenceFragment : PreferenceFragment
     {
         #region Fields
 

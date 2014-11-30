@@ -186,14 +186,8 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\ExpressionReflectionManager.cs">
       <Link>Infrastructure\ExpressionReflectionManager.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\InitializationModuleBase.cs">
-      <Link>Infrastructure\InitializationModuleBase.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\mediators\WindowViewMediatorBase.cs">
       <Link>Infrastructure\Mediators\WindowViewMediatorBase.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\ModuleBase.cs">
-      <Link>Infrastructure\ModuleBase.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\navigation\DefaultNavigationCachePolicy.cs">
       <Link>Infrastructure\Navigation\DefaultNavigationCachePolicy.cs</Link>
@@ -249,11 +243,11 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\ViewModelProvider.cs">
       <Link>Infrastructure\ViewModelProvider.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\ViewModelWrapperManagerBase.cs">
-      <Link>Infrastructure\ViewModelWrapperManagerBase.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\WeakActionToken.cs">
       <Link>Infrastructure\WeakActionToken.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\WrapperManager.cs">
+      <Link>Infrastructure\WrapperManager.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\callbacks\IActionContinuation.cs">
       <Link>Interfaces\Callbacks\IActionContinuation.cs</Link>
@@ -348,11 +342,11 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\IViewModelProvider.cs">
       <Link>Interfaces\IViewModelProvider.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IViewModelWrapperManager.cs">
-      <Link>Interfaces\IViewModelWrapperManager.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\IVisualStateManager.cs">
       <Link>Interfaces\IVisualStateManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IWrapperManager.cs">
+      <Link>Interfaces\IWrapperManager.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\mediators\IWindowViewMediator.cs">
       <Link>Interfaces\Mediators\IWindowViewMediator.cs</Link>
@@ -486,8 +480,8 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\viewmodels\IWrapperViewModel.cs">
       <Link>Interfaces\ViewModels\IWrapperViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\views\IView.cs">
-      <Link>Interfaces\Views\IView.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Views\IViewModelAwareView.cs">
+      <Link>Interfaces\Views\IViewModelAwareView.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\views\IViewWrapper.cs">
       <Link>Interfaces\Views\IViewWrapper.cs</Link>
@@ -626,6 +620,15 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\ViewMappingItem.cs">
       <Link>Models\ViewMappingItem.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Modules\InitializationModuleBase.cs">
+      <Link>Modules\InitializationModuleBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Modules\ModuleBase.cs">
+      <Link>Modules\ModuleBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Modules\WrapperRegistrationModuleBase.cs">
+      <Link>Modules\WrapperRegistrationModuleBase.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>

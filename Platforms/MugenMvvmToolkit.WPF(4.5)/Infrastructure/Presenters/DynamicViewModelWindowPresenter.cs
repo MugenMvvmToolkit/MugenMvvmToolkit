@@ -14,7 +14,6 @@
 // ****************************************************************************
 #endregion
 using System;
-using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
@@ -55,7 +54,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         private readonly IThreadManager _threadManager;
         private readonly IOperationCallbackManager _callbackManager;
-        private readonly IViewManager _viewManager;
+        private readonly IWrapperManager _wrapperManager;
         private readonly IViewMappingProvider _viewMappingProvider;
 
         #endregion
@@ -73,15 +72,15 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         ///     Initializes a new instance of the <see cref="DynamicViewModelWindowPresenter" /> class.
         /// </summary>
         public DynamicViewModelWindowPresenter([NotNull] IViewMappingProvider viewMappingProvider,
-            [NotNull] IViewManager viewManager, [NotNull] IThreadManager threadManager,
+            [NotNull] IWrapperManager wrapperManager, [NotNull] IThreadManager threadManager,
             [NotNull] IOperationCallbackManager callbackManager)
         {
             Should.NotBeNull(viewMappingProvider, "viewMappingProvider");
-            Should.NotBeNull(viewManager, "viewManager");
+            Should.NotBeNull(wrapperManager, "wrapperManager");
             Should.NotBeNull(threadManager, "threadManager");
             Should.NotBeNull(callbackManager, "callbackManager");
             _viewMappingProvider = viewMappingProvider;
-            _viewManager = viewManager;
+            _wrapperManager = wrapperManager;
             _threadManager = threadManager;
             _callbackManager = callbackManager;
         }
@@ -99,11 +98,11 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         }
 
         /// <summary>
-        ///     Gets the <see cref="IViewManager" />.
+        ///     Gets the <see cref="IWrapperManager" />.
         /// </summary>
-        protected IViewManager ViewManager
+        protected IWrapperManager WrapperManager
         {
-            get { return _viewManager; }
+            get { return _wrapperManager; }
         }
 
         /// <summary>
@@ -165,7 +164,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             var mediator = TryCreateWindowViewMediator(viewModel, context);
             if (mediator == null)
                 return false;
-            mediator.UpdateView(ViewManager.WrapToView(view, context), context.GetData(IsOpenViewConstant), context);
+            mediator.UpdateView(view, context.GetData(IsOpenViewConstant), context);
             return true;
         }
 
@@ -180,13 +179,13 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         protected virtual IWindowViewMediator CreateWindowViewMediator([NotNull] IViewModel viewModel, Type viewType,
             [NotNull] IDataContext context)
         {
-#if TOUCH || XAMARIN_FORMS
             var container = viewModel.GetIocContainer(true);
-            if (typeof(IModalView).GetTypeInfo().IsAssignableFrom(viewType.GetTypeInfo()))
-                return new ModalViewMediator(viewModel, ThreadManager, ViewManager, CallbackManager, ViewMappingProvider, container.Get<IViewModelProvider>());
+#if TOUCH || XAMARIN_FORMS
+            if (_wrapperManager.CanWrap(viewType, typeof(IModalView), context))
+                return new ModalViewMediator(viewModel, ThreadManager, container.Get<IViewManager>(), WrapperManager, CallbackManager, ViewMappingProvider, container.Get<IViewModelProvider>());
 #else
-            if (typeof(IWindowView).IsAssignableFrom(viewType))
-                return new WindowViewMediator(viewModel, ThreadManager, ViewManager, CallbackManager);
+            if (_wrapperManager.CanWrap(viewType, typeof(IWindowView), context))
+                return new WindowViewMediator(viewModel, ThreadManager, container.Get<IViewManager>(), WrapperManager, CallbackManager);
 #endif
             return null;
         }
@@ -202,14 +201,12 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             if (mappingItem == null)
                 return null;
 
-            Type viewType = ViewManager.GetViewType(mappingItem.ViewType, context);
             IWindowViewMediator viewMediator;
             if (!viewModel.Settings.Metadata.TryGetData(WindowViewMediatorConstant, out viewMediator))
             {
-                viewMediator = CreateWindowViewMediator(viewModel, viewType, context);
-                if (viewMediator == null)
-                    return null;
-                viewModel.Settings.Metadata.Add(WindowViewMediatorConstant, viewMediator);
+                viewMediator = CreateWindowViewMediator(viewModel, mappingItem.ViewType, context);
+                if (viewMediator != null)
+                    viewModel.Settings.Metadata.Add(WindowViewMediatorConstant, viewMediator);
             }
             return viewMediator;
         }

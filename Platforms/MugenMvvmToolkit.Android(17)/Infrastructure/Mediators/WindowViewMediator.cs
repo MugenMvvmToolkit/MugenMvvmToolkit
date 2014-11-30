@@ -40,8 +40,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         ///     Initializes a new instance of the <see cref="WindowViewMediatorBase{TView}" /> class.
         /// </summary>
         public WindowViewMediator([NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
-            [NotNull] IViewManager viewManager, [NotNull] IOperationCallbackManager callbackManager)
-            : base(viewModel, threadManager, viewManager, callbackManager)
+            [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IOperationCallbackManager callbackManager)
+            : base(viewModel, threadManager, viewManager, wrapperManager, callbackManager)
         {
         }
 

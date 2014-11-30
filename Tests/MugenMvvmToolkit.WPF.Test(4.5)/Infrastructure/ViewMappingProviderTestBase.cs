@@ -8,8 +8,6 @@ using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
-using MugenMvvmToolkit.Test.TestModels;
 using MugenMvvmToolkit.ViewModels;
 using Should;
 
@@ -50,7 +48,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
     }
 
     [ViewModel(typeof(GridViewModel<>))]
-    public class MappingViewGeneric : ViewMock
+    public class MappingViewGeneric
     {
     }
 
@@ -144,14 +142,14 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         public void VmProviderShouldThrowExceptionIfMappingNotFoundUsingViewTrue()
         {
             var provider = GetViewMappingProvider();
-            ShouldThrow<InvalidOperationException>(() => provider.FindMappingsForView(typeof(IView), true));
+            ShouldThrow<InvalidOperationException>(() => provider.FindMappingsForView(typeof(object), true));
         }
 
         [TestMethod]
         public void VmProviderShouldNotThrowExceptionIfMappingNotFoundUsingViewFalse()
         {
             var provider = GetViewMappingProvider();
-            provider.FindMappingsForView(typeof(IView), false).ShouldBeEmpty();
+            provider.FindMappingsForView(typeof(object), false).ShouldBeEmpty();
         }
 
         [TestMethod]
@@ -167,7 +165,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             var provider = GetViewMappingProvider();
             provider.FindMappingForViewModel(typeof(IViewModel), null, false).ShouldBeNull();
         }
-        
+
         protected virtual IViewMappingProvider GetViewMappingProvider(params Type[] types)
         {
             return new ViewMappingProviderEx(types);

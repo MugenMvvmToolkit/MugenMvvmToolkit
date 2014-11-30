@@ -23,7 +23,7 @@ namespace MugenMvvmToolkit.Interfaces.Views
     ///     Represent the base interface for a window view.
     /// </summary>
     [BaseView(Priority = 1, ViewTypeName = "System.Windows.Forms.Form")]
-    public interface IWindowView : IView
+    public interface IWindowView
     {
         /// <summary>
         ///     Shows window.

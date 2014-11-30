@@ -16,7 +16,6 @@
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Interfaces
 {
@@ -36,7 +35,7 @@ namespace MugenMvvmToolkit.Interfaces
         /// <param name="useTransitions">true to use a VisualTransition to transition between states; otherwise, false.</param>
         /// <param name="context">The specified context.</param>
         [NotNull]
-        Task<bool> GoToStateAsync([NotNull]IView view, [NotNull] string stateName, bool useTransitions,
+        Task<bool> GoToStateAsync([NotNull]object view, [NotNull] string stateName, bool useTransitions,
             [CanBeNull] IDataContext context);
     }
 }

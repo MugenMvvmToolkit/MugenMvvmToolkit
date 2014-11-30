@@ -71,9 +71,6 @@
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\DynamicViewModelWindowPresenter.cs">
       <Link>Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\ViewManagerEx.cs">
-      <Link>Infrastructure\ViewManagerEx.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Interfaces\Navigation\INavigationProviderEx.cs">
       <Link>Interfaces\Navigation\INavigationProviderEx.cs</Link>
     </Compile>
@@ -88,17 +85,17 @@
     </Compile>
     <Compile Include="Attributes\BootstrapperAttribute.cs" />
     <Compile Include="DataConstants\ViewFactoryConstants.cs" />
-    <Compile Include="Infrastructure\ActionBarTabItemsSourceGenerator.cs" />
-    <Compile Include="Interfaces\IItemsSourceAdapter.cs" />
-    <Compile Include="Interfaces\IItemsSourceGenerator.cs" />
+    <Compile Include="Binding\Infrastructure\ActionBarTabItemsSourceGenerator.cs" />
+    <Compile Include="Binding\Interfaces\IItemsSourceAdapter.cs" />
+    <Compile Include="Binding\Interfaces\IItemsSourceGenerator.cs" />
     <Compile Include="LinkerIncludeLabmdaExpression.cs" />
-    <Compile Include="Modules\PlatformDataBindingModule.cs" />
-    <Compile Include="Modules\PlatformDataBindingModuleMenu.cs" />
-    <Compile Include="Modules\PlatformDataBindingModuleView.cs" />
-    <Compile Include="Modules\PlatformDataBindingModuleActionBar.cs" />
-    <Compile Include="Infrastructure\BindableMenuInflater.cs" />
+    <Compile Include="Binding\Modules\PlatformDataBindingModule.cs" />
+    <Compile Include="Binding\Modules\PlatformDataBindingModuleMenu.cs" />
+    <Compile Include="Binding\Modules\PlatformDataBindingModuleView.cs" />
+    <Compile Include="Binding\Modules\PlatformDataBindingModuleActionBar.cs" />
+    <Compile Include="Binding\Infrastructure\BindableMenuInflater.cs" />
     <Compile Include="Infrastructure\AndroidBootstrapperBase.cs" />
-    <Compile Include="Infrastructure\BindingErrorProvider.cs" />
+    <Compile Include="Binding\Infrastructure\BindingErrorProvider.cs" />
     <Compile Include="Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs" />
     <Compile Include="Infrastructure\GlobalViewParentListener.cs" />
     <Compile Include="Modules\InitializationModule.cs" />
@@ -107,44 +104,44 @@
     <Compile Include="Infrastructure\Mediators\WindowViewMediator.cs" />
     <Compile Include="Infrastructure\Navigation\EmptyNavigationCachePolicy.cs" />
     <Compile Include="Infrastructure\Presenters\ToastPresenter.cs" />
-    <Compile Include="Infrastructure\DataTemplateProvider.cs" />
-    <Compile Include="Infrastructure\ViewGroupItemsSourceGenerator.cs" />
-    <Compile Include="Infrastructure\ItemsSourceGeneratorBase.cs" />
-    <Compile Include="Infrastructure\MenuItemsSourceGenerator.cs" />
+    <Compile Include="Binding\Infrastructure\DataTemplateProvider.cs" />
+    <Compile Include="Binding\Infrastructure\ViewGroupItemsSourceGenerator.cs" />
+    <Compile Include="Binding\Infrastructure\ItemsSourceGeneratorBase.cs" />
+    <Compile Include="Binding\Infrastructure\MenuItemsSourceGenerator.cs" />
     <Compile Include="Infrastructure\Presenters\MessagePresenter.cs" />
     <Compile Include="Infrastructure\Mediators\MvvmActivityMediator.cs" />
     <Compile Include="Infrastructure\Navigation\NavigationService.cs" />
     <Compile Include="Infrastructure\DebugTracer.cs" />
     <Compile Include="Infrastructure\TypeCache.cs" />
     <Compile Include="Infrastructure\ViewFactory.cs" />
-    <Compile Include="Infrastructure\XmlPropertySetter.cs" />
+    <Compile Include="Binding\Infrastructure\XmlPropertySetter.cs" />
     <Compile Include="Interfaces\Views\IActivityView.cs" />
-    <Compile Include="Interfaces\IBindableMenuInflater.cs" />
-    <Compile Include="Interfaces\IDataTemplateSelector.cs" />
-    <Compile Include="Interfaces\IManualBindings.cs" />
+    <Compile Include="Binding\Interfaces\IBindableMenuInflater.cs" />
+    <Compile Include="Binding\Interfaces\IDataTemplateSelector.cs" />
+    <Compile Include="Binding\Interfaces\IManualBindings.cs" />
     <Compile Include="Interfaces\IViewFactory.cs" />
     <Compile Include="Interfaces\Mediators\IMvvmFragmentMediator.cs" />
     <Compile Include="Interfaces\Mediators\IMvvmActivityMediator.cs" />
     <Compile Include="Interfaces\Views\IWindowView.cs" />
     <Compile Include="InternalExtensions.cs" />
     <Compile Include="LinkerInclude.cs" />
-    <Compile Include="Models\ActionBarTabTemplate.cs" />
-    <Compile Include="Models\ActionBarTemplate.cs" />
-    <Compile Include="Models\AttachedMemberNames.cs" />
-    <Compile Include="Infrastructure\DataTemplateSelectorBase.cs" />
+    <Compile Include="Binding\Models\ActionBarTabTemplate.cs" />
+    <Compile Include="Binding\Models\ActionBarTemplate.cs" />
+    <Compile Include="Binding\Models\AttachedMemberNames.cs" />
+    <Compile Include="Binding\Infrastructure\DataTemplateSelectorBase.cs" />
     <Compile Include="Models\Enums.cs" />
     <Compile Include="Models\EventArg\NavigatingCancelEventArgs.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgs.cs" />
     <Compile Include="Models\JavaObjectWeakReference.cs" />
-    <Compile Include="Models\MenuItemTemplate.cs" />
-    <Compile Include="Models\MenuTemplate.cs" />
-    <Compile Include="Models\ParentObserver.cs" />
+    <Compile Include="Binding\Models\MenuItemTemplate.cs" />
+    <Compile Include="Binding\Models\MenuTemplate.cs" />
+    <Compile Include="Binding\Models\ParentObserver.cs" />
     <Compile Include="Models\ViewResult.cs" />
     <Compile Include="PlatformExtensions.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Infrastructure\ItemsSourceAdapter.cs" />
-    <Compile Include="Infrastructure\TabHostItemsSourceGenerator.cs" />
+    <Compile Include="Binding\Infrastructure\ItemsSourceAdapter.cs" />
+    <Compile Include="Binding\Infrastructure\TabHostItemsSourceGenerator.cs" />
     <Compile Include="Views\ActionBar.cs" />
     <Compile Include="Views\Activities\MvvmPreferenceActivity.cs" />
     <Compile Include="Views\Activities\SplashScreenActivityBase.cs" />

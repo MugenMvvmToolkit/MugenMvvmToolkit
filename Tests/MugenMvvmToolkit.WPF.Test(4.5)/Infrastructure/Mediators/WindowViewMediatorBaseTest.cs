@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Test.TestInfrastructure;
@@ -17,15 +17,21 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
 {
     [TestClass]
     public abstract class WindowViewMediatorBaseTest<TView> : TestBase
-        where TView : class, IView
+        where TView : class
     {
+        #region Fields
+
+        private WrapperManager _wrapperManager;
+
+        #endregion
+
         #region Methods
 
         [TestMethod]
         public virtual void ViewModelShouldBeInitialized()
         {
             var vm = GetViewModel<NavigableViewModelMock>();
-            WindowViewMediatorBase<TView> windowMediator = Create(vm, ThreadManager, ViewManager, OperationCallbackManager);
+            WindowViewMediatorBase<TView> windowMediator = Create(vm);
             windowMediator.ViewModel.ShouldEqual(vm);
         }
 
@@ -35,7 +41,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             bool isInvoked = false;
             var dataContext = new DataContext();
             var vm = GetViewModel<NavigableViewModelMock>();
-            WindowViewMediatorBase<TView> windowMediator = Create(vm, ThreadManager, ViewManager, OperationCallbackManager);
+            WindowViewMediatorBase<TView> windowMediator = Create(vm);
             ViewManager.GetViewRawDelegate = (model, context) =>
             {
                 isInvoked = true;
@@ -54,8 +60,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             var view = new DialogViewMock();
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
-            WindowViewMediatorBase<TView> windowMediator = Create(vm, ThreadManager, ViewManager,
-                OperationCallbackManager);
+            WindowViewMediatorBase<TView> windowMediator = Create(vm);
             windowMediator.IsOpen.ShouldBeFalse();
             view.IsShowAny.ShouldBeFalse();
             windowMediator.Show(null, DataContext.Empty);
@@ -69,7 +74,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             var view = new DialogViewMock();
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
-            WindowViewMediatorBase<TView> windowMediator = Create(vm, ThreadManager, ViewManager, OperationCallbackManager);
+            WindowViewMediatorBase<TView> windowMediator = Create(vm);
             windowMediator.Show(null, DataContext.Empty);
             ShouldThrow(() => windowMediator.Show(null, DataContext.Empty));
         }
@@ -80,7 +85,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             var view = new DialogViewMock();
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
-            WindowViewMediatorBase<TView> windowMediator = Create(vm, ThreadManager, ViewManager, OperationCallbackManager);
+            WindowViewMediatorBase<TView> windowMediator = Create(vm);
             ShouldThrow(() => windowMediator.CloseAsync(null));
         }
 
@@ -90,8 +95,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             var view = new DialogViewMock();
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
-            WindowViewMediatorBase<TView> windowMediator = Create(vm, ThreadManager, ViewManager,
-                OperationCallbackManager);
+            WindowViewMediatorBase<TView> windowMediator = Create(vm);
             windowMediator.View.ShouldBeNull();
             windowMediator.Show(null, DataContext.Empty);
             windowMediator.View.ShouldEqual((TView)(object)view);
@@ -103,7 +107,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             var view = new DialogViewMock();
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
-            WindowViewMediatorBase<TView> windowMediator = Create(vm, ThreadManager, ViewManager, OperationCallbackManager);
+            WindowViewMediatorBase<TView> windowMediator = Create(vm);
             windowMediator.View.ShouldBeNull();
             windowMediator.Show(null, DataContext.Empty);
             windowMediator.View.ShouldEqual((TView)(object)view);
@@ -117,7 +121,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             var view = new DialogViewMock();
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
-            WindowViewMediatorBase<TView> windowMediator = Create(vm, ThreadManager, ViewManager, OperationCallbackManager);
+            WindowViewMediatorBase<TView> windowMediator = Create(vm);
 
             var mockCallback = new OperationCallbackMock();
             bool isRegistered = false;
@@ -149,7 +153,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             var view = new DialogViewMock();
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
-            WindowViewMediatorBase<TView> windowMediator = Create(vm, ThreadManager, ViewManager, OperationCallbackManager);
+            WindowViewMediatorBase<TView> windowMediator = Create(vm);
 
             var mockCallback = new OperationCallbackMock();
             bool isRegistered = false;
@@ -185,7 +189,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             var view = new DialogViewMock();
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
-            WindowViewMediatorBase<TView> windowMediator = Create(vm, ThreadManager, ViewManager, OperationCallbackManager);
+            WindowViewMediatorBase<TView> windowMediator = Create(vm);
             vm.CloseDelegate = o =>
             {
                 isInvoked = true;
@@ -207,8 +211,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             var view = new DialogViewMock();
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
-            WindowViewMediatorBase<TView> windowMediator = Create(vm, ThreadManager, ViewManager,
-                OperationCallbackManager);
+            WindowViewMediatorBase<TView> windowMediator = Create(vm);
 
             IOperationResult operationResult = null;
             OperationCallbackManager.SetResult = (o, result) => operationResult = result;
@@ -225,8 +228,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             var view = new DialogViewMock();
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
-            WindowViewMediatorBase<TView> windowMediator = Create(vm, ThreadManager, ViewManager,
-                OperationCallbackManager);
+            WindowViewMediatorBase<TView> windowMediator = Create(vm);
 
             IOperationResult operationResult = null;
             OperationCallbackManager.SetResult = (o, result) => operationResult = result;
@@ -244,8 +246,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             var view = new DialogViewMock();
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
-            WindowViewMediatorBase<TView> windowMediator = Create(vm, ThreadManager, ViewManager,
-                OperationCallbackManager);
+            WindowViewMediatorBase<TView> windowMediator = Create(vm);
             vm.OnNavigatedToDelegate = context =>
             {
                 isInvoked = true;
@@ -263,8 +264,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             var view = new DialogViewMock();
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
-            WindowViewMediatorBase<TView> windowMediator = Create(vm, ThreadManager, ViewManager,
-                OperationCallbackManager);
+            WindowViewMediatorBase<TView> windowMediator = Create(vm);
             vm.OnNavigatingFromDelegate = o =>
             {
                 o.ShouldNotBeNull();
@@ -288,7 +288,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             var view = new DialogViewMock();
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
-            WindowViewMediatorBase<TView> windowMediator = Create(vm, ThreadManager, ViewManager, OperationCallbackManager);
+            WindowViewMediatorBase<TView> windowMediator = Create(vm);
             vm.OnNavigatedFromDelegate = o =>
             {
                 o.ShouldNotBeNull();
@@ -299,8 +299,13 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             isInvoked.ShouldBeTrue();
         }
 
-        protected abstract WindowViewMediatorBase<TView> Create(IViewModel viewModel, IThreadManager threadManager,
-            IViewManager viewManager, IOperationCallbackManager callbackManager);
+        protected WindowViewMediatorBase<TView> Create(IViewModel viewModel)
+        {
+            return Create(viewModel, ThreadManager, ViewManager, _wrapperManager, OperationCallbackManager);
+        }
+
+        protected abstract WindowViewMediatorBase<TView> Create(IViewModel viewModel, IThreadManager threadManager, IViewManager viewManager,
+            IWrapperManager wrapperManager, IOperationCallbackManager callbackManager);
 
         #endregion
 
@@ -312,6 +317,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             ThreadManager.ImmediateInvokeOnUiThread = true;
             ThreadManager.ImmediateInvokeAsync = true;
             ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
+            _wrapperManager = new WrapperManager(ViewModelProvider);
         }
 
         #endregion

@@ -16,7 +16,7 @@
 using System;
 using System.Collections;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Core;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Models.Exceptions;
 using Xamarin.Forms;

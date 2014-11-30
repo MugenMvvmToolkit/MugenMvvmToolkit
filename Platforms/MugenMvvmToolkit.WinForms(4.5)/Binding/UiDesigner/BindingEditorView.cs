@@ -20,10 +20,10 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Parse;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
-using MugenMvvmToolkit.Interfaces;
 
 namespace MugenMvvmToolkit.Binding.UiDesigner
 {

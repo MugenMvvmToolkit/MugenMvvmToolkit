@@ -29,8 +29,8 @@ namespace MugenMvvmToolkit.Models
     {
         #region Fields
 
-        private readonly Predicate<TArg> _canExecute;
-        private readonly Func<TArg, Task> _execute;
+        private Predicate<TArg> _canExecute;
+        private Func<TArg, Task> _execute;
         private bool _isRunning;
 
         #endregion
@@ -97,7 +97,8 @@ namespace MugenMvvmToolkit.Models
         /// </param>
         protected override bool CanExecuteInternal(object parameter)
         {
-            return !IsRunning && (_canExecute == null || _canExecute((TArg)parameter));
+            var canExecute = _canExecute;
+            return !IsRunning && (canExecute == null || canExecute((TArg)parameter));
         }
 
         /// <summary>
@@ -109,8 +110,21 @@ namespace MugenMvvmToolkit.Models
         /// </param>
         protected override void ExecuteInternal(object parameter)
         {
+            var execute = _execute;
+            if (execute == null)
+                return;
             IsRunning = true;
-            _execute((TArg)parameter).TryExecuteSynchronously(task => IsRunning = false);
+            execute((TArg)parameter).TryExecuteSynchronously(task => IsRunning = false);
+        }
+
+        /// <summary>
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        protected override void OnDispose()
+        {
+            _canExecute = null;
+            _execute = null;
+            base.OnDispose();
         }
 
         #endregion

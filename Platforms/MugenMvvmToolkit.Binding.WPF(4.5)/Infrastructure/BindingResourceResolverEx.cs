@@ -23,7 +23,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 #elif XAMARIN_FORMS
 using Xamarin.Forms;
-using MugenMvvmToolkit.Converters;
 #else
 using System.Windows;
 using System.Windows.Data;

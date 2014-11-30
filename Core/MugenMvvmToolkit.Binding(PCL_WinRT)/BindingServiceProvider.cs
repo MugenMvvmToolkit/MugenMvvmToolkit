@@ -17,9 +17,9 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Infrastructure;
 
 namespace MugenMvvmToolkit.Binding
 {
@@ -63,6 +63,8 @@ namespace MugenMvvmToolkit.Binding
             };
             SetDefaultValues();
             ServiceProvider.InitializeDesignTimeManager();
+            ViewManager.GetDataContext = o => ContextManager.GetBindingContext(o).Value;
+            ViewManager.SetDataContext = (o, o1) => ContextManager.GetBindingContext(o).Value = o1;
         }
 
         #endregion

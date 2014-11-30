@@ -17,7 +17,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Views;
 #if NETFX_CORE || WINDOWSCOMMON
 using Windows.UI.Xaml.Controls;
 #else
@@ -63,13 +62,13 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <param name="stateName">The state to transition to.</param>
         /// <param name="useTransitions">true to use a VisualTransition to transition between states; otherwise, false.</param>
         /// <param name="context">The specified context.</param>
-        public Task<bool> GoToStateAsync(IView view, string stateName, bool useTransitions, IDataContext context)
+        public Task<bool> GoToStateAsync(object view, string stateName, bool useTransitions, IDataContext context)
         {
             Should.NotBeNull(view, "view");
 #if WPF
-            var control = view.GetUnderlyingView() as FrameworkElement;
+            var control = ToolkitExtensions.GetUnderlyingView<object>(view) as FrameworkElement;
 #else
-            var control = view.GetUnderlyingView() as Control;
+            var control = ToolkitExtensions.GetUnderlyingView<object>(view) as Control;
 #endif
             if (control == null)
                 return Empty.FalseTask;

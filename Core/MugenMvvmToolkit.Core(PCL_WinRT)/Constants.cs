@@ -17,7 +17,6 @@ using System;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 
 // ReSharper disable once CheckNamespace
@@ -31,7 +30,7 @@ namespace MugenMvvmToolkit.DataConstants
 
         internal static readonly DataConstant<IDataContext> ViewModelState;
 
-        public static readonly DataConstant<IView> View;
+        public static readonly DataConstant<object> View;
 
         public static readonly DataConstant<object> StateManager;
 

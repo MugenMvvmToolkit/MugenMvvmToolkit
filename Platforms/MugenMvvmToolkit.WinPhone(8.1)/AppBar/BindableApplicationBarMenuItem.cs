@@ -16,11 +16,10 @@
 using System;
 using System.Collections;
 using System.Windows;
-using System.Windows.Data;
 using System.Windows.Input;
 using Microsoft.Phone.Shell;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
+using BindingEx = System.Windows.Data.Binding;
 
 // ReSharper disable once CheckNamespace
 
@@ -209,7 +208,7 @@ namespace MugenMvvmToolkit.Controls
                     "The BindableApplicationBarMenuItem is already attached to an IBindableApplicationBar.");
             var localValue = ReadLocalValue(DataContextProperty);
             if (localValue == DependencyProperty.UnsetValue)
-                SetBinding(DataContextProperty, new Binding("DataContext") { Source = applicationBar });
+                SetBinding(DataContextProperty, new BindingEx("DataContext") { Source = applicationBar });
             _applicationBar = applicationBar;
             _position = position;
             UpdateItem(IsVisible);

@@ -45,41 +45,29 @@
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs">
       <Link>Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\DataTemplateSelectorBase.cs">
-      <Link>Infrastructure\DataTemplateSelectorBase.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\ItemsSourceGeneratorBase.cs">
-      <Link>Infrastructure\ItemsSourceGeneratorBase.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Navigation\EmptyNavigationCachePolicy.cs">
       <Link>Infrastructure\Navigation\EmptyNavigationCachePolicy.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\IDataTemplateSelector.cs">
-      <Link>Interfaces\IDataTemplateSelector.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Interfaces\IItemsSourceGenerator.cs">
-      <Link>Interfaces\IItemsSourceGenerator.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android%2817%29\LinkerIncludeLabmdaExpression.cs">
       <Link>LinkerIncludeLabmdaExpression.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\CollectionViewManagerBase.cs">
-      <Link>Infrastructure\CollectionViewManagerBase.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Infrastructure\CollectionViewManagerBase.cs">
+      <Link>Binding\Infrastructure\CollectionViewManagerBase.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\ContentViewManagerBase.cs">
-      <Link>Infrastructure\ContentViewManagerBase.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Infrastructure\ContentViewManagerBase.cs">
+      <Link>Binding\Infrastructure\ContentViewManagerBase.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\ItemsSourceGenerator.cs">
-      <Link>Infrastructure\ItemsSourceGenerator.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Infrastructure\ItemsSourceGenerator.cs">
+      <Link>Binding\Infrastructure\ItemsSourceGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Interfaces\ICollectionViewManager.cs">
+      <Link>Binding\Interfaces\ICollectionViewManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Interfaces\IContentViewManager.cs">
+      <Link>Binding\Interfaces\IContentViewManager.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.winforms%284.5%29\infrastructure\ThreadManager.cs">
       <Link>Infrastructure\ThreadManager.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Interfaces\ICollectionViewManager.cs">
-      <Link>Interfaces\ICollectionViewManager.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Interfaces\IContentViewManager.cs">
-      <Link>Interfaces\IContentViewManager.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\converters\ViewModelToViewConverter.cs">
       <Link>Converters\ViewModelToViewConverter.cs</Link>
@@ -93,9 +81,6 @@
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\DynamicViewModelWindowPresenter.cs">
       <Link>Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\ViewManagerEx.cs">
-      <Link>Infrastructure\ViewManagerEx.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\interfaces\navigation\INavigationProviderEx.cs">
       <Link>Interfaces\Navigation\INavigationProviderEx.cs</Link>
     </Compile>
@@ -108,45 +93,49 @@
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\models\eventarg\NavigationEventArgsBase.cs">
       <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
     </Compile>
-    <Compile Include="Converters\BooleanToCheckmarkAccessoryConverter.cs" />
+    <Compile Include="Binding\Converters\BooleanToCheckmarkAccessoryConverter.cs" />
+    <Compile Include="Binding\Infrastructure\DataTemplateSelectorBase.cs" />
+    <Compile Include="Binding\Infrastructure\ItemsSourceGeneratorBase.cs" />
+    <Compile Include="Binding\Interfaces\IDataTemplateSelector.cs" />
+    <Compile Include="Binding\Interfaces\IItemsSourceGenerator.cs" />
     <Compile Include="LinkerInclude.cs" />
+    <Compile Include="Models\NSObjectWeakReference.cs" />
     <Compile Include="MonoTouchDialogExtensions.cs" />
     <Compile Include="Infrastructure\ApplicationStateManager.cs" />
-    <Compile Include="Infrastructure\ArrayItemsSourceGenerator.cs" />
-    <Compile Include="Infrastructure\BindingErrorProvider.cs" />
-    <Compile Include="Infrastructure\CollectionCellTemplateSelectorBase.cs" />
-    <Compile Include="Infrastructure\CollectionViewSourceBase.cs" />
-    <Compile Include="Infrastructure\DefaultCollectionViewManager.cs" />
-    <Compile Include="Infrastructure\ItemsSourceCollectionViewSource.cs" />
-    <Compile Include="Infrastructure\ItemsSourceTableViewSource.cs" />
+    <Compile Include="Binding\Infrastructure\ArrayItemsSourceGenerator.cs" />
+    <Compile Include="Binding\Infrastructure\BindingErrorProvider.cs" />
+    <Compile Include="Binding\Infrastructure\CollectionCellTemplateSelectorBase.cs" />
+    <Compile Include="Binding\Infrastructure\CollectionViewSourceBase.cs" />
+    <Compile Include="Binding\Infrastructure\DefaultCollectionViewManager.cs" />
+    <Compile Include="Binding\Infrastructure\ItemsSourceCollectionViewSource.cs" />
+    <Compile Include="Binding\Infrastructure\ItemsSourceTableViewSource.cs" />
     <Compile Include="Infrastructure\Mediators\ModalViewMediator.cs" />
     <Compile Include="Infrastructure\Mediators\MvvmViewControllerMediator.cs" />
     <Compile Include="Infrastructure\Presenters\ToastPresenter.cs" />
-    <Compile Include="Infrastructure\TableViewSourceBase.cs" />
+    <Compile Include="Binding\Infrastructure\TableViewSourceBase.cs" />
     <Compile Include="Infrastructure\Presenters\MessagePresenter.cs" />
     <Compile Include="Infrastructure\TouchBootstrapperBase.cs" />
     <Compile Include="Infrastructure\Navigation\NavigationService.cs" />
-    <Compile Include="Infrastructure\TableCellTemplateSelectorBase.cs" />
+    <Compile Include="Binding\Infrastructure\TableCellTemplateSelectorBase.cs" />
     <Compile Include="Interfaces\IApplicationStateManager.cs" />
-    <Compile Include="Interfaces\ICollectionCellTemplateSelector.cs" />
+    <Compile Include="Binding\Interfaces\ICollectionCellTemplateSelector.cs" />
     <Compile Include="Interfaces\IOrientationChangeListener.cs" />
-    <Compile Include="Interfaces\ITableCellTemplateSelector.cs" />
-    <Compile Include="Interfaces\ITableViewSource.cs" />
+    <Compile Include="Binding\Interfaces\ITableCellTemplateSelector.cs" />
     <Compile Include="Interfaces\Mediators\IMvvmViewControllerMediator.cs" />
     <Compile Include="Interfaces\Views\IModalView.cs" />
     <Compile Include="Interfaces\Views\IMvvmViewController.cs" />
     <Compile Include="Interfaces\Views\IMvvmNavigationController.cs" />
     <Compile Include="Models\EventArg\NavigatingCancelEventArgs.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgs.cs" />
-    <Compile Include="Models\ParentObserver.cs" />
+    <Compile Include="Binding\Models\ParentObserver.cs" />
     <Compile Include="Modules\InitializationModule.cs" />
-    <Compile Include="Modules\PlatformDataBindingModuleDialog.cs" />
-    <Compile Include="Modules\PlatformDataBindingModuleCollectionView.cs" />
-    <Compile Include="Modules\PlatformDataBindingModuleTableView.cs" />
-    <Compile Include="Modules\PlatformDataBindingModule.cs" />
+    <Compile Include="Binding\Modules\PlatformDataBindingModuleDialog.cs" />
+    <Compile Include="Binding\Modules\PlatformDataBindingModuleCollectionView.cs" />
+    <Compile Include="Binding\Modules\PlatformDataBindingModuleTableView.cs" />
+    <Compile Include="Binding\Modules\PlatformDataBindingModule.cs" />
     <Compile Include="PlatformExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Infrastructure\MvvmPickerViewModel.cs" />
+    <Compile Include="Binding\Infrastructure\MvvmPickerViewModel.cs" />
     <Compile Include="Views\MvvmTableViewController.cs" />
     <Compile Include="Views\MvvmTabBarController.cs" />
     <Compile Include="Views\MvvmCollectionViewController.cs" />

@@ -16,7 +16,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Core;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using Xamarin.Forms;
 

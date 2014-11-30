@@ -15,7 +15,6 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -131,7 +130,7 @@ namespace MugenMvvmToolkit.ViewModels
                 context = DataContext.Empty;
             return (T)viewModel
                 .GetIocContainer(true)
-                .Get<IViewModelWrapperManager>()
+                .Get<IWrapperManager>()
                 .Wrap(viewModel, typeof(T), context);
         }
 

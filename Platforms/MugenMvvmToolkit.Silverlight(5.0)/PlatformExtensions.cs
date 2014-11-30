@@ -28,6 +28,7 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using MugenMvvmToolkit.Modules;
 using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
 namespace MugenMvvmToolkit

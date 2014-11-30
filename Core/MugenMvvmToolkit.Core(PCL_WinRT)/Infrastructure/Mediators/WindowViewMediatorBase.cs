@@ -25,7 +25,6 @@ using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.ViewModels;
@@ -36,12 +35,13 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
     ///     Represents the base mediator class for dialog view.
     /// </summary>
     public abstract class WindowViewMediatorBase<TView> : IWindowViewMediator
-        where TView : class, IView
+        where TView : class
     {
         #region Fields
 
         private readonly IThreadManager _threadManager;
         private readonly IViewManager _viewManager;
+        private readonly IWrapperManager _wrapperManager;
         private readonly IOperationCallbackManager _operationCallbackManager;
         private readonly IViewModel _viewModel;
         private CancelEventArgs _cancelArgs;
@@ -58,15 +58,18 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         protected WindowViewMediatorBase([NotNull] IViewModel viewModel,
             [NotNull] IThreadManager threadManager, [NotNull] IViewManager viewManager,
+            [NotNull] IWrapperManager wrapperManager,
             [NotNull] IOperationCallbackManager operationCallbackManager)
         {
             Should.NotBeNull(viewModel, "viewModel");
             Should.NotBeNull(threadManager, "threadManager");
             Should.NotBeNull(viewManager, "viewManager");
+            Should.NotBeNull(wrapperManager, "wrapperManager");
             Should.NotBeNull(operationCallbackManager, "operationCallbackManager");
             _viewModel = viewModel;
             _threadManager = threadManager;
             _viewManager = viewManager;
+            _wrapperManager = wrapperManager;
             _operationCallbackManager = operationCallbackManager;
             var closeableViewModel = viewModel as ICloseableViewModel;
             if (closeableViewModel != null)
@@ -78,7 +81,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         #region Properties
 
         /// <summary>
-        ///     Gets the <see cref="TView" />.
+        ///     Gets the view object.
         /// </summary>
         public TView View { get; private set; }
 
@@ -88,7 +91,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         protected bool IsClosing { get; private set; }
 
         /// <summary>
-        ///     Gets or sets the <see cref="IViewManager" />.
+        ///     Gets the <see cref="IViewManager" />.
         /// </summary>
         protected IViewManager ViewManager
         {
@@ -96,7 +99,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         }
 
         /// <summary>
-        ///     Gets or sets the <see cref="IThreadManager" />.
+        ///     Gets the <see cref="IThreadManager" />.
         /// </summary>
         protected IThreadManager ThreadManager
         {
@@ -104,11 +107,19 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         }
 
         /// <summary>
-        ///     Gets or sets the <see cref="IOperationCallbackManager" />.
+        ///     Gets the <see cref="IOperationCallbackManager" />.
         /// </summary>
         protected IOperationCallbackManager OperationCallbackManager
         {
             get { return _operationCallbackManager; }
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="IWrapperManager" />.
+        /// </summary>
+        protected IWrapperManager WrapperManager
+        {
+            get { return _wrapperManager; }
         }
 
         #endregion
@@ -124,9 +135,9 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         }
 
         /// <summary>
-        ///     Gets the <see cref="IView" />.
+        ///     Gets the view object.
         /// </summary>
-        IView IWindowViewMediator.View
+        object IWindowViewMediator.View
         {
             get { return View; }
         }
@@ -193,13 +204,18 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         }
 
         /// <summary>
-        ///     Updates the current view, for example android platform use this API to update view after recreate a dialog
-        ///     fragment.
+        ///     Updates the current view, for example android platform uses this API to update view after recreate a dialog fragment.
         /// </summary>
-        public void UpdateView(IView view, bool isOpen, IDataContext context)
+        public void UpdateView(object view, bool isOpen, IDataContext context)
         {
             if (ReferenceEquals(View, view))
                 return;
+            if (view != null)
+            {
+                view = _wrapperManager.Wrap(view, typeof(TView), context);
+                if (ReferenceEquals(View, view))
+                    return;
+            }
             _isOpen = isOpen;
             if (View != null)
                 CleanupView(View);
@@ -327,10 +343,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 .GetViewAsync(ViewModel, context)
                 .TryExecuteSynchronously(task =>
                 {
-                    View = task.Result as TView;
-                    if (View == null)
-                        throw ExceptionManager.ViewNotFound(GetType(), typeof(TView));
-                    _viewManager.InitializeViewAsync(ViewModel, View).WithBusyIndicator(ViewModel, true);
+                    View = (TView)_wrapperManager.Wrap(task.Result, typeof(TView), context);
+                    _viewManager.InitializeViewAsync(ViewModel, task.Result, context).WithBusyIndicator(ViewModel, true);
                     InitializeView(View, context);
 
                     bool isDialog;
@@ -391,7 +405,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             {
                 CleanupView(view);
                 _viewManager
-                    .CleanupViewAsync(ViewModel)
+                    .CleanupViewAsync(ViewModel, context)
                     .WithTaskExceptionHandler(ViewModel);
             });
             View = null;

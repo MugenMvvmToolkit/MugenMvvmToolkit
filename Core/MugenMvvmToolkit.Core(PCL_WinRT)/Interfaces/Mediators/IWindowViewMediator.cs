@@ -18,7 +18,6 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Interfaces.Mediators
 {
@@ -33,10 +32,10 @@ namespace MugenMvvmToolkit.Interfaces.Mediators
         bool IsOpen { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IView" />.
+        ///     Gets the view object.
         /// </summary>
         [CanBeNull]
-        IView View { get; }
+        object View { get; }
 
         /// <summary>
         ///     Gets the underlying view model.
@@ -60,9 +59,8 @@ namespace MugenMvvmToolkit.Interfaces.Mediators
         Task<bool> CloseAsync([CanBeNull] object parameter);
 
         /// <summary>
-        ///     Updates the current view, for example android platform use this API to update view after recreate a dialog
-        ///     fragment.
+        ///     Updates the current view, for example android platform uses this API to update view after recreate a dialog fragment.
         /// </summary>
-        void UpdateView([CanBeNull] IView view, bool isOpen, [CanBeNull] IDataContext context);
+        void UpdateView([CanBeNull] object view, bool isOpen, [CanBeNull] IDataContext context);
     }
 }

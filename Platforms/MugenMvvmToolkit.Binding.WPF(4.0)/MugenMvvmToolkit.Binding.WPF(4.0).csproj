@@ -92,8 +92,8 @@
     <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Models\ValidationBinder.cs">
       <Link>Models\ValidationBinder.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\PlatformDataBindingModule.cs">
-      <Link>PlatformDataBindingModule.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Modules\PlatformDataBindingModule.cs">
+      <Link>Modules\PlatformDataBindingModule.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
@@ -127,6 +127,7 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

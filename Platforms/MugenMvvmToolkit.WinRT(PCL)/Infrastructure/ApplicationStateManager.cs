@@ -236,7 +236,7 @@ namespace MugenMvvmToolkit.Infrastructure
             else
             {
                 IViewModel viewModel = _viewModelProvider.RestoreViewModel(container.GetContext(_serializer), context, false);
-                _viewManager.InitializeViewAsync(viewModel, element).WithTaskExceptionHandler(this);
+                _viewManager.InitializeViewAsync(viewModel, element, context).WithTaskExceptionHandler(this);
                 _viewModelPresenter.Restore(viewModel, context);
             }
         }

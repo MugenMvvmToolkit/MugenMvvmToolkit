@@ -14,6 +14,7 @@
 // ****************************************************************************
 #endregion
 #if !HASSERIALIZABLE
+// ReSharper disable once CheckNamespace
 namespace System
 {
     /// <summary>

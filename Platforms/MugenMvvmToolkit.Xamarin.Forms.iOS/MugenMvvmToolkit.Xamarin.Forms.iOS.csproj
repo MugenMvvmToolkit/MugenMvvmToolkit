@@ -39,8 +39,8 @@
     <DocumentationFile>..\..\bin\Platforms\Xamarin.Forms\Touch\MugenMvvmToolkit.Xamarin.Forms.iOS.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\MugenMvvmToolkit.Touch\Infrastructure\BindingErrorProvider.cs">
-      <Link>Infrastructure\BindingErrorProvider.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Touch\Binding\Infrastructure\BindingErrorProvider.cs">
+      <Link>Binding\Infrastructure\BindingErrorProvider.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Touch\Infrastructure\Presenters\MessagePresenter.cs">
       <Link>Infrastructure\Presenters\MessagePresenter.cs</Link>
@@ -57,14 +57,14 @@
     <Compile Include="..\MugenMvvmToolkit.Touch\Views\ValidationPopup.cs">
       <Link>Views\ValidationPopup.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.WinPhone\InitializationModuleEx.cs">
-      <Link>InitializationModuleEx.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.WinPhone\Binding\Modules\PlatformDataBindingModuleEx.cs">
+      <Link>Binding\Modules\PlatformDataBindingModuleEx.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.WinPhone\Modules\InitializationModuleEx.cs">
+      <Link>Modules\InitializationModuleEx.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.WinPhone\PlatformBootstrapperService.cs">
       <Link>PlatformBootstrapperService.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.WinPhone\PlatformDataBindingModuleEx.cs">
-      <Link>PlatformDataBindingModuleEx.cs</Link>
     </Compile>
     <Compile Include="PlatformExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

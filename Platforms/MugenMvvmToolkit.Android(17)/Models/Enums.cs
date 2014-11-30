@@ -13,13 +13,14 @@
 // </license>
 // ****************************************************************************
 #endregion
+#if API8SUPPORT
 using System;
 using Android.Support.V4.View;
 using Android.Support.V7.App;
 
 namespace MugenMvvmToolkit.Models
 {
-#if API8SUPPORT
+
     [Flags]
     internal enum ActionBarDisplayOptions
     {
@@ -46,5 +47,5 @@ namespace MugenMvvmToolkit.Models
         Never = MenuItemCompat.ShowAsActionNever,
         WithText = MenuItemCompat.ShowAsActionWithText,
     }
-#endif
 }
+#endif

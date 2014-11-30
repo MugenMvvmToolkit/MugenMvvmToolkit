@@ -22,12 +22,11 @@ using Android.Support.V4.App;
 using Android.Util;
 using Android.Views;
 using MugenMvvmToolkit.Interfaces.Mediators;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Views.Fragments
 {
-    public abstract class MvvmListFragment : ListFragment, IView
+    public abstract class MvvmListFragment : ListFragment
     {
         #region Fields
 

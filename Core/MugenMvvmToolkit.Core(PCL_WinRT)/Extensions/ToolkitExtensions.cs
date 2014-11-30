@@ -1035,22 +1035,6 @@ namespace MugenMvvmToolkit
         #region Extensions
 
         /// <summary>
-        ///     Gets data context of view.
-        /// </summary>
-        public static object GetDataContext(this IView view)
-        {
-            return ViewManager.GetDataContext(view);
-        }
-
-        /// <summary>
-        ///     Sets data context of view.
-        /// </summary>
-        public static void SetDataContext(this IView view, object dataContext)
-        {
-            ViewManager.SetDataContext(view, dataContext);
-        }
-
-        /// <summary>
         /// Gets or creates an instance of <see cref="WeakReference"/> for the specified item.
         /// </summary>
         public static WeakReference GetWeakReference(object item)
@@ -1064,12 +1048,12 @@ namespace MugenMvvmToolkit
         /// <returns>
         /// Gets the underlying view object.
         /// </returns>
-        public static object GetUnderlyingView([CanBeNull]this IView view)
+        public static TView GetUnderlyingView<TView>([CanBeNull]object view)
         {
             var wrapper = view as IViewWrapper;
             if (wrapper == null)
-                return view;
-            return wrapper.View;
+                return (TView)view;
+            return (TView)wrapper.View;
         }
 
         /// <summary>

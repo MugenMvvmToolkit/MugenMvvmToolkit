@@ -13,7 +13,6 @@
 // </license>
 // ****************************************************************************
 #endregion
-using System;
 using System.ComponentModel;
 #if WPF
 using System.Windows.Navigation;
@@ -46,8 +45,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         ///     Initializes a new instance of the <see cref="NotifyPropertyChangedBase" /> class.
         /// </summary>
         public WindowViewMediator([NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
-            [NotNull] IViewManager viewManager, [NotNull] IOperationCallbackManager callbackManager)
-            : base(viewModel, threadManager, viewManager, callbackManager)
+            [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IOperationCallbackManager callbackManager)
+            : base(viewModel, threadManager, viewManager, wrapperManager, callbackManager)
         {
         }
 
@@ -56,8 +55,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         ///     Initializes a new instance of the <see cref="NotifyPropertyChangedBase" /> class.
         /// </summary>
         internal WindowViewMediator([NotNull] NavigationWindow window, [NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
-             [NotNull] IViewManager viewManager, [NotNull] IOperationCallbackManager callbackManager)
-            : base(viewModel, threadManager, viewManager, callbackManager)
+             [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IOperationCallbackManager callbackManager)
+            : base(viewModel, threadManager, viewManager, wrapperManager, callbackManager)
         {
             Should.NotBeNull(window, "window");
             _window = window;

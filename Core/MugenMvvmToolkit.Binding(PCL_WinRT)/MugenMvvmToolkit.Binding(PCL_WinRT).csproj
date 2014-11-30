@@ -78,12 +78,12 @@
     <Compile Include="Builders\SyntaxBuilder.cs" />
     <Compile Include="Converters\InverseBooleanValueConverter.cs" />
     <Compile Include="Converters\ValueConverterBase.cs" />
-    <Compile Include="Core\BindingContextManager.cs" />
-    <Compile Include="Core\BindingManager.cs" />
-    <Compile Include="Core\BindingProvider.cs" />
-    <Compile Include="Core\DataBinding.cs" />
-    <Compile Include="Core\InvalidDataBinding.cs" />
-    <Compile Include="DataBindingModule.cs" />
+    <Compile Include="Infrastructure\BindingContextManager.cs" />
+    <Compile Include="Infrastructure\BindingManager.cs" />
+    <Compile Include="Infrastructure\BindingProvider.cs" />
+    <Compile Include="Infrastructure\DataBinding.cs" />
+    <Compile Include="Infrastructure\InvalidDataBinding.cs" />
+    <Compile Include="Modules\DataBindingModule.cs" />
     <Compile Include="DataConstants\BindingBuilderConstants.cs" />
     <Compile Include="DataConstants\BindingConstants.cs" />
     <Compile Include="Infrastructure\BindingErrorProviderBase.cs" />
@@ -213,6 +213,7 @@
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

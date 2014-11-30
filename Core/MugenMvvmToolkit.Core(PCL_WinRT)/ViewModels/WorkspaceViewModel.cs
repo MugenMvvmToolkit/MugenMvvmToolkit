@@ -17,26 +17,25 @@ using System.Threading.Tasks;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models.Messages;
 
 namespace MugenMvvmToolkit.ViewModels
 {
     /// <summary>
-    ///     Represents the base class for the view-model, which are displayed in the UI and has <see cref="IView" />.
+    ///     Represents the base class for the view-model, which are displayed in the UI.
     /// </summary>
     [BaseViewModel(Priority = 7)]
-    public abstract class WorkspaceViewModel : WorkspaceViewModel<IView>
+    public abstract class WorkspaceViewModel : WorkspaceViewModel<object>
     {
     }
 
     /// <summary>
-    ///     Represents the base class for the view-model, which are displayed in the UI and has <see cref="IView" />.
+    ///     Represents the base class for the view-model, which are displayed in the UI.
     /// </summary>
     [BaseViewModel(Priority = 7)]
     public abstract class WorkspaceViewModel<TView> : CloseableViewModel, IWorkspaceViewModel, INavigableViewModel,
         IViewAwareViewModel<TView>
-        where TView : IView
+        where TView : class
     {
         #region Fields
 

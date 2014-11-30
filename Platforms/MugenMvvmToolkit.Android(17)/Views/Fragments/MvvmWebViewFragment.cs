@@ -22,12 +22,11 @@ using Android.Util;
 using Android.Views;
 using Android.Webkit;
 using MugenMvvmToolkit.Interfaces.Mediators;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Views.Fragments
 {
-    public abstract class MvvmWebViewFragment : WebViewFragment, IView
+    public abstract class MvvmWebViewFragment : WebViewFragment
     {
         #region Fields
 

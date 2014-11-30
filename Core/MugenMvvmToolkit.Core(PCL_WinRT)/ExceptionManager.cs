@@ -15,7 +15,6 @@
 #endregion
 
 using System;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit

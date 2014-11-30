@@ -195,7 +195,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             if (viewModel == null)
                 viewController = (UIViewController)ServiceProvider.IocContainer.Get(source.ViewType);
             else
-                viewController = (UIViewController)ViewManager.GetOrCreateView(viewModel, null, dataContext).GetUnderlyingView();
+                viewController = (UIViewController)ViewManager.GetOrCreateView(viewModel, null, dataContext);
 
             viewController.SetNavigationParameter(parameter);
             bool shouldNavigate = true;

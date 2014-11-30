@@ -18,7 +18,6 @@ using JetBrains.Annotations;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Navigation;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -53,10 +52,10 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         ///     Initializes a new instance of the <see cref="ModalViewMediator" /> class.
         /// </summary>
         public ModalViewMediator([NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
-            [NotNull] IViewManager viewManager, [NotNull] IOperationCallbackManager operationCallbackManager,
-            [NotNull] IViewMappingProvider viewMappingProvider,
-            [NotNull] IViewModelProvider viewModelProvider)
-            : base(viewModel, threadManager, viewManager, operationCallbackManager)
+            [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IOperationCallbackManager operationCallbackManager,
+             [NotNull] IViewMappingProvider viewMappingProvider,
+             [NotNull] IViewModelProvider viewModelProvider)
+            : base(viewModel, threadManager, viewManager, wrapperManager, operationCallbackManager)
         {
             Should.NotBeNull(viewMappingProvider, "viewMappingProvider");
             Should.NotBeNull(viewModelProvider, "viewModelProvider");
@@ -105,16 +104,14 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 .GetIocContainer(true)
                 .Get<INavigationService>()
                 .CurrentContent;
-            UIViewController toShow;
+            var toShow = ToolkitExtensions.GetUnderlyingView<UIViewController>(view);
             if (view is IModalNavSupportView)
             {
                 var nav = new MvvmNavigationController();
-                nav.PushViewController((UIViewController)view, UseAnimations);
+                nav.PushViewController(toShow, UseAnimations);
                 toShow = nav;
                 BindProvider(nav);
             }
-            else
-                toShow = (UIViewController)view;
             parentController.PresentViewController(toShow, UseAnimations, NodoAction);
             BindingExtensions.AttachedParentMember.Raise(toShow, EventArgs.Empty);
         }
@@ -139,7 +136,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         protected override void CloseView(IModalView view)
         {
-            var controller = (UIViewController)view.GetUnderlyingView();
+            var controller = ToolkitExtensions.GetUnderlyingView<UIViewController>(view);
             UIViewController presentedController = controller.PresentingViewController ??
                                                    controller.PresentedViewController;
             if (presentedController != null)
@@ -157,7 +154,9 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             if (!(view is IModalNavSupportView))
                 return;
-            var controller = ((UIViewController)view).NavigationController;
+            var controller = ToolkitExtensions
+                .GetUnderlyingView<UIViewController>(view)
+                .NavigationController;
             if (controller != null)
                 BindProvider(controller);
         }

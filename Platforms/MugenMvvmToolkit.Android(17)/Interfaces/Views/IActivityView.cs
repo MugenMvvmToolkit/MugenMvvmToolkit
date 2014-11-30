@@ -24,10 +24,10 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Interfaces.Views
 {
-    public interface IActivityView : IView
+    public interface IActivityView
     {
         /// <summary>
-        ///     Gets or sets the data context of the current <see cref="IView" />.
+        ///     Gets or sets the data context of the current view.
         /// </summary>
         object DataContext { get; set; }
 

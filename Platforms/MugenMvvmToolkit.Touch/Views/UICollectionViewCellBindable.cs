@@ -18,8 +18,9 @@ using System.Drawing;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Binding.Modules;
 
 namespace MugenMvvmToolkit.Views
 {

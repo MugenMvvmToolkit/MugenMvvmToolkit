@@ -15,6 +15,7 @@
 #endregion
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces
 {
@@ -29,7 +30,8 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         /// <param name="target">The specified target.</param>
         /// <param name="path">The specified path.</param>
         /// <param name="binding">The specified <see cref="IDataBinding" />.</param>
-        void Register([NotNull] object target, [NotNull] string path, [NotNull] IDataBinding binding);
+        /// <param name="context">The specified <see cref="IDataContext"/>, if any.</param>
+        void Register([NotNull] object target, [NotNull] string path, [NotNull] IDataBinding binding, IDataContext context = null);
 
         /// <summary>
         ///     Determine whether the specified binding is available in the <see cref="IBindingManager" />.
@@ -39,36 +41,40 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         ///     True if the binding is registered.
         /// </returns>
         bool IsRegistered([NotNull] IDataBinding binding);
-        
+
         /// <summary>
         ///     Retrieves the <see cref="IDataBinding" /> objects.
         /// </summary>
         /// <param name="target">The object to get bindings.</param>
-        IEnumerable<IDataBinding> GetBindings([NotNull] object target);
+        /// <param name="context">The specified <see cref="IDataContext"/>, if any.</param>
+        IEnumerable<IDataBinding> GetBindings([NotNull] object target, IDataContext context = null);
 
         /// <summary>
         ///     Retrieves the <see cref="IDataBinding" /> objects that is set on the specified property.
         /// </summary>
         /// <param name="target">The object where <paramref name="path" /> is.</param>
         /// <param name="path">The binding target property from which to retrieve the binding.</param>
-        IEnumerable<IDataBinding> GetBindings([NotNull] object target, [NotNull] string path);
+        /// <param name="context">The specified <see cref="IDataContext"/>, if any.</param>
+        IEnumerable<IDataBinding> GetBindings([NotNull] object target, [NotNull] string path, IDataContext context = null);
 
         /// <summary>
         ///     Unregisters the specified <see cref="IDataBinding"/>.
-        /// </summary>
+        /// </summary>        
         void Unregister(IDataBinding binding);
 
         /// <summary>
         ///     Removes all bindings from the specified target.
         /// </summary>
         /// <param name="target">The object from which to remove bindings.</param>
-        void ClearBindings([NotNull] object target);
+        /// <param name="context">The specified <see cref="IDataContext"/>, if any.</param>
+        void ClearBindings([NotNull] object target, IDataContext context = null);
 
         /// <summary>
         ///     Removes the bindings from a property if there is one.
         /// </summary>
         /// <param name="target">The object from which to remove the bindings.</param>
         /// <param name="path">The property path from which to remove the bindings.</param>
-        void ClearBindings([NotNull] object target, [NotNull] string path);
+        /// <param name="context">The specified <see cref="IDataContext"/>, if any.</param>
+        void ClearBindings([NotNull] object target, [NotNull] string path, IDataContext context = null);
     }
 }

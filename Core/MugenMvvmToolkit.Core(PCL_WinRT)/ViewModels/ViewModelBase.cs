@@ -581,6 +581,7 @@ namespace MugenMvvmToolkit.ViewModels
             _disposeCancellationToken.Cancel();
             Tracer.TraceViewModel(AuditAction.Disposed, this);
             Settings.Metadata.Clear();
+            ServiceProvider.AttachedValueProvider.Clear(this);
         }
 
         #endregion

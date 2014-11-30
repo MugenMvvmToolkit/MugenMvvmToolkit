@@ -22,8 +22,7 @@ using Android.Widget;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Views
 {

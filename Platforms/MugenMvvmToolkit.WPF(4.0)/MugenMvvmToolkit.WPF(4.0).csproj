@@ -98,17 +98,11 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\UriUtils.cs">
       <Link>Infrastructure\UriUtils.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\ViewManagerEx.cs">
-      <Link>Infrastructure\ViewManagerEx.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\VisualStateManager.cs">
       <Link>Infrastructure\VisualStateManager.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\WpfBootstrapperBase.cs">
       <Link>Infrastructure\WpfBootstrapperBase.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\InitializationModule.cs">
-      <Link>InitializationModule.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Interfaces\Navigation\INavigationProviderEx.cs">
       <Link>Interfaces\Navigation\INavigationProviderEx.cs</Link>
@@ -137,14 +131,20 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Models\EventArg\NavigationEventArgsWrapper.cs">
       <Link>Models\EventArg\NavigationEventArgsWrapper.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Modules\InitializationModule.cs">
+      <Link>Modules\InitializationModule.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Modules\PlatformWrapperRegistrationModule.cs">
+      <Link>Modules\PlatformWrapperRegistrationModule.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Modules\ViewModelDataTemplateModule.cs">
+      <Link>Modules\ViewModelDataTemplateModule.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\PlatformExtensions.cs">
       <Link>PlatformExtensions.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\ViewModelDataTemplateModule.cs">
-      <Link>ViewModelDataTemplateModule.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -166,6 +166,7 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

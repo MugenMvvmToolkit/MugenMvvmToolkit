@@ -147,7 +147,7 @@ namespace MugenMvvmToolkit.Infrastructure
             context = context.ToNonReadOnly();
             var viewModelType = GetMainViewModelType();
             var viewModel = CreateMainViewModel(viewModelType, context);
-            var view = (Page)ViewManager.GetOrCreateView(viewModel, null, context).GetUnderlyingView();
+            var view = (Page)ViewManager.GetOrCreateView(viewModel, null, context);
             var page = view as NavigationPage ?? CreateNavigationPage(view, context);
             if (page == null)
                 return view;

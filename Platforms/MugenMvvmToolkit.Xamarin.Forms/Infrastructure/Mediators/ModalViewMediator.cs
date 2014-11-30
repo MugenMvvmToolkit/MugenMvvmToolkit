@@ -14,7 +14,6 @@
 // ****************************************************************************
 #endregion
 
-using System;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure.Navigation;
 using MugenMvvmToolkit.Interfaces;
@@ -43,10 +42,10 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         ///     Initializes a new instance of the <see cref="ModalViewMediator" /> class.
         /// </summary>
         public ModalViewMediator([NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
-            [NotNull] IViewManager viewManager, [NotNull] IOperationCallbackManager operationCallbackManager,
+            [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IOperationCallbackManager operationCallbackManager,
             [NotNull] IViewMappingProvider viewMappingProvider,
             [NotNull] IViewModelProvider viewModelProvider)
-            : base(viewModel, threadManager, viewManager, operationCallbackManager)
+            : base(viewModel, threadManager, viewManager, wrapperManager, operationCallbackManager)
         {
             Should.NotBeNull(viewMappingProvider, "viewMappingProvider");
             Should.NotBeNull(viewModelProvider, "viewModelProvider");
@@ -77,7 +76,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 .GetIocContainer(true)
                 .Get<INavigationService>()
                 .CurrentContent;
-            page.Navigation.PushModalAsync((Page)view);
+            page.Navigation.PushModalAsync(ToolkitExtensions.GetUnderlyingView<Page>(view));
         }
 
         /// <summary>
@@ -85,7 +84,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         protected override void InitializeView(IModalView view, IDataContext context)
         {
-            ((Page)view).Disappearing += OnViewClosed;
+            ToolkitExtensions.GetUnderlyingView<Page>(view).Disappearing += OnViewClosed;
         }
 
         /// <summary>
@@ -94,7 +93,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// <param name="view">The specified window-view to dispose.</param>
         protected override void CleanupView(IModalView view)
         {
-            ((Page)view).Disappearing -= OnViewClosed;
+            ToolkitExtensions.GetUnderlyingView<Page>(view).Disappearing -= OnViewClosed;
         }
 
         /// <summary>
@@ -102,7 +101,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         protected override void CloseView(IModalView view)
         {
-            var page = (Page)view.GetUnderlyingView();
+            var page = ToolkitExtensions.GetUnderlyingView<Page>(view);
             page.Navigation.PopModalAsync();
         }
 

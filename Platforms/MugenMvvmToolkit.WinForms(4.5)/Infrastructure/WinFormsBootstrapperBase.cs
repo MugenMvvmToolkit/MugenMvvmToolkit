@@ -46,6 +46,8 @@ namespace MugenMvvmToolkit.Infrastructure
         static WinFormsBootstrapperBase()
         {
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
+            DynamicViewModelNavigationPresenter.CanShowViewModelDefault = (model, context, arg3) => false;
+            ViewManager.DisposeView = true;
         }
 
         /// <summary>
@@ -56,7 +58,6 @@ namespace MugenMvvmToolkit.Infrastructure
             _autoRunApplication = autoRunApplication;
             _platform = PlatformExtensions.GetPlatformInfo();
             ShutdownOnMainViewModelClose = autoRunApplication;
-            DynamicViewModelNavigationPresenter.CanShowViewModelDefault = (model, context, arg3) => false;
         }
 
         #endregion

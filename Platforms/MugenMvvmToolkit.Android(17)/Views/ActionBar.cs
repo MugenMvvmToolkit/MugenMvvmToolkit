@@ -26,8 +26,7 @@ using Android.Util;
 using Android.Views;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Binding.Models;
 #if API8SUPPORT
 using ActionBarEx = Android.Support.V7.App.ActionBar;
 #else

@@ -70,6 +70,12 @@
     <Reference Include="System.Windows.Browser" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Binding\Infrastructure\ItemsSourceGeneratorBase.cs">
+      <Link>Infrastructure\ItemsSourceGeneratorBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Binding\Interfaces\IItemsSourceGenerator.cs">
+      <Link>Interfaces\IItemsSourceGenerator.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Converters\BooleanToVisibilityConverter.cs">
       <Link>Converters\BooleanToVisibilityConverter.cs</Link>
     </Compile>
@@ -109,8 +115,8 @@
     <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Models\ValidationBinder.cs">
       <Link>Models\ValidationBinder.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\PlatformDataBindingModule.cs">
-      <Link>PlatformDataBindingModule.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Modules\PlatformDataBindingModule.cs">
+      <Link>Modules\PlatformDataBindingModule.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -142,6 +148,7 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>

@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Test.TestInfrastructure
 {
@@ -19,7 +18,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         /// <param name="stateName">The state to transition to.</param>
         /// <param name="useTransitions">true to use a VisualTransition to transition between states; otherwise, false.</param>
         /// <param name="context">The specified context.</param>
-        public Task<bool> GoToStateAsync(IView view, string stateName, bool useTransitions, IDataContext context)
+        public Task<bool> GoToStateAsync(object view, string stateName, bool useTransitions, IDataContext context)
         {
             return Empty.FalseTask;
         }

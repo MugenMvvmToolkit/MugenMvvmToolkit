@@ -13,19 +13,22 @@
 // </license>
 // ****************************************************************************
 #endregion
+
+using MugenMvvmToolkit.Binding.Converters;
 #if NETFX_CORE || WINDOWSCOMMON
 using Windows.UI.Xaml.Data;
+using BindingEx = Windows.UI.Xaml.Data.Binding;
 #else
 using System.Windows.Data;
+using BindingEx = System.Windows.Data.Binding;
 #endif
-using MugenMvvmToolkit.Converters;
 
 namespace MugenMvvmToolkit.MarkupExtensions
 {
     /// <summary>
     ///     Represents the binding that allows to convert a view model to view.
     /// </summary>
-    public sealed class ViewModelToViewBinding : Binding
+    public sealed class ViewModelToViewBinding : BindingEx
     {
         #region Constructors
 

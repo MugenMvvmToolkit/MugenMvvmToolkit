@@ -82,16 +82,16 @@
     <Compile Include="..\mugenmvvmtoolkit.android%2817%29\infrastructure\presenters\ToastPresenter.cs">
       <Link>Infrastructure\Presenters\ToastPresenter.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.WinPhone\InitializationModuleEx.cs">
-      <Link>InitializationModuleEx.cs</Link>
+    <Compile Include="..\mugenmvvmtoolkit.xamarin.forms.winphone\binding\modules\PlatformDataBindingModuleEx.cs">
+      <Link>Binding\Modules\PlatformDataBindingModuleEx.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.xamarin.forms.winphone\modules\InitializationModuleEx.cs">
+      <Link>Modules\InitializationModuleEx.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.WinPhone\PlatformBootstrapperService.cs">
       <Link>PlatformBootstrapperService.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.WinPhone\PlatformDataBindingModuleEx.cs">
-      <Link>PlatformDataBindingModuleEx.cs</Link>
-    </Compile>
-    <Compile Include="Infrastructure\BindingErrorProvider.cs" />
+    <Compile Include="Binding\Infrastructure\BindingErrorProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

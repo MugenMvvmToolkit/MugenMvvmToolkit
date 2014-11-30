@@ -117,24 +117,6 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Converters\ValueConverterBase.cs">
       <Link>Converters\ValueConverterBase.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Core\BindingContextManager.cs">
-      <Link>Core\BindingContextManager.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Core\BindingManager.cs">
-      <Link>Core\BindingManager.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Core\BindingProvider.cs">
-      <Link>Core\BindingProvider.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Core\DataBinding.cs">
-      <Link>Core\DataBinding.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Core\InvalidDataBinding.cs">
-      <Link>Core\InvalidDataBinding.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\DataBindingModule.cs">
-      <Link>DataBindingModule.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\DataConstants\BindingBuilderConstants.cs">
       <Link>DataConstants\BindingBuilderConstants.cs</Link>
     </Compile>
@@ -150,20 +132,35 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Extensions\BindingReflectionExtensions.cs">
       <Link>Extensions\BindingReflectionExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\BindingContextManager.cs">
+      <Link>Infrastructure\BindingContextManager.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\BindingErrorProviderBase.cs">
       <Link>Infrastructure\BindingErrorProviderBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\BindingManager.cs">
+      <Link>Infrastructure\BindingManager.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\BindingMemberProvider.cs">
       <Link>Infrastructure\BindingMemberProvider.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\BindingProvider.cs">
+      <Link>Infrastructure\BindingProvider.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\BindingResourceResolver.cs">
       <Link>Infrastructure\BindingResourceResolver.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\DataBinding.cs">
+      <Link>Infrastructure\DataBinding.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\EmptyPathObserver.cs">
       <Link>Infrastructure\EmptyPathObserver.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\EventListenerList.cs">
       <Link>Infrastructure\EventListenerList.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\InvalidDataBinding.cs">
+      <Link>Infrastructure\InvalidDataBinding.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\MultiPathObserver.cs">
       <Link>Infrastructure\MultiPathObserver.cs</Link>
@@ -402,6 +399,9 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\WeakEventListenerWrapper.cs">
       <Link>Models\WeakEventListenerWrapper.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Modules\DataBindingModule.cs">
+      <Link>Modules\DataBindingModule.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\BindingMemberVisitor.cs">
       <Link>Parse\BindingMemberVisitor.cs</Link>
     </Compile>
@@ -494,6 +494,7 @@
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

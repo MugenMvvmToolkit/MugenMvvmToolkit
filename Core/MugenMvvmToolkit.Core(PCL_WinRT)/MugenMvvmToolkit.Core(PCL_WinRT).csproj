@@ -88,9 +88,9 @@
     <Compile Include="Infrastructure\EntityStateManager.cs" />
     <Compile Include="Infrastructure\EventAggregator.cs" />
     <Compile Include="Infrastructure\ExpressionReflectionManager.cs" />
-    <Compile Include="Infrastructure\InitializationModuleBase.cs" />
+    <Compile Include="Modules\InitializationModuleBase.cs" />
     <Compile Include="Infrastructure\Mediators\WindowViewMediatorBase.cs" />
-    <Compile Include="Infrastructure\ModuleBase.cs" />
+    <Compile Include="Modules\ModuleBase.cs" />
     <Compile Include="Infrastructure\Navigation\DefaultNavigationCachePolicy.cs" />
     <Compile Include="Infrastructure\Presenters\DynamicMultiViewModelPresenter.cs" />
     <Compile Include="Infrastructure\Presenters\DynamicViewModelNavigationPresenter.cs" />
@@ -110,7 +110,7 @@
     <Compile Include="Infrastructure\ViewMappingProvider.cs" />
     <Compile Include="Infrastructure\ViewModelProvider.cs" />
     <Compile Include="Infrastructure\WeakActionToken.cs" />
-    <Compile Include="Infrastructure\ViewModelWrapperManagerBase.cs" />
+    <Compile Include="Infrastructure\WrapperManager.cs" />
     <Compile Include="Interfaces\Callbacks\IActionContinuation.cs" />
     <Compile Include="Interfaces\Callbacks\IAsyncOperation.cs" />
     <Compile Include="Interfaces\Callbacks\IAsyncOperationAwaiter.cs" />
@@ -143,7 +143,7 @@
     <Compile Include="Interfaces\IViewMappingProvider.cs" />
     <Compile Include="Interfaces\IViewModelProvider.cs" />
     <Compile Include="Interfaces\IVisualStateManager.cs" />
-    <Compile Include="Interfaces\IViewModelWrapperManager.cs" />
+    <Compile Include="Interfaces\IWrapperManager.cs" />
     <Compile Include="Interfaces\Mediators\IWindowViewMediator.cs" />
     <Compile Include="Interfaces\Models\IDataContext.cs" />
     <Compile Include="Interfaces\Models\IDisposableObject.cs" />
@@ -188,7 +188,7 @@
     <Compile Include="Interfaces\ViewModels\IViewModel.cs" />
     <Compile Include="Interfaces\ViewModels\IWorkspaceViewModel.cs" />
     <Compile Include="Interfaces\ViewModels\IWrapperViewModel.cs" />
-    <Compile Include="Interfaces\Views\IView.cs" />
+    <Compile Include="Interfaces\Views\IViewModelAwareView.cs" />
     <Compile Include="Interfaces\Views\IViewWrapper.cs" />
     <Compile Include="Models\DataConstant.cs" />
     <Compile Include="Models\DataConstantValue.cs" />
@@ -236,6 +236,7 @@
     <Compile Include="Models\Validation\ValidationResult.cs" />
     <Compile Include="Models\Validation\ValidatorContext.cs" />
     <Compile Include="Models\ViewMappingItem.cs" />
+    <Compile Include="Modules\WrapperRegistrationModuleBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceProvider.cs" />
     <Compile Include="Should.cs" />

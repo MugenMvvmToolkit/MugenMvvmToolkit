@@ -13,51 +13,42 @@
 // </license>
 // ****************************************************************************
 #endregion
-using System;
+
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Interfaces
 {
     /// <summary>
-    ///     Represents the provider which creates a view for a view model
+    ///     Represents the provider that allows to create a view for a view model
     /// </summary>
     public interface IViewManager
     {
         /// <summary>
-        ///     Gets the type of view wrapper.
-        /// </summary>
-        Type GetViewType([NotNull] Type viewType, [CanBeNull]IDataContext dataContext);
-
-        /// <summary>
-        ///     Wraps the specified view object to a <see cref="IView" />.
-        /// </summary>
-        IView WrapToView([NotNull] object view, [CanBeNull] IDataContext dataContext);
-
-        /// <summary>
-        ///     Gets an instance of <see cref="IView" /> for the specified view model.
+        ///     Gets an instance of view object for the specified view model.
         /// </summary>
         /// <param name="viewModel">The view model which is now initialized.</param>
-        /// <param name="dataContext">The specified <see cref="IDataContext" />.</param>
+        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
         /// <returns>
-        ///     An instance of <see cref="IView" />.
+        ///     An instance of view object.
         /// </returns>
-        Task<IView> GetViewAsync([NotNull] IViewModel viewModel, [CanBeNull] IDataContext dataContext);
+        Task<object> GetViewAsync([NotNull] IViewModel viewModel, IDataContext context = null);
 
         /// <summary>
         ///     Configures the specified view for the specified view-model.
         /// </summary>
         /// <param name="viewModel">The specified view model.</param>
         /// <param name="view">The specified view.</param>
-        Task InitializeViewAsync([NotNull] IViewModel viewModel, [NotNull] object view);
+        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
+        Task InitializeViewAsync([NotNull] IViewModel viewModel, [NotNull] object view, IDataContext context = null);
 
         /// <summary>
         ///     Clears view in the specified view-model
         /// </summary>
         /// <param name="viewModel">The specified view model.</param>
-        Task CleanupViewAsync([NotNull] IViewModel viewModel);
+        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
+        Task CleanupViewAsync([NotNull] IViewModel viewModel, IDataContext context = null);
     }
 }

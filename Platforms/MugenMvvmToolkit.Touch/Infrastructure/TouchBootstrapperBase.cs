@@ -53,6 +53,8 @@ namespace MugenMvvmToolkit.Infrastructure
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
             DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
+            ServiceProvider.WeakReferenceFactory = PlatformExtensions.CreateWeakReference;
+            ViewManager.DisposeView = true;
         }
 
         /// <summary>

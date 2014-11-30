@@ -25,7 +25,6 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Collections;
-using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit

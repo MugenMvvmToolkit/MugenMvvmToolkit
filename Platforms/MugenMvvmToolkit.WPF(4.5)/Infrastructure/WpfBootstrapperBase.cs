@@ -33,6 +33,7 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Modules;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -152,8 +153,9 @@ namespace MugenMvvmToolkit.Infrastructure
             if (rootWindow != null)
             {
                 IWindowViewMediator mediator = new WindowViewMediator(rootWindow, vm, IocContainer.Get<IThreadManager>(),
-                    IocContainer.Get<IViewManager>(), IocContainer.Get<IOperationCallbackManager>());
-                mediator.UpdateView(new ViewManagerEx.WindowView(rootWindow), true, context);
+                    IocContainer.Get<IViewManager>(), IocContainer.Get<IWrapperManager>(),
+                    IocContainer.Get<IOperationCallbackManager>());
+                mediator.UpdateView(new PlatformWrapperRegistrationModule.WindowViewWrapper(rootWindow), true, context);
                 rootWindow.Show();
             }
         }

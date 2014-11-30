@@ -23,7 +23,7 @@ namespace MugenMvvmToolkit.Interfaces.Views
     ///     Represent the base interface for dialog view.
     /// </summary>
     [BaseView(Priority = 1, ViewTypeName = "Windows.UI.Xaml.Controls.ContentDialog")]
-    public interface IWindowView : IView
+    public interface IWindowView
     {
         /// <summary>
         ///     Shows dialog as a window.

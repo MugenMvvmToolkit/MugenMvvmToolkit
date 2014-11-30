@@ -56,7 +56,7 @@
       <Link>Converters\ValueConverterWrapper.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Infrastructure\BindingResourceResolverEx.cs">
-      <Link>Infrastructure\BindingResourceResolverEx.cs</Link>
+      <Link>Binding\Infrastructure\BindingResourceResolverEx.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\MarkupExtensions\DataBindingExtensionCommon.cs">
       <Link>MarkupExtensions\DataBindingExtensionCommon.cs</Link>
@@ -85,9 +85,6 @@
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\DynamicViewModelWindowPresenter.cs">
       <Link>Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\ViewManagerEx.cs">
-      <Link>Infrastructure\ViewManagerEx.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\interfaces\navigation\INavigationProviderEx.cs">
       <Link>Interfaces\Navigation\INavigationProviderEx.cs</Link>
     </Compile>
@@ -100,17 +97,18 @@
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\models\eventarg\NavigationEventArgsBase.cs">
       <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
     </Compile>
-    <Compile Include="Infrastructure\BindingContextManagerEx.cs" />
+    <Compile Include="Binding\Infrastructure\BindingContextManagerEx.cs" />
     <Compile Include="Infrastructure\Mediators\ModalViewMediator.cs" />
     <Compile Include="Infrastructure\Navigation\NavigationService.cs" />
+    <Compile Include="Infrastructure\ViewManagerEx.cs" />
     <Compile Include="Infrastructure\ViewMappingProviderEx.cs" />
     <Compile Include="Infrastructure\XamarinFormsBootstrapperBase.cs" />
-    <Compile Include="InitializationModule.cs" />
+    <Compile Include="Modules\InitializationModule.cs" />
     <Compile Include="Interfaces\Views\IModalView.cs" />
     <Compile Include="MarkupExtensions\DataBindingExtension.cs" />
     <Compile Include="MarkupExtensions\View.cs" />
-    <Compile Include="Models\ParentObserver.cs" />
-    <Compile Include="PlatformDataBindingModule.cs" />
+    <Compile Include="Binding\Models\ParentObserver.cs" />
+    <Compile Include="Binding\Modules\PlatformDataBindingModule.cs" />
     <Compile Include="XamarinFormsExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -17,6 +17,7 @@ using System;
 using System.Windows;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Modules;
 using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
 namespace MugenMvvmToolkit
@@ -25,8 +26,16 @@ namespace MugenMvvmToolkit
     {
         #region Fields
 
-        private static Func<Type, DataTemplate> _defaultViewModelTemplateFactory =
-            ViewModelDataTemplateModule.DefaultTemplateProvider;
+        private static Func<Type, DataTemplate> _defaultViewModelTemplateFactory;
+
+        #endregion
+
+        #region Constructors
+
+        static PlatformExtensions()
+        {
+            _defaultViewModelTemplateFactory = ViewModelDataTemplateModule.DefaultTemplateProvider;
+        }
 
         #endregion
 

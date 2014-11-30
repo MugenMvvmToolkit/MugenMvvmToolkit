@@ -21,70 +21,23 @@ using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
+    //TODO FIX FORMS CLEANUP VIEW
     /// <summary>
-    ///     Represents the default implemenation of <see cref="IViewManager" />
+    ///     Represents the provider that allows to create a view for a view model
     /// </summary>
     public class ViewManager : IViewManager
     {
-        #region Nested types
-
-        private sealed class ViewWrapper : IViewWrapper, IDisposable
-        {
-            #region Fields
-
-            private readonly object _view;
-            private readonly Type _viewType;
-
-            #endregion
-
-            #region Constructors
-
-            public ViewWrapper(object view)
-            {
-                Should.NotBeNull(view, "view");
-                _view = view;
-                _viewType = view.GetType();
-            }
-
-            #endregion
-
-            #region Implementation of IViewWrapper
-
-            public Type ViewType
-            {
-                get { return _viewType; }
-            }
-
-            public object View
-            {
-                get { return _view; }
-            }
-
-            public void Dispose()
-            {
-                var disposable = _view as IDisposable;
-                if (disposable != null)
-                    disposable.Dispose();
-            }
-
-            #endregion
-        }
-
-        #endregion
-
         #region Fields
 
-        private const string AttachedViewMember = "~ATT~@$";
         private const string ViewManagerCreatorPath = "@#vcreator";
         private readonly IThreadManager _threadManager;
         private readonly IViewMappingProvider _viewMappingProvider;
-        private readonly Func<object, object, IView> _wrapperDelegate;
+        private readonly IWrapperManager _wrapperManager;
         private static Func<object, object> _getDataContext;
         private static Action<object, object> _setDataContext;
 
@@ -103,13 +56,14 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Initializes a new instance of the <see cref="ViewManager" /> class.
         /// </summary>
         public ViewManager([NotNull] IThreadManager threadManager,
-            [NotNull] IViewMappingProvider viewMappingProvider)
+            [NotNull] IViewMappingProvider viewMappingProvider, [NotNull] IWrapperManager wrapperManager)
         {
             Should.NotBeNull(threadManager, "threadManager");
             Should.NotBeNull(viewMappingProvider, "viewMappingProvider");
+            Should.NotBeNull(viewMappingProvider, "wrapperManager");
             _threadManager = threadManager;
             _viewMappingProvider = viewMappingProvider;
-            _wrapperDelegate = (o, o1) => WrapToViewInternal(o, (IDataContext)o1);
+            _wrapperManager = wrapperManager;
         }
 
         #endregion
@@ -126,13 +80,7 @@ namespace MugenMvvmToolkit.Infrastructure
             set
             {
                 Should.PropertyBeNotNull(value);
-                _getDataContext = item =>
-                {
-                    var wrapper = item as IViewWrapper;
-                    if (wrapper != null)
-                        item = wrapper.View;
-                    return value(item);
-                };
+                _getDataContext = item => value(ToolkitExtensions.GetUnderlyingView<object>(item));
             }
         }
 
@@ -146,13 +94,7 @@ namespace MugenMvvmToolkit.Infrastructure
             set
             {
                 Should.PropertyBeNotNull(value);
-                _setDataContext = (item, context) =>
-                {
-                    var wrapper = item as IViewWrapper;
-                    if (wrapper != null)
-                        item = wrapper.View;
-                    value(item, context);
-                };
+                _setDataContext = (item, context) => value(ToolkitExtensions.GetUnderlyingView<object>(item), context);
             }
         }
 
@@ -164,7 +106,12 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Gets or sets property, that is responsible for auto dispose view when the view model disposing.
         /// </summary>
-        public bool DisposeView { get; set; }
+        public static bool DisposeView { get; set; }
+
+        /// <summary>
+        ///     Gets or sets property, that is responsible for clear view data context when the view model disposing.
+        /// </summary>
+        public static bool ClearDataContext { get; set; }
 
         /// <summary>
         ///     Gets the thread manager.
@@ -182,48 +129,31 @@ namespace MugenMvvmToolkit.Infrastructure
             get { return _viewMappingProvider; }
         }
 
+        /// <summary>
+        ///     Gets the wrapper manager.
+        /// </summary>
+        protected IWrapperManager WrapperManager
+        {
+            get { return _wrapperManager; }
+        }
+
         #endregion
 
         #region Implementation of IViewManager
 
         /// <summary>
-        ///     Gets the type of view wrapper.
-        /// </summary>
-        public Type GetViewType(Type viewType, IDataContext dataContext)
-        {
-            Should.NotBeNull(viewType, "viewType");
-            if (typeof(IView).IsAssignableFrom(viewType))
-                return viewType;
-            if (dataContext == null)
-                dataContext = DataContext.Empty;
-            return GetViewTypeInternal(viewType, dataContext);
-        }
-
-        /// <summary>
-        ///     Wraps the specified view object to a <see cref="IView" />.
-        /// </summary>
-        public IView WrapToView(object view, IDataContext dataContext)
-        {
-            Should.NotBeNull(view, "view");
-            if (dataContext == null)
-                dataContext = DataContext.Empty;
-            return view as IView ??
-                         ServiceProvider.AttachedValueProvider.GetOrAdd(view, AttachedViewMember, _wrapperDelegate, dataContext);
-        }
-
-        /// <summary>
-        ///     Gets an instance of <see cref="IView" /> for the specified view model.
+        ///     Gets an instance of view object for the specified view model.
         /// </summary>
         /// <param name="viewModel">The view model which is now initialized.</param>
-        /// <param name="dataContext">The specified <see cref="IDataContext" />.</param>
+        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
         /// <returns>
-        ///     An instance of <see cref="IView" />.
+        ///     An instance of view object.
         /// </returns>
-        public Task<IView> GetViewAsync(IViewModel viewModel, IDataContext dataContext)
+        public Task<object> GetViewAsync(IViewModel viewModel, IDataContext context = null)
         {
             Should.NotBeNull(viewModel, "viewModel");
-            var tcs = new TaskCompletionSource<IView>();
-            ThreadManager.InvokeOnUiThreadAsync(() => tcs.SetResult(GetView(viewModel, dataContext ?? DataContext.Empty)));
+            var tcs = new TaskCompletionSource<object>();
+            ThreadManager.InvokeOnUiThreadAsync(() => tcs.SetResult(GetView(viewModel, context ?? DataContext.Empty)));
             return tcs.Task;
         }
 
@@ -232,12 +162,13 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         /// <param name="viewModel">The specified view model.</param>
         /// <param name="view">The specified view.</param>
-        public Task InitializeViewAsync(IViewModel viewModel, object view)
+        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
+        public Task InitializeViewAsync(IViewModel viewModel, object view, IDataContext context = null)
         {
             var tcs = new TaskCompletionSource<bool>();
             ThreadManager.InvokeOnUiThreadAsync(() =>
             {
-                InitializeView(viewModel, WrapToView(view, DataContext.Empty));
+                InitializeView(viewModel, ToolkitExtensions.GetUnderlyingView<object>(view), context ?? DataContext.Empty);
                 tcs.SetResult(true);
             });
             return tcs.Task;
@@ -247,16 +178,17 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Clears view in the specified view-model
         /// </summary>
         /// <param name="viewModel">The specified view model.</param>
-        public Task CleanupViewAsync(IViewModel viewModel)
+        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
+        public Task CleanupViewAsync(IViewModel viewModel, IDataContext context = null)
         {
             Should.NotBeNull(viewModel, "viewModel");
-            IView view = viewModel.Settings.Metadata.GetData(ViewModelConstants.View);
+            var view = viewModel.Settings.Metadata.GetData(ViewModelConstants.View);
             if (view == null)
                 return Empty.Task;
             var tcs = new TaskCompletionSource<bool>();
             ThreadManager.InvokeOnUiThreadAsync(() =>
             {
-                CleanupView(viewModel, view);
+                CleanupView(viewModel, ToolkitExtensions.GetUnderlyingView<object>(view), context ?? DataContext.Empty);
                 tcs.SetResult(true);
             }, OperationPriority.Low);
             return tcs.Task;
@@ -267,15 +199,14 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Methods
 
         /// <summary>
-        ///     Gets an instance of <see cref="IView" /> for the specified view model.
+        ///    Gets an instance of view object for the specified view model.
         /// </summary>
-        public static IView GetOrCreateView(IViewModel vm, bool? alwaysCreateNewView,
-            [CanBeNull] IDataContext dataContext)
+        public static object GetOrCreateView([CanBeNull] IViewModel vm, bool? alwaysCreateNewView = null, IDataContext context = null)
         {
             if (vm == null)
                 return null;
 
-            IView view;
+            object view;
             if (!alwaysCreateNewView.GetValueOrDefault(AlwaysCreateNewView))
             {
                 view = vm.Settings.Metadata.GetData(ViewModelConstants.View);
@@ -285,48 +216,29 @@ namespace MugenMvvmToolkit.Infrastructure
 
             //NOTE: SYNC INVOKE.
             var viewManager = vm.GetIocContainer(true).Get<IViewManager>();
-            view = viewManager.GetViewAsync(vm, dataContext).Result;
-            viewManager.InitializeViewAsync(vm, view);
+            view = viewManager.GetViewAsync(vm, context).Result;
+            viewManager.InitializeViewAsync(vm, view, context);
             return view;
         }
 
         /// <summary>
-        ///     Gets the type of view wrapper.
-        /// </summary>
-        protected virtual Type GetViewTypeInternal([NotNull] Type viewType, [NotNull] IDataContext dataContext)
-        {
-            return typeof(ViewWrapper);
-        }
-
-        /// <summary>
-        ///     Wraps the specified view object to a <see cref="IView" />.
-        /// </summary>
-        protected virtual IView WrapToViewInternal([NotNull] object view, [NotNull] IDataContext dataContext)
-        {
-            return new ViewWrapper(view);
-        }
-
-        /// <summary>
-        ///     Gets an instance of <see cref="IView" /> for the specified view model.
+        ///     Gets an instance of view object for the specified view model.
         /// </summary>
         /// <param name="viewModel">The view model which is now initialized.</param>
-        /// <param name="dataContext">The specified <see cref="IDataContext" />.</param>
+        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
         /// <returns>
-        ///     An instance of <see cref="IView" />.
+        ///     An instance of view object.
         /// </returns>
-        protected virtual IView GetView(IViewModel viewModel, IDataContext dataContext)
+        protected virtual object GetView([NotNull]IViewModel viewModel, [NotNull] IDataContext context)
         {
-            var viewBindingName = viewModel.GetViewName(dataContext);
-            Type viewType = viewModel.GetType();
-            IViewMappingItem mappingItem = ViewMappingProvider.FindMappingForViewModel(viewType, viewBindingName, true);
+            var viewBindingName = viewModel.GetViewName(context);
+            var vmType = viewModel.GetType();
+            IViewMappingItem mappingItem = ViewMappingProvider.FindMappingForViewModel(vmType, viewBindingName, true);
             object viewObj = viewModel.GetIocContainer(true).Get(mappingItem.ViewType);
-            var view = viewObj as IView;
-            if (view == null)
-                view = WrapToView(viewObj, dataContext);
-            else if (DisposeView)
+            if (DisposeView)
                 ServiceProvider.AttachedValueProvider.SetValue(viewObj, ViewManagerCreatorPath, null);
-            Tracer.Info("The view {0} for the view-model {1} was created.", view.GetUnderlyingView().GetType(), viewModel.GetType());
-            return view;
+            Tracer.Info("The view {0} for the view-model {1} was created.", viewObj.GetType(), vmType);
+            return viewObj;
         }
 
         /// <summary>
@@ -334,16 +246,22 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         /// <param name="viewModel">The specified view model.</param>
         /// <param name="view">The specified view.</param>
-        protected virtual void InitializeView(IViewModel viewModel, IView view)
+        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
+        protected virtual void InitializeView([NotNull]IViewModel viewModel, [CanBeNull] object view, [NotNull] IDataContext context)
         {
-            IView oldView = viewModel.Settings.Metadata.GetData(ViewModelConstants.View);
+            var oldView = viewModel.Settings.Metadata.GetData(ViewModelConstants.View);
             if (ReferenceEquals(oldView, view))
                 return;
-            CleanupViewInternal(oldView);
+            InitializeViewInternal(null, oldView);
             InitializeViewInternal(viewModel, view);
             PropertyInfo viewProperty = ReflectionExtensions.GetViewProperty(viewModel.GetType());
-            if (viewProperty != null)
-                viewProperty.SetValueEx(viewModel, view);
+            if (viewProperty == null)
+                return;
+
+            if (view != null && !viewProperty.PropertyType.IsInstanceOfType(view) &&
+                _wrapperManager.CanWrap(view.GetType(), viewProperty.PropertyType, DataContext.Empty))
+                view = _wrapperManager.Wrap(view, viewProperty.PropertyType, DataContext.Empty);
+            viewProperty.SetValueEx(viewModel, view);
         }
 
         /// <summary>
@@ -351,64 +269,43 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         /// <param name="viewModel">The specified view model.</param>
         /// <param name="view">The specified view.</param>
-        protected virtual void CleanupView(IViewModel viewModel, IView view)
+        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
+        protected virtual void CleanupView([NotNull] IViewModel viewModel, [NotNull] object view, [NotNull] IDataContext context)
         {
-            CleanupViewInternal(view);
+            InitializeViewInternal(null, view);
             viewModel.Settings.Metadata.Remove(ViewModelConstants.View);
             PropertyInfo viewProperty = ReflectionExtensions.GetViewProperty(viewModel.GetType());
-            if (viewProperty != null && viewProperty.GetValueEx<IView>(viewModel) != null)
-                viewProperty.SetValueEx<IView>(viewModel, null);
+            if (viewProperty != null)
+                viewProperty.SetValueEx<object>(viewModel, null);
 
-            if (view != null)
+            viewModel.Unsubscribe(ToolkitExtensions.GetUnderlyingView<object>(view));
+            if (DisposeView && ServiceProvider.AttachedValueProvider.Contains(view, ViewManagerCreatorPath))
             {
-                viewModel.Unsubscribe(view.GetUnderlyingView());
-
-                if (DisposeView)
-                {
-                    IDisposable disposable = null;
-                    var wrapper = view as IViewWrapper;
-                    if (wrapper == null)
-                    {
-                        if (ServiceProvider.AttachedValueProvider.Contains(view, ViewManagerCreatorPath))
-                        {
-                            ServiceProvider.AttachedValueProvider.Clear(view, ViewManagerCreatorPath);
-                            disposable = view as IDisposable;
-                        }
-                    }
-                    else
-                        disposable = view as IDisposable;
-                    if (disposable != null)
-                        disposable.Dispose();
-                }
+                ServiceProvider.AttachedValueProvider.Clear(view, ViewManagerCreatorPath);
+                var disposable = view as IDisposable;
+                if (disposable != null)
+                    disposable.Dispose();
             }
         }
 
         /// <summary>
         ///     Configures the specified view to the specified view-model.
         /// </summary>
-        protected static void InitializeViewInternal(IViewModel viewModel, IView view)
+        protected static void InitializeViewInternal(IViewModel viewModel, object view)
         {
             if (view == null)
                 return;
-            var underlyingView = view.GetUnderlyingView();
             if (viewModel != null)
-                viewModel.Subscribe(underlyingView);
-            SetDataContext(underlyingView, viewModel);
-            Action<object, IViewModel> propertySetter = ReflectionExtensions.GetViewModelPropertySetter(underlyingView.GetType());
+                viewModel.Subscribe(view);
+
+            if (viewModel != null || ClearDataContext)
+                SetDataContext(view, viewModel);
+            Action<object, IViewModel> propertySetter = ReflectionExtensions.GetViewModelPropertySetter(view.GetType());
             if (propertySetter != null)
-                propertySetter(underlyingView, viewModel);
+                propertySetter(view, viewModel);
 
             if (viewModel != null)
                 viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.View, view);
-        }
-
-        /// <summary>
-        ///     Clears view in the specified view-model
-        /// </summary>
-        /// <param name="view">The specified view.</param>
-        protected static void CleanupViewInternal(IView view)
-        {
-            InitializeViewInternal(null, view);
         }
 
         #endregion

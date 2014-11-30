@@ -26,7 +26,6 @@ using EventType = System.Object;
 using System.Windows;
 using EventType = System.Windows.DependencyPropertyChangedEventArgs;
 #endif
-using MugenMvvmToolkit.Binding.Core;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 

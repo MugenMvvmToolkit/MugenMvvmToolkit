@@ -191,7 +191,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 context.Add(DynamicViewModelWindowPresenter.IsOpenViewConstant, true);
             }
             var viewModel = _viewModelProvider.RestoreViewModel(state, context, false);
-            _viewManager.InitializeViewAsync(viewModel, item);
+            _viewManager.InitializeViewAsync(viewModel, item, context);
             _viewModelPresenter.Restore(viewModel, context);
         }
 

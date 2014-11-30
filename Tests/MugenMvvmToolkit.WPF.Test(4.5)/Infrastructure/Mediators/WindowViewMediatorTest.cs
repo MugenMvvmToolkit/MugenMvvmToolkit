@@ -13,10 +13,10 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
     {
         #region Overrides of WindowViewMediatorBaseTest<IWindowView>
 
-        protected override WindowViewMediatorBase<IWindowView> Create(IViewModel viewModel, IThreadManager threadManager,
-            IViewManager viewManager, IOperationCallbackManager callbackManager)
+        protected override WindowViewMediatorBase<IWindowView> Create(IViewModel viewModel, IThreadManager threadManager, IViewManager viewManager,
+            IWrapperManager wrapperManager, IOperationCallbackManager callbackManager)
         {
-            return new WindowViewMediator(viewModel, threadManager, viewManager, callbackManager);
+            return new WindowViewMediator(viewModel, threadManager, viewManager, wrapperManager, callbackManager);
         }
 
         #endregion

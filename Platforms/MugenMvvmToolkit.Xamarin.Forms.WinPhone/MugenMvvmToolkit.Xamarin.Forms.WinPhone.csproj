@@ -96,10 +96,10 @@
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\ToastPresenter.cs">
       <Link>Infrastructure\Presenters\ToastPresenter.cs</Link>
     </Compile>
-    <Compile Include="Infrastructure\BindingErrorProvider.cs" />
-    <Compile Include="InitializationModuleEx.cs" />
+    <Compile Include="Binding\Infrastructure\BindingErrorProvider.cs" />
+    <Compile Include="Modules\InitializationModuleEx.cs" />
     <Compile Include="PlatformBootstrapperService.cs" />
-    <Compile Include="PlatformDataBindingModuleEx.cs" />
+    <Compile Include="Binding\Modules\PlatformDataBindingModuleEx.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

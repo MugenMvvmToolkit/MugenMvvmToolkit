@@ -92,8 +92,8 @@
     <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Models\ValidationBinder.cs">
       <Link>Models\ValidationBinder.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\PlatformDataBindingModule.cs">
-      <Link>PlatformDataBindingModule.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Modules\PlatformDataBindingModule.cs">
+      <Link>Modules\PlatformDataBindingModule.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -124,6 +124,7 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.CSharp.targets" />
   <ProjectExtensions />

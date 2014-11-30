@@ -25,8 +25,10 @@ using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Binding.Modules;
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Mediators;
@@ -469,6 +471,15 @@ namespace MugenMvvmToolkit
                     }
                 }
             }
+        }
+
+        internal static WeakReference CreateWeakReference(object item, bool trackResurrection)
+        {
+            var obj = item as NSObject;
+            var reference = obj == null
+                ? new WeakReference(item, trackResurrection)
+                : new NSObjectWeakReference(obj, trackResurrection);
+            return reference;
         }
 
         internal static bool IsDisposed([NotNull] this NSObject item)

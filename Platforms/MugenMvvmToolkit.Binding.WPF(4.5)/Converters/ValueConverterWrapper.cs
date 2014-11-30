@@ -20,12 +20,11 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 #if XAMARIN_FORMS
 using Xamarin.Forms;
-namespace MugenMvvmToolkit.Converters
 #else
 using System.Windows.Data;
-namespace MugenMvvmToolkit.Binding.Converters
 #endif
 
+namespace MugenMvvmToolkit.Binding.Converters
 {
     /// <summary>
     ///     Represents the native converter wrapper

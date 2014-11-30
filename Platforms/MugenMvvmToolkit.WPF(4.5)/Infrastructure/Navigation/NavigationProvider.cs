@@ -455,7 +455,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             var view = args.Content;
             if (navigationViewModel != null)
             {
-                ViewManager.InitializeViewAsync(navigationViewModel, view).WithTaskExceptionHandler(this);
+                ViewManager.InitializeViewAsync(navigationViewModel, view, context).WithTaskExceptionHandler(this);
                 return navigationViewModel;
             }
             //Trying to get from cache.
@@ -477,7 +477,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             }
 
             if (vm != null)
-                ViewManager.InitializeViewAsync(vm, view).WithTaskExceptionHandler(this);
+                ViewManager.InitializeViewAsync(vm, view, context).WithTaskExceptionHandler(this);
             return vm;
         }
 

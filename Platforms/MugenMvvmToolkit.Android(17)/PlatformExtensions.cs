@@ -30,6 +30,8 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Binding.Modules;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Mediators;
@@ -517,12 +519,12 @@ namespace MugenMvvmToolkit
         internal static object GetOrCreateView(IViewModel vm, bool? alwaysCreateNewView, IDataContext dataContext = null)
         {
 #if API8            
-            return ViewManager.GetOrCreateView(vm, alwaysCreateNewView, dataContext).GetUnderlyingView();
+            return ViewManager.GetOrCreateView(vm, alwaysCreateNewView, dataContext);
 #else
             //NOTE: trying to use current fragment, if any.
             var fragment = vm.Settings.Metadata.GetData(MvvmFragmentMediator.CurrentFragment, false);
             if (fragment == null)
-                return ViewManager.GetOrCreateView(vm, alwaysCreateNewView, dataContext).GetUnderlyingView();
+                return ViewManager.GetOrCreateView(vm, alwaysCreateNewView, dataContext);
             return fragment;
 #endif
         }

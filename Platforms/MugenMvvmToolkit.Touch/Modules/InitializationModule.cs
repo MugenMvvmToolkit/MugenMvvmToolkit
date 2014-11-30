@@ -26,9 +26,7 @@ using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
 
-// ReSharper disable once CheckNamespace
-
-namespace MugenMvvmToolkit
+namespace MugenMvvmToolkit.Modules
 {
     /// <summary>
     ///     Represents the class that is used to initialize the IOC adapter.
@@ -39,7 +37,6 @@ namespace MugenMvvmToolkit
 
         static InitializationModule()
         {
-            ViewManagerEx.Initialize();
             if (ServiceProvider.DesignTimeManager.IsDesignMode)
                 ServiceProvider.AttachedValueProvider = new AttachedValueProvider();
         }
@@ -100,7 +97,7 @@ namespace MugenMvvmToolkit
                 presenter.DynamicPresenters.Add(new DynamicViewModelNavigationPresenter());
                 presenter.DynamicPresenters.Add(
                     new DynamicViewModelWindowPresenter(container.Get<IViewMappingProvider>(),
-                        container.Get<IViewManager>(), container.Get<IThreadManager>(),
+                        container.Get<IWrapperManager>(), container.Get<IThreadManager>(),
                         container.Get<IOperationCallbackManager>()));
                 return presenter;
             }, DependencyLifecycle.SingleInstance);
@@ -113,15 +110,6 @@ namespace MugenMvvmToolkit
         protected override BindingInfo<IMessagePresenter> GetMessagePresenter()
         {
             return BindingInfo<IMessagePresenter>.FromType<MessagePresenter>(DependencyLifecycle.SingleInstance);
-        }
-
-        /// <summary>
-        ///     Gets the <see cref="IViewManager" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IViewManager" />.</returns>
-        protected override BindingInfo<IViewManager> GetViewManager()
-        {
-            return BindingInfo<IViewManager>.FromType<ViewManagerEx>(DependencyLifecycle.SingleInstance);
         }
 
         /// <summary>

@@ -20,7 +20,7 @@ using MugenMvvmToolkit.Models;
 namespace MugenMvvmToolkit.Binding.Interfaces.Models
 {
     /// <summary>
-    ///     Represents the interface of source value wrapper.
+    ///     Represents the interface for source value wrapper.
     /// </summary>
     public interface ISourceValue
     {

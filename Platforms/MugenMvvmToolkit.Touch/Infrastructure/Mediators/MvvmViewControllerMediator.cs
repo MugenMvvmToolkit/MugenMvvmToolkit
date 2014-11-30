@@ -14,15 +14,16 @@
 // ****************************************************************************
 #endregion
 using System;
+using System.Collections;
 using JetBrains.Annotations;
 using MonoTouch.Dialog;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Infrastructure.Mediators
@@ -139,6 +140,25 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public virtual void Dispose(Action<bool> baseDispose, bool disposing)
         {
             Raise(DisposeHandler);
+            if (disposing)
+            {
+                ClearView(_viewController.View);
+                ClearBindings(_viewController);
+                ClearBindings(_viewController.EditButtonItem);
+                ClearBindings(_viewController.ToolbarItems);
+                UINavigationItem navigationItem = _viewController.NavigationItem;
+                if (navigationItem != null)
+                {
+                    ClearBindings(navigationItem);
+                    ClearBindings(navigationItem.LeftBarButtonItem);
+                    ClearBindings(navigationItem.LeftBarButtonItems);
+                    ClearBindings(navigationItem.RightBarButtonItem);
+                    ClearBindings(navigationItem.RightBarButtonItems);
+                }
+                var dialogViewController = _viewController as DialogViewController;
+                if (dialogViewController != null)
+                    ClearElement(dialogViewController.Root);
+            }
             baseDispose(disposing);
         }
 
@@ -186,6 +206,51 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             if (handler != null)
                 handler(_viewController, new ValueEventArgs<T>(value));
+        }
+
+        private static void ClearBindings<T>(T[] items)
+        {
+            if (items == null)
+                return;
+            for (int i = 0; i < items.Length; i++)
+                ClearBindings(items[i]);
+        }
+
+        private static void ClearBindings(object item)
+        {
+            if (item == null)
+                return;
+            try
+            {
+                BindingServiceProvider.BindingManager.ClearBindings(item);
+                ServiceProvider.AttachedValueProvider.Clear(item);
+            }
+            catch (Exception e)
+            {
+                Tracer.Error(e.Flatten(true));
+            }
+        }
+
+        private static void ClearView(UIView view)
+        {
+            if (view == null)
+                return;
+            foreach (var subView in view.Subviews)
+                ClearView(subView);
+            ClearBindings(view);
+        }
+
+        private static void ClearElement(Element element)
+        {
+            if (element == null)
+                return;
+            var enumerable = element as IEnumerable;
+            if (enumerable != null)
+            {
+                foreach (var item in enumerable)
+                    ClearElement(item as Element);
+            }
+            ClearBindings(element);
         }
 
         #endregion

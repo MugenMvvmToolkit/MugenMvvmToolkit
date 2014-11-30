@@ -19,7 +19,6 @@ using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 #if NETFX_CORE || WINDOWSCOMMON
 using Windows.UI;
@@ -51,7 +50,8 @@ using System.Windows.Data;
 using System.Windows.Controls;
 #endif
 
-namespace MugenMvvmToolkit.Converters
+// ReSharper disable once CheckNamespace
+namespace MugenMvvmToolkit.Binding.Converters
 {
     /// <summary>
     ///     Represents the converter that allows to convert a view model to view.
@@ -129,7 +129,7 @@ namespace MugenMvvmToolkit.Converters
 #if ANDROID
                 return PlatformExtensions.GetOrCreateView((IViewModel)value, AlwaysCreateNewView, ctx);
 #else
-                return ViewManager.GetOrCreateView((IViewModel)value, AlwaysCreateNewView, ctx).GetUnderlyingView();
+                return ViewManager.GetOrCreateView((IViewModel)value, AlwaysCreateNewView, ctx);
 #endif
             }
             catch (Exception exception)
