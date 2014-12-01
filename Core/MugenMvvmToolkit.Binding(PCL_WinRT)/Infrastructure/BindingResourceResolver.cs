@@ -346,7 +346,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             lock (_objects)
             {
                 IBindingResourceObject value;
-                if (!_objects.TryGetValue(name, out value) && throwOnError)
+                if (!_objects.TryGetValue(name, out value))
                 {
                     if ("root".Equals(name, StringComparison.OrdinalIgnoreCase) ||
                         "rootElement".Equals(name, StringComparison.OrdinalIgnoreCase))
@@ -359,7 +359,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                                 return new RootResourceObject(target, rootMember);
                         }
                     }
-                    throw BindingExceptionManager.CannotResolveInstanceByName(this, "resource object", name);
+                    if (throwOnError)
+                        throw BindingExceptionManager.CannotResolveInstanceByName(this, "resource object", name);
                 }
                 return value;
             }
