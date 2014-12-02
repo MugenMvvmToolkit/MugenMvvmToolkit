@@ -192,7 +192,7 @@ namespace MugenMvvmToolkit.Modules
         /// <returns>An instance of <see cref="IWrapperManager" />.</returns>
         protected virtual BindingInfo<IWrapperManager> GetWrapperManager()
         {
-            return BindingInfo<IWrapperManager>.Empty;
+            return BindingInfo<IWrapperManager>.FromType<WrapperManager>(DependencyLifecycle.SingleInstance);
         }
 
         /// <summary>

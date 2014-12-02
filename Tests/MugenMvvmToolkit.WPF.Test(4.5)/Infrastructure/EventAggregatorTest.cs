@@ -117,7 +117,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         ///     Subscribes an instance to events.
         /// </summary>
         /// <param name="instance">The instance to subscribe for event publication.</param>
-        public bool Subscribe(object instance)
+        public bool Subscribe(ISubscriber instance)
         {
             if (Listeners == null)
                 return false;
@@ -128,7 +128,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         ///     Unsubscribes the instance from all events.
         /// </summary>
         /// <param name="instance">The instance to unsubscribe.</param>
-        public bool Unsubscribe(object instance)
+        public bool Unsubscribe(ISubscriber instance)
         {
             if (Listeners != null)
                 return Listeners.Unsubscribe(instance);
@@ -147,8 +147,8 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         public void AddInvalidListenerTest()
         {
             IEventAggregator eventAggregator = CreateEventAggregator();
-            eventAggregator.Subscribe(new object()).ShouldBeFalse();
-            eventAggregator.GetObservers().ShouldBeEmpty();
+            eventAggregator.Subscribe(new object()).ShouldBeNull();
+            eventAggregator.GetSubscribers().ShouldBeEmpty();
         }
 
         [TestMethod]
@@ -156,15 +156,15 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         {
             var listener = new GenericHandler<object>();
             IEventAggregator eventAggregator = CreateEventAggregator();
-            eventAggregator.Subscribe(listener);
-            eventAggregator.GetObservers().Contains(listener).ShouldBeTrue();
-            eventAggregator.GetObservers().Count.ShouldEqual(1);
+            var subscriber = eventAggregator.Subscribe(listener);
+            eventAggregator.Contains(subscriber).ShouldBeTrue();
+            eventAggregator.GetSubscribers().Count.ShouldEqual(1);
 
             listener = null;
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
-            eventAggregator.GetObservers().Count.ShouldEqual(0);
+            eventAggregator.GetSubscribers().Count.ShouldEqual(0);
         }
 
         [TestMethod]
@@ -173,8 +173,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             var listener = new TestObservable();
             IEventAggregator eventAggregator = CreateEventAggregator();
             eventAggregator.Subscribe(listener);
-            eventAggregator.GetObservers().Contains(listener).ShouldBeFalse();
-            eventAggregator.GetObservers().Count.ShouldEqual(0);
+            eventAggregator.GetSubscribers().Count.ShouldEqual(0);
         }
 
         [TestMethod]
@@ -189,12 +188,12 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         {
             var listener = new GenericHandler<object>();
             IEventAggregator eventAggregator = CreateEventAggregator();
-            eventAggregator.Subscribe(listener);
-            eventAggregator.GetObservers().Contains(listener).ShouldBeTrue();
-            eventAggregator.GetObservers().Count.ShouldEqual(1);
+            var subscriber = eventAggregator.Subscribe(listener);
+            eventAggregator.Contains(subscriber).ShouldBeTrue();
+            eventAggregator.GetSubscribers().Count.ShouldEqual(1);
 
             eventAggregator.Unsubscribe(listener).ShouldBeTrue();
-            eventAggregator.GetObservers().Count.ShouldEqual(0);
+            eventAggregator.GetSubscribers().Count.ShouldEqual(0);
         }
 
         [TestMethod]
@@ -202,12 +201,12 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         {
             var listener = new GenericHandler<object>();
             IEventAggregator eventAggregator = CreateEventAggregator();
-            eventAggregator.Subscribe(listener);
-            eventAggregator.GetObservers().Contains(listener).ShouldBeTrue();
-            eventAggregator.GetObservers().Count.ShouldEqual(1);
+            var subscriber = eventAggregator.Subscribe(listener);
+            eventAggregator.Contains(subscriber).ShouldBeTrue();
+            eventAggregator.GetSubscribers().Count.ShouldEqual(1);
 
-            eventAggregator.Clear();
-            eventAggregator.GetObservers().Count.ShouldEqual(0);
+            eventAggregator.UnsubscribeAll();
+            eventAggregator.GetSubscribers().Count.ShouldEqual(0);
         }
 
         [TestMethod]
@@ -248,7 +247,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         public void NotifyListenerWithEmptyContainerTest()
         {
             var listener = new GenericHandler<object>();
-            var observable = new TestObservable {Listeners = null};
+            var observable = new TestObservable { Listeners = null };
 
             IEventAggregator eventAggregator = CreateEventAggregator();
             eventAggregator.Subscribe(listener);
@@ -270,7 +269,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             IEventAggregator eventAggregator = CreateEventAggregator();
             eventAggregator.Subscribe(listener);
             eventAggregator.Subscribe(observable);
-            observable.Subscribe(new TestObservable {Listeners = eventAggregator});
+            observable.Subscribe(new TestObservable { Listeners = eventAggregator });
 
             eventAggregator.Publish(this, eventAggregator);
             listener.Count.ShouldEqual(1);
@@ -338,10 +337,105 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         {
             IEventAggregator eventAggregator1 = CreateEventAggregator();
             IEventAggregator eventAggregator2 = CreateEventAggregator();
-            eventAggregator1.Subscribe(eventAggregator2).ShouldBeTrue();
-            eventAggregator2.Subscribe(eventAggregator1).ShouldBeTrue();
+            eventAggregator1.Subscribe(eventAggregator2).ShouldNotBeNull();
+            eventAggregator2.Subscribe(eventAggregator1).ShouldNotBeNull();
 
             eventAggregator1.Publish(eventAggregator1, StateChangedMessage.Empty);
+        }
+
+        [TestMethod]
+        public void NonWeakLambdaMethodShouldBeSupported()
+        {
+            var message = new object();
+            IEventAggregator eventAggregator = CreateEventAggregator();
+            bool isInvoked = false;
+            var subscriber = eventAggregator.Subscribe<object>((arg1, arg2) =>
+             {
+                 arg1.ShouldEqual(eventAggregator);
+                 arg2.ShouldEqual(message);
+                 isInvoked = true;
+             }, false);
+            eventAggregator.Contains(subscriber).ShouldBeTrue();
+            eventAggregator.GetSubscribers().Count.ShouldEqual(1);
+            eventAggregator.Publish(eventAggregator, message);
+            isInvoked.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public void WeakLambdaMethodShouldNotBeSupported()
+        {
+            IEventAggregator eventAggregator = CreateEventAggregator();
+            ShouldThrow<NotSupportedException>(() => eventAggregator.Subscribe<object>((arg1, arg2) => arg1.ShouldEqual(eventAggregator), true));
+        }
+
+        [TestMethod]
+        public void WeakMethodShouldBeSupported()
+        {
+            var message = new object();
+            var listener = new GenericHandler<object>();
+            IEventAggregator eventAggregator = CreateEventAggregator();
+            var subscriber = eventAggregator.Subscribe<object>(listener.Handle);
+            eventAggregator.Contains(subscriber).ShouldBeTrue();
+            eventAggregator.GetSubscribers().Count.ShouldEqual(1);
+
+            eventAggregator.Publish(eventAggregator, message);
+            listener.Sender.ShouldEqual(eventAggregator);
+            listener.Message.ShouldEqual(message);
+            listener.Count.ShouldEqual(1);
+
+            listener = null;
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+            eventAggregator.GetSubscribers().ShouldBeEmpty();
+        }
+
+        [TestMethod]
+        public void InstanceNonWeakMethodShouldBeSupported()
+        {
+            var message = new object();
+            var listener = new GenericHandler<object>();
+            IEventAggregator eventAggregator = CreateEventAggregator();
+            var subscriber = eventAggregator.Subscribe<object>(listener.Handle, false);
+            eventAggregator.Contains(subscriber).ShouldBeTrue();
+            eventAggregator.GetSubscribers().Count.ShouldEqual(1);
+
+            eventAggregator.Publish(eventAggregator, message);
+            listener.Sender.ShouldEqual(eventAggregator);
+            listener.Message.ShouldEqual(message);
+            listener.Count.ShouldEqual(1);
+
+            listener = null;
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+            eventAggregator.Contains(subscriber).ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public void WeakMethodUnsubscribeShouldBeSupported()
+        {
+            var listener = new GenericHandler<object>();
+            IEventAggregator eventAggregator = CreateEventAggregator();
+            var subscriber = eventAggregator.Subscribe<object>(listener.Handle);
+            eventAggregator.Contains(subscriber).ShouldBeTrue();
+            eventAggregator.GetSubscribers().Count.ShouldEqual(1);
+
+            eventAggregator.Unsubscribe<object>(listener.Handle);
+            eventAggregator.GetSubscribers().ShouldBeEmpty();
+        }
+
+        [TestMethod]
+        public void InstanceMethodUnsubscribeShouldBeSupported()
+        {
+            var listener = new GenericHandler<object>();
+            IEventAggregator eventAggregator = CreateEventAggregator();
+            var subscriber = eventAggregator.Subscribe<object>(listener.Handle, false);
+            eventAggregator.Contains(subscriber).ShouldBeTrue();
+            eventAggregator.GetSubscribers().Count.ShouldEqual(1);
+
+            eventAggregator.Unsubscribe<object>(listener.Handle);
+            eventAggregator.GetSubscribers().ShouldBeEmpty();
         }
 
         protected virtual IEventAggregator CreateEventAggregator()

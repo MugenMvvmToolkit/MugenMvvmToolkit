@@ -25,11 +25,6 @@ namespace MugenMvvmToolkit.Models.EventArg
         /// </summary>
         public abstract object Content { get; }
 
-        /*/// <summary>
-        ///     Gets the state of content.
-        /// </summary>
-        public abstract Lazy<IDataContext> State { get; }*/
-
         /// <summary>
         ///     Gets a value that indicates the type of navigation that is occurring.
         /// </summary>

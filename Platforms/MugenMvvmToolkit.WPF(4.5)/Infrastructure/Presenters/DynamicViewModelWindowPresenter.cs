@@ -56,6 +56,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         private readonly IOperationCallbackManager _callbackManager;
         private readonly IWrapperManager _wrapperManager;
         private readonly IViewMappingProvider _viewMappingProvider;
+        private readonly IViewManager _viewManager;
 
         #endregion
 
@@ -72,14 +73,17 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         ///     Initializes a new instance of the <see cref="DynamicViewModelWindowPresenter" /> class.
         /// </summary>
         public DynamicViewModelWindowPresenter([NotNull] IViewMappingProvider viewMappingProvider,
+            [NotNull] IViewManager viewManager,
             [NotNull] IWrapperManager wrapperManager, [NotNull] IThreadManager threadManager,
             [NotNull] IOperationCallbackManager callbackManager)
         {
             Should.NotBeNull(viewMappingProvider, "viewMappingProvider");
+            Should.NotBeNull(viewManager, "viewManager");
             Should.NotBeNull(wrapperManager, "wrapperManager");
             Should.NotBeNull(threadManager, "threadManager");
             Should.NotBeNull(callbackManager, "callbackManager");
             _viewMappingProvider = viewMappingProvider;
+            _viewManager = viewManager;
             _wrapperManager = wrapperManager;
             _threadManager = threadManager;
             _callbackManager = callbackManager;
@@ -119,6 +123,14 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         protected IOperationCallbackManager CallbackManager
         {
             get { return _callbackManager; }
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="IViewManager" />.
+        /// </summary>
+        protected IViewManager ViewManager
+        {
+            get { return _viewManager; }
         }
 
         #endregion
@@ -179,13 +191,13 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         protected virtual IWindowViewMediator CreateWindowViewMediator([NotNull] IViewModel viewModel, Type viewType,
             [NotNull] IDataContext context)
         {
-            var container = viewModel.GetIocContainer(true);
 #if TOUCH || XAMARIN_FORMS
+            var container = viewModel.GetIocContainer(true);
             if (_wrapperManager.CanWrap(viewType, typeof(IModalView), context))
-                return new ModalViewMediator(viewModel, ThreadManager, container.Get<IViewManager>(), WrapperManager, CallbackManager, ViewMappingProvider, container.Get<IViewModelProvider>());
+                return new ModalViewMediator(viewModel, ThreadManager, ViewManager, WrapperManager, CallbackManager, ViewMappingProvider, container.Get<IViewModelProvider>());
 #else
             if (_wrapperManager.CanWrap(viewType, typeof(IWindowView), context))
-                return new WindowViewMediator(viewModel, ThreadManager, container.Get<IViewManager>(), WrapperManager, CallbackManager);
+                return new WindowViewMediator(viewModel, ThreadManager, ViewManager, WrapperManager, CallbackManager);
 #endif
             return null;
         }

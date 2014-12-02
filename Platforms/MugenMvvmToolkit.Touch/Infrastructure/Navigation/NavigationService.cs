@@ -254,7 +254,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             var currentContent = CurrentContent;
             if (currentContent == null)
                 return;
-            var dataContext = ViewManager.GetDataContext(currentContent) as IObservable;
+            var dataContext = ViewManager.GetDataContext(currentContent) as IEventPublisher;
             if (dataContext != null)
                 dataContext.Publish(this, StateChangedMessage.Empty);
         }

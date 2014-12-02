@@ -15,11 +15,11 @@
 #endregion
 namespace MugenMvvmToolkit.Interfaces.Views
 {
-    public interface IModalView
+    public interface IModalView : IView
     {
     }
 
-    public interface ITabView
+    public interface ITabView : IView
     {
     }
 }

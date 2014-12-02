@@ -183,7 +183,7 @@ namespace MugenMvvmToolkit.Modules
                 presenter.DynamicPresenters.Add(new DynamicViewModelNavigationPresenter());
 #if !WINDOWS_PHONE && !NETFX_CORE
                 presenter.DynamicPresenters.Add(
-                                    new DynamicViewModelWindowPresenter(container.Get<IViewMappingProvider>(),
+                                    new DynamicViewModelWindowPresenter(container.Get<IViewMappingProvider>(), container.Get<IViewManager>(),
                                         container.Get<IWrapperManager>(), container.Get<IThreadManager>(),
                                         container.Get<IOperationCallbackManager>()));
 #endif

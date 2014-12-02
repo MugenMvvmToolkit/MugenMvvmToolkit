@@ -48,11 +48,11 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         #region Overrides of ValidatorBase
 
         /// <summary>
-        ///     Indicates that can be only once instance of this validator.
+        ///     Gets a value indicating whether an attempt to add a duplicate validator to the collection will cause an exception to be thrown.
         /// </summary>
-        public override bool IsUnique
+        public override bool AllowDuplicate
         {
-            get { return false; }
+            get { return true; }
         }
 
         /// <summary>

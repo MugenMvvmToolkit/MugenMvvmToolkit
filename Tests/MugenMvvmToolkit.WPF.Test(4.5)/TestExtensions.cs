@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using Should.Core.Exceptions;
@@ -39,6 +41,11 @@ namespace MugenMvvmToolkit
                 throw new AssertException();
         }
 
+        public static IList<object> GetObservers(this IEventAggregator aggregator)
+        {
+            return aggregator.GetSubscribers().Select(subscriber => subscriber.Target).ToList();
+        }
+
         public static T GetDataTest<T>(this IDataContext context, DataConstant<T> constant)
         {
             T data;
@@ -52,7 +59,7 @@ namespace MugenMvvmToolkit
 #if NETFX_CORE
             return type.IsDefined(typeof(DataContractAttribute), false) || type.GetTypeInfo().IsPrimitive;
 #else
-            return type.IsDefined(typeof(DataContractAttribute), false) || type.IsPrimitive;            
+            return type.IsDefined(typeof(DataContractAttribute), false) || type.IsPrimitive;
 #endif
         }
     }

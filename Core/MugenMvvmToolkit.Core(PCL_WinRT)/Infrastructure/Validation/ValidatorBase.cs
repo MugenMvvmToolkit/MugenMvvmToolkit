@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
@@ -97,11 +98,11 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         #region Implementation of IValidator
 
         /// <summary>
-        ///     Indicates that can be only once instance of this validator.
+        ///     Gets a value indicating whether an attempt to add a duplicate validator to the collection will cause an exception to be thrown.
         /// </summary>
-        public virtual bool IsUnique
+        public virtual bool AllowDuplicate
         {
-            get { return true; }
+            get { return false; }
         }
 
         /// <summary>
@@ -356,19 +357,19 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <summary>
         ///     Subscribes an instance to events.
         /// </summary>
-        /// <param name="instance">The instance to subscribe for event publication.</param>
-        public bool Subscribe(object instance)
+        /// <param name="subscriber">The instance to subscribe for event publication.</param>
+        public bool Subscribe(ISubscriber subscriber)
         {
-            return SubscribeInternal(instance);
+            return SubscribeInternal(subscriber);
         }
 
         /// <summary>
         ///     Unsubscribes the instance from all events.
         /// </summary>
-        /// <param name="instance">The instance to unsubscribe.</param>
-        public bool Unsubscribe(object instance)
+        /// <param name="subscriber">The instance to unsubscribe.</param>
+        public bool Unsubscribe(ISubscriber subscriber)
         {
-            return UnsubscribeInternal(instance);
+            return UnsubscribeInternal(subscriber);
         }
 
         #endregion
@@ -445,6 +446,14 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             get { return _internalErrors; }
         }
 
+        /// <summary>
+        ///     Gets the local <see cref="IEventAggregator" />.
+        /// </summary>
+        protected IEventAggregator LocalEventAggregator
+        {
+            get { return _eventAggregator; }
+        }
+
         #endregion
 
         #region Virtual-abstract methods
@@ -452,19 +461,19 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <summary>
         ///     Subscribes an instance to events.
         /// </summary>
-        /// <param name="instance">The instance to subscribe for event publication.</param>
-        protected virtual bool SubscribeInternal(object instance)
+        /// <param name="subscriber">The instance to subscribe for event publication.</param>
+        protected virtual bool SubscribeInternal(ISubscriber subscriber)
         {
-            return instance != this && _eventAggregator.Subscribe(instance);
+            return !ReferenceEquals(subscriber.Target, this) && _eventAggregator.Subscribe(subscriber);
         }
 
         /// <summary>
         ///     Unsubscribes the instance from all events.
         /// </summary>
-        /// <param name="instance">The instance to unsubscribe.</param>
-        protected virtual bool UnsubscribeInternal(object instance)
+        /// <param name="subscriber">The instance to unsubscribe.</param>
+        protected virtual bool UnsubscribeInternal(ISubscriber subscriber)
         {
-            return instance != this && _eventAggregator.Unsubscribe(instance);
+            return _eventAggregator.Unsubscribe(subscriber);
         }
 
         /// <summary>

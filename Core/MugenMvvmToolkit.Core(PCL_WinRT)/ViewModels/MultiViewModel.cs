@@ -21,6 +21,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -198,8 +199,10 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Preserves the view models state.
         /// </summary>
-        public void PreserveViewModels(IDataContext context)
+        public void PreserveViewModels([NotNull] IDataContext context)
         {
+            Should.NotBeNull(context, "context");
+            context.Remove(ViewModelState);
             if (ItemsSource.Count == 0)
                 return;
             var states = new StateList { State = new List<IDataContext>() };
@@ -217,8 +220,9 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Restores the view models from state context.
         /// </summary>
-        public void RestoreViewModels(IDataContext context)
+        public void RestoreViewModels([NotNull] IDataContext context)
         {
+            Should.NotBeNull(context, "context");
             var states = context.GetData(ViewModelState);
             if (states == null)
                 return;
@@ -231,6 +235,8 @@ namespace MugenMvvmToolkit.ViewModels
                 if (selectedIndex == index)
                     SelectedItem = viewModel;
             }
+            context.Remove(ViewModelState);
+            context.Remove(SelectedIndex);
         }
 
         /// <summary>

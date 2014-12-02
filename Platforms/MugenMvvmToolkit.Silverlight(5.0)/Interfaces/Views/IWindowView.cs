@@ -23,7 +23,7 @@ namespace MugenMvvmToolkit.Interfaces.Views
     ///     Represent the base interface for child windows view.
     /// </summary>
     [BaseView(ViewTypeName = "System.Windows.Controls.ChildWindow")]
-    public interface IWindowView
+    public interface IWindowView : IView
     {
         /// <summary>
         ///     Shows dialog as a window.

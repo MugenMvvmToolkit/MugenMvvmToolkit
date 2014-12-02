@@ -115,8 +115,8 @@ namespace MugenMvvmToolkit.Test.ViewModels
             ViewModelBase parentViewModel = GetViewModelBase();
 
             var viewModel = parentViewModel.GetViewModel<TestViewModelBase>(observationMode: mode);
-            parentViewModel.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeFalse();
-            viewModel.ViewModelEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeFalse();
+            parentViewModel.LocalEventAggregator.GetObservers().Contains(viewModel).ShouldBeFalse();
+            viewModel.LocalEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeFalse();
         }
 
         [TestMethod]
@@ -126,8 +126,8 @@ namespace MugenMvvmToolkit.Test.ViewModels
             ViewModelBase parentViewModel = GetViewModelBase();
 
             var viewModel = parentViewModel.GetViewModel<TestViewModelBase>(observationMode: mode);
-            parentViewModel.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeFalse();
-            viewModel.ViewModelEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeTrue();
+            parentViewModel.LocalEventAggregator.GetObservers().Contains(viewModel).ShouldBeFalse();
+            viewModel.LocalEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeTrue();
         }
 
         [TestMethod]
@@ -137,8 +137,8 @@ namespace MugenMvvmToolkit.Test.ViewModels
             ViewModelBase parentViewModel = GetViewModelBase();
 
             var viewModel = parentViewModel.GetViewModel<TestViewModelBase>(observationMode: mode);
-            parentViewModel.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeTrue();
-            viewModel.ViewModelEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeFalse();
+            parentViewModel.LocalEventAggregator.GetObservers().Contains(viewModel).ShouldBeTrue();
+            viewModel.LocalEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeFalse();
         }
 
         [TestMethod]
@@ -148,8 +148,8 @@ namespace MugenMvvmToolkit.Test.ViewModels
             ViewModelBase parentViewModel = GetViewModelBase();
 
             var viewModel = parentViewModel.GetViewModel<TestViewModelBase>(observationMode: mode);
-            parentViewModel.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeTrue();
-            viewModel.ViewModelEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeTrue();
+            parentViewModel.LocalEventAggregator.GetObservers().Contains(viewModel).ShouldBeTrue();
+            viewModel.LocalEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeTrue();
         }
 
         [TestMethod]
@@ -159,8 +159,8 @@ namespace MugenMvvmToolkit.Test.ViewModels
             ViewModelBase parentViewModel = GetViewModelBase();
 
             var viewModel = parentViewModel.GetViewModel<TestViewModelBase>();
-            parentViewModel.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeTrue();
-            viewModel.ViewModelEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeTrue();
+            parentViewModel.LocalEventAggregator.GetObservers().Contains(viewModel).ShouldBeTrue();
+            viewModel.LocalEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeTrue();
         }
 
         [TestMethod]
@@ -426,9 +426,9 @@ namespace MugenMvvmToolkit.Test.ViewModels
             ViewModelBase viewModel = GetViewModelBase();
             var spyHandler = new SpyHandler();
             viewModel.Subscribe(spyHandler);
-            viewModel.ViewModelEventAggregator.GetObservers().Contains(spyHandler).ShouldBeTrue();
+            viewModel.LocalEventAggregator.GetObservers().Contains(spyHandler).ShouldBeTrue();
             viewModel.Dispose();
-            viewModel.ViewModelEventAggregator.GetObservers().Contains(spyHandler).ShouldBeFalse();
+            viewModel.LocalEventAggregator.GetObservers().Contains(spyHandler).ShouldBeFalse();
         }
 
         [TestMethod]

@@ -24,7 +24,7 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
     /// <summary>
     ///     Represents the base interface for all view models.
     /// </summary>
-    public interface IViewModel : IDisposableObject, IObservable, ISuspendNotifications
+    public interface IViewModel : IDisposableObject, IObservable, ISuspendNotifications, IEventPublisher
     {
         /// <summary>
         ///     Gets the initialized state of the current view model.

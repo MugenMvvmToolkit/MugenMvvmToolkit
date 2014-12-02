@@ -167,7 +167,7 @@ namespace MugenMvvmToolkit.ViewModels
                 }
             }
             ViewModel.Subscribe(this);
-            Subscribe(_viewModel);
+            this.Subscribe(_viewModel);
             OnWrapped(context);
 
             //Invalidating properties.
@@ -369,7 +369,7 @@ namespace MugenMvvmToolkit.ViewModels
             var navigableViewModel = ViewModel as INavigableViewModel;
             if (navigableViewModel != null)
                 navigableViewModel.OnNavigatedTo(context);
-            OnShow(context);
+            OnShown(context);
         }
 
         /// <summary>
@@ -469,7 +469,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Occurs when view model is shown.
         /// </summary>
-        protected virtual void OnShow([CanBeNull] object parameter)
+        protected virtual void OnShown([CanBeNull] object parameter)
         {
         }
 

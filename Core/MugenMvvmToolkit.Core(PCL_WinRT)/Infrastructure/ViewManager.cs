@@ -26,7 +26,6 @@ using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    //TODO FIX FORMS CLEANUP VIEW
     /// <summary>
     ///     Represents the provider that allows to create a view for a view model
     /// </summary>

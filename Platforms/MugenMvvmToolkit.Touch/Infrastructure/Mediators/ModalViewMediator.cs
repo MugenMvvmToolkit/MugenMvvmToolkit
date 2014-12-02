@@ -104,7 +104,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 .GetIocContainer(true)
                 .Get<INavigationService>()
                 .CurrentContent;
-            var toShow = ToolkitExtensions.GetUnderlyingView<UIViewController>(view);
+            var toShow = view.GetUnderlyingView<UIViewController>();
             if (view is IModalNavSupportView)
             {
                 var nav = new MvvmNavigationController();
@@ -136,7 +136,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         protected override void CloseView(IModalView view)
         {
-            var controller = ToolkitExtensions.GetUnderlyingView<UIViewController>(view);
+            var controller = view.GetUnderlyingView<UIViewController>();
             UIViewController presentedController = controller.PresentingViewController ??
                                                    controller.PresentedViewController;
             if (presentedController != null)
@@ -154,9 +154,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             if (!(view is IModalNavSupportView))
                 return;
-            var controller = ToolkitExtensions
-                .GetUnderlyingView<UIViewController>(view)
-                .NavigationController;
+            var controller = view.GetUnderlyingView<UIViewController>().NavigationController;
             if (controller != null)
                 BindProvider(controller);
         }

@@ -27,7 +27,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Collections;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -49,6 +48,58 @@ namespace MugenMvvmToolkit
     /// </summary>
     public static class ToolkitExtensions
     {
+        #region Nested types
+
+        private sealed class ThreadManagerClosure<TTarget, TArg1, TArg2>
+        {
+            #region Fields
+
+            private readonly Action<TTarget, TArg1, TArg2> _actionTwoArg;
+            private readonly Action<TTarget, TArg1> _actionOneArg;
+            private readonly TTarget _target;
+            private readonly TArg1 _arg1;
+            private readonly TArg2 _arg2;
+
+            #endregion
+
+            #region Constructors
+
+            private ThreadManagerClosure(TTarget target, TArg1 arg1, TArg2 arg2)
+            {
+                _target = target;
+                _arg1 = arg1;
+                _arg2 = arg2;
+            }
+
+            public ThreadManagerClosure(Action<TTarget, TArg1> actionOneArg, TTarget target, TArg1 arg1)
+                : this(target, arg1, default(TArg2))
+            {
+                _actionOneArg = actionOneArg;
+            }
+
+            public ThreadManagerClosure(Action<TTarget, TArg1, TArg2> actionTwoArg, TTarget target, TArg1 arg1, TArg2 arg2)
+                : this(target, arg1, arg2)
+            {
+                _actionTwoArg = actionTwoArg;
+            }
+
+            #endregion
+
+            #region Methods
+
+            public void Invoke()
+            {
+                if (_actionOneArg == null)
+                    _actionTwoArg(_target, _arg1, _arg2);
+                else
+                    _actionOneArg(_target, _arg1);
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Constructors
 
         static ToolkitExtensions()
@@ -1035,6 +1086,76 @@ namespace MugenMvvmToolkit
         #region Extensions
 
         /// <summary>
+        ///     Subscribes an instance to events.
+        /// </summary>
+        /// <param name="observable">The specified <see cref="IObservable"/></param>
+        /// <param name="action">The handler to subscribe for event publication.</param>
+        /// <param name="weakSubscribtion">If <c>true</c> use weak delegate to subscribe</param>
+        [CanBeNull]
+        public static ISubscriber Subscribe<TMessage>([NotNull] this IObservable observable, Action<object, TMessage> action, bool weakSubscribtion = true)
+        {
+            Should.NotBeNull(observable, "observable");
+            ISubscriber subscriber;
+            if (weakSubscribtion && action.Target != null)
+            {
+                Should.BeSupported(!action.Target.GetType().IsAnonymousClass(),
+                    "The anonymous delegate cannot be converted to weak delegate.");
+                subscriber = new WeakActionSubscriber<TMessage>(action.Target, action.GetMethodInfo());
+            }
+            else
+                subscriber = new ActionSubscriber<TMessage>(action);
+            return observable.Subscribe(subscriber) ? subscriber : null;
+        }
+
+        /// <summary>
+        ///     Unsubscribes the instance from all events.
+        /// </summary>
+        /// <param name="observable">The specified <see cref="IObservable"/></param>
+        /// <param name="action">The handler to unsubscribe from event publication.</param>
+        public static bool Unsubscribe<TMessage>([NotNull] this IObservable observable, Action<object, TMessage> action)
+        {
+            Should.NotBeNull(observable, "observable");
+            return observable.Unsubscribe(new ActionSubscriber<TMessage>(action));
+        }
+
+        /// <summary>
+        ///     Subscribes an instance to events.
+        /// </summary>
+        /// <param name="observable">The specified <see cref="IObservable"/></param>
+        /// <param name="instance">The instance to subscribe for event publication.</param>
+        /// <param name="context">The specified context, if any.</param>
+        [CanBeNull]
+        public static ISubscriber Subscribe([NotNull] this IObservable observable, [NotNull] object instance, IDataContext context = null)
+        {
+            Should.NotBeNull(observable, "observable");
+            var converter = ServiceProvider.ObjectToSubscriberConverter;
+            if (converter == null)
+                return null;
+            var subscriber = converter(instance, context);
+            if (subscriber == null)
+                return null;
+            return observable.Subscribe(subscriber) ? subscriber : null;
+        }
+
+        /// <summary>
+        ///     Unsubscribes the instance from all events.
+        /// </summary>
+        /// <param name="observable">The specified <see cref="IObservable"/></param>
+        /// <param name="instance">The instance to unsubscribe.</param>
+        /// <param name="context">The specified context, if any.</param>
+        public static bool Unsubscribe([NotNull] this IObservable observable, [NotNull]object instance, IDataContext context = null)
+        {
+            Should.NotBeNull(observable, "observable");
+            var converter = ServiceProvider.ObjectToSubscriberConverter;
+            if (converter == null)
+                return false;
+            var subscriber = converter(instance, context);
+            if (subscriber == null)
+                return false;
+            return observable.Unsubscribe(subscriber);
+        }
+
+        /// <summary>
         /// Gets or creates an instance of <see cref="WeakReference"/> for the specified item.
         /// </summary>
         public static WeakReference GetWeakReference(object item)
@@ -1046,13 +1167,21 @@ namespace MugenMvvmToolkit
         }
 
         /// <returns>
-        /// Gets the underlying view object.
+        ///     Gets the underlying view object.
         /// </returns>
-        public static TView GetUnderlyingView<TView>([CanBeNull]object view)
+        public static TView GetUnderlyingView<TView>([CanBeNull] this IView view)
         {
-            var wrapper = view as IViewWrapper;
+            return GetUnderlyingView<TView>(viewObj: view);
+        }
+
+        /// <returns>
+        ///     Gets the underlying view object.
+        /// </returns>
+        public static TView GetUnderlyingView<TView>([CanBeNull]object viewObj)
+        {
+            var wrapper = viewObj as IViewWrapper;
             if (wrapper == null)
-                return (TView)view;
+                return (TView)viewObj;
             return (TView)wrapper.View;
         }
 
@@ -1128,12 +1257,14 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Notifies listener about an event.
         /// </summary>
-        /// <param name="target">The specified listener to notify.</param>
+        /// <param name="eventPublisher">The specified listener to notify.</param>
         /// <param name="sender">The object that raised the event.</param>
         /// <param name="message">The message instance.</param>
-        public static void Publish([NotNull] this IObservable target, [NotNull] object sender, [NotNull] object message)
+        /// <param name="mode">The execution mode.</param>
+        public static void Publish([NotNull] this IEventPublisher eventPublisher, [NotNull] object sender, [NotNull] object message, ExecutionMode mode)
         {
-            EventAggregator.Publish(target, sender, message);
+            Should.NotBeNull(eventPublisher, "eventPublisher");
+            ServiceProvider.ThreadManager.Invoke(mode, eventPublisher, sender, message, (publisher, o, arg3) => publisher.Publish(o, arg3));
         }
 
         /// <summary>
@@ -1658,21 +1789,42 @@ namespace MugenMvvmToolkit
             {
                 case ExecutionMode.SynchronousOnUiThread:
                     if (threadManager.IsUiThread)
-                        invokeAction(target, arg1);
-                    else
-                        threadManager.InvokeOnUiThread(() => invokeAction(target, arg1));
+                        goto default;
+                    threadManager.InvokeOnUiThread(new ThreadManagerClosure<TTarget, TArg, object>(invokeAction, target, arg1).Invoke);
                     break;
                 case ExecutionMode.Asynchronous:
-                    threadManager.InvokeAsync(() => invokeAction(target, arg1));
+                    threadManager.InvokeAsync(new ThreadManagerClosure<TTarget, TArg, object>(invokeAction, target, arg1).Invoke);
                     break;
                 case ExecutionMode.AsynchronousOnUiThread:
                     if (threadManager.IsUiThread)
-                        invokeAction(target, arg1);
-                    else
-                        threadManager.InvokeOnUiThreadAsync(() => invokeAction(target, arg1));
+                        goto default;
+                    threadManager.InvokeOnUiThreadAsync(new ThreadManagerClosure<TTarget, TArg, object>(invokeAction, target, arg1).Invoke);
                     break;
                 default:
                     invokeAction(target, arg1);
+                    break;
+            }
+        }
+
+        internal static void Invoke<TTarget, TArg1, TArg2>(this IThreadManager threadManager, ExecutionMode mode, TTarget target, TArg1 arg1, TArg2 arg2, Action<TTarget, TArg1, TArg2> invokeAction)
+        {
+            switch (mode)
+            {
+                case ExecutionMode.SynchronousOnUiThread:
+                    if (threadManager.IsUiThread)
+                        goto default;
+                    threadManager.InvokeOnUiThread(new ThreadManagerClosure<TTarget, TArg1, TArg2>(invokeAction, target, arg1, arg2).Invoke);
+                    break;
+                case ExecutionMode.Asynchronous:
+                    threadManager.InvokeAsync(new ThreadManagerClosure<TTarget, TArg1, TArg2>(invokeAction, target, arg1, arg2).Invoke);
+                    break;
+                case ExecutionMode.AsynchronousOnUiThread:
+                    if (threadManager.IsUiThread)
+                        goto default;
+                    threadManager.InvokeOnUiThreadAsync(new ThreadManagerClosure<TTarget, TArg1, TArg2>(invokeAction, target, arg1, arg2).Invoke);
+                    break;
+                default:
+                    invokeAction(target, arg1, arg2);
                     break;
             }
         }

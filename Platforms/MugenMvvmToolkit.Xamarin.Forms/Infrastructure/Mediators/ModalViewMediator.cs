@@ -76,7 +76,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 .GetIocContainer(true)
                 .Get<INavigationService>()
                 .CurrentContent;
-            page.Navigation.PushModalAsync(ToolkitExtensions.GetUnderlyingView<Page>(view));
+            page.Navigation.PushModalAsync(view.GetUnderlyingView<Page>());
         }
 
         /// <summary>
@@ -84,7 +84,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         protected override void InitializeView(IModalView view, IDataContext context)
         {
-            ToolkitExtensions.GetUnderlyingView<Page>(view).Disappearing += OnViewClosed;
+            var page = view.GetUnderlyingView<Page>();
+            page.Disappearing += OnViewClosed;
         }
 
         /// <summary>
@@ -93,7 +94,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// <param name="view">The specified window-view to dispose.</param>
         protected override void CleanupView(IModalView view)
         {
-            ToolkitExtensions.GetUnderlyingView<Page>(view).Disappearing -= OnViewClosed;
+            var page = view.GetUnderlyingView<Page>();
+            page.Disappearing -= OnViewClosed;
         }
 
         /// <summary>
@@ -101,7 +103,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         protected override void CloseView(IModalView view)
         {
-            var page = ToolkitExtensions.GetUnderlyingView<Page>(view);
+            var page = view.GetUnderlyingView<Page>();
             page.Navigation.PopModalAsync();
         }
 

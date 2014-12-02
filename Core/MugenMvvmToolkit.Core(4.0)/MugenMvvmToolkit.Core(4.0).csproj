@@ -363,6 +363,9 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\IEntityStateEntry.cs">
       <Link>Interfaces\Models\IEntityStateEntry.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\IEventPublisher.cs">
+      <Link>Interfaces\Models\IEventPublisher.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\IHandler.cs">
       <Link>Interfaces\Models\IHandler.cs</Link>
     </Compile>
@@ -389,6 +392,9 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\ISelectable.cs">
       <Link>Interfaces\Models\ISelectable.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\ISubscriber.cs">
+      <Link>Interfaces\Models\ISubscriber.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\ISuspendNotifications.cs">
       <Link>Interfaces\Models\ISuspendNotifications.cs</Link>
@@ -480,11 +486,17 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\viewmodels\IWrapperViewModel.cs">
       <Link>Interfaces\ViewModels\IWrapperViewModel.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Views\IView.cs">
+      <Link>Interfaces\Views\IView.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Views\IViewModelAwareView.cs">
       <Link>Interfaces\Views\IViewModelAwareView.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\views\IViewWrapper.cs">
       <Link>Interfaces\Views\IViewWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\ActionSubscriber.cs">
+      <Link>Models\ActionSubscriber.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\AsyncRelayCommand.cs">
       <Link>Models\AsyncRelayCommand.cs</Link>
@@ -551,6 +563,9 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\exceptions\DesignTimeException.cs">
       <Link>Models\Exceptions\DesignTimeException.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\HandlerSubscriber.cs">
+      <Link>Models\HandlerSubscriber.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\ioc\BindingInfo.cs">
       <Link>Models\Ioc\BindingInfo.cs</Link>
@@ -620,6 +635,9 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\ViewMappingItem.cs">
       <Link>Models\ViewMappingItem.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\WeakActionSubscriber.cs">
+      <Link>Models\WeakActionSubscriber.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Modules\InitializationModuleBase.cs">
       <Link>Modules\InitializationModuleBase.cs</Link>

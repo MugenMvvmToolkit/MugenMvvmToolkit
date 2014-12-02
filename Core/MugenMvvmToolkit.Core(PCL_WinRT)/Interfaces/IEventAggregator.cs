@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="IEventAggregator.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,7 +13,9 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -22,24 +25,22 @@ namespace MugenMvvmToolkit.Interfaces
     /// <summary>
     ///     Enables loosely-coupled publication of and subscription to events.
     /// </summary>
-    public interface IEventAggregator : IHandler<object>, IObservable
+    public interface IEventAggregator : IObservable, IEventPublisher
     {
         /// <summary>
-        ///     Publishes a message.
+        ///     Determines whether the <see cref="IEventAggregator" /> contains a specific subscriber.
         /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">The message instance.</param>
-        void Publish([NotNull] object sender, [NotNull] object message);
+        bool Contains([NotNull] ISubscriber subscriber);
 
         /// <summary>
-        ///     Gets the collection of observers.
+        ///     Removes all subscribers.
+        /// </summary>
+        void UnsubscribeAll();
+
+        /// <summary>
+        ///     Gets the collection of subscribers.
         /// </summary>
         [NotNull]
-        IList<object> GetObservers();
-
-        /// <summary>
-        ///     Removes all listeners.
-        /// </summary>
-        void Clear();
+        IList<ISubscriber> GetSubscribers();
     }
 }

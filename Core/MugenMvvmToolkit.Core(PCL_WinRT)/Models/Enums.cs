@@ -516,8 +516,29 @@ namespace MugenMvvmToolkit.Models
         Runtime = 4,
 
         /// <summary>
-        /// All modes.
+        ///     All modes.
         /// </summary>
         All = Design | UnitTest | Runtime
+    }
+
+    /// <summary>
+    ///     Specifies the handler result.
+    /// </summary>
+    public enum HandlerResult
+    {
+        /// <summary>
+        ///     Indicates that message was handled.
+        /// </summary>
+        Handled = 1,
+
+        /// <summary>
+        ///     Indicates that message was ignored.
+        /// </summary>
+        Ignored = 2,
+
+        /// <summary>
+        ///     Indicates that handler has invalid state and should be removed.
+        /// </summary>
+        Invalid = 3
     }
 }

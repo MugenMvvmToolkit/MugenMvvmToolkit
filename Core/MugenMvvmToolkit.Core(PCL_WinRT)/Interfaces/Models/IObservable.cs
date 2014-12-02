@@ -25,13 +25,13 @@ namespace MugenMvvmToolkit.Interfaces.Models
         /// <summary>
         ///     Subscribes an instance to events.
         /// </summary>
-        /// <param name="instance">The instance to subscribe for event publication.</param>
-        bool Subscribe([NotNull] object instance);
+        /// <param name="subscriber">The instance to subscribe for event publication.</param>
+        bool Subscribe([NotNull] ISubscriber subscriber);
 
         /// <summary>
         ///     Unsubscribes the instance from all events.
         /// </summary>
-        /// <param name="instance">The instance to unsubscribe.</param>
-        bool Unsubscribe([NotNull] object instance);
+        /// <param name="subscriber">The instance to unsubscribe.</param>
+        bool Unsubscribe([NotNull] ISubscriber subscriber);
     }
 }

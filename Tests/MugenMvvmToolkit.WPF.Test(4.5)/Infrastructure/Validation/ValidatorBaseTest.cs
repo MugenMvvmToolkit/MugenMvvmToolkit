@@ -75,7 +75,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Validation
                     ((DataErrorsChangedMessage)o1).IsAsyncValidate.ShouldEqual(isAsync);
                 }
             };
-            validator.Subscribe(spyHandler).ShouldBeTrue();
+            validator.Subscribe(spyHandler).ShouldNotBeNull();
 
             validator.UpdateErrors(PropertyToValidate, ValidatorErrors, isAsync);
             isAsync = true;

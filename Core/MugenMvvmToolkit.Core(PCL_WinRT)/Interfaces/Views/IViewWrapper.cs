@@ -21,7 +21,7 @@ namespace MugenMvvmToolkit.Interfaces.Views
     /// <summary>
     ///     Represents the wrapper of view object.
     /// </summary>
-    public interface IViewWrapper
+    public interface IViewWrapper : IView
     {
         /// <summary>
         ///     Gets the underlying view type.

@@ -30,9 +30,9 @@ namespace MugenMvvmToolkit.Interfaces.Validation
 #endif
     {
         /// <summary>
-        ///     Indicates that can be only once instance of this validator.
+        ///     Gets a value indicating whether an attempt to add a duplicate validator to the collection will cause an exception to be thrown.
         /// </summary>
-        bool IsUnique { get; }
+        bool AllowDuplicate { get; }
 
         /// <summary>
         ///     Gets the initialized state of the validator.

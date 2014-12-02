@@ -235,6 +235,8 @@ namespace MugenMvvmToolkit.Infrastructure
             Should.NotBeNull(wrapperType, "wrapperType");
             if (wrapperType.IsAssignableFrom(type))
                 return true;
+            if (dataContext == null)
+                dataContext = DataContext.Empty;
             List<WrapperRegistration> list;
             if (_registrations.TryGetValue(wrapperType, out list))
             {
@@ -256,6 +258,8 @@ namespace MugenMvvmToolkit.Infrastructure
             Should.NotBeNull(wrapperType, "wrapperType");
             if (wrapperType.IsInstanceOfType(item))
                 return item;
+            if (dataContext == null)
+                dataContext = DataContext.Empty;
             object wrapper = null;
             List<WrapperRegistration> list;
             if (_registrations.TryGetValue(wrapperType, out list))

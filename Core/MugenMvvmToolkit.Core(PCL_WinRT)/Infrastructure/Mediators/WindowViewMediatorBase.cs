@@ -165,7 +165,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 context = DataContext.Empty;
             if (callback != null)
                 OperationCallbackManager.Register(OperationType.WindowNavigation, ViewModel, callback, context);
-            OnShow(context);
             ShowInternal(context);
         }
 
@@ -253,7 +252,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// <summary>
         ///     Occurs when view model is showed.
         /// </summary>
-        protected virtual void OnShow([NotNull] IDataContext context)
+        protected virtual void OnShown([NotNull] IDataContext context)
         {
             var ctx = new NavigationContext(NavigationMode.New, ViewModel.GetParentViewModel(), ViewModel, this,
                 context.GetData(NavigationConstants.Parameters));
@@ -350,6 +349,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                     bool isDialog;
                     if (!context.TryGetData(NavigationConstants.IsDialog, out isDialog))
                         isDialog = true;
+                    OnShown(context);
                     ShowView(View, isDialog, context);
                 }, ViewModel.DisposeCancellationToken)
                 .WithBusyIndicator(ViewModel, true);

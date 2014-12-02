@@ -80,7 +80,7 @@ namespace MugenMvvmToolkit.Test
             return vm;
         }
 
-        protected void ShouldThrow<T>(Action action) where T : Exception
+        protected static void ShouldThrow<T>(Action action) where T : Exception
         {
             try
             {
@@ -93,6 +93,7 @@ namespace MugenMvvmToolkit.Test
                     exception = GetOriginalException(aggregateException);
                 if (!(exception is T))
                     throw new InvalidOperationException(string.Format("The exception is wrong {0}.", exception));
+                Tracer.Info("Error : " + exception);
                 return;
             }
             throw new InvalidOperationException(string.Format("The exception {0} was not thrown.", typeof(T)));

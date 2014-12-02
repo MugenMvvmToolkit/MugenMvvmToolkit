@@ -212,7 +212,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                         Name = field.Name
                     };
                 //Anonymous class
-                if (IsAnonymousClass(field.FieldType))
+                if (field.FieldType.IsAnonymousClass())
                 {
                     var type = value.GetType();
                     var snapshots = new List<FieldSnapshot>();
@@ -727,7 +727,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             var target = @delegate.Target;
             var targetType = target.GetType();
-            if (IsAnonymousClass(targetType))
+            if (targetType.IsAnonymousClass())
             {
                 var snapshots = new List<FieldSnapshot>();
                 foreach (var anonymousField in targetType.GetFieldsEx(MemberFlags.Instance | MemberFlags.NonPublic | MemberFlags.Public))
@@ -746,16 +746,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         #endregion
 
         #region Methods
-
-        private static bool IsAnonymousClass(Type type)
-        {
-#if WINDOWSCOMMON || NETFX_CORE
-            var typeInfo = type.GetTypeInfo();
-            return typeInfo.IsDefined(typeof(CompilerGeneratedAttribute), false) && typeInfo.IsClass;
-#else
-            return type.IsDefined(typeof(CompilerGeneratedAttribute), false) && type.IsClass;
-#endif
-        }
 
         private static object GetDefault(Type t)
         {

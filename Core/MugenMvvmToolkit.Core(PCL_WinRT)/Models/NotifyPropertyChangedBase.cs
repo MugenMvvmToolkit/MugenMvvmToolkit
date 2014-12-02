@@ -85,7 +85,7 @@ namespace MugenMvvmToolkit.Models
         }
 
         /// <summary>
-        ///     Gets or sets the <see cref="IThreadManager" />.
+        ///     Gets the current <see cref="IThreadManager" />.
         /// </summary>
         protected virtual IThreadManager ThreadManager
         {

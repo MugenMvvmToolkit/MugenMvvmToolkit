@@ -19,7 +19,7 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Interfaces.Views
 {
-    public interface IMvvmViewController
+    public interface IMvvmViewController : IView
     {
         event EventHandler ViewDidLoadHandler;
 

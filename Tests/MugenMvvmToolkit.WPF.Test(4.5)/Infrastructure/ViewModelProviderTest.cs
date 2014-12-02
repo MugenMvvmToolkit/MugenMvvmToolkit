@@ -402,8 +402,8 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             };
 
             var viewModel = (ViewModel)provider.GetViewModel(container => new ViewModel(), context);
-            viewModel.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeFalse();
-            viewModel.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeFalse();
+            viewModel.LocalEventAggregator.GetObservers().Contains(viewModel).ShouldBeFalse();
+            viewModel.LocalEventAggregator.GetObservers().Contains(viewModel).ShouldBeFalse();
         }
 
         [TestMethod]
@@ -420,8 +420,8 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             };
 
             var viewModel = (ViewModel)provider.GetViewModel(container => new ViewModel(), context);
-            parentViewModel.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeFalse();
-            viewModel.ViewModelEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeTrue();
+            parentViewModel.LocalEventAggregator.GetObservers().Contains(viewModel).ShouldBeFalse();
+            viewModel.LocalEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeTrue();
         }
 
         [TestMethod]
@@ -438,8 +438,8 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             };
 
             var viewModel = (ViewModel)provider.GetViewModel(container => new ViewModel(), context);
-            parentViewModel.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeTrue();
-            viewModel.ViewModelEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeFalse();
+            parentViewModel.LocalEventAggregator.GetObservers().Contains(viewModel).ShouldBeTrue();
+            viewModel.LocalEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeFalse();
         }
 
         [TestMethod]
@@ -456,8 +456,8 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             };
 
             var viewModel = (ViewModel)provider.GetViewModel(container => new ViewModel(), context);
-            parentViewModel.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeTrue();
-            viewModel.ViewModelEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeTrue();
+            parentViewModel.LocalEventAggregator.GetObservers().Contains(viewModel).ShouldBeTrue();
+            viewModel.LocalEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeTrue();
         }
 
         [TestMethod]
@@ -473,8 +473,8 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             };
 
             var viewModel = (ViewModel)provider.GetViewModel(container => new ViewModel(), context);
-            parentViewModel.ViewModelEventAggregator.GetObservers().Contains(viewModel).ShouldBeTrue();
-            viewModel.ViewModelEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeTrue();
+            parentViewModel.LocalEventAggregator.GetObservers().Contains(viewModel).ShouldBeTrue();
+            viewModel.LocalEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeTrue();
         }
 
         [TestMethod]
@@ -704,8 +704,8 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             parentViewModel = (ViewModel)provider.RestoreViewModel(parentState, DataContext.Empty, true);
             vm = (ViewModel)provider.RestoreViewModel(state, DataContext.Empty, true);
 
-            vm.ViewModelEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeTrue();
-            parentViewModel.ViewModelEventAggregator.GetObservers().Contains(vm).ShouldBeTrue();
+            vm.LocalEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeTrue();
+            parentViewModel.LocalEventAggregator.GetObservers().Contains(vm).ShouldBeTrue();
         }
 
         [TestMethod]

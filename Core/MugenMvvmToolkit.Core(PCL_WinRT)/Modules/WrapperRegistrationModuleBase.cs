@@ -54,7 +54,9 @@ namespace MugenMvvmToolkit.Modules
             IWrapperManager wrapperManager;
             IocContainer.TryGet(out wrapperManager);
             var manager = wrapperManager as WrapperManager;
-            if (manager != null)
+            if (manager == null)
+                Tracer.Warn("The WrapperManager is not registered, the '{0}' is ignored", GetType().FullName);
+            else
                 RegisterWrappers(manager);
             return true;
         }

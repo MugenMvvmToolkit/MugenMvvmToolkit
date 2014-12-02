@@ -96,7 +96,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 Type type = validator.GetType();
                 List<IValidator> validators;
                 _validatorPrototypes.TryGetValue(type, out validators);
-                if (validators != null && validators.Count != 0 && validator.IsUnique)
+                if (validators != null && validators.Count != 0 && !validator.AllowDuplicate)
                     throw ExceptionManager.DuplicateValidator(type);
                 if (validators == null)
                     validators = new List<IValidator>();

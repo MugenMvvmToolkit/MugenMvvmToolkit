@@ -88,6 +88,12 @@
     <Compile Include="Infrastructure\EntityStateManager.cs" />
     <Compile Include="Infrastructure\EventAggregator.cs" />
     <Compile Include="Infrastructure\ExpressionReflectionManager.cs" />
+    <Compile Include="Interfaces\Models\IEventPublisher.cs" />
+    <Compile Include="Interfaces\Models\ISubscriber.cs" />
+    <Compile Include="Interfaces\Views\IView.cs" />
+    <Compile Include="Models\ActionSubscriber.cs" />
+    <Compile Include="Models\HandlerSubscriber.cs" />
+    <Compile Include="Models\WeakActionSubscriber.cs" />
     <Compile Include="Modules\InitializationModuleBase.cs" />
     <Compile Include="Infrastructure\Mediators\WindowViewMediatorBase.cs" />
     <Compile Include="Modules\ModuleBase.cs" />

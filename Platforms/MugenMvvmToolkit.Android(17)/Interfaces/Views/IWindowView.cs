@@ -24,7 +24,7 @@ namespace MugenMvvmToolkit.Interfaces.Views
     /// <summary>
     ///     Represent the base interface for a window view.
     /// </summary>
-    public interface IWindowView
+    public interface IWindowView : IView
     {
         /// <summary>
         ///     Gets or sets the cancelable value.

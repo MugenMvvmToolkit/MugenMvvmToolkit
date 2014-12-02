@@ -22,7 +22,8 @@ using System.Globalization;
 using System.Windows.Data;
 #endif
 
-namespace MugenMvvmToolkit.Converters
+// ReSharper disable once CheckNamespace
+namespace MugenMvvmToolkit.Binding.Converters
 {
     /// <summary>
     ///     This converter reverses a Boolean value (True == False, False == True).

@@ -68,11 +68,18 @@ namespace MugenMvvmToolkit
             DefaultEntityFactory = DefaultEntityFactoryMethod;
             _weakReferenceFactory = CreateWeakReference;
             _instanceEventAggregatorFactory = GetInstanceEventAggregator;
+            ObjectToSubscriberConverter = ObjectToSubscriberConverterImpl;
         }
 
         #endregion
 
         #region Properties
+
+        /// <summary>
+        ///     Gets or sets the delegate to convert an object to <see cref="ISubscriber" />.
+        /// </summary>
+        [CanBeNull]
+        public static Func<object, IDataContext, ISubscriber> ObjectToSubscriberConverter { get; set; }
 
         /// <summary>
         ///     Gets or sets the factory that creates an empty instance of editable entity.
@@ -373,6 +380,14 @@ namespace MugenMvvmToolkit
         private static IEventAggregator GetInstanceEventAggregator(object o)
         {
             return new EventAggregator();
+        }
+
+        private static ISubscriber ObjectToSubscriberConverterImpl(object o, IDataContext dataContext)
+        {
+            if (o == null)
+                return null;
+            var subscriber = HandlerSubscriber.GetOrCreate(o);
+            return subscriber.IsEmpty ? null : subscriber;
         }
 
         #endregion

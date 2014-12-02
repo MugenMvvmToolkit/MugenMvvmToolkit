@@ -20,6 +20,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows.Input;
 using JetBrains.Annotations;
@@ -117,6 +118,7 @@ namespace MugenMvvmToolkit
 
         private static readonly Func<Assembly, bool> IsToolkitAssemblyDelegate;
         private static readonly HashSet<string> KnownPublicKeys;
+        private static readonly HashSet<string> KnownAssemblyName;
 
         private static readonly Dictionary<Type, string[]> CachedIgnoreAttributes;
         private static readonly Dictionary<Type, Dictionary<string, ICollection<string>>> CachedViewModelProperties;
@@ -148,6 +150,17 @@ namespace MugenMvvmToolkit
             {
                 "7cec85d7bea7798e", "31bf3856ad364e35", "b03f5f7f11d50a3a",  "b77a5c561934e089", 
                 "0738eb9f132ed756", "84e04ff9cfb79065", "5803cfa389c90ce7", "17863af14b0044da"
+            };
+            KnownAssemblyName = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "FormsViewGroup",
+                "Xamarin.Android.Support.v13",
+                "Xamarin.Android.Support.v4",
+                "Xamarin.Forms.Core",
+                "Xamarin.Forms.Platform.Android",
+                "Xamarin.Forms.Xaml",
+                "Xamarin.Forms.Platform.iOS",
+                "Xamarin.Forms.Platform.WP8",
             };
             IsToolkitAssemblyDelegate = IsToolkitAssembly;
 
@@ -429,6 +442,19 @@ namespace MugenMvvmToolkit
 #endif
         }
 
+        /// <summary>
+        ///     Checks whether the current type is anonymous class.
+        /// </summary>
+        public static bool IsAnonymousClass(this Type type)
+        {
+#if PCL_WINRT
+            var typeInfo = type.GetTypeInfo();
+            return typeInfo.IsDefined(typeof(CompilerGeneratedAttribute), false) && typeInfo.IsClass;
+#else
+            return type.IsDefined(typeof(CompilerGeneratedAttribute), false) && type.IsClass;
+#endif
+        }
+
         internal static AssemblyName GetAssemblyName(this Assembly assembly)
         {
             Should.NotBeNull(assembly, "assembly");
@@ -695,7 +721,7 @@ namespace MugenMvvmToolkit
             var assemblyName = assembly.GetAssemblyName();
             var bytes = assemblyName.GetPublicKeyToken();
             if (bytes == null || bytes.Length == 0)
-                return false;
+                return KnownAssemblyName.Contains(assemblyName.Name);
             var builder = new StringBuilder(16);
             for (int i = 0; i < bytes.Length; i++)
                 builder.Append(bytes[i].ToString("x2"));

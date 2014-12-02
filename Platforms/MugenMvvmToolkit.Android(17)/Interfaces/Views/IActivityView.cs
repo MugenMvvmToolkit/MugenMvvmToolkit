@@ -24,7 +24,7 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Interfaces.Views
 {
-    public interface IActivityView
+    public interface IActivityView : IView
     {
         /// <summary>
         ///     Gets or sets the data context of the current view.

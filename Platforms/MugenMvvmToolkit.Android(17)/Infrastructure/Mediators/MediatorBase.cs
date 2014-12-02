@@ -128,7 +128,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public virtual void OnDestroy(Action baseOnDestroy)
         {
             var viewModel = BindingContext.Value as IViewModel;
-            if (viewModel != null)
+            if (viewModel != null && !viewModel.IsDisposed)
                 Get<IViewManager>().CleanupViewAsync(viewModel);
             baseOnDestroy();
         }

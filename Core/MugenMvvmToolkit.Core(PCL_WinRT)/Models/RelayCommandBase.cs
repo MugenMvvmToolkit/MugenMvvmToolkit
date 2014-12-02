@@ -30,6 +30,7 @@ namespace MugenMvvmToolkit.Models
         #region Fields
 
         private static readonly Action<RelayCommandBase, EventArgs> RaiseCanExecuteChangedDelegate;
+        private static readonly Action<RelayCommandBase, object, PropertyChangedEventArgs> OnPropertyChangedDelegate;
 
         private readonly List<KeyValuePair<WeakReference, Action<RelayCommandBase, object>>> _notifiers;
         private readonly PropertyChangedEventHandler _weakHandler;
@@ -43,6 +44,7 @@ namespace MugenMvvmToolkit.Models
         static RelayCommandBase()
         {
             RaiseCanExecuteChangedDelegate = RaiseCanExecuteChangedStatic;
+            OnPropertyChangedDelegate = OnPropertyChangedStatic;
         }
 
         /// <summary>
@@ -53,7 +55,7 @@ namespace MugenMvvmToolkit.Models
             if (hasCanExecuteImpl)
             {
                 _notifiers = new List<KeyValuePair<WeakReference, Action<RelayCommandBase, object>>>(2);
-                _weakHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, OnPropertyChangedStatic);
+                _weakHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, OnPropertyChangedDelegate);
             }
             ExecutionMode = ApplicationSettings.CommandExecutionMode;
             CanExecuteMode = ApplicationSettings.CommandCanExecuteMode;
@@ -333,7 +335,7 @@ namespace MugenMvvmToolkit.Models
         protected virtual Action<RelayCommandBase, object> CreateNotifier(object item)
         {
             var observable = item as IObservable;
-            if (observable != null && observable.Subscribe(this))
+            if (observable != null && observable.Subscribe(this) != null)
                 return (@base, o) => ((IObservable)o).Unsubscribe(@base);
 
             var propertyChanged = item as INotifyPropertyChanged;

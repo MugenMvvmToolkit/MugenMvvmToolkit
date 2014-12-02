@@ -21,7 +21,6 @@ using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -43,7 +42,7 @@ namespace MugenMvvmToolkit.ViewModels
         private const int DefaultState = 0;
 
         private readonly Dictionary<Guid, object> _busyCollection;
-        private readonly IEventAggregator _viewModelEventAggregator;
+        private readonly IEventAggregator _localEventAggregator;
         private readonly IViewModelSettings _settings;
 
         private CancellationTokenSource _disposeCancellationToken;
@@ -70,7 +69,7 @@ namespace MugenMvvmToolkit.ViewModels
             _busyCollection = new Dictionary<Guid, object>();
             _disposeCancellationToken = new CancellationTokenSource();
             _settings = ApplicationSettings.ViewModelSettings.Clone();
-            _viewModelEventAggregator = ServiceProvider.InstanceEventAggregatorFactory(this);
+            _localEventAggregator = ServiceProvider.InstanceEventAggregatorFactory(this);
 
             Tracer.TraceViewModel(AuditAction.Created, this);
             if (IsDesignMode)
@@ -90,11 +89,11 @@ namespace MugenMvvmToolkit.ViewModels
         }
 
         /// <summary>
-        /// Gets the current <see cref="IEventAggregator"/>.
+        ///     Gets the current <see cref="IEventAggregator" />.
         /// </summary>
-        protected internal IEventAggregator ViewModelEventAggregator
+        protected internal IEventAggregator LocalEventAggregator
         {
-            get { return _viewModelEventAggregator; }
+            get { return _localEventAggregator; }
         }
 
         /// <summary>
@@ -286,14 +285,32 @@ namespace MugenMvvmToolkit.ViewModels
         }
 
         /// <summary>
+        ///     Publishes a message.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="message">The message instance.</param>
+        public void Publish(object sender, object message)
+        {
+            if (ReferenceEquals(sender, this))
+                PublishInternal(sender, message);
+            else
+            {
+                //NOTE calling all handlers in this view model.
+                HandlerSubscriber.GetOrCreate(this).Handle(sender, message);
+                if (!Settings.BroadcastAllMessages && !(message is IBroadcastMessage))
+                    PublishInternal(sender, message);
+            }
+        }
+
+        /// <summary>
         ///     Subscribes an instance to events.
         /// </summary>
-        /// <param name="instance">The instance to subscribe for event publication.</param>
-        public bool Subscribe(object instance)
+        /// <param name="subscriber">The instance to subscribe for event publication.</param>
+        public bool Subscribe(ISubscriber subscriber)
         {
-            if (!SubscribeInternal(instance))
+            if (!SubscribeInternal(subscriber))
                 return false;
-            var vm = instance as IViewModel;
+            var vm = subscriber.Target as IViewModel;
             if (vm != null)
                 NotifyBeginBusy(vm);
             return true;
@@ -302,12 +319,12 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Unsubscribes the instance from all events.
         /// </summary>
-        /// <param name="instance">The instance to unsubscribe.</param>
-        public bool Unsubscribe(object instance)
+        /// <param name="subscriber">The instance to unsubscribe.</param>
+        public bool Unsubscribe(ISubscriber subscriber)
         {
-            if (!UnsubscribeInternal(instance))
+            if (!UnsubscribeInternal(subscriber))
                 return false;
-            var vm = instance as IViewModel;
+            var vm = subscriber.Target as IViewModel;
             if (vm != null)
                 NotifyEndBusy(vm);
             return true;
@@ -357,7 +374,8 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="message">Information about event.</param>
         void IHandler<object>.Handle(object sender, object message)
         {
-            HandleInternal(sender, message);
+            if (!ReferenceEquals(sender, this))
+                HandleInternal(sender, message);
             OnHandle(sender, message);
         }
 
@@ -453,7 +471,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="mode">The execution mode.</param>
         protected void Publish([NotNull] object message, ExecutionMode mode = ExecutionMode.None)
         {
-            ThreadManager.Invoke(mode, this, message, (@base, o) => @base.Publish(@base, o));
+            this.Publish(this, message, mode);
         }
 
         /// <summary>
@@ -473,18 +491,18 @@ namespace MugenMvvmToolkit.ViewModels
                 if (messageMode.HasFlagEx(HandleMode.Handle))
                     AddBusy(beginBusyMessage.Id, beginBusyMessage.Message, false);
                 if (messageMode.HasFlagEx(HandleMode.NotifyObservers))
-                    Publish(sender, message);
+                    PublishInternal(sender, message);
                 return;
             }
             var endBusyMessage = message as EndBusyMessage;
             if (endBusyMessage != null)
             {
                 RemoveBusy(endBusyMessage.Id, false);
-                Publish(sender, message);
+                PublishInternal(sender, message);
                 return;
             }
             if (Settings.BroadcastAllMessages || message is IBroadcastMessage)
-                Publish(sender, message);
+                PublishInternal(sender, message);
         }
 
         private void NotifyBeginBusy(IViewModel viewModel)
@@ -500,7 +518,7 @@ namespace MugenMvvmToolkit.ViewModels
                     if (isVmb)
                         ((IHandler<object>)viewModel).Handle(this, message);
                     else
-                        EventAggregator.Publish(viewModel, this, message);
+                        viewModel.Publish(this, message);
                 }
             }
         }
@@ -518,7 +536,7 @@ namespace MugenMvvmToolkit.ViewModels
                     if (isVmb)
                         ((IHandler<object>)viewModel).Handle(this, message);
                     else
-                        EventAggregator.Publish(viewModel, this, message);
+                        viewModel.Publish(this, message);
                 }
             }
         }
@@ -565,7 +583,7 @@ namespace MugenMvvmToolkit.ViewModels
 
             ClearBusy();
             ClearPropertyChangedSubscribers();
-            var toRemove = _viewModelEventAggregator.GetObservers();
+            var toRemove = _localEventAggregator.GetSubscribers();
             for (int index = 0; index < toRemove.Count; index++)
                 Unsubscribe(toRemove[index]);
 
@@ -589,7 +607,7 @@ namespace MugenMvvmToolkit.ViewModels
         #region Overrides of NotifyPropertyChangedBase
 
         /// <summary>
-        ///     Gets or sets the <see cref="IThreadManager" />.
+        ///     Gets the current <see cref="IThreadManager" />.
         /// </summary>
         protected override IThreadManager ThreadManager
         {
@@ -613,19 +631,19 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Subscribes an instance to events.
         /// </summary>
-        /// <param name="instance">The instance to subscribe for event publication.</param>
-        protected virtual bool SubscribeInternal(object instance)
+        /// <param name="subscriber">The instance to subscribe for event publication.</param>
+        protected virtual bool SubscribeInternal(ISubscriber subscriber)
         {
-            return instance != this && _viewModelEventAggregator.Subscribe(instance);
+            return !ReferenceEquals(subscriber.Target, this) && _localEventAggregator.Subscribe(subscriber);
         }
 
         /// <summary>
         ///     Unsubscribes the instance from all events.
         /// </summary>
-        /// <param name="instance">The instance to unsubscribe.</param>
-        protected virtual bool UnsubscribeInternal(object instance)
+        /// <param name="subscriber">The instance to unsubscribe.</param>
+        protected virtual bool UnsubscribeInternal(ISubscriber subscriber)
         {
-            return instance != this && _viewModelEventAggregator.Unsubscribe(instance);
+            return _localEventAggregator.Unsubscribe(subscriber);
         }
 
         /// <summary>
@@ -633,11 +651,9 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         /// <param name="sender">The specified sender.</param>
         /// <param name="message">The message instance.</param>
-        protected virtual void Publish(object sender, object message)
+        protected virtual void PublishInternal(object sender, object message)
         {
-            Should.NotBeNull(sender, "sender");
-            Should.NotBeNull(message, "message");
-            _viewModelEventAggregator.Publish(sender, message);
+            _localEventAggregator.Publish(sender, message);
         }
 
         /// <summary>
