@@ -116,6 +116,8 @@ namespace MugenMvvmToolkit.Binding.Parse
         private static readonly MethodInfo ProxyMethod;
         private static readonly MethodInfo BindingMemberGetValueMethod;
         private static readonly MethodInfo GetMemberValueDynamicMethod;
+        private static readonly MethodInfo GetIndexValueDynamicMethod;
+        private static readonly MethodInfo InvokeMemberDynamicMethod;
         private static readonly Expression EmptyObjectArrayExpression;
         protected static readonly ParameterExpression DataContextParameter;
 
@@ -143,9 +145,13 @@ namespace MugenMvvmToolkit.Binding.Parse
             DataContextParameter = Expression.Parameter(typeof(IDataContext), "dataContext");
             BindingMemberGetValueMethod = typeof(IBindingMemberInfo).GetMethodEx("GetValue", new[] { typeof(object), typeof(object[]) });
             GetMemberValueDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx("GetMemberValueDynamic", MemberFlags.Static | MemberFlags.NonPublic);
+            GetIndexValueDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx("GetIndexValueDynamic", MemberFlags.Static | MemberFlags.NonPublic);
+            InvokeMemberDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx("InvokeMemberDynamic", MemberFlags.Static | MemberFlags.NonPublic);
             EmptyObjectArrayExpression = Expression.Constant(Empty.Array<object>(), typeof(object[]));
             Should.BeSupported(BindingMemberGetValueMethod != null, "BindingMemberGetValueMethod");
             Should.BeSupported(GetMemberValueDynamicMethod != null, "GetMemberValueDynamicMethod");
+            Should.BeSupported(GetIndexValueDynamicMethod != null, "GetIndexValueDynamicMethod");
+            Should.BeSupported(InvokeMemberDynamicMethod != null, "InvokeMemberDynamicMethod");
         }
 
         /// <summary>
@@ -418,7 +424,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 }
             }
 
-            var member = type.FindPropertyOrField(expression.Member, target == null, false);
+            var member = type.FindPropertyOrField(expression.Member, target == null);
             //Trying to get dynamic value.
             if (member == null)
                 return Expression.Call(null, GetMemberValueDynamicMethod, target,
@@ -487,8 +493,21 @@ namespace MugenMvvmToolkit.Binding.Parse
                 .Arguments
                 .ToArrayEx(node => new ArgumentData(node, node.NodeType == ExpressionNodeType.Lambda ? null : BuildExpression(node), null));
 
-            var method = targetData
-                .FindMethod(methodCall.Method, typeArgs, args, BindingServiceProvider.ResourceResolver.GetKnownTypes(), target == null);
+            var method = targetData.FindMethod(methodCall.Method, typeArgs, args, BindingServiceProvider.ResourceResolver.GetKnownTypes(), target == null);
+            if (method == null)
+            {
+                var arrayArgs = new Expression[args.Length];
+                for (int i = 0; i < args.Length; i++)
+                {
+                    var data = args[i];
+                    if (data.IsLambda || data.Expression == null)
+                        throw BindingExceptionManager.InvalidBindingMember(type, methodCall.Method);
+                    arrayArgs[i] = ExpressionReflectionManager.ConvertIfNeed(data.Expression, typeof(object), false);
+                }
+                return Expression.Call(InvokeMemberDynamicMethod, target, Expression.Constant(methodCall.Method),
+                    Expression.NewArrayInit(typeof(object), arrayArgs), Expression.Constant(typeArgs),
+                    DataContextParameter);
+            }
             return GenerateMethodCall(method, targetData, args);
         }
 
@@ -507,6 +526,19 @@ namespace MugenMvvmToolkit.Binding.Parse
                 .ToArrayEx(node => new ArgumentData(node, node.NodeType == ExpressionNodeType.Lambda ? null : BuildExpression(node), null));
 
             var method = targetData.FindIndexer(args, target == null);
+            if (method == null)
+            {
+                var arrayArgs = new Expression[args.Length];
+                for (int i = 0; i < args.Length; i++)
+                {
+                    var data = args[i];
+                    if (data.IsLambda || data.Expression == null)
+                        throw BindingExceptionManager.InvalidBindingMember(type, "Item[]");
+                    arrayArgs[i] = ExpressionReflectionManager.ConvertIfNeed(data.Expression, typeof(object), false);
+                }
+                return Expression.Call(GetIndexValueDynamicMethod, target,
+                    Expression.NewArrayInit(typeof(object), arrayArgs), DataContextParameter);
+            }
             return GenerateMethodCall(method, targetData, args);
         }
 
@@ -626,6 +658,30 @@ namespace MugenMvvmToolkit.Binding.Parse
                 return null;
             var bindingMember = BindingServiceProvider.MemberProvider.GetBindingMember(target.GetType(), member, false, true);
             return bindingMember.GetValue(target, Empty.Array<object>());
+        }
+
+        private static object GetIndexValueDynamic(object target, object[] args, IDataContext context)
+        {
+            if (target == null)
+                return null;
+            var dynamicObject = target as IDynamicObject;
+            if (dynamicObject == null)
+                throw BindingExceptionManager.InvalidBindingMember(target.GetType(), "Item[]");
+            return dynamicObject.GetIndex(args, context);
+        }
+
+        private static object InvokeMemberDynamic(object target, string member, object[] args, IList<Type> typeArgs, IDataContext context)
+        {
+            if (target == null)
+                return null;
+            var dynamicObject = target as IDynamicObject;
+            if (dynamicObject != null)
+                return dynamicObject.InvokeMember(member, args, typeArgs, context);
+
+            var bindingMember = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(target.GetType(), member, false, true);
+            return bindingMember.GetValue(target, args);
         }
 
         #endregion

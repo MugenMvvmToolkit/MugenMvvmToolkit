@@ -498,7 +498,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         public void ParserShouldParseMultiExpression0()
         {
             const string targetPath = "Text";
-            const string binding = @"Text SourceText1 == \'a\'";
+            const string binding = @"Text SourceText1 == 'a'";
             IBindingParser bindingParser = CreateBindingParser();
 
             var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
@@ -1497,6 +1497,234 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             context.GetData(BindingBuilderConstants.ConverterCulture)
                 .Invoke(EmptyContext)
                 .ShouldEqual(cultureInfo);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseExpressionWithDynamicObjectMemberAccess()
+        {
+            const string targetPath = "Text";
+            const string sourcePath = "TestValue";
+            const string binding = "Text TestValue";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+            target.Path.ShouldEqual(targetPath);
+
+            bool invokedObserve = false;
+            var dynamicObject = new DynamicObjectMock
+            {
+                GetMember = (s, list) =>
+                {
+                    list.IsNullOrEmpty().ShouldBeTrue();
+                    s.ShouldEqual(sourcePath);
+                    return context;
+                },
+                TryObserve = (s, listener) =>
+                {
+                    s.ShouldEqual(sourcePath);
+                    invokedObserve = true;
+                    return null;
+                }
+            };
+            var targetObj = new object();
+            context.Add(BindingBuilderConstants.Target, targetObj);
+            var source = context.GetData(BindingBuilderConstants.Sources)[0].Invoke(context);
+            BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
+
+            BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = dynamicObject;
+            BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
+            invokedObserve.ShouldBeTrue();
+
+            var pathMembers = source.GetPathMembers(true);
+            pathMembers.AllMembersAvailable.ShouldBeTrue();
+            pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, null).ShouldEqual(context);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseExpressionWithDynamicObjectIndexerAccessConstant()
+        {
+            const string targetPath = "Text";
+            const string sourcePath = "[value]";
+            const string binding = "Text ['value']";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+            target.Path.ShouldEqual(targetPath);
+
+            bool invokedObserve = false;
+            var dynamicObject = new DynamicObjectMock
+            {
+                GetMember = (s, list) =>
+                {
+                    throw new NotSupportedException();
+                },
+                TryObserve = (s, listener) =>
+                {
+                    s.ShouldEqual(sourcePath);
+                    invokedObserve = true;
+                    return null;
+                },
+                GetIndex = (list, dataContext) =>
+                {
+                    list.Count.ShouldEqual(1);
+                    list[0].ShouldEqual("value");
+                    return context;
+                }
+            };
+            var targetObj = new object();
+            context.Add(BindingBuilderConstants.Target, targetObj);
+            var source = context.GetData(BindingBuilderConstants.Sources)[0].Invoke(context);
+            BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
+
+            BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = dynamicObject;
+            BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
+            invokedObserve.ShouldBeTrue();
+
+            var pathMembers = source.GetPathMembers(true);
+            pathMembers.AllMembersAvailable.ShouldBeTrue();
+            pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, null).ShouldEqual(context);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseExpressionWithDynamicObjectIndexerAccessExpression()
+        {
+            const string targetPath = "Text";
+            const string binding = "Text $context[TestValue]";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+            target.Path.ShouldEqual(targetPath);
+
+            var dynamicObject = new DynamicObjectMock
+            {
+                GetIndex = (list, dataContext) =>
+                {
+                    dataContext.ShouldEqual(context);
+                    list.Count.ShouldEqual(1);
+                    return list[0];
+                }
+            };
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { dynamicObject, expression }).ShouldEqual(expression);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseExpressionWithDynamicObjectMethodAccessExpression()
+        {
+            const string targetPath = "Text";
+            const string binding = "Text $context.InvokeMethod(TestValue)";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+            target.Path.ShouldEqual(targetPath);
+
+            var dynamicObject = new DynamicObjectMock
+            {
+                InvokeMember = (name, list, types, dataContext) =>
+                {
+                    types.IsNullOrEmpty().ShouldBeTrue();
+                    name.ShouldEqual("InvokeMethod");
+                    dataContext.ShouldEqual(context);
+                    list.Count.ShouldEqual(1);
+                    return list[0];
+                }
+            };
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { dynamicObject, expression }).ShouldEqual(expression);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseExpressionWithDynamicObjectMethodGenericAccessExpression()
+        {
+            const string targetPath = "Text";
+            const string binding = "Text $context.InvokeMethod<string>(TestValue)";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+            target.Path.ShouldEqual(targetPath);
+
+            var dynamicObject = new DynamicObjectMock
+            {
+                InvokeMember = (name, list, types, dataContext) =>
+                {
+                    types.Count.ShouldEqual(1);
+                    types[0].ShouldEqual(typeof(string));
+                    name.ShouldEqual("InvokeMethod");
+                    dataContext.ShouldEqual(context);
+                    list.Count.ShouldEqual(1);
+                    return list[0];
+                }
+            };
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { dynamicObject, expression }).ShouldEqual(expression);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseExpressionWithStringLiteral1()
+        {
+            const string targetPath = "Text";
+            const string binding = "Text 'Test'";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+            target.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, Empty.Array<object>()).ShouldEqual("Test");
+        }
+
+        [TestMethod]
+        public void ParserShouldParseExpressionWithStringLiteral2()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text '\'T\''";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+            target.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, Empty.Array<object>()).ShouldEqual("'T'");
+        }
+
+        [TestMethod]
+        public void ParserShouldParseExpressionWithStringLiteral3()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text '\""T\""'";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+            target.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, Empty.Array<object>()).ShouldEqual("\"T\"");
+        }
+
+        [TestMethod]
+        public void ParserShouldParseExpressionWithCharLiteral()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text 'T'";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+            target.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, Empty.Array<object>()).ShouldEqual('T');
         }
 
         private static void BindingSourceShouldBeValidDataContext(object target, IBindingSource bindingSource, string path)

@@ -371,7 +371,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                         do
                         {
                             NextChar();
-                            while (Position < Length && CurrentChar != quote)
+                            while (Position < Length && (CurrentChar != quote || Source[Position - 1] == '\\'))
                                 NextChar();
                             if (Position == Length)
                             {

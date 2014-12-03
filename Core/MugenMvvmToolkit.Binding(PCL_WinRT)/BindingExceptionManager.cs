@@ -202,11 +202,6 @@ namespace MugenMvvmToolkit.Binding
             return new ParseException(string.Format("Invalid real literal '{0}'", text), tokenizer.Position);
         }
 
-        internal static Exception InvalidCharacterLiteral(ITokenizer tokenizer)
-        {
-            return new ParseException("Character literal must contain exactly one character", tokenizer.Position);
-        }
-
         internal static Exception UnterminatedStringLiteral(string expression, ITokenizer tokenizer,
             string bindingExpression)
         {

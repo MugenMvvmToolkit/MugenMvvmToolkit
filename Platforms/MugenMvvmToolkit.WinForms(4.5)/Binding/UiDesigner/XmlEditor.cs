@@ -197,7 +197,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         #region Methods
 
-        public string GetBindingText()
+        public string GetBindingText(bool showMessageBox)
         {
             if (string.IsNullOrEmpty(Text))
                 return Text;
@@ -227,8 +227,10 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                 }
                 return text;
             }
-            catch
+            catch (Exception e)
             {
+                if (showMessageBox)
+                    MessageBox.Show(e.Flatten(false));
                 return Text;
             }
         }
@@ -321,7 +323,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                 return;
             try
             {
-                var text = XElement.Parse(GetBindingText(), LoadOptions.None).ToString();
+                var text = XElement.Parse(GetBindingText(false), LoadOptions.None).ToString();
                 SetBindingText(text);
                 Highlight();
             }

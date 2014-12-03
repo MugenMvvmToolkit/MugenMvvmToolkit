@@ -1,4 +1,5 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="IDynamicObject.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,9 +13,13 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Models
 {
@@ -24,15 +29,38 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
     public interface IDynamicObject
     {
         /// <summary>
+        ///     Attempts to track the value change.
+        /// </summary>
+        [CanBeNull]
+        IDisposable TryObserve(string member, [NotNull] IEventListener listener);
+
+        /// <summary>
         ///     Provides the implementation of getting a member.
         /// </summary>
         /// <returns>The result of the get operation.</returns>
         [CanBeNull]
-        object GetMember([NotNull]string member, IList<object> args);
+        object GetMember([NotNull] string member, IList<object> args);
 
         /// <summary>
         ///     Provides the implementation of setting a member.
         /// </summary>
-        void SetMember([NotNull]string member, IList<object> args);
+        void SetMember([NotNull] string member, IList<object> args);
+
+        /// <summary>
+        ///     Provides the implementation of calling a member.
+        /// </summary>
+        [CanBeNull]
+        object InvokeMember([NotNull] string member, IList<object> args, IList<Type> typeArgs, IDataContext context);
+
+        /// <summary>
+        ///     Provides the implementation of performing a get index operation.
+        /// </summary>
+        [CanBeNull]
+        object GetIndex(IList<object> indexes, IDataContext context);
+
+        /// <summary>
+        ///     Provides the implementation of performing a set index operation.
+        /// </summary>
+        void SetIndex(IList<object> indexes, IDataContext context);
     }
 }

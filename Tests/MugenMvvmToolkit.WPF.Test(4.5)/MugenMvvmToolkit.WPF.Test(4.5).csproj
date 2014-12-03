@@ -177,6 +177,7 @@
     <Compile Include="TestInfrastructure\ViewPageMappingProviderMock.cs" />
     <Compile Include="TestInfrastructure\VisualStateManagerMock.cs" />
     <Compile Include="TestModels\DialogViewMock.cs" />
+    <Compile Include="TestModels\DynamicObjectMock.cs" />
     <Compile Include="TestModels\EventListenerMock.cs" />
     <Compile Include="TestModels\GridModel.cs" />
     <Compile Include="TestModels\NavigatingCancelEventArgsMock.cs" />

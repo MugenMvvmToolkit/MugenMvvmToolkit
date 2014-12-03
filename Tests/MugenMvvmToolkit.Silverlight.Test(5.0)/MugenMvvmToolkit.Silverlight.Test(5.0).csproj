@@ -393,6 +393,9 @@
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestModels\DialogViewMock.cs">
       <Link>TestModels\DialogViewMock.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestModels\DynamicObjectMock.cs">
+      <Link>TestModels\DynamicObjectMock.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestModels\EventListenerMock.cs">
       <Link>TestModels\EventListenerMock.cs</Link>
     </Compile>

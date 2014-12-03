@@ -20,6 +20,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Models;
@@ -128,7 +129,7 @@ namespace MugenMvvmToolkit.Binding
             Func<object, object[], object> @delegate = ServiceProvider
                 .ReflectionManager
                 .GetMethodDelegate(getMethod);
-            object[] indexerValues = GetIndexerValues(indexParameters, path);
+            object[] indexerValues = GetIndexerValues(path, indexParameters);
             return o => @delegate(o, indexerValues);
         }
 
@@ -142,7 +143,7 @@ namespace MugenMvvmToolkit.Binding
             Func<object, object[], object> @delegate = ServiceProvider
                 .ReflectionManager
                 .GetMethodDelegate(setMethod);
-            object[] indexerValues = GetIndexerValues(indexParameters, path);
+            object[] indexerValues = GetIndexerValues(path, indexParameters);
             return (o, o1) =>
             {
                 var args = new object[indexerValues.Length + 1];
@@ -153,18 +154,17 @@ namespace MugenMvvmToolkit.Binding
             };
         }
 
-        internal static MemberInfo FindPropertyOrField(this Type type, string memberName, bool staticAccess, bool throwOnError)
+        [CanBeNull]
+        internal static MemberInfo FindPropertyOrField(this Type type, string memberName, bool staticAccess)
         {
             var flags = MemberFlags.Public | (staticAccess ? MemberFlags.Static : MemberFlags.Instance);
             PropertyInfo property = type.GetPropertyEx(memberName, flags);
             if (property != null)
                 return property;
-            FieldInfo field = type.GetFieldEx(memberName, flags);
-            if (field == null && throwOnError)
-                throw BindingExceptionManager.InvalidBindingMember(type, memberName);
-            return field;
+            return type.GetFieldEx(memberName, flags);
         }
 
+        [CanBeNull]
         internal static MethodData FindMethod(this ArgumentData target, string methodName, Type[] typeArgs,
             IList<ArgumentData> args, IEnumerable<Type> knownTypes, bool staticAccess)
         {
@@ -178,12 +178,10 @@ namespace MugenMvvmToolkit.Binding
             }
             if (!staticAccess)
                 methods.AddRange(GetExtensionsMethods(methodName, knownTypes));
-            var method = FindBestMethod(target, methods, args, typeArgs);
-            if (method == null)
-                throw BindingExceptionManager.InvalidBindingMember(type, methodName);
-            return method;
+            return FindBestMethod(target, methods, args, typeArgs);
         }
 
+        [CanBeNull]
         internal static MethodData FindIndexer(this ArgumentData target, IList<ArgumentData> args, bool staticAccess)
         {
             var type = target.Type;
@@ -197,12 +195,7 @@ namespace MugenMvvmToolkit.Binding
                         methods.Add(m);
                 }
             }
-
-
-            var method = FindBestMethod(target, methods, args, Empty.Array<Type>());
-            if (method == null)
-                throw BindingExceptionManager.InvalidBindingMember(type, "Item[]");
-            return method;
+            return FindBestMethod(target, methods, args, Empty.Array<Type>());
         }
 
         internal static object TryParseEnum(string name, Type type)
@@ -355,7 +348,7 @@ namespace MugenMvvmToolkit.Binding
             var actualArgs = new List<ArgumentData> { target };
             actualArgs.AddRange(args);
             return actualArgs;
-        }        
+        }
 
         private static Type GetNonNullableType(this Type type)
         {
@@ -580,7 +573,7 @@ namespace MugenMvvmToolkit.Binding
                 AddInterface(types, t, false);
         }
 
-        internal static object[] GetIndexerValues(IList<ParameterInfo> parameters, string path, Type castType = null)
+        internal static object[] GetIndexerValues(string path, IList<ParameterInfo> parameters = null, Type castType = null)
         {
             string replace = path.Replace("[", string.Empty).Replace("]", string.Empty);
             var strings = replace.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);

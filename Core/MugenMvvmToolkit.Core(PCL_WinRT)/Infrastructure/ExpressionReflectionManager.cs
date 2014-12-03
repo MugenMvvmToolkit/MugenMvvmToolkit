@@ -602,7 +602,6 @@ namespace MugenMvvmToolkit.Infrastructure
             if (!exactly && !expression.Type.IsValueType && !type.IsValueType && type.IsAssignableFrom(expression.Type))
                 return expression;
 #endif
-
             return Expression.Convert(expression, type);
         }
 

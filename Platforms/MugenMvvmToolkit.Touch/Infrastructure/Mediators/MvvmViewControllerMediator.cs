@@ -251,6 +251,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                     ClearElement(item as Element);
             }
             ClearBindings(element);
+            element.Dispose();
         }
 
         #endregion

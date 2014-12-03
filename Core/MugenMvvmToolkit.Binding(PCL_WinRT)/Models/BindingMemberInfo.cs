@@ -14,12 +14,14 @@
 // ****************************************************************************
 #endregion
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Accessors;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
@@ -64,14 +66,16 @@ namespace MugenMvvmToolkit.Binding.Models
             #region Fields
 
             private readonly string _path;
+            private readonly IList<object> _indexerValues;
 
             #endregion
 
             #region Constructors
 
-            public DynamicObjectAccessor(string path)
+            public DynamicObjectAccessor(string path, IList<object> indexerValues)
             {
                 _path = path;
+                _indexerValues = indexerValues;
             }
 
             #endregion
@@ -86,6 +90,17 @@ namespace MugenMvvmToolkit.Binding.Models
             public object SetValue(object arg1, object[] args)
             {
                 ((IDynamicObject)arg1).SetMember(_path, args);
+                return null;
+            }
+
+            public object GetValueIndex(object arg, object[] args)
+            {
+                return ((IDynamicObject)arg).GetIndex(_indexerValues, DataContext.Empty);
+            }
+
+            public object SetValueIndex(object arg1, object[] args)
+            {
+                ((IDynamicObject)arg1).SetIndex(_indexerValues, DataContext.Empty);
                 return null;
             }
 
@@ -120,17 +135,18 @@ namespace MugenMvvmToolkit.Binding.Models
 
         private readonly bool _canRead;
         private readonly bool _canWrite;
+        private readonly bool _isDataContext;
+        private readonly bool _isDynamic;
+        private readonly bool _isSingleParameter;
         private readonly Func<object, object[], object> _getValueAccessor;
         private readonly Func<object, object> _getValueAccessorSingle;
         private readonly Func<object, object, object> _setValueAccessorSingle;
         private readonly Action<object, object> _setValueAccessorSingleAction;
         private readonly Func<object, object[], object> _setValueAccessor;
-        private readonly bool _isDataContext;
         private readonly MemberInfo _member;
         private readonly BindingMemberType _memberType;
         private readonly string _path;
         private readonly Type _type;
-        private readonly bool _isSingleParameter;
 
         private readonly IBindingMemberInfo _memberEvent;
 
@@ -279,7 +295,7 @@ namespace MugenMvvmToolkit.Binding.Models
             : this(path, BindingMemberType.Array, type.GetElementType())
         {
             var indexes = BindingReflectionExtensions
-                .GetIndexerValues(null, path, typeof(int))
+                .GetIndexerValues(path, null, typeof(int))
                 .ToArrayEx(o => (int)o);
             var arrayAccessor = new ArrayAccessor(indexes);
             _getValueAccessorSingle = arrayAccessor.GetValue;
@@ -296,11 +312,23 @@ namespace MugenMvvmToolkit.Binding.Models
         public BindingMemberInfo(string path)
             : this(path, BindingMemberType.Dynamic, typeof(object))
         {
-            var accessor = new DynamicObjectAccessor(path);
-            _getValueAccessor = accessor.GetValue;
-            _setValueAccessor = accessor.SetValue;
+            object[] indexerValues = null;
+            if (path.StartsWith("Item[", StringComparison.Ordinal) || path.StartsWith("[", StringComparison.Ordinal))
+                indexerValues = BindingReflectionExtensions.GetIndexerValues(path, castType: typeof(string));
+            var accessor = new DynamicObjectAccessor(path, indexerValues);
+            if (indexerValues == null)
+            {
+                _getValueAccessor = accessor.GetValue;
+                _setValueAccessor = accessor.SetValue;
+            }
+            else
+            {
+                _getValueAccessor = accessor.GetValueIndex;
+                _setValueAccessor = accessor.SetValueIndex;
+            }
             _canRead = true;
             _canWrite = true;
+            _isDynamic = true;
         }
 
         #endregion
@@ -393,7 +421,11 @@ namespace MugenMvvmToolkit.Binding.Models
             if (_isDataContext)
                 return WeakEventManager.GetBindingContextListener(source).AddWithUnsubscriber(listener);
             if (_memberEvent == null)
+            {
+                if (_isDynamic)
+                    return ((IDynamicObject)source).TryObserve(_path, listener);
                 return null;
+            }
             return _memberEvent.SetValue(source, new object[] { listener }) as IDisposable;
         }
 

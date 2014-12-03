@@ -863,19 +863,12 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             ValidateToken(TokenType.StringLiteral);
             char quote = Tokenizer.Value[0];
-            string s = Tokenizer.Value.Substring(1, Tokenizer.Value.Length - 2);
-            int start = 0;
-            while (true)
+            string s = Tokenizer.Value
+                                .Substring(1, Tokenizer.Value.Length - 2)
+                                .Replace(@"\'", "'")
+                                .Replace(@"\""", "\"");
+            if (quote == '\'' && s.Length == 1)
             {
-                int i = s.IndexOf(quote, start);
-                if (i < 0) break;
-                s = s.Remove(i, 1);
-                start = i + 1;
-            }
-            if (quote == '\'')
-            {
-                if (s.Length != 1)
-                    throw BindingExceptionManager.InvalidCharacterLiteral(Tokenizer);
                 NextToken(true);
                 return s[0];
             }

@@ -84,9 +84,6 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             foreach (var replaceKeyword in ReplaceKeywords)
                 bindingExpression = bindingExpression.Replace(replaceKeyword.Key, replaceKeyword.Value);
-
-            //Replacing the symbol \' to ' and ' to "
-            bindingExpression = bindingExpression.Replace(@"\'", Temp).Replace(@"'", "\"").Replace(Temp, @"'").Trim();
         }
 
         /// <summary>

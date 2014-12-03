@@ -1469,15 +1469,16 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Checks whether the properties are equal.
         /// </summary>
-        public static bool PropertyNameEqual(string changedProperty, string sourceProperty, bool emptySourcePathResult = false)
+        public static bool PropertyNameEqual(string changedProperty, string listenedProperty, bool emptyListenedPropertyResult = false)
         {
             if (string.IsNullOrEmpty(changedProperty) ||
-                changedProperty.Equals(sourceProperty, StringComparison.Ordinal))
+                changedProperty.Equals(listenedProperty, StringComparison.Ordinal))
                 return true;
-            if (string.IsNullOrEmpty(sourceProperty))
-                return emptySourcePathResult;
-            if (sourceProperty.StartsWith("[", StringComparison.Ordinal) &&
-                (changedProperty == "Item" || changedProperty == "Item[]" || changedProperty == "Item" + sourceProperty))
+            if (string.IsNullOrEmpty(listenedProperty))
+                return emptyListenedPropertyResult;
+
+            if (listenedProperty.StartsWith("[", StringComparison.Ordinal) &&
+                (changedProperty == "Item[]" || changedProperty == "Item" + listenedProperty))
                 return true;
             return false;
         }

@@ -106,7 +106,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         public string BindingText
         {
-            get { return bindingEditor.GetBindingText(); }
+            get { return bindingEditor.GetBindingText(true); }
         }
 
         #endregion
