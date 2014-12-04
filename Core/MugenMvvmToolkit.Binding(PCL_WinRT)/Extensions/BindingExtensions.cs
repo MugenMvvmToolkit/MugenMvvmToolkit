@@ -165,7 +165,7 @@ namespace MugenMvvmToolkit.Binding
 
             public WeakEventListener(IEventListener listener)
             {
-                _listenerRef = ServiceProvider.WeakReferenceFactory(listener, true);
+                _listenerRef = ToolkitExtensions.GetWeakReference(listener);
             }
 
             #endregion

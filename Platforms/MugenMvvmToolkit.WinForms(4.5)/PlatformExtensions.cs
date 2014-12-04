@@ -63,7 +63,7 @@ namespace MugenMvvmToolkit
         #region Methods
 
         public static IList<IDataBinding> SetBindings(this IComponent item, string bindingExpression,
-            IList<object> sources = null)
+             IList<object> sources = null)
         {
             return BindingServiceProvider.BindingProvider.CreateBindingsFromString(item, bindingExpression, sources);
         }

@@ -1156,7 +1156,7 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        /// Gets or creates an instance of <see cref="WeakReference"/> for the specified item.
+        ///     Gets or creates an instance of <see cref="WeakReference" /> for the specified item.
         /// </summary>
         public static WeakReference GetWeakReference(object item)
         {
@@ -1164,6 +1164,18 @@ namespace MugenMvvmToolkit
             if (hasWeak == null)
                 return ServiceProvider.WeakReferenceFactory(item, true);
             return hasWeak.WeakReference;
+        }
+
+        /// <summary>
+        ///     Creates an instance an instance of <see cref="WeakReference" /> for the specified item.
+        /// </summary>
+        public static WeakReference GetWeakReferenceOrDefault(object item, WeakReference defaultValue, bool checkHasWeakReference)
+        {
+            if (item == null)
+                return defaultValue;
+            if (checkHasWeakReference)
+                return GetWeakReference(item);
+            return ServiceProvider.WeakReferenceFactory(item, true);
         }
 
         /// <returns>

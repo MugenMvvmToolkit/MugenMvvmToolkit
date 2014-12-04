@@ -31,7 +31,7 @@ namespace MugenMvvmToolkit.Binding.Models
         private const string Key = "!#ParentListener";
         private bool _isAttached;
         private readonly WeakReference _view;
-        private readonly WeakReference _parent;
+        private WeakReference _parent;
 
         #endregion
 
@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Binding.Models
         private ParentObserver(UIView view)
         {
             _view = ServiceProvider.WeakReferenceFactory(view, true);
-            _parent = ServiceProvider.WeakReferenceFactory(GetParent(view), true);
+            _parent = ToolkitExtensions.GetWeakReferenceOrDefault(GetParent(view), Empty.WeakReference, false);
         }
 
         #endregion
@@ -112,7 +112,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
             if (ReferenceEquals(value, _parent.Target))
                 return;
-            _parent.Target = value;
+            _parent = ToolkitExtensions.GetWeakReferenceOrDefault(value, Empty.WeakReference, false);
             Raise(view, EventArgs.Empty);
         }
 
@@ -149,7 +149,7 @@ namespace MugenMvvmToolkit.Binding.Models
             object parent = GetParent(view);
             if (ReferenceEquals(parent, _parent.Target))
                 return;
-            _parent.Target = parent;
+            _parent = ToolkitExtensions.GetWeakReferenceOrDefault(parent, Empty.WeakReference, false);
             Raise(view, EventArgs.Empty);
         }
 

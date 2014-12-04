@@ -203,7 +203,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 Binding.TargetAccessor.ValueChanging += OnValueChanging;
             else
                 Binding.SourceAccessor.ValueChanging += OnValueChanging;
-            _timer = new Timer(CallbackInternalDelegate, this, int.MaxValue, int.MaxValue);
+            _timer = new Timer(CallbackInternalDelegate, ServiceProvider.WeakReferenceFactory(this, true), int.MaxValue, int.MaxValue);
             return true;
         }
 
@@ -242,11 +242,13 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         private static void CallbackInternal(object state)
         {
-            var behavior = (DelayBindingBehavior)state;
+            var behavior = (DelayBindingBehavior)((WeakReference)state).Target;
+            if (behavior == null)
+                return;
             if (behavior._context == null)
                 ToolkitExtensions.InvokeOnUiThreadAsync(behavior.Callback);
             else
-                behavior._context.Post(CallbackDelegate, state);
+                behavior._context.Post(CallbackDelegate, behavior);
         }
 
         private static void Callback(object state)

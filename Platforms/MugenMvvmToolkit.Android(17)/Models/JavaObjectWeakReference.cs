@@ -40,15 +40,6 @@ namespace MugenMvvmToolkit.Models
 
         #endregion
 
-        #region Finalizer
-
-        ~JavaObjectWeakReference()
-        {
-            Tracer.Finalized(this, _name);
-        }
-
-        #endregion
-
         #region Overrides of WeakReference
 
         /// <summary>

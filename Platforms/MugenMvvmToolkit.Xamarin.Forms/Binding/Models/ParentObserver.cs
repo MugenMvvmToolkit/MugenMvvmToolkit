@@ -29,7 +29,7 @@ namespace MugenMvvmToolkit.Binding.Models
     {
         #region Fields
 
-        private readonly WeakReference _parent;
+        private WeakReference _parent;
         private readonly WeakReference _view;
         private bool _isAttached;
 
@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Binding.Models
         private ParentObserver(Element view)
         {
             _view = ServiceProvider.WeakReferenceFactory(view, true);
-            _parent = ServiceProvider.WeakReferenceFactory(FindParent(view), true);
+            _parent = ToolkitExtensions.GetWeakReferenceOrDefault(FindParent(view), Empty.WeakReference, false);
             view.PropertyChanged += OnPropertyChanged;
         }
 
@@ -98,7 +98,7 @@ namespace MugenMvvmToolkit.Binding.Models
                 return;
             if (ReferenceEquals(value, _parent.Target))
                 return;
-            _parent.Target = value;
+            _parent = ToolkitExtensions.GetWeakReferenceOrDefault(value, Empty.WeakReference, false);
             Raise(source, EventArgs.Empty);
         }
 

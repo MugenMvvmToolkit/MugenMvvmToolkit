@@ -98,11 +98,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
             private void ClearValueReference()
             {
-                var reference = _valueReference as WeakReference;
-                if (reference == null)
-                    _valueReference = null;
-                else
-                    reference.Target = null;
+                _valueReference = null;
             }
 
             private void SetValue(object newValue)
@@ -126,14 +122,8 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 else
                 {
                     var reference = _valueReference as WeakReference;
-                    if (reference == null)
-                        _valueReference = ServiceProvider.WeakReferenceFactory(command, true);
-                    else
-                    {
-                        if (ReferenceEquals(reference.Target, command))
-                            return;
-                        reference.Target = command;
-                    }
+                    if (reference == null || !ReferenceEquals(reference.Target, command))
+                        _valueReference = ToolkitExtensions.GetWeakReferenceOrDefault(command, null, true);
                     if (_toggleEnabledState && accessor.BindingTarget != null)
                     {
                         accessor.CommandOnCanExecuteChanged(command, LastContext);

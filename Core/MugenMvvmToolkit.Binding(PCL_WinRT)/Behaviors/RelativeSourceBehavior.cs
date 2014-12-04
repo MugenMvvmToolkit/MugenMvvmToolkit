@@ -82,9 +82,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 {
                     if (Equals(value, _value.Target))
                         return;
-                    _value = value == null
-                        ? Empty.WeakReference
-                        : ServiceProvider.WeakReferenceFactory(value, true);
+                    _value = ToolkitExtensions.GetWeakReferenceOrDefault(value, Empty.WeakReference, false);
                     var handler = ValueChanged;
                     if (handler != null)
                         handler(this, EventArgs.Empty);

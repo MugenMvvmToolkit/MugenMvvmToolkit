@@ -25,7 +25,7 @@ namespace MugenMvvmToolkit.Models
     /// <summary>
     ///     An extension to ICommand to provide an ability to raise changed events.
     /// </summary>
-    public abstract class RelayCommandBase : NotifyPropertyChangedBase, IRelayCommand, IHandler<IBroadcastMessage>
+    public abstract class RelayCommandBase : NotifyPropertyChangedBase, IRelayCommand, IHandler<IBroadcastMessage>, IHasWeakReference
     {
         #region Fields
 
@@ -36,6 +36,7 @@ namespace MugenMvvmToolkit.Models
         private readonly PropertyChangedEventHandler _weakHandler;
         private EventHandler _canExecuteChangedInternal;
         private int _disposeState;
+        private WeakReference _weakReference;
 
         #endregion
 
@@ -399,6 +400,20 @@ namespace MugenMvvmToolkit.Models
         {
             if (isDirty)
                 RaiseCanExecuteChanged();
+        }
+
+        #endregion
+
+        #region Implementation of IHasWeakReference
+
+        WeakReference IHasWeakReference.WeakReference
+        {
+            get
+            {
+                if (_weakReference == null)
+                    _weakReference = ServiceProvider.WeakReferenceFactory(this, true);
+                return _weakReference;
+            }
         }
 
         #endregion

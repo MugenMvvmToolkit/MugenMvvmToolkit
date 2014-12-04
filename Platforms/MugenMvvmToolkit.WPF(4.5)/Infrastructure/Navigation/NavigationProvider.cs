@@ -108,7 +108,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         private readonly INavigationCachePolicy _cachePolicy;
         private readonly EventHandler<ICloseableViewModel, ViewModelClosedEventArgs> _closeViewModelHandler;
 
-        private readonly WeakReference _vmReference;
+        private WeakReference _vmReference;
         private bool _closedFromViewModel;
         private bool _ignoreCloseFromViewModel;
         private bool _ignoreNavigating;
@@ -148,7 +148,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             _viewModelProvider = viewModelProvider;
             _callbackManager = callbackManager;
             _cachePolicy = cachePolicy;
-            _vmReference = new WeakReference(null);
+            _vmReference = Empty.WeakReference;
             _closeViewModelHandler = CloseableViewModelOnClosed;
 
             NavigationService.Navigating += NavigationServiceOnNavigating;
@@ -222,7 +222,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         public IViewModel CurrentViewModel
         {
             get { return (IViewModel)_vmReference.Target; }
-            protected set { _vmReference.Target = value; }
+            protected set { _vmReference = ToolkitExtensions.GetWeakReference(value); }
         }
 
         /// <summary>
