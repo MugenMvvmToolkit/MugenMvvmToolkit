@@ -493,6 +493,37 @@ namespace MugenMvvmToolkit
             return item;
         }
 
+        internal static void ClearBindingsHierarchically(this View view, bool clearDataContext, bool clearAttachedValues)
+        {
+            if (view == null)
+                return;
+            var viewGroup = view as ViewGroup;
+            if (viewGroup != null)
+            {
+                for (int i = 0; i < viewGroup.ChildCount; i++)
+                    viewGroup.GetChildAt(i).ClearBindingsHierarchically(clearDataContext, clearAttachedValues);
+            }
+            view.ClearBindings(clearDataContext, clearAttachedValues);
+        }
+
+        internal static void ClearBindings(this Object item, bool clearDataContext, bool clearAttachedValues)
+        {
+            if (item == null)
+                return;
+            try
+            {
+                BindingServiceProvider.BindingManager.ClearBindings(item);
+                if (clearDataContext && BindingServiceProvider.ContextManager.HasBindingContext(item))
+                    BindingServiceProvider.ContextManager.GetBindingContext(item).Value = null;
+                if (clearAttachedValues)
+                    ServiceProvider.AttachedValueProvider.Clear(item);
+            }
+            catch (Exception e)
+            {
+                Tracer.Error(e.Flatten(true));
+            }
+        }
+
         internal static PlatformInfo GetPlatformInfo()
         {
             Version result;

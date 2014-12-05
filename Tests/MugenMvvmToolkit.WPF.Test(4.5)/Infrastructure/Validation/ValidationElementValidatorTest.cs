@@ -151,7 +151,8 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Validation
             {
                 GetValidationElements = o => new Dictionary<string, IList<IValidationElement>>
                 {
-                    {"Test", new IValidationElement[]{new ValidationElementMock() }}
+                    {"Test", new IValidationElement[] {new ValidationElementMock()}},
+                    {PropertyToValidate, new IValidationElement[] {new ValidationElementMock()}}
                 }
             };
             CanBeResolvedTypes.Add(typeof(IValidationElementProvider));

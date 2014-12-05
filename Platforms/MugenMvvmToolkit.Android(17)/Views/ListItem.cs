@@ -14,13 +14,12 @@
 // ****************************************************************************
 #endregion
 
-using System;
-using System.Collections.Generic;
-using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+#if !API17
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Interfaces;
+#endif
+
 
 namespace MugenMvvmToolkit.Views
 {
@@ -30,7 +29,6 @@ namespace MugenMvvmToolkit.Views
 
         private bool _checked;
         private readonly int _templateId;
-        private readonly IList<IDataBinding> _bindings;
         private object _dataContext;
 
         #endregion
@@ -44,7 +42,7 @@ namespace MugenMvvmToolkit.Views
             : base(inflater.Context)
         {
             _templateId = templateId;
-            _bindings = inflater.CreateBindableView(templateId, this, true).Item2;
+            inflater.CreateBindableView(templateId, this, true);
         }
 
         #endregion
@@ -58,33 +56,6 @@ namespace MugenMvvmToolkit.Views
         {
             get { return _templateId; }
         }
-
-        /// <summary>
-        /// Gets the bindings.
-        /// </summary>
-        public IList<IDataBinding> Bindings
-        {
-            get { return _bindings; }
-        }
-
-        public object DataContext
-        {
-            get { return _dataContext; }
-            set
-            {
-                if (Equals(value, _dataContext))
-                    return;
-                _dataContext = value;
-                var eventHandler = DataContextChanged;
-                if (eventHandler != null)
-                    eventHandler(this, EventArgs.Empty);
-            }
-        }
-
-        /// <summary>
-        ///     Occurs when the DataContext property changed.
-        /// </summary>
-        public event EventHandler DataContextChanged;
 
         /// <summary>
         ///     Gets the first child.
@@ -152,26 +123,6 @@ namespace MugenMvvmToolkit.Views
             if (member != null && member.CanWrite)
                 member.SetValue(view, new[] { Empty.BooleanToObject(value) });
 #endif
-        }
-
-        #endregion
-
-        #region Overrides of Object
-
-        protected override void JavaFinalize()
-        {
-            base.JavaFinalize();
-            for (int index = 0; index < _bindings.Count; index++)
-            {
-                try
-                {
-                    _bindings[index].Dispose();
-                }
-                catch (Exception e)
-                {
-                    Tracer.Error(e.Flatten(true));
-                }
-            }
         }
 
         #endregion

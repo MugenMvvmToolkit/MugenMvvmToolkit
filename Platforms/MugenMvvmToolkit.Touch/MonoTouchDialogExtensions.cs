@@ -14,6 +14,7 @@
 // ****************************************************************************
 #endregion
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using MonoTouch.Dialog;
@@ -48,6 +49,20 @@ namespace MugenMvvmToolkit.MonoTouch.Dialog
                 BindingExtensions.AttachedParentMember.SetValue(element, BindingExtensions.NullValue);
             else
                 BindingExtensions.AttachedParentMember.SetValue(element, parent);
+        }
+
+        internal static void ClearBindingsHierarchically(this Element element, bool clearDataContext, bool clearAttachedValues)
+        {
+            if (element == null)
+                return;
+            var enumerable = element as IEnumerable;
+            if (enumerable != null)
+            {
+                foreach (var item in enumerable)
+                    ClearBindingsHierarchically(item as Element, clearDataContext, clearAttachedValues);
+            }
+            element.ClearBindings(clearDataContext, clearAttachedValues);
+            element.Dispose();
         }
 
         #endregion

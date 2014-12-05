@@ -106,10 +106,10 @@ namespace MugenMvvmToolkit
             }
         }
 
-        internal static bool IsDisposed([NotNull] this NSObject item)
+        internal static bool IsAlive([NotNull] this NSObject item)
         {
             Should.NotBeNull(item, "item");
-            return item.Handle == IntPtr.Zero;
+            return item.Handle != IntPtr.Zero;
         }
 
         private static void DidChangeStatusBarOrientation(object sender,

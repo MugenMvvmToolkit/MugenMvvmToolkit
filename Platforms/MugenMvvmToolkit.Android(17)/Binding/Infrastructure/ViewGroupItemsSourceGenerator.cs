@@ -79,7 +79,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         protected override void Remove(int removalIndex, int count)
         {
             for (int i = 0; i < count; i++)
-                _viewGroup.RemoveViewAt(removalIndex + i);
+                RemoveAt(removalIndex + i);
         }
 
         protected override void Replace(int startIndex, int count)
@@ -87,19 +87,32 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             for (int i = 0; i < count; i++)
             {
                 int index = startIndex + i;
-                _viewGroup.RemoveViewAt(index);
+                RemoveAt(index);
                 _viewGroup.AddView(_adapter.GetView(index, null, _viewGroup), index);
             }
         }
 
         protected override void Refresh()
         {
-            _viewGroup.RemoveAllViews();
+            while (_viewGroup.ChildCount != 0)
+                RemoveAt(0);
             int count = _adapter.Count;
             for (int i = 0; i < count; i++)
                 _viewGroup.AddView(_adapter.GetView(i, null, _viewGroup));
         }
 
         #endregion
+
+        #region Methods
+
+        private void RemoveAt(int index)
+        {
+            var view = _viewGroup.GetChildAt(index);
+            view.ClearBindingsHierarchically(true, true);
+            _viewGroup.RemoveViewAt(index);
+        }
+
+        #endregion
+
     }
 }

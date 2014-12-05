@@ -49,6 +49,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         private readonly TTarget _target;
         private Guid _id;
         private object _dataContext;
+        private bool _isDestroyed;
 
         #endregion
 
@@ -94,6 +95,14 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             }
         }
 
+        /// <summary>
+        /// Returns true if the final <c>OnDestroy</c> call has been made on the Target, so this instance is now dead.
+        /// </summary>
+        public bool IsDestroyed
+        {
+            get { return _isDestroyed; }
+        }
+
         protected TTarget Target
         {
             get { return _target; }
@@ -127,6 +136,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         public virtual void OnDestroy(Action baseOnDestroy)
         {
+            _isDestroyed = true;
             var viewModel = BindingContext.Value as IViewModel;
             if (viewModel != null && !viewModel.IsDisposed)
                 Get<IViewManager>().CleanupViewAsync(viewModel);

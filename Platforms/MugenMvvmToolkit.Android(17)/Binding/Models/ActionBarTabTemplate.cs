@@ -214,14 +214,14 @@ namespace MugenMvvmToolkit.Binding.Models
             return CreateTabInternal(bar, dataContext, true);
         }
 
-        public void ClearTab(ActionBar bar, ActionBar.Tab tab)
+        public static void ClearTab(ActionBar bar, ActionBar.Tab tab)
         {
             var listener = ServiceProvider.AttachedValueProvider.GetValue<TabListener>(tab, ListenerKey, false);
             if (listener == null)
                 return;
-            ServiceProvider.AttachedValueProvider.Clear(tab, ListenerKey);
-            listener.Clear(bar, tab);
             BindingServiceProvider.BindingManager.ClearBindings(tab);
+            listener.Clear(bar, tab);
+            ServiceProvider.AttachedValueProvider.Clear(tab);
         }
 
         private ActionBar.Tab CreateTabInternal(ActionBar bar, object context, bool useContext)

@@ -150,7 +150,7 @@ namespace MugenMvvmToolkit.Binding.Models
             bindingManager.ClearBindings(item);
             if (item.HasSubMenu)
                 MenuTemplate.Clear(item.SubMenu, bindingManager);
-            BindingExtensions.AttachedParentMember.SetValue(item, BindingExtensions.NullValue);
+            BindingExtensions.AttachedParentMember.SetValue(item, BindingExtensions.NullValue);            
         }
 
         private void ApplyInternal(IMenu menu, Context context, int id, int order, object dataContext, bool useContext)

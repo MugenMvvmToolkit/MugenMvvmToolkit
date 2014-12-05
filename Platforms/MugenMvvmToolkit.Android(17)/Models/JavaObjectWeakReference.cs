@@ -13,6 +13,9 @@
 // </license>
 // ****************************************************************************
 #endregion
+
+using Android.Views;
+using MugenMvvmToolkit.Interfaces.Views;
 using Object = Java.Lang.Object;
 using WeakReference = System.WeakReference;
 
@@ -21,12 +24,6 @@ namespace MugenMvvmToolkit.Models
     //see https://bugzilla.xamarin.com/show_bug.cgi?id=16343
     internal sealed class JavaObjectWeakReference : WeakReference
     {
-        #region Fields
-
-        private readonly string _name;
-
-        #endregion
-
         #region Constructors
 
         /// <summary>
@@ -35,7 +32,6 @@ namespace MugenMvvmToolkit.Models
         public JavaObjectWeakReference(Object item, bool trackResurrection)
             : base(item, trackResurrection)
         {
-            _name = item.ToString();
         }
 
         #endregion
@@ -72,11 +68,21 @@ namespace MugenMvvmToolkit.Models
         {
             get
             {
-                var target = base.Target as Object;
+                var target = (Object)base.Target;
                 if (target != null)
                 {
                     if (target.IsAlive())
-                        return target;
+                    {
+                        var activity = target as IActivityView;
+                        if (activity == null)
+                        {
+                            var view = target as View;
+                            if (view != null && view.Context != null)
+                                activity = view.Context.GetActivity() as IActivityView;
+                        }
+                        if (activity == null || !activity.IsDestroyed)
+                            return target;
+                    }
                     base.Target = null;
                     return null;
                 }

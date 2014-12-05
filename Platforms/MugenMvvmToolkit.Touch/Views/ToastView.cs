@@ -277,7 +277,7 @@ namespace MugenMvvmToolkit.Views
 
         private void UpdateWindowOrientation(UIView view)
         {
-            if (view.IsDisposed())
+            if (!view.IsAlive())
                 return;
             float num = 0f;
             if (!PlatformExtensions.IsOS8)
@@ -310,7 +310,7 @@ namespace MugenMvvmToolkit.Views
 
         private void ShowCompleted()
         {
-            if (!View.IsDisposed())
+            if (View.IsAlive())
                 UIView.Animate(AnimationDuration, DisplayDuration, UIViewAnimationOptions.CurveEaseIn,
                     () => View.Alpha = 0f, Hide);
         }

@@ -1,4 +1,5 @@
 #region Copyright
+
 // ****************************************************************************
 // <copyright file="IActivityView.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,6 +13,7 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
 
 using System;
@@ -30,6 +32,11 @@ namespace MugenMvvmToolkit.Interfaces.Views
         ///     Gets or sets the data context of the current view.
         /// </summary>
         object DataContext { get; set; }
+
+        /// <summary>
+        ///     Returns true if the final <c><see cref="M:Android.App.Activity.OnDestroy" /></c> call has been made on the Activity, so this instance is now dead.
+        /// </summary>
+        bool IsDestroyed { get; }
 
         /// <summary>
         ///     Gets the current bundle.

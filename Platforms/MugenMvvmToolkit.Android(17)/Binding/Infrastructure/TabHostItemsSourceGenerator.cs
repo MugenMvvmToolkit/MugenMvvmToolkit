@@ -421,6 +421,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         private void RemoveTab(TabInfo tab)
         {
+            var view = tab.Content as View;
+            if (view != null)
+            {
+                view.ClearBindingsHierarchically(true, true);
+                return;
+            }
 #if !API8
             var fragment = tab.Content as Fragment;
             if (fragment == null)

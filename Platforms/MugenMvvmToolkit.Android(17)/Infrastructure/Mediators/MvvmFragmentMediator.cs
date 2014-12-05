@@ -24,7 +24,6 @@ using Android.Util;
 using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.DataConstants;
@@ -86,9 +85,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public static readonly DataConstant<Fragment> CurrentFragment;
 
         private readonly DialogFragment _dialogFragment;
-        private List<IDataBinding> _bindings;
         private DialogInterfaceOnKeyListener _keyListener;
-        private object _oldContext;
+        private View _view;
 
         #endregion
 
@@ -151,16 +149,13 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public virtual View OnCreateView(int? viewId, LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState, Func<LayoutInflater, ViewGroup, Bundle, View> baseOnCreateView)
         {
-            ClearBindings();
+            _view.ClearBindingsHierarchically(true, true);
             if (viewId.HasValue)
             {
-                if (_bindings == null)
-                    _bindings = new List<IDataBinding>();
-                Tuple<View, IList<IDataBinding>> tuple = inflater.CreateBindableView(viewId.Value, container, false);
-                FragmentViewMember.SetValue(tuple.Item1, Target);
-                BindingServiceProvider.ContextManager.GetBindingContext(tuple.Item1).Value = DataContext;
-                _bindings.AddRange(tuple.Item2);
-                return tuple.Item1;
+                _view = inflater.CreateBindableView(viewId.Value, container, false).Item1;
+                FragmentViewMember.SetValue(_view, Target);
+                BindingServiceProvider.ContextManager.GetBindingContext(_view).Value = DataContext;
+                return _view;
             }
             return baseOnCreateView(inflater, container, savedInstanceState);
         }
@@ -171,16 +166,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public void OnCreate(Bundle savedInstanceState, Action<Bundle> baseOnCreate)
         {
             Tracer.Info("OnCreate fragment({0})", Target);
-            //NOTE: checking if fragment is not recreated.
-            if (_oldContext == null)
-            {
-                OnCreate(savedInstanceState);
-            }
-            else
-            {
-                RestoreContext(_oldContext);
-                _oldContext = null;
-            }
+            OnCreate(savedInstanceState);
             baseOnCreate(savedInstanceState);
 
             var viewModel = BindingContext.Value as IViewModel;
@@ -235,9 +221,12 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             if (handler != null)
                 handler((IWindowView)Target, EventArgs.Empty);
 
-            _oldContext = BindingContext.Value;
-            ClearBindings();
-            var viewModel = _oldContext as IViewModel;
+            _view.ClearBindingsHierarchically(true, true);
+            if (_dialogFragment != null)
+                _dialogFragment.Dialog.ClearBindings(true, true);
+            Target.ClearBindings(false, true);
+
+            var viewModel = BindingContext.Value as IViewModel;
             if (viewModel != null)
             {
                 viewModel.Settings.Metadata.Remove(CurrentFragment);
@@ -246,6 +235,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                     stateManager == this)
                     viewModel.Settings.Metadata.Remove(ViewModelConstants.StateManager);
             }
+            _view = null;
+            BindingContext.Value = null;
             base.OnDestroy(baseOnDestroy);
         }
 
@@ -264,13 +255,12 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public virtual void OnInflate(Activity activity, IAttributeSet attrs, Bundle savedInstanceState,
             Action<Activity, IAttributeSet, Bundle> baseOnInflate)
         {
-            ClearBindings();
+            Target.ClearBindings(false, false);
             List<string> strings = ViewFactory.ReadStringAttributeValue(activity, attrs, Resource.Styleable.Binding, null);
             if (strings != null && strings.Count != 0)
             {
-                _bindings = new List<IDataBinding>();
                 foreach (string bind in strings)
-                    _bindings.AddRange(BindingServiceProvider.BindingProvider.CreateBindingsFromString(Target, bind, null));
+                    BindingServiceProvider.BindingProvider.CreateBindingsFromString(Target, bind, null);
             }
             baseOnInflate(activity, attrs, savedInstanceState);
         }
@@ -366,15 +356,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         #region Methods
 
-        private void ClearBindings()
-        {
-            if (_bindings == null)
-                return;
-            foreach (IDataBinding binding in _bindings)
-                binding.Dispose();
-            _bindings.Clear();
-        }
-
         private bool OnClosing()
         {
             var closing = Closing;
@@ -391,15 +372,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             if (_dialogFragment == null || hasDisplayName == null)
                 return;
             var dialog = _dialogFragment.Dialog;
-            if (dialog == null)
-                return;
-
-            if (_bindings == null)
-                _bindings = new List<IDataBinding>();
-            var bindings = BindingServiceProvider
-                .BindingProvider
-                .CreateBindingsFromString(dialog, "Title DisplayName", new object[] { hasDisplayName });
-            _bindings.AddRange(bindings);
+            if (dialog != null)
+                BindingServiceProvider.BindingProvider.CreateBindingsFromString(dialog, "Title DisplayName", new object[] { hasDisplayName });
         }
 
         #endregion

@@ -14,14 +14,12 @@
 // ****************************************************************************
 #endregion
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using Android.App;
 using Android.OS;
 using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Infrastructure;
-using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Mediators;
@@ -40,9 +38,9 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         private IMenu _menu;
         private readonly BindableMenuInflater _menuInflater;
-        private IList<IDataBinding> _bindings;
         private Bundle _bundle;
         private bool _isBackNavigation;
+        private View _view;
 
         #endregion
 
@@ -170,16 +168,14 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             var handler = Destroyed;
             if (handler != null)
                 handler(Activity, EventArgs.Empty);
-            if (_bindings != null)
-            {
-                foreach (IDataBinding dataBinding in _bindings)
-                    dataBinding.Dispose();
-                _bindings = null;
-            }
+            _view.ClearBindingsHierarchically(true, true);
+            _view = null;
+
             MenuTemplate.Clear(_menu);
 #if !API8
             ActionBarTemplate.Clear(Activity);
 #endif
+            BindingContext.Value = null;
             base.OnDestroy(baseOnDestroy);
         }
 
@@ -277,12 +273,10 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// <param name="layoutResId">Resource ID to be inflated.</param>
         public virtual void SetContentView(int layoutResId)
         {
-            var bindableView = Activity.CreateBindableView(layoutResId, Get<IViewFactory>());
-            _bindings = bindableView.Item2;
-            Activity.SetContentView(bindableView.Item1);
-            var view = Activity.FindViewById(Android.Resource.Id.Content) ?? bindableView.Item1;
-            view.ListenParentChange();
-
+            _view = Activity.CreateBindableView(layoutResId, Get<IViewFactory>()).Item1;
+            Activity.SetContentView(_view);
+            _view = Activity.FindViewById(Android.Resource.Id.Content) ?? _view;
+            _view.ListenParentChange();
 #if !API8
             var actionBarView = Activity.FindViewById<Views.ActionBar>(Resource.Id.ActionBarView);
             if (actionBarView != null)

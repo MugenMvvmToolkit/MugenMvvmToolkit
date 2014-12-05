@@ -32,6 +32,11 @@ namespace MugenMvvmToolkit.Interfaces.Mediators
         Activity Activity { get; }
 
         /// <summary>
+        ///     Returns true if the final <c>OnDestroy</c> call has been made on the Target, so this instance is now dead.
+        /// </summary>
+        bool IsDestroyed { get; }
+
+        /// <summary>
         ///     Gets or sets the data context.
         /// </summary>
         [CanBeNull]

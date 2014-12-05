@@ -27,6 +27,7 @@ using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Validation;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Models.Messages;
@@ -41,12 +42,12 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         #region Fields
 
         /// <summary>
-        ///     Gets the empty dictionary.
+        ///     Gets the result that indicates that validator should clear errors.
         /// </summary>
         protected static readonly Task<IDictionary<string, IEnumerable>> EmptyResult;
 
         /// <summary>
-        /// Gets the result that indicates that validator should not update errors. 
+        ///     Gets the result that indicates that validator should not update errors.
         /// </summary>
         protected static readonly Task<IDictionary<string, IEnumerable>> DoNothingResult;
         private static readonly IDictionary<string, ICollection<string>> EmptyMappingDictionary;
@@ -57,7 +58,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         private readonly HashSet<string> _validatingMembers;
         private int _validationThreadCount;
         private IValidatorContext _context;
-        private INotifyPropertyChanged _notifyPropertyChanged;
         private PropertyChangedEventHandler _weakPropertyHandler;
 
         #endregion
@@ -168,17 +168,23 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
             OnInitialized(context);
 
-            _notifyPropertyChanged = Instance as INotifyPropertyChanged ??
-                                     context.ValidationMetadata.GetData(ViewModelConstants.ViewModel);
-            if (_notifyPropertyChanged == null)
+
+            var notifyPropertyChanged = Instance as INotifyPropertyChanged;
+            if (notifyPropertyChanged != null)
+            {
+                InitializeWeakHandler();
+                notifyPropertyChanged.PropertyChanged += _weakPropertyHandler;
+            }
+            notifyPropertyChanged = context.ValidationMetadata.GetData(ViewModelConstants.ViewModel);
+            if (notifyPropertyChanged != null)
+            {
+                InitializeWeakHandler();
+                notifyPropertyChanged.PropertyChanged += _weakPropertyHandler;
+            }
+            if (_weakPropertyHandler == null)
                 Tracer.Warn(
                     "The type {0} doesn't implement the INotifyPropertyChanged, validator {1} cannot track errors.",
                     Instance.GetType(), GetType());
-            else
-            {
-                _weakPropertyHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, (@base, o, arg3) => @base.OnPropertyChangedNotifyDataError(arg3));
-                _notifyPropertyChanged.PropertyChanged += _weakPropertyHandler;
-            }
         }
 
         /// <summary>
@@ -711,7 +717,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             lock (_validatingMembers)
             {
                 if (!_validatingMembers.Add(propertyName))
-                    return EmptyResult;
+                    return Empty.Task;
             }
 
             AsyncValidationMessage message = null;
@@ -725,7 +731,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 if (ReferenceEquals(validationTask, DoNothingResult))
                 {
                     validationTask = null;
-                    return EmptyResult;
+                    return Empty.Task;
                 }
 
                 isAsync = !validationTask.IsCompleted;
@@ -840,6 +846,12 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             return mappingProperties;
         }
 
+        private void InitializeWeakHandler()
+        {
+            if (_weakPropertyHandler == null)
+                _weakPropertyHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, (@base, o, arg3) => @base.OnPropertyChangedNotifyDataError(arg3));
+        }
+
         #endregion
 
         #region Overrides of DisposableObject
@@ -851,10 +863,13 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         {
             if (disposing)
             {
-                if (_notifyPropertyChanged != null)
-                    _notifyPropertyChanged.PropertyChanged -= _weakPropertyHandler;
+                var notifyPropertyChanged = Instance as INotifyPropertyChanged;
+                if (notifyPropertyChanged != null)
+                    notifyPropertyChanged.PropertyChanged -= _weakPropertyHandler;
+                notifyPropertyChanged = Context.ValidationMetadata.GetData(ViewModelConstants.ViewModel);
+                if (notifyPropertyChanged != null)
+                    notifyPropertyChanged.PropertyChanged -= _weakPropertyHandler;
                 _weakPropertyHandler = null;
-                _notifyPropertyChanged = null;
                 ErrorsChanged = null;
                 ServiceProvider.AttachedValueProvider.Clear(this);
             }

@@ -159,7 +159,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             if (ItemsSource == null)
                 return null;
-            return CreateView(GetRawItem(position), convertView, parent, _itemTemplateProvider, Android.Resource.Layout.SimpleListItem1);
+            return CreateView(GetRawItem(position), convertView, parent, _itemTemplateProvider,
+                Android.Resource.Layout.SimpleListItem1);
         }
 
         #endregion

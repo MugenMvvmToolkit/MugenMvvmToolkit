@@ -75,7 +75,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             if (!ValidationElementProvider
                 .GetValidationElements(Instance)
                 .TryGetValue(propertyName, out elements) || elements == null)
-                return EmptyResult;
+                return DoNothingResult;
             IValidationContext context = CreateContext();
             var result = new Dictionary<string, IEnumerable>();
             Validate(result, elements, context);
@@ -92,7 +92,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         {
             var elements = ValidationElementProvider.GetValidationElements(Instance);
             if (elements.Count == 0)
-                return EmptyResult;
+                return DoNothingResult;
             var result = new Dictionary<string, IEnumerable>();
             IValidationContext context = CreateContext();
             foreach (var element in elements)

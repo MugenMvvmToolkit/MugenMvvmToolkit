@@ -86,7 +86,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         protected override void Refresh()
         {
             for (int i = 0; i < _actionBar.TabCount; i++)
-                _tabTemplate.ClearTab(_actionBar, _actionBar.GetTabAt(i));
+                ActionBarTabTemplate.ClearTab(_actionBar, _actionBar.GetTabAt(i));
             _actionBar.RemoveAllTabs();
 
             IEnumerable itemsSource = ItemsSource;
@@ -148,7 +148,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             var tabAt = _actionBar.GetTabAt(index);
             _actionBar.RemoveTabAt(index);
             if (tabAt != null)
-                _tabTemplate.ClearTab(_actionBar, tabAt);
+                ActionBarTabTemplate.ClearTab(_actionBar, tabAt);
         }
 
         private ActionBar.Tab CreateTab(int index)

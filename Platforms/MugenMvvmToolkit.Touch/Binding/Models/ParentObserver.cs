@@ -119,7 +119,7 @@ namespace MugenMvvmToolkit.Binding.Models
         private static object GetParent(UIView view)
         {
             //Disposed
-            if (view.IsDisposed())
+            if (!view.IsAlive())
                 return null;
             var controller = view.NextResponder as UIViewController;
             if (controller != null && controller.View == view)
@@ -138,7 +138,7 @@ namespace MugenMvvmToolkit.Binding.Models
         private void Raise(out UIView view)
         {
             view = GetSource();
-            if (view == null || view.IsDisposed())
+            if (view == null || !view.IsAlive())
             {
                 view = null;
                 return;

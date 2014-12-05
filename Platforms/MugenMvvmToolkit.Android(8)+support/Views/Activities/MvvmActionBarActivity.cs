@@ -80,6 +80,14 @@ namespace MugenMvvmToolkit.Views.Activities
         }
 
         /// <summary>
+        ///     Returns true if the final <c><see cref="M:Android.App.Activity.OnDestroy" /></c> call has been made on the Activity, so this instance is now dead.
+        /// </summary>
+        bool IActivityView.IsDestroyed
+        {
+            get { return Mediator.IsDestroyed; }
+        }
+
+        /// <summary>
         /// Gets the current bundle.
         /// </summary>
         public Bundle Bundle

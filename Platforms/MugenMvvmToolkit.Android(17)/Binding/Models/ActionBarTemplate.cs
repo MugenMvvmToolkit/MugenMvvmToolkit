@@ -153,7 +153,7 @@ namespace MugenMvvmToolkit.Binding.Models
             setter.SetStringProperty(template => template.Title, Title);
             setter.SetBoolProperty(template => template.Visible, Visible);
             setter.SetBinding("HomeButton.Click", HomeButtonClick, false);
-            
+
             if (string.IsNullOrEmpty(ItemsSource))
             {
                 if (Tabs != null)
@@ -180,16 +180,12 @@ namespace MugenMvvmToolkit.Binding.Models
 
         public static void Clear(Activity activity)
         {
-            try
-            {
-                var actionBar = activity.GetActionBar(false);
-                if (actionBar != null)
-                    BindingServiceProvider.BindingManager.ClearBindings(actionBar);
-            }
-            catch (Exception e)
-            {
-                Tracer.Error(e.Flatten(true));
-            }
+            var actionBar = activity.GetActionBar(false);
+            if (actionBar == null)
+                return;
+            for (int i = 0; i < actionBar.TabCount; i++)
+                ActionBarTabTemplate.ClearTab(actionBar, actionBar.GetTabAt(i));
+            actionBar.ClearBindings(true, true);
         }
 
         private void TryRestoreSelectedIndex(Activity activity, ActionBar actionBar)

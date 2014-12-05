@@ -482,10 +482,45 @@ namespace MugenMvvmToolkit
             return reference;
         }
 
-        internal static bool IsDisposed([NotNull] this NSObject item)
+        internal static bool IsAlive([NotNull] this NSObject item)
         {
             Should.NotBeNull(item, "item");
-            return item.Handle == IntPtr.Zero;
+            return item.Handle != IntPtr.Zero;
+        }
+
+        internal static void ClearBindingsHierarchically(this UIView view, bool clearDataContext, bool clearAttachedValues)
+        {
+            if (view == null)
+                return;
+            foreach (var subView in view.Subviews)
+                subView.ClearBindingsHierarchically(clearDataContext, clearAttachedValues);
+            ClearBindings(view, clearDataContext, clearAttachedValues);
+        }
+
+        internal static void ClearBindings<T>(this T[] items, bool clearDataContext, bool clearAttachedValues)
+        {
+            if (items == null)
+                return;
+            for (int i = 0; i < items.Length; i++)
+                items[i].ClearBindings(clearDataContext, clearAttachedValues);
+        }
+
+        internal static void ClearBindings(this object item, bool clearDataContext, bool clearAttachedValues)
+        {
+            if (item == null)
+                return;
+            try
+            {
+                BindingServiceProvider.BindingManager.ClearBindings(item);
+                if (clearDataContext && BindingServiceProvider.ContextManager.HasBindingContext(item))
+                    BindingServiceProvider.ContextManager.GetBindingContext(item).Value = null;
+                if (clearAttachedValues)
+                    ServiceProvider.AttachedValueProvider.Clear(item);
+            }
+            catch (Exception e)
+            {
+                Tracer.Error(e.Flatten(true));
+            }
         }
 
         private static void AddButtonOS7([NotNull] this UIActionSheet actionSheet, string title, string binding, IList<object> sources)
