@@ -14,12 +14,12 @@
 // ****************************************************************************
 #endregion
 
+using System;
 using Android.Views;
 using Android.Widget;
 #if !API17
 using MugenMvvmToolkit.Binding;
 #endif
-
 
 namespace MugenMvvmToolkit.Views
 {
@@ -70,6 +70,26 @@ namespace MugenMvvmToolkit.Views
                 return firstChild;
             }
         }
+
+        //NOTE ConditionalWeakTable invokes finalizer for value, even if the key object is still alive https://bugzilla.xamarin.com/show_bug.cgi?id=21620
+        public object DataContext
+        {
+            get { return _dataContext; }
+            set
+            {
+                if (Equals(value, _dataContext))
+                    return;
+                _dataContext = value;
+                var eventHandler = DataContextChanged;
+                if (eventHandler != null)
+                    eventHandler(this, EventArgs.Empty);
+            }
+        }
+
+        /// <summary>
+        ///     Occurs when the DataContext property changed.
+        /// </summary>
+        public event EventHandler DataContextChanged;
 
         #endregion
 

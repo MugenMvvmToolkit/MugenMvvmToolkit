@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
@@ -55,14 +56,14 @@ namespace MugenMvvmToolkit.Infrastructure
         protected override void CleanupView(IViewModel viewModel, object view, IDataContext context)
         {
             base.CleanupView(viewModel, view, context);
-            ClearBindings(view);
+            ClearBindings(view as BindableObject);
         }
 
         #endregion
 
         #region Methods
 
-        private static void ClearBindings(object item)
+        private static void ClearBindings(BindableObject item)
         {
             if (item == null)
                 return;
@@ -72,17 +73,18 @@ namespace MugenMvvmToolkit.Infrastructure
                 .GetCustomAttribute<ContentPropertyAttribute>(true);
             if (attribute != null)
             {
-                IBindingMemberInfo bindingMember = BindingServiceProvider.MemberProvider.GetBindingMember(type,
-                    attribute.Name, true, false);
+                IBindingMemberInfo bindingMember = BindingServiceProvider
+                    .MemberProvider
+                    .GetBindingMember(type, attribute.Name, true, false);
                 if (bindingMember != null)
                 {
                     object content = bindingMember.GetValue(item, null);
                     var enumerable = content as IEnumerable;
                     if (enumerable == null)
-                        ClearBindings(content);
+                        ClearBindings(content as BindableObject);
                     else
                     {
-                        foreach (object child in enumerable)
+                        foreach (var child in enumerable.OfType<BindableObject>())
                             ClearBindings(child);
                     }
                 }

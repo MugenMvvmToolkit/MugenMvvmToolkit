@@ -51,6 +51,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 _target = ToolkitExtensions.GetWeakReference(target);
                 _rootMemberInfo = rootMemberInfo;
+                rootMemberInfo.TryObserve(target, this);
             }
 
             #endregion

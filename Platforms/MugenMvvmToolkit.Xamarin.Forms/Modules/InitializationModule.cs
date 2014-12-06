@@ -124,6 +124,15 @@ namespace MugenMvvmToolkit.Modules
             return BindingInfo<IAttachedValueProvider>.FromType<AttachedValueProvider>(DependencyLifecycle.SingleInstance);
         }
 
+        /// <summary>
+        ///     Gets the <see cref="IViewManager" /> that will be used in the current application by default.
+        /// </summary>
+        /// <returns>An instance of <see cref="IViewManager" />.</returns>
+        protected override BindingInfo<IViewManager> GetViewManager()
+        {
+            return BindingInfo<IViewManager>.FromType<ViewManagerEx>(DependencyLifecycle.SingleInstance);
+        }
+
         #endregion
     }
 }

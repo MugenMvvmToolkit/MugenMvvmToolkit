@@ -85,9 +85,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             public static void Restore(UIView view)
             {
                 var info = ServiceProvider.AttachedValueProvider.GetValue<LayoutInfo>(view, Key, false);
+                ServiceProvider.AttachedValueProvider.Clear(view, Key);
                 if (info == null || info._isEmpty)
                     return;
-                ServiceProvider.AttachedValueProvider.Clear(view, Key);
                 var layer = view.Layer;
                 if (layer == null)
                     return;
