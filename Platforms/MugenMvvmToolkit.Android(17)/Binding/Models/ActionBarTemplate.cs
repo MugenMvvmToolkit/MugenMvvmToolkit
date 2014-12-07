@@ -184,7 +184,7 @@ namespace MugenMvvmToolkit.Binding.Models
             if (actionBar == null)
                 return;
             for (int i = 0; i < actionBar.TabCount; i++)
-                ActionBarTabTemplate.ClearTab(actionBar, actionBar.GetTabAt(i));
+                ActionBarTabTemplate.ClearTab(actionBar, actionBar.GetTabAt(i), false);
             actionBar.ClearBindings(true, true);
         }
 

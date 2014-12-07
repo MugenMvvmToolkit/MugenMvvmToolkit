@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.MugenInjectionContainer</id>
-    <version>1.2.0-beta4</version>
+    <version>1.2.0</version>
     <title>MugenMvvmToolkit - MugenInjection</title>
     <authors>Vyacheslav Volkov</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -12,7 +12,7 @@
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios ioc di</tags>
     <description>Extension for Mugen Injection providing integration with Mugen MVVM Toolkit.</description>
     <dependencies>
-      <dependency id="MugenMvvmToolkit" version="[3.2.0-beta4, 3.3.0)" />
+      <dependency id="MugenMvvmToolkit" version="[3.2.0, 3.3.0)" />
       <dependency id="MugenInjection" version="[3.5.0, 3.6.0)" />
     </dependencies>
   </metadata>

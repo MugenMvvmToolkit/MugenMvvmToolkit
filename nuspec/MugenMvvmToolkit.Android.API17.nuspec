@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.Android.API17</id>
-    <version>1.2.0-beta4</version>
+    <version>1.2.0</version>
     <title>MugenMvvmToolkit - Android API17+</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -37,15 +37,20 @@
       - Excellent binding performance.
     </description>
     <releaseNotes>
-      - Added Xamarin.Forms support
-      - Updated android projects from API8 to API10
       - Fixed invalid binding validation when using $GetErrors method.
+      - Added Xamarin.Forms support.
+      - Added IWrapperManager instead of IViewModelWrapperManager.
+      - Updated IEventAggregator, added the ability to subscribe using a delegate.
       - Added AsyncRelayCommand that allows to use Task in execute method.
-      - Removed ThrowOnMultiInitialization property from IViewModelSettings.
-      - Moved the Handle method from IEventListener to extension method.
-      - Updated BindingEditor (WinForms).
-      - Optimized delegate allocation.
+      - Added support for the $root keyword (Binding).
+      - Updated android projects from API8 to API10.
+      - Updated IDynamicObject interface, that allows to invoke methods and index members.
       - Updated CompiledExpressionInvoker, now it can invoke dynamic members.
+      - Updated BindingEditor (WinForms).
+      - Updated IObservable interface, now it works with ISubscriber interface.
+      - Moved the Handle method from IEventListener to extension method.
+      - Removed ThrowOnMultiInitialization property from IViewModelSettings.
+      - Optimized delegate allocation.
       - Minor changes.
     </releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -54,7 +59,7 @@
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
-      <dependency id="MugenMvvmToolkit" version="[3.2.0-beta4, 3.3.0)" />
+      <dependency id="MugenMvvmToolkit" version="[3.2.0, 3.3.0)" />
     </dependencies>
   </metadata>
   <files>

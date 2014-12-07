@@ -86,7 +86,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         protected override void Refresh()
         {
             for (int i = 0; i < _actionBar.TabCount; i++)
-                ActionBarTabTemplate.ClearTab(_actionBar, _actionBar.GetTabAt(i));
+                ActionBarTabTemplate.ClearTab(_actionBar, _actionBar.GetTabAt(i), true);
             _actionBar.RemoveAllTabs();
 
             IEnumerable itemsSource = ItemsSource;
@@ -114,7 +114,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             ServiceProvider.AttachedValueProvider.SetValue(actionBar, Key, new ActionBarTabItemsSourceGenerator(actionBar, tabTemplate));
         }
-        
+
         public void SetSelectedItem(object selectedItem, IDataContext context = null)
         {
             IBindingContextManager contextManager = BindingServiceProvider.ContextManager;
@@ -148,7 +148,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             var tabAt = _actionBar.GetTabAt(index);
             _actionBar.RemoveTabAt(index);
             if (tabAt != null)
-                ActionBarTabTemplate.ClearTab(_actionBar, tabAt);
+                ActionBarTabTemplate.ClearTab(_actionBar, tabAt, true);
         }
 
         private ActionBar.Tab CreateTab(int index)
