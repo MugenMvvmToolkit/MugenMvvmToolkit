@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // ****************************************************************************
-// <copyright file="XamarinFormsExtensions.cs">
+// <copyright file="PlatformDataBindingExtensionsCommon.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
 // </copyright>
 // ****************************************************************************
@@ -13,62 +13,33 @@
 // </license>
 // ****************************************************************************
 #endregion
-
 using System;
 using System.Collections.Generic;
+#if NETFX_CORE || WINDOWSCOMMON
+using Windows.UI.Xaml;
+#else
+using System.Windows;
+#endif
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Models;
-using Xamarin.Forms;
 
-namespace MugenMvvmToolkit
+namespace MugenMvvmToolkit.Binding
 {
-    public static class XamarinFormsExtensions
+    // ReSharper disable once PartialTypeWithSinglePart
+    public static partial class PlatformDataBindingExtensions
     {
-        #region Fields
-
-        private const string NavParamKey = "@~`NavParam";
-
-        #endregion
-
         #region Methods
 
-        internal static PlatformInfo GetPlatformInfo()
-        {
-            return new PlatformInfo(Device.OnPlatform(PlatformType.iOS, PlatformType.Android, PlatformType.WinPhone), new Version(0, 0));
-        }
-
-        internal static void AsEventHandler<TArg>(this Action action, object sender, TArg arg)
-        {
-            action();
-        }
-
-        public static void SetNavigationParameter([NotNull] this Page controller, object value)
-        {
-            Should.NotBeNull(controller, "controller");
-            if (value == null)
-                ServiceProvider.AttachedValueProvider.Clear(controller, NavParamKey);
-            else
-                ServiceProvider.AttachedValueProvider.SetValue(controller, NavParamKey, value);
-        }
-
-        public static object GetNavigationParameter([CanBeNull] this Page controller)
-        {
-            if (controller == null)
-                return null;
-            return ServiceProvider.AttachedValueProvider.GetValue<object>(controller, NavParamKey, false);
-        }
-        public static IList<IDataBinding> SetBindings(this BindableObject item, string bindingExpression,
-                    IList<object> sources = null)
+        public static IList<IDataBinding> SetBindings(this DependencyObject item, string bindingExpression,
+            IList<object> sources = null)
         {
             return BindingServiceProvider.BindingProvider.CreateBindingsFromString(item, bindingExpression, sources);
         }
 
         public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
             [NotNull] string bindings)
-            where T : BindableObject
+            where T : DependencyObject
             where TBindingSet : BindingSet
         {
             Should.NotBeNull(item, "item");
@@ -81,7 +52,7 @@ namespace MugenMvvmToolkit
 
         public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
             [NotNull] Action<TBindingSet, T> setBinding)
-            where T : BindableObject
+            where T : DependencyObject
             where TBindingSet : BindingSet
         {
             Should.NotBeNull(item, "item");
@@ -91,7 +62,7 @@ namespace MugenMvvmToolkit
             return item;
         }
 
-        public static void ClearBindings([CanBeNull] this BindableObject item, bool clearDataContext,
+        public static void ClearBindings([CanBeNull] this DependencyObject item, bool clearDataContext,
             bool clearAttachedValues, bool disposeitem = false)
         {
             BindingExtensions.ClearBindings(item, clearDataContext, clearAttachedValues, disposeitem);

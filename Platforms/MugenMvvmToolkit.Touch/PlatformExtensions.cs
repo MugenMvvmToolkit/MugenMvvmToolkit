@@ -488,39 +488,27 @@ namespace MugenMvvmToolkit
             return item.Handle != IntPtr.Zero;
         }
 
-        internal static void ClearBindingsHierarchically(this UIView view, bool clearDataContext, bool clearAttachedValues)
+        public static void ClearBindingsHierarchically([CanBeNull]this UIView view, bool clearDataContext, bool clearAttachedValues, bool disposeView)
         {
             if (view == null)
                 return;
             foreach (var subView in view.Subviews)
-                subView.ClearBindingsHierarchically(clearDataContext, clearAttachedValues);
-            ClearBindings(view, clearDataContext, clearAttachedValues);
+                subView.ClearBindingsHierarchically(clearDataContext, clearAttachedValues, disposeView);
+            ClearBindings(view, clearDataContext, clearAttachedValues, disposeView);
         }
 
-        internal static void ClearBindings<T>(this T[] items, bool clearDataContext, bool clearAttachedValues)
+        public static void ClearBindings<T>([CanBeNull]this T[] items, bool clearDataContext, bool clearAttachedValues, bool disposeObjects)
+            where T : NSObject
         {
             if (items == null)
                 return;
             for (int i = 0; i < items.Length; i++)
-                items[i].ClearBindings(clearDataContext, clearAttachedValues);
+                ClearBindings(items[i], clearDataContext, clearAttachedValues, disposeObjects);
         }
 
-        internal static void ClearBindings(this object item, bool clearDataContext, bool clearAttachedValues)
+        public static void ClearBindings(this NSObject nsObject, bool clearDataContext, bool clearAttachedValues, bool disposeObject)
         {
-            if (item == null)
-                return;
-            try
-            {
-                BindingServiceProvider.BindingManager.ClearBindings(item);
-                if (clearDataContext && BindingServiceProvider.ContextManager.HasBindingContext(item))
-                    BindingServiceProvider.ContextManager.GetBindingContext(item).Value = null;
-                if (clearAttachedValues)
-                    ServiceProvider.AttachedValueProvider.Clear(item);
-            }
-            catch (Exception e)
-            {
-                Tracer.Error(e.Flatten(true));
-            }
+            BindingExtensions.ClearBindings(nsObject, clearDataContext, clearAttachedValues, disposeObject);
         }
 
         private static void AddButtonOS7([NotNull] this UIActionSheet actionSheet, string title, string binding, IList<object> sources)

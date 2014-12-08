@@ -168,7 +168,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             var handler = Destroyed;
             if (handler != null)
                 handler(Activity, EventArgs.Empty);
-            _view.ClearBindingsHierarchically(true, true);
+            _view.ClearBindingsHierarchically(true, true, true);
             _view = null;
 
             MenuTemplate.Clear(_menu);

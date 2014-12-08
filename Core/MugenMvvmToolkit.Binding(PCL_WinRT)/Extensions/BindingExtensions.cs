@@ -490,6 +490,30 @@ namespace MugenMvvmToolkit.Binding
             return defaultValue;
         }
 
+        public static void ClearBindings([CanBeNull] object item, bool clearDataContext, bool clearAttachedValues, bool disposeItem)
+        {
+            if (item == null)
+                return;
+            try
+            {
+                BindingServiceProvider.BindingManager.ClearBindings(item);
+                if (clearDataContext && BindingServiceProvider.ContextManager.HasBindingContext(item))
+                    BindingServiceProvider.ContextManager.GetBindingContext(item).Value = null;
+                if (clearAttachedValues)
+                    ServiceProvider.AttachedValueProvider.Clear(item);
+                if (disposeItem)
+                {
+                    var disposable = item as IDisposable;
+                    if (disposable != null)
+                        disposable.Dispose();
+                }
+            }
+            catch (Exception e)
+            {
+                Tracer.Error(e.Flatten(true));
+            }
+        }
+
         internal static void CheckDuplicateLambdaParameter(ICollection<string> parameters)
         {
             if (parameters.Count == 0)

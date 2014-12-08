@@ -27,6 +27,11 @@ namespace MugenMvvmToolkit.Interfaces.Models
     public interface IRelayCommand : ICommand, IDisposable, ISuspendNotifications
     {
         /// <summary>
+        ///     Gets the value that indicates that command has can execute handler.
+        /// </summary>
+        bool HasCanExecuteImpl { get; }
+
+        /// <summary>
         ///     Specifies the execution mode for <c>Execute</c> method.
         /// </summary>
         CommandExecutionMode ExecutionMode { get; set; }

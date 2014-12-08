@@ -185,7 +185,7 @@ namespace MugenMvvmToolkit.Binding.Models
                 return;
             for (int i = 0; i < actionBar.TabCount; i++)
                 ActionBarTabTemplate.ClearTab(actionBar, actionBar.GetTabAt(i), false);
-            actionBar.ClearBindings(true, true);
+            actionBar.ClearBindings(true, true, false);
         }
 
         private void TryRestoreSelectedIndex(Activity activity, ActionBar actionBar)

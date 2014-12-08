@@ -49,9 +49,6 @@ namespace MugenMvvmToolkit.Modules
         /// </summary>
         public InitializationModule()
         {
-#if WPF
-            UseNativeCommandManager = false;
-#endif
         }
 
         /// <summary>
@@ -60,9 +57,6 @@ namespace MugenMvvmToolkit.Modules
         protected InitializationModule(LoadMode loadMode = LoadMode.All, int priority = InitializationModulePriority)
             : base(loadMode, priority)
         {
-#if WPF
-            UseNativeCommandManager = false;
-#endif
         }
 
         #endregion

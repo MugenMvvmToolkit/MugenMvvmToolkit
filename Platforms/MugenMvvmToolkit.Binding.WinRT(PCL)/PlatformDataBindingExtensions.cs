@@ -24,7 +24,7 @@ namespace MugenMvvmToolkit.Binding
     /// <summary>
     ///     Represents the platform specific extensions.
     /// </summary>
-    public static class PlatformDataBindingExtensions
+    public static partial class PlatformDataBindingExtensions
     {
         #region Methods
 
@@ -57,6 +57,5 @@ namespace MugenMvvmToolkit.Binding
         }
 
         #endregion
-
     }
 }

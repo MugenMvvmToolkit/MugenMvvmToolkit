@@ -1,4 +1,5 @@
 #region Copyright
+
 // ****************************************************************************
 // <copyright file="MonoTouchDialogExtensions.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,7 +13,9 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,6 +25,7 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 
 // ReSharper disable once CheckNamespace
+
 namespace MugenMvvmToolkit.MonoTouch.Dialog
 {
     public static class MonoTouchDialogExtensions
@@ -42,7 +46,7 @@ namespace MugenMvvmToolkit.MonoTouch.Dialog
             BindingExtensions.AttachedParentMember.Raise(element, EventArgs.Empty);
         }
 
-        public static void SetParent([NotNull] this Element element, object parent)
+        public static void SetAttachedParent([NotNull] this Element element, object parent)
         {
             Should.NotBeNull(element, "element");
             if (parent == null)
@@ -51,18 +55,23 @@ namespace MugenMvvmToolkit.MonoTouch.Dialog
                 BindingExtensions.AttachedParentMember.SetValue(element, parent);
         }
 
-        internal static void ClearBindingsHierarchically(this Element element, bool clearDataContext, bool clearAttachedValues)
+        public static void ClearBindingsHierarchically([CanBeNull] this Element element, bool clearDataContext,
+            bool clearAttachedValues, bool disposeElement)
         {
             if (element == null)
                 return;
             var enumerable = element as IEnumerable;
             if (enumerable != null)
             {
-                foreach (var item in enumerable)
-                    ClearBindingsHierarchically(item as Element, clearDataContext, clearAttachedValues);
+                foreach (object item in enumerable)
+                    ClearBindingsHierarchically(item as Element, clearDataContext, clearAttachedValues, disposeElement);
             }
-            element.ClearBindings(clearDataContext, clearAttachedValues);
-            element.Dispose();
+            element.ClearBindings(clearDataContext, clearAttachedValues, disposeElement);
+        }
+
+        public static void ClearBindings([CanBeNull] this Element element, bool clearDataContext, bool clearAttachedValues, bool disposeElement)
+        {
+            BindingExtensions.ClearBindings(element, clearDataContext, clearAttachedValues, disposeElement);
         }
 
         #endregion

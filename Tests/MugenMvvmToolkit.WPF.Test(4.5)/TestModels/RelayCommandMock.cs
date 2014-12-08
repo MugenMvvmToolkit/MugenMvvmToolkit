@@ -53,6 +53,14 @@ namespace MugenMvvmToolkit.Test.TestModels
         }
 
         /// <summary>
+        ///     Gets the value that indicates that command has can execute handler.
+        /// </summary>
+        public bool HasCanExecuteImpl
+        {
+            get { return true; }
+        }
+
+        /// <summary>
         ///     Specifies the execution mode for <c>Execute</c> method.
         /// </summary>
         public CommandExecutionMode ExecutionMode { get; set; }

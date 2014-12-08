@@ -45,6 +45,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             private IDisposable _subscriber;
             private BindingMemberValue _currentValue;
             private object _valueReference;
+            private EventHandler _canExecuteHandler;
             public IDataContext LastContext;
 
             #endregion
@@ -82,7 +83,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 }
             }
 
-            public void Unsubscribe()
+            public void Unsubscribe(bool dispose)
             {
                 if (_subscriber == null)
                     return;
@@ -94,6 +95,8 @@ namespace MugenMvvmToolkit.Binding.Accessors
                         UnsubscribeCommand();
                     ClearValueReference();
                 }
+                if (dispose)
+                    _canExecuteHandler = null;
             }
 
             private void ClearValueReference()
@@ -127,12 +130,14 @@ namespace MugenMvvmToolkit.Binding.Accessors
                     if (_toggleEnabledState && accessor.BindingTarget != null)
                     {
                         accessor.CommandOnCanExecuteChanged(command, LastContext);
-                        command.CanExecuteChanged += CommandOnCanExecuteChanged;
+                        InitializeCanExecuteDelegate(command);
+                        if (_canExecuteHandler != null)
+                            command.CanExecuteChanged += _canExecuteHandler;
                     }
                 }
             }
 
-            private void CommandOnCanExecuteChanged(object sender, EventArgs eventArgs)
+            private void CommandOnCanExecuteChanged()
             {
                 var target = (BindingSourceAccessor)_sourceReference.Target;
                 if (target == null)
@@ -152,7 +157,8 @@ namespace MugenMvvmToolkit.Binding.Accessors
                     return;
                 if (!_toggleEnabledState)
                     return;
-                command.CanExecuteChanged -= CommandOnCanExecuteChanged;
+                if (_canExecuteHandler != null)
+                    command.CanExecuteChanged -= _canExecuteHandler;
 
                 var accessor = (BindingSourceAccessor)_sourceReference.Target;
                 if (accessor == null)
@@ -187,6 +193,16 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 return reference.Target;
             }
 
+            private void InitializeCanExecuteDelegate(ICommand command)
+            {
+                if (_canExecuteHandler != null)
+                    return;
+                var relayCommand = command as IRelayCommand;
+                if (relayCommand == null || relayCommand.HasCanExecuteImpl)
+                    Interlocked.CompareExchange(ref _canExecuteHandler, ReflectionExtensions
+                        .CreateWeakEventHandler<EventClosure, EventArgs>(this, (closure, o, arg3) => closure.CommandOnCanExecuteChanged()).Handle, null);
+            }
+
             #endregion
 
             #region Implementation of IEventListener
@@ -210,10 +226,10 @@ namespace MugenMvvmToolkit.Binding.Accessors
                     return false;
                 }
 
+                var ctx = LastContext == null ? new DataContext() : new DataContext(LastContext);
                 var value = GetReferenceValue();
-                var context = LastContext.ToNonReadOnly();
-                context.AddOrUpdate(BindingConstants.CurrentEventArgs, message);
-                target.OnEventImpl(value, message, LastContext);
+                ctx.AddOrUpdate(BindingConstants.CurrentEventArgs, message);
+                target.OnEventImpl(value, message, ctx);
                 return true;
             }
 
@@ -294,6 +310,8 @@ namespace MugenMvvmToolkit.Binding.Accessors
             _bindingSource.Dispose();
             ValueChanging = null;
             ValueChanged = null;
+            if (_closure != null)
+                _closure.Unsubscribe(true);
         }
 
         /// <summary>
@@ -377,7 +395,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             else
             {
                 if (_closure != null)
-                    _closure.Unsubscribe();
+                    _closure.Unsubscribe(false);
                 lastMember.SetValue(penultimateValue, new[] { newValue });
                 if (ValueChanged != null)
                     RaiseValueChanged(context, penultimateValue, lastMember, oldValue, newValue, args);

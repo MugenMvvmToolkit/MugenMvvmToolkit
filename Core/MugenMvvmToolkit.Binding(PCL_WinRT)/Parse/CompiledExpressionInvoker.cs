@@ -419,7 +419,10 @@ namespace MugenMvvmToolkit.Binding.Parse
                     .GetBindingMember(type, expression.Member, false, false);
                 if (bindingMember != null)
                 {
-                    var methodCall = Expression.Call(Expression.Constant(bindingMember), BindingMemberGetValueMethod, target, EmptyObjectArrayExpression);
+                    var methodCall = Expression.Call(Expression.Constant(bindingMember, typeof(IBindingMemberInfo)),
+                        BindingMemberGetValueMethod,
+                        ExpressionReflectionManager.ConvertIfNeed(target, typeof(object), false),
+                        EmptyObjectArrayExpression);
                     return Expression.Convert(methodCall, bindingMember.Type);
                 }
             }
@@ -427,7 +430,8 @@ namespace MugenMvvmToolkit.Binding.Parse
             var member = type.FindPropertyOrField(expression.Member, target == null);
             //Trying to get dynamic value.
             if (member == null)
-                return Expression.Call(null, GetMemberValueDynamicMethod, target,
+                return Expression.Call(null, GetMemberValueDynamicMethod,
+                    ExpressionReflectionManager.ConvertIfNeed(target, typeof(object), false),
                     Expression.Constant(expression.Member, typeof(string)));
             return member is PropertyInfo
                 ? Expression.Property(target, (PropertyInfo)member)
@@ -504,7 +508,9 @@ namespace MugenMvvmToolkit.Binding.Parse
                         throw BindingExceptionManager.InvalidBindingMember(type, methodCall.Method);
                     arrayArgs[i] = ExpressionReflectionManager.ConvertIfNeed(data.Expression, typeof(object), false);
                 }
-                return Expression.Call(InvokeMemberDynamicMethod, target, Expression.Constant(methodCall.Method),
+                return Expression.Call(InvokeMemberDynamicMethod,
+                    ExpressionReflectionManager.ConvertIfNeed(target, typeof(object), false),
+                    Expression.Constant(methodCall.Method),
                     Expression.NewArrayInit(typeof(object), arrayArgs), Expression.Constant(typeArgs),
                     DataContextParameter);
             }
@@ -536,7 +542,8 @@ namespace MugenMvvmToolkit.Binding.Parse
                         throw BindingExceptionManager.InvalidBindingMember(type, "Item[]");
                     arrayArgs[i] = ExpressionReflectionManager.ConvertIfNeed(data.Expression, typeof(object), false);
                 }
-                return Expression.Call(GetIndexValueDynamicMethod, target,
+                return Expression.Call(GetIndexValueDynamicMethod,
+                    ExpressionReflectionManager.ConvertIfNeed(target, typeof(object), false),
                     Expression.NewArrayInit(typeof(object), arrayArgs), DataContextParameter);
             }
             return GenerateMethodCall(method, targetData, args);

@@ -14,7 +14,6 @@
 // ****************************************************************************
 #endregion
 using System;
-using System.Collections;
 using JetBrains.Annotations;
 using MonoTouch.Dialog;
 using MonoTouch.Foundation;
@@ -144,22 +143,22 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             if (disposing)
             {
                 var bindingContext = BindingServiceProvider.ContextManager.GetBindingContext(_viewController);
-                _viewController.View.ClearBindingsHierarchically(true, true);
-                _viewController.ClearBindings(false, false);
-                _viewController.EditButtonItem.ClearBindings(true, true);
-                _viewController.ToolbarItems.ClearBindings(true, true);
+                _viewController.View.ClearBindingsHierarchically(true, true, true);
+                _viewController.ClearBindings(false, false, false);
+                _viewController.EditButtonItem.ClearBindings(true, true, true);
+                _viewController.ToolbarItems.ClearBindings(true, true, true);
                 UINavigationItem navigationItem = _viewController.NavigationItem;
                 if (navigationItem != null)
                 {
-                    navigationItem.ClearBindings(true, true);
-                    navigationItem.LeftBarButtonItem.ClearBindings(true, true);
-                    navigationItem.LeftBarButtonItems.ClearBindings(true, true);
-                    navigationItem.RightBarButtonItem.ClearBindings(true, true);
-                    navigationItem.RightBarButtonItems.ClearBindings(true, true);
+                    navigationItem.ClearBindings(true, true, true);
+                    navigationItem.LeftBarButtonItem.ClearBindings(true, true, true);
+                    navigationItem.LeftBarButtonItems.ClearBindings(true, true, true);
+                    navigationItem.RightBarButtonItem.ClearBindings(true, true, true);
+                    navigationItem.RightBarButtonItems.ClearBindings(true, true, true);
                 }
                 var dialogViewController = _viewController as DialogViewController;
                 if (dialogViewController != null)
-                    dialogViewController.Root.ClearBindingsHierarchically(true, true);
+                    dialogViewController.Root.ClearBindingsHierarchically(true, true, true);
                 bindingContext.Value = null;
             }
             baseDispose(disposing);

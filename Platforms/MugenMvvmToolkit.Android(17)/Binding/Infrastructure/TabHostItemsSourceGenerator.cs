@@ -424,7 +424,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             var view = tab.Content as View;
             if (view != null)
             {
-                view.ClearBindingsHierarchically(true, true);
+                view.ClearBindingsHierarchically(true, true, true);
                 return;
             }
 #if !API8

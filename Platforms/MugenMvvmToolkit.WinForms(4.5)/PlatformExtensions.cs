@@ -93,6 +93,11 @@ namespace MugenMvvmToolkit
             return item;
         }
 
+        public static void ClearBindings([CanBeNull] this IComponent component, bool clearDataContext, bool clearAttachedValues, bool disposeComponent)
+        {
+            BindingExtensions.ClearBindings(component, clearDataContext, clearAttachedValues, disposeComponent);
+        }
+
         /// <summary>
         ///     Converts a collection to the <see cref="BindingListWrapper{T}" /> collection.
         /// </summary>

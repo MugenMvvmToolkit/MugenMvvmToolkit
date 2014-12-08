@@ -113,6 +113,21 @@ namespace MugenMvvmToolkit.Infrastructure
         public static bool ClearDataContext { get; set; }
 
         /// <summary>
+        ///     Occurs when view is created.
+        /// </summary>
+        public static Action<IViewManager, IViewModel, object, IDataContext> ViewCreated { get; set; }
+
+        /// <summary>
+        ///     Occurs when view is initialized.
+        /// </summary>
+        public static Action<IViewManager, IViewModel, object, IDataContext> ViewInitialized { get; set; }
+
+        /// <summary>
+        ///     Occurs when view is cleared.
+        /// </summary>
+        public static Action<IViewManager, IViewModel, object, IDataContext> ViewCleared { get; set; }
+
+        /// <summary>
         ///     Gets the thread manager.
         /// </summary>
         protected IThreadManager ThreadManager
@@ -152,7 +167,16 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             Should.NotBeNull(viewModel, "viewModel");
             var tcs = new TaskCompletionSource<object>();
-            ThreadManager.InvokeOnUiThreadAsync(() => tcs.SetResult(GetView(viewModel, context ?? DataContext.Empty)));
+            ThreadManager.InvokeOnUiThreadAsync(() =>
+            {
+                if (context == null)
+                    context = DataContext.Empty;
+                var view = GetView(viewModel, context);
+                var handler = ViewCreated;
+                if (handler != null)
+                    handler(this, viewModel, view, context);
+                tcs.SetResult(view);
+            });
             return tcs.Task;
         }
 
@@ -164,11 +188,17 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
         public Task InitializeViewAsync(IViewModel viewModel, object view, IDataContext context = null)
         {
-            var tcs = new TaskCompletionSource<bool>();
+            var tcs = new TaskCompletionSource<object>();
             ThreadManager.InvokeOnUiThreadAsync(() =>
             {
-                InitializeView(viewModel, ToolkitExtensions.GetUnderlyingView<object>(view), context ?? DataContext.Empty);
-                tcs.SetResult(true);
+                if (context == null)
+                    context = DataContext.Empty;
+                view = ToolkitExtensions.GetUnderlyingView<object>(view);
+                InitializeView(viewModel, view, context);
+                var handler = ViewInitialized;
+                if (handler != null)
+                    handler(this, viewModel, view, context);
+                tcs.SetResult(null);
             });
             return tcs.Task;
         }
@@ -184,11 +214,17 @@ namespace MugenMvvmToolkit.Infrastructure
             var view = viewModel.Settings.Metadata.GetData(ViewModelConstants.View);
             if (view == null)
                 return Empty.Task;
-            var tcs = new TaskCompletionSource<bool>();
+            var tcs = new TaskCompletionSource<object>();
             ThreadManager.InvokeOnUiThreadAsync(() =>
             {
-                CleanupView(viewModel, ToolkitExtensions.GetUnderlyingView<object>(view), context ?? DataContext.Empty);
-                tcs.SetResult(true);
+                if (context == null)
+                    context = DataContext.Empty;
+                view = ToolkitExtensions.GetUnderlyingView<object>(view);
+                CleanupView(viewModel, view, context);
+                var handler = ViewCleared;
+                if (handler != null)
+                    handler(this, viewModel, view, context);
+                tcs.SetResult(null);
             }, OperationPriority.Low);
             return tcs.Task;
         }

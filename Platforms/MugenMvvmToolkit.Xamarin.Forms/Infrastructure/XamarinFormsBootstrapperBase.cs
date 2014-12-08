@@ -68,6 +68,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 LinkerInclude.Initialize();
             DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
+            ViewManager.ViewCleared += OnViewCleared;
         }
 
         /// <summary>
@@ -201,6 +202,13 @@ namespace MugenMvvmToolkit.Infrastructure
             var mappingProvider = container.Get<IViewMappingProvider>();
             var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
             return mappingItem != null && typeof(Page).GetTypeInfo().IsAssignableFrom(mappingItem.ViewType.GetTypeInfo());
+        }
+
+        private static void OnViewCleared(IViewManager viewManager, IViewModel viewModel, object arg3, IDataContext arg4)
+        {
+            var bindableObject = arg3 as BindableObject;
+            if (bindableObject != null)
+                bindableObject.ClearBindings(true, true);
         }
 
         #endregion

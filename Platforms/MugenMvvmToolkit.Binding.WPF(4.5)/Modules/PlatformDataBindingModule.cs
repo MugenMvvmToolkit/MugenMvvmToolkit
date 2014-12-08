@@ -16,6 +16,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.MarkupExtensions;
 #if NETFX_CORE || WINDOWSCOMMON
 using System.Reflection;
@@ -56,6 +58,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         {
             if (View.BindChanged == null)
                 View.BindChanged = OnBindChanged;
+            ViewManager.ViewCleared += OnViewCleared;
         }
 
         #endregion
@@ -201,8 +204,22 @@ namespace MugenMvvmToolkit.Binding.Modules
                 if (child != null)
                     return child;
             }
-
             return null;
+        }
+
+        private static void OnViewCleared(IViewManager viewManager, IViewModel viewModel, object arg3, IDataContext arg4)
+        {
+            ClearBindingsHierarchically(arg3 as DependencyObject);
+        }
+
+        private static void ClearBindingsHierarchically(DependencyObject item)
+        {
+            if (item == null)
+                return;
+            var count = VisualTreeHelper.GetChildrenCount(item);
+            for (int i = 0; i < count; i++)
+                ClearBindingsHierarchically(VisualTreeHelper.GetChild(item, i));
+            item.ClearBindings(true, true);
         }
 
         #endregion

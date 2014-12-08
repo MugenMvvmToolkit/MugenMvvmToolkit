@@ -94,17 +94,17 @@ namespace MugenMvvmToolkit.Models
         /// </summary>
         public bool ExecuteAsynchronously { get; set; }
 
-        /// <summary>
-        ///     Gets the value that indicates that command has can execute handler.
-        /// </summary>
-        protected bool HasCanExecuteImpl
-        {
-            get { return _notifiers != null; }
-        }
-
         #endregion
 
         #region Implementation of IRelayCommand
+
+        /// <summary>
+        ///     Gets the value that indicates that command has can execute handler.
+        /// </summary>
+        public bool HasCanExecuteImpl
+        {
+            get { return _notifiers != null; }
+        }
 
         /// <summary>
         ///     Specifies the execution mode for <c>Execute</c> method.

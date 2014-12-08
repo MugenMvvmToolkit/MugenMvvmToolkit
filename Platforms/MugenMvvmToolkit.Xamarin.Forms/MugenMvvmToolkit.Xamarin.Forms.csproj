@@ -100,7 +100,6 @@
     <Compile Include="Binding\Infrastructure\BindingContextManagerEx.cs" />
     <Compile Include="Infrastructure\Mediators\ModalViewMediator.cs" />
     <Compile Include="Infrastructure\Navigation\NavigationService.cs" />
-    <Compile Include="Infrastructure\ViewManagerEx.cs" />
     <Compile Include="Infrastructure\ViewMappingProviderEx.cs" />
     <Compile Include="Infrastructure\XamarinFormsBootstrapperBase.cs" />
     <Compile Include="Modules\InitializationModule.cs" />

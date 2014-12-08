@@ -62,8 +62,26 @@
       <group>
         <dependency id="MugenMvvmToolkit" />
       </group>
-      <group targetFramework="monoandroid">
+      <group targetFramework="monoandroid42">
         <dependency id="MugenMvvmToolkit.Android.API17" />
+      </group>
+      <group targetFramework="monoandroid22">	  
+        <dependency id="MugenMvvmToolkit.Android.API8.AppCompatV7" />
+      </group>
+      <group targetFramework="monoandroid23">
+        <dependency id="MugenMvvmToolkit.Android.API8.AppCompatV7" />
+      </group>
+      <group targetFramework="monoandroid31">
+        <dependency id="MugenMvvmToolkit.Android.API8.AppCompatV7" />
+      </group>
+      <group targetFramework="monoandroid40">
+        <dependency id="MugenMvvmToolkit.Android.API8.AppCompatV7" />
+      </group>
+      <group targetFramework="monoandroid403">
+        <dependency id="MugenMvvmToolkit.Android.API8.AppCompatV7" />
+      </group>
+      <group targetFramework="monoandroid41">
+        <dependency id="MugenMvvmToolkit.Android.API8.AppCompatV7" />
       </group>
       <group targetFramework="monotouch">
         <dependency id="MugenMvvmToolkit.Touch" />

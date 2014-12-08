@@ -493,7 +493,7 @@ namespace MugenMvvmToolkit
             return item;
         }
 
-        internal static void ClearBindingsHierarchically(this View view, bool clearDataContext, bool clearAttachedValues)
+        public static void ClearBindingsHierarchically([CanBeNull]this View view, bool clearDataContext, bool clearAttachedValues, bool disposeView)
         {
             if (view == null)
                 return;
@@ -501,27 +501,14 @@ namespace MugenMvvmToolkit
             if (viewGroup != null)
             {
                 for (int i = 0; i < viewGroup.ChildCount; i++)
-                    viewGroup.GetChildAt(i).ClearBindingsHierarchically(clearDataContext, clearAttachedValues);
+                    viewGroup.GetChildAt(i).ClearBindingsHierarchically(clearDataContext, clearAttachedValues, disposeView);
             }
-            view.ClearBindings(clearDataContext, clearAttachedValues);
+            view.ClearBindings(clearDataContext, clearAttachedValues, disposeView);
         }
 
-        internal static void ClearBindings(this Object item, bool clearDataContext, bool clearAttachedValues)
+        public static void ClearBindings([CanBeNull]this Object item, bool clearDataContext, bool clearAttachedValues, bool disposeObj)
         {
-            if (item == null)
-                return;
-            try
-            {
-                BindingServiceProvider.BindingManager.ClearBindings(item);
-                if (clearDataContext && BindingServiceProvider.ContextManager.HasBindingContext(item))
-                    BindingServiceProvider.ContextManager.GetBindingContext(item).Value = null;
-                if (clearAttachedValues)
-                    ServiceProvider.AttachedValueProvider.Clear(item);
-            }
-            catch (Exception e)
-            {
-                Tracer.Error(e.Flatten(true));
-            }
+            BindingExtensions.ClearBindings(item, clearDataContext, clearAttachedValues, disposeObj);
         }
 
         internal static PlatformInfo GetPlatformInfo()
