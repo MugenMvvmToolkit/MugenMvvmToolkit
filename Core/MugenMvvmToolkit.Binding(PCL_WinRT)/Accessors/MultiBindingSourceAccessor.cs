@@ -37,7 +37,6 @@ namespace MugenMvvmToolkit.Binding.Accessors
         private readonly IBindingSource[] _sources;
         private Func<IDataContext, IList<object>, object> _formatExpression;
         private BindingMemberValue _getSourceMemberValue;
-        private IDataContext _lastContext;
 
         #endregion
 
@@ -141,7 +140,6 @@ namespace MugenMvvmToolkit.Binding.Accessors
             {
                 if (_getSourceMemberValue == null)
                     _getSourceMemberValue = new BindingMemberValue(this, BindingMemberInfo.MultiBindingSourceAccessorMember);
-                _lastContext = context;
                 return _getSourceMemberValue;
             }
             return base.GetValueInternal(targetMember, context, throwOnError);
@@ -151,12 +149,9 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         #region Methods
 
-        /// <summary>
-        ///     This is internal method, don't use it.
-        /// </summary>
-        internal object GetRawValueInternal()
+        internal object GetRawValueInternal(IDataContext context)
         {
-            return GetRawValueInternal(null, _lastContext, true);
+            return GetRawValueInternal(null, context ?? DataContext.Empty, true);
         }
 
         #endregion

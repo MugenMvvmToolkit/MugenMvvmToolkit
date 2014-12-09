@@ -1727,6 +1727,22 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             expression(context, Empty.Array<object>()).ShouldEqual('T');
         }
 
+        [TestMethod]
+        public void ParserShouldParseExpressionWithEventArgs()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text $args";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var target = context.GetData(BindingBuilderConstants.TargetPath);
+            target.Path.ShouldEqual(targetPath);
+
+            context.Add(BindingConstants.CurrentEventArgs, EventArgs.Empty);
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, Empty.Array<object>()).ShouldEqual(EventArgs.Empty);
+        }
+
         private static void BindingSourceShouldBeValidDataContext(object target, IBindingSource bindingSource, string path)
         {
             BindingSourceShouldBeValid(bindingSource, path,

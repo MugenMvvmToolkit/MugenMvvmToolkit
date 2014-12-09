@@ -218,7 +218,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             if (arg3 == null)
                 arg3 = DataContext.Empty;
-            var dataBinding = arg3.GetData(BindingConstants.Binding, true);
+            var dataBinding = arg3.GetData(BindingConstants.Binding);
+            if (dataBinding == null)
+                return typeof(object);
             var members = dataBinding.TargetAccessor.Source.GetPathMembers(true);
             var eventInfo = members.LastMember.Member as EventInfo;
             if (!members.AllMembersAvailable || eventInfo == null)

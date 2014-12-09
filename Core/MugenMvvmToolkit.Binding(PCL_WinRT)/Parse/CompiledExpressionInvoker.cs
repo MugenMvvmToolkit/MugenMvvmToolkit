@@ -265,9 +265,10 @@ namespace MugenMvvmToolkit.Binding.Parse
                     {
                         _sourceValues = sourceValues;
                         _parameters = new List<KeyValuePair<int, ParameterExpression>>
-                    {
-                        new KeyValuePair<int, ParameterExpression>(-1, DataContextParameter)
-                    };
+                        {
+
+                            new KeyValuePair<int, ParameterExpression>(-1, DataContextParameter)
+                        };
                         _dataContext = context;
                         expression = CreateDelegate();
                         _expressionCache[key] = expression;
@@ -379,7 +380,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             Type type = typeof(object);
             if (parameter == null)
             {
-                var binding = DataContext.GetData(BindingConstants.Binding);
+                var binding = _dataContext.GetData(BindingConstants.Binding);
                 if (binding != null)
                 {
                     var last = binding.SourceAccessor.Sources[index].GetPathMembers(false).LastMember;
@@ -484,7 +485,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                     .ResourceResolver
                     .ResolveMethod(methodCall.Method, _dataContext, false);
                 if (dynamicMethod != null)
-                    returnType = dynamicMethod.GetReturnType(arrayArg.Expressions.ToArrayEx(expression => expression.Type), typeArgs, DataContext);
+                    returnType = dynamicMethod.GetReturnType(arrayArg.Expressions.ToArrayEx(expression => expression.Type), typeArgs, _dataContext);
 
                 return ExpressionReflectionManager.ConvertIfNeed(Expression.Call(_thisExpression, ProxyMethod, Expression.Constant(methodCall.Method),
                             DataContextParameter, Expression.Constant(typeArgs, typeof(IList<Type>)), arrayArg), returnType, false);

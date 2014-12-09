@@ -163,10 +163,10 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         #region Methods
 
-        public void RaiseEvent()
+        public void RaiseEvent(EventArgs args = null)
         {
             EventHandler handler = Event;
-            if (handler != null) handler(this, EventArgs.Empty);
+            if (handler != null) handler(this, args ?? EventArgs.Empty);
         }
 
         public void RaiseActionEvent()

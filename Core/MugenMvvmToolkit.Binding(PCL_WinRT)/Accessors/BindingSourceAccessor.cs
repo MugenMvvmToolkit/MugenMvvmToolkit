@@ -41,7 +41,6 @@ namespace MugenMvvmToolkit.Binding.Accessors
             #region Fields
 
             private readonly WeakReference _sourceReference;
-            private readonly bool _toggleEnabledState;
             private IDisposable _subscriber;
             private BindingMemberValue _currentValue;
             private object _valueReference;
@@ -52,10 +51,9 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
             #region Constructors
 
-            public EventClosure(WeakReference sourceReference, bool toggleEnabledState)
+            public EventClosure(WeakReference sourceReference)
             {
                 _sourceReference = sourceReference;
-                _toggleEnabledState = toggleEnabledState;
             }
 
             #endregion
@@ -127,12 +125,10 @@ namespace MugenMvvmToolkit.Binding.Accessors
                     var reference = _valueReference as WeakReference;
                     if (reference == null || !ReferenceEquals(reference.Target, command))
                         _valueReference = ToolkitExtensions.GetWeakReferenceOrDefault(command, null, true);
-                    if (_toggleEnabledState && accessor.BindingTarget != null)
+                    if (accessor._toggleEnabledState && accessor.BindingTarget != null && InitializeCanExecuteDelegate(command))
                     {
                         accessor.CommandOnCanExecuteChanged(command, LastContext);
-                        InitializeCanExecuteDelegate(command);
-                        if (_canExecuteHandler != null)
-                            command.CanExecuteChanged += _canExecuteHandler;
+                        command.CanExecuteChanged += _canExecuteHandler;
                     }
                 }
             }
@@ -155,10 +151,9 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 var command = GetReferenceValue() as ICommand;
                 if (command == null)
                     return;
-                if (!_toggleEnabledState)
+                if (_canExecuteHandler == null)
                     return;
-                if (_canExecuteHandler != null)
-                    command.CanExecuteChanged -= _canExecuteHandler;
+                command.CanExecuteChanged -= _canExecuteHandler;
 
                 var accessor = (BindingSourceAccessor)_sourceReference.Target;
                 if (accessor == null)
@@ -193,14 +188,16 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 return reference.Target;
             }
 
-            private void InitializeCanExecuteDelegate(ICommand command)
+            private bool InitializeCanExecuteDelegate(ICommand command)
             {
-                if (_canExecuteHandler != null)
-                    return;
-                var relayCommand = command as IRelayCommand;
-                if (relayCommand == null || relayCommand.HasCanExecuteImpl)
-                    Interlocked.CompareExchange(ref _canExecuteHandler, ReflectionExtensions
-                        .CreateWeakEventHandler<EventClosure, EventArgs>(this, (closure, o, arg3) => closure.CommandOnCanExecuteChanged()).Handle, null);
+                if (_canExecuteHandler == null)
+                {
+                    var relayCommand = command as IRelayCommand;
+                    if (relayCommand == null || relayCommand.HasCanExecuteImpl)
+                        Interlocked.CompareExchange(ref _canExecuteHandler, ReflectionExtensions
+                            .CreateWeakEventHandler<EventClosure, EventArgs>(this, (closure, o, arg3) => closure.CommandOnCanExecuteChanged()).Handle, null);
+                }
+                return _canExecuteHandler != null;
             }
 
             #endregion
@@ -226,10 +223,9 @@ namespace MugenMvvmToolkit.Binding.Accessors
                     return false;
                 }
 
-                var ctx = LastContext == null ? new DataContext() : new DataContext(LastContext);
                 var value = GetReferenceValue();
-                ctx.AddOrUpdate(BindingConstants.CurrentEventArgs, message);
-                target.OnEventImpl(value, message, ctx);
+                LastContext.AddOrUpdate(BindingConstants.CurrentEventArgs, message);
+                target.OnEventImpl(value, message, LastContext);
                 return true;
             }
 
@@ -434,7 +430,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             if (newValue == null && _closure == null)
                 return;
             if (_closure == null)
-                Interlocked.CompareExchange(ref _closure, new EventClosure(ServiceProvider.WeakReferenceFactory(this, true), _toggleEnabledState), null);
+                Interlocked.CompareExchange(ref _closure, new EventClosure(ServiceProvider.WeakReferenceFactory(this, true)), null);
             _closure.LastContext = context;
             _closure.SetValue(bindingMemberValue, newValue);
         }
@@ -460,7 +456,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
             var memberValue = target as BindingMemberValue;
             if (memberValue != null)
-                memberValue.TrySetValue(new[] { GetCommandParameter(context), eventArgs }, out target);
+                memberValue.TrySetValue(new[] { GetCommandParameter(context), eventArgs, context }, out target);
         }
 
         private object GetCommandParameter(IDataContext context)

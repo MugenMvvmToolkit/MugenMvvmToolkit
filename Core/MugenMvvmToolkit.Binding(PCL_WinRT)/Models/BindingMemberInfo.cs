@@ -15,12 +15,14 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Accessors;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Models
@@ -178,7 +180,15 @@ namespace MugenMvvmToolkit.Binding.Models
         private BindingMemberInfo()
             : this("$multiValue", BindingMemberType.Attached, typeof(object))
         {
-            _getValueAccessor = (o, objects) => ((MultiBindingSourceAccessor)o).GetRawValueInternal();
+            _getValueAccessor = (o, objects) =>
+            {
+                IDataContext context = null;
+                if (objects.Length == 3)
+                    context = objects[2] as IDataContext;
+                if (context == null)
+                    context = objects.OfType<IDataContext>().FirstOrDefault() ?? DataContext.Empty;
+                return ((MultiBindingSourceAccessor)o).GetRawValueInternal(context);
+            };
             _setValueAccessor = _getValueAccessor;
             _canRead = true;
             _canWrite = true;
