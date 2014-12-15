@@ -10,13 +10,13 @@ namespace MugenMvvmToolkit.Test.Bindings.Behaviors
         #region Overrides of BindingBehaviorTestBase<DefaultValueOnExceptionBehavior>
 
         [Ignore]
-        public override void BehaviorCanBeAttachedOnlyOnce()
+        public override void BehaviorCanBeAttachedRepeatedly()
         {
         }
 
         protected override DefaultValueOnExceptionBehavior CreateBehavior()
         {
-            return DefaultValueOnExceptionBehavior.Instance;
+            return new DefaultValueOnExceptionBehavior(null);
         }
 
         #endregion

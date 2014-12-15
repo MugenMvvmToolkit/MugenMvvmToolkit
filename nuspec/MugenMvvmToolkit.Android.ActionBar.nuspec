@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>MugenMvvmToolkit.Android.ActionBar</id>
+    <version>1.0.0</version>
+    <title>MugenMvvmToolkit - Android ActionBar Support API14+</title>
+    <authors>Vyacheslav Volkov</authors>
+    <description>
+      This package adds ActionBar support for Android with API >= 14 for MugenMvvmToolkit.
+    </description>
+    <releaseNotes>
+      - Fixed invalid binding validation when using $GetErrors method.
+      - Added Xamarin.Forms support.
+      - Added IWrapperManager instead of IViewModelWrapperManager.
+      - Updated IEventAggregator, added the ability to subscribe using a delegate.
+      - Added AsyncRelayCommand that allows to use Task in execute method.
+      - Added support for the $root keyword (Binding).
+      - Updated android projects from API8 to API10.
+      - Updated IDynamicObject interface, that allows to invoke methods and index members.
+      - Updated CompiledExpressionInvoker, now it can invoke dynamic members.
+      - Updated BindingEditor (WinForms).
+      - Updated IObservable interface, now it works with ISubscriber interface.
+      - Moved the Handle method from IEventListener to extension method.
+      - Removed ThrowOnMultiInitialization property from IViewModelSettings.
+      - Optimized delegate allocation.
+      - Minor changes.
+    </releaseNotes>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <iconUrl>https://raw.githubusercontent.com/MugenMvvmToolkit/MugenMvvmToolkit/master/logo128_128.png</iconUrl>
+    <projectUrl>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</projectUrl>
+    <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
+    <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
+    <dependencies>
+      <dependency id="MugenMvvmToolkit" version="[3.2.0, 3.3.0)" />
+    </dependencies>
+  </metadata>
+  <files>
+    <!-- Android -->
+    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.ActionBar.dll" target="lib\monoandroid\MugenMvvmToolkit.Android.ActionBar.dll" />
+    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.ActionBar.pdb" target="lib\monoandroid\MugenMvvmToolkit.Android.ActionBar.pdb" />
+    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.ActionBar.xml" target="lib\monoandroid\MugenMvvmToolkit.Android.ActionBar.xml" />
+  </files>
+</package>

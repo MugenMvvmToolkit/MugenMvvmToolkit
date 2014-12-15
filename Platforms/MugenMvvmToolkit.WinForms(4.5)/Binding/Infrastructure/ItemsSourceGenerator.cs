@@ -22,6 +22,8 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Interfaces.Models;
+#elif TOUCH
+using MonoTouch.ObjCRuntime;
 #endif
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -60,6 +62,24 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Overrides of ItemsSourceGeneratorBase
 
         protected override IEnumerable ItemsSource { get; set; }
+
+        protected override bool IsTargetDisposed
+        {
+            get
+            {
+#if WINFORMS
+                var control = _view as Control;
+                if (control == null)
+                    return false;
+                return control.IsDisposed;
+#elif TOUCH
+                var nativeObject = _view as INativeObject;
+                if (nativeObject == null)
+                    return false;
+                return !nativeObject.IsAlive();
+#endif
+            }
+        }
 
         protected override void Add(int insertionIndex, int count)
         {

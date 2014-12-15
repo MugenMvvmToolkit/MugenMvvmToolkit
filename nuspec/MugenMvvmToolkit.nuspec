@@ -63,15 +63,16 @@
       <group targetFramework="net45" />
       <group targetFramework="monotouch" />
       <group targetFramework="monoandroid" />
+      <group targetFramework="xamarinios10" />
       <group targetFramework="win8" />
       <group targetFramework="win81" />
       <group targetFramework="wpa81" />
-      <group targetFramework="portable-net45+win8+wp8+wpa81+MonoAndroid10+MonoTouch10" />
-      <group targetFramework="portable-net45+win8+wpa81+MonoAndroid10+MonoTouch10" />
-      <group targetFramework="portable-net451+win81+MonoAndroid10+MonoTouch10" />
-      <group targetFramework="portable-net451+win81+wpa81+MonoAndroid10+MonoTouch10" />
-      <group targetFramework="portable-win81+wp81+wpa81+MonoAndroid10+MonoTouch10" />
-      <group targetFramework="portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10">
+      <group targetFramework="portable-net45+win8+wp8+wpa81+MonoAndroid10+MonoTouch10+xamarinios10" />
+      <group targetFramework="portable-net45+win8+wpa81+MonoAndroid10+MonoTouch10+xamarinios10" />
+      <group targetFramework="portable-net451+win81+MonoAndroid10+MonoTouch10+xamarinios10" />
+      <group targetFramework="portable-net451+win81+wpa81+MonoAndroid10+MonoTouch10+xamarinios10" />
+      <group targetFramework="portable-win81+wp81+wpa81+MonoAndroid10+MonoTouch10+xamarinios10" />
+      <group targetFramework="portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10+xamarinios10">
         <dependency id="Microsoft.Bcl" />
         <dependency id="Microsoft.Bcl.Build" />
       </group>
@@ -91,14 +92,14 @@
   </metadata>
   <files>    
     <!-- CORE PCL WINRT -->
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.dll" />
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.pdb" />
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.xml" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.xml" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.xml" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.xml" />
 
     <!-- CORE PCL SILVERLIGHT -->
-    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.dll" target="lib\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.dll" />
-    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.pdb" target="lib\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.pdb" />
-    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.xml" target="lib\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.xml" />
+    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.dll" target="lib\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.dll" />
+    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.pdb" target="lib\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.pdb" />
+    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.xml" target="lib\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.xml" />
 
     <!-- NET 4.0 -->
     <file src="..\bin\Core\NET4.0\MugenMvvmToolkit.dll" target="lib\net40-client\MugenMvvmToolkit.dll" />
@@ -170,10 +171,24 @@
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\monoandroid\MugenMvvmToolkit.dll" />
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\monoandroid\MugenMvvmToolkit.pdb" />
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.xml" target="lib\monoandroid\MugenMvvmToolkit.xml" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\monoandroid\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\monoandroid\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\monoandroid\MugenMvvmToolkit.Binding.xml" />
+    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.dll" target="lib\monoandroid\MugenMvvmToolkit.Android.dll" />
+    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.pdb" target="lib\monoandroid\MugenMvvmToolkit.Android.pdb" />
+    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.xml" target="lib\monoandroid\MugenMvvmToolkit.Android.xml" />
 
     <!-- Touch -->
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\monotouch\MugenMvvmToolkit.dll" />
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\monotouch\MugenMvvmToolkit.pdb" />
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.xml" target="lib\monotouch\MugenMvvmToolkit.xml" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\monotouch\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\monotouch\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\monotouch\MugenMvvmToolkit.Binding.xml" />
+    <file src="..\bin\Platforms\Touch\MugenMvvmToolkit.Touch.dll" target="lib\monotouch\MugenMvvmToolkit.Touch.dll" />
+    <file src="..\bin\Platforms\Touch\MugenMvvmToolkit.Touch.xml" target="lib\monotouch\MugenMvvmToolkit.Touch.xml" />
+
+    <file src="TouchContent\error.png" target="content\monotouch\Resources\error.png" />
+    <file src="TouchContent\error@2x.png" target="content\monotouch\Resources\error@2x.png" />
   </files>
 </package>

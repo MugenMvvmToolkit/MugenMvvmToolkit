@@ -15,6 +15,7 @@
 #endregion
 using System;
 using MonoTouch.Foundation;
+using MonoTouch.ObjCRuntime;
 
 namespace MugenMvvmToolkit.Models
 {
@@ -31,7 +32,7 @@ namespace MugenMvvmToolkit.Models
         ///     Indicates when to stop tracking the object. If true, the object is tracked after
         ///     finalization; if false, the object is only tracked until finalization.
         /// </param>
-        public NSObjectWeakReference(NSObject target, bool trackResurrection)
+        public NSObjectWeakReference(INativeObject target, bool trackResurrection)
             : base(target, trackResurrection)
         {
         }
@@ -70,7 +71,7 @@ namespace MugenMvvmToolkit.Models
         {
             get
             {
-                var target = base.Target as NSObject;
+                var target = base.Target as INativeObject;
                 if (target != null)
                 {
                     if (target.Handle == IntPtr.Zero)

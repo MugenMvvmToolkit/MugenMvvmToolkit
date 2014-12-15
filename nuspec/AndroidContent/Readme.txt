@@ -7,4 +7,4 @@ protected override IIocContainer CreateIocContainer()
 {
     return new IIocContainer();
 }
-4. Remove any old `MainLauncher` activities
+4. Remove any old "MainLauncher" activities

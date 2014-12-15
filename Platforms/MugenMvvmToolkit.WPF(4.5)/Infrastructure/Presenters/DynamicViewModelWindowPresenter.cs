@@ -17,18 +17,34 @@ using System;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
-using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
+#if APPCOMPAT
+using MugenMvvmToolkit.Infrastructure.Presenters;
+using MugenMvvmToolkit.AppCompat.Infrastructure.Mediators;
+using MugenMvvmToolkit.AppCompat.Interfaces.Views;
+using Fragment = Android.Support.V4.App.Fragment;
+using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
+
+namespace MugenMvvmToolkit.AppCompat.Infrastructure.Presenters
+#elif FRAGMENTSUPPORT
+using MugenMvvmToolkit.Infrastructure.Presenters;
+using MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators;
+using MugenMvvmToolkit.FragmentSupport.Interfaces.Views;
+
+namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Presenters
+#else
+using MugenMvvmToolkit.Infrastructure.Mediators;
+using MugenMvvmToolkit.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Infrastructure.Presenters
+#endif
 {
     /// <summary>
     ///     Represents the service that allows to show a view model using <see cref="IWindowViewMediator" />.

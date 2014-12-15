@@ -293,6 +293,11 @@ namespace MugenMvvmToolkit.Collections
         [XmlIgnore, NonSerialized]
         private Action _raiseEventsDelegate;
 
+        /// <summary>
+        ///     Raises after CollectionChanged event.
+        /// </summary>
+        internal NotifyCollectionChangedEventHandler CollectionChangedInternal;
+
         #endregion
 
         #region Constructors
@@ -849,6 +854,8 @@ namespace MugenMvvmToolkit.Collections
             }
             OnPropertyChanged(Empty.IndexerPropertyChangedArgs);
             OnCollectionChanged(args);
+            if (CollectionChangedInternal != null)
+                CollectionChangedInternal(this, args);
         }
 
         private void EndSuspendNotifications()

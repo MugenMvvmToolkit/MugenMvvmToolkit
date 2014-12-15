@@ -22,6 +22,7 @@ using System.Runtime.Serialization;
 using System.Threading;
 using JetBrains.Annotations;
 using MonoTouch.Foundation;
+using MonoTouch.ObjCRuntime;
 using MonoTouch.UIKit;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
@@ -194,7 +195,7 @@ namespace MugenMvvmToolkit
                 ParentObserver.GetOrAdd(view).Parent = textField;
         }
 
-        public static IList<IDataBinding> SetBindings(this NSObject item, string bindingExpression,
+        public static IList<IDataBinding> SetBindings(this INativeObject item, string bindingExpression,
             IList<object> sources = null)
         {
             return BindingServiceProvider.BindingProvider.CreateBindingsFromString(item, bindingExpression, sources);
@@ -202,7 +203,7 @@ namespace MugenMvvmToolkit
 
         public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
             [NotNull] string bindings)
-            where T : NSObject
+            where T : INativeObject
             where TBindingSet : BindingSet
         {
             Should.NotBeNull(item, "item");
@@ -214,7 +215,7 @@ namespace MugenMvvmToolkit
 
         public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
             [NotNull] Action<TBindingSet, T> setBinding)
-            where T : NSObject
+            where T : INativeObject
             where TBindingSet : BindingSet
         {
             Should.NotBeNull(item, "item");
@@ -299,7 +300,7 @@ namespace MugenMvvmToolkit
         }
 
         public static void SetItemEx<T, TItem>([NotNull] this T container, Action<T, TItem> setAction, TItem item)
-            where T : NSObject
+            where T : INativeObject
             where TItem : class
         {
             Should.NotBeNull(container, "container");
@@ -308,7 +309,7 @@ namespace MugenMvvmToolkit
         }
 
         public static void SetItemsEx<T, TItem>([NotNull] this T container, Action<T, TItem[]> setAction, params TItem[] items)
-            where T : NSObject
+            where T : INativeObject
             where TItem : class
         {
             Should.NotBeNull(container, "container");
@@ -475,14 +476,14 @@ namespace MugenMvvmToolkit
 
         internal static WeakReference CreateWeakReference(object item, bool trackResurrection)
         {
-            var obj = item as NSObject;
+            var obj = item as INativeObject;
             var reference = obj == null
                 ? new WeakReference(item, trackResurrection)
                 : new NSObjectWeakReference(obj, trackResurrection);
             return reference;
         }
 
-        internal static bool IsAlive([NotNull] this NSObject item)
+        internal static bool IsAlive([NotNull] this INativeObject item)
         {
             Should.NotBeNull(item, "item");
             return item.Handle != IntPtr.Zero;
@@ -498,7 +499,7 @@ namespace MugenMvvmToolkit
         }
 
         public static void ClearBindings<T>([CanBeNull]this T[] items, bool clearDataContext, bool clearAttachedValues, bool disposeObjects)
-            where T : NSObject
+            where T : INativeObject
         {
             if (items == null)
                 return;
@@ -506,7 +507,7 @@ namespace MugenMvvmToolkit
                 ClearBindings(items[i], clearDataContext, clearAttachedValues, disposeObjects);
         }
 
-        public static void ClearBindings(this NSObject nsObject, bool clearDataContext, bool clearAttachedValues, bool disposeObject)
+        public static void ClearBindings(this INativeObject nsObject, bool clearDataContext, bool clearAttachedValues, bool disposeObject)
         {
             BindingExtensions.ClearBindings(nsObject, clearDataContext, clearAttachedValues, disposeObject);
         }
@@ -564,7 +565,7 @@ namespace MugenMvvmToolkit
         }
 
         [CanBeNull]
-        internal static T FindParent<T>([CanBeNull] this NSObject obj)
+        internal static T FindParent<T>([CanBeNull] this INativeObject obj)
             where T : class
         {
             if (obj == null)

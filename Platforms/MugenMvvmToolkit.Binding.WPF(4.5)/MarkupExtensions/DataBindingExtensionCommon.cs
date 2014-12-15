@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
         private static readonly Func<object> NoDoFunc;
         private static readonly Dictionary<EventInfo, Delegate> CachedDelegates;
 
-        private bool _defaultValueOnException;
+        private object _defaultValueOnException;
         private uint _delay;
         private object _fallback;
         private object _targetNullValue;
@@ -266,14 +266,14 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
         /// <summary>
         ///     Gets or sets value that allows to set default value on a binding exception.
         /// </summary>
-        public bool DefaultValueOnException
+        public object DefaultValueOnException
         {
             get { return _defaultValueOnException; }
             set
             {
                 _defaultValueOnException = value;
-                if (value)
-                    HasValue = true;
+                HasValue = true;
+                HasDefaultValueOnException = true;
             }
         }
 
@@ -315,6 +315,8 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
         protected bool HasCommandParameter { get; set; }
 
         protected bool HasFallback { get; set; }
+
+        protected bool HasDefaultValueOnException { get; set; }
 
         #endregion
 
@@ -394,8 +396,8 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
                 syntaxBuilder.WithDelay(_delay, false);
             if (TargetDelay != 0)
                 syntaxBuilder.WithDelay(_targetDelay, true);
-            if (DefaultValueOnException)
-                syntaxBuilder.DefaultValueOnException();
+            if (HasDefaultValueOnException)
+                syntaxBuilder.DefaultValueOnException(DefaultValueOnException);
             return builder;
         }
 

@@ -32,14 +32,14 @@
   </metadata>
   <files>
     <!-- PCL -->
-    <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.dll" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.AutofacContainer.dll" />
-    <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.AutofacContainer.pdb" />
-    <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.xml" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.AutofacContainer.xml" />
+    <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.dll" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.AutofacContainer.dll" />
+    <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.AutofacContainer.pdb" />
+    <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.xml" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.AutofacContainer.xml" />
 
     <!-- PCL SILVERLIGHT -->
-    <file src="..\bin\IocContainers\Autofac\PCL_Silverlight\MugenMvvmToolkit.AutofacContainer.dll" target="lib\portable-net45+sl50+win+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.AutofacContainer.dll" />
-    <file src="..\bin\IocContainers\Autofac\PCL_Silverlight\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\portable-net45+sl50+win+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.AutofacContainer.pdb" />
-    <file src="..\bin\IocContainers\Autofac\PCL_Silverlight\MugenMvvmToolkit.AutofacContainer.xml" target="lib\portable-net45+sl50+win+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.AutofacContainer.xml" />
+    <file src="..\bin\IocContainers\Autofac\PCL_Silverlight\MugenMvvmToolkit.AutofacContainer.dll" target="lib\portable-net45+sl50+win+wp80+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.AutofacContainer.dll" />
+    <file src="..\bin\IocContainers\Autofac\PCL_Silverlight\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\portable-net45+sl50+win+wp80+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.AutofacContainer.pdb" />
+    <file src="..\bin\IocContainers\Autofac\PCL_Silverlight\MugenMvvmToolkit.AutofacContainer.xml" target="lib\portable-net45+sl50+win+wp80+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.AutofacContainer.xml" />
 
     <!-- NET 4.0 -->
     <file src="..\bin\IocContainers\Autofac\NET4.0\MugenMvvmToolkit.AutofacContainer.dll" target="lib\net40\MugenMvvmToolkit.AutofacContainer.dll" />

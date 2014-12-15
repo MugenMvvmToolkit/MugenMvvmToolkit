@@ -33,6 +33,9 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 #endif
+#if WINDOWS_PHONE
+using Microsoft.Phone.Controls;
+#endif
 using MugenMvvmToolkit.Binding.Converters;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
@@ -113,6 +116,10 @@ namespace MugenMvvmToolkit.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateMember<TextBlock, string>("Text",
                 (info, box) => box.Text,
                 (info, box, value) => box.Text = value ?? string.Empty, ObserveTextTextBlock));
+#else
+            //WebBrowser
+            memberProvider.Register(AttachedBindingMember.CreateMember<WebBrowser, Uri>("Source",
+                (info, browser) => browser.Source, (info, browser, arg3) => browser.Source = arg3, "Navigated"));
 #endif
         }
 

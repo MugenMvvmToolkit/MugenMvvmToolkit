@@ -99,6 +99,11 @@ namespace MugenMvvmToolkit.Binding
 
         #region Methods
 
+        public static bool IsOverride(this MethodInfo method, Type baseType)
+        {
+            return method != null && method.DeclaringType != baseType;
+        }
+
         internal static object GetDefaultValue(this Type type)
         {
             return type.IsValueType() ? Activator.CreateInstance(type) : null;

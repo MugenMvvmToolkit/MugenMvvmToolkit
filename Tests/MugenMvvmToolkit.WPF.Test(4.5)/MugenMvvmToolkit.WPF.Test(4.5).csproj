@@ -88,7 +88,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Platforms\MugenMvvmToolkit.Android%2817%29\Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs">
+    <Compile Include="..\..\Platforms\MugenMvvmToolkit.Android\Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs">
       <Link>TestInfrastructure\SerializableOperationCallbackFactory.cs</Link>
     </Compile>
     <Compile Include="..\..\Platforms\MugenMvvmToolkit.WinPhone%287.1%29\Infrastructure\WeakReferenceAttachedValueProvider.cs">

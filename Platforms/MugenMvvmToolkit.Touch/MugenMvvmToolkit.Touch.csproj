@@ -13,7 +13,7 @@
     <AssemblyName>MugenMvvmToolkit.Touch</AssemblyName>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp>d6aa2764</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>990705db</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -42,14 +42,26 @@
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\AttachedValueProvider.cs">
       <Link>Infrastructure\AttachedValueProvider.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs">
-      <Link>Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Infrastructure\DataTemplateSelectorBase.cs">
+      <Link>Binding\Infrastructure\DataTemplateSelectorBase.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\Infrastructure\Navigation\EmptyNavigationCachePolicy.cs">
+    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Infrastructure\ItemsSourceGeneratorBase.cs">
+      <Link>Binding\Infrastructure\ItemsSourceGeneratorBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Interfaces\IDataTemplateSelector.cs">
+      <Link>Binding\Interfaces\IDataTemplateSelector.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Interfaces\IItemsSourceGenerator.cs">
+      <Link>Binding\Interfaces\IItemsSourceGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\Infrastructure\Navigation\EmptyNavigationCachePolicy.cs">
       <Link>Infrastructure\Navigation\EmptyNavigationCachePolicy.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android%2817%29\LinkerIncludeLabmdaExpression.cs">
+    <Compile Include="..\MugenMvvmToolkit.Android\LinkerIncludeLabmdaExpression.cs">
       <Link>LinkerIncludeLabmdaExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs">
+      <Link>Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Infrastructure\CollectionViewManagerBase.cs">
       <Link>Binding\Infrastructure\CollectionViewManagerBase.cs</Link>
@@ -94,10 +106,6 @@
       <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
     </Compile>
     <Compile Include="Binding\Converters\BooleanToCheckmarkAccessoryConverter.cs" />
-    <Compile Include="Binding\Infrastructure\DataTemplateSelectorBase.cs" />
-    <Compile Include="Binding\Infrastructure\ItemsSourceGeneratorBase.cs" />
-    <Compile Include="Binding\Interfaces\IDataTemplateSelector.cs" />
-    <Compile Include="Binding\Interfaces\IItemsSourceGenerator.cs" />
     <Compile Include="LinkerInclude.cs" />
     <Compile Include="Models\NSObjectWeakReference.cs" />
     <Compile Include="MonoTouchDialogExtensions.cs" />
@@ -195,7 +203,7 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Fody.1.26.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.26.1\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Fody.1.26.2\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.26.2\build\Fody.targets'))" />
   </Target>
-  <Import Project="..\..\packages\Fody.1.26.1\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.26.1\build\Fody.targets')" />
+  <Import Project="..\..\packages\Fody.1.26.2\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.26.2\build\Fody.targets')" />
 </Project>

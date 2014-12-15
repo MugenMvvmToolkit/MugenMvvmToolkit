@@ -81,7 +81,7 @@ namespace MugenMvvmToolkit.ViewModels
 
             var collection = new SynchronizedNotifiableCollection<IViewModel>();
             _itemsSource = ServiceProvider.TryDecorate(collection);
-            collection.CollectionChanged += OnViewModelsChanged;
+            collection.CollectionChangedInternal = OnViewModelsChanged;
             _weakEventHandler = ReflectionExtensions.CreateWeakDelegate<MultiViewModel, ViewModelClosedEventArgs, EventHandler<ICloseableViewModel, ViewModelClosedEventArgs>>(this,
                 (model, o, arg3) => model.OnViewModelClosed(arg3), UnsubscribeAction, handler => handler.Handle);
             _propertyChangedWeakEventHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, (model, o, arg3) => model.OnItemPropertyChanged(o, arg3));

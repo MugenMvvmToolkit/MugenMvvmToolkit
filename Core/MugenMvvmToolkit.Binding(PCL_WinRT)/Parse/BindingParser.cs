@@ -175,8 +175,8 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {"ValidatesOnErrors", parser => parser.GetBehaviorSetter(ValidatesOnNotifyDataErrorsBehavior.Prototype)},
                 {"ValidatesOnExceptions", parser => parser.GetBehaviorSetter(ValidatesOnExceptionsBehavior.Instance)},
                 {"Validate", parser => parser.GetBehaviorSetter(ValidatesOnNotifyDataErrorsBehavior.Prototype, ValidatesOnExceptionsBehavior.Instance)},
-                {"DefaultValueOnException", parser => parser.GetBehaviorSetter(DefaultValueOnExceptionBehavior.Instance) },
-                {"SetDefaultValue", parser => parser.GetBehaviorSetter(DefaultValueOnExceptionBehavior.Instance)},
+                {"DefaultValueOnException", parser => parser.GetDefaultValueOnExceptionSetter()},
+                {"SetDefaultValue", parser => parser.GetDefaultValueOnExceptionSetter()},
                 {"Delay", parser => parser.GetDelaySetter(false)},
                 {"SourceDelay", parser => parser.GetDelaySetter(false)},
                 {"TargetDelay", parser => parser.GetDelaySetter(true)},
@@ -1024,19 +1024,6 @@ namespace MugenMvvmToolkit.Binding.Parse
             return typeArgs;
         }
 
-        private IList<string> GetMemberNames(IList<IExpressionNode> nodes)
-        {
-            var args = new string[nodes.Count];
-            for (int index = 0; index < nodes.Count; index++)
-            {
-                var expressionNode = nodes[index] as IMemberExpressionNode;
-                if (expressionNode == null || expressionNode.Target != null)
-                    throw BindingExceptionManager.InvalidExpressionParser(nodes[index].ToString(), Tokenizer, Expression);
-                args[index] = expressionNode.Member;
-            }
-            return args;
-        }
-
         protected bool ReadBoolValue()
         {
             ValidateToken(NextToken(true), TokenType.Identifier);
@@ -1133,18 +1120,18 @@ namespace MugenMvvmToolkit.Binding.Parse
             Func<BindingParser, IList<Action<IDataContext>>> value;
             if (BindingParameterToAction.TryGetValue(left, out value))
                 return value(this);
-            if (ReadBoolValue())
-                return new Action<IDataContext>[]
+            NextToken(true);
+            var args = new[] { GetConstantValue(ParsePrimary()) };
+            return new Action<IDataContext>[]
+            {
+                context =>
                 {
-                    context =>
-                    {
-                        var behavior = BindingServiceProvider
-                            .ResourceResolver
-                            .ResolveBehavior(left, context, Empty.Array<string>(), true);
-                        context.GetOrAddBehaviors().Add(behavior);
-                    }
-                };
-            return null;
+                    var behavior = BindingServiceProvider
+                        .ResourceResolver
+                        .ResolveBehavior(left, context, args, true);
+                    context.GetOrAddBehaviors().Add(behavior);
+                }
+            };
         }
 
         private IList<Action<IDataContext>> GetCustomBehaviorSetter()
@@ -1153,17 +1140,19 @@ namespace MugenMvvmToolkit.Binding.Parse
             var actions = new List<Action<IDataContext>>();
             var expressionNode = Handle(ParseMemberAccess(null), false, Context, actions);
             var memberName = expressionNode.TryGetMemberName(false, false);
-            IList<string> args;
+            IList<object> args;
             if (memberName == null)
             {
                 var method = expressionNode as IMethodCallExpressionNode;
                 if (method == null)
                     throw BindingExceptionManager.InvalidExpressionParser(expressionNode.ToString(), Tokenizer, Expression);
                 memberName = method.Method;
-                args = GetMemberNames(method.Arguments);
+                args = new object[method.Arguments.Count];
+                for (int index = 0; index < method.Arguments.Count; index++)
+                    args[index] = GetConstantValue(method.Arguments[index]);
             }
             else
-                args = Empty.Array<string>();
+                args = Empty.Array<object>();
             return new Action<IDataContext>[]
             {
                 context =>
@@ -1217,6 +1206,16 @@ namespace MugenMvvmToolkit.Binding.Parse
                     }
                 };
             return null;
+        }
+
+        private IList<Action<IDataContext>> GetDefaultValueOnExceptionSetter()
+        {
+            NextToken(true);
+            var value = GetConstantValue(ParsePrimary());
+            return new Action<IDataContext>[]
+            {
+                context => context.GetOrAddBehaviors().Add(new DefaultValueOnExceptionBehavior(value))
+            };
         }
 
         private IList<Action<IDataContext>> GetDelaySetter(bool isTarget)
@@ -1353,6 +1352,17 @@ namespace MugenMvvmToolkit.Binding.Parse
                 CultureInfo culture = o as CultureInfo ?? new CultureInfo(((string)o).Replace("\"", string.Empty));
                 context.Add(BindingBuilderConstants.ConverterCulture, d => culture);
             }, (context, func) => context.Add(BindingBuilderConstants.ConverterCulture, d => (CultureInfo)func(d)), false);
+        }
+
+        private object GetConstantValue(IExpressionNode argument)
+        {
+            var node = argument as IConstantExpressionNode;
+            if (node != null)
+                return node.Value;
+            var name = argument.TryGetMemberName(false, false);
+            if (name == null)
+                throw BindingExceptionManager.InvalidExpressionParser(argument.ToString(), Tokenizer, Expression);
+            return name;
         }
 
         #endregion

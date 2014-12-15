@@ -64,14 +64,14 @@
   </metadata>
   <files>
     <!-- CORE PCL WINRT -->
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.Binding.dll" />
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.Binding.pdb" />
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.Binding.xml" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.Binding.xml" />
     
     <!-- CORE PCL SILVERLIGHT -->
-    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.Binding.dll" target="lib\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.Binding.dll" />
-    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.Binding.pdb" target="lib\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.Binding.pdb" />
-    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.Binding.xml" target="lib\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10\MugenMvvmToolkit.Binding.xml" />
+    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.Binding.dll" target="lib\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.Binding.pdb" target="lib\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.Binding.xml" target="lib\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.Binding.xml" />
 
     <!-- NET 4.0 WPF -->
     <file src="..\bin\Core\NET4.0\MugenMvvmToolkit.Binding.dll" target="lib\net40-client\MugenMvvmToolkit.Binding.dll" />
@@ -150,5 +150,6 @@
 
     <!-- Touch -->
     <file src="_._" target="lib\monotouch\_._" />
+    <file src="_._" target="lib\xamarinios10\_._" />
   </files>
 </package>

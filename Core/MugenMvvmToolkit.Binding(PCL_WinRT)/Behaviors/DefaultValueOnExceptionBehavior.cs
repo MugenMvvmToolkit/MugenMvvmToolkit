@@ -19,28 +19,19 @@ using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
-    /// <summary>
-    ///     Represents the binding behavior that allows to set default value on a binding exception.
-    /// </summary>
-    public sealed class DefaultValueOnExceptionBehavior : IBindingBehavior
+    public sealed class DefaultValueOnExceptionBehavior : BindingBehaviorBase
     {
         #region Fields
-
-        /// <summary>
-        ///     Gets the instance of a <see cref="DefaultValueOnExceptionBehavior" /> class.
-        /// </summary>
-        public static readonly DefaultValueOnExceptionBehavior Instance;
 
         /// <summary>
         ///     Gets the id of behavior.
         /// </summary>
         public static readonly Guid IdDefaultValuesOnExceptionBehavior;
 
-        private static readonly EventHandler<IDataBinding, BindingExceptionEventArgs> BindingExceptionDelegate;
+        private readonly object _value;
 
         #endregion
 
@@ -48,27 +39,40 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         static DefaultValueOnExceptionBehavior()
         {
-            Instance = new DefaultValueOnExceptionBehavior();
             IdDefaultValuesOnExceptionBehavior = new Guid("BB266907-520E-4461-9D95-A549326049DA");
-            BindingExceptionDelegate = OnBindingException;
         }
 
-        private DefaultValueOnExceptionBehavior()
+        public DefaultValueOnExceptionBehavior(object value)
         {
+            _value = value;
+        }
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        ///     Gets the default value to set.
+        /// </summary>
+        public object Value
+        {
+            get { return _value; }
         }
 
         #endregion
 
         #region Methods
 
-        private static void OnBindingException(object sender, BindingExceptionEventArgs args)
+        #region Methods
+
+        private void OnBindingException(object sender, BindingExceptionEventArgs args)
         {
             var dataBinding = sender as IDataBinding;
             if (dataBinding != null && args.Action == BindingAction.UpdateSource)
                 SetDefaultValue(dataBinding);
         }
 
-        private static void SetDefaultValue(IDataBinding dataBinding)
+        private void SetDefaultValue(IDataBinding dataBinding)
         {
             var singleAccessor = dataBinding.SourceAccessor as ISingleBindingSourceAccessor;
             if (singleAccessor == null)
@@ -81,22 +85,28 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 SetDefaultValue(singleAccessor.Source);
         }
 
-        private static void SetDefaultValue(IBindingSource source)
+        private void SetDefaultValue(IBindingSource source)
         {
             var pathMembers = source.GetPathMembers(false);
             if (pathMembers.AllMembersAvailable)
-                pathMembers.LastMember.SetValue(pathMembers.PenultimateValue,
-                    new[] { pathMembers.LastMember.Type.GetDefaultValue() });
+            {
+                object value = _value;
+                if (!pathMembers.LastMember.Type.IsInstanceOfType(value))
+                    value = pathMembers.LastMember.Type.GetDefaultValue();
+                pathMembers.LastMember.SetValue(pathMembers.PenultimateValue, new[] { value });
+            }
         }
 
         #endregion
 
-        #region Implementation of IBindingBehavior
+        #endregion
+
+        #region Overrides of BindingBehaviorBase
 
         /// <summary>
         ///     Gets the id of behavior. Each <see cref="IDataBinding" /> can have only one instance with the same id.
         /// </summary>
-        public Guid Id
+        public override Guid Id
         {
             get { return IdDefaultValuesOnExceptionBehavior; }
         }
@@ -104,7 +114,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// <summary>
         ///     Gets the behavior priority.
         /// </summary>
-        public int Priority
+        public override int Priority
         {
             get { return 0; }
         }
@@ -112,27 +122,26 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// <summary>
         ///     Attaches to the specified binding.
         /// </summary>
-        /// <param name="binding">The binding to attach to.</param>
-        public bool Attach(IDataBinding binding)
+        protected override bool OnAttached()
         {
-            binding.BindingException += BindingExceptionDelegate;
+            Binding.BindingException += OnBindingException;
             return true;
         }
 
         /// <summary>
         ///     Detaches this instance from its associated binding.
         /// </summary>
-        public void Detach(IDataBinding binding)
+        protected override void OnDetached()
         {
-            binding.BindingException -= BindingExceptionDelegate;
+            Binding.BindingException -= OnBindingException;
         }
 
         /// <summary>
         ///     Creates a new binding behavior that is a copy of the current instance.
         /// </summary>
-        public IBindingBehavior Clone()
+        protected override IBindingBehavior CloneInternal()
         {
-            return this;
+            return new DefaultValueOnExceptionBehavior(_value);
         }
 
         #endregion

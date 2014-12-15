@@ -637,10 +637,12 @@ namespace MugenMvvmToolkit
         /// <summary>
         /// Determines the index of a specific item in the <see cref="IEnumerable"/>.
         /// </summary>
-        public static int IndexOf([CanBeNull]this IEnumerable enumerable, object value)
+        public static int IndexOf([CanBeNull]this IEnumerable enumerable, object value, IEqualityComparer<object> comparer = null)
         {
             if (enumerable == null)
                 return -1;
+            if (comparer == null)
+                comparer = EqualityComparer<object>.Default;
             var list = enumerable as IList;
             if (list != null)
                 return list.IndexOf(value);
@@ -650,7 +652,7 @@ namespace MugenMvvmToolkit
                 int index = 0;
                 while (enumerator.MoveNext())
                 {
-                    if (Equals(enumerator.Current, value))
+                    if (comparer.Equals(enumerator.Current, value))
                         return index;
                     index++;
                 }

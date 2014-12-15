@@ -223,6 +223,22 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 bool allMembersAvailable = true;
                 IBindingMemberProvider memberProvider = BindingServiceProvider.MemberProvider;
                 IList<string> items = Path.Parts;
+
+                //Trying to get member using full path with dot, example BindingErrorProvider.Errors or ErrorProvider.Errors.                
+                if (items.Count == 2)
+                {
+                    var pathMember = memberProvider.GetBindingMember(source.GetType(), Path.Path, _ignoreAttachedMembers, false);
+                    if (pathMember != null)
+                    {
+                        var observer = TryObserveMember(source, pathMember, true);
+                        if (observer != null)
+                            _listeners.Add(observer);
+                        _members = new MultiBindingPathMembers(_selfReference, source, Path, new[] { pathMember });
+                        return;
+                    }
+                }
+
+
                 int lastIndex = items.Count - 1;
                 var members = new List<IBindingMemberInfo>();
                 for (int index = 0; index < items.Count; index++)

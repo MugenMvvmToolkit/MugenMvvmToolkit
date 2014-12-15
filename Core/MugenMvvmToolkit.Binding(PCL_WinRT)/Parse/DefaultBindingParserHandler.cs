@@ -19,7 +19,6 @@ using System.Linq;
 using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
-using MugenMvvmToolkit.Binding.Modules;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
 using MugenMvvmToolkit.Interfaces.Models;
 
@@ -94,8 +93,6 @@ namespace MugenMvvmToolkit.Binding.Parse
         /// <returns>An instance of <see cref="string" />.</returns>
         public void HandleTargetPath(ref string targetPath, IDataContext context)
         {
-            if (targetPath == "BindingErrorProvider.Errors" || targetPath == "ErrorProvider.Errors")
-                targetPath = DataBindingModule.ErrorProviderErrors;
         }
 
         /// <summary>

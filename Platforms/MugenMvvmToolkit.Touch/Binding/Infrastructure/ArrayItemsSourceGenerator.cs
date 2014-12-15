@@ -18,6 +18,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using MonoTouch.ObjCRuntime;
 using MonoTouch.UIKit;
 using MugenMvvmToolkit.Binding.Converters;
 using MugenMvvmToolkit.Binding.Interfaces;
@@ -65,6 +66,17 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Overrides of ItemsSourceGeneratorBase
 
         protected override IEnumerable ItemsSource { get; set; }
+
+        protected override bool IsTargetDisposed
+        {
+            get
+            {
+                var nativeObject = _container as INativeObject;
+                if (nativeObject == null)
+                    return false;
+                return !nativeObject.IsAlive();
+            }
+        }
 
         protected override void Add(int insertionIndex, int count)
         {

@@ -190,14 +190,21 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         public virtual object FindByName(object target, string elementName)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNullOrWhitespace(elementName, "elementName");
-            var member = BindingServiceProvider
-                .MemberProvider
-                .GetBindingMember(target.GetType(), AttachedMemberConstants.FindByNameMethod, false, false);
-            if (member == null)
-                return null;
-            return member.GetValue(target, new object[] { elementName });
+            Should.NotBeNull(elementName, "elementName");
+            while (target != null)
+            {
+                var member = BindingServiceProvider
+                   .MemberProvider
+                   .GetBindingMember(target.GetType(), AttachedMemberConstants.FindByNameMethod, false, false);
+                if (member != null)
+                {
+                    var result = member.GetValue(target, new object[] { elementName });
+                    if (result != null)
+                        return result;
+                }
+                target = FindParent(target);
+            }
+            return null;
         }
 
         /// <summary>

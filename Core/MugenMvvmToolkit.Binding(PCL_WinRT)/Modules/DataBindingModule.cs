@@ -29,6 +29,7 @@ using MugenMvvmToolkit.Modules;
 
 namespace MugenMvvmToolkit.Binding.Modules
 {
+    //TODO THINK
     /// <summary>
     ///     Represents the binding module.
     /// </summary>
@@ -36,7 +37,8 @@ namespace MugenMvvmToolkit.Binding.Modules
     {
         #region Fields
 
-        internal const string ErrorProviderErrors = "SetBindingErrors";
+        private static bool _isLoaded;
+        private const string ErrorProviderErrors = "SetBindingErrors";
         private static readonly HashSet<Type> ImplicitParentTypes;
         private static readonly bool DebbugerAttached;
         private static readonly IAttachedBindingMemberInfo<object, object> CommandParameterInternal;
@@ -74,28 +76,39 @@ namespace MugenMvvmToolkit.Binding.Modules
                 return false;
 
             InitilaizeServices();
-            var assemblies = context.Assemblies;
-            for (int i = 0; i < assemblies.Count; i++)
+
+            if (!_isLoaded || GetType().GetMethodEx("RegisterType").IsOverride(typeof(DataBindingModule)))
             {
-                var types = assemblies[i].SafeGetTypes(context.Mode != LoadMode.Design);
-                for (int j = 0; j < types.Count; j++)
-                    RegisterType(types[j]);
+                var assemblies = context.Assemblies;
+                for (int i = 0; i < assemblies.Count; i++)
+                {
+                    var types = assemblies[i].SafeGetTypes(context.Mode != LoadMode.Design);
+                    for (int j = 0; j < types.Count; j++)
+                        RegisterType(types[j]);
+                }
             }
 
-            var memberProvider = BindingServiceProvider.MemberProvider;
-            memberProvider
-                .Register(AttachedBindingMember
-                    .CreateMember<object, object>(AttachedMemberConstants.CommandParameter, GetCommandParameter,
-                        SetCommandParameter, ObserveCommandParameter));
-            memberProvider
-                .Register(AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.Parent,
-                    GetParent, SetParent, ObserveParent));
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<object, IEnumerable<object>>(
-                    AttachedMemberConstants.ErrorsPropertyMember, getDefaultValue: (o, info) => Empty.Array<object>()));
-            memberProvider.Register(AttachedBindingMember.CreateMember<object, bool>("HasErrors", GetHasErrors, null, ObserveHasErrors));
-            memberProvider.Register(AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.FindByNameMethod, FindByName));
-            memberProvider.Register(AttachedBindingMember.CreateMember<object, IEnumerable<object>>(
-                ErrorProviderErrors, getValue: null, setValue: SetErrorProviderErrors));
+            if (!_isLoaded)
+            {
+                var memberProvider = BindingServiceProvider.MemberProvider;
+                memberProvider
+                    .Register(AttachedBindingMember
+                        .CreateMember<object, object>(AttachedMemberConstants.CommandParameter, GetCommandParameter,
+                            SetCommandParameter, ObserveCommandParameter));
+                memberProvider
+                    .Register(AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.Parent,
+                        GetParent, SetParent, ObserveParent));
+                memberProvider.Register(AttachedBindingMember.CreateAutoProperty<object, IEnumerable<object>>(
+                        AttachedMemberConstants.ErrorsPropertyMember, getDefaultValue: (o, info) => Empty.Array<object>()));
+                memberProvider.Register(AttachedBindingMember.CreateMember<object, bool>("HasErrors", GetHasErrors, null, ObserveHasErrors));
+                var setErrorsMember = AttachedBindingMember.CreateMember<object, IEnumerable<object>>(ErrorProviderErrors, getValue: null,
+                    setValue: SetErrorProviderErrors);
+                memberProvider.Register(setErrorsMember);
+                memberProvider.Register(typeof(object), "BindingErrorProvider.Errors", setErrorsMember, true);
+                memberProvider.Register(typeof(object), "ErrorProvider.Errors", setErrorsMember, true);
+                _isLoaded = true;
+            }
+
             OnLoaded(context);
             return true;
         }
@@ -135,7 +148,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         }
 
         /// <summary>
-        /// Tries to register type.
+        ///     Tries to register type.
         /// </summary>
         protected virtual void RegisterType(Type type)
         {
@@ -243,15 +256,41 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         private void InitilaizeServices()
         {
-            BindingServiceProvider.BindingProvider = GetBindingProvider() ?? BindingServiceProvider.BindingProvider;
-            BindingServiceProvider.BindingManager = GetBindingManager() ?? BindingServiceProvider.BindingManager;
-            BindingServiceProvider.MemberProvider = GetBindingMemberProvider() ?? BindingServiceProvider.MemberProvider;
-            BindingServiceProvider.ObserverProvider = GetObserverProvider() ?? BindingServiceProvider.ObserverProvider;
-            BindingServiceProvider.ContextManager = GetBindingContextManager() ?? BindingServiceProvider.ContextManager;
-            BindingServiceProvider.ResourceResolver = GetBindingResourceResolver() ?? BindingServiceProvider.ResourceResolver;
-            BindingServiceProvider.VisualTreeManager = GetVisualTreeManager() ?? BindingServiceProvider.VisualTreeManager;
-            BindingServiceProvider.WeakEventManager = GetWeakEventManager() ?? BindingServiceProvider.WeakEventManager;
-            BindingServiceProvider.ErrorProvider = GetBindingErrorProvider();
+            var bindingProvider = GetBindingProvider();
+            if (bindingProvider != null)
+                BindingServiceProvider.BindingProvider = bindingProvider;
+
+            var bindingManager = GetBindingManager();
+            if (bindingManager != null)
+                BindingServiceProvider.BindingManager = bindingManager;
+
+            var memberProvider = GetBindingMemberProvider();
+            if (memberProvider != null)
+                BindingServiceProvider.MemberProvider = memberProvider;
+
+            var observerProvider = GetObserverProvider();
+            if (observerProvider != null)
+                BindingServiceProvider.ObserverProvider = observerProvider;
+
+            var contextManager = GetBindingContextManager();
+            if (contextManager != null)
+                BindingServiceProvider.ContextManager = contextManager;
+
+            var resourceResolver = GetBindingResourceResolver();
+            if (resourceResolver != null)
+                BindingServiceProvider.ResourceResolver = resourceResolver;
+
+            var visualTreeManager = GetVisualTreeManager();
+            if (visualTreeManager != null)
+                BindingServiceProvider.VisualTreeManager = visualTreeManager;
+
+            var weakEventManager = GetWeakEventManager();
+            if (weakEventManager != null)
+                BindingServiceProvider.WeakEventManager = weakEventManager;
+
+            var errorProvider = GetBindingErrorProvider();
+            if (errorProvider != null)
+                BindingServiceProvider.ErrorProvider = errorProvider;
         }
 
         private static bool GetHasErrors(IBindingMemberInfo bindingMemberInfo, object o, object[] arg3)
@@ -343,21 +382,6 @@ namespace MugenMvvmToolkit.Binding.Modules
                 .MemberProvider
                 .GetBindingMember(instance.GetType(), AttachedMemberConstants.Parent, true, false) ??
                    BindingExtensions.AttachedParentMember;
-        }
-
-        private static object FindByName(IBindingMemberInfo member, object item, object[] args)
-        {
-            var name = (string)args[0];
-            var treeManager = BindingServiceProvider.VisualTreeManager;
-            var parent = treeManager.FindParent(item);
-            while (parent != null)
-            {
-                var findByName = treeManager.FindByName(parent, name);
-                if (findByName != null)
-                    return findByName;
-                parent = treeManager.FindParent(parent);
-            }
-            return null;
         }
 
         #endregion

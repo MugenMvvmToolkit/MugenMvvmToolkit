@@ -63,16 +63,17 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="XamarinFormsContent\App.cs.pp" target="content\portable-net45+win+wp80+MonoAndroid10+MonoTouch10\App.cs.pp" />
-    <file src="XamarinFormsContent\MainView.xaml.cs.pp" target="content\portable-net45+win+wp80+MonoAndroid10+MonoTouch10\Views\MainView.xaml.cs.pp" />
-    <file src="XamarinFormsContent\MainView.xaml.pp" target="content\portable-net45+win+wp80+MonoAndroid10+MonoTouch10\Views\MainView.xaml.pp" />
-    <file src="XamarinFormsContent\Readme.txt" target="content\portable-net45+win+wp80+MonoAndroid10+MonoTouch10\_MugenMvvmToolkitReadme.txt" />
+    <file src="XamarinFormsContent\App.cs.pp" target="content\portable-net45+win+wp80+MonoAndroid10+MonoTouch10+xamarinios10\App.cs.pp" />
+    <file src="XamarinFormsContent\MainView.xaml.cs.pp" target="content\portable-net45+win+wp80+MonoAndroid10+MonoTouch10+xamarinios10\Views\MainView.xaml.cs.pp" />
+    <file src="XamarinFormsContent\MainView.xaml.pp" target="content\portable-net45+win+wp80+MonoAndroid10+MonoTouch10+xamarinios10\Views\MainView.xaml.pp" />
+    <file src="XamarinFormsContent\Readme.txt" target="content\portable-net45+win+wp80+MonoAndroid10+MonoTouch10+xamarinios10\_MugenMvvmToolkitReadme.txt" />
 
     <!-- Android -->
     <file src="_._" target="lib\monoandroid\_._" />
 
     <!-- Touch -->	
     <file src="_._" target="lib\monotouch\_._" />
+    <file src="_._" target="lib\xamarinios10\_._" />
 
     <!-- WP 8 -->
     <file src="_._" target="lib\wp8\_._" />

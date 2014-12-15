@@ -352,9 +352,9 @@ namespace MugenMvvmToolkit.Binding
             return syntax.WithBehavior(new DelayBindingBehavior(delay, isTarget));
         }
 
-        public static IBindingBehaviorSyntax DefaultValueOnException([NotNull] this IBindingBehaviorSyntax syntax)
+        public static IBindingBehaviorSyntax DefaultValueOnException([NotNull] this IBindingBehaviorSyntax syntax, object value = null)
         {
-            return syntax.WithBehavior(DefaultValueOnExceptionBehavior.Instance);
+            return syntax.WithBehavior(new DefaultValueOnExceptionBehavior(value));
         }
 
         #endregion

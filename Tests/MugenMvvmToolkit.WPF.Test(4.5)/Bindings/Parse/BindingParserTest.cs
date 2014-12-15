@@ -1037,32 +1037,87 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         }
 
         [TestMethod]
-        public void ParserShouldParseCustomBehaviorByNameTrue()
+        public void ParserShouldParseCustomBehaviorByName1()
         {
             const string behaviorName = "TestBehavior";
             const string binding = "Text SourceText, TestBehavior=true";
             var value = new TwoWayBindingMode();
             var resolver = new BindingResourceResolver();
-            resolver.AddBehavior(behaviorName, (dataContext, list) => value, true);
+            resolver.AddBehavior(behaviorName, (dataContext, list) =>
+            {
+                list.Count.ShouldEqual(1);
+                list[0].ShouldEqual(true);
+                return value;
+            }, true);
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
             BindingServiceProvider.ResourceResolver = resolver;
+
             var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            context.GetData(BindingBuilderConstants.Behaviors).Single().ShouldBeType<TwoWayBindingMode>();
+            context.GetData(BindingBuilderConstants.Behaviors).Single().ShouldEqual(value);
         }
 
         [TestMethod]
-        public void ParserShouldParseCustomBehaviorByNameFalse()
+        public void ParserShouldParseCustomBehaviorByName2()
         {
             const string behaviorName = "TestBehavior";
-            const string binding = "Text SourceText, TestBehavior=false";
+            const string binding = "Text SourceText, TestBehavior=100";
             var value = new TwoWayBindingMode();
             var resolver = new BindingResourceResolver();
-            resolver.AddBehavior(behaviorName, (dataContext, list) => value, true);
+            resolver.AddBehavior(behaviorName, (dataContext, list) =>
+            {
+                list.Count.ShouldEqual(1);
+                list[0].ShouldEqual(100);
+                return value;
+            }, true);
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
             BindingServiceProvider.ResourceResolver = resolver;
 
             var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            context.GetData(BindingBuilderConstants.Behaviors).IsNullOrEmpty().ShouldBeTrue();
+            context.GetData(BindingBuilderConstants.Behaviors).Single().ShouldEqual(value);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseCustomBehaviorByName3()
+        {
+            const string behaviorName = "TestBehavior";
+            const string binding = "Text SourceText, TestBehavior=stringvalue, Validate=true";
+            var value = new TwoWayBindingMode();
+            var resolver = new BindingResourceResolver();
+            resolver.AddBehavior(behaviorName, (dataContext, list) =>
+            {
+                list.Count.ShouldEqual(1);
+                list[0].ShouldEqual("stringvalue");
+                return value;
+            }, true);
+            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
+            BindingServiceProvider.ResourceResolver = resolver;
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            context.GetData(BindingBuilderConstants.Behaviors).OfType<TwoWayBindingMode>().Single().ShouldEqual(value);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseCustomBehaviorMultiParams()
+        {
+            const string behaviorName = "TestBehavior";
+            const string binding = "Text SourceText, Behavior=TestBehavior(stringvalue, 10, null, true, part1.part2), Validate=true";
+            var value = new TwoWayBindingMode();
+            var resolver = new BindingResourceResolver();
+            resolver.AddBehavior(behaviorName, (dataContext, list) =>
+            {
+                list.Count.ShouldEqual(5);
+                list[0].ShouldEqual("stringvalue");
+                list[1].ShouldEqual(10);
+                list[2].ShouldBeNull();
+                list[3].ShouldEqual(true);
+                list[4].ShouldEqual("part1.part2");
+                return value;
+            }, true);
+            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
+            BindingServiceProvider.ResourceResolver = resolver;
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            context.GetData(BindingBuilderConstants.Behaviors).OfType<TwoWayBindingMode>().Single().ShouldEqual(value);
         }
 
         [TestMethod]
@@ -1090,15 +1145,43 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         }
 
         [TestMethod]
-        public void ParserShouldParseDefaultValueOnException()
+        public void ParserShouldParseDefaultValueOnException1()
         {
             const string binding = "Text SourceText, DefaultValueOnException=true";
             IBindingParser bindingParser = CreateBindingParser();
 
             var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            context.GetData(BindingBuilderConstants.Behaviors)
-                .Single()
-                .ShouldBeType<DefaultValueOnExceptionBehavior>();
+            var behavior = (DefaultValueOnExceptionBehavior)context
+                .GetData(BindingBuilderConstants.Behaviors)
+                .Single();
+            behavior.Value.ShouldEqual(true);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseDefaultValueOnException2()
+        {
+            const string binding = "Text SourceText, DefaultValueOnException=10";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var behavior = (DefaultValueOnExceptionBehavior)context
+                .GetData(BindingBuilderConstants.Behaviors)
+                .Single();
+            behavior.Value.ShouldEqual(10);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseDefaultValueOnException3()
+        {
+            const string binding = "Text SourceText, DefaultValueOnException=stringvalue, Mode=TwoWay";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var behavior = context
+                .GetData(BindingBuilderConstants.Behaviors)
+                .OfType<DefaultValueOnExceptionBehavior>()
+                .Single();
+            behavior.Value.ShouldEqual("stringvalue");
         }
 
         [TestMethod]

@@ -118,6 +118,7 @@ namespace MugenMvvmToolkit
 
         private static readonly Func<Assembly, bool> IsToolkitAssemblyDelegate;
         private static readonly HashSet<string> KnownPublicKeys;
+        private static readonly HashSet<string> KnownMSPublicKeys;
         private static readonly HashSet<string> KnownAssemblyName;
 
         private static readonly Dictionary<Type, string[]> CachedIgnoreAttributes;
@@ -146,9 +147,12 @@ namespace MugenMvvmToolkit
             //NOTE: 0738eb9f132ed756, 84e04ff9cfb79065 - MONO
             //NOTE: 5803cfa389c90ce7 - Telerik
             //NOTE: 17863af14b0044da - Autofac
-            KnownPublicKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            KnownMSPublicKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                "7cec85d7bea7798e", "31bf3856ad364e35", "b03f5f7f11d50a3a",  "b77a5c561934e089", 
+                "7cec85d7bea7798e", "31bf3856ad364e35", "b03f5f7f11d50a3a",  "b77a5c561934e089"
+            };
+            KnownPublicKeys = new HashSet<string>(KnownMSPublicKeys, StringComparer.OrdinalIgnoreCase)
+            {
                 "0738eb9f132ed756", "84e04ff9cfb79065", "5803cfa389c90ce7", "17863af14b0044da"
             };
             KnownAssemblyName = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -410,6 +414,18 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
+        ///     Checks whether the current assembly is Microsoft assembly.
+        /// </summary>
+        public static bool IsMicrosoftAssembly(this Assembly assembly)
+        {
+#if !PCL_Silverlight
+            if (assembly.IsDynamic)
+                return false;
+#endif
+            return assembly.HasKnownPublicKey(true);
+        }
+
+        /// <summary>
         ///     Checks whether the current assembly is toolkit assembly.
         /// </summary>
         public static bool IsToolkitAssembly(this Assembly assembly)
@@ -418,7 +434,7 @@ namespace MugenMvvmToolkit
             if (assembly.IsDynamic)
                 return false;
 #endif
-            return !assembly.HasKnownPublicKey();
+            return !assembly.HasKnownPublicKey(false);
         }
 
         /// <summary>
@@ -716,15 +732,17 @@ namespace MugenMvvmToolkit
             return weakEventHandler.Handle;
         }
 
-        private static bool HasKnownPublicKey(this Assembly assembly)
+        private static bool HasKnownPublicKey(this Assembly assembly, bool msCheck)
         {
             var assemblyName = assembly.GetAssemblyName();
             var bytes = assemblyName.GetPublicKeyToken();
             if (bytes == null || bytes.Length == 0)
-                return KnownAssemblyName.Contains(assemblyName.Name);
+                return !msCheck && KnownAssemblyName.Contains(assemblyName.Name);
             var builder = new StringBuilder(16);
             for (int i = 0; i < bytes.Length; i++)
                 builder.Append(bytes[i].ToString("x2"));
+            if (msCheck)
+                return KnownMSPublicKeys.Contains(builder.ToString());
             return KnownPublicKeys.Contains(builder.ToString());
         }
 

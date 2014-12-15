@@ -108,7 +108,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private readonly Dictionary<string, IBindingValueConverter> _converters;
         private readonly Dictionary<string, IBindingResourceMethod> _dynamicMethods;
         private readonly Dictionary<string, IBindingResourceObject> _objects;
-        private readonly Dictionary<string, Func<IDataContext, IList<string>, IBindingBehavior>> _behaviors;
+        private readonly Dictionary<string, Func<IDataContext, IList<object>, IBindingBehavior>> _behaviors;
         private readonly Dictionary<string, Type> _types;
 
         #endregion
@@ -120,7 +120,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         public BindingResourceResolver()
         {
-            _behaviors = new Dictionary<string, Func<IDataContext, IList<string>, IBindingBehavior>>();
+            _behaviors = new Dictionary<string, Func<IDataContext, IList<object>, IBindingBehavior>>();
             _converters = new Dictionary<string, IBindingValueConverter>();
             _dynamicMethods = new Dictionary<string, IBindingResourceMethod>
             {
@@ -177,7 +177,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public BindingResourceResolver([NotNull] BindingResourceResolver resolver)
         {
             Should.NotBeNull(resolver, "resolver");
-            _behaviors = new Dictionary<string, Func<IDataContext, IList<string>, IBindingBehavior>>(resolver._behaviors);
+            _behaviors = new Dictionary<string, Func<IDataContext, IList<object>, IBindingBehavior>>(resolver._behaviors);
             _converters = new Dictionary<string, IBindingValueConverter>(resolver._converters);
             _dynamicMethods = new Dictionary<string, IBindingResourceMethod>(resolver._dynamicMethods);
             _objects = new Dictionary<string, IBindingResourceObject>(resolver._objects);
@@ -380,10 +380,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         ///     false also suppresses some other exception conditions, but not all of them.
         /// </param>
         /// <returns>An instance of <see cref="IBindingBehavior" />.</returns>
-        public virtual IBindingBehavior ResolveBehavior(string name, IDataContext context, IList<string> args, bool throwOnError)
+        public virtual IBindingBehavior ResolveBehavior(string name, IDataContext context, IList<object> args, bool throwOnError)
         {
             Should.NotBeNullOrWhitespace(name, "name");
-            Func<IDataContext, IList<string>, IBindingBehavior> value;
+            Func<IDataContext, IList<object>, IBindingBehavior> value;
             lock (_behaviors)
             {
                 if (!_behaviors.TryGetValue(name, out value))
@@ -399,7 +399,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <summary>
         ///     Adds the specified behavior.
         /// </summary>
-        public virtual void AddBehavior(string name, Func<IDataContext, IList<string>, IBindingBehavior> getBehavior, bool rewrite)
+        public virtual void AddBehavior(string name, Func<IDataContext, IList<object>, IBindingBehavior> getBehavior, bool rewrite)
         {
             Should.NotBeNullOrWhitespace(name, "name");
             Should.NotBeNull(getBehavior, "getBehavior");

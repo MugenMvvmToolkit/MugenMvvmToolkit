@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using MonoTouch.Foundation;
+using MonoTouch.ObjCRuntime;
 using MonoTouch.UIKit;
 using MugenMvvmToolkit.Interfaces;
 
@@ -106,7 +107,7 @@ namespace MugenMvvmToolkit
             }
         }
 
-        internal static bool IsAlive([NotNull] this NSObject item)
+        internal static bool IsAlive([NotNull] this INativeObject item)
         {
             Should.NotBeNull(item, "item");
             return item.Handle != IntPtr.Zero;

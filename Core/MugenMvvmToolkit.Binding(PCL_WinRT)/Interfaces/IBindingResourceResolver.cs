@@ -91,12 +91,12 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         ///     false also suppresses some other exception conditions, but not all of them.
         /// </param>
         /// <returns>An instance of <see cref="IBindingBehavior" />.</returns>
-        IBindingBehavior ResolveBehavior([NotNull] string name, IDataContext context, IList<string> args, bool throwOnError);
+        IBindingBehavior ResolveBehavior([NotNull] string name, IDataContext context, IList<object> args, bool throwOnError);
 
         /// <summary>
         ///     Adds the specified behavior.
         /// </summary>
-        void AddBehavior([NotNull] string name, [NotNull] Func<IDataContext, IList<string>, IBindingBehavior> getBehavior, bool rewrite = true);
+        void AddBehavior([NotNull] string name, [NotNull] Func<IDataContext, IList<object>, IBindingBehavior> getBehavior, bool rewrite = true);
 
         /// <summary>
         ///     Adds the specified converter.

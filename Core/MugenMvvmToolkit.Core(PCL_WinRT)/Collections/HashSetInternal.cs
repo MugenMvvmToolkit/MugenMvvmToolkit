@@ -50,6 +50,15 @@ namespace System.Collections.Generic
         }
 
         /// <summary>
+        ///     Initializes a new instance of the <see cref="HashSet{T}" /> class.
+        /// </summary>
+        public HashSet(IEnumerable<T> enumerable, IEqualityComparer<T> comparer)
+            : this(enumerable)
+        {
+            _equalityComparer = comparer ?? EqualityComparer<T>.Default;
+        }
+
+        /// <summary>
         ///     Initializes a new instance of the <see cref="HashSet{T}" /> class that is empty and
         ///     uses the specified equality comparer for the set type.
         /// </summary>
