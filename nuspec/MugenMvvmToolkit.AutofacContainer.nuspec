@@ -13,19 +13,15 @@
     <description>Extension for Autofac providing integration with Mugen MVVM Toolkit.</description>
     <dependencies>
       <group>
-        <dependency id="MugenMvvmToolkit" version="[3.2.0, 3.3.0)" />
         <dependency id="Autofac" version="[3.5.2, 3.6.0)" />
       </group>
       <group targetFramework="wp8">
-        <dependency id="MugenMvvmToolkit" version="[3.2.0, 3.3.0)" />
         <dependency id="Autofac" version="[3.5.2, 3.6.0)" />
       </group>
       <group targetFramework="wp81">
-        <dependency id="MugenMvvmToolkit" version="[3.2.0, 3.3.0)" />
         <dependency id="Autofac" version="[3.5.2, 3.6.0)" />
       </group>
       <group targetFramework="sl4-windowsphone71">
-        <dependency id="MugenMvvmToolkit" version="[3.2.0, 3.3.0)" />
         <dependency id="Autofac" version="2.6.3.862" />
       </group>
     </dependencies>

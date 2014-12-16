@@ -59,7 +59,7 @@ namespace MugenMvvmToolkit.ViewModels
         {
             _weakPropertyHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, (model, o, arg3) => model.OnSelectedItemPropertyChanged(o, arg3));
             SetOriginalItemsSource(new SynchronizedNotifiableCollection<T>());
-            ChangeItemSelectedState = true;
+            UpdateSelectedStateOnChange = true;
         }
 
         #endregion
@@ -75,9 +75,9 @@ namespace MugenMvvmToolkit.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the value that indicates that the current view model will change the IsSelected property in <see cref="ISelectable"/> model.
+        ///     Gets or sets the value that indicates that the current view model will change the IsSelected property in <see cref="ISelectable" /> model.
         /// </summary>
-        public bool ChangeItemSelectedState { get; set; }
+        public bool UpdateSelectedStateOnChange { get; set; }
 
         #endregion
 
@@ -189,7 +189,7 @@ namespace MugenMvvmToolkit.ViewModels
                 TryUpdatePropertyChanged(oldValue, false);
                 TryUpdatePropertyChanged(_selectedItem, true);
 
-                if (ChangeItemSelectedState)
+                if (UpdateSelectedStateOnChange)
                 {
                     var selectable = oldValue as ISelectable;
                     if (selectable != null)
@@ -317,7 +317,7 @@ namespace MugenMvvmToolkit.ViewModels
                 using (FilterableItemsSource.SuspendNotifications())
                 {
                     _originalData.Clear();
-                    _originalData.AddRange(value);
+                    _itemsSource.AddRange(value);
                 }
             }
             UpdateFilter();
