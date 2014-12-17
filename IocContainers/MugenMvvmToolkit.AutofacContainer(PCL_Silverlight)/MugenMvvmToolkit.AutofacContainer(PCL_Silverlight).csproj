@@ -51,6 +51,7 @@
     <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_Silverlight%29\MugenMvvmToolkit.Core%28PCL_Silverlight%29.csproj">
       <Project>{74d0561d-14ce-4bb7-911e-4f8ec86b203c}</Project>
       <Name>MugenMvvmToolkit.Core%28PCL_Silverlight%29</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

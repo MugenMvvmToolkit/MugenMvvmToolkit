@@ -116,6 +116,7 @@
     <ProjectReference Include="..\MugenMvvmToolkit.WPF%284.0%29\MugenMvvmToolkit.WPF%284.0%29.csproj">
       <Project>{767ba920-cf3a-4894-8382-2de780d398e3}</Project>
       <Name>MugenMvvmToolkit.WPF%284.0%29</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

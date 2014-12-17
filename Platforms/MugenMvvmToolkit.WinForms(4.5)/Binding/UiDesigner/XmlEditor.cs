@@ -85,8 +85,6 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         #region Fields
 
-        private static readonly List<KeyValuePair<string, string>> ReplaceKeywords;
-
         // ReSharper disable InconsistentNaming
         private const int WM_KEYDOWN = 0x100;
         private const int WM_SETREDRAW = 0x0b;
@@ -125,17 +123,6 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
         #endregion
 
         #region Constructors
-
-        static XmlEditor()
-        {
-            ReplaceKeywords = new List<KeyValuePair<string, string>>
-            {
-                new KeyValuePair<string, string>("&lt;", "<"),
-                new KeyValuePair<string, string>("&gt;", ">"),
-                new KeyValuePair<string, string>("&quot;", "\""),
-                new KeyValuePair<string, string>("&amp;", "&")
-            };
-        }
 
         public XmlEditor()
         {
@@ -197,82 +184,14 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         #region Methods
 
-        public string GetBindingText(bool showMessageBox)
+        public string GetBindingText()
         {
-            if (string.IsNullOrEmpty(Text))
-                return Text;
-            try
-            {
-                var nodes = _parser.Parse(Text);
-                _visitor.Visit(nodes);
-                int delta = 0;
-                string text = Text;
-                foreach (var node in _visitor.Nodes.OfType<XmlValueExpressionNode>())
-                {
-                    if (node.Type != XmlValueExpressionType.AttributeValue)
-                        continue;
-                    var start = node.Start + 1 + delta;
-                    var length = node.Length - 2;
-                    var oldValue = text.Substring(start, length);
-                    int oldLength = oldValue.Length;
-                    foreach (var replaceKeyword in ReplaceKeywords)
-                        oldValue = oldValue.Replace(replaceKeyword.Value, replaceKeyword.Key);
-
-                    var localDelta = oldValue.Length - oldLength;
-                    if (localDelta == 0)
-                        continue;
-
-                    delta += localDelta;
-                    text = text.Remove(start, length).Insert(start, oldValue);
-                }
-                return text;
-            }
-            catch (Exception e)
-            {
-                if (showMessageBox)
-                    MessageBox.Show(e.Flatten(false));
-                return Text;
-            }
+            return Text;
         }
 
         public void SetBindingText(string text)
         {
-            if (string.IsNullOrEmpty(text))
-            {
-                Text = text;
-                return;
-            }
-            try
-            {
-                var nodes = _parser.Parse(text);
-                _visitor.Visit(nodes);
-                int delta = 0;
-                foreach (var node in _visitor.Nodes.OfType<XmlValueExpressionNode>())
-                {
-                    if (node.Type != XmlValueExpressionType.AttributeValue)
-                        continue;
-                    var start = node.Start + 1 + delta;
-                    var length = node.Length - 2;
-                    var oldValue = text.Substring(start, length);
-                    int oldLength = oldValue.Length;
-                    for (int i = ReplaceKeywords.Count - 1; i >= 0; i--)
-                    {
-                        var replaceKeyword = ReplaceKeywords[i];
-                        oldValue = oldValue.Replace(replaceKeyword.Key, replaceKeyword.Value);
-                    }
-                    var localDelta = oldValue.Length - oldLength;
-                    if (localDelta == 0)
-                        continue;
-
-                    delta += localDelta;
-                    text = text.Remove(start, length).Insert(start, oldValue);
-                }
-                Text = text;
-            }
-            catch
-            {
-                Text = text;
-            }
+            Text = text;
         }
 
         public void ShowAutoComplete()
@@ -323,7 +242,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                 return;
             try
             {
-                var text = XElement.Parse(GetBindingText(false), LoadOptions.None).ToString();
+                var text = XElement.Parse(GetBindingText(), LoadOptions.None).ToString();
                 SetBindingText(text);
                 Highlight();
             }

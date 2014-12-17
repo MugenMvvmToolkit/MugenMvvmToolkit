@@ -114,6 +114,7 @@
     <ProjectReference Include="..\MugenMvvmToolkit.WinPhone%287.1%29\MugenMvvmToolkit.WinPhone%287.1%29.csproj">
       <Project>{190D8C8F-6F1D-497B-9900-7E5C4ACA51E4}</Project>
       <Name>MugenMvvmToolkit.WinPhone%287.1%29</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

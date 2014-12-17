@@ -411,9 +411,9 @@ namespace MugenMvvmToolkit
             BindingExtensions.ClearBindings(item, clearDataContext, clearAttachedValues, disposeObj);
         }
 
-        public static void NotifyActivityAttached(Activity activity, View view)
+        public static void NotifyActivityAttached([CanBeNull] Activity activity, [CanBeNull] View view)
         {
-            if (view == null)
+            if (view == null || activity == null)
                 return;
             var viewGroup = view as ViewGroup;
             if (viewGroup != null)

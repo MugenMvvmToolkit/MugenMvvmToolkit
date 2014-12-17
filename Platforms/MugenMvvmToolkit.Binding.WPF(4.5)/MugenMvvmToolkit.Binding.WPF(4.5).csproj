@@ -96,6 +96,7 @@
     <ProjectReference Include="..\MugenMvvmToolkit.WPF%284.5%29\MugenMvvmToolkit.WPF%284.5%29.csproj">
       <Project>{170a39d4-059b-4abf-b377-eed905d87ef4}</Project>
       <Name>MugenMvvmToolkit.WPF%284.5%29</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

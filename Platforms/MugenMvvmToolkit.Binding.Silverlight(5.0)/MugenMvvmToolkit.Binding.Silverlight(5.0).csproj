@@ -137,6 +137,7 @@
     <ProjectReference Include="..\MugenMvvmToolkit.Silverlight%285.0%29\MugenMvvmToolkit.Silverlight%285.0%29.csproj">
       <Project>{f50a09d0-6c2b-4f08-9a42-67146bfaece9}</Project>
       <Name>MugenMvvmToolkit.Silverlight%285.0%29</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

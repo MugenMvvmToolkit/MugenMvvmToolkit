@@ -179,7 +179,9 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         /// </summary>
         public virtual void OnViewCreated(View view, Bundle savedInstanceState, Action<View, Bundle> baseOnViewCreated)
         {
-            if (_dialogFragment != null)
+            if (_dialogFragment == null)
+                PlatformExtensions.NotifyActivityAttached(Target.Activity, view);
+            else
             {
                 var dialog = _dialogFragment.Dialog;
                 if (dialog != null)

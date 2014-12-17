@@ -9,17 +9,19 @@
       This package adds ActionBar support for Android with API >= 14 for MugenMvvmToolkit.
     </description>
     <releaseNotes>
+      - Split the android project into several parts, Android, Android.ActionBar, Android.AppCompat, Android.Fragment, Android.RecyclerView.
       - Fixed invalid binding validation when using $GetErrors method.
       - Added Xamarin.Forms support.
+      - Added support for API21(Android).
       - Added IWrapperManager instead of IViewModelWrapperManager.
       - Updated IEventAggregator, added the ability to subscribe using a delegate.
       - Added AsyncRelayCommand that allows to use Task in execute method.
       - Added support for the $root keyword (Binding).
-      - Updated android projects from API8 to API10.
       - Updated IDynamicObject interface, that allows to invoke methods and index members.
       - Updated CompiledExpressionInvoker, now it can invoke dynamic members.
       - Updated BindingEditor (WinForms).
       - Updated IObservable interface, now it works with ISubscriber interface.
+      - Updated DefaultValueOnExceptionBehavior, now you can set default value (Binding).
       - Moved the Handle method from IEventListener to extension method.
       - Removed ThrowOnMultiInitialization property from IViewModelSettings.
       - Optimized delegate allocation.
