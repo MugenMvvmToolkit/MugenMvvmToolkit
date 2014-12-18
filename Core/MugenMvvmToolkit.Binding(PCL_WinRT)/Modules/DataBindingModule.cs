@@ -29,7 +29,6 @@ using MugenMvvmToolkit.Modules;
 
 namespace MugenMvvmToolkit.Binding.Modules
 {
-    //TODO THINK
     /// <summary>
     ///     Represents the binding module.
     /// </summary>
@@ -77,7 +76,7 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             InitilaizeServices();
 
-            if (!_isLoaded || GetType().GetMethodEx("RegisterType").IsOverride(typeof(DataBindingModule)))
+            if (!_isLoaded || GetType().GetMethodEx("RegisterType", MemberFlags.Instance | MemberFlags.NonPublic).IsOverride(typeof(DataBindingModule)))
             {
                 var assemblies = context.Assemblies;
                 for (int i = 0; i < assemblies.Count; i++)
@@ -105,7 +104,6 @@ namespace MugenMvvmToolkit.Binding.Modules
                     setValue: SetErrorProviderErrors);
                 memberProvider.Register(setErrorsMember);
                 memberProvider.Register(typeof(object), "BindingErrorProvider.Errors", setErrorsMember, true);
-                memberProvider.Register(typeof(object), "ErrorProvider.Errors", setErrorsMember, true);
                 _isLoaded = true;
             }
 

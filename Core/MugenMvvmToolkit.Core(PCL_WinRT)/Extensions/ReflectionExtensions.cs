@@ -765,9 +765,8 @@ namespace MugenMvvmToolkit
         public static PropertyInfo[] GetPropertiesEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
-            //BUG: GetRuntimeProperties returns only declared static properties instead of all
             var list = new List<PropertyInfo>();
-            while (type != null && type != typeof(object))
+            while (type != null)
             {
                 var typeInfo = type.GetTypeInfo();
                 foreach (var property in typeInfo.DeclaredProperties)
@@ -775,7 +774,7 @@ namespace MugenMvvmToolkit
                     if (FilterProperty(property, flags))
                         list.Add(property);
                 }
-                type = typeInfo.BaseType;
+                type = type == typeof(object) ? null : typeInfo.BaseType;
             }
             return list.ToArray();
         }
@@ -799,7 +798,7 @@ namespace MugenMvvmToolkit
         {
             Should.NotBeNull(type, "type");
             var list = new List<FieldInfo>();
-            while (type != null && type != typeof(object))
+            while (type != null)
             {
                 var typeInfo = type.GetTypeInfo();
                 foreach (var field in typeInfo.DeclaredFields)
@@ -807,11 +806,9 @@ namespace MugenMvvmToolkit
                     if (FilterField(field, flags))
                         list.Add(field);
                 }
-                type = typeInfo.BaseType;
+                type = type == typeof(object) ? null : typeInfo.BaseType;
             }
             return list.ToArray();
-            //BUG: GetRuntimeFields returns only declared fields
-            //            return type.GetRuntimeFields().Where(info => FilterField(info, flags)).ToArray();
         }
 
         [CanBeNull]
@@ -976,10 +973,10 @@ namespace MugenMvvmToolkit
         }
 #else
         /// <summary>
-        /// Gets an object that represents the method represented by the specified delegate.
-        /// </summary>        
+        ///     Gets an object that represents the method represented by the specified delegate.
+        /// </summary>
         /// <returns>
-        /// An object that represents the method.
+        ///     An object that represents the method.
         /// </returns>
         /// <param name="del">The delegate to examine.</param>
         public static MethodInfo GetMethodInfo([NotNull] this Delegate del)
@@ -992,28 +989,74 @@ namespace MugenMvvmToolkit
         public static PropertyInfo GetPropertyEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
-            return type.GetProperty(name, flags.ToBindingFlags());
+            var property = type.GetProperty(name, flags.ToBindingFlags(true));
+            if (property != null || !flags.HasMemberFlag(MemberFlags.NonPublic))
+                return property;
+
+            var properties = type.GetPropertiesEx(flags);
+            for (int index = 0; index < properties.Length; index++)
+            {
+                property = properties[index];
+                if (property.Name == name)
+                    return property;
+            }
+            return null;
         }
 
         [NotNull]
         public static PropertyInfo[] GetPropertiesEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
-            return type.GetProperties(flags.ToBindingFlags());
+            var bindingFlags = flags.ToBindingFlags(false);
+            if (flags.HasMemberFlag(MemberFlags.NonPublic))
+            {
+                bindingFlags |= BindingFlags.DeclaredOnly;
+                var list = new List<PropertyInfo>();
+                while (type != null)
+                {
+                    list.AddRange(type.GetProperties(bindingFlags));
+                    type = type == typeof(object) ? null : type.BaseType;
+                }
+                return list.ToArray();
+            }
+            return type.GetProperties(bindingFlags | BindingFlags.FlattenHierarchy);
         }
 
         [CanBeNull]
         public static FieldInfo GetFieldEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
-            return type.GetField(name, flags.ToBindingFlags());
+            var field = type.GetField(name, flags.ToBindingFlags(true));
+            if (field != null || !flags.HasMemberFlag(MemberFlags.NonPublic))
+                return field;
+
+            var fields = type.GetFieldsEx(flags);
+            for (int index = 0; index < fields.Length; index++)
+            {
+                field = fields[index];
+                if (field.Name == name)
+                    return field;
+            }
+            return null;
         }
 
         [NotNull]
         public static FieldInfo[] GetFieldsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
-            return type.GetFields(flags.ToBindingFlags());
+            var bindingFlags = flags.ToBindingFlags(false);
+            if (flags.HasMemberFlag(MemberFlags.NonPublic))
+            {
+                bindingFlags |= BindingFlags.DeclaredOnly;
+                var list = new List<FieldInfo>();
+                while (type != null)
+                {
+                    list.AddRange(type.GetFields(bindingFlags));
+                    type = type == typeof(object) ? null : type.BaseType;
+                }
+                return list.ToArray();
+            }
+            return type.GetFields(bindingFlags | BindingFlags.FlattenHierarchy);
         }
 
         [CanBeNull]
@@ -1027,20 +1070,21 @@ namespace MugenMvvmToolkit
         public static MethodInfo GetMethodEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
-            return type.GetMethod(name, flags.ToBindingFlags());
+            return type.GetMethod(name, flags.ToBindingFlags(true));
         }
 
         [NotNull]
         public static MethodInfo[] GetMethodsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
-            return type.GetMethods(flags.ToBindingFlags());
+            return type.GetMethods(flags.ToBindingFlags(true));
         }
 
         [CanBeNull]
-        public static EventInfo GetEventEx(this Type sourceType, string eventName, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
+        public static EventInfo GetEventEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            return sourceType.GetEvent(eventName, flags.ToBindingFlags());
+            Should.NotBeNull(type, "type");
+            return type.GetEvent(name, flags.ToBindingFlags(true));
         }
 
         internal static Assembly GetAssembly(this Type type)
@@ -1048,7 +1092,7 @@ namespace MugenMvvmToolkit
             return type.Assembly;
         }
 
-        private static BindingFlags ToBindingFlags(this MemberFlags flags)
+        private static BindingFlags ToBindingFlags(this MemberFlags flags, bool flatten)
         {
             BindingFlags result = default(BindingFlags);
             if (flags.HasMemberFlag(MemberFlags.Instance))
@@ -1059,7 +1103,9 @@ namespace MugenMvvmToolkit
                 result |= BindingFlags.NonPublic;
             if (flags.HasMemberFlag(MemberFlags.Public))
                 result |= BindingFlags.Public;
-            return result | BindingFlags.FlattenHierarchy;
+            if (flatten)
+                result |= BindingFlags.FlattenHierarchy;
+            return result;
         }
 #endif
         #endregion

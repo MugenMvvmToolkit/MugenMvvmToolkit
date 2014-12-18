@@ -18,12 +18,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Drawing.Design;
-using System.Reflection;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.UiDesigner
 {
@@ -38,6 +38,8 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
         private readonly Dictionary<object, Dictionary<string, string>> _controlBindings;
         private string _bindings;
         private IList<IDataBinding> _dataBindings;
+        private Type _containerControlType;
+        private ContainerControl _containerControl;
 
         #endregion
 
@@ -71,7 +73,15 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         public bool IgnoreControlException { get; set; }
 
-        public ContainerControl ContainerControl { get; set; }
+        public ContainerControl ContainerControl
+        {
+            get { return _containerControl; }
+            set
+            {
+                _containerControl = value;
+                _containerControlType = value == null ? null : value.GetType();
+            }
+        }
 
         [Editor(typeof(BindingEditorUITypeEditor), typeof(UITypeEditor))]
         public string Bindings
@@ -180,14 +190,9 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             var containerControl = ContainerControl;
             if (containerControl == null || containerControl.Name == name)
                 return containerControl;
-            var findByName = BindingServiceProvider.VisualTreeManager.FindByName(containerControl, name);
-            if (findByName != null)
-                return findByName;
-
-            var type = containerControl.GetType();
-            var field = type.GetField(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            if (field == null)
-                return null;
+            var field = _containerControlType.GetFieldEx(name, MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Instance);
+            if (field == null) 
+                return BindingServiceProvider.VisualTreeManager.FindByName(containerControl, name);
             return field.GetValueEx<object>(containerControl);
         }
 
