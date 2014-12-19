@@ -41,10 +41,10 @@ namespace MugenMvvmToolkit.Infrastructure
         /// Gets the name of binding assembly.
         /// </summary>
         protected const string BindingAssemblyName = "MugenMvvmToolkit.Binding.WinRT";
-        private readonly PlatformInfo _platform;
         private readonly Frame _rootFrame;
         private readonly bool _overrideAssemblies;
         private List<Assembly> _assemblies;
+        private PlatformInfo _platform;
 
         #endregion
 
@@ -64,7 +64,6 @@ namespace MugenMvvmToolkit.Infrastructure
             Should.NotBeNull(rootFrame, "rootFrame");
             _rootFrame = rootFrame;
             _overrideAssemblies = overrideAssemblies;
-            _platform = PlatformExtensions.GetPlatformInfo();
         }
 
         #endregion
@@ -76,7 +75,12 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public override PlatformInfo Platform
         {
-            get { return _platform; }
+            get
+            {
+                if (_platform == null)
+                    _platform = PlatformExtensions.GetPlatformInfo();
+                return _platform;
+            }
         }
 
         /// <summary>
@@ -112,30 +116,31 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Starts the current bootstrapper.
         /// </summary>
-        public virtual void Start(IDataContext context = null)
+        public virtual void Start()
         {
-            if (context == null)
-                context = DataContext.Empty;
             Initialize();
-            CreateMainViewModel(GetMainViewModelType(), context).ShowAsync((model, result) => model.Dispose(), context: context);
+            CreateMainViewModel(GetMainViewModelType()).ShowAsync((model, result) => model.Dispose(), context: InitializationContext);
         }
 
+        /// <summary>
+        ///     Initializes the current bootstraper asynchronously.
+        /// </summary>
         public async Task InitializeAsync()
         {
             if (!_overrideAssemblies)
                 _assemblies = await GetAssembliesAsync();
-            Initialize(false);
+            Initialize();
         }
 
         /// <summary>
         ///     Creates the main view model.
         /// </summary>
         [NotNull]
-        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType, [NotNull] IDataContext context)
+        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType)
         {
             return IocContainer
                 .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, context);
+                .GetViewModel(viewModelType, InitializationContext);
         }
 
         /// <summary>

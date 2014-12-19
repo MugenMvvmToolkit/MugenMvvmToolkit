@@ -119,6 +119,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         private static readonly MethodInfo GetIndexValueDynamicMethod;
         private static readonly MethodInfo InvokeMemberDynamicMethod;
         private static readonly Expression EmptyObjectArrayExpression;
+        private static readonly MethodInfo StringConcatMethod;
         protected static readonly ParameterExpression DataContextParameter;
 
         private readonly Dictionary<ExpressionNodeType, Func<IExpressionNode, Expression>> _nodeToExpressionMapping;
@@ -141,9 +142,10 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         static CompiledExpressionInvoker()
         {
+            StringConcatMethod = typeof(string).GetMethodEx("Concat", new[] { typeof(object), typeof(object) }, MemberFlags.Public | MemberFlags.Static);
             ProxyMethod = typeof(CompiledExpressionInvoker).GetMethodEx("InvokeDynamicMethod", MemberFlags.Instance | MemberFlags.NonPublic);
             DataContextParameter = Expression.Parameter(typeof(IDataContext), "dataContext");
-            BindingMemberGetValueMethod = typeof(IBindingMemberInfo).GetMethodEx("GetValue", new[] { typeof(object), typeof(object[]) });
+            BindingMemberGetValueMethod = typeof(IBindingMemberInfo).GetMethodEx("GetValue", new[] { typeof(object), typeof(object[]) }, MemberFlags.Public | MemberFlags.Instance);
             GetMemberValueDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx("GetMemberValueDynamic", MemberFlags.Static | MemberFlags.NonPublic);
             GetIndexValueDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx("GetIndexValueDynamic", MemberFlags.Static | MemberFlags.NonPublic);
             InvokeMemberDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx("InvokeMemberDynamic", MemberFlags.Static | MemberFlags.NonPublic);
@@ -157,7 +159,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         /// <summary>
         ///     Initializes a new instance of the <see cref="CompiledExpressionInvoker" /> class.
         /// </summary>
-        public CompiledExpressionInvoker([NotNull] IExpressionNode node, IList<KeyValuePair<string, BindingMemberExpressionNode>> members, bool isEmpty)
+        public CompiledExpressionInvoker([NotNull] IExpressionNode node, bool isEmpty)
         {
             Should.NotBeNull(node, "node");
             _node = node;
@@ -582,8 +584,12 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         private static Expression GenerateStringConcat(Expression left, Expression right)
         {
-            return Expression.Call(null, typeof(string).GetMethodEx("Concat", new[] { typeof(object), typeof(object) }),
-                new[] { ExpressionReflectionManager.ConvertIfNeed(left, typeof(object), false), ExpressionReflectionManager.ConvertIfNeed(right, typeof(object), false) });
+            return Expression.Call(null, StringConcatMethod,
+                new[]
+                {
+                    ExpressionReflectionManager.ConvertIfNeed(left, typeof (object), false),
+                    ExpressionReflectionManager.ConvertIfNeed(right, typeof (object), false)
+                });
         }
 
         private static Expression GenerateEqualityExpression(Expression left, Expression right,

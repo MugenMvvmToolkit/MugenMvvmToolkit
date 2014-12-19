@@ -12,8 +12,8 @@ namespace $rootnamespace$
 
         public App()
         {
-            var boot = new Bootstrapper<MainViewModel>(this, new IIocContainer());
-            boot.Initialize();
+            // ReSharper disable once ObjectCreationAsStatement
+            new Bootstrapper<MainViewModel>(this, new IIocContainer());
 
             Startup += Application_Startup;
             Exit += Application_Exit;

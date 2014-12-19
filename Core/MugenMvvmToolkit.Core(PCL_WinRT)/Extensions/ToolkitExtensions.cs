@@ -1755,6 +1755,7 @@ namespace MugenMvvmToolkit
         /// <summary>
         /// Converts the data context to non-read only.
         /// </summary>
+        [NotNull]
         public static IDataContext ToNonReadOnly([CanBeNull] this IDataContext context)
         {
             if (context == null)

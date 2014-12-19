@@ -83,7 +83,7 @@ namespace MugenMvvmToolkit.Infrastructure
         private const int InitializedStateLocal = 2;
 
         private static int _appStateGlobal;
-        private readonly PlatformInfo _platform;
+        private PlatformInfo _platform;
         private ICollection<Assembly> _assemblies;
 
         #endregion
@@ -100,20 +100,12 @@ namespace MugenMvvmToolkit.Infrastructure
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="AndroidBootstrapperBase" /> class.
-        /// </summary>
-        protected AndroidBootstrapperBase()
-        {
-            _platform = PlatformExtensions.GetPlatformInfo();
-        }
-
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Gets the collection of view assemblies.
+        ///     Gets the collection of view assemblies.
         /// </summary>
         public static IList<Assembly> ViewAssemblies { get; private set; }
 
@@ -126,16 +118,21 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public override PlatformInfo Platform
         {
-            get { return _platform; }
+            get
+            {
+                if (_platform == null)
+                    _platform = PlatformExtensions.GetPlatformInfo();
+                return _platform;
+            }
         }
 
         /// <summary>
         ///     Initializes the current bootstraper.
         /// </summary>
-        public override void Initialize(bool throwIfInitialized = false)
+        public override void Initialize()
         {
             if (Interlocked.Exchange(ref _appStateGlobal, InitializedStateLocal) != InitializedStateLocal)
-                base.Initialize(throwIfInitialized);
+                base.Initialize();
         }
 
         /// <summary>
@@ -166,14 +163,12 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Starts the current bootstrapper.
         /// </summary>
-        public virtual void Start(IDataContext context = null)
+        public virtual void Start()
         {
             var mainViewModelType = GetMainViewModelType();
-            if (context == null)
-                context = DataContext.Empty;
-            Initialize(false);
-            CreateMainViewModel(mainViewModelType, context)
-                .ShowAsync((model, result) => model.Dispose(), null, context);
+            Initialize();
+            CreateMainViewModel(mainViewModelType)
+                .ShowAsync((model, result) => model.Dispose(), null, InitializationContext);
         }
 
         /// <summary>
@@ -198,7 +193,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 throw new InvalidOperationException(@"The BootstrapperAttribute was not found. 
 You must specify the type of application bootstraper using BootstrapperAttribute, for example [assembly:Bootstrapper(typeof(MyBootstrapperType))]");
             var instance = (BootstrapperBase)Activator.CreateInstance(bootstrapperAttribute.BootstrapperType);
-            instance.Initialize(false);
+            instance.Initialize();
         }
 
         /// <summary>
@@ -213,11 +208,11 @@ You must specify the type of application bootstraper using BootstrapperAttribute
         ///     Creates the main view model.
         /// </summary>
         [NotNull]
-        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType, [NotNull] IDataContext context)
+        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType)
         {
             return IocContainer
                 .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, context);
+                .GetViewModel(viewModelType, InitializationContext);
         }
 
         /// <summary>

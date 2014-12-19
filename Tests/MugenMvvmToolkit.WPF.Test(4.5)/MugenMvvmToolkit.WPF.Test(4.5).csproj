@@ -122,6 +122,7 @@
     <Compile Include="Collections\TrackingCollectionTest.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverterTest.cs" />
     <Compile Include="Converters\InverseBooleanConverterTest.cs" />
+    <Compile Include="Extensions\ReflectionExtensionsTest.cs" />
     <Compile Include="Infrastructure\ActionTokenTest.cs" />
     <Compile Include="Collections\CollectionTestBase.cs" />
     <Compile Include="Infrastructure\AttachedValueProviderTestBase.cs" />

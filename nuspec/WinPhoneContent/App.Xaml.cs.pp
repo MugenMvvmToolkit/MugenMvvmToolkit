@@ -56,8 +56,8 @@ namespace $rootnamespace$
                 // and consume battery power when the user is not using the phone.
                 PhoneApplicationService.Current.UserIdleDetectionMode = IdleDetectionMode.Disabled;
             }
-			var bootstrapper = new Bootstrapper<MainViewModel>(RootFrame, new IIocContainer());
-            bootstrapper.Initialize();
+            // ReSharper disable once ObjectCreationAsStatement
+            new Bootstrapper<MainViewModel>(RootFrame, new IIocContainer());
         }
 
         // Code to execute when the application is launching (eg, from Start)

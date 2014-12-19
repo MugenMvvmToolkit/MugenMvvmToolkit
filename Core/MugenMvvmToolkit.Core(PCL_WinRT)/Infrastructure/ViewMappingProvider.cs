@@ -171,7 +171,7 @@ namespace MugenMvvmToolkit.Infrastructure
                         continue;
                     foreach (Type viewModelType in list)
                     {
-                        //NOTE: ignore if view is already have mapping.
+                        //NOTE: ignore if view is already has mapping.
                         AddMapping(new ViewMappingItem(viewModelType, originalViewType, null,
                             GetUri(originalViewType, viewModelType, null, UriKind.Relative)), false);
                     }

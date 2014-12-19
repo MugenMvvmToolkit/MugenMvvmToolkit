@@ -746,17 +746,48 @@ namespace MugenMvvmToolkit
             return KnownPublicKeys.Contains(builder.ToString());
         }
 
+        [CanBeNull]
+        public static MethodInfo GetMethodEx([NotNull] this Type type, string name, Type[] types, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
+        {
+            Should.NotBeNull(type, "type");
+            var methods = type.GetMethodsEx(flags);
+            for (int i = 0; i < methods.Length; i++)
+            {
+                var method = methods[i];
+                if (method.Name != name)
+                    continue;
+                var parameters = method.GetParameters();
+                if (parameters.Length != types.Length)
+                    continue;
+                bool equal = true;
+                for (int j = 0; j < parameters.Length; j++)
+                {
+                    if (!parameters[j].ParameterType.Equals(types[j]))
+                    {
+                        equal = false;
+                        break;
+                    }
+                }
+                if (equal)
+                    return method;
+            }
+            return null;
+        }
+
 #if PCL_WINRT
         [CanBeNull]
         public static PropertyInfo GetPropertyEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
-            var properties = type.GetPropertiesEx(flags);
-            for (int index = 0; index < properties.Length; index++)
+            while (type != null)
             {
-                var property = properties[index];
-                if (property.Name == name)
-                    return property;
+                var typeInfo = type.GetTypeInfo();
+                foreach (var property in typeInfo.DeclaredProperties)
+                {
+                    if (property.Name == name && FilterProperty(property, flags))
+                        return property;
+                }
+                type = type == typeof(object) ? null : typeInfo.BaseType;
             }
             return null;
         }
@@ -783,12 +814,15 @@ namespace MugenMvvmToolkit
         public static FieldInfo GetFieldEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
-            var fields = type.GetFieldsEx(flags);
-            for (int index = 0; index < fields.Length; index++)
+            while (type != null)
             {
-                var field = fields[index];
-                if (field.Name == name)
-                    return field;
+                var typeInfo = type.GetTypeInfo();
+                foreach (var field in typeInfo.DeclaredFields)
+                {
+                    if (field.Name == name && FilterField(field, flags))
+                        return field;
+                }
+                type = type == typeof(object) ? null : typeInfo.BaseType;
             }
             return null;
         }
@@ -809,13 +843,6 @@ namespace MugenMvvmToolkit
                 type = type == typeof(object) ? null : typeInfo.BaseType;
             }
             return list.ToArray();
-        }
-
-        [CanBeNull]
-        public static MethodInfo GetMethodEx([NotNull] this Type type, string name, Type[] types)
-        {
-            Should.NotBeNull(type, "type");
-            return type.GetRuntimeMethod(name, types);
         }
 
         [CanBeNull]
@@ -841,25 +868,35 @@ namespace MugenMvvmToolkit
         public static MethodInfo[] GetMethodsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
-            var result = new List<MethodInfo>();
-            foreach (var method in type.GetRuntimeMethods())
+            var list = new List<MethodInfo>();
+            while (type != null)
             {
-                if (FilterMethod(method, flags))
-                    result.Add(method);
+                var typeInfo = type.GetTypeInfo();
+                foreach (var method in typeInfo.DeclaredMethods)
+                {
+                    if (FilterMethod(method, flags))
+                        list.Add(method);
+                }
+                type = type == typeof(object) ? null : typeInfo.BaseType;
             }
-            return result.ToArray();
+            return list.ToArray();
         }
 
         [CanBeNull]
-        public static EventInfo GetEventEx(this Type sourceType, string eventName, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
+        public static EventInfo GetEventEx(this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            EventInfo @event = sourceType.GetRuntimeEvent(eventName);
-            if (@event == null)
-                return null;
-            MethodInfo eventMethod = @event.AddMethod ?? @event.RemoveMethod;
-            if (eventMethod == null || !FilterMethod(eventMethod, flags))
-                return null;
-            return @event;
+            Should.NotBeNull(type, "type");
+            while (type != null)
+            {
+                var typeInfo = type.GetTypeInfo();
+                foreach (var @event in typeInfo.DeclaredEvents)
+                {
+                    if (@event.Name == name && FilterMethod(@event.AddMethod ?? @event.RemoveMethod, flags))
+                        return @event;
+                }
+                type = type == typeof(object) ? null : typeInfo.BaseType;
+            }
+            return null;
         }
 
         [CanBeNull]
@@ -871,19 +908,19 @@ namespace MugenMvvmToolkit
                 if (constructor.IsStatic)
                     continue;
                 ParameterInfo[] constParams = constructor.GetParameters();
-                if (types.Length != constParams.Length) continue;
-                bool find = true;
+                if (types.Length != constParams.Length)
+                    continue;
+                bool equal = true;
                 for (int i = 0; i < constParams.Length; i++)
                 {
                     if (constParams[i].ParameterType != types[i])
                     {
-                        find = false;
+                        equal = false;
                         break;
                     }
                 }
-                if (!find)
-                    continue;
-                return constructor;
+                if (equal)
+                    return constructor;
             }
             return null;
         }
@@ -989,16 +1026,17 @@ namespace MugenMvvmToolkit
         public static PropertyInfo GetPropertyEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
-            var property = type.GetProperty(name, flags.ToBindingFlags(true));
+            var bindingFlags = flags.ToBindingFlags(false);
+            var property = type.GetProperty(name, bindingFlags | BindingFlags.FlattenHierarchy);
             if (property != null || !flags.HasMemberFlag(MemberFlags.NonPublic))
                 return property;
-
-            var properties = type.GetPropertiesEx(flags);
-            for (int index = 0; index < properties.Length; index++)
+            bindingFlags |= BindingFlags.DeclaredOnly;
+            while (type != null)
             {
-                property = properties[index];
-                if (property.Name == name)
+                property = type.GetProperty(name, bindingFlags);
+                if (property != null)
                     return property;
+                type = type == typeof(object) ? null : type.BaseType;
             }
             return null;
         }
@@ -1026,16 +1064,17 @@ namespace MugenMvvmToolkit
         public static FieldInfo GetFieldEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
-            var field = type.GetField(name, flags.ToBindingFlags(true));
+            var bindingFlags = flags.ToBindingFlags(false);
+            var field = type.GetField(name, bindingFlags | BindingFlags.FlattenHierarchy);
             if (field != null || !flags.HasMemberFlag(MemberFlags.NonPublic))
                 return field;
-
-            var fields = type.GetFieldsEx(flags);
-            for (int index = 0; index < fields.Length; index++)
+            bindingFlags |= BindingFlags.DeclaredOnly;
+            while (type != null)
             {
-                field = fields[index];
-                if (field.Name == name)
+                field = type.GetField(name, bindingFlags);
+                if (field != null)
                     return field;
+                type = type == typeof(object) ? null : type.BaseType;
             }
             return null;
         }
@@ -1060,31 +1099,60 @@ namespace MugenMvvmToolkit
         }
 
         [CanBeNull]
-        public static MethodInfo GetMethodEx([NotNull] this Type type, string name, Type[] types)
-        {
-            Should.NotBeNull(type, "type");
-            return type.GetMethod(name, types);
-        }
-
-        [CanBeNull]
         public static MethodInfo GetMethodEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
-            return type.GetMethod(name, flags.ToBindingFlags(true));
+            var bindingFlags = flags.ToBindingFlags(false);
+            var method = type.GetMethod(name, bindingFlags | BindingFlags.FlattenHierarchy);
+            if (method != null || !flags.HasMemberFlag(MemberFlags.NonPublic))
+                return method;
+            bindingFlags |= BindingFlags.DeclaredOnly;
+            while (type != null)
+            {
+                method = type.GetMethod(name, bindingFlags);
+                if (method != null)
+                    return method;
+                type = type == typeof(object) ? null : type.BaseType;
+            }
+            return null;
         }
 
         [NotNull]
         public static MethodInfo[] GetMethodsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
-            return type.GetMethods(flags.ToBindingFlags(true));
+            var bindingFlags = flags.ToBindingFlags(false);
+            if (flags.HasMemberFlag(MemberFlags.NonPublic))
+            {
+                bindingFlags |= BindingFlags.DeclaredOnly;
+                var list = new List<MethodInfo>();
+                while (type != null)
+                {
+                    list.AddRange(type.GetMethods(bindingFlags));
+                    type = type == typeof(object) ? null : type.BaseType;
+                }
+                return list.ToArray();
+            }
+            return type.GetMethods(bindingFlags | BindingFlags.FlattenHierarchy);
         }
 
         [CanBeNull]
         public static EventInfo GetEventEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
-            return type.GetEvent(name, flags.ToBindingFlags(true));
+            var bindingFlags = flags.ToBindingFlags(false);
+            var @event = type.GetEvent(name, bindingFlags | BindingFlags.FlattenHierarchy);
+            if (@event != null || !flags.HasMemberFlag(MemberFlags.NonPublic))
+                return @event;
+            bindingFlags |= BindingFlags.DeclaredOnly;
+            while (type != null)
+            {
+                @event = type.GetEvent(name, bindingFlags);
+                if (@event != null)
+                    return @event;
+                type = type == typeof(object) ? null : type.BaseType;
+            }
+            return null;
         }
 
         internal static Assembly GetAssembly(this Type type)

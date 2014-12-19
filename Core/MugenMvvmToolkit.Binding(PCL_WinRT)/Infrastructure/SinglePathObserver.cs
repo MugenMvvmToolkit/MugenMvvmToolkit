@@ -73,7 +73,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             /// </summary>
             public IList<IBindingMemberInfo> Members
             {
-                //NOTE Much more better each time to create a new array than to keep it in memory.
+                //NOTE it's better each time to create a new array than to keep it in memory, because this property is rarely used.
                 get { return new[] { _lastMember }; }
             }
 

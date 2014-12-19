@@ -98,9 +98,9 @@ namespace MugenMvvmToolkit.Views.Activities
                 if (_bootstrapper == null)
                 {
                     _bootstrapper = activityBase.CreateBootstrapper();
-                    _bootstrapper.Initialize();
+                    _bootstrapper.InitializationContext = activityBase.GetContext() ?? DataContext.Empty;
                 }
-                _bootstrapper.Start(activityBase.GetContext());
+                _bootstrapper.Start();
             }
             catch (Exception e)
             {

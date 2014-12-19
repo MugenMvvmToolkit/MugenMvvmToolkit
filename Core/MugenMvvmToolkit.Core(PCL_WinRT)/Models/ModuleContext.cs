@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.Models
             _platform = platform ?? PlatformInfo.Unknown;
             _mode = mode;
             _iocContainer = iocContainer;
-            _context = context ?? new DataContext();
+            _context = context.ToNonReadOnly();
             _assemblies = assemblies ?? Empty.Array<Assembly>();
         }
 

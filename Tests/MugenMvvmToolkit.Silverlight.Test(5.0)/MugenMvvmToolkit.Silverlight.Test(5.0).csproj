@@ -204,6 +204,9 @@
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\Converters\InverseBooleanConverterTest.cs">
       <Link>Converters\InverseBooleanConverterTest.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\Extensions\ReflectionExtensionsTest.cs">
+      <Link>Extensions\ReflectionExtensionsTest.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\Infrastructure\ActionTokenTest.cs">
       <Link>Infrastructure\ActionTokenTest.cs</Link>
     </Compile>
@@ -521,6 +524,7 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>

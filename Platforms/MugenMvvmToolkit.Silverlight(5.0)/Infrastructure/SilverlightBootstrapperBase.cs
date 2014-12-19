@@ -20,7 +20,6 @@ using System.Windows;
 using System.Windows.Resources;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 
@@ -38,7 +37,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected const string BindingAssemblyName = "MugenMvvmToolkit.Binding.Silverlight";
         private readonly Application _application;
-        private readonly PlatformInfo _platform;
+        private PlatformInfo _platform;
 
         #endregion
 
@@ -54,7 +53,6 @@ namespace MugenMvvmToolkit.Infrastructure
             if (autoStart)
                 application.Startup += ApplicationOnStartup;
             application.Exit += ApplicationOnExit;
-            _platform = PlatformExtensions.GetPlatformInfo();
         }
 
         #endregion
@@ -66,7 +64,12 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public override PlatformInfo Platform
         {
-            get { return _platform; }
+            get
+            {
+                if (_platform == null)
+                    _platform = PlatformExtensions.GetPlatformInfo();
+                return _platform;
+            }
         }
 
         /// <summary>
@@ -92,24 +95,22 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Starts the current bootstrapper.
         /// </summary>
-        public virtual void Start(IDataContext context = null)
+        public virtual void Start()
         {
-            if (context == null)
-                context = DataContext.Empty;
             Initialize();
             var viewModelType = GetMainViewModelType();
-            _application.RootVisual = (UIElement)ViewManager.GetOrCreateView(CreateMainViewModel(viewModelType, context), false, context);
+            _application.RootVisual = (UIElement)ViewManager.GetOrCreateView(CreateMainViewModel(viewModelType), false, InitializationContext);
         }
 
         /// <summary>
         ///     Creates the main view model.
         /// </summary>
         [NotNull]
-        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType, [NotNull] IDataContext context)
+        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType)
         {
             return IocContainer
                 .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, context);
+                .GetViewModel(viewModelType, InitializationContext);
         }
 
         /// <summary>

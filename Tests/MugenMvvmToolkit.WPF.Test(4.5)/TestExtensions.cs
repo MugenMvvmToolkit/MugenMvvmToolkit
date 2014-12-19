@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit
         }
 
         public static T GetDataTest<T>(this IDataContext context, DataConstant<T> constant)
-        {
+        {            
             T data;
             if (context.TryGetData(constant, out data))
                 return data;

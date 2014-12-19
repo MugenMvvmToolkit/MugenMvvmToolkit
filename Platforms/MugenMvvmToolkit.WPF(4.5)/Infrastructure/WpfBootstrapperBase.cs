@@ -49,7 +49,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// Gets the name of binding assembly.
         /// </summary>
         protected const string BindingAssemblyName = "MugenMvvmToolkit.Binding.WPF";
-        private readonly PlatformInfo _platform;
+        private PlatformInfo _platform;
 
         #endregion
 
@@ -70,7 +70,6 @@ namespace MugenMvvmToolkit.Infrastructure
             Should.NotBeNull(application, "application");
             if (autoStart)
                 application.Startup += ApplicationOnStartup;
-            _platform = PlatformExtensions.GetPlatformInfo();
         }
 
         #endregion
@@ -96,7 +95,12 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public override PlatformInfo Platform
         {
-            get { return _platform; }
+            get
+            {
+                if (_platform == null)
+                    _platform = PlatformExtensions.GetPlatformInfo();
+                return _platform;
+            }
         }
 
         /// <summary>
@@ -121,22 +125,23 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Starts the current bootstrapper.
         /// </summary>
-        public virtual void Start(IDataContext context = null)
+        public virtual void Start()
         {
-            context = context.ToNonReadOnly();
-            context.AddOrUpdate(NavigationConstants.IsDialog, false);
+            InitializationContext = InitializationContext.ToNonReadOnly();
+            if (!InitializationContext.Contains(NavigationConstants.IsDialog))
+                InitializationContext.Add(NavigationConstants.IsDialog, false);
             Initialize();
             Type viewModelType = GetMainViewModelType();
             NavigationWindow rootWindow = null;
             var mappingProvider = IocContainer.Get<IViewMappingProvider>();
-            IViewMappingItem mapping = mappingProvider.FindMappingForViewModel(viewModelType, context.GetData(NavigationConstants.ViewName), true);
+            IViewMappingItem mapping = mappingProvider.FindMappingForViewModel(viewModelType, InitializationContext.GetData(NavigationConstants.ViewName), true);
             if (typeof(Page).IsAssignableFrom(mapping.ViewType))
             {
                 rootWindow = CreateNavigationWindow();
                 var service = CreateNavigationService(rootWindow);
                 IocContainer.BindToConstant(service);
             }
-            var vm = CreateMainViewModel(viewModelType, context);
+            var vm = CreateMainViewModel(viewModelType);
             vm.ShowAsync((model, result) =>
             {
                 model.Dispose();
@@ -149,13 +154,13 @@ namespace MugenMvvmToolkit.Infrastructure
                         app.Dispatcher.BeginInvoke(action);
                     }
                 }
-            }, context: context);
+            }, context: InitializationContext);
             if (rootWindow != null)
             {
                 IWindowViewMediator mediator = new WindowViewMediator(rootWindow, vm, IocContainer.Get<IThreadManager>(),
                     IocContainer.Get<IViewManager>(), IocContainer.Get<IWrapperManager>(),
                     IocContainer.Get<IOperationCallbackManager>());
-                mediator.UpdateView(new PlatformWrapperRegistrationModule.WindowViewWrapper(rootWindow), true, context);
+                mediator.UpdateView(new PlatformWrapperRegistrationModule.WindowViewWrapper(rootWindow), true, InitializationContext);
                 rootWindow.Show();
             }
         }
@@ -164,11 +169,11 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Creates the main view model.
         /// </summary>
         [NotNull]
-        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType, [NotNull] IDataContext context)
+        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType)
         {
             return IocContainer
                 .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, context);
+                .GetViewModel(viewModelType, InitializationContext);
         }
 
         /// <summary>

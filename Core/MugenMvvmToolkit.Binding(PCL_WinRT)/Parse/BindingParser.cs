@@ -1420,7 +1420,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         /// </summary>
         protected virtual IExpressionInvoker CreateExpressionInvoker(IExpressionNode expressionNode, IList<KeyValuePair<string, BindingMemberExpressionNode>> members, bool isEmpty)
         {
-            return new CompiledExpressionInvoker(expressionNode, members, isEmpty);
+            return new CompiledExpressionInvoker(expressionNode, isEmpty);
         }
 
         /// <summary>

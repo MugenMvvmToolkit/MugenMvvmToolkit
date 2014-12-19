@@ -22,7 +22,6 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
@@ -37,7 +36,7 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         private readonly bool _autoRunApplication;
-        private readonly PlatformInfo _platform;
+        private PlatformInfo _platform;
 
         #endregion
 
@@ -56,7 +55,6 @@ namespace MugenMvvmToolkit.Infrastructure
         protected WinFormsBootstrapperBase(bool autoRunApplication = true)
         {
             _autoRunApplication = autoRunApplication;
-            _platform = PlatformExtensions.GetPlatformInfo();
             ShutdownOnMainViewModelClose = autoRunApplication;
         }
 
@@ -78,7 +76,12 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public override PlatformInfo Platform
         {
-            get { return _platform; }
+            get
+            {
+                if (_platform == null)
+                    _platform = PlatformExtensions.GetPlatformInfo();
+                return _platform;
+            }
         }
 
         /// <summary>
@@ -102,19 +105,20 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Starts the current bootstrapper.
         /// </summary>
-        public virtual void Start(IDataContext context = null)
+        public virtual void Start()
         {
+            InitializationContext = InitializationContext.ToNonReadOnly();
+            if (!InitializationContext.Contains(NavigationConstants.IsDialog))
+                InitializationContext.Add(NavigationConstants.IsDialog, false);
             Initialize();
-            context = context.ToNonReadOnly();
-            context.AddOrUpdate(NavigationConstants.IsDialog, false);
             var viewModelType = GetMainViewModelType();
-            CreateMainViewModel(viewModelType, context)
+            CreateMainViewModel(viewModelType)
                 .ShowAsync((model, result) =>
                 {
                     model.Dispose();
                     if (ShutdownOnMainViewModelClose)
                         Application.Exit();
-                }, context: context);
+                }, context: InitializationContext);
             if (_autoRunApplication)
                 Application.Run();
         }
@@ -123,11 +127,11 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Creates the main view model.
         /// </summary>
         [NotNull]
-        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType, [NotNull] IDataContext context)
+        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType)
         {
             return IocContainer
                 .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, context);
+                .GetViewModel(viewModelType, InitializationContext);
         }
 
         /// <summary>

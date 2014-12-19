@@ -32,10 +32,12 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         private const int InitializedState = 1;
+        private const int StoppedState = 2;
         private IModuleContext _context;
         private IList<IModule> _loadedModules;
         private static int _state;
         private IList<Assembly> _assemblies;
+        private IDataContext _initializationContext;
 
         #endregion
 
@@ -46,6 +48,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected BootstrapperBase()
         {
+// ReSharper disable once DoNotCallOverridableMethodsInConstructor
             ServiceProvider.DesignTimeManager = new DesignTimeManagerImpl(Platform);
         }
 
@@ -73,6 +76,16 @@ namespace MugenMvvmToolkit.Infrastructure
         [NotNull]
         public abstract PlatformInfo Platform { get; }
 
+        /// <summary>
+        ///     Gets the initialization context.
+        /// </summary>
+        [NotNull]
+        public IDataContext InitializationContext
+        {
+            get { return _initializationContext ?? DataContext.Empty; }
+            set { _initializationContext = value; }
+        }
+
         #endregion
 
         #region Methods
@@ -80,14 +93,10 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Initializes the current bootstraper.
         /// </summary>
-        public virtual void Initialize(bool throwIfInitialized = false)
+        public virtual void Initialize()
         {
             if (Interlocked.Exchange(ref _state, InitializedState) == InitializedState)
-            {
-                if (throwIfInitialized)
-                    throw ExceptionManager.ObjectInitialized("Bootstrapper", this);
                 return;
-            }
             IocContainer = CreateIocContainer();
             OnInitialize();
         }
@@ -97,10 +106,11 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public virtual void Stop()
         {
+            if (Interlocked.Exchange(ref _state, StoppedState) == StoppedState)
+                return;
             try
             {
-                if (Interlocked.Exchange(ref _state, 0) != 0)
-                    OnStop();
+                OnStop();
             }
             finally
             {
@@ -190,7 +200,7 @@ namespace MugenMvvmToolkit.Infrastructure
         [NotNull]
         protected virtual IModuleContext CreateModuleContext(IIocContainer iocContainer)
         {
-            return new ModuleContext(Platform, LoadMode.Runtime, iocContainer, null, GetAssembliesInternal());
+            return new ModuleContext(Platform, LoadMode.Runtime, iocContainer, InitializationContext, GetAssembliesInternal());
         }
 
         /// <summary>

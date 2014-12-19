@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         protected static readonly DataConstant<bool> WrapToNavigationPageConstant;
-        private readonly PlatformInfo _platform;
+        private PlatformInfo _platform;
         private readonly IPlatformService _platformService;
 
         #endregion
@@ -77,16 +77,12 @@ namespace MugenMvvmToolkit.Infrastructure
         protected XamarinFormsBootstrapperBase()
         {
             var assembly = TryLoadAssembly(BindingAssemblyName, null);
-            if (assembly != null)
-            {
-                var serviceType = typeof(IPlatformService).GetTypeInfo();
-                serviceType = assembly.DefinedTypes.FirstOrDefault(serviceType.IsAssignableFrom);
-                if (serviceType != null)
-                    _platformService = (IPlatformService)Activator.CreateInstance(serviceType.AsType());
-            }
-            _platform = _platformService == null
-                ? XamarinFormsExtensions.GetPlatformInfo()
-                : _platformService.GetPlatformInfo();
+            if (assembly == null)
+                return;
+            var serviceType = typeof(IPlatformService).GetTypeInfo();
+            serviceType = assembly.DefinedTypes.FirstOrDefault(serviceType.IsAssignableFrom);
+            if (serviceType != null)
+                _platformService = (IPlatformService)Activator.CreateInstance(serviceType.AsType());
         }
 
         #endregion
@@ -114,7 +110,14 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public override PlatformInfo Platform
         {
-            get { return _platform; }
+            get
+            {
+                if (_platform == null)
+                    _platform = _platformService == null
+                        ? XamarinFormsExtensions.GetPlatformInfo()
+                        : _platformService.GetPlatformInfo();
+                return _platform;
+            }
         }
 
 
@@ -132,24 +135,19 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        public Page Start(bool wrapToNavigationPage, IDataContext context = null)
+        /// <summary>
+        ///     Starts the current bootstrapper.
+        /// </summary>
+        public virtual Page Start(bool wrapToNavigationPage = true)
         {
-            context = context.ToNonReadOnly();
-            context.AddOrUpdate(WrapToNavigationPageConstant, wrapToNavigationPage);
-            return Start(context);
-        }
+            InitializationContext = InitializationContext.ToNonReadOnly();
+            InitializationContext.AddOrUpdate(WrapToNavigationPageConstant, wrapToNavigationPage);
 
-        public virtual Page Start(IDataContext context = null)
-        {
-            context = context.ToNonReadOnly();
-            if (!context.Contains(WrapToNavigationPageConstant))
-                context.Add(WrapToNavigationPageConstant, true);
             Initialize();
-            context = context.ToNonReadOnly();
             var viewModelType = GetMainViewModelType();
-            var viewModel = CreateMainViewModel(viewModelType, context);
-            var view = (Page)ViewManager.GetOrCreateView(viewModel, null, context);
-            var page = view as NavigationPage ?? CreateNavigationPage(view, context);
+            var viewModel = CreateMainViewModel(viewModelType);
+            var view = (Page)ViewManager.GetOrCreateView(viewModel, null, InitializationContext);
+            var page = view as NavigationPage ?? CreateNavigationPage(view);
             if (page == null)
                 return view;
             IocContainer.BindToConstant<INavigationService>(new NavigationService(page));
@@ -160,11 +158,11 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Creates the main view model.
         /// </summary>
         [NotNull]
-        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType, [NotNull] IDataContext context)
+        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType)
         {
             return IocContainer
                 .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, context);
+                .GetViewModel(viewModelType, InitializationContext);
         }
 
         /// <summary>
@@ -177,9 +175,9 @@ namespace MugenMvvmToolkit.Infrastructure
         /// Creates an instance of <see cref="NavigationPage"/>
         /// </summary>
         [CanBeNull]
-        protected virtual NavigationPage CreateNavigationPage(Page mainPage, IDataContext context)
+        protected virtual NavigationPage CreateNavigationPage(Page mainPage)
         {
-            if (context.GetData(WrapToNavigationPageConstant))
+            if (InitializationContext.GetData(WrapToNavigationPageConstant))
                 return new NavigationPage(mainPage);
             return null;
         }
