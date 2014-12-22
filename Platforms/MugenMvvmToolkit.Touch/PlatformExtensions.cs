@@ -489,7 +489,7 @@ namespace MugenMvvmToolkit
             return item.Handle != IntPtr.Zero;
         }
 
-        public static void ClearBindingsHierarchically([CanBeNull]this UIView view, bool clearDataContext, bool clearAttachedValues, bool disposeView)
+        public static void ClearBindingsHierarchically([CanBeNull]this UIView view, bool clearDataContext, bool clearAttachedValues, bool disposeView = false)
         {
             if (view == null)
                 return;
@@ -498,7 +498,7 @@ namespace MugenMvvmToolkit
             ClearBindings(view, clearDataContext, clearAttachedValues, disposeView);
         }
 
-        public static void ClearBindings<T>([CanBeNull]this T[] items, bool clearDataContext, bool clearAttachedValues, bool disposeObjects)
+        public static void ClearBindings<T>([CanBeNull]this T[] items, bool clearDataContext, bool clearAttachedValues, bool disposeObjects = false)
             where T : INativeObject
         {
             if (items == null)
@@ -507,9 +507,9 @@ namespace MugenMvvmToolkit
                 ClearBindings(items[i], clearDataContext, clearAttachedValues, disposeObjects);
         }
 
-        public static void ClearBindings(this INativeObject nsObject, bool clearDataContext, bool clearAttachedValues, bool disposeObject)
+        public static void ClearBindings(this INativeObject nativeObject, bool clearDataContext, bool clearAttachedValues, bool disposeObject = false)
         {
-            BindingExtensions.ClearBindings(nsObject, clearDataContext, clearAttachedValues, disposeObject);
+            BindingExtensions.ClearBindings(nativeObject, clearDataContext, clearAttachedValues, disposeObject);
         }
 
         private static void AddButtonOS7([NotNull] this UIActionSheet actionSheet, string title, string binding, IList<object> sources)

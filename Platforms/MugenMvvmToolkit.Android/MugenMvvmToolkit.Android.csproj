@@ -97,7 +97,6 @@
     <Compile Include="Infrastructure\GlobalViewParentListener.cs" />
     <Compile Include="Modules\InitializationModule.cs" />
     <Compile Include="Infrastructure\Mediators\MediatorBase.cs" />
-    <Compile Include="Infrastructure\Navigation\EmptyNavigationCachePolicy.cs" />
     <Compile Include="Infrastructure\Presenters\ToastPresenter.cs" />
     <Compile Include="Binding\Infrastructure\DataTemplateProvider.cs" />
     <Compile Include="Binding\Infrastructure\ViewGroupItemsSourceGenerator.cs" />

@@ -259,7 +259,7 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
                 var view = (View)@object;
                 container.RemoveView(view);
                 if (removed)
-                    view.ClearBindingsHierarchically(true, true, true);
+                    view.ClearBindingsHierarchically(true, true, false);
             }
             else
             {

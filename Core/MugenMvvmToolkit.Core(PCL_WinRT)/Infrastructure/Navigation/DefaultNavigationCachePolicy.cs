@@ -15,6 +15,7 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
@@ -44,6 +45,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         }
 
         #endregion
+
 
         #region Implementation of INavigationCachePolicy
 
@@ -89,9 +91,21 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         }
 
         /// <summary>
+        ///     Gets the cached view models.
+        /// </summary>
+        public virtual IList<IViewModel> GetViewModels(IDataContext context)
+        {
+            var list = new List<IViewModel>();
+            foreach (var cachedViewModel in _cachedViewModels)
+                foreach (var viewModel in cachedViewModel.Value)
+                    list.Add(viewModel);
+            return list;
+        }
+
+        /// <summary>
         ///     Removes the view model from cache.
         /// </summary>
-        public virtual bool Invalidate(IViewModel viewModel)
+        public virtual bool Invalidate(IViewModel viewModel, IDataContext context)
         {
             bool clear = false;
             foreach (var cachedViewModel in _cachedViewModels)
@@ -109,9 +123,11 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// <summary>
         ///     Clears the cache.
         /// </summary>
-        public virtual void Invalidate()
+        public virtual IList<IViewModel> Invalidate(IDataContext context)
         {
+            var viewModels = GetViewModels(context);
             _cachedViewModels.Clear();
+            return viewModels;
         }
 
         #endregion
@@ -127,6 +143,5 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         }
 
         #endregion
-
     }
 }

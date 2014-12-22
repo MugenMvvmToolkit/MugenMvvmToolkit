@@ -54,9 +54,6 @@
     <Compile Include="..\MugenMvvmToolkit.Android\Binding\Interfaces\IItemsSourceGenerator.cs">
       <Link>Binding\Interfaces\IItemsSourceGenerator.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android\Infrastructure\Navigation\EmptyNavigationCachePolicy.cs">
-      <Link>Infrastructure\Navigation\EmptyNavigationCachePolicy.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android\LinkerIncludeLabmdaExpression.cs">
       <Link>LinkerIncludeLabmdaExpression.cs</Link>
     </Compile>

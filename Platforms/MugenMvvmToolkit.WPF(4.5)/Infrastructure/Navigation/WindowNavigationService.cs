@@ -14,8 +14,10 @@
 // ****************************************************************************
 #endregion
 using System;
+using System.Linq;
 using System.Windows.Navigation;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Models;
@@ -107,7 +109,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// </summary>
         public object CurrentContent
         {
-            get { return _window.CurrentSource; }
+            get { return _window.Content; }
         }
 
         /// <summary>
@@ -171,6 +173,52 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         public bool Navigate(IViewMappingItem source, object parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, "source");
+            var result = NavigateInternal(source, parameter);
+            if (result)
+                ClearNavigationStackIfNeed(dataContext);
+            return result;
+        }
+
+        /// <summary>
+        ///     Navigates using cancel event args.
+        /// </summary>
+        public bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
+        {
+            Should.NotBeNull(args, "args");
+            var result = NavigateInternal(args);
+            if (result)
+                ClearNavigationStackIfNeed(dataContext);
+            return result;
+        }
+
+        /// <summary>
+        ///     Raised prior to navigation.
+        /// </summary>
+        public event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
+
+        /// <summary>
+        ///     Raised after navigation.
+        /// </summary>
+        public event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
+
+        #endregion
+
+        #region Methods
+
+        private void ClearNavigationStackIfNeed(IDataContext context)
+        {
+            if (context == null)
+                context = DataContext.Empty;
+            if (!context.GetData(NavigationConstants.ClearBackStack))
+                return;
+            while (_window.BackStack.OfType<object>().Any())
+                _window.RemoveBackEntry();
+            context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
+        }
+
+
+        private bool NavigateInternal(IViewMappingItem source, object parameter)
+        {
             if (_useUrlNavigation)
             {
                 if (parameter == null)
@@ -182,12 +230,8 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             return _window.Navigate(_viewFactory(source.ViewType), parameter);
         }
 
-        /// <summary>
-        ///     Navigates using cancel event args.
-        /// </summary>
-        public bool Navigate(NavigatingCancelEventArgsBase args)
+        private bool NavigateInternal(NavigatingCancelEventArgsBase args)
         {
-            Should.NotBeNull(args, "args");
             NavigatingCancelEventArgs originalArgs = ((NavigatingCancelEventArgsWrapper)args).Args;
             if (originalArgs.NavigationMode == NavigationMode.Back)
             {
@@ -204,16 +248,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 return _window.Navigate(originalArgs.Content);
             return _window.Navigate(originalArgs.Content, originalArgs.ExtraData);
         }
-
-        /// <summary>
-        ///     Raised prior to navigation.
-        /// </summary>
-        public event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
-
-        /// <summary>
-        ///     Raised after navigation.
-        /// </summary>
-        public event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
 
         #endregion
     }

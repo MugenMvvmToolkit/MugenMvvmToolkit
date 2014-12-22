@@ -54,7 +54,7 @@ namespace MugenMvvmToolkit.MonoTouch.Dialog
         }
 
         public static void ClearBindingsHierarchically([CanBeNull] this Element element, bool clearDataContext,
-            bool clearAttachedValues, bool disposeElement)
+            bool clearAttachedValues, bool disposeElement = false)
         {
             if (element == null)
                 return;
@@ -67,7 +67,7 @@ namespace MugenMvvmToolkit.MonoTouch.Dialog
             element.ClearBindings(clearDataContext, clearAttachedValues, disposeElement);
         }
 
-        public static void ClearBindings([CanBeNull] this Element element, bool clearDataContext, bool clearAttachedValues, bool disposeElement)
+        public static void ClearBindings([CanBeNull] this Element element, bool clearDataContext, bool clearAttachedValues, bool disposeElement = false)
         {
             BindingExtensions.ClearBindings(element, clearDataContext, clearAttachedValues, disposeElement);
         }

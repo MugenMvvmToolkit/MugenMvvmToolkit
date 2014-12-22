@@ -69,7 +69,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             return GetParameterFromArgs(args);
         }
 
-        bool INavigationService.Navigate(NavigatingCancelEventArgsBase args)
+        bool INavigationService.Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
         {
             if (NavigateArgs == null)
                 return false;

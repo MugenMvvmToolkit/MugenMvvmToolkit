@@ -46,9 +46,6 @@
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\AttachedValueProvider.cs">
       <Link>Infrastructure\AttachedValueProvider.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android\Infrastructure\Navigation\EmptyNavigationCachePolicy.cs">
-      <Link>Infrastructure\Navigation\EmptyNavigationCachePolicy.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android\LinkerIncludeLabmdaExpression.cs">
       <Link>LinkerIncludeLabmdaExpression.cs</Link>
     </Compile>
@@ -99,6 +96,7 @@
     </Compile>
     <Compile Include="Binding\Infrastructure\BindingContextManagerEx.cs" />
     <Compile Include="Infrastructure\Mediators\ModalViewMediator.cs" />
+    <Compile Include="Infrastructure\Navigation\EmptyNavigationCachePolicy.cs" />
     <Compile Include="Infrastructure\Navigation\NavigationService.cs" />
     <Compile Include="Infrastructure\ViewMappingProviderEx.cs" />
     <Compile Include="Infrastructure\XamarinFormsBootstrapperBase.cs" />

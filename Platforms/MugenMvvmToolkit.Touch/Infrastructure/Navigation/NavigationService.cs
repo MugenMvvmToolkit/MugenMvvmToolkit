@@ -153,7 +153,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// <summary>
         ///     Navigates using cancel event args.
         /// </summary>
-        public virtual bool Navigate(NavigatingCancelEventArgsBase args)
+        public virtual bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
         {
             EnsureInitialized();
             if (!args.IsCancelable)
@@ -162,7 +162,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             if (eventArgs.NavigationMode == NavigationMode.Back)
                 return GoBackInternal();
             // ReSharper disable once AssignNullToNotNullAttribute
-            return Navigate(eventArgs.Mapping, eventArgs.Parameter, null);
+            return Navigate(eventArgs.Mapping, eventArgs.Parameter, dataContext);
         }
 
         /// <summary>
@@ -211,7 +211,10 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 InitializeNavigationController(controller);
             }
             if (shouldNavigate)
+            {
                 NavigationController.PushViewController(viewController, true);
+                ClearNavigationStackIfNeed(viewController, dataContext);
+            }
             RaiseNavigated(viewController, NavigationMode.New, parameter);
             return true;
         }
@@ -300,6 +303,17 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             EventHandler<INavigationService, NavigationEventArgsBase> handler = Navigated;
             if (handler != null)
                 handler(this, args);
+        }
+
+        private void ClearNavigationStackIfNeed(UIViewController newItem, IDataContext context)
+        {
+            if (context == null)
+                context = DataContext.Empty;
+            if (context.GetData(NavigationConstants.ClearBackStack) && NavigationController != null)
+            {
+                NavigationController.ViewControllers = new[] { newItem };
+                context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
+            }
         }
 
         #endregion

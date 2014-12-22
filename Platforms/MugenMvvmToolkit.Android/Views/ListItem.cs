@@ -15,6 +15,7 @@
 #endregion
 
 using System;
+using Android.OS;
 using Android.Views;
 using Android.Widget;
 using MugenMvvmToolkit.Binding;
@@ -131,7 +132,7 @@ namespace MugenMvvmToolkit.Views
 
         private static void TrySetActivated(View view, bool value)
         {
-            if (view == null)
+            if (view == null || Build.VERSION.SdkInt <= BuildVersionCodes.GingerbreadMr1)
                 return;
             var type = view.GetType();
             var member = BindingServiceProvider.MemberProvider.GetBindingMember(type, "Activated", false, false);

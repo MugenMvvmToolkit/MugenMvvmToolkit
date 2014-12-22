@@ -20,6 +20,7 @@ using Android.App;
 using Android.Content;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
@@ -237,13 +238,13 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// <summary>
         ///     Navigates using cancel event args.
         /// </summary>
-        public virtual bool Navigate(NavigatingCancelEventArgsBase args)
+        public virtual bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
         {
             if (!args.IsCancelable)
                 return false;
             var eventArgs = ((NavigatingCancelEventArgs)args);
             if (eventArgs.NavigationMode != NavigationMode.Back && eventArgs.Intent == null)
-                return Navigate(eventArgs.Mapping, eventArgs.Parameter, null);
+                return Navigate(eventArgs.Mapping, eventArgs.Parameter, dataContext);
 
             var activity = _currentActivity;
             GoBack();
@@ -271,6 +272,8 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             Should.NotBeNull(source, "source");
             if (!RaiseNavigating(new NavigatingCancelEventArgs(source, NavigationMode.New, parameter)))
                 return false;
+            if (dataContext == null)
+                dataContext = DataContext.Empty;
             bool isFirstActivity = _currentActivity == null;
             Context context;
             var activity = _currentActivity ?? SplashScreenActivityBase.Current;
@@ -290,6 +293,13 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             var intent = new Intent(context, source.ViewType);
             if (activity == null)
                 intent.AddFlags(ActivityFlags.NewTask);
+            else if (dataContext.GetData(NavigationConstants.ClearBackStack))
+            {
+                intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTop);
+                dataContext.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
+                isFirstActivity = true;
+                _prevIntent = null;
+            }
             if (isFirstActivity)
                 intent.PutExtra(FirstActivityKey, true);
             if (parameter != null)

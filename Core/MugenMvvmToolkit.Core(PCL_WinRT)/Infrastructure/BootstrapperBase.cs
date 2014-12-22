@@ -48,13 +48,19 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected BootstrapperBase()
         {
-// ReSharper disable once DoNotCallOverridableMethodsInConstructor
+            // ReSharper disable once DoNotCallOverridableMethodsInConstructor
             ServiceProvider.DesignTimeManager = new DesignTimeManagerImpl(Platform);
+            Instance = this;
         }
 
         #endregion
 
         #region Properties
+
+        /// <summary>
+        ///     Gets or sets the current <see cref="BootstrapperBase" />.
+        /// </summary>
+        public static BootstrapperBase Instance { get; set; }
 
         /// <summary>
         ///     Gets the initialized state of the current bootstraper.

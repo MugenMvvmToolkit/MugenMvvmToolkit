@@ -15,9 +15,11 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Navigation;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
@@ -166,16 +168,13 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// <summary>
         ///     Navigates using cancel event args.
         /// </summary>
-        public bool Navigate(NavigatingCancelEventArgsBase args)
+        public bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
         {
             Should.NotBeNull(args, "args");
-            var originalArgs = ((NavigatingCancelEventArgsWrapper)args).Args;
-            if (originalArgs.NavigationMode == NavigationMode.Back)
-            {
-                _frame.GoBack();
-                return true;
-            }
-            return _frame.Navigate(originalArgs.Uri);
+            var result = NavigateInternal(args);
+            if (result)
+                ClearNavigationStackIfNeed(dataContext);
+            return result;
         }
 
         /// <summary>
@@ -197,16 +196,10 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         public bool Navigate(IViewMappingItem source, object parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, "source");
-            Uri uri = source.Uri;
-            if (parameter != null)
-            {
-                var s = parameter as string;
-                var uriParameter = s == null
-                    ? new KeyValuePair<string, string>(UriParameterSerializer, _serializer.SerializeToBase64String(parameter))
-                    : new KeyValuePair<string, string>(UriParameterString, s);
-                uri = uri.MergeUri(new[] { uriParameter });
-            }
-            return _frame.Navigate(uri);
+            var result = NavigateInternal(source, parameter);
+            if (result)
+                ClearNavigationStackIfNeed(dataContext);
+            return result;
         }
 
         /// <summary>
@@ -220,5 +213,53 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         public event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
 
         #endregion
+
+        #region Methods
+
+        private bool NavigateInternal(NavigatingCancelEventArgsBase args)
+        {
+            var originalArgs = ((NavigatingCancelEventArgsWrapper)args).Args;
+            if (originalArgs.NavigationMode == NavigationMode.Back)
+            {
+                _frame.GoBack();
+                return true;
+            }
+            return _frame.Navigate(originalArgs.Uri);
+        }
+
+        private bool NavigateInternal(IViewMappingItem source, object parameter)
+        {
+            Uri uri = source.Uri;
+            if (parameter != null)
+            {
+                var s = parameter as string;
+                var uriParameter = s == null
+                    ? new KeyValuePair<string, string>(UriParameterSerializer, _serializer.SerializeToBase64String(parameter))
+                    : new KeyValuePair<string, string>(UriParameterString, s);
+                uri = uri.MergeUri(new[] { uriParameter });
+            }
+            return _frame.Navigate(uri);
+        }
+
+        private void ClearNavigationStackIfNeed(IDataContext context)
+        {
+#if WINDOWS_PHONE
+            var page = _frame.Content as Page;
+            if (page == null || page.NavigationService == null)
+                return;            
+            var navigationService = page.NavigationService;
+            if (context == null)
+                context = DataContext.Empty;
+            if (!context.GetData(NavigationConstants.ClearBackStack))
+                return;
+
+            while (navigationService.BackStack.OfType<object>().Any())
+                navigationService.RemoveBackEntry();
+            context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
+#endif
+        }
+
+        #endregion
+
     }
 }

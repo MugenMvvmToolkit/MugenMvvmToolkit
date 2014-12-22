@@ -13,6 +13,8 @@
 // </license>
 // ****************************************************************************
 #endregion
+
+using System;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Infrastructure.Navigation;
@@ -81,6 +83,7 @@ namespace MugenMvvmToolkit.Modules
             IocContainer.BindToBindingInfo(GetReflectionManager());
             IocContainer.BindToBindingInfo(GetNavigationCachePolicy());
             IocContainer.BindToBindingInfo(GetNavigationProvider());
+            TryBindPclStorageService();
             return true;
         }
 
@@ -275,7 +278,7 @@ namespace MugenMvvmToolkit.Modules
         /// <returns>An instance of <see cref="INavigationCachePolicy" />.</returns>
         protected virtual BindingInfo<INavigationCachePolicy> GetNavigationCachePolicy()
         {
-            return BindingInfo<INavigationCachePolicy>.FromInstance(new DefaultNavigationCachePolicy());
+            return BindingInfo<INavigationCachePolicy>.FromType<DefaultNavigationCachePolicy>(DependencyLifecycle.SingleInstance);
         }
 
         /// <summary>
@@ -309,6 +312,17 @@ namespace MugenMvvmToolkit.Modules
         private static BindingInfo<IThreadManager> GetThreadManagerInternal()
         {
             return BindingInfo<IThreadManager>.FromType<SynchronousThreadManager>(DependencyLifecycle.SingleInstance);
+        }
+
+        private void TryBindPclStorageService()
+        {
+            var typeService = Type.GetType("PCLStorage.IFileSystem, PCLStorage.Abstractions, Culture=neutral", false);
+            if (typeService == null || IocContainer.CanResolve(typeService))
+                return;
+            var implService = Type.GetType("PCLStorage.FileSystem, PCLStorage, Culture=neutral", false);
+            var prop = implService.GetPropertyEx("Current", MemberFlags.Public | MemberFlags.Static);
+            if (prop != null)
+                IocContainer.BindToConstant(typeService, prop.GetValueEx<object>(null));
         }
 
         #endregion

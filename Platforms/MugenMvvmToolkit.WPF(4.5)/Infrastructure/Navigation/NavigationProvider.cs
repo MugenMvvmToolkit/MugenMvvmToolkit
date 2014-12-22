@@ -95,6 +95,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         public static readonly DataConstant<NavigationEventArgsBase> NavigationArgsConstant;
         public static readonly DataConstant<NavigatingCancelEventArgsBase> NavigatingCancelArgsConstant;
+        public static readonly DataConstant<bool> ClearNavigationCache;
 
         protected static readonly DataConstant<Type> ViewModelType;
         private static readonly DataConstant<string> VmTypeConstant;
@@ -115,6 +116,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         private NavigatingCancelEventArgsBase _navigatingCancelArgs;
         private IViewModel _navigationTargetVm;
         private IOperationCallback _currentCallback;
+        private IDataContext _lastContext;
 
         #endregion
 
@@ -126,6 +128,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             NavigatingCancelArgsConstant = DataConstant.Create(() => NavigatingCancelArgsConstant, true);
             ViewModelType = DataConstant.Create(() => ViewModelType, true);
             VmTypeConstant = DataConstant.Create(() => VmTypeConstant, true);
+            ClearNavigationCache = DataConstant.Create(() => ClearNavigationCache);
         }
 
         /// <summary>
@@ -313,7 +316,18 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 CancelCurrentNavigation(null);
                 _navigationTargetVm = viewModel;
                 _currentCallback = callback;
+                _lastContext = context;
                 _navigationService.Navigate(mappingItem, parameter, context);
+                if (context.GetData(ClearNavigationCache) && CachePolicy != null)
+                {
+                    var viewModels = CachePolicy.Invalidate(context);
+                    foreach (var viewModelFrom in viewModels)
+                    {
+                        var navigationContext = new NavigationContext(NavigationMode.Undefined, viewModelFrom, viewModel, this, parameters);
+                        CompleteOperationCallback(viewModelFrom, navigationContext);
+                        viewModelFrom.Dispose();
+                    }
+                }
             });
         }
 
@@ -437,16 +451,12 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             CallbackManager.Register(OperationType.Navigation, viewModel, callback, context);
         }
 
-        protected virtual void TryCompleteOperationCallback([NotNull] IViewModel viewModel, [NotNull] INavigationContext context)
+        protected virtual bool TryCompleteOperationCallback([NotNull] IViewModel viewModel, [NotNull] INavigationContext context)
         {
             if (context.NavigationMode != NavigationMode.Back)
-                return;
-            bool? result = null;
-            var hasOperationResult = viewModel as IHasOperationResult;
-            if (hasOperationResult != null)
-                result = hasOperationResult.OperationResult;
-            var operationResult = OperationResult.CreateResult(OperationType.Navigation, viewModel, result, context);
-            CallbackManager.SetResult(viewModel, operationResult);
+                return false;
+            CompleteOperationCallback(viewModel, context);
+            return true;
         }
 
         protected virtual IViewModel GetViewModelForView([NotNull] NavigationEventArgsBase args,
@@ -515,7 +525,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                     NavigationService.GoBack();
                 else
                 {
-                    if (!NavigationService.Navigate(args))
+                    if (!NavigationService.Navigate(args, _lastContext))
                         CancelCurrentNavigation(context);
                 }
             }
@@ -627,6 +637,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             {
                 _currentCallback = null;
                 _navigationTargetVm = null;
+                _lastContext = null;
             }
         }
 
@@ -716,6 +727,16 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 #endif
                 return false;
             return vmType.GetGenericTypeDefinition().Equals(viewModelType.GetGenericTypeDefinition());
+        }
+
+        private void CompleteOperationCallback(IViewModel viewModel, INavigationContext context)
+        {
+            bool? result = null;
+            var hasOperationResult = viewModel as IHasOperationResult;
+            if (hasOperationResult != null)
+                result = hasOperationResult.OperationResult;
+            var operationResult = OperationResult.CreateResult(OperationType.Navigation, viewModel, result, context);
+            CallbackManager.SetResult(viewModel, operationResult);
         }
 
         #endregion

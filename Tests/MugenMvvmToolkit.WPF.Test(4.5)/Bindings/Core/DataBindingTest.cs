@@ -3,12 +3,16 @@ using System.Linq;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Accessors;
+using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Binding.Sources;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestModels;
 using Should;
@@ -18,6 +22,25 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
     [TestClass]
     public class DataBindingTest : TestBase
     {
+        #region Nested types
+
+        public sealed class CycleItem : NotifyPropertyChangedBase
+        {
+            private int _property = 1;
+
+            public int Property
+            {
+                get { return _property; }
+                set
+                {
+                    _property += value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        #endregion
+
         #region Methods
 
         [TestMethod]
@@ -387,6 +410,24 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             };
             binding.UpdateTarget();
             isInvoked.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public virtual void BindingShouldSuppressCycle()
+        {
+            var cycleItem1 = new CycleItem();
+            var cycleItem2 = new CycleItem();
+            var dataBinding = CreateDataBinding(
+                new BindingSourceAccessor(
+                    new BindingSource(new SinglePathObserver(cycleItem1, BindingPath.Create("Property"), true)),
+                    DataContext.Empty, true),
+                new BindingSourceAccessor(
+                    new BindingSource(new SinglePathObserver(cycleItem2, BindingPath.Create("Property"), true)),
+                    DataContext.Empty, false));
+            dataBinding.Behaviors.Add(new TwoWayBindingMode());
+            cycleItem2.Property = 10;
+
+            Tracer.Warn("Item1: {0}, Item2: {1}", cycleItem1.Property, cycleItem2.Property);
         }
 
         protected virtual DataBinding CreateDataBinding(ISingleBindingSourceAccessor target,

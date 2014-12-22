@@ -14,9 +14,11 @@
 // ****************************************************************************
 #endregion
 using System;
+using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Navigation;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Models;
@@ -25,6 +27,9 @@ using NavigationMode = System.Windows.Navigation.NavigationMode;
 
 namespace MugenMvvmToolkit.Infrastructure.Navigation
 {
+    /// <summary>
+    ///     A basic implementation of <see cref="INavigationService" /> to adapt the <see cref="Frame" />.
+    /// </summary>
     public class FrameNavigationService : INavigationService
     {
         #region Fields
@@ -105,7 +110,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// </summary>
         public object CurrentContent
         {
-            get { return _frame.CurrentSource; }
+            get { return _frame.Content; }
         }
 
         /// <summary>
@@ -153,24 +158,13 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// <summary>
         ///     Navigates using cancel event args.
         /// </summary>
-        public bool Navigate(NavigatingCancelEventArgsBase args)
+        public bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
         {
             Should.NotBeNull(args, "args");
-            NavigatingCancelEventArgs originalArgs = ((NavigatingCancelEventArgsWrapper)args).Args;
-            if (originalArgs.NavigationMode == NavigationMode.Back)
-            {
-                _frame.GoBack();
-                return true;
-            }
-            if (_useUrlNavigation)
-            {
-                if (originalArgs.ExtraData == null)
-                    return _frame.Navigate(originalArgs.Uri);
-                return _frame.Navigate(originalArgs.Uri, originalArgs.ExtraData);
-            }
-            if (originalArgs.ExtraData == null)
-                return _frame.Navigate(originalArgs.Content);
-            return _frame.Navigate(originalArgs.Content, originalArgs.ExtraData);
+            var result = NavigateInternal(args);
+            if (result)
+                ClearNavigationStackIfNeed(dataContext);
+            return result;
         }
 
         /// <summary>
@@ -192,15 +186,10 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         public bool Navigate(IViewMappingItem source, object parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, "source");
-            if (_useUrlNavigation)
-            {
-                if (parameter == null)
-                    return _frame.Navigate(source.Uri);
-                return _frame.Navigate(source.Uri, parameter);
-            }
-            if (parameter == null)
-                return _frame.Navigate(_viewFactory(source.ViewType));
-            return _frame.Navigate(_viewFactory(source.ViewType), parameter);
+            var result = NavigateInternal(source, parameter);
+            if (result)
+                ClearNavigationStackIfNeed(dataContext);
+            return result;
         }
 
         /// <summary>
@@ -212,6 +201,53 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         ///     Raised after navigation.
         /// </summary>
         public event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
+
+        #endregion
+
+        #region Methods
+
+        private void ClearNavigationStackIfNeed(IDataContext context)
+        {
+            if (context == null)
+                context = DataContext.Empty;
+            if (!context.GetData(NavigationConstants.ClearBackStack))
+                return;
+            while (_frame.BackStack.OfType<object>().Any())
+                _frame.RemoveBackEntry();
+            context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
+        }
+
+        private bool NavigateInternal(IViewMappingItem source, object parameter)
+        {
+            if (_useUrlNavigation)
+            {
+                if (parameter == null)
+                    return _frame.Navigate(source.Uri);
+                return _frame.Navigate(source.Uri, parameter);
+            }
+            if (parameter == null)
+                return _frame.Navigate(_viewFactory(source.ViewType));
+            return _frame.Navigate(_viewFactory(source.ViewType), parameter);
+        }
+
+        private bool NavigateInternal(NavigatingCancelEventArgsBase args)
+        {
+            NavigatingCancelEventArgs originalArgs = ((NavigatingCancelEventArgsWrapper)args).Args;
+            if (originalArgs.NavigationMode == NavigationMode.Back)
+            {
+                _frame.GoBack();
+                return true;
+            }
+            if (_useUrlNavigation)
+            {
+                if (originalArgs.ExtraData == null)
+                    return _frame.Navigate(originalArgs.Uri);
+                return _frame.Navigate(originalArgs.Uri, originalArgs.ExtraData);
+            }
+            if (originalArgs.ExtraData == null)
+                return _frame.Navigate(originalArgs.Content);
+            return _frame.Navigate(originalArgs.Content, originalArgs.ExtraData);
+        }
 
         #endregion
     }

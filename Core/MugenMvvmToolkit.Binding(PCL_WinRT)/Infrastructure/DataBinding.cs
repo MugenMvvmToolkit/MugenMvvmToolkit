@@ -198,6 +198,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private readonly IBindingSourceAccessor _sourceAccessor;
         private readonly ISingleBindingSourceAccessor _targetAccessor;
         private IDataContext _lazyContext;
+        private bool _isSourceUpdating;
+        private bool _isTargetUpdating;
 
         #endregion
 
@@ -270,6 +272,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         public virtual bool UpdateSource()
         {
+            //ignoring the concurrent access
+            if (_isSourceUpdating)
+                return false;
+            _isSourceUpdating = true;
             try
             {
                 if (_sourceAccessor.SetValue(_targetAccessor, this, true))
@@ -285,6 +291,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     BindingExceptionManager.WrapBindingException(this, BindingAction.UpdateSource, exception),
                     exception, BindingAction.UpdateSource);
             }
+            finally
+            {
+                _isSourceUpdating = false;
+            }
             return false;
         }
 
@@ -293,6 +303,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         public virtual bool UpdateTarget()
         {
+            //ignoring the concurrent access
+            if (_isTargetUpdating)
+                return false;
+            _isTargetUpdating = true;
             try
             {
                 if (_targetAccessor.SetValue(_sourceAccessor, this, true))
@@ -307,6 +321,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 RaiseBindingException(
                     BindingExceptionManager.WrapBindingException(this, BindingAction.UpdateTarget, exception), exception,
                     BindingAction.UpdateTarget);
+            }
+            finally
+            {
+                _isTargetUpdating = false;
             }
             return false;
         }

@@ -18,6 +18,7 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Models;
@@ -153,16 +154,13 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// <summary>
         ///     Navigates using cancel event args.
         /// </summary>
-        public bool Navigate(NavigatingCancelEventArgsBase args)
+        public bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
         {
             Should.NotBeNull(args, "args");
-            var wrapper = (NavigatingCancelEventArgsWrapper)args;
-            if (wrapper.Args.NavigationMode == NavigationMode.Back)
-            {
-                _frame.GoBack();
-                return true;
-            }
-            return Navigate(wrapper.Args.SourcePageType, wrapper.Parameter);
+            var result = NavigateInternal(args);
+            if (result)
+                ClearNavigationStackIfNeed(dataContext);
+            return result;
         }
 
         /// <summary>
@@ -185,7 +183,10 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         {
             Should.NotBeNull(source, "source");
             _lastParameter = parameter;
-            return Navigate(source.ViewType, parameter);
+            var result = Navigate(source.ViewType, parameter);
+            if (result)
+                ClearNavigationStackIfNeed(dataContext);
+            return result;
         }
 
         /// <summary>
@@ -197,6 +198,33 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         ///     Raised after navigation.
         /// </summary>
         public event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
+
+        #endregion
+
+        #region Methods
+
+        private bool NavigateInternal(NavigatingCancelEventArgsBase args)
+        {
+            var wrapper = (NavigatingCancelEventArgsWrapper)args;
+            if (wrapper.Args.NavigationMode == NavigationMode.Back)
+            {
+                _frame.GoBack();
+                return true;
+            }
+            return Navigate(wrapper.Args.SourcePageType, wrapper.Parameter);
+        }
+
+        private void ClearNavigationStackIfNeed(IDataContext context)
+        {
+#if WINDOWSCOMMON
+            if (context == null)
+                context = DataContext.Empty;
+            if (!context.GetData(NavigationConstants.ClearBackStack) || _frame.BackStack.IsReadOnly)
+                return;
+            _frame.BackStack.Clear();
+            context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
+#endif
+        }
 
         #endregion
     }

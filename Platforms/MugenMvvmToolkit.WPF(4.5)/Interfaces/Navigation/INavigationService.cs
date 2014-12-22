@@ -95,7 +95,7 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
         /// <summary>
         ///     Navigates using cancel event args.
         /// </summary>
-        bool Navigate([NotNull] NavigatingCancelEventArgsBase args);
+        bool Navigate([NotNull] NavigatingCancelEventArgsBase args, [CanBeNull] IDataContext dataContext);
 
         /// <summary>
         ///     Displays the content located at the specified <see cref="IViewMappingItem" />.

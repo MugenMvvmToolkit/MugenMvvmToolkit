@@ -102,7 +102,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 var element = section[index];
                 section.Remove(index);
-                element.ClearBindingsHierarchically(true, true, true);
+                element.ClearBindingsHierarchically(true, true, false);
                 return;
             }
 
@@ -111,7 +111,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 var element = rootElement[index];
                 rootElement.RemoveAt(index);
-                element.ClearBindingsHierarchically(true, true, true);
+                element.ClearBindingsHierarchically(true, true, false);
                 return;
             }
 
@@ -143,7 +143,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 var elements = section.OfType<Element>().ToArray();
                 section.Clear();
                 foreach (var element in elements)
-                    element.ClearBindingsHierarchically(true, true, true);
+                    element.ClearBindingsHierarchically(true, true, false);
                 return;
             }
 
@@ -153,7 +153,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 var elements = rootElement.ToArray();
                 rootElement.Clear();
                 foreach (var element in elements)
-                    element.ClearBindingsHierarchically(true, true, true);
+                    element.ClearBindingsHierarchically(true, true, false);
                 return;
             }
 
@@ -203,7 +203,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (pair.Key != null)
                 pair.Key.RemoveFromParentViewController();
             if (pair.Value != null)
-                pair.Value.ClearBindingsHierarchically(true, true, true);
+                pair.Value.ClearBindingsHierarchically(true, true, false);
         }
 
         #endregion

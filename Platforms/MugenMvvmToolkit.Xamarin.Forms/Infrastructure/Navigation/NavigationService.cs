@@ -137,7 +137,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// <summary>
         ///     Navigates using cancel event args.
         /// </summary>
-        public bool Navigate(NavigatingCancelEventArgsBase args)
+        public bool Navigate(NavigatingCancelEventArgsBase args, IDataContext context)
         {
             if (!args.IsCancelable)
                 return false;
@@ -150,7 +150,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 return true;
             }
             // ReSharper disable once AssignNullToNotNullAttribute
-            return Navigate(eventArgs.Mapping, eventArgs.Parameter, null);
+            return Navigate(eventArgs.Mapping, eventArgs.Parameter, context);
         }
 
         /// <summary>

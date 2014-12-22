@@ -34,9 +34,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         public static readonly Guid IdBindingMode;
 
-        private bool _isSourceUpdating;
-        private bool _isTargetUpdating;
-
         #endregion
 
         #region Constructors
@@ -101,37 +98,17 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// <summary>
         ///     Updates the target binding when source value changed.
         /// </summary>
-        private void SourceOnValueChanged(IBindingSource sender, ValueChangedEventArgs valueChangedEventArg)
+        private void SourceOnValueChanged(IBindingSource sender, ValueChangedEventArgs args)
         {
-            if (_isSourceUpdating)
-                return;
-            try
-            {
-                _isSourceUpdating = true;
-                Binding.UpdateTarget();
-            }
-            finally
-            {
-                _isSourceUpdating = false;
-            }
+            Binding.UpdateTarget();
         }
 
         /// <summary>
         ///     Updates the source binding when target value changed.
         /// </summary>
-        private void TargetOnValueChanged(IBindingSource sender, ValueChangedEventArgs valueChangedEventArg)
+        private void TargetOnValueChanged(IBindingSource sender, ValueChangedEventArgs args)
         {
-            if (_isTargetUpdating)
-                return;
-            try
-            {
-                _isTargetUpdating = true;
-                Binding.UpdateSource();
-            }
-            finally
-            {
-                _isTargetUpdating = false;
-            }
+            Binding.UpdateSource();
         }
 
         private static void SubscribeInternal(IBindingSourceAccessor accessor, EventHandler<IBindingSource, ValueChangedEventArgs> handler, bool subscribe)

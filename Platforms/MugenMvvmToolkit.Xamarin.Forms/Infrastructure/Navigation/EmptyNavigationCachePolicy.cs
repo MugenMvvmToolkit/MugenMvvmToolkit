@@ -1,4 +1,5 @@
 #region Copyright
+
 // ****************************************************************************
 // <copyright file="EmptyNavigationCachePolicy.cs">
 // Copyright © Vyacheslav Volkov 2012-2014
@@ -12,7 +13,11 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
+using System.Collections.Generic;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 
@@ -41,9 +46,17 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         }
 
         /// <summary>
+        ///     Gets the cached view models.
+        /// </summary>
+        public IList<IViewModel> GetViewModels(IDataContext context)
+        {
+            return Empty.Array<IViewModel>();
+        }
+
+        /// <summary>
         ///     Removes the view model from cache.
         /// </summary>
-        public bool Invalidate(IViewModel viewModel)
+        public bool Invalidate(IViewModel viewModel, IDataContext context)
         {
             return false;
         }
@@ -51,8 +64,9 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// <summary>
         ///     Clears the cache.
         /// </summary>
-        public void Invalidate()
+        public IList<IViewModel> Invalidate(IDataContext context)
         {
+            return GetViewModels(context);
         }
 
         #endregion

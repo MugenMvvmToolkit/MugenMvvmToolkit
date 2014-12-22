@@ -393,7 +393,7 @@ namespace MugenMvvmToolkit
             return item;
         }
 
-        public static void ClearBindingsHierarchically([CanBeNull]this View view, bool clearDataContext, bool clearAttachedValues, bool disposeView)
+        public static void ClearBindingsHierarchically([CanBeNull]this View view, bool clearDataContext, bool clearAttachedValues, bool disposeView = false)
         {
             if (view == null || !view.IsAlive())
                 return;
@@ -406,7 +406,7 @@ namespace MugenMvvmToolkit
             view.ClearBindings(clearDataContext, clearAttachedValues, disposeView);
         }
 
-        public static void ClearBindings([CanBeNull]this IJavaObject item, bool clearDataContext, bool clearAttachedValues, bool disposeObj)
+        public static void ClearBindings([CanBeNull]this IJavaObject item, bool clearDataContext, bool clearAttachedValues, bool disposeObj = false)
         {
             BindingExtensions.ClearBindings(item, clearDataContext, clearAttachedValues, disposeObj);
         }

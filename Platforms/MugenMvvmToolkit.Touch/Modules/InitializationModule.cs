@@ -131,15 +131,6 @@ namespace MugenMvvmToolkit.Modules
         }
 
         /// <summary>
-        ///     Gets the <see cref="INavigationCachePolicy" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="INavigationCachePolicy" />.</returns>
-        protected override BindingInfo<INavigationCachePolicy> GetNavigationCachePolicy()
-        {
-            return BindingInfo<INavigationCachePolicy>.FromType<EmptyNavigationCachePolicy>(DependencyLifecycle.SingleInstance);
-        }
-
-        /// <summary>
         ///     Gets the <see cref="IToastPresenter" /> that will be used in the current application by default.
         /// </summary>
         /// <returns>An instance of <see cref="IToastPresenter" />.</returns>
