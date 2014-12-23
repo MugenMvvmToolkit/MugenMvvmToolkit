@@ -91,10 +91,9 @@ namespace MugenMvvmToolkit
             return item;
         }
 
-        public static void ClearBindings([CanBeNull] this BindableObject item, bool clearDataContext,
-            bool clearAttachedValues, bool disposeitem = false)
+        public static void ClearBindings([CanBeNull] this BindableObject item, bool clearDataContext, bool clearAttachedValues)
         {
-            BindingExtensions.ClearBindings(item, clearDataContext, clearAttachedValues, disposeitem);
+            BindingExtensions.ClearBindings(item, clearDataContext, clearAttachedValues);
         }
 
         #endregion

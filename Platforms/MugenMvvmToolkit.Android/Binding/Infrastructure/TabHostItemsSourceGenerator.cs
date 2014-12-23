@@ -429,7 +429,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             var view = tab.Content as View;
             if (view != null)
-                view.ClearBindingsHierarchically(true, true, false);
+                view.ClearBindingsHierarchically(true, true);
         }
 
         #endregion

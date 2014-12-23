@@ -53,8 +53,7 @@ namespace MugenMvvmToolkit.MonoTouch.Dialog
                 BindingExtensions.AttachedParentMember.SetValue(element, parent);
         }
 
-        public static void ClearBindingsHierarchically([CanBeNull] this Element element, bool clearDataContext,
-            bool clearAttachedValues, bool disposeElement = false)
+        public static void ClearBindingsHierarchically([CanBeNull] this Element element, bool clearDataContext, bool clearAttachedValues)
         {
             if (element == null)
                 return;
@@ -62,14 +61,14 @@ namespace MugenMvvmToolkit.MonoTouch.Dialog
             if (enumerable != null)
             {
                 foreach (object item in enumerable)
-                    ClearBindingsHierarchically(item as Element, clearDataContext, clearAttachedValues, disposeElement);
+                    ClearBindingsHierarchically(item as Element, clearDataContext, clearAttachedValues);
             }
-            element.ClearBindings(clearDataContext, clearAttachedValues, disposeElement);
+            element.ClearBindings(clearDataContext, clearAttachedValues);
         }
 
-        public static void ClearBindings([CanBeNull] this Element element, bool clearDataContext, bool clearAttachedValues, bool disposeElement = false)
+        public static void ClearBindings([CanBeNull] this Element element, bool clearDataContext, bool clearAttachedValues)
         {
-            BindingExtensions.ClearBindings(element, clearDataContext, clearAttachedValues, disposeElement);
+            BindingExtensions.ClearBindings(element, clearDataContext, clearAttachedValues);
         }
 
         #endregion

@@ -145,7 +145,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         public virtual View OnCreateView(int? viewId, LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState, Func<LayoutInflater, ViewGroup, Bundle, View> baseOnCreateView)
         {
-            _view.ClearBindingsHierarchically(true, true, false);
+            _view.ClearBindingsHierarchically(true, true);
             if (viewId.HasValue)
             {
                 _view = inflater.CreateBindableView(viewId.Value, container, false).Item1;
@@ -205,10 +205,10 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
             if (handler != null)
                 handler((IWindowView)Target, EventArgs.Empty);
 
-            _view.ClearBindingsHierarchically(true, true, false);
+            _view.ClearBindingsHierarchically(true, true);
             if (_dialogFragment != null)
-                _dialogFragment.Dialog.ClearBindings(true, true, false);
-            Target.ClearBindings(false, true, false);
+                _dialogFragment.Dialog.ClearBindings(true, true);
+            Target.ClearBindings(false, true);
 
             var viewModel = BindingContext.Value as IViewModel;
             if (viewModel != null)
@@ -242,7 +242,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         public virtual void OnInflate(Activity activity, IAttributeSet attrs, Bundle savedInstanceState,
             Action<Activity, IAttributeSet, Bundle> baseOnInflate)
         {
-            Target.ClearBindings(false, false, false);
+            Target.ClearBindings(false, false);
             List<string> strings = ViewFactory.ReadStringAttributeValue(activity, attrs, MugenMvvmToolkit.Resource.Styleable.Binding, null);
             if (strings != null && strings.Count != 0)
             {

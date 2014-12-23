@@ -93,9 +93,9 @@ namespace MugenMvvmToolkit
             return item;
         }
 
-        public static void ClearBindings([CanBeNull] this IComponent component, bool clearDataContext, bool clearAttachedValues, bool disposeComponent)
+        public static void ClearBindings([CanBeNull] this IComponent component, bool clearDataContext, bool clearAttachedValues)
         {
-            BindingExtensions.ClearBindings(component, clearDataContext, clearAttachedValues, disposeComponent);
+            BindingExtensions.ClearBindings(component, clearDataContext, clearAttachedValues);
         }
 
         /// <summary>

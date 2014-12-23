@@ -42,6 +42,7 @@
       - Added Xamarin.Forms support.
       - Added support for API21(Android).
       - Added IWrapperManager instead of IViewModelWrapperManager.
+	  - Added ClearBackStack hint for navigation, it allows to remove ViewModel from the back navigation stack (WP, WPF, WinRT, Android, iOS).
       - Updated IEventAggregator, added the ability to subscribe using a delegate.
       - Added AsyncRelayCommand that allows to use Task in execute method.
       - Added support for the $root keyword (Binding).

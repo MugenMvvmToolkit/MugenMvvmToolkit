@@ -489,27 +489,27 @@ namespace MugenMvvmToolkit
             return item.Handle != IntPtr.Zero;
         }
 
-        public static void ClearBindingsHierarchically([CanBeNull]this UIView view, bool clearDataContext, bool clearAttachedValues, bool disposeView = false)
+        public static void ClearBindingsHierarchically([CanBeNull]this UIView view, bool clearDataContext, bool clearAttachedValues)
         {
             if (view == null)
                 return;
             foreach (var subView in view.Subviews)
-                subView.ClearBindingsHierarchically(clearDataContext, clearAttachedValues, disposeView);
-            ClearBindings(view, clearDataContext, clearAttachedValues, disposeView);
+                subView.ClearBindingsHierarchically(clearDataContext, clearAttachedValues);
+            ClearBindings(view, clearDataContext, clearAttachedValues);
         }
 
-        public static void ClearBindings<T>([CanBeNull]this T[] items, bool clearDataContext, bool clearAttachedValues, bool disposeObjects = false)
+        public static void ClearBindings<T>([CanBeNull]this T[] items, bool clearDataContext, bool clearAttachedValues)
             where T : INativeObject
         {
             if (items == null)
                 return;
             for (int i = 0; i < items.Length; i++)
-                ClearBindings(items[i], clearDataContext, clearAttachedValues, disposeObjects);
+                ClearBindings(items[i], clearDataContext, clearAttachedValues);
         }
 
-        public static void ClearBindings(this INativeObject nativeObject, bool clearDataContext, bool clearAttachedValues, bool disposeObject = false)
+        public static void ClearBindings(this INativeObject nativeObject, bool clearDataContext, bool clearAttachedValues)
         {
-            BindingExtensions.ClearBindings(nativeObject, clearDataContext, clearAttachedValues, disposeObject);
+            BindingExtensions.ClearBindings(nativeObject, clearDataContext, clearAttachedValues);
         }
 
         private static void AddButtonOS7([NotNull] this UIActionSheet actionSheet, string title, string binding, IList<object> sources)

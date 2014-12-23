@@ -272,12 +272,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         public virtual bool UpdateSource()
         {
-            //ignoring the concurrent access
+            //ignoring the concurrent access, there is no need to use Interlocked or lock
             if (_isSourceUpdating)
                 return false;
-            _isSourceUpdating = true;
             try
             {
+                _isSourceUpdating = true;
                 if (_sourceAccessor.SetValue(_targetAccessor, this, true))
                 {
                     RaiseBindingUpdated(BindingEventArgs.SourceTrueArgs);
@@ -303,12 +303,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         public virtual bool UpdateTarget()
         {
-            //ignoring the concurrent access
+            //ignoring the concurrent access, there is no need to use Interlocked or lock
             if (_isTargetUpdating)
                 return false;
-            _isTargetUpdating = true;
             try
             {
+                _isTargetUpdating = true;
                 if (_targetAccessor.SetValue(_sourceAccessor, this, true))
                 {
                     RaiseBindingUpdated(BindingEventArgs.TargetTrueArgs);

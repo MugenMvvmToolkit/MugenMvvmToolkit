@@ -490,7 +490,7 @@ namespace MugenMvvmToolkit.Binding
             return defaultValue;
         }
 
-        public static void ClearBindings([CanBeNull] object item, bool clearDataContext, bool clearAttachedValues, bool disposeItem)
+        public static void ClearBindings([CanBeNull] object item, bool clearDataContext, bool clearAttachedValues)
         {
             if (item == null)
                 return;
@@ -501,12 +501,6 @@ namespace MugenMvvmToolkit.Binding
                     BindingServiceProvider.ContextManager.GetBindingContext(item).Value = null;
                 if (clearAttachedValues)
                     ServiceProvider.AttachedValueProvider.Clear(item);
-                if (disposeItem)
-                {
-                    var disposable = item as IDisposable;
-                    if (disposable != null)
-                        disposable.Dispose();
-                }
             }
             catch (Exception e)
             {

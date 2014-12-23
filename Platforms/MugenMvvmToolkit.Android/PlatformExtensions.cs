@@ -393,7 +393,7 @@ namespace MugenMvvmToolkit
             return item;
         }
 
-        public static void ClearBindingsHierarchically([CanBeNull]this View view, bool clearDataContext, bool clearAttachedValues, bool disposeView = false)
+        public static void ClearBindingsHierarchically([CanBeNull]this View view, bool clearDataContext, bool clearAttachedValues)
         {
             if (view == null || !view.IsAlive())
                 return;
@@ -401,14 +401,14 @@ namespace MugenMvvmToolkit
             if (viewGroup != null)
             {
                 for (int i = 0; i < viewGroup.ChildCount; i++)
-                    viewGroup.GetChildAt(i).ClearBindingsHierarchically(clearDataContext, clearAttachedValues, disposeView);
+                    viewGroup.GetChildAt(i).ClearBindingsHierarchically(clearDataContext, clearAttachedValues);
             }
-            view.ClearBindings(clearDataContext, clearAttachedValues, disposeView);
+            view.ClearBindings(clearDataContext, clearAttachedValues);
         }
 
-        public static void ClearBindings([CanBeNull]this IJavaObject item, bool clearDataContext, bool clearAttachedValues, bool disposeObj = false)
+        public static void ClearBindings([CanBeNull]this IJavaObject item, bool clearDataContext, bool clearAttachedValues)
         {
-            BindingExtensions.ClearBindings(item, clearDataContext, clearAttachedValues, disposeObj);
+            BindingExtensions.ClearBindings(item, clearDataContext, clearAttachedValues);
         }
 
         public static void NotifyActivityAttached([CanBeNull] Activity activity, [CanBeNull] View view)
