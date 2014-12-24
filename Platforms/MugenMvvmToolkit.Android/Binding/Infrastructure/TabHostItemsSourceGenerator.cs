@@ -86,7 +86,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             private EmptyTemplateSelector()
             {
-
             }
 
             #endregion
@@ -134,6 +133,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private readonly TabFactory _tabFactory;
         private readonly Dictionary<string, TabInfo> _tabToContent;
         private readonly IBindingMemberInfo _selectedItemMember;
+        private bool _ingoreTabChanged;
 
         private readonly DataTemplateProvider _itemTemplateProvider;
         private readonly DataTemplateProvider _contentTemplateProvider;
@@ -212,34 +212,42 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         protected override void Refresh()
         {
-            string selectedTag = TabHost.CurrentTabTag;
-            var oldValues = new Dictionary<string, TabInfo>(_tabToContent);
-            TabHost.CurrentTab = 0;
-            TabHost.ClearAllTabs();
-            _tabToContent.Clear();
-
-            int count = ItemsSource.Count();
-            for (int i = 0; i < count; i++)
+            try
             {
-                var tabInfo = TryRecreateTabInfo(i, oldValues);
-                TabHost.AddTab(tabInfo.TabSpec);
-            }
-            foreach (var oldValue in oldValues)
-                RemoveTabDelegate(this, oldValue.Value);
+                _ingoreTabChanged = true;
+                string selectedTag = TabHost.CurrentTabTag;
+                var oldValues = new Dictionary<string, TabInfo>(_tabToContent);
+                TabHost.CurrentTab = 0;
+                TabHost.ClearAllTabs();
+                _tabToContent.Clear();
 
-
-            if (count == 0)
-                OnEmptyTab();
-            else
-            {
-                if (selectedTag == null)
+                int count = ItemsSource.Count();
+                TabInfo firstTab = null;
+                for (int i = 0; i < count; i++)
                 {
-                    TabHost.CurrentTab = 0;
-                    if (_selectedItemMember != null)
-                        _selectedItemMember.SetValue(TabHost, new[] { GetItem(0) });
+                    var tabInfo = TryRecreateTabInfo(i, oldValues);
+                    TabHost.AddTab(tabInfo.TabSpec);
+                    if (i == 0)
+                        firstTab = tabInfo;
                 }
+                foreach (var oldValue in oldValues)
+                    RemoveTabDelegate(this, oldValue.Value);
+
+
+                _ingoreTabChanged = false;
+                if (count == 0)
+                    OnEmptyTab();
                 else
+                {
+                    if (selectedTag == null || !_tabToContent.ContainsKey(selectedTag))
+                        selectedTag = firstTab.TabSpec.Tag;
                     TabHost.SetCurrentTabByTag(selectedTag);
+                    OnTabChanged(selectedTag);
+                }
+            }
+            finally
+            {
+                _ingoreTabChanged = false;
             }
         }
 
@@ -292,6 +300,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         private void OnTabChanged(string id)
         {
+            if (_ingoreTabChanged)
+                return;
             var oldValue = _currentTabContent;
             TabInfo info;
             if (_tabToContent.TryGetValue(id, out info))
@@ -301,7 +311,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     return;
 
                 TabChangedDelegate(this, oldValue, _currentTabContent, true, true);
-
                 if (_selectedItemMember != null)
                     _selectedItemMember.SetValue(TabHost, new[] { info.Item });
             }

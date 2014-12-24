@@ -86,6 +86,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Modules
 
         private static void OnTabChanged(Action<TabHostItemsSourceGenerator, object, object, bool, bool> baseAction, TabHostItemsSourceGenerator generator, object oldValue, object newValue, bool clearOldValue, bool setNewValue)
         {
+            FragmentManager fragmentManager = null;
             FragmentTransaction ft = null;
             if (clearOldValue)
             {
@@ -94,7 +95,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Modules
                     baseAction(generator, oldValue, newValue, true, false);
                 else
                 {
-                    var fragmentManager = generator.TabHost.GetFragmentManager();
+                    fragmentManager = generator.TabHost.GetFragmentManager();
                     if (fragmentManager != null)
                         ft = fragmentManager.BeginTransaction().Detach(fragment);
                 }
@@ -108,7 +109,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Modules
                 {
                     if (ft == null)
                     {
-                        var fragmentManager = generator.TabHost.GetFragmentManager();
+                        fragmentManager = generator.TabHost.GetFragmentManager();
                         if (fragmentManager != null)
                             ft = fragmentManager.BeginTransaction();
                     }
@@ -122,6 +123,8 @@ namespace MugenMvvmToolkit.FragmentSupport.Modules
             }
             if (ft != null)
                 ft.CommitAllowingStateLoss();
+            if (fragmentManager != null)
+                fragmentManager.ExecutePendingTransactions();
         }
 
         #endregion

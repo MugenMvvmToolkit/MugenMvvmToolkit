@@ -82,6 +82,8 @@
     </Compile>
     <Compile Include="Attributes\BootstrapperAttribute.cs" />
     <Compile Include="Attributes\TypeNameAliasAttribute.cs" />
+    <Compile Include="Binding\Infrastructure\ResourceDataTemplateSelectorBase.cs" />
+    <Compile Include="Binding\Interfaces\IResourceDataTemplateSelector.cs" />
     <Compile Include="DataConstants\ViewFactoryConstants.cs" />
     <Compile Include="Binding\Interfaces\IItemsSourceAdapter.cs" />
     <Compile Include="Binding\Interfaces\IItemsSourceGenerator.cs" />

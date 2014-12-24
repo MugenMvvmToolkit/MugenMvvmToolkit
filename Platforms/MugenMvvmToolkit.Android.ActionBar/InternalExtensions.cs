@@ -159,13 +159,12 @@ namespace MugenMvvmToolkit.ActionBarSupport
 
         public static ActionMode StartActionMode(this ActionBar actionBar, ActionMode.ICallback mode)
         {
+            var activity = actionBar.ThemedContext.GetActivity();
 #if APPCOMPAT
-            Should.BeOfType<ActionBarActivity>(actionBar.ThemedContext, "Activity");
-            var activity = (ActionBarActivity)actionBar.ThemedContext;
-            return activity.StartSupportActionMode(mode);
+            Should.BeOfType<ActionBarActivity>(activity, "Activity");
+            return ((ActionBarActivity)activity).StartSupportActionMode(mode);
 #else
-            Should.BeOfType<Activity>(actionBar.ThemedContext, "Activity");
-            var activity = (Activity)actionBar.ThemedContext;
+            Should.NotBeNull(activity, "activity");
             return activity.StartActionMode(mode);
 #endif
         }

@@ -221,19 +221,18 @@ namespace MugenMvvmToolkit.RecyclerView.Infrastructure
 
         public override int GetItemViewType(int position)
         {
-            int? templateId = _itemTemplateProvider.GetTemplateId();
-            if (templateId == null)
+            var item = GetRawItem(position);
+            int id;
+            if (_itemTemplateProvider.TrySelectResourceTemplate(item, out id))
+                return id;
+            object template;
+            if (_itemTemplateProvider.TrySelectTemplate(item, out template))
             {
-                IDataTemplateSelector templateSelector = _itemTemplateProvider.GetDataTemplateSelector();
-                if (templateSelector != null)
-                {
-                    object template = templateSelector.SelectTemplate(GetRawItem(position), _recyclerView);
-                    templateId = template as int?;
-                    if (template != null && templateId == null)
-                        Tracer.Error("The DataTemplate '{0}' is not supported by RecyclerView", template);
-                }
+                if (template is int)
+                    return (int)template;
+                Tracer.Error("The DataTemplate '{0}' is not supported by RecyclerView", template);
             }
-            return templateId.GetValueOrDefault(Android.Resource.Layout.SimpleListItem1);
+            return _itemTemplateProvider.GetTemplateId().GetValueOrDefault(Android.Resource.Layout.SimpleListItem1);
         }
 
         #endregion

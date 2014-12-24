@@ -375,11 +375,11 @@ namespace MugenMvvmToolkit
         {
             Should.NotBeNull(assemblies, "assemblies");
             var modulesToLoad = new List<Type>();
-            foreach (var assembly in SkipFrameworkAssemblies(assemblies.Distinct()))
+            foreach (var assembly in SkipFrameworkAssemblies(assemblies))
             {
                 foreach (var type in assembly.SafeGetTypes(throwOnError))
                 {
-                    if (typeof(IModule).IsAssignableFrom(type) && type.IsPublicNonAbstractClass())
+                    if (typeof(IModule).IsAssignableFrom(type) && type.IsPublicNonAbstractClass() && !modulesToLoad.Contains(type))
                         modulesToLoad.Add(type);
                 }
             }
@@ -391,13 +391,14 @@ namespace MugenMvvmToolkit
 #if PCL_WINRT
                 if (constructor == null || modulesToLoad.Any(type => type != moduleType && type.GetTypeInfo().IsSubclassOf(moduleType)))
 #else
-                if (constructor == null || modulesToLoad.Any(type => type != moduleType && type.IsSubclassOf(moduleType)))
+                if (constructor == null|| modulesToLoad.Any(type => type != moduleType && type.IsSubclassOf(moduleType)))
 #endif
                 {
                     modulesToLoad.Remove(moduleType);
                     index--;
                     continue;
                 }
+
                 var module = (IModule)constructor.InvokeEx(Empty.Array<object>());
                 modules.Add(module);
             }

@@ -42,6 +42,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         private static readonly string StateKey;
         private static readonly string ViewModelTypeNameKey;
         private static readonly string IdKey;
+        private static readonly EventHandler<IDisposableObject, EventArgs> ClearCacheOnDisposeDelegate;
         // ReSharper restore StaticFieldInGenericType
 
         private IBindingContext _context;
@@ -60,6 +61,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             StateKey = "!~state" + typeof(TTarget).Name;
             ViewModelTypeNameKey = "~vmtype" + typeof(TTarget).Name;
             IdKey = "~ctxid~" + typeof(TTarget).Name;
+            ClearCacheOnDisposeDelegate = ClearCacheOnDispose;
         }
 
         /// <summary>
@@ -153,7 +155,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             var viewModel = BindingContext.Value as IViewModel;
             if (viewModel != null)
             {
-                viewModel.Disposed += ClearCacheOnDispose;
+                viewModel.Disposed += ClearCacheOnDisposeDelegate;
                 object currentStateManager;
                 if (!viewModel.Settings.Metadata.TryGetData(ViewModelConstants.StateManager, out currentStateManager) || currentStateManager == this)
                 {
@@ -200,7 +202,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             else
             {
                 Get<IViewManager>().InitializeViewAsync(viewModel, Target).WithTaskExceptionHandler(this);
-                viewModel.Disposed -= ClearCacheOnDispose;
+                viewModel.Disposed -= ClearCacheOnDisposeDelegate;
                 Get<IViewModelPresenter>().Restore(viewModel, CreateRestorePresenterContext());
             }
         }
@@ -281,7 +283,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         protected static void ClearCacheOnDispose(IDisposableObject sender, EventArgs args)
         {
-            sender.Disposed -= ClearCacheOnDispose;
+            sender.Disposed -= ClearCacheOnDisposeDelegate;
             lock (ContextCache)
             {
                 var pairs = ContextCache.Where(pair => ReferenceEquals(pair.Value, sender)).ToArray();

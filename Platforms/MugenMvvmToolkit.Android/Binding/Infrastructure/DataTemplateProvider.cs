@@ -51,6 +51,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Methods
 
+        public bool TrySelectResourceTemplate(object value, out int templateId)
+        {
+            templateId = 0;
+            var selector = GetDataTemplateSelector() as IResourceDataTemplateSelector;
+            if (selector == null)
+                return false;
+            templateId = selector.SelectTemplate(value, _container);
+            return true;
+        }
+
         public bool TrySelectTemplate(object value, out object template)
         {
             template = null;

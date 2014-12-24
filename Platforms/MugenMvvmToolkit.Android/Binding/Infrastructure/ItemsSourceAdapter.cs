@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using Android.App;
 using Android.Content;
@@ -38,14 +39,17 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         private const string Key = "#ItemsSourceAdatapter";
         private static Func<object, Context, IDataContext, IItemsSourceAdapter> _factory;
-        
+
         private IEnumerable _itemsSource;
         private readonly object _container;
         private readonly NotifyCollectionChangedEventHandler _weakHandler;
         private readonly LayoutInflater _layoutInflater;
         private readonly DataTemplateProvider _dropDownTemplateProvider;
         private readonly DataTemplateProvider _itemTemplateProvider;
-        
+
+        private Dictionary<int, int> _resourceTypeToItemType;
+        private int _currentTypeIndex;
+
         #endregion
 
         #region Constructors
@@ -132,6 +136,34 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Overrides of BaseAdapter
 
+        public override int GetItemViewType(int position)
+        {
+            var selector = _itemTemplateProvider.GetDataTemplateSelector() as IResourceDataTemplateSelector;
+            if (selector == null)
+                return base.GetItemViewType(position);
+            if (_resourceTypeToItemType == null)
+                _resourceTypeToItemType = new Dictionary<int, int>();
+            var id = selector.SelectTemplate(GetRawItem(position), _container);
+            int type;
+            if (!_resourceTypeToItemType.TryGetValue(id, out type))
+            {
+                type = _currentTypeIndex++;
+                _resourceTypeToItemType[id] = type;
+            }
+            return type;
+        }
+
+        public override int ViewTypeCount
+        {
+            get
+            {
+                var resourceDataTemplateSelector = _itemTemplateProvider.GetDataTemplateSelector() as IResourceDataTemplateSelector;
+                if (resourceDataTemplateSelector == null)
+                    return base.ViewTypeCount;
+                return resourceDataTemplateSelector.TemplateTypeCount;
+            }
+        }
+
         public override int Count
         {
             get
@@ -210,27 +242,34 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return valueView;
 
             int? templateId = null;
-            object template;
-            if (templateProvider.TrySelectTemplate(value, out template))
-            {
-                if (template != null)
-                {
-                    valueView = template as View;
-                    if (valueView != null)
-                    {
-                        BindingServiceProvider.ContextManager
-                                              .GetBindingContext(valueView)
-                                              .Value = value;
-                        return valueView;
-                    }
-                    if (template is int)
-                        templateId = (int)template;
-                    else
-                        value = template;
-                }
-            }
+            int id;
+            if (templateProvider.TrySelectResourceTemplate(value, out id))
+                templateId = id;
             else
-                templateId = templateProvider.GetTemplateId();
+            {
+                object template;
+                if (templateProvider.TrySelectTemplate(value, out template))
+                {
+                    if (template != null)
+                    {
+                        valueView = template as View;
+                        if (valueView != null)
+                        {
+                            BindingServiceProvider.ContextManager
+                                                  .GetBindingContext(valueView)
+                                                  .Value = value;
+                            return valueView;
+                        }
+                        if (template is int)
+                            templateId = (int)template;
+                        else
+                            value = template;
+                    }
+                }
+                else
+                    templateId = templateProvider.GetTemplateId();
+            }
+
             if (templateId == null)
             {
                 if (!(convertView is TextView))
@@ -241,7 +280,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return textView;
             }
             var itemView = convertView as ListItem;
-            if (itemView == null || itemView.TemplateId != templateId)
+            if (itemView == null || itemView.TemplateId != templateId.Value)
                 convertView = CreateView(value, parent, templateId.Value);
             BindingServiceProvider.ContextManager.GetBindingContext(convertView).Value = value;
             return convertView;
