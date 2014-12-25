@@ -260,6 +260,5 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         }
 
         #endregion
-
     }
 }

@@ -49,6 +49,11 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
         IDataContext Parameters { get; }
 
         /// <summary>
+        ///     Gets the navigation type.
+        /// </summary>
+        NavigationType NavigationType { get; }
+
+        /// <summary>
         ///     Gets the navigation provider that creates this context.
         /// </summary>
         [CanBeNull]

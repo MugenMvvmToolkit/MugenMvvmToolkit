@@ -170,7 +170,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             NavigationService.GetParameterFromArgs = args => param;
             OperationCallbackManager.Register = (type, o, arg3, arg4) =>
             {
-                type.ShouldEqual(OperationType.Navigation);
+                type.ShouldEqual(OperationType.PageNavigation);
                 o.ShouldEqual(viewModel);
                 arg3.ShouldEqual(callbackMock);
                 isInvoked = true;

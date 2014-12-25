@@ -147,8 +147,8 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         /// </summary>
         protected virtual void MultiViewModelOnViewModelClosed(object sender, ValueEventArgs<IViewModel> args)
         {
-            var context = new NavigationContext(NavigationMode.Back, args.Value, MultiViewModel.SelectedItem,
-                MultiViewModel);
+            var context = new NavigationContext(NavigationType.Tab, NavigationMode.Back, args.Value,
+                MultiViewModel.SelectedItem, MultiViewModel);
             bool? result = null;
             var hasOperationResult = args.Value as IHasOperationResult;
             if (hasOperationResult != null)

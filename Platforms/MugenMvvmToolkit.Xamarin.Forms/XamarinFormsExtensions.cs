@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
@@ -33,16 +34,31 @@ namespace MugenMvvmToolkit
 
         #endregion
 
+        #region Events
+
+        /// <summary>
+        ///     Occurs when the back button is pressed.
+        /// </summary>
+        public static event EventHandler<Page, CancelEventArgs> BackButtonPressed;
+
+        #endregion
+
         #region Methods
 
-        internal static PlatformInfo GetPlatformInfo()
+        /// <summary>
+        ///     Occurs when the back button is pressed.
+        /// </summary>
+        public static bool HandleBackButtonPressed([NotNull] this Page page,
+            [NotNull] Func<bool> baseOnBackButtonPressed)
         {
-            return new PlatformInfo(Device.OnPlatform(PlatformType.iOS, PlatformType.Android, PlatformType.WinPhone), new Version(0, 0));
-        }
-
-        internal static void AsEventHandler<TArg>(this Action action, object sender, TArg arg)
-        {
-            action();
+            Should.NotBeNull(page, "page");
+            Should.NotBeNull(baseOnBackButtonPressed, "baseOnBackButtonPressed");
+            var handler = BackButtonPressed;
+            if (handler == null)
+                return baseOnBackButtonPressed();
+            var args = new CancelEventArgs(false);
+            handler(page, args);
+            return args.Cancel;
         }
 
         public static void SetNavigationParameter([NotNull] this Page controller, object value)
@@ -94,6 +110,16 @@ namespace MugenMvvmToolkit
         public static void ClearBindings([CanBeNull] this BindableObject item, bool clearDataContext, bool clearAttachedValues)
         {
             BindingExtensions.ClearBindings(item, clearDataContext, clearAttachedValues);
+        }
+
+        internal static PlatformInfo GetPlatformInfo()
+        {
+            return new PlatformInfo(Device.OnPlatform(PlatformType.iOS, PlatformType.Android, PlatformType.WinPhone), new Version(0, 0));
+        }
+
+        internal static void AsEventHandler<TArg>(this Action action, object sender, TArg arg)
+        {
+            action();
         }
 
         #endregion

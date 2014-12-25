@@ -343,7 +343,7 @@ namespace MugenMvvmToolkit.Test.Models
             isInvoked.ShouldBeTrue();
         }
 
-        protected virtual RelayCommandBase CreateCommand(Action<object> execute, Predicate<object> canExecute = null,
+        protected virtual RelayCommandBase CreateCommand(Action<object> execute, Func<object, bool> canExecute = null,
             params object[] items)
         {
             return new RelayCommand(execute, canExecute, items);

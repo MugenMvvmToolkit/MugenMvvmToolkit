@@ -22,7 +22,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         {
             ServiceProvider.OperationCallbackFactory = new SerializableOperationCallbackFactory();
             var operation = new AsyncOperation<bool>();
-            var result = OperationResult.CreateResult(OperationType.Navigation, this, true);
+            var result = OperationResult.CreateResult(OperationType.PageNavigation, this, true);
 
             operation.ContinueWith(operationResult => { ResultStatic = operationResult; });
             ResultStatic.ShouldBeNull();
@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         {
             ServiceProvider.OperationCallbackFactory = new SerializableOperationCallbackFactory();
             var operation = new AsyncOperation<bool>();
-            var result = OperationResult.CreateResult(OperationType.Navigation, this, true);
+            var result = OperationResult.CreateResult(OperationType.PageNavigation, this, true);
 
             operation.ContinueWith(CallbackMethod);
             Result.ShouldBeNull();
@@ -66,8 +66,8 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
             var vmMock = new NavigableViewModelMock();
             ServiceProvider.OperationCallbackFactory = new SerializableOperationCallbackFactory();
             var operation = new AsyncOperation<bool>();
-            var result = OperationResult.CreateResult(OperationType.Navigation, this, true,
-                new NavigationContext(NavigationMode.Back, vmMock, vmMock, this));
+            var result = OperationResult.CreateResult(OperationType.PageNavigation, this, true,
+                new NavigationContext(NavigationType.Page, NavigationMode.Back, vmMock, vmMock, this));
 
             operation.ContinueWith(operationResult => CallbackAnonMethod(operationResult, vmMock));
             ResultAnon.ShouldBeNull();

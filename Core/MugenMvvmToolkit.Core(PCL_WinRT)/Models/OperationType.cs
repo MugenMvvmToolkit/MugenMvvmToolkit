@@ -23,7 +23,7 @@ namespace MugenMvvmToolkit.Models
 
         public static readonly OperationType WindowNavigation;
 
-        public static readonly OperationType Navigation;
+        public static readonly OperationType PageNavigation;
 
         #endregion
 
@@ -33,7 +33,7 @@ namespace MugenMvvmToolkit.Models
         {
             TabNavigation = new OperationType("Tab");
             WindowNavigation = new OperationType("Window");
-            Navigation = new OperationType("Navigation");
+            PageNavigation = new OperationType("Page");
         }
 
         /// <summary>

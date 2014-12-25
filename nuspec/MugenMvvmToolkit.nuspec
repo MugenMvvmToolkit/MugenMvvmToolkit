@@ -37,20 +37,22 @@
     </description>
     <releaseNotes>
       - Split the android project into several parts, Android, Android.ActionBar, Android.AppCompat, Android.Fragment, Android.RecyclerView.
+      - Increased performance of ItemsSourceAdapter (Android).
       - Fixed invalid binding validation when using $GetErrors method.
       - Added Xamarin.Forms support.
       - Added support for API21(Android).
       - Added IWrapperManager instead of IViewModelWrapperManager.
-	  - Added ClearBackStack hint for navigation, it allows to remove ViewModel from the back navigation stack (WP, WPF, WinRT, Android, iOS).
-      - Updated IEventAggregator, added the ability to subscribe using a delegate.
-      - Added AsyncRelayCommand that allows to use Task in execute method.
+      - Added ClearBackStack hint for navigation, it allows to remove ViewModel from the back navigation stack (WP, WPF, WinRT, Android, iOS).      
+      - Added IResourceDataTemplateSelector (Android).
       - Added support for the $root keyword (Binding).
+      - Updated IEventAggregator, added the ability to subscribe using a delegate.
       - Updated IDynamicObject interface, that allows to invoke methods and index members.
       - Updated CompiledExpressionInvoker, now it can invoke dynamic members.
       - Updated BindingEditor (WinForms).
+      - Updated INavigationContext, added NavigationType property.
       - Updated IObservable interface, now it works with ISubscriber interface.
       - Updated DefaultValueOnExceptionBehavior, now you can set default value (Binding).
-      - Moved the Handle method from IEventListener to extension method.
+      - Moved the Handle method from IEventListener to extension method (Binding).
       - Removed ThrowOnMultiInitialization property from IViewModelSettings.
       - Optimized delegate allocation.
       - Minor changes.

@@ -14,6 +14,7 @@
 // ****************************************************************************
 #endregion
 
+using System.ComponentModel;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure.Navigation;
 using MugenMvvmToolkit.Interfaces;
@@ -22,6 +23,7 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 using Xamarin.Forms;
 
@@ -33,6 +35,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         private readonly IViewMappingProvider _viewMappingProvider;
         private readonly IViewModelProvider _viewModelProvider;
+        private readonly EventHandler<Page, CancelEventArgs> _backButtonHandler;
 
         #endregion
 
@@ -51,6 +54,10 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             Should.NotBeNull(viewModelProvider, "viewModelProvider");
             _viewMappingProvider = viewMappingProvider;
             _viewModelProvider = viewModelProvider;
+            _backButtonHandler = ReflectionExtensions
+                .CreateWeakDelegate<ModalViewMediator, CancelEventArgs, EventHandler<Page, CancelEventArgs>>(this,
+                    (service, o, arg3) => service.OnBackButtonPressed((Page)o, arg3),
+                    (o, handler) => XamarinFormsExtensions.BackButtonPressed -= handler, handler => handler.Handle);
         }
 
         #endregion
@@ -61,6 +68,12 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             return new NavigationProvider(service, ThreadManager, _viewMappingProvider, ViewManager, _viewModelProvider,
                 OperationCallbackManager);
+        }
+
+        private void OnBackButtonPressed(Page page, CancelEventArgs arg3)
+        {
+            if (View == page)
+                OnViewClosing(page, arg3);
         }
 
         #endregion
@@ -86,6 +99,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             var page = view.GetUnderlyingView<Page>();
             page.Disappearing += OnViewClosed;
+            XamarinFormsExtensions.BackButtonPressed += _backButtonHandler;
         }
 
         /// <summary>
@@ -96,6 +110,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             var page = view.GetUnderlyingView<Page>();
             page.Disappearing -= OnViewClosed;
+            XamarinFormsExtensions.BackButtonPressed -= _backButtonHandler;
         }
 
         /// <summary>

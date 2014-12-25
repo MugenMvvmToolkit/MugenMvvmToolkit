@@ -474,9 +474,6 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\ActionSubscriber.cs">
       <Link>Models\ActionSubscriber.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\AsyncRelayCommand.cs">
-      <Link>Models\AsyncRelayCommand.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\DataConstant.cs">
       <Link>Models\DataConstant.cs</Link>
     </Compile>
@@ -575,6 +572,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\NavigationContext.cs">
       <Link>Models\NavigationContext.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\NavigationType.cs">
+      <Link>Models\NavigationType.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\NotifyPropertyChangedBase.cs">
       <Link>Models\NotifyPropertyChangedBase.cs</Link>

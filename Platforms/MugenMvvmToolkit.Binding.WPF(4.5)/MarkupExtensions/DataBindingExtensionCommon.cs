@@ -353,12 +353,6 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
                     .GetBindingMember(targetObject.GetType(), targetPath, false, false);
             if (_targetMemberInfo == null)
                 return GetEmptyValue();
-#if XAMARIN_FORMS
-            //BUG: null value throw an error https://bugzilla.xamarin.com/show_bug.cgi?id=24584
-            var value = _targetMemberInfo.GetValue(targetObject, null);
-            if (value == null && _targetMemberInfo.Type == typeof(string))
-                return string.Empty;
-            return value;
 #else
             return _targetMemberInfo.GetValue(targetObject, null);
 #endif

@@ -254,7 +254,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         protected virtual void OnShown([NotNull] IDataContext context)
         {
-            var ctx = new NavigationContext(NavigationMode.New, ViewModel.GetParentViewModel(), ViewModel, this,
+            var ctx = new NavigationContext(NavigationType.Window, NavigationMode.New, ViewModel.GetParentViewModel(), ViewModel, this,
                 context.GetData(NavigationConstants.Parameters));
 
             var navigableViewModel = ctx.ViewModelFrom as INavigableViewModel;
@@ -414,7 +414,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         private INavigationContext CreateCloseContext()
         {
             return _closeParameter as INavigationContext ??
-                   new NavigationContext(NavigationMode.Back, ViewModel, ViewModel.GetParentViewModel(), this);
+                   new NavigationContext(NavigationType.Window, NavigationMode.Back, ViewModel, ViewModel.GetParentViewModel(), this);
         }
 
         #endregion

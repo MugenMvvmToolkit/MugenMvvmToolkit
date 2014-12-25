@@ -229,6 +229,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     return currentElement.Resources[resourceKey];
                 currentElement = currentElement.Parent as VisualElement;
             }
+            var application = Application.Current;
+            if (application != null && application.Resources != null && application.Resources.ContainsKey(resourceKey))
+                return application.Resources[resourceKey];
             return null;
 #else
             var application = Application.Current;

@@ -29,6 +29,7 @@ namespace MugenMvvmToolkit.Models
 
         private readonly NavigationMode _navigationMode;
         private readonly object _navigationProvider;
+        private readonly NavigationType _type;
         private readonly IDataContext _parameters;
         private readonly IViewModel _viewModelFrom;
         private readonly IViewModel _viewModelTo;
@@ -40,9 +41,11 @@ namespace MugenMvvmToolkit.Models
         /// <summary>
         ///     Initializes a new instance of the <see cref="NavigationContext" /> class.
         /// </summary>
-        public NavigationContext(NavigationMode navigationMode, [CanBeNull] IViewModel viewModelFrom, [CanBeNull] IViewModel viewModelTo,
-            [CanBeNull] object navigationProvider, [CanBeNull] IDataContext parameters = null)
+        public NavigationContext([NotNull] NavigationType type, NavigationMode navigationMode, [CanBeNull] IViewModel viewModelFrom, [CanBeNull] IViewModel viewModelTo,
+             [CanBeNull] object navigationProvider, [CanBeNull] IDataContext parameters = null)
         {
+            Should.NotBeNull(type, "type");
+            _type = type;
             _parameters = parameters;
             _navigationMode = navigationMode;
             _navigationProvider = navigationProvider;
@@ -84,6 +87,14 @@ namespace MugenMvvmToolkit.Models
         public IDataContext Parameters
         {
             get { return _parameters ?? Empty; }
+        }
+
+        /// <summary>
+        ///     Gets the navigation type.
+        /// </summary>
+        public NavigationType NavigationType
+        {
+            get { return _type; }
         }
 
         /// <summary>

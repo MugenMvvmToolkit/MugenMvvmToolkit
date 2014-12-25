@@ -14,6 +14,8 @@
 // ****************************************************************************
 #endregion
 using System;
+using System.ComponentModel;
+using System.Linq;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -42,6 +44,10 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             _rootPage.Pushed += OnPushed;
             _rootPage.Popped += OnPopped;
             _rootPage.PoppedToRoot += OnPopped;
+            XamarinFormsExtensions.BackButtonPressed += ReflectionExtensions
+                .CreateWeakDelegate<NavigationService, CancelEventArgs, EventHandler<Page, CancelEventArgs>>(this,
+                    (service, o, arg3) => service.OnBackButtonPressed((Page)o, arg3),
+                    (o, handler) => XamarinFormsExtensions.BackButtonPressed -= handler, handler => handler.Handle);
         }
 
         #endregion
@@ -72,6 +78,31 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 return true;
             handler(this, args);
             return !args.Cancel;
+        }
+
+        private void OnBackButtonPressed(Page o, CancelEventArgs args)
+        {
+            if (CurrentContent != o)
+                return;
+            var eventArgs = new NavigatingCancelEventArgs(null, NavigationMode.Back, null);
+            RaiseNavigating(eventArgs);
+            args.Cancel = eventArgs.Cancel;
+        }
+
+
+        private void ClearNavigationStackIfNeed(IDataContext context, Page page)
+        {
+            var navigation = _rootPage.Navigation;
+            if (navigation == null || context == null || !context.GetData(NavigationConstants.ClearBackStack))
+                return;
+            var pages = navigation.NavigationStack.ToList();
+            for (int i = 0; i < pages.Count; i++)
+            {
+                var toRemove = pages[i];
+                if (toRemove != page)
+                    navigation.RemovePage(toRemove);
+            }
+            context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
         }
 
         #endregion
@@ -144,9 +175,8 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             var eventArgs = ((NavigatingCancelEventArgs)args);
             if (eventArgs.NavigationMode == NavigationMode.Back)
             {
-                if (!RaiseNavigating(new NavigatingCancelEventArgs(eventArgs.Mapping, eventArgs.NavigationMode, eventArgs.Parameter)))
-                    return false;
                 GoBack();
+                ClearNavigationStackIfNeed(context, null);
                 return true;
             }
             // ReSharper disable once AssignNullToNotNullAttribute
@@ -185,6 +215,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 page = (Page)ViewManager.GetOrCreateView(viewModel, null, dataContext);
             page.SetNavigationParameter(parameter);
             _rootPage.PushAsync(page);
+            ClearNavigationStackIfNeed(dataContext, page);
             return true;
         }
 

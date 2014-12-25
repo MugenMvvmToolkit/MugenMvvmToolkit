@@ -10,7 +10,7 @@ namespace MugenMvvmToolkit.Test.Models
     {
         #region Overrides of RelayCommandTest
 
-        protected override RelayCommandBase CreateCommand(Action<object> execute, Predicate<object> canExecute = null,
+        protected override RelayCommandBase CreateCommand(Action<object> execute, Func<object, bool> canExecute = null,
             params object[] items)
         {
             return new RelayCommand<object>(execute, canExecute, items);

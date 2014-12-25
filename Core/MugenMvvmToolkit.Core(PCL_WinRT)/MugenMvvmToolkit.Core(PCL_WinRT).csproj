@@ -93,6 +93,7 @@
     <Compile Include="Interfaces\Views\IView.cs" />
     <Compile Include="Models\ActionSubscriber.cs" />
     <Compile Include="Models\HandlerSubscriber.cs" />
+    <Compile Include="Models\NavigationType.cs" />
     <Compile Include="Models\WeakActionSubscriber.cs" />
     <Compile Include="Modules\InitializationModuleBase.cs" />
     <Compile Include="Infrastructure\Mediators\WindowViewMediatorBase.cs" />
@@ -235,7 +236,6 @@
     <Compile Include="Models\PlatformType.cs" />
     <Compile Include="Models\RelayCommand.cs" />
     <Compile Include="Models\RelayCommandBase.cs" />
-    <Compile Include="Models\AsyncRelayCommand.cs" />
     <Compile Include="Models\StringConstantBase.cs" />
     <Compile Include="Models\TrackingEntity.cs" />
     <Compile Include="Models\Validation\ValidationContext.cs" />

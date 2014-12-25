@@ -23,7 +23,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         {
             var operation = new AsyncOperation<bool>();
             operation.IsCompleted.ShouldBeFalse();
-            operation.SetResult(OperationResult.CreateResult(OperationType.Navigation, this, true,
+            operation.SetResult(OperationResult.CreateResult(OperationType.PageNavigation, this, true,
                 DataContext.Empty));
             operation.IsCompleted.ShouldBeTrue();
         }
@@ -32,20 +32,17 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         public void ResultTest()
         {
             var operation = new AsyncOperation<bool>();
-            IOperationResult<bool> operationResult = OperationResult.CreateResult(OperationType.Navigation, this, true,
+            IOperationResult<bool> operationResult = OperationResult.CreateResult(OperationType.PageNavigation, this, true,
                 DataContext.Empty);
             operation.SetResult(operationResult);
             operation.Result.ShouldEqual(operationResult);
         }
-
-
-
-
+        
         [TestMethod]
         public void ContinueWithActionInterfaceTest()
         {
             var operation = new AsyncOperation<bool>();
-            IOperationResult<bool> operationResult = OperationResult.CreateResult(OperationType.Navigation, this, true,
+            IOperationResult<bool> operationResult = OperationResult.CreateResult(OperationType.PageNavigation, this, true,
                 DataContext.Empty);
 
             bool isInvoked = false;
@@ -72,7 +69,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         public void ContinueWithActionInterfaceToOperationCallbackTest()
         {
             var operation = new AsyncOperation<bool>();
-            IOperationResult<bool> operationResult = OperationResult.CreateResult(OperationType.Navigation, this, true,
+            IOperationResult<bool> operationResult = OperationResult.CreateResult(OperationType.PageNavigation, this, true,
                 DataContext.Empty);
 
             bool isInvoked = false;
@@ -100,7 +97,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         {
             var operation = new AsyncOperation<bool>();
             IOperationResult<bool> operationResult = OperationResult
-                .CreateResult(OperationType.Navigation, this, true, DataContext.Empty);
+                .CreateResult(OperationType.PageNavigation, this, true, DataContext.Empty);
             var exception = new TestException();
             var continuationAction = new ActionContinuationMock
             {
@@ -124,7 +121,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         {
             var operation = new AsyncOperation<bool>();
             IOperationResult<bool> operationResult = OperationResult
-                .CreateResult(OperationType.Navigation, this, true, DataContext.Empty);
+                .CreateResult(OperationType.PageNavigation, this, true, DataContext.Empty);
             var exception = new TestException();
             var continuationAction = new ActionContinuationMock
             {
@@ -151,7 +148,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         public void ContinueWithActionInterfaceGenericTest()
         {
             var operation = new AsyncOperation<bool>();
-            IOperationResult<bool> operationResult = OperationResult.CreateResult(OperationType.Navigation, this, true,
+            IOperationResult<bool> operationResult = OperationResult.CreateResult(OperationType.PageNavigation, this, true,
                 DataContext.Empty);
 
             bool isInvoked = false;
@@ -178,7 +175,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         public void ContinueWithActionInterfaceGenericToOperationCallbackTest()
         {
             var operation = new AsyncOperation<bool>();
-            IOperationResult<bool> operationResult = OperationResult.CreateResult(OperationType.Navigation, this, true,
+            IOperationResult<bool> operationResult = OperationResult.CreateResult(OperationType.PageNavigation, this, true,
                 DataContext.Empty);
 
             bool isInvoked = false;
@@ -206,7 +203,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         {
             var operation = new AsyncOperation<bool>();
             IOperationResult<bool> operationResult = OperationResult
-                .CreateResult(OperationType.Navigation, this, true, DataContext.Empty);
+                .CreateResult(OperationType.PageNavigation, this, true, DataContext.Empty);
             var exception = new TestException();
             var continuationAction = new ActionContinuationMock<bool>
             {
@@ -230,7 +227,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         {
             var operation = new AsyncOperation<bool>();
             IOperationResult<bool> operationResult = OperationResult
-                .CreateResult(OperationType.Navigation, this, true, DataContext.Empty);
+                .CreateResult(OperationType.PageNavigation, this, true, DataContext.Empty);
             var exception = new TestException();
             var continuationAction = new ActionContinuationMock<bool>
             {
@@ -257,7 +254,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         public void ContinueWithFunctionInterfaceTest()
         {
             var operation = new AsyncOperation<bool>();
-            IOperationResult<bool> operationResult = OperationResult.CreateResult(OperationType.Navigation, this, true,
+            IOperationResult<bool> operationResult = OperationResult.CreateResult(OperationType.PageNavigation, this, true,
                 DataContext.Empty);
 
             var funcResult = new object();
@@ -283,7 +280,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         public void ContinueWithFunctionInterfaceToOperationCallbackTest()
         {
             var operation = new AsyncOperation<bool>();
-            IOperationResult<bool> operationResult = OperationResult.CreateResult(OperationType.Navigation, this, true,
+            IOperationResult<bool> operationResult = OperationResult.CreateResult(OperationType.PageNavigation, this, true,
                 DataContext.Empty);
 
             var funcResult = new object();
@@ -311,7 +308,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         {
             var operation = new AsyncOperation<bool>();
             IOperationResult<bool> operationResult = OperationResult
-                .CreateResult(OperationType.Navigation, this, true, DataContext.Empty);
+                .CreateResult(OperationType.PageNavigation, this, true, DataContext.Empty);
             var exception = new TestException();
             var continuationFunction = new FunctionContinuationMock<object>
             {
@@ -335,7 +332,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         {
             var operation = new AsyncOperation<bool>();
             IOperationResult<bool> operationResult = OperationResult
-                .CreateResult(OperationType.Navigation, this, true, DataContext.Empty);
+                .CreateResult(OperationType.PageNavigation, this, true, DataContext.Empty);
             var exception = new TestException();
             var continuationFunction = new FunctionContinuationMock<object>
             {
@@ -362,7 +359,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         public void ContinueWithFunctionInterfaceGenericTest()
         {
             var operation = new AsyncOperation<bool>();
-            IOperationResult<bool> operationResult = OperationResult.CreateResult(OperationType.Navigation, this, true,
+            IOperationResult<bool> operationResult = OperationResult.CreateResult(OperationType.PageNavigation, this, true,
                 DataContext.Empty);
 
             var funcResult = new object();
@@ -388,7 +385,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         public void ContinueWithFunctionInterfaceGenericToOperationCallbackTest()
         {
             var operation = new AsyncOperation<bool>();
-            IOperationResult<bool> operationResult = OperationResult.CreateResult(OperationType.Navigation, this, true,
+            IOperationResult<bool> operationResult = OperationResult.CreateResult(OperationType.PageNavigation, this, true,
                 DataContext.Empty);
 
             var funcResult = new object();
@@ -416,7 +413,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         {
             var operation = new AsyncOperation<bool>();
             IOperationResult<bool> operationResult = OperationResult
-                .CreateResult(OperationType.Navigation, this, true, DataContext.Empty);
+                .CreateResult(OperationType.PageNavigation, this, true, DataContext.Empty);
             var exception = new TestException();
             var continuationFunction = new FunctionContinuationMock<bool, object>
             {
@@ -440,7 +437,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         {
             var operation = new AsyncOperation<bool>();
             IOperationResult<bool> operationResult = OperationResult
-                .CreateResult(OperationType.Navigation, this, true, DataContext.Empty);
+                .CreateResult(OperationType.PageNavigation, this, true, DataContext.Empty);
             var exception = new TestException();
             var continuationFunction = new FunctionContinuationMock<bool, object>
             {
@@ -494,7 +491,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
                      .ContinueWith(actionGeneric)
                      .ContinueWith(action);
 
-            operation.SetResult(OperationResult.CreateResult(OperationType.Navigation, this, true));
+            operation.SetResult(OperationResult.CreateResult(OperationType.PageNavigation, this, true));
 
             isFuncInvoked.ShouldBeTrue();
             isFuncGenericInvoked.ShouldBeTrue();
@@ -538,7 +535,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
                      .ContinueWith(action);
 
             operation.ToOperationCallback()
-                     .Invoke(OperationResult.CreateResult(OperationType.Navigation, this, true));
+                     .Invoke(OperationResult.CreateResult(OperationType.PageNavigation, this, true));
 
             isFuncInvoked.ShouldBeTrue();
             isFuncGenericInvoked.ShouldBeTrue();
@@ -588,7 +585,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
             };
 
             operation.ToSerializableCallback()
-                     .Invoke(OperationResult.CreateResult(OperationType.Navigation, this, true));
+                     .Invoke(OperationResult.CreateResult(OperationType.PageNavigation, this, true));
 
             isFuncInvoked.ShouldBeTrue();
             isFuncGenericInvoked.ShouldBeTrue();

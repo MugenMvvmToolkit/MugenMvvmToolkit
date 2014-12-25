@@ -155,7 +155,7 @@ namespace MugenMvvmToolkit.ViewModels
             if (!ItemsSource.Contains(viewModel))
                 return Empty.FalseTask;
             var result = viewModel
-                .TryCloseAsync(parameter, null)
+                .TryCloseAsync(parameter, null, NavigationType.Tab)
                 .TryExecuteSynchronously(task =>
                 {
                     if (task.Result)
@@ -298,7 +298,7 @@ namespace MugenMvvmToolkit.ViewModels
 
                     var navigableViewModel = viewModel as INavigableViewModel;
                     if (navigableViewModel != null)
-                        navigableViewModel.OnNavigatedFrom(new NavigationContext(NavigationMode.Back, viewModel,
+                        navigableViewModel.OnNavigatedFrom(new NavigationContext(NavigationType.Tab, NavigationMode.Back, viewModel,
                             SelectedItem, this));
 
                     var selectable = viewModel as ISelectable;
@@ -368,7 +368,7 @@ namespace MugenMvvmToolkit.ViewModels
                 navigableViewModel = oldValue as INavigableViewModel;
                 if (navigableViewModel != null)
                 {
-                    ctx = new NavigationContext(NavigationMode.Refresh, oldValue, newValue, this);
+                    ctx = new NavigationContext(NavigationType.Tab, NavigationMode.Refresh, oldValue, newValue, this);
                     navigableViewModel.OnNavigatedFrom(ctx);
                 }
             }
@@ -379,7 +379,7 @@ namespace MugenMvvmToolkit.ViewModels
             navigableViewModel = newValue as INavigableViewModel;
             if (navigableViewModel != null)
                 navigableViewModel.OnNavigatedTo(ctx ??
-                                                 new NavigationContext(NavigationMode.Refresh, oldValue, newValue, this));
+                                                 new NavigationContext(NavigationType.Tab, NavigationMode.Refresh, oldValue, newValue, this));
 
             OnSelectedItemChanged(oldValue, newValue);
             if (SelectedItemChanged == null)

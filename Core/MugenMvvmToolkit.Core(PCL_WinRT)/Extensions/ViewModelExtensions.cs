@@ -395,12 +395,12 @@ namespace MugenMvvmToolkit.ViewModels
         ///     Tries to close view-model.
         /// </summary>
         public static Task<bool> TryCloseAsync([NotNull] this IViewModel viewModel, [CanBeNull] object parameter,
-            [CanBeNull] INavigationContext context)
+            [CanBeNull] INavigationContext context, NavigationType type = null)
         {
             Should.NotBeNull(viewModel, "viewModel");
             if (context == null)
                 context = parameter as INavigationContext ??
-                          new NavigationContext(NavigationMode.Back, viewModel, viewModel.GetParentViewModel(), null);
+                          new NavigationContext(type ?? NavigationType.Undefined, NavigationMode.Back, viewModel, viewModel.GetParentViewModel(), null);
             if (parameter == null)
                 parameter = context;
             //NOTE: Close view model only on back navigation.
