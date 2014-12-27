@@ -15,8 +15,10 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
@@ -48,14 +50,13 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Occurs when the back button is pressed.
         /// </summary>
-        public static bool HandleBackButtonPressed([NotNull] this Page page,
-            [NotNull] Func<bool> baseOnBackButtonPressed)
+        public static bool HandleBackButtonPressed([NotNull] this Page page, Func<bool> baseOnBackButtonPressed = null)
         {
             Should.NotBeNull(page, "page");
             Should.NotBeNull(baseOnBackButtonPressed, "baseOnBackButtonPressed");
             var handler = BackButtonPressed;
             if (handler == null)
-                return baseOnBackButtonPressed();
+                return baseOnBackButtonPressed != null && baseOnBackButtonPressed();
             var args = new CancelEventArgs(false);
             handler(page, args);
             return args.Cancel;
@@ -105,6 +106,35 @@ namespace MugenMvvmToolkit
             Should.NotBeNull(setBinding, "setBinding");
             setBinding(bindingSet, item);
             return item;
+        }
+
+        public static void ClearBindingsHierarchically([CanBeNull] this BindableObject item, bool clearDataContext, bool clearAttachedValues)
+        {
+            if (item == null)
+                return;
+            Type type = item.GetType();
+            var attribute = type
+                .GetTypeInfo()
+                .GetCustomAttribute<ContentPropertyAttribute>(true);
+            if (attribute != null)
+            {
+                var bindingMember = BindingServiceProvider
+                    .MemberProvider
+                    .GetBindingMember(type, attribute.Name, true, false);
+                if (bindingMember != null)
+                {
+                    object content = bindingMember.GetValue(item, null);
+                    var enumerable = content as IEnumerable;
+                    if (enumerable == null)
+                        ClearBindingsHierarchically(content as BindableObject, clearDataContext, clearAttachedValues);
+                    else
+                    {
+                        foreach (object child in enumerable)
+                            ClearBindingsHierarchically(child as BindableObject, clearDataContext, clearAttachedValues);
+                    }
+                }
+            }
+            item.ClearBindings(clearDataContext, clearAttachedValues);
         }
 
         public static void ClearBindings([CanBeNull] this BindableObject item, bool clearDataContext, bool clearAttachedValues)

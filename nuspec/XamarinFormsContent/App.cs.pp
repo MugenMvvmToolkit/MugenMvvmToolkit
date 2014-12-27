@@ -3,12 +3,12 @@ using Xamarin.Forms;
 
 namespace $rootnamespace$
 {
-    public class App
+    public class App : Application
     {
-        public static Page GetMainPage()
+        public App()
         {
             var bootstrapper = new Bootstrapper<MainViewModel>(new IIocContainer());
-            return bootstrapper.Start();
+            MainPage = bootstrapper.Start();
         }
     }
 }

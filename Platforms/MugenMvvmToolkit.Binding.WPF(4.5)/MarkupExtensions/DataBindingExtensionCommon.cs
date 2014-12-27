@@ -353,9 +353,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
                     .GetBindingMember(targetObject.GetType(), targetPath, false, false);
             if (_targetMemberInfo == null)
                 return GetEmptyValue();
-#else
             return _targetMemberInfo.GetValue(targetObject, null);
-#endif
         }
 
         protected virtual IBindingBuilder CreateBindingBuilder(object targetObject, string targetPath)

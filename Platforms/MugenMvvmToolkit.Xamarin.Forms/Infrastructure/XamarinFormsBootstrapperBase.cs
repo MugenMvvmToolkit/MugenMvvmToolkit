@@ -206,7 +206,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             var bindableObject = arg3 as BindableObject;
             if (bindableObject != null)
-                bindableObject.ClearBindings(true, true);
+                bindableObject.ClearBindingsHierarchically(true, true);
         }
 
         #endregion
