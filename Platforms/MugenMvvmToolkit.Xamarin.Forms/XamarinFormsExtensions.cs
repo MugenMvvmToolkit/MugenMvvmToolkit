@@ -53,7 +53,6 @@ namespace MugenMvvmToolkit
         public static bool HandleBackButtonPressed([NotNull] this Page page, Func<bool> baseOnBackButtonPressed = null)
         {
             Should.NotBeNull(page, "page");
-            Should.NotBeNull(baseOnBackButtonPressed, "baseOnBackButtonPressed");
             var handler = BackButtonPressed;
             if (handler == null)
                 return baseOnBackButtonPressed != null && baseOnBackButtonPressed();
