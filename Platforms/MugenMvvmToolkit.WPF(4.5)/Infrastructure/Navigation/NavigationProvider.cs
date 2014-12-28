@@ -330,7 +330,12 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// <param name="context">The specified <see cref="IDataContext" />.</param>
         public virtual void OnNavigated(IViewModel viewModel, NavigationMode mode, IDataContext context)
         {
-            OnNavigated(new NavigationContext(NavigationType.Page, mode, CurrentViewModel, viewModel, this, context));
+            Should.NotBeNull(viewModel, "viewModel");
+            var navigationContext = new NavigationContext(NavigationType.Page, mode, CurrentViewModel, viewModel, this, context);
+            var currentViewModel = CurrentViewModel;
+            if (currentViewModel != null)
+                TryCacheViewModel(navigationContext, CurrentContent ?? currentViewModel.Settings.Metadata.GetData(ViewModelConstants.View), currentViewModel);
+            OnNavigated(navigationContext);
         }
 
         /// <summary>
@@ -582,7 +587,8 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             //only this mode allows to renavigate.
             if (ReferenceEquals(vmFrom, vmTo) && mode != NavigationMode.Refresh && mode != NavigationMode.Reset && mode != NavigationMode.Undefined)
             {
-                Tracer.Warn("Possible bug in navigation, navigate to the same view model with mode " + mode);
+                if (vmFrom != null)
+                    Tracer.Warn("Possible bug in navigation, navigate to the same view model with mode " + mode);
                 return;
             }
             try
@@ -669,7 +675,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         private void TryCacheViewModel(INavigationContext context, object view, IViewModel viewModel)
         {
-            if (CachePolicy != null)
+            if (CachePolicy != null && view != null && viewModel != null)
                 CachePolicy.TryCacheViewModel(context, view, viewModel);
         }
 

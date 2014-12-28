@@ -317,7 +317,7 @@ namespace MugenMvvmToolkit.Binding
         public static IBindingContext GetBindingContext([NotNull] this IBindingContextManager contextManager, [NotNull] object target, [NotNull] string targetPath)
         {
             Should.NotBeNull(contextManager, "contextManager");
-            if (targetPath == AttachedMemberConstants.DataContext)
+            if (BindingServiceProvider.DataContextMemberAliases.Contains(targetPath))
                 return new BindingContextWrapper(target);
             return contextManager.GetBindingContext(target);
         }

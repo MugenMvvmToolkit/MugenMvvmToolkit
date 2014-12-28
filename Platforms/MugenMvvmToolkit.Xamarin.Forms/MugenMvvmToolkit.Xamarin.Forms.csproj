@@ -96,7 +96,6 @@
     </Compile>
     <Compile Include="Binding\Infrastructure\BindingContextManagerEx.cs" />
     <Compile Include="Infrastructure\Mediators\ModalViewMediator.cs" />
-    <Compile Include="Infrastructure\Navigation\EmptyNavigationCachePolicy.cs" />
     <Compile Include="Infrastructure\Navigation\NavigationService.cs" />
     <Compile Include="Infrastructure\ViewMappingProviderEx.cs" />
     <Compile Include="Infrastructure\XamarinFormsBootstrapperBase.cs" />

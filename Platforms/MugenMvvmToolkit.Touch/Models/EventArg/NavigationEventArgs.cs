@@ -13,7 +13,6 @@
 // </license>
 // ****************************************************************************
 #endregion
-using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Models.EventArg
 {
@@ -35,7 +34,7 @@ namespace MugenMvvmToolkit.Models.EventArg
         /// <summary>
         ///     Initializes a new instance of the <see cref="NavigationEventArgs" /> class.
         /// </summary>
-        public NavigationEventArgs([NotNull] object content, object parameter, NavigationMode navigationMode)
+        public NavigationEventArgs(object content, object parameter, NavigationMode navigationMode)
         {
             _content = content;
             _navigationMode = navigationMode;

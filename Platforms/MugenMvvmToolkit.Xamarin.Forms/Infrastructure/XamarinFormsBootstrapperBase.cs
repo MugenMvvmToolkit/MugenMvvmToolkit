@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Infrastructure.Navigation;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
@@ -53,6 +54,7 @@ namespace MugenMvvmToolkit.Infrastructure
         protected static readonly DataConstant<bool> WrapToNavigationPageConstant;
         private PlatformInfo _platform;
         private readonly IPlatformService _platformService;
+        private static Page _page;
 
         #endregion
 
@@ -69,6 +71,8 @@ namespace MugenMvvmToolkit.Infrastructure
             DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
             ViewManager.ViewCleared += OnViewCleared;
+            BindingServiceProvider.DataContextMemberAliases.Add("BindingContext");
+            BindingServiceProvider.BindingMemberPriorities["BindingContext"] = int.MaxValue - 1;
         }
 
         /// <summary>
@@ -140,6 +144,9 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public virtual Page Start(bool wrapToNavigationPage = true)
         {
+            if (_page != null)
+                return _page;
+
             InitializationContext = InitializationContext.ToNonReadOnly();
             InitializationContext.AddOrUpdate(WrapToNavigationPageConstant, wrapToNavigationPage);
 
@@ -149,8 +156,17 @@ namespace MugenMvvmToolkit.Infrastructure
             var view = (Page)ViewManager.GetOrCreateView(viewModel, null, InitializationContext);
             var page = view as NavigationPage ?? CreateNavigationPage(view);
             if (page == null)
+            {
+                _page = view;
                 return view;
+            }
+            _page = page;
+            if (IocContainer.CanResolve<INavigationService>())
+                IocContainer.Unbind<INavigationService>();
             IocContainer.BindToConstant<INavigationService>(new NavigationService(page));
+            //Activating navigation provider
+            INavigationProvider provider;
+            IocContainer.TryGet(out provider);
             return page;
         }
 

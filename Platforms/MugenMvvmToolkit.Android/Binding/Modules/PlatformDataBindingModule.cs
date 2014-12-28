@@ -235,7 +235,7 @@ namespace MugenMvvmToolkit.Binding.Modules
                 AttachedBindingMember.CreateAutoProperty<AdapterView, int>("SelectedItemPosition",
                     AdapterViewSelectedItemPositionChanged, AdapterViewSelectedMemberAttached, (view, info) => view.SelectedItemPosition);
             AdapterViewSelectedItemMember = AttachedBindingMember.CreateAutoProperty<AdapterView, object>(
-                AttachedMemberConstants.SelectedItem, AdapterViewSelectedItemChanged);
+                AttachedMemberConstants.SelectedItem, AdapterViewSelectedItemChanged, AdapterViewSelectedMemberAttached);
             ScrollToSelectedItemMember = AttachedBindingMember.CreateAutoProperty<AdapterView, bool>("ScrollToSelectedItem");
         }
 
@@ -414,8 +414,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             AdapterViewSelectedPositionMember.SetValue(sender, position);
         }
 
-        private static void AdapterViewSelectedMemberAttached(AdapterView adapterView,
-            MemberAttachedEventArgs memberAttached)
+        private static void AdapterViewSelectedMemberAttached(AdapterView adapterView, MemberAttachedEventArgs arg)
         {
             if (adapterView is ListView)
                 adapterView.ItemClick += (sender, args) => AdapterViewSelectedPositionMember.SetValue((AdapterView)sender, args.Position);

@@ -294,9 +294,14 @@ namespace MugenMvvmToolkit.Collections
         private Action _raiseEventsDelegate;
 
         /// <summary>
+        ///     Raises before CollectionChanged event.
+        /// </summary>
+        internal NotifyCollectionChangedEventHandler BeforeCollectionChanged;
+
+        /// <summary>
         ///     Raises after CollectionChanged event.
         /// </summary>
-        internal NotifyCollectionChangedEventHandler CollectionChangedInternal;
+        internal NotifyCollectionChangedEventHandler AfterCollectionChanged;
 
         #endregion
 
@@ -834,6 +839,8 @@ namespace MugenMvvmToolkit.Collections
 
         private void Notify(NotifyCollectionChangedEventArgs args, int count)
         {
+            if (BeforeCollectionChanged != null)
+                BeforeCollectionChanged(this, args);
             switch (args.Action)
             {
                 case NotifyCollectionChangedAction.Add:
@@ -854,8 +861,8 @@ namespace MugenMvvmToolkit.Collections
             }
             OnPropertyChanged(Empty.IndexerPropertyChangedArgs);
             OnCollectionChanged(args);
-            if (CollectionChangedInternal != null)
-                CollectionChangedInternal(this, args);
+            if (AfterCollectionChanged != null)
+                AfterCollectionChanged(this, args);
         }
 
         private void EndSuspendNotifications()

@@ -40,7 +40,8 @@ namespace MugenMvvmToolkit.Binding
         private static IWeakEventManager _weakEventManager;
         private static Func<Type, object, object> _valueConverter;
         private static readonly Dictionary<string, int> MemberPriorities;
-        private static readonly List<string> FakeMemberPrefixesStatic;
+        private static readonly List<string> FakeMemberPrefixesField;
+        private static readonly ICollection<string> DataContextMemberAliasesField;
 
         #endregion
 
@@ -56,10 +57,14 @@ namespace MugenMvvmToolkit.Binding
                 {AttachedMemberConstants.ContentTemplate, 1},
                 {AttachedMemberConstants.ContentTemplateSelector, 1},
             };
-            FakeMemberPrefixesStatic = new List<string>
+            FakeMemberPrefixesField = new List<string>
             {
                 "_Fake",
                 "Fake"
+            };
+            DataContextMemberAliasesField = new HashSet<string>(StringComparer.Ordinal)
+            {
+                AttachedMemberConstants.DataContext
             };
             SetDefaultValues();
             ServiceProvider.InitializeDesignTimeManager();
@@ -76,7 +81,7 @@ namespace MugenMvvmToolkit.Binding
         /// </summary>
         public static List<string> FakeMemberPrefixes
         {
-            get { return FakeMemberPrefixesStatic; }
+            get { return FakeMemberPrefixesField; }
         }
 
         /// <summary>
@@ -86,6 +91,15 @@ namespace MugenMvvmToolkit.Binding
         public static IDictionary<string, int> BindingMemberPriorities
         {
             get { return MemberPriorities; }
+        }
+
+        /// <summary>
+        ///     Gets the collection of possible data context member aliases.
+        /// </summary>
+        [NotNull]
+        public static ICollection<string> DataContextMemberAliases
+        {
+            get { return DataContextMemberAliasesField; }
         }
 
         /// <summary>

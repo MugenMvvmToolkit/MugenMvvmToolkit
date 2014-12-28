@@ -46,7 +46,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         #endregion
 
-
         #region Implementation of INavigationCachePolicy
 
         /// <summary>

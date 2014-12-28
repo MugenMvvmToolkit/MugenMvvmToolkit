@@ -380,7 +380,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         protected virtual IBindingMemberInfo GetExplicitBindingMember([NotNull] Type sourceType, [NotNull] string path)
         {
             path = path.Trim();
-            if (typeof(IDynamicObject).IsAssignableFrom(sourceType) && path != AttachedMemberConstants.DataContext)
+            if (typeof(IDynamicObject).IsAssignableFrom(sourceType))
                 return new BindingMemberInfo(path);
 
             int indexerCounts = 0;
@@ -463,7 +463,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                         bindingMember = FindBestMember(types);
                 }
             }
-            if (bindingMember == null && key.Path == AttachedMemberConstants.DataContext)
+            if (bindingMember == null && BindingServiceProvider.DataContextMemberAliases.Contains(key.Path))
                 return BindingMemberInfo.BindingContextMember;
             return bindingMember;
         }

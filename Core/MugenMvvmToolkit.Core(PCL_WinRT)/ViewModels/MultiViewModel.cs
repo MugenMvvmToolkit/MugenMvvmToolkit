@@ -55,6 +55,7 @@ namespace MugenMvvmToolkit.ViewModels
         private static readonly DataConstant<int> SelectedIndex;
 
         private readonly IList<IViewModel> _itemsSource;
+        private bool _ignoreSelectedItemChange;
         private IViewModel _selectedItem;
         private int _prevIndex;
 
@@ -81,9 +82,10 @@ namespace MugenMvvmToolkit.ViewModels
 
             var collection = new SynchronizedNotifiableCollection<IViewModel>();
             _itemsSource = ServiceProvider.TryDecorate(collection);
-            collection.CollectionChangedInternal = OnViewModelsChanged;
+            collection.BeforeCollectionChanged = (sender, args) => _ignoreSelectedItemChange = true;
+            collection.AfterCollectionChanged = OnViewModelsChanged;
             _weakEventHandler = ReflectionExtensions.CreateWeakDelegate<MultiViewModel, ViewModelClosedEventArgs, EventHandler<ICloseableViewModel, ViewModelClosedEventArgs>>(this,
-                (model, o, arg3) => model.OnViewModelClosed(arg3), UnsubscribeAction, handler => handler.Handle);
+                (model, o, arg3) => model.ItemsSource.Remove(arg3.ViewModel), UnsubscribeAction, handler => handler.Handle);
             _propertyChangedWeakEventHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, (model, o, arg3) => model.OnItemPropertyChanged(o, arg3));
         }
 
@@ -105,7 +107,7 @@ namespace MugenMvvmToolkit.ViewModels
             get { return _selectedItem; }
             set
             {
-                if (ReferenceEquals(value, _selectedItem) || (value != null && !ItemsSource.Contains(value)))
+                if (_ignoreSelectedItemChange || ReferenceEquals(value, _selectedItem) || (value != null && !ItemsSource.Contains(value)))
                     return;
                 int oldValueIndex = -1;
                 if (_selectedItem != null)
@@ -132,13 +134,15 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="viewModel">
         ///     The specified <see cref="IViewModel" />.
         /// </param>
-        public virtual void AddViewModel(IViewModel viewModel)
+        /// <param name="setSelected">Sets the specified <see cref="IViewModel"/> as selected view model.</param>
+        public virtual void AddViewModel(IViewModel viewModel, bool setSelected = true)
         {
             EnsureNotDisposed();
             Should.NotBeNull(viewModel, "viewModel");
             if (!ItemsSource.Contains(viewModel))
                 ItemsSource.Add(viewModel);
-            SelectedItem = viewModel;
+            if (setSelected)
+                SelectedItem = viewModel;
         }
 
         /// <summary>
@@ -268,6 +272,7 @@ namespace MugenMvvmToolkit.ViewModels
         private void OnViewModelsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             Should.BeSupported(e.Action != NotifyCollectionChangedAction.Reset, "The IMultiViewModel.ItemsSource doesn't support Clear method.");
+            _ignoreSelectedItemChange = false;
             if (e.NewItems != null && e.NewItems.Count != 0)
             {
                 for (int index = 0; index < e.NewItems.Count; index++)
@@ -327,11 +332,6 @@ namespace MugenMvvmToolkit.ViewModels
             OnViewModelRemoved(vm);
             var handler = ViewModelRemoved;
             if (handler != null) handler(this, new ValueEventArgs<IViewModel>(vm));
-        }
-
-        private void OnViewModelClosed(ViewModelClosedEventArgs args)
-        {
-            ItemsSource.Remove(args.ViewModel);
         }
 
         private void TrySetPreviousValue(IViewModel oldVm, int oldIndex)

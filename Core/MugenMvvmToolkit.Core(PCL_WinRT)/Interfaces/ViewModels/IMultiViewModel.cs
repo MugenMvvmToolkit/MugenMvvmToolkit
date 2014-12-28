@@ -43,7 +43,8 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
         /// <param name="viewModel">
         ///     The specified <see cref="IViewModel" />.
         /// </param>
-        void AddViewModel([NotNull] IViewModel viewModel);
+        /// <param name="setSelected">Sets the specified <see cref="IViewModel"/> as selected view model.</param>
+        void AddViewModel([NotNull] IViewModel viewModel, bool setSelected = true);
 
         /// <summary>
         ///     Removes the specified <see cref="IViewModel" /> from <see cref="ItemsSource" />.

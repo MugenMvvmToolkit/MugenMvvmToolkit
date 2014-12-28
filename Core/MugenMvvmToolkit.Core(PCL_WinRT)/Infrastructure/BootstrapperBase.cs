@@ -50,7 +50,6 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             // ReSharper disable once DoNotCallOverridableMethodsInConstructor
             ServiceProvider.DesignTimeManager = new DesignTimeManagerImpl(Platform);
-            Instance = this;
         }
 
         #endregion
@@ -103,6 +102,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (Interlocked.Exchange(ref _state, InitializedState) == InitializedState)
                 return;
+            Instance = this;
             IocContainer = CreateIocContainer();
             OnInitialize();
         }

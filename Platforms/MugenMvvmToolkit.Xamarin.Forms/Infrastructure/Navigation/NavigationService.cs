@@ -16,6 +16,7 @@
 using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -48,62 +49,15 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 .CreateWeakDelegate<NavigationService, CancelEventArgs, EventHandler<Page, CancelEventArgs>>(this,
                     (service, o, arg3) => service.OnBackButtonPressed((Page)o, arg3),
                     (o, handler) => XamarinFormsExtensions.BackButtonPressed -= handler, handler => handler.Handle);
+            //BUG: Xamarin forms removes the page incorrectly using the RemovePage method, possible in future versions it will be fixed
+            IgnoreClearBackStackHint = true;
         }
 
         #endregion
 
-        #region Methods
+        #region Properties
 
-        private void OnPopped(object sender, NavigationEventArgs args)
-        {
-            var handler = Navigated;
-            if (handler != null)
-            {
-                var page = CurrentContent as Page;
-                handler(this, new Models.EventArg.NavigationEventArgs(CurrentContent, page.GetNavigationParameter(), NavigationMode.Back));
-            }
-        }
-
-        private void OnPushed(object sender, NavigationEventArgs args)
-        {
-            var handler = Navigated;
-            if (handler != null)
-                handler(this, new Models.EventArg.NavigationEventArgs(args.Page, args.Page.GetNavigationParameter(), NavigationMode.New));
-        }
-
-        private bool RaiseNavigating(NavigatingCancelEventArgs args)
-        {
-            EventHandler<INavigationService, NavigatingCancelEventArgsBase> handler = Navigating;
-            if (handler == null)
-                return true;
-            handler(this, args);
-            return !args.Cancel;
-        }
-
-        private void OnBackButtonPressed(Page o, CancelEventArgs args)
-        {
-            if (CurrentContent != o)
-                return;
-            var eventArgs = new NavigatingCancelEventArgs(null, NavigationMode.Back, null);
-            RaiseNavigating(eventArgs);
-            args.Cancel = eventArgs.Cancel;
-        }
-
-
-        private void ClearNavigationStackIfNeed(IDataContext context, Page page)
-        {
-            var navigation = _rootPage.Navigation;
-            if (navigation == null || context == null || !context.GetData(NavigationConstants.ClearBackStack))
-                return;
-            var pages = navigation.NavigationStack.ToList();
-            for (int i = 0; i < pages.Count; i++)
-            {
-                var toRemove = pages[i];
-                if (toRemove != page)
-                    navigation.RemovePage(toRemove);
-            }
-            context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
-        }
+        public bool IgnoreClearBackStackHint { get; set; }
 
         #endregion
 
@@ -176,7 +130,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             if (eventArgs.NavigationMode == NavigationMode.Back)
             {
                 GoBack();
-                ClearNavigationStackIfNeed(context, null);
                 return true;
             }
             // ReSharper disable once AssignNullToNotNullAttribute
@@ -214,8 +167,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             else
                 page = (Page)ViewManager.GetOrCreateView(viewModel, null, dataContext);
             page.SetNavigationParameter(parameter);
-            _rootPage.PushAsync(page);
-            ClearNavigationStackIfNeed(dataContext, page);
+            ClearNavigationStackIfNeed(dataContext, page, _rootPage.PushAsync(page));
             return true;
         }
 
@@ -228,6 +180,63 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         ///     Raised after navigation.
         /// </summary>
         public event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
+
+        #endregion
+
+        #region Methods
+
+        private void OnPopped(object sender, NavigationEventArgs args)
+        {
+            var handler = Navigated;
+            if (handler != null)
+            {
+                var page = CurrentContent as Page;
+                handler(this, new Models.EventArg.NavigationEventArgs(CurrentContent, page.GetNavigationParameter(), NavigationMode.Back));
+            }
+        }
+
+        private void OnPushed(object sender, NavigationEventArgs args)
+        {
+            var handler = Navigated;
+            if (handler != null)
+                handler(this, new Models.EventArg.NavigationEventArgs(args.Page, args.Page.GetNavigationParameter(), NavigationMode.New));
+        }
+
+        private bool RaiseNavigating(NavigatingCancelEventArgs args)
+        {
+            EventHandler<INavigationService, NavigatingCancelEventArgsBase> handler = Navigating;
+            if (handler == null)
+                return true;
+            handler(this, args);
+            return !args.Cancel;
+        }
+
+        private void OnBackButtonPressed(Page page, CancelEventArgs args)
+        {
+            if (CurrentContent != page)
+                return;
+            var eventArgs = new NavigatingCancelEventArgs(null, NavigationMode.Back, null);
+            RaiseNavigating(eventArgs);
+            args.Cancel = eventArgs.Cancel;
+        }
+        
+        private void ClearNavigationStackIfNeed(IDataContext context, Page page, Task task)
+        {
+            var navigation = _rootPage.Navigation;
+            if (IgnoreClearBackStackHint || navigation == null || context == null || !context.GetData(NavigationConstants.ClearBackStack))
+                return;
+            task.TryExecuteSynchronously(t =>
+            {
+                var pages = navigation.NavigationStack.ToList();
+                for (int i = 0; i < pages.Count; i++)
+                {
+                    var toRemove = pages[i];
+                    if (toRemove != page)
+                        navigation.RemovePage(toRemove);
+                }
+            });
+            context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
+        }
 
         #endregion
     }
