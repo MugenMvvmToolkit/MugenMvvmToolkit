@@ -1,7 +1,8 @@
 #region Copyright
+
 // ****************************************************************************
 // <copyright file="PlatformDataBindingModuleView.cs">
-// Copyright © Vyacheslav Volkov 2012-2014
+// Copyright (c) 2012-2015 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -12,11 +13,11 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
 
 using System;
 using Android.App;
-using Android.Runtime;
 using Android.Views;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -74,6 +75,11 @@ namespace MugenMvvmToolkit.Binding.Modules
             #endregion
 
             #region Overrides of DisposableObjectBase
+
+            protected override bool TraceFinalized
+            {
+                get { return false; }
+            }
 
             protected override void OnDispose(bool disposing)
             {
@@ -146,7 +152,7 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             //View            
             memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.FindByNameMethod, ViewFindByNameMember));
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<View, int>(AttachedMemberNames.MenuTemplate));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<View, int>(AttachedMemberNames.MenuTemplate, MenuTemplateChanged));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.Parent, GetViewParentValue, null, ObserveViewParent));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, bool>(AttachedMemberConstants.Focused,
                     (info, view) => view.IsFocused, null, "FocusChange"));

@@ -80,17 +80,17 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Solution Items\licence.txt">
-      <Link>licence.txt</Link>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="..\MugenMvvmToolkit.MugenContainer%28NET4.0%29\MugenContainer.cs">
       <Link>MugenContainer.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.MugenContainer%28NET4.0%29\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\license.txt">
+      <Link>license.txt</Link>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
   <ProjectExtensions>

@@ -1,7 +1,8 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="Tracer.cs">
-// Copyright © Vyacheslav Volkov 2012-2014
+// Copyright (c) 2012-2015 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -12,7 +13,9 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 #define DEBUG
 using System;
 using System.Diagnostics;
@@ -59,7 +62,7 @@ namespace MugenMvvmToolkit
         #region Properties
 
         /// <summary>
-        /// Gets or sets the value that is responsible to trace finalized items.
+        ///     Gets or sets the value that is responsible to trace finalized items.
         /// </summary>
         public static bool TraceFinalized { get; set; }
 

@@ -61,17 +61,17 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Solution Items\licence.txt">
-      <Link>licence.txt</Link>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="..\MugenMvvmToolkit.AutofacContainer%28PCL%29\AutofacContainer.cs">
       <Link>AutofacContainer.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.AutofacContainer%28PCL%29\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\license.txt">
+      <Link>license.txt</Link>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

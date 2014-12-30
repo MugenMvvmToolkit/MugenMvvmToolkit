@@ -182,8 +182,8 @@
   <ItemGroup>
     <BundleResource Include="Resources\error.png" />
     <BundleResource Include="Resources\error%402x.png" />
-    <None Include="..\..\Solution Items\licence.txt">
-      <Link>licence.txt</Link>
+    <None Include="..\..\license.txt">
+      <Link>license.txt</Link>
     </None>
     <Content Include="FodyWeavers.xml" />
   </ItemGroup>

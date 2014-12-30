@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("MugenMvvmToolkit.Silverlight.Test_5._0_")]
-[assembly: AssemblyCopyright("Copyright ©  2013")]
+[assembly: AssemblyCopyright("Copyright (c) 2012-2015 Vyacheslav Volkov")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

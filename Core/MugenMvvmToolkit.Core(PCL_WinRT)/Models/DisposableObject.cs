@@ -1,7 +1,8 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="DisposableObject.cs">
-// Copyright © Vyacheslav Volkov 2012-2014
+// Copyright (c) 2012-2015 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -12,6 +13,7 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
 
 using System;
@@ -33,28 +35,14 @@ namespace MugenMvvmToolkit.Models
 
         #endregion
 
-        #region Methods
+        #region Properties
 
         /// <summary>
-        ///     Makes sure that the object is not disposed.
+        ///     Gets the value that is responsible to trace finalize call.
         /// </summary>
-        protected void EnsureNotDisposed()
+        protected virtual bool TraceFinalized
         {
-            this.NotBeDisposed();
-        }
-
-        /// <summary>
-        ///     Releases resources held by the object.
-        /// </summary>
-        protected virtual void OnDispose(bool disposing)
-        {
-        }
-
-        private void RaiseDisposed()
-        {
-            EventHandler<IDisposableObject, EventArgs> handler = Disposed;
-            if (handler != null)
-                handler(this, EventArgs.Empty);
+            get { return true; }
         }
 
         #endregion
@@ -96,12 +84,39 @@ namespace MugenMvvmToolkit.Models
 
         #endregion
 
+        #region Methods
+
+        /// <summary>
+        ///     Makes sure that the object is not disposed.
+        /// </summary>
+        protected void EnsureNotDisposed()
+        {
+            this.NotBeDisposed();
+        }
+
+        /// <summary>
+        ///     Releases resources held by the object.
+        /// </summary>
+        protected virtual void OnDispose(bool disposing)
+        {
+        }
+
+        private void RaiseDisposed()
+        {
+            EventHandler<IDisposableObject, EventArgs> handler = Disposed;
+            if (handler != null)
+                handler(this, EventArgs.Empty);
+        }
+
+        #endregion
+
         #region Destructor
 
         ~DisposableObject()
         {
             OnDispose(false);
-            Tracer.Finalized(this);
+            if (TraceFinalized)
+                Tracer.Finalized(this);
         }
 
         #endregion

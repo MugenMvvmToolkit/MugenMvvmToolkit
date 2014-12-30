@@ -1,7 +1,8 @@
 ﻿#region Copyright
+
 // ****************************************************************************
 // <copyright file="AssemblyInfo.cs">
-// Copyright © Vyacheslav Volkov 2012-2014
+// Copyright (c) 2012-2015 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -12,7 +13,9 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System.Collections.Generic;
 using System.Resources;
 using System.Reflection;
@@ -23,7 +26,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Vyacheslav Volkov")]
 [assembly: AssemblyProduct("MugenMvvmToolkit")]
-[assembly: AssemblyCopyright("Copyright © Vyacheslav Volkov 2012-2014")]
+[assembly: AssemblyCopyright("Copyright (c) 2012-2015 Vyacheslav Volkov")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguage("en")]

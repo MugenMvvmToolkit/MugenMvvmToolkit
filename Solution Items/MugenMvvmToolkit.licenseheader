@@ -1,9 +1,10 @@
 ﻿extensions: designer.cs generated.cs
 extensions: .cs
 #region Copyright
+
 // ****************************************************************************
 // <copyright file="%FileName%">
-// Copyright © Vyacheslav Volkov 2012-2014
+// Copyright (c) 2012-2015 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -14,5 +15,6 @@ extensions: .cs
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
 

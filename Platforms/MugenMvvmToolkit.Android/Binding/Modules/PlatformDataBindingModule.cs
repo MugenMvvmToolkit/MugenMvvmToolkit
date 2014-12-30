@@ -1,7 +1,8 @@
 #region Copyright
+
 // ****************************************************************************
 // <copyright file="PlatformDataBindingModule.cs">
-// Copyright © Vyacheslav Volkov 2012-2014
+// Copyright (c) 2012-2015 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -12,7 +13,9 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System;
 using System.Collections;
 using Android.App;
@@ -365,6 +368,21 @@ namespace MugenMvvmToolkit.Binding.Modules
         private static void SetAdapter(AdapterView item, IAdapter adapter)
         {
             _rawAdapterMember.SetValue(item, new object[] { adapter });
+        }
+
+        private static void MenuTemplateChanged(View view, AttachedMemberChangedEventArgs<int> args)
+        {
+            var type = view.GetType();
+            if (type.FullName != "Android.Widget.Toolbar")
+                return;
+            var activity = view.Context.GetActivity();
+            if (activity != null)
+            {
+                var menuMember = BindingServiceProvider
+                    .MemberProvider
+                    .GetBindingMember(type, "Menu", true, true);
+                activity.MenuInflater.Inflate(args.NewValue, (IMenu)menuMember.GetValue(view, null), view);
+            }
         }
 
         #region TabHost

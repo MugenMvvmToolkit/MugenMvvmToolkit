@@ -1,7 +1,8 @@
 #region Copyright
+
 // ****************************************************************************
 // <copyright file="AppCompatModule.cs">
-// Copyright © Vyacheslav Volkov 2012-2014
+// Copyright (c) 2012-2015 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -12,7 +13,9 @@
 // See license.txt in this solution or http://opensource.org/licenses/MS-PL
 // </license>
 // ****************************************************************************
+
 #endregion
+
 using System;
 using Android.App;
 using Android.Content;
@@ -230,13 +233,11 @@ namespace MugenMvvmToolkit.AppCompat.Modules
             adapterView.PageSelected += (sender, args) => ViewPagerCurrentItemMember.SetValue(adapterView, args.Position);
         }
 
-        private static void ToolbarMenuTemplateChanged(Toolbar toolbar, AttachedMemberChangedEventArgs<int?> args)
+        private static void ToolbarMenuTemplateChanged(Toolbar toolbar, AttachedMemberChangedEventArgs<int> args)
         {
-            if (args.NewValue == null)
-                return;
             var activity = toolbar.Context.GetActivity();
             if (activity != null)
-                activity.MenuInflater.Inflate(args.NewValue.Value, toolbar.Menu, toolbar);
+                activity.MenuInflater.Inflate(args.NewValue, toolbar.Menu, toolbar);
         }
 
         private static void ViewDrawerIsOpenedChanged(View view, AttachedMemberChangedEventArgs<bool> args)
@@ -291,7 +292,7 @@ namespace MugenMvvmToolkit.AppCompat.Modules
             memberProvider.Register(ViewDrawerIsOpenedMember);
 
             //Toolbar
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Toolbar, int?>(AttachedMemberNames.MenuTemplate, ToolbarMenuTemplateChanged));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Toolbar, int>(AttachedMemberNames.MenuTemplate, ToolbarMenuTemplateChanged));
 
             //DrawerLayout
             var actionBarDrawerToggleEnabledMember = AttachedBindingMember.CreateAutoProperty<DrawerLayout, bool>("ActionBarDrawerToggleEnabled",
