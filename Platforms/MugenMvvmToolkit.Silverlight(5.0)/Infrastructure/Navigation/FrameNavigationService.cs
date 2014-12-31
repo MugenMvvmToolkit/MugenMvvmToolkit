@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Navigation;
@@ -239,7 +240,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 var uriParameter = s == null
                     ? new KeyValuePair<string, string>(UriParameterSerializer, _serializer.SerializeToBase64String(parameter))
                     : new KeyValuePair<string, string>(UriParameterString, s);
-                uri = uri.MergeUri(new[] { uriParameter });
+                uri = uri.MergeUri(new[] { uriParameter, new KeyValuePair<string, string>("_timestamp", DateTime.UtcNow.Ticks.ToString(CultureInfo.InvariantCulture)) });
             }
             return _frame.Navigate(uri);
         }
@@ -249,7 +250,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 #if WINDOWS_PHONE
             var page = _frame.Content as Page;
             if (page == null || page.NavigationService == null)
-                return;            
+                return;
             var navigationService = page.NavigationService;
             if (context == null)
                 context = DataContext.Empty;

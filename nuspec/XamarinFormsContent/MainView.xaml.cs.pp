@@ -3,7 +3,7 @@ using Xamarin.Forms;
 
 namespace $rootnamespace$.Views
 {
-    public class MainView : ContentPage
+    public partial class MainView : ContentPage
     {
         #region Constructors
 

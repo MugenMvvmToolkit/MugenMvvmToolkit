@@ -148,10 +148,10 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 case MessageButton.YesNoCancel:
                     builder.SetPositiveButton(GetButtonText(MessageResult.Yes),
                         (sender, args) => tcs.TrySetResult(MessageResult.Yes));
-                    builder.SetNeutralButton(GetButtonText(MessageResult.No),
-                        (sender, args) => tcs.TrySetResult(MessageResult.No));
-                    builder.SetNegativeButton(GetButtonText(MessageResult.Cancel),
+                    builder.SetNeutralButton(GetButtonText(MessageResult.Cancel),
                         (sender, args) => tcs.TrySetResult(MessageResult.Cancel));
+                    builder.SetNegativeButton(GetButtonText(MessageResult.No),
+                        (sender, args) => tcs.TrySetResult(MessageResult.No));
                     break;
                 case MessageButton.AbortRetryIgnore:
                     builder.SetPositiveButton(GetButtonText(MessageResult.Abort),
@@ -164,7 +164,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 case MessageButton.RetryCancel:
                     builder.SetPositiveButton(GetButtonText(MessageResult.Retry),
                         (sender, args) => tcs.TrySetResult(MessageResult.Retry));
-                    builder.SetNeutralButton(GetButtonText(MessageResult.Cancel),
+                    builder.SetNegativeButton(GetButtonText(MessageResult.Cancel),
                         (sender, args) => tcs.TrySetResult(MessageResult.Cancel));
                     break;
                 default:

@@ -866,13 +866,16 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         {
             if (disposing)
             {
-                var notifyPropertyChanged = Instance as INotifyPropertyChanged;
-                if (notifyPropertyChanged != null)
-                    notifyPropertyChanged.PropertyChanged -= _weakPropertyHandler;
-                notifyPropertyChanged = Context.ValidationMetadata.GetData(ViewModelConstants.ViewModel);
-                if (notifyPropertyChanged != null)
-                    notifyPropertyChanged.PropertyChanged -= _weakPropertyHandler;
-                _weakPropertyHandler = null;
+                if (IsInitialized)
+                {
+                    var notifyPropertyChanged = Instance as INotifyPropertyChanged;
+                    if (notifyPropertyChanged != null)
+                        notifyPropertyChanged.PropertyChanged -= _weakPropertyHandler;
+                    notifyPropertyChanged = Context.ValidationMetadata.GetData(ViewModelConstants.ViewModel);
+                    if (notifyPropertyChanged != null)
+                        notifyPropertyChanged.PropertyChanged -= _weakPropertyHandler;
+                    _weakPropertyHandler = null;
+                }
                 ErrorsChanged = null;
                 ServiceProvider.AttachedValueProvider.Clear(this);
             }

@@ -74,13 +74,13 @@
     <file src="XamarinFormsContent\Readme.txt" target="content\portable-net45+win+wp80+MonoAndroid10+MonoTouch10+xamarinios10\_MugenMvvmToolkitReadme.txt" />
 
     <!-- Android -->
-    <file src="_._" target="lib\monoandroid\_._" />
+    <file src="_._" target="content\monoandroid\_._" />
 
     <!-- Touch -->	
-    <file src="_._" target="lib\monotouch\_._" />
-    <file src="_._" target="lib\xamarinios10\_._" />
+    <file src="_._" target="content\monotouch\_._" />
+    <file src="_._" target="content\xamarinios10\_._" />
 
     <!-- WP 8 -->
-    <file src="_._" target="lib\wp8\_._" />
+    <file src="_._" target="content\wp8\_._" />
   </files>
 </package>
