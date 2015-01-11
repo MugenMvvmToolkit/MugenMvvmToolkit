@@ -18,9 +18,9 @@
 
 using System;
 using System.Drawing;
-using MonoTouch.CoreGraphics;
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using CoreGraphics;
+using Foundation;
+using UIKit;
 
 namespace MugenMvvmToolkit.Views
 {
@@ -49,7 +49,7 @@ namespace MugenMvvmToolkit.Views
             EmptyNSString = new NSString(string.Empty);
         }
 
-        public ValidationPopup(RectangleF showOnRect, RectangleF fieldFrame)
+        public ValidationPopup(CGRect showOnRect, CGRect fieldFrame)
         {
             ShowOnRect = showOnRect;
             FieldFrame = fieldFrame;
@@ -62,9 +62,9 @@ namespace MugenMvvmToolkit.Views
 
         #region Properties
 
-        public RectangleF ShowOnRect { get; private set; }
+        public CGRect ShowOnRect { get; private set; }
 
-        public RectangleF FieldFrame { get; private set; }
+        public CGRect FieldFrame { get; private set; }
 
         public NSString Message
         {
@@ -98,26 +98,26 @@ namespace MugenMvvmToolkit.Views
 
         #region Overrides of UIView
 
-        public override void Draw(RectangleF rect)
+        public override void Draw(CGRect rect)
         {
-            float[] color = Color.CGColor.Components;
-            UIGraphics.BeginImageContext(new SizeF(30, 20));
+            nfloat[] color = Color.CGColor.Components;
+            UIGraphics.BeginImageContext(new CGSize(30, 20));
             CGContext ctx = UIGraphics.GetCurrentContext();
-            ctx.SetRGBFillColor(color[0], color[1], color[2], 1);
-            ctx.SetShadowWithColor(SizeF.Empty, 7f, UIColor.Black.CGColor);
+            ctx.SetFillColor(color[0], color[1], color[2], 1);
+            ctx.SetShadow(CGSize.Empty, 7f, UIColor.Black.CGColor);
 
             ctx.AddLines(new[]
             {
-                new PointF(15, 5),
-                new PointF(25, 25),
-                new PointF(5, 25)
+                new CGPoint(15, 5), 
+                new CGPoint(25, 25),
+                new CGPoint(5, 25)
             });
             ctx.ClosePath();
             ctx.FillPath();
 
             UIImage viewImage = UIGraphics.GetImageFromCurrentImageContext();
             UIGraphics.EndImageContext();
-            var imgframe = new RectangleF((ShowOnRect.X + ((ShowOnRect.Width - 30) / 2)),
+            var imgframe = new CGRect((ShowOnRect.X + ((ShowOnRect.Width - 30) / 2)),
                 ((ShowOnRect.Height / 2) + ShowOnRect.Y), 30, 13);
 
             var img = new UIImageView(viewImage);
@@ -134,9 +134,9 @@ namespace MugenMvvmToolkit.Views
 
             UIFont font = UIFont.FromName(FontName, FontSize);
             var message = new NSAttributedString(Message, font);
-            SizeF size = message.GetBoundingRect(new SizeF(FieldFrame.Width - (PaddingInErrorPopUp) * 2, 1000),
+            var size = message.GetBoundingRect(new CGSize(FieldFrame.Width - (PaddingInErrorPopUp) * 2, 1000), 
                 NSStringDrawingOptions.UsesLineFragmentOrigin, null).Size;
-            size = new SizeF((float)Math.Ceiling(size.Width), (float)Math.Ceiling(size.Height));
+            size = new CGSize((nfloat)Math.Ceiling(size.Width), (nfloat)Math.Ceiling(size.Height));
 
             var view = new UIView(RectangleF.Empty);
             InsertSubviewBelow(view, img);
@@ -145,7 +145,7 @@ namespace MugenMvvmToolkit.Views
             view.Layer.ShadowColor = UIColor.Black.CGColor;
             view.Layer.ShadowRadius = 5f;
             view.Layer.Opacity = 1f;
-            view.Layer.ShadowOffset = SizeF.Empty;
+            view.Layer.ShadowOffset = CGSize.Empty;
             view.TranslatesAutoresizingMaskIntoConstraints = false;
             dict = new NSDictionary("view", view);
             view.Superview.AddConstraints(
@@ -182,7 +182,7 @@ namespace MugenMvvmToolkit.Views
                     NSLayoutFormatOptions.DirectionLeadingToTrailing, null, dict));
         }
 
-        public override bool PointInside(PointF point, UIEvent uievent)
+        public override bool PointInside(CGPoint point, UIEvent uievent)
         {
             RemoveFromSuperview();
             return false;

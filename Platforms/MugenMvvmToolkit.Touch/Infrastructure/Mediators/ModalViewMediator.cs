@@ -18,9 +18,8 @@
 
 using System;
 using JetBrains.Annotations;
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Navigation;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -31,6 +30,7 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.ViewModels;
 using MugenMvvmToolkit.Views;
+using UIKit;
 
 namespace MugenMvvmToolkit.Infrastructure.Mediators
 {
@@ -38,7 +38,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
     {
         #region Fields
 
-        private static readonly NSAction NodoAction;
+        private static readonly Action NodoAction;
         private readonly IViewMappingProvider _viewMappingProvider;
         private readonly IViewModelProvider _viewModelProvider;
 
@@ -108,14 +108,17 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 .Get<INavigationService>()
                 .CurrentContent;
             var toShow = view.GetUnderlyingView<UIViewController>();
+            bool animated;
+            if (!context.TryGetData(NavigationConstants.UseAnimations, out animated))
+                animated = UseAnimations;
             if (view is IModalNavSupportView)
             {
                 var nav = new MvvmNavigationController();
-                nav.PushViewController(toShow, UseAnimations);
+                nav.PushViewController(toShow, animated);
                 toShow = nav;
                 BindProvider(nav);
             }
-            parentController.PresentViewController(toShow, UseAnimations, NodoAction);
+            parentController.PresentViewController(toShow, animated, NodoAction);
             BindingExtensions.AttachedParentMember.Raise(toShow, EventArgs.Empty);
         }
 

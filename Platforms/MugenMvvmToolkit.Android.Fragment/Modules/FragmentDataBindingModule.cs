@@ -27,6 +27,7 @@ using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Modules;
 #if APPCOMPAT
+using MugenMvvmToolkit.AppCompat.Infrastructure;
 using FragmentManager = Android.Support.V4.App.FragmentManager;
 using Fragment = Android.Support.V4.App.Fragment;
 using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
@@ -34,6 +35,8 @@ using ActionBar = Android.Support.V7.App.ActionBar;
 
 namespace MugenMvvmToolkit.AppCompat.Modules
 #else
+using MugenMvvmToolkit.FragmentSupport.Infrastructure;
+
 namespace MugenMvvmToolkit.FragmentSupport.Modules
 #endif
 {
@@ -41,7 +44,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Modules
     {
         #region Fields
 
-        internal static readonly IAttachedBindingMemberInfo<ViewGroup, bool> AddToBackStackMember;
+        internal static readonly IAttachedBindingMemberInfo<View, bool> AddToBackStackMember;
 
         #endregion
 
@@ -49,7 +52,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Modules
 
         static FragmentDataBindingModule()
         {
-            AddToBackStackMember = AttachedBindingMember.CreateAutoProperty<ViewGroup, bool>("AddToBackStack");
+            AddToBackStackMember = AttachedBindingMember.CreateAutoProperty<View, bool>("AddToBackStack");
         }
 
         /// <summary>
@@ -66,7 +69,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Modules
 
         private static void RegisterMembers(IBindingMemberProvider memberProvider)
         {
-            //Fragment
+            //View
             memberProvider.Register(AddToBackStackMember);
         }
 
@@ -141,18 +144,13 @@ namespace MugenMvvmToolkit.FragmentSupport.Modules
         {
             var isActionBar = PlatformExtensions.IsActionBar;
             var isFragment = PlatformExtensions.IsFragment;
-            var setContentView = PlatformExtensions.SetContentView;
             var tabChangedDelegate = TabHostItemsSourceGenerator.TabChangedDelegate;
             var removeTabDelegate = TabHostItemsSourceGenerator.RemoveTabDelegate;
 
             PlatformExtensions.IsActionBar = o => isActionBar(o) || o is ActionBar;
             PlatformExtensions.IsFragment = o => isFragment(o) || o is Fragment;
-            PlatformExtensions.SetContentView = (@group, o, arg3, arg4) =>
-            {
-                if (o is Fragment)
-                    return @group.SetContentView(o, arg3, arg4);
-                return setContentView(@group, o, arg3, arg4);
-            };
+            PlatformExtensions.AddContentViewManager(new FragmentContentViewManager());
+
             TabHostItemsSourceGenerator.RemoveTabDelegate = (generator, info) => OnRemoveTab(removeTabDelegate, generator, info);
             TabHostItemsSourceGenerator.TabChangedDelegate = (generator, o, arg3, arg4, arg5) => OnTabChanged(tabChangedDelegate, generator, o, arg3, arg4, arg5);
 

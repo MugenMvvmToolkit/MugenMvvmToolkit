@@ -103,10 +103,17 @@ namespace MugenMvvmToolkit
 
         #endregion
 
+        #region Fields
+
+        private static readonly ManualResetEvent Sleeper;
+
+        #endregion
+
         #region Constructors
 
         static ToolkitExtensions()
         {
+            Sleeper = new ManualResetEvent(false);
             ShortDuration = 2000;
             LongDuration = 3500;
         }
@@ -1337,8 +1344,7 @@ namespace MugenMvvmToolkit
         public static void Sleep(int millisecondsTimeout)
         {
             // Set is never called, so we wait always until the timeout occurs
-            using (var mre = new ManualResetEvent(false))
-                mre.WaitOne(millisecondsTimeout);
+            Sleeper.WaitOne(millisecondsTimeout);
         }
 
         /// <summary>

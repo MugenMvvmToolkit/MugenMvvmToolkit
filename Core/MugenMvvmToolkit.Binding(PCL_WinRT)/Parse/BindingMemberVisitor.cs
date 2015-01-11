@@ -143,7 +143,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             if (nodes[0] is ResourceExpressionNode)
                 return GetResourceMember(node, memberName, nodes);
 
-            IBindingPath path = BindingPath.Create(memberName);
+            IBindingPath path = BindingServiceProvider.BindingPathFactory(memberName);
             if (path.IsEmpty)
                 return GetOrAddBindingMember(memberName, (s, i) => new BindingMemberExpressionNode(memberName, s, i));
             string firstMember = path.Parts[0];
@@ -165,7 +165,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             if (_staticNodes.TryGetValue(node, out staticValue))
                 return staticValue;
 
-            IBindingPath path = BindingPath.Create(memberName);
+            IBindingPath path = BindingServiceProvider.BindingPathFactory(memberName);
             string firstMember = path.Parts[0];
             Type type = BindingServiceProvider.ResourceResolver.ResolveType(firstMember, DataContext.Empty, false);
             var dynMember = (ResourceExpressionNode)nodes[0];

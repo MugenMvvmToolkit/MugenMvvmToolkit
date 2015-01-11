@@ -27,19 +27,33 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
     {
         #region Implementation of IContentViewManager
 
-        void IContentViewManager.SetContent(object view, object content)
+#if ANDROID
+        bool IContentViewManager.SetContent(object view, object content)
+        {
+            return SetContent((TView)view, (TContent)content);
+        }
+#else
+        void IContentViewManager.SetContent(object view, object content)        
         {
             SetContent((TView)view, (TContent)content);
         }
+#endif
 
         #endregion
 
         #region Methods
 
+#if ANDROID
+        /// <summary>
+        ///     Sets the specified content.
+        /// </summary>
+        protected abstract bool SetContent(TView view, TContent content);
+#else
         /// <summary>
         ///     Sets the specified content.
         /// </summary>
         protected abstract void SetContent(TView view, TContent content);
+#endif
 
         #endregion
     }

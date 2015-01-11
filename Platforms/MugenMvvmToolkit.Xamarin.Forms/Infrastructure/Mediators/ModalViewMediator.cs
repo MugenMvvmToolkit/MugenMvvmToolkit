@@ -18,7 +18,7 @@
 
 using System.ComponentModel;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Infrastructure.Navigation;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -35,8 +35,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
     {
         #region Fields
 
-        private readonly IViewMappingProvider _viewMappingProvider;
-        private readonly IViewModelProvider _viewModelProvider;
         private readonly EventHandler<Page, CancelEventArgs> _backButtonHandler;
 
         #endregion
@@ -47,15 +45,9 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         ///     Initializes a new instance of the <see cref="ModalViewMediator" /> class.
         /// </summary>
         public ModalViewMediator([NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
-            [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IOperationCallbackManager operationCallbackManager,
-            [NotNull] IViewMappingProvider viewMappingProvider,
-            [NotNull] IViewModelProvider viewModelProvider)
+            [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IOperationCallbackManager operationCallbackManager)
             : base(viewModel, threadManager, viewManager, wrapperManager, operationCallbackManager)
         {
-            Should.NotBeNull(viewMappingProvider, "viewMappingProvider");
-            Should.NotBeNull(viewModelProvider, "viewModelProvider");
-            _viewMappingProvider = viewMappingProvider;
-            _viewModelProvider = viewModelProvider;
             _backButtonHandler = ReflectionExtensions
                 .CreateWeakDelegate<ModalViewMediator, CancelEventArgs, EventHandler<Page, CancelEventArgs>>(this,
                     (service, o, arg3) => service.OnBackButtonPressed((Page)o, arg3),
@@ -64,13 +56,13 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         #endregion
 
-        #region Methods
+        #region Properties
 
-        protected virtual INavigationProvider CreateNavigationProvider(INavigationService service)
-        {
-            return new NavigationProvider(service, ThreadManager, _viewMappingProvider, ViewManager, _viewModelProvider,
-                OperationCallbackManager);
-        }
+        public bool UseAnimations { get; set; }
+
+        #endregion
+
+        #region Methods
 
         private void OnBackButtonPressed(Page page, CancelEventArgs arg3)
         {
@@ -91,7 +83,10 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 .GetIocContainer(true)
                 .Get<INavigationService>()
                 .CurrentContent;
-            page.Navigation.PushModalAsync(view.GetUnderlyingView<Page>());
+            bool animated;
+            if (!context.TryGetData(NavigationConstants.UseAnimations, out animated))
+                animated = UseAnimations;
+            page.Navigation.PushModalAsync(view.GetUnderlyingView<Page>(), animated);
         }
 
         /// <summary>
@@ -121,7 +116,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         protected override void CloseView(IModalView view)
         {
             var page = view.GetUnderlyingView<Page>();
-            page.Navigation.PopModalAsync();
+            page.Navigation.PopModalAsync(UseAnimations);
         }
 
         #endregion

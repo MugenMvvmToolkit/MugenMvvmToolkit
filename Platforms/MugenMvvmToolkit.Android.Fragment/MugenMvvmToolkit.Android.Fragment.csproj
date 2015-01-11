@@ -56,6 +56,7 @@
       <Link>Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs</Link>
     </Compile>
     <Compile Include="FragmentExtensions.cs" />
+    <Compile Include="Infrastructure\FragmentContentViewManager.cs" />
     <Compile Include="Infrastructure\Mediators\MvvmFragmentMediator.cs" />
     <Compile Include="Infrastructure\Mediators\WindowViewMediator.cs" />
     <Compile Include="Interfaces\Mediators\IMvvmFragmentMediator.cs" />

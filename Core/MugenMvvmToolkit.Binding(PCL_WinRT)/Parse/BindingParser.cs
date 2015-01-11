@@ -416,7 +416,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             if (string.IsNullOrEmpty(targetPath))
                 throw BindingExceptionManager.InvalidExpressionParser(target.ToString(), Tokenizer, Expression);
 
-            actions.Add(context => context.Add(BindingBuilderConstants.TargetPath, BindingPath.Create(targetPath)));
+            actions.Add(context => context.Add(BindingBuilderConstants.TargetPath, BindingServiceProvider.BindingPathFactory(targetPath)));
             //Empty source path.
             IExpressionNode source = IsAnyOf(DelimeterTokens)
                 ? null
@@ -1374,7 +1374,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         protected static Func<IDataContext, IBindingSource> GetBindingSourceDelegate(BindingMemberExpressionNode node)
         {
-            IBindingPath path = BindingPath.Create(node.Path);
+            IBindingPath path = BindingServiceProvider.BindingPathFactory(node.Path);
             if (node.IsDynamic)
             {
                 string resourceName = node.ResourceName;

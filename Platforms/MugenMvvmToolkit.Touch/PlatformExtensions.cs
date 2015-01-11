@@ -23,10 +23,8 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading;
+using Foundation;
 using JetBrains.Annotations;
-using MonoTouch.Foundation;
-using MonoTouch.ObjCRuntime;
-using MonoTouch.UIKit;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Infrastructure;
@@ -38,6 +36,8 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
+using ObjCRuntime;
+using UIKit;
 
 namespace MugenMvvmToolkit
 {
@@ -49,7 +49,7 @@ namespace MugenMvvmToolkit
         {
             #region Fields
 
-            public int Index;
+            public nint Index;
 
             #endregion
 
@@ -482,7 +482,7 @@ namespace MugenMvvmToolkit
             var obj = item as INativeObject;
             var reference = obj == null
                 ? new WeakReference(item, trackResurrection)
-                : new NSObjectWeakReference(obj, trackResurrection);
+                : new NativeObjectWeakReference(obj, trackResurrection);
             return reference;
         }
 

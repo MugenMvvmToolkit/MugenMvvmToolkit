@@ -16,10 +16,10 @@
 
 #endregion
 
+using Foundation;
 using JetBrains.Annotations;
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
 using MugenMvvmToolkit.Interfaces.Models;
+using UIKit;
 
 namespace MugenMvvmToolkit.Interfaces
 {

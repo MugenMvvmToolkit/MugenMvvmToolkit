@@ -1,7 +1,7 @@
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using Foundation;
 using MugenMvvmToolkit;
 using MugenMvvmToolkit.Infrastructure;
+using UIKit;
 
 namespace $rootnamespace$
 {

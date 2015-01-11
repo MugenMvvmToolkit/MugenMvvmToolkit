@@ -20,14 +20,14 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Foundation;
 using JetBrains.Annotations;
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Modules;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Views;
+using UIKit;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
@@ -358,7 +358,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             cell.Selected = false;
         }
 
-        public override float GetHeightForRow(UITableView tableView, NSIndexPath indexPath)
+        public override nfloat GetHeightForRow(UITableView tableView, NSIndexPath indexPath)
         {
             var selector = _itemTemplateMember.TryGetValue<ITableCellTemplateSelector>(tableView);
             if (selector == null)
@@ -448,7 +448,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return cell;
         }
 
-        public override int NumberOfSections(UITableView tableView)
+        public override nint NumberOfSections(UITableView tableView)
         {
             return 1;
         }

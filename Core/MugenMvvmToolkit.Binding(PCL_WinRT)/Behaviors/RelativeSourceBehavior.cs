@@ -215,7 +215,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 else
                     target = new ParentSourceValue(target, RelativeSourceNode);
             }
-            IObserver observer = BindingServiceProvider.ObserverProvider.Observe(target, BindingPath.Create(path), false);
+            IObserver observer = BindingServiceProvider.ObserverProvider.Observe(target, BindingServiceProvider.BindingPathFactory(path), false);
             _bindingSource = new BindingSource(observer);
         }
 

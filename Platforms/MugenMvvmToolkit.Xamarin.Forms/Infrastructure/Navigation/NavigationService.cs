@@ -54,6 +54,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                     (o, handler) => XamarinFormsExtensions.BackButtonPressed -= handler, handler => handler.Handle);
             //BUG: Xamarin forms removes the page incorrectly using the RemovePage method, possible in future versions it will be fixed
             IgnoreClearBackStackHint = true;
+            UseAnimations = true;
         }
 
         #endregion
@@ -61,6 +62,8 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         #region Properties
 
         public bool IgnoreClearBackStackHint { get; set; }
+
+        public bool UseAnimations { get; set; }
 
         #endregion
 
@@ -95,7 +98,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// </summary>
         public void GoBack()
         {
-            _rootPage.PopAsync();
+            _rootPage.PopAsync(UseAnimations);
         }
 
         /// <summary>
@@ -164,13 +167,16 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 dataContext = DataContext.Empty;
 
             var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
+            bool animated;
+            if (!dataContext.TryGetData(NavigationConstants.UseAnimations, out animated))
+                animated = UseAnimations;
             Page page;
             if (viewModel == null)
                 page = (Page)ServiceProvider.IocContainer.Get(source.ViewType);
             else
                 page = (Page)ViewManager.GetOrCreateView(viewModel, null, dataContext);
             page.SetNavigationParameter(parameter);
-            ClearNavigationStackIfNeed(dataContext, page, _rootPage.PushAsync(page));
+            ClearNavigationStackIfNeed(dataContext, page, _rootPage.PushAsync(page, animated));
             return true;
         }
 
@@ -222,7 +228,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             RaiseNavigating(eventArgs);
             args.Cancel = eventArgs.Cancel;
         }
-        
+
         private void ClearNavigationStackIfNeed(IDataContext context, Page page, Task task)
         {
             var navigation = _rootPage.Navigation;

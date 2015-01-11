@@ -20,7 +20,7 @@ using System;
 using System.Collections;
 using System.Collections.Specialized;
 using JetBrains.Annotations;
-using MonoTouch.UIKit;
+using UIKit;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {

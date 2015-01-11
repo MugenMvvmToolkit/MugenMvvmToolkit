@@ -19,9 +19,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using MonoTouch.Dialog;
-using MonoTouch.UIKit;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.MonoTouch.Dialog;
+using UIKit;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {

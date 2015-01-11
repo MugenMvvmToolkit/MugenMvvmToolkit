@@ -19,9 +19,8 @@
 using System;
 using System.IO;
 using System.Linq;
+using Foundation;
 using JetBrains.Annotations;
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
@@ -31,6 +30,7 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Views;
+using UIKit;
 
 namespace MugenMvvmToolkit.Infrastructure
 {

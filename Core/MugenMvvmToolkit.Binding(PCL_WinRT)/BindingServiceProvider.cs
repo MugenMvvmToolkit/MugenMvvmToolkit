@@ -21,6 +21,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Infrastructure;
 
 namespace MugenMvvmToolkit.Binding
@@ -44,6 +46,7 @@ namespace MugenMvvmToolkit.Binding
         private static readonly Dictionary<string, int> MemberPriorities;
         private static readonly List<string> FakeMemberPrefixesField;
         private static readonly ICollection<string> DataContextMemberAliasesField;
+        private static Func<string, IBindingPath> _bindingPathFactory;
 
         #endregion
 
@@ -112,6 +115,20 @@ namespace MugenMvvmToolkit.Binding
         {
             get { return _valueConverter; }
             set { _valueConverter = value ?? BindingReflectionExtensions.Convert; }
+        }
+
+        /// <summary>
+        ///     Gets or sets the factory that creates an instance of <see cref="IBindingPath" /> for the specified string.
+        /// </summary>
+        [NotNull]
+        public static Func<string, IBindingPath> BindingPathFactory
+        {
+            get { return _bindingPathFactory; }
+            set
+            {
+                Should.PropertyBeNotNull(value);
+                _bindingPathFactory = value;
+            }
         }
 
         /// <summary>
@@ -238,6 +255,7 @@ namespace MugenMvvmToolkit.Binding
 
         internal static void SetDefaultValues()
         {
+            _bindingPathFactory = BindingPath.Create;
             _valueConverter = BindingReflectionExtensions.Convert;
             _resourceResolver = new BindingResourceResolver();
             _memberProvider = new BindingMemberProvider();

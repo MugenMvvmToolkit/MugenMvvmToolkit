@@ -17,10 +17,9 @@
 #endregion
 
 using System;
+using Foundation;
 using JetBrains.Annotations;
 using MonoTouch.Dialog;
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.DataConstants;
@@ -28,6 +27,7 @@ using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.MonoTouch.Dialog;
+using UIKit;
 
 namespace MugenMvvmToolkit.Infrastructure.Mediators
 {

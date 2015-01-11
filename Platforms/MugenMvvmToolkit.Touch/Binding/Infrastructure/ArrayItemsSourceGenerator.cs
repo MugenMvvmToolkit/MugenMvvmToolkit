@@ -21,8 +21,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using MonoTouch.ObjCRuntime;
-using MonoTouch.UIKit;
 using MugenMvvmToolkit.Binding.Converters;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -30,6 +28,8 @@ using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
+using ObjCRuntime;
+using UIKit;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {

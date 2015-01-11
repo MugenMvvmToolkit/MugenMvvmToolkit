@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit</id>
-    <version>3.2.0</version>
+    <version>3.2.1</version>
     <title>MugenMvvmToolkit</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -36,25 +36,10 @@
       - Excellent binding performance.
     </description>
     <releaseNotes>
-      - Split the android project into several parts, Android, Android.ActionBar, Android.AppCompat, Android.Fragment, Android.RecyclerView.
-      - Increased performance of ItemsSourceAdapter (Android).
-      - Fixed invalid binding validation when using $GetErrors method.
-      - Added Xamarin.Forms support.
-      - Added support for API21(Android).
-      - Added IWrapperManager instead of IViewModelWrapperManager.
-      - Added ClearBackStack hint for navigation, it allows to remove ViewModel from the back navigation stack (WP, WPF, WinRT, Android, iOS).      
-      - Added IResourceDataTemplateSelector (Android).
-      - Added support for the $root keyword (Binding).
-      - Updated IEventAggregator, added the ability to subscribe using a delegate.
-      - Updated IDynamicObject interface, that allows to invoke methods and index members.
-      - Updated CompiledExpressionInvoker, now it can invoke dynamic members.
-      - Updated BindingEditor (WinForms).
-      - Updated INavigationContext, added NavigationType property.
-      - Updated IObservable interface, now it works with ISubscriber interface.
-      - Updated DefaultValueOnExceptionBehavior, now you can set default value (Binding).
-      - Moved the Handle method from IEventListener to extension method (Binding).
-      - Removed ThrowOnMultiInitialization property from IViewModelSettings.
-      - Optimized delegate allocation.
+      - Removed support for MonoTouch.
+      - Added support for Xamarin.iOS 64 bit (Unified API). Requires Xamarin.iOS 8.6.0.0 or newer. (iOS, Xamarin.Forms)
+      - Added UseAnimations hint for navigation, it allows to animate view during navigation (iOS, Xamarin.Forms).
+      - Added ICollectionViewManager and IContentViewManager for Android platform.
       - Minor changes.
     </releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -66,18 +51,17 @@
       <group targetFramework="wp8" />
       <group targetFramework="wp81" />      
       <group targetFramework="net45" />
-      <group targetFramework="monotouch" />
-      <group targetFramework="monoandroid" />
-      <group targetFramework="xamarinios10" />
+      <group targetFramework="MonoAndroid10" />
+      <group targetFramework="Xamarin.iOS10" />
       <group targetFramework="win8" />
       <group targetFramework="win81" />
       <group targetFramework="wpa81" />
-      <group targetFramework="portable-net45+win8+wp8+wpa81+MonoAndroid10+MonoTouch10+xamarinios10" />
-      <group targetFramework="portable-net45+win8+wpa81+MonoAndroid10+MonoTouch10+xamarinios10" />
-      <group targetFramework="portable-net451+win81+MonoAndroid10+MonoTouch10+xamarinios10" />
-      <group targetFramework="portable-net451+win81+wpa81+MonoAndroid10+MonoTouch10+xamarinios10" />
-      <group targetFramework="portable-win81+wp81+wpa81+MonoAndroid10+MonoTouch10+xamarinios10" />
-      <group targetFramework="portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10+xamarinios10">
+      <group targetFramework="portable-net45+win8+wp8+wpa81" />
+      <group targetFramework="portable-net45+win8+wpa81" />
+      <group targetFramework="portable-net451+win81" />
+      <group targetFramework="portable-net451+win81+wpa81" />
+      <group targetFramework="portable-win81+wp81+wpa81" />
+      <group targetFramework="portable-net45+sl40+win+wp71">
         <dependency id="Microsoft.Bcl" />
         <dependency id="Microsoft.Bcl.Build" />
       </group>
@@ -97,14 +81,14 @@
   </metadata>
   <files>    
     <!-- CORE PCL WINRT -->
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.dll" />
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.pdb" />
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.xml" target="lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.xml" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\portable-net45+win+wpa81+wp80\MugenMvvmToolkit.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\portable-net45+win+wpa81+wp80\MugenMvvmToolkit.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.xml" target="lib\portable-net45+win+wpa81+wp80\MugenMvvmToolkit.xml" />
 
     <!-- CORE PCL SILVERLIGHT -->
-    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.dll" target="lib\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.dll" />
-    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.pdb" target="lib\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.pdb" />
-    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.xml" target="lib\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10+xamarinios10\MugenMvvmToolkit.xml" />
+    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.dll" target="lib\portable-net45+sl40+win+wp71\MugenMvvmToolkit.dll" />
+    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.pdb" target="lib\portable-net45+sl40+win+wp71\MugenMvvmToolkit.pdb" />
+    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.xml" target="lib\portable-net45+sl40+win+wp71\MugenMvvmToolkit.xml" />
 
     <!-- NET 4.0 -->
     <file src="..\bin\Core\NET4.0\MugenMvvmToolkit.dll" target="lib\net40-client\MugenMvvmToolkit.dll" />
@@ -173,27 +157,29 @@
     <file src="..\bin\Platforms\WinPhone\7.1\MugenMvvmToolkit.WinPhone.xml" target="lib\sl4-windowsphone71\MugenMvvmToolkit.WinPhone.xml" />
 
     <!-- Android -->
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\monoandroid\MugenMvvmToolkit.dll" />
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\monoandroid\MugenMvvmToolkit.pdb" />
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.xml" target="lib\monoandroid\MugenMvvmToolkit.xml" />
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\monoandroid\MugenMvvmToolkit.Binding.dll" />
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\monoandroid\MugenMvvmToolkit.Binding.pdb" />
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\monoandroid\MugenMvvmToolkit.Binding.xml" />
-    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.dll" target="lib\monoandroid\MugenMvvmToolkit.Android.dll" />
-    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.pdb" target="lib\monoandroid\MugenMvvmToolkit.Android.pdb" />
-    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.xml" target="lib\monoandroid\MugenMvvmToolkit.Android.xml" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\MonoAndroid10\MugenMvvmToolkit.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\MonoAndroid10\MugenMvvmToolkit.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.xml" target="lib\MonoAndroid10\MugenMvvmToolkit.xml" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\MonoAndroid10\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\MonoAndroid10\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\MonoAndroid10\MugenMvvmToolkit.Binding.xml" />
+    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.dll" target="lib\MonoAndroid10\MugenMvvmToolkit.Android.dll" />
+    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.pdb" target="lib\MonoAndroid10\MugenMvvmToolkit.Android.pdb" />
+    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.xml" target="lib\MonoAndroid10\MugenMvvmToolkit.Android.xml" />
 
     <!-- Touch -->
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\monotouch\MugenMvvmToolkit.dll" />
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\monotouch\MugenMvvmToolkit.pdb" />
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.xml" target="lib\monotouch\MugenMvvmToolkit.xml" />
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\monotouch\MugenMvvmToolkit.Binding.dll" />
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\monotouch\MugenMvvmToolkit.Binding.pdb" />
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\monotouch\MugenMvvmToolkit.Binding.xml" />
-    <file src="..\bin\Platforms\Touch\MugenMvvmToolkit.Touch.dll" target="lib\monotouch\MugenMvvmToolkit.Touch.dll" />
-    <file src="..\bin\Platforms\Touch\MugenMvvmToolkit.Touch.xml" target="lib\monotouch\MugenMvvmToolkit.Touch.xml" />
+    <file src="_._" target="lib\MonoTouch10\_._" />
 
-    <file src="TouchContent\error.png" target="content\monotouch\Resources\error.png" />
-    <file src="TouchContent\error@2x.png" target="content\monotouch\Resources\error@2x.png" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\Xamarin.iOS10\MugenMvvmToolkit.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\Xamarin.iOS10\MugenMvvmToolkit.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.xml" target="lib\Xamarin.iOS10\MugenMvvmToolkit.xml" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\Xamarin.iOS10\MugenMvvmToolkit.Binding.dll" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\Xamarin.iOS10\MugenMvvmToolkit.Binding.pdb" />
+    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\Xamarin.iOS10\MugenMvvmToolkit.Binding.xml" />
+    <file src="..\bin\Platforms\Touch\MugenMvvmToolkit.Touch.dll" target="lib\Xamarin.iOS10\MugenMvvmToolkit.Touch.dll" />
+    <file src="..\bin\Platforms\Touch\MugenMvvmToolkit.Touch.xml" target="lib\Xamarin.iOS10\MugenMvvmToolkit.Touch.xml" />
+
+    <file src="TouchContent\error.png" target="content\Xamarin.iOS10\Resources\error.png" />
+    <file src="TouchContent\error@2x.png" target="content\Xamarin.iOS10\Resources\error@2x.png" />
   </files>
 </package>

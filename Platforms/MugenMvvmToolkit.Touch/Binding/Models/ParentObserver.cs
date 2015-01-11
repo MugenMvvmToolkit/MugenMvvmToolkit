@@ -18,8 +18,8 @@
 
 using System;
 using JetBrains.Annotations;
-using MonoTouch.UIKit;
 using MugenMvvmToolkit.Binding.Infrastructure;
+using UIKit;
 
 namespace MugenMvvmToolkit.Binding.Models
 {

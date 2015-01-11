@@ -18,9 +18,8 @@
 
 using System;
 using System.ComponentModel;
+using Foundation;
 using JetBrains.Annotations;
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
@@ -30,6 +29,7 @@ using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Models.Messages;
 using MugenMvvmToolkit.Views;
+using UIKit;
 
 namespace MugenMvvmToolkit.Infrastructure.Navigation
 {
@@ -59,6 +59,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                     observer.Dispose();
                 });
             }
+            UseAnimations = true;
         }
 
         /// <summary>
@@ -68,12 +69,15 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         {
             Should.NotBeNull(navigationController, "navigationController");
             InitializeNavigationController(navigationController);
+            UseAnimations = true;
         }
 
         #endregion
 
         #region Properties
 
+        public bool UseAnimations { get; set; }
+        
         /// <summary>
         ///     Gets the current <see cref="MvvmNavigationController" />.
         /// </summary>
@@ -214,7 +218,10 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             }
             if (shouldNavigate)
             {
-                NavigationController.PushViewController(viewController, true);
+                bool animated;
+                if (!dataContext.TryGetData(NavigationConstants.UseAnimations, out animated))
+                    animated = UseAnimations;
+                NavigationController.PushViewController(viewController, animated);
                 ClearNavigationStackIfNeed(viewController, dataContext);
             }
             RaiseNavigated(viewController, NavigationMode.New, parameter);
@@ -267,7 +274,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         private bool GoBackInternal()
         {
             Should.BeSupported(CanGoBack, "Go back is not supported in current state.");
-            return NavigationController.PopViewControllerAnimated(true) != null;
+            return NavigationController.PopViewController(true) != null;
         }
 
         private void ShouldPopViewController(object sender, CancelEventArgs args)

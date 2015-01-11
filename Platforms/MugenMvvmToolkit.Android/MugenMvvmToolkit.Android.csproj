@@ -56,6 +56,18 @@
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\AttachedValueProvider.cs">
       <Link>Infrastructure\AttachedValueProvider.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Infrastructure\CollectionViewManagerBase.cs">
+      <Link>Binding\Infrastructure\CollectionViewManagerBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Infrastructure\ContentViewManagerBase.cs">
+      <Link>Binding\Infrastructure\ContentViewManagerBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Interfaces\ICollectionViewManager.cs">
+      <Link>Binding\Interfaces\ICollectionViewManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Interfaces\IContentViewManager.cs">
+      <Link>Binding\Interfaces\IContentViewManager.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.winforms%284.5%29\infrastructure\ThreadManager.cs">
       <Link>Infrastructure\ThreadManager.cs</Link>
     </Compile>
@@ -83,6 +95,7 @@
     <Compile Include="Attributes\BootstrapperAttribute.cs" />
     <Compile Include="Attributes\TypeNameAliasAttribute.cs" />
     <Compile Include="Binding\Infrastructure\ResourceDataTemplateSelectorBase.cs" />
+    <Compile Include="Binding\Infrastructure\ViewContentViewManager.cs" />
     <Compile Include="Binding\Interfaces\IResourceDataTemplateSelector.cs" />
     <Compile Include="DataConstants\ViewFactoryConstants.cs" />
     <Compile Include="Binding\Interfaces\IItemsSourceAdapter.cs" />

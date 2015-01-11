@@ -20,7 +20,9 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
-using MonoTouch.CoreGraphics;
+using CoreGraphics;
+using Foundation;
+using UIKit;
 #if XAMARIN_FORMS
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
@@ -29,8 +31,6 @@ using Xamarin.Forms;
 #else
 using MonoTouch.Dialog;
 #endif
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Views;
@@ -51,8 +51,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             private const string Key = "@#layoutState";
 
-            private readonly float _borderWidth;
-            private readonly float _cornerRadius;
+            private readonly nfloat _borderWidth;
+            private readonly nfloat _cornerRadius;
             private readonly CGColor _borderColor;
             private readonly bool _clipsToBounds;
             private readonly bool _isEmpty;
@@ -253,7 +253,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Methods
 
-        protected virtual ValidationPopup CreateValidationPopup(RectangleF showOnRect, RectangleF fieldFrame)
+        protected virtual ValidationPopup CreateValidationPopup(CGRect showOnRect, CGRect fieldFrame)
         {
             return new ValidationPopup(showOnRect, fieldFrame)
             {

@@ -16,10 +16,11 @@
 
 #endregion
 
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using System;
+using Foundation;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Interfaces;
+using UIKit;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
@@ -70,7 +71,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <param name="container">The element to which the template will be applied</param>
         /// <param name="identifier">The specified identifier.</param>
         /// <returns>An app-specific template height to apply, or null.</returns>
-        protected virtual float? GetHeight(UITableView container, NSString identifier)
+        protected virtual nfloat? GetHeight(UITableView container, NSString identifier)
         {
             return null;
         }
@@ -114,7 +115,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <param name="container">The element to which the template will be applied</param>
         /// <param name="identifier">The specified identifier.</param>
         /// <returns>An app-specific template height to apply, or null.</returns>
-        float? ITableCellTemplateSelector.GetHeight(UITableView container, NSString identifier)
+        nfloat? ITableCellTemplateSelector.GetHeight(UITableView container, NSString identifier)
         {
             return GetHeight(container, identifier);
         }

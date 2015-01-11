@@ -18,8 +18,8 @@
 
 using System;
 using System.Globalization;
-using MonoTouch.UIKit;
 using MugenMvvmToolkit.Interfaces.Models;
+using UIKit;
 
 namespace MugenMvvmToolkit.Binding.Converters
 {

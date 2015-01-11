@@ -195,6 +195,9 @@ namespace MugenMvvmToolkit.Binding.Modules
         #region Fields
 
         internal static readonly IAttachedBindingMemberInfo<AdapterView, int> AdapterViewSelectedPositionMember;
+        internal readonly static IAttachedBindingMemberInfo<Object, ICollectionViewManager> CollectionViewManagerMember;
+
+        private readonly static IAttachedBindingMemberInfo<Object, IContentViewManager> ContentViewManagerMember;
         private static readonly IAttachedBindingMemberInfo<AdapterView, object> AdapterViewSelectedItemMember;
         private static readonly IAttachedBindingMemberInfo<AdapterView, bool> ScrollToSelectedItemMember;
 
@@ -214,6 +217,10 @@ namespace MugenMvvmToolkit.Binding.Modules
         {
             AddViewValue = new object();
             RemoveViewValue = new object[] { null };
+            //Object
+            CollectionViewManagerMember = AttachedBindingMember.CreateAutoProperty<Object, ICollectionViewManager>("CollectionViewManager");
+            ContentViewManagerMember = AttachedBindingMember.CreateAutoProperty<Object, IContentViewManager>("ContentViewManager");
+
             //Menu
             MenuItemsSourceMember = AttachedBindingMember.CreateAutoProperty<IMenu, IEnumerable>(AttachedMemberConstants.ItemsSource, MenuItemsSourceChanged);
             IsCheckedMenuItemMember = AttachedBindingMember.CreateNotifiableMember<IMenuItem, bool>("IsChecked",
@@ -251,6 +258,10 @@ namespace MugenMvvmToolkit.Binding.Modules
             Should.NotBeNull(memberProvider, "memberProvider");
             RegisterMenuMembers(memberProvider);
             RegisterViewMembers(memberProvider);
+
+            //Object
+            memberProvider.Register(CollectionViewManagerMember);
+            memberProvider.Register(ContentViewManagerMember);
 
             //Dialog
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Dialog, object>("Title",
@@ -554,7 +565,11 @@ namespace MugenMvvmToolkit.Binding.Modules
             var templateId = ContentTemplateIdMember.GetValue(sender, null);
             var templateSelector = ContentTemplateSelectorMember.GetValue(sender, null);
             newContent = PlatformExtensions.GetContentView(sender, sender.Context, newContent, templateId, templateSelector);
-            PlatformExtensions.SetContentView(sender, newContent, templateId, templateSelector);
+            var contentViewManager = ContentViewManagerMember.GetValue(sender, null);
+            if (contentViewManager == null)
+                PlatformExtensions.SetContentView(sender, newContent);
+            else
+                contentViewManager.SetContent(sender, newContent);
         }
 
         #endregion

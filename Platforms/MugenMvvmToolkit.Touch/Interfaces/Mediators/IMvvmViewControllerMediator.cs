@@ -17,8 +17,8 @@
 #endregion
 
 using System;
+using Foundation;
 using JetBrains.Annotations;
-using MonoTouch.Foundation;
 using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Interfaces.Mediators

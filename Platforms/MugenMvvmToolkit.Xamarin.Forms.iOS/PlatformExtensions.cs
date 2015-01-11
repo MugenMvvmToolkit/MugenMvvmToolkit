@@ -19,9 +19,8 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using MonoTouch.Foundation;
-using MonoTouch.ObjCRuntime;
-using MonoTouch.UIKit;
+using ObjCRuntime;
+using UIKit;
 using MugenMvvmToolkit.Interfaces;
 
 namespace MugenMvvmToolkit

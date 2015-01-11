@@ -38,7 +38,7 @@ using Bootstrapper = MugenMvvmToolkit.Infrastructure.SilverlightBootstrapperBase
 using Windows.UI.Xaml.Controls;
 using Bootstrapper = MugenMvvmToolkit.Infrastructure.WinRTBootstrapperBase;
 #elif TOUCH
-using MonoTouch.UIKit;
+using UIKit;
 using Bootstrapper = MugenMvvmToolkit.Infrastructure.TouchBootstrapperBase;
 #elif XAMARIN_FORMS
 using Bootstrapper = MugenMvvmToolkit.Infrastructure.XamarinFormsBootstrapperBase;

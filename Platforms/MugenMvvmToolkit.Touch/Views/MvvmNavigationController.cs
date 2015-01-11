@@ -19,12 +19,12 @@
 using System;
 using System.ComponentModel;
 using System.Threading;
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using Foundation;
 using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using UIKit;
 
 namespace MugenMvvmToolkit.Views
 {
@@ -94,7 +94,7 @@ namespace MugenMvvmToolkit.Views
 
         #region Overrides of UINavigationController
 
-        public override UIViewController PopViewControllerAnimated(bool animated)
+        public override UIViewController PopViewController(bool animated)
         {
             EventHandler<CancelEventArgs> handler = ShouldPopViewController;
             if (handler != null)
@@ -114,7 +114,7 @@ namespace MugenMvvmToolkit.Views
                     return null;
                 }
             }
-            return base.PopViewControllerAnimated(animated);
+            return base.PopViewController(animated);
         }
 
         public override void DecodeRestorableState(NSCoder coder)
@@ -166,7 +166,7 @@ namespace MugenMvvmToolkit.Views
         {
             if (ViewControllers.Length < navigationBar.Items.Length)
                 return true;
-            PopViewControllerAnimated(true);
+            PopViewController(true);
             return false;
         }
 

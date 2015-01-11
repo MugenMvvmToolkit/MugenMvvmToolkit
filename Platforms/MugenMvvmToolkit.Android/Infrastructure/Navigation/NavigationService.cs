@@ -54,7 +54,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NavigationService"/> class.
+        ///     Initializes a new instance of the <see cref="NavigationService" /> class.
         /// </summary>
         public NavigationService([NotNull] ISerializer serializer)
         {

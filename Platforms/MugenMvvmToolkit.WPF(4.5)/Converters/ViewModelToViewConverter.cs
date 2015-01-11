@@ -41,7 +41,7 @@ using System.Windows.Forms;
 using IValueConverter = MugenMvvmToolkit.Binding.Interfaces.IBindingValueConverter;
 #elif TOUCH
 using System.Drawing;
-using MonoTouch.UIKit;
+using UIKit;
 using IValueConverter = MugenMvvmToolkit.Binding.Interfaces.IBindingValueConverter;
 #elif XAMARIN_FORMS
 using Xamarin.Forms;

@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 
@@ -58,8 +59,8 @@ namespace MugenMvvmToolkit.Binding.Models
         static BindingPath()
         {
             Cache = new Dictionary<string, IBindingPath>();
-            None = Create("##none##");
-            Empty = Create(string.Empty);
+            None = Create("##none##", false);
+            Empty = Create(string.Empty, false);
             DataContext = Create(AttachedMemberConstants.DataContext);
         }
 
@@ -147,33 +148,34 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Methods
 
+        internal static IBindingPath Create(string path)
+        {
+            return Create(path, true);
+        }
+
         /// <summary>
-        /// Creates a new instance of the <see cref="BindingPath" /> class.
+        ///     Creates a new instance of the <see cref="BindingPath" /> class.
         /// </summary>
         [NotNull]
-        public static IBindingPath Create([NotNull]string path)
+        public static IBindingPath Create([NotNull]string path, bool useCache = true)
         {
+            if (!useCache)
+                return new BindingPath(path);
             lock (Cache)
             {
                 IBindingPath value;
                 if (!Cache.TryGetValue(path, out value))
                 {
                     value = new BindingPath(path);
+                    if (Cache.Count > 300)
+                    {
+                        while (Cache.Count != 250)
+                            Cache.Remove(Cache.FirstOrDefault().Key);
+                    }
                     Cache[path] = value;
                 }
                 return value;
             }
-        }
-
-        /// <summary>
-        /// Creates a new instance of the <see cref="BindingPath" /> class.
-        /// </summary>
-        [NotNull]
-        public static IBindingPath Create([NotNull]string path, bool useCache)
-        {
-            if (useCache)
-                return Create(path);
-            return new BindingPath(path);
         }
 
         #endregion

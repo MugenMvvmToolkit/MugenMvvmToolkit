@@ -18,7 +18,7 @@
 
 using System;
 using System.Collections;
-using MonoTouch.UIKit;
+using UIKit;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;

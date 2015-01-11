@@ -16,11 +16,12 @@
 
 #endregion
 
+using System;
 using System.Collections;
 using System.Collections.Specialized;
+using Foundation;
 using JetBrains.Annotations;
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using UIKit;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
@@ -57,7 +58,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Overrides of CollectionViewSourceBase
 
-        public override int GetItemsCount(UICollectionView collectionView, int section)
+        public override nint GetItemsCount(UICollectionView collectionView, nint section)
         {
             if (ItemsSource == null)
                 return 0;

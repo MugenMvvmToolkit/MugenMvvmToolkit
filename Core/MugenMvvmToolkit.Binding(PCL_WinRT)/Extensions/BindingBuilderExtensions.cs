@@ -96,7 +96,7 @@ namespace MugenMvvmToolkit.Binding
             Should.NotBeNull(target, "target");
             Should.NotBeNullOrWhitespace(targetPath, "targetPath");
             builder.Add(BindingBuilderConstants.Target, target);
-            builder.Add(BindingBuilderConstants.TargetPath, BindingPath.Create(targetPath));
+            builder.Add(BindingBuilderConstants.TargetPath, BindingServiceProvider.BindingPathFactory(targetPath));
             return builder.GetOrAddSyntaxBuilder();
         }
 
@@ -120,7 +120,7 @@ namespace MugenMvvmToolkit.Binding
             Should.NotBeNull(sourcePath, "sourcePath");
             return syntax.ToSource(context =>
             {
-                IObserver observer = BindingServiceProvider.ObserverProvider.Observe(source, BindingPath.Create(sourcePath), false);
+                IObserver observer = BindingServiceProvider.ObserverProvider.Observe(source, BindingServiceProvider.BindingPathFactory(sourcePath), false);
                 return new BindingSource(observer);
             });
         }
@@ -142,7 +142,7 @@ namespace MugenMvvmToolkit.Binding
                     .ContextManager
                     .GetBindingContext(context.GetData(BindingBuilderConstants.Target, true),
                         context.GetData(BindingBuilderConstants.TargetPath, true).Path);
-                IObserver observer = BindingServiceProvider.ObserverProvider.Observe(bindingContext, BindingPath.Create(sourcePath),
+                IObserver observer = BindingServiceProvider.ObserverProvider.Observe(bindingContext, BindingServiceProvider.BindingPathFactory(sourcePath),
                     false);
                 return new BindingSource(observer);
             });
@@ -170,7 +170,7 @@ namespace MugenMvvmToolkit.Binding
             return syntax.ToSource(context =>
             {
                 object target = context.GetData(BindingBuilderConstants.Target, true);
-                return new BindingSource(BindingServiceProvider.ObserverProvider.Observe(target, BindingPath.Create(selfPath), false));
+                return new BindingSource(BindingServiceProvider.ObserverProvider.Observe(target, BindingServiceProvider.BindingPathFactory(selfPath), false));
             });
         }
 

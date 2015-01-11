@@ -25,9 +25,17 @@ namespace MugenMvvmToolkit.Binding.Interfaces
     /// </summary>
     public interface IContentViewManager
     {
+#if ANDROID
+        /// <summary>
+        ///     Sets the specified content.
+        /// </summary>
+        bool SetContent([NotNull] object view, [CanBeNull] object content);
+#else
         /// <summary>
         ///     Sets the specified content.
         /// </summary>
         void SetContent([NotNull] object view, [CanBeNull] object content);
+#endif
+
     }
 }

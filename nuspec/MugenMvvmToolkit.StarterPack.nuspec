@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.StarterPack</id>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <title>MugenMvvmToolkit - Starter Pack</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -36,28 +36,6 @@
       - Binding supports fluent syntax.
       - Excellent binding performance.
     </description>
-    <releaseNotes>
-      - Split the android project into several parts, Android, Android.ActionBar, Android.AppCompat, Android.Fragment, Android.RecyclerView.
-      - Increased performance of ItemsSourceAdapter (Android).
-      - Fixed invalid binding validation when using $GetErrors method.
-      - Added Xamarin.Forms support.
-      - Added support for API21(Android).
-      - Added IWrapperManager instead of IViewModelWrapperManager.
-      - Added ClearBackStack hint for navigation, it allows to remove ViewModel from the back navigation stack (WP, WPF, WinRT, Android, iOS).      
-      - Added IResourceDataTemplateSelector (Android).
-      - Added support for the $root keyword (Binding).
-      - Updated IEventAggregator, added the ability to subscribe using a delegate.
-      - Updated IDynamicObject interface, that allows to invoke methods and index members.
-      - Updated CompiledExpressionInvoker, now it can invoke dynamic members.
-      - Updated BindingEditor (WinForms).
-      - Updated INavigationContext, added NavigationType property.
-      - Updated IObservable interface, now it works with ISubscriber interface.
-      - Updated DefaultValueOnExceptionBehavior, now you can set default value (Binding).
-      - Moved the Handle method from IEventListener to extension method (Binding).
-      - Removed ThrowOnMultiInitialization property from IViewModelSettings.
-      - Optimized delegate allocation.
-      - Minor changes.
-    </releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <iconUrl>https://raw.githubusercontent.com/MugenMvvmToolkit/MugenMvvmToolkit/master/logo128_128.png</iconUrl>
     <projectUrl>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</projectUrl>
@@ -69,22 +47,24 @@
   </metadata>
   <files>
     <!-- CORE PCL WINRT -->
-    <file src="CoreContent\MainViewModel.cs.pp" target="content\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10+xamarinios10\ViewModels\MainViewModel.cs.pp" />
+    <file src="CoreContent\MainViewModel.cs.pp" target="content\portable-net45+win+wpa81+wp80\ViewModels\MainViewModel.cs.pp" />
 
     <!-- CORE PCL SILVERLIGHT -->
-    <file src="CoreContent\MainViewModel.cs.pp" target="content\portable-net45+sl40+win+wp71+MonoAndroid10+MonoTouch10+xamarinios10\ViewModels\MainViewModel.cs.pp" />
+    <file src="CoreContent\MainViewModel.cs.pp" target="content\portable-net45+sl40+win+wp71\ViewModels\MainViewModel.cs.pp" />
 
     <!-- Android -->
-    <file src="AndroidContent\Setup.cs.pp" target="content\monoandroid\Setup.cs.pp" />
-    <file src="AndroidContent\SplashScreenActivity.cs.pp" target="content\monoandroid\Views\SplashScreenActivity.cs.pp" />
-    <file src="AndroidContent\MainView.cs.pp" target="content\monoandroid\Views\MainView.cs.pp" />
-    <file src="AndroidContent\Main.axml.pp" target="content\monoandroid\Resources\layout\Main.axml.pp" />
-    <file src="AndroidContent\Readme.txt" target="content\monoandroid\_MugenMvvmToolkitReadme.txt" />
+    <file src="AndroidContent\Setup.cs.pp" target="content\MonoAndroid10\Setup.cs.pp" />
+    <file src="AndroidContent\SplashScreenActivity.cs.pp" target="content\MonoAndroid10\Views\SplashScreenActivity.cs.pp" />
+    <file src="AndroidContent\MainView.cs.pp" target="content\MonoAndroid10\Views\MainView.cs.pp" />
+    <file src="AndroidContent\Main.axml.pp" target="content\MonoAndroid10\Resources\layout\Main.axml.pp" />
+    <file src="AndroidContent\Readme.txt" target="content\MonoAndroid10\_MugenMvvmToolkitReadme.txt" />
 
     <!-- Touch -->
-    <file src="TouchContent\Setup.cs.pp" target="content\monotouch\AppDelegate.cs.pp" />
-    <file src="TouchContent\MainView.cs.pp" target="content\monotouch\Views\MainView.cs.pp" />
-    <file src="TouchContent\Readme.txt" target="content\monotouch\_MugenMvvmToolkitReadme.txt" />
+    <file src="_._" target="content\MonoTouch10\_._" />
+
+    <file src="TouchContent\Setup.cs.pp" target="content\Xamarin.iOS10\AppDelegate.cs.pp" />
+    <file src="TouchContent\MainView.cs.pp" target="content\Xamarin.iOS10\Views\MainView.cs.pp" />
+    <file src="TouchContent\Readme.txt" target="content\Xamarin.iOS10\_MugenMvvmToolkitReadme.txt" />
 
     <!-- WP 7.1 -->
     <file src="WinPhoneContent\App.Xaml71.cs.pp" target="content\sl4-windowsphone71\App.Xaml.cs.pp" />

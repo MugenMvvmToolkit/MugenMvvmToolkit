@@ -18,13 +18,13 @@
 
 using System;
 using System.Threading;
+using Foundation;
 using MonoTouch.Dialog;
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
 using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using UIKit;
 
 namespace MugenMvvmToolkit.Views
 {

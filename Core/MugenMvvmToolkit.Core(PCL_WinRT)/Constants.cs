@@ -129,6 +129,8 @@ namespace MugenMvvmToolkit.DataConstants
 
         public static readonly DataConstant<bool> ClearBackStack;
 
+        public static readonly DataConstant<bool> UseAnimations;
+
         #endregion
 
         #region Constructors
@@ -143,6 +145,7 @@ namespace MugenMvvmToolkit.DataConstants
             Parameters = DataConstant.Create(() => Parameters, true);
             IsDialog = DataConstant.Create(() => IsDialog);
             ClearBackStack = DataConstant.Create(() => ClearBackStack);
+            UseAnimations = DataConstant.Create(() => UseAnimations);
         }
 
         #endregion

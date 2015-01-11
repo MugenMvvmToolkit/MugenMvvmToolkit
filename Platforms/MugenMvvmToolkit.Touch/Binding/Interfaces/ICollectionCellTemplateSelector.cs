@@ -16,9 +16,9 @@
 
 #endregion
 
+using Foundation;
 using JetBrains.Annotations;
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using UIKit;
 
 namespace MugenMvvmToolkit.Binding.Interfaces
 {

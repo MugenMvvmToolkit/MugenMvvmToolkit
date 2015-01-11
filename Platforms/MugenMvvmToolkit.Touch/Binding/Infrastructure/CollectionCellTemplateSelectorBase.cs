@@ -16,10 +16,10 @@
 
 #endregion
 
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using Foundation;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Interfaces;
+using UIKit;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {

@@ -43,7 +43,7 @@ namespace MugenMvvmToolkit.ActionBarSupport
             Should.NotBeNull(layout, "layout");
             AppCompatModule.DrawerListenerImpl.GetOrAdd(layout).SetListener(layout.Context, listener);
         }
-#else
+#endif
         internal static void SetContentView([NotNull] this ViewGroup frameLayout, [NotNull] object content,
                     [NotNull] FragmentTransaction transaction,
                     [NotNull] Action<ViewGroup, Fragment, FragmentTransaction> updateAction)
@@ -64,7 +64,7 @@ namespace MugenMvvmToolkit.ActionBarSupport
                 frameLayout.AddView(view);
             }
         }
-#endif
+
         #endregion
     }
 }

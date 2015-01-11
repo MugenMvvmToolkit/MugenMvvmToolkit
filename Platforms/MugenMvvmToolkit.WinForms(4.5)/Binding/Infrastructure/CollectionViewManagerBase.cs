@@ -20,13 +20,13 @@ using MugenMvvmToolkit.Binding.Interfaces;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    public abstract class CollectionViewManagerBase<TView, TItem> : ICollectionViewManager
+    public abstract class CollectionViewManagerBase<TView, TViewItem> : ICollectionViewManager
     {
         #region Implementation of ICollectionViewManager
 
         void ICollectionViewManager.Insert(object view, int index, object item)
         {
-            Insert((TView) view, index, (TItem) item);
+            Insert((TView)view, index, (TViewItem)item);
         }
 
         void ICollectionViewManager.RemoveAt(object view, int index)
@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <summary>
         ///     Inserts an item to the specified index.
         /// </summary>
-        protected abstract void Insert(TView view, int index, TItem item);
+        protected abstract void Insert(TView view, int index, TViewItem viewItem);
 
         /// <summary>
         ///     Removes an item.

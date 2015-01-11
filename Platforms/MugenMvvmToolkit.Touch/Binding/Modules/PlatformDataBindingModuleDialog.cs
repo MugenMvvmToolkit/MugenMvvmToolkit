@@ -18,7 +18,7 @@
 
 using System;
 using MonoTouch.Dialog;
-using MonoTouch.Foundation;
+using Foundation;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit.Binding.Modules
                 {
                     var weakWrapper = arg3.ToWeakWrapper();
                     IDisposable unsubscriber = null;
-                    NSAction action = () =>
+                    Action action = () =>
                     {
                         if (!weakWrapper.EventListener.TryHandle(weakWrapper.EventListener, EventArgs.Empty))
                             unsubscriber.Dispose();

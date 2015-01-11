@@ -89,6 +89,9 @@
     <Compile Include="..\MugenMvvmToolkit.Android.Fragment\FragmentExtensions.cs">
       <Link>FragmentExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android.Fragment\Infrastructure\FragmentContentViewManager.cs">
+      <Link>Infrastructure\FragmentContentViewManager.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android.Fragment\Infrastructure\Mediators\MvvmFragmentMediator.cs">
       <Link>Infrastructure\Mediators\MvvmFragmentMediator.cs</Link>
     </Compile>

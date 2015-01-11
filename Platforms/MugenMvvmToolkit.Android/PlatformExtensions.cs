@@ -52,6 +52,70 @@ namespace MugenMvvmToolkit
     {
         #region Nested types
 
+        private sealed class ContentViewManager
+        {
+            #region Fields
+
+            private readonly List<IContentViewManager> _contentViewManagers;
+
+            #endregion
+
+            #region Constructors
+
+            public ContentViewManager()
+            {
+                _contentViewManagers = new List<IContentViewManager>();
+            }
+
+            #endregion
+
+            #region Methods
+
+            public void SetContent(object view, object content)
+            {
+                lock (_contentViewManagers)
+                {
+                    for (int i = 0; i < _contentViewManagers.Count; i++)
+                    {
+                        if (_contentViewManagers[i].SetContent(view, content))
+                            return;
+                    }
+                }
+            }
+
+            public void Add(IContentViewManager contentViewManager)
+            {
+                Should.NotBeNull(contentViewManager, "contentViewManager");
+                lock (_contentViewManagers)
+                    _contentViewManagers.Insert(0, contentViewManager);
+            }
+
+            public void Remove<TType>()
+                where TType : IContentViewManager
+            {
+                lock (_contentViewManagers)
+                {
+                    for (int i = 0; i < _contentViewManagers.Count; i++)
+                    {
+                        if (_contentViewManagers[i].GetType() == typeof(TType))
+                        {
+                            _contentViewManagers.RemoveAt(i);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            public void Remove(IContentViewManager contentViewManager)
+            {
+                Should.NotBeNull(contentViewManager, "contentViewManager");
+                lock (_contentViewManagers)
+                    _contentViewManagers.Remove(contentViewManager);
+            }
+
+            #endregion
+        }
+
         private sealed class BindingFactory : Object, LayoutInflater.IFactory
         {
             #region Fields
@@ -162,11 +226,12 @@ namespace MugenMvvmToolkit
 
         //NOTE ConditionalWeakTable invokes finalizer for value, even if the key object is still alive https://bugzilla.xamarin.com/show_bug.cgi?id=21620
         private static readonly List<WeakReference> WeakReferences;
+        private static readonly ContentViewManager ContentViewManagerField;
         private const string VisitedParentPath = "$``!Visited~";
         private static Func<Activity, IDataContext, IMvvmActivityMediator> _mvvmActivityMediatorFactory;
         private static Func<Context, IDataContext, MenuInflater> _menuInflaterFactory;
         private static Func<object, Context, object, int?, IDataTemplateSelector, object> _getContentViewDelegete;
-        private static Func<ViewGroup, object, int?, IDataTemplateSelector, object> _setContentViewDelegete;
+        private static Action<object, object> _setContentViewDelegete;
         private static Func<object, bool> _isFragment;
         private static Func<object, bool> _isActionBar;
 
@@ -178,9 +243,11 @@ namespace MugenMvvmToolkit
         {
             CurrentFragment = DataConstant.Create(() => CurrentFragment, true);
             _menuInflaterFactory = (context, dataContext) => new BindableMenuInflater(context);
+            ContentViewManagerField = new ContentViewManager();
+            ContentViewManagerField.Add(new ViewContentViewManager());
             _mvvmActivityMediatorFactory = MvvmActivityMediatorFactoryMethod;
             _getContentViewDelegete = GetContentViewInternal;
-            _setContentViewDelegete = SetContentViewInternal;
+            _setContentViewDelegete = ContentViewManagerField.SetContent;
             _isFragment = o => false;
             _isActionBar = _isFragment;
             WeakReferences = new List<WeakReference>(256);
@@ -252,7 +319,7 @@ namespace MugenMvvmToolkit
         ///     Gets or sets the delegate that initializes a content view.
         /// </summary>
         [NotNull]
-        public static Func<ViewGroup, object, int?, IDataTemplateSelector, object> SetContentView
+        public static Action<object, object> SetContentView
         {
             get { return _setContentViewDelegete; }
             set
@@ -429,6 +496,22 @@ namespace MugenMvvmToolkit
                 dependency.OnAttached(activity);
         }
 
+        public static void AddContentViewManager([NotNull] IContentViewManager contentViewManager)
+        {
+            ContentViewManagerField.Add(contentViewManager);
+        }
+
+        public static void RemoveContentViewManager<TType>()
+            where TType : IContentViewManager
+        {
+            ContentViewManagerField.Remove<TType>();
+        }
+
+        public static void RemoveContentViewManager([NotNull] IContentViewManager contentViewManager)
+        {
+            ContentViewManagerField.Remove(contentViewManager);
+        }
+
         internal static PlatformInfo GetPlatformInfo()
         {
             Version result;
@@ -545,6 +628,17 @@ namespace MugenMvvmToolkit
             return newView;
         }
 
+
+        private static object GetContentInternal(object container, Context ctx, object content, IDataTemplateSelector templateSelector)
+        {
+            object template = templateSelector.SelectTemplate(content, container);
+            if (template is int)
+                return GetContentInternal(ctx, content, (int)template);
+            if (template is View || IsFragment(template))
+                BindingServiceProvider.ContextManager.GetBindingContext(template).Value = content;
+            return template;
+        }
+
         private static object GetContentViewInternal(object container, Context ctx, object content, int? templateId, IDataTemplateSelector templateSelector)
         {
             Should.NotBeNull(container, "container");
@@ -581,32 +675,6 @@ namespace MugenMvvmToolkit
             Tracer.Warn("The content value {0} is not a View or Fragment.", content);
             result = new TextView(ctx) { Text = content.ToString() };
             return result;
-        }
-
-        private static object SetContentViewInternal(ViewGroup frameLayout, object content, int? templateId, IDataTemplateSelector templateSelector)
-        {
-            content = GetContentView(frameLayout, frameLayout.Context, content, templateId, templateSelector);
-            if (content == null)
-            {
-                frameLayout.RemoveAllViews();
-                return null;
-            }
-            Should.BeOfType<View>(content, "content");
-            if (frameLayout.ChildCount == 1 && frameLayout.GetChildAt(0) == content)
-                return content;
-            frameLayout.RemoveAllViews();
-            frameLayout.AddView((View)content);
-            return content;
-        }
-
-        private static object GetContentInternal(object container, Context ctx, object content, IDataTemplateSelector templateSelector)
-        {
-            object template = templateSelector.SelectTemplate(content, container);
-            if (template is int)
-                return GetContentInternal(ctx, content, (int)template);
-            if (template is View || IsFragment(template))
-                BindingServiceProvider.ContextManager.GetBindingContext(template).Value = content;
-            return template;
         }
 
         private static IMvvmActivityMediator MvvmActivityMediatorFactoryMethod(Activity activity, IDataContext dataContext)

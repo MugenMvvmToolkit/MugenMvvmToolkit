@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="NSObjectWeakReference.cs">
+// <copyright file="NativeObjectWeakReference.cs">
 // Copyright (c) 2012-2015 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -17,12 +17,11 @@
 #endregion
 
 using System;
-using MonoTouch.Foundation;
-using MonoTouch.ObjCRuntime;
+using ObjCRuntime;
 
 namespace MugenMvvmToolkit.Models
 {
-    internal class NSObjectWeakReference : WeakReference
+    internal class NativeObjectWeakReference : WeakReference
     {
         #region Constructors
 
@@ -35,7 +34,7 @@ namespace MugenMvvmToolkit.Models
         ///     Indicates when to stop tracking the object. If true, the object is tracked after
         ///     finalization; if false, the object is only tracked until finalization.
         /// </param>
-        public NSObjectWeakReference(INativeObject target, bool trackResurrection)
+        public NativeObjectWeakReference(INativeObject target, bool trackResurrection)
             : base(target, trackResurrection)
         {
         }

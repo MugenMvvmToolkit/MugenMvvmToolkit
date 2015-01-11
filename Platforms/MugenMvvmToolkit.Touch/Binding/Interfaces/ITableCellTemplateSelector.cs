@@ -16,9 +16,10 @@
 
 #endregion
 
+using System;
+using Foundation;
 using JetBrains.Annotations;
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using UIKit;
 
 namespace MugenMvvmToolkit.Binding.Interfaces
 {
@@ -41,7 +42,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         /// <param name="container">The element to which the template will be applied</param>
         /// <param name="identifier">The specified identifier.</param>
         /// <returns>An app-specific template height to apply, or null.</returns>
-        float? GetHeight([NotNull] UITableView container, [NotNull] NSString identifier);
+        nfloat? GetHeight([NotNull] UITableView container, [NotNull] NSString identifier);
 
         /// <summary>
         ///     Returns an app specific template.

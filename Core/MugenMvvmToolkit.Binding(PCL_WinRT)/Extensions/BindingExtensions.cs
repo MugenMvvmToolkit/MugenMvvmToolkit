@@ -422,7 +422,7 @@ namespace MugenMvvmToolkit.Binding
 
         public static object GetValueFromPath(object src, string strPath, int firstMemberIndex = 0)
         {
-            IBindingPath path = BindingPath.Create(strPath);
+            IBindingPath path = BindingServiceProvider.BindingPathFactory(strPath);
             for (int index = firstMemberIndex; index < path.Parts.Count; index++)
             {
                 var item = path.Parts[index];

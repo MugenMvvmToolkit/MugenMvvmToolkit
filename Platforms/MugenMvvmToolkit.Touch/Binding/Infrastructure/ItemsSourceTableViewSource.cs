@@ -16,11 +16,12 @@
 
 #endregion
 
+using System;
 using System.Collections;
 using System.Collections.Specialized;
+using Foundation;
 using JetBrains.Annotations;
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using UIKit;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
@@ -56,7 +57,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Overrides of TableViewSourceBase
 
-        public override int RowsInSection(UITableView tableview, int section)
+        public override nint RowsInSection(UITableView tableview, nint section)
         {
             if (ItemsSource == null)
                 return 0;

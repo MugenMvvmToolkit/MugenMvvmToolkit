@@ -17,7 +17,7 @@
 #endregion
 
 using JetBrains.Annotations;
-using MonoTouch.UIKit;
+using UIKit;
 
 namespace MugenMvvmToolkit
 {

@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit
             return new PlatformInfo(PlatformType.WinPhone, Environment.OSVersion.Version);
 #elif TOUCH
             Version result;
-            Version.TryParse(MonoTouch.UIKit.UIDevice.CurrentDevice.SystemVersion, out result);
+            Version.TryParse(UIKit.UIDevice.CurrentDevice.SystemVersion, out result);
             return new PlatformInfo(PlatformType.iOS, result);
 #else
             Version result;

@@ -1,10 +1,10 @@
 using System.Drawing;
-using MonoTouch.Foundation;
-using MonoTouch.ObjCRuntime;
-using MonoTouch.UIKit;
+using Foundation;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Views;
+using ObjCRuntime;
+using UIKit;
 
 namespace $rootnamespace$.Views
 {

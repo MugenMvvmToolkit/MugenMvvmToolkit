@@ -45,6 +45,10 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Presenters
 #else
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces.Views;
+#if XAMARIN_FORMS
+using IWindowView = MugenMvvmToolkit.Interfaces.Views.IModalView;
+using WindowViewMediator = MugenMvvmToolkit.Infrastructure.Mediators.ModalViewMediator;
+#endif
 
 namespace MugenMvvmToolkit.Infrastructure.Presenters
 #endif
@@ -210,7 +214,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         protected virtual IWindowViewMediator CreateWindowViewMediator([NotNull] IViewModel viewModel, Type viewType,
             [NotNull] IDataContext context)
         {
-#if TOUCH || XAMARIN_FORMS
+#if TOUCH
             var container = viewModel.GetIocContainer(true);
             if (_wrapperManager.CanWrap(viewType, typeof(IModalView), context))
                 return new ModalViewMediator(viewModel, ThreadManager, ViewManager, WrapperManager, CallbackManager, ViewMappingProvider, container.Get<IViewModelProvider>());
