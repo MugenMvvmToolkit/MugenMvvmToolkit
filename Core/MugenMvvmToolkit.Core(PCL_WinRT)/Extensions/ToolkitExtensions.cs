@@ -1292,12 +1292,21 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        /// Writes the stream contents to a byte array.
+        ///     Writes the stream contents to a byte array.
         /// </summary>
-        public static byte[] ToArray([NotNull] this Stream stream, int position = 0)
+        public static byte[] ToArray([NotNull] this Stream stream)
+        {
+            return stream.ToArray(0);
+        }
+
+        /// <summary>
+        ///     Writes the stream contents to a byte array.
+        /// </summary>
+        public static byte[] ToArray([NotNull] this Stream stream, int? position)
         {
             Should.NotBeNull(stream, "stream");
-            stream.Position = position;
+            if (position.HasValue && position.Value != stream.Position)
+                stream.Position = position.Value;
             var memoryStream = stream as MemoryStream;
             if (memoryStream != null)
                 return memoryStream.ToArray();

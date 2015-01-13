@@ -86,6 +86,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\MugenMvvmToolkit.AutofacContainer%28PCL%29\Properties\AssemblyInfoCommon.cs">
+      <Link>Properties\AssemblyInfoCommon.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.NinjectContainer%28NET4%29\NinjectContainer.cs">
       <Link>NinjectContainer.cs</Link>
     </Compile>

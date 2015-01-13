@@ -495,6 +495,9 @@
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\sources\BindingTarget.cs">
       <Link>Sources\BindingTarget.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
+      <Link>Properties\AssemblyInfoCommon.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\license.txt">

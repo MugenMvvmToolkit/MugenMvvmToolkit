@@ -21,11 +21,6 @@ using System.Reflection;
 [assembly: AssemblyTitle("MugenMvvmToolkit.AutofacContainer")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Vyacheslav Volkov")]
 [assembly: AssemblyProduct("MugenMvvmToolkit.AutofacContainer")]
-[assembly: AssemblyCopyright("Copyright (c) 2012-2015 Vyacheslav Volkov")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-
-[assembly: AssemblyVersion("1.2.0.0")]
-[assembly: AssemblyFileVersion("1.2.0.0")]

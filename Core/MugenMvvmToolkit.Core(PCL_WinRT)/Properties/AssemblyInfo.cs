@@ -17,16 +17,14 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Resources;
 using System.Reflection;
+using System.Resources;
 using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("MugenMvvmToolkit")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Vyacheslav Volkov")]
 [assembly: AssemblyProduct("MugenMvvmToolkit")]
-[assembly: AssemblyCopyright("Copyright (c) 2012-2015 Vyacheslav Volkov")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguage("en")]
@@ -38,6 +36,3 @@ using System.Runtime.CompilerServices;
 #if !PCL_Silverlight
 [assembly: TypeForwardedTo(typeof(HashSet<>))]
 #endif
-
-[assembly: AssemblyVersion("3.2.0.0")]
-[assembly: AssemblyFileVersion("3.2.0.0")]

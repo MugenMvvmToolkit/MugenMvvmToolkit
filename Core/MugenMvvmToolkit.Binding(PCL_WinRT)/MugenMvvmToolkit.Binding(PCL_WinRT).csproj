@@ -48,6 +48,9 @@
     <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
+      <Link>Properties\AssemblyInfoCommon.cs</Link>
+    </Compile>
     <Compile Include="Accessors\BindingSourceAccessor.cs" />
     <Compile Include="Accessors\BindingSourceAccessorBase.cs" />
     <Compile Include="Accessors\MultiBindingSourceAccessor.cs" />

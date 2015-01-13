@@ -137,32 +137,32 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Overrides of UIPickerViewModel
 
-        public override int GetComponentCount(UIPickerView picker)
+        public override nint GetComponentCount(UIPickerView picker)
         {
             return 1;
         }
 
-        public override int GetRowsInComponent(UIPickerView picker, int component)
+        public override nint GetRowsInComponent(UIPickerView picker, nint component)
         {
             if (_itemsSource == null)
                 return 0;
             return _itemsSource.Count();
         }
 
-        public override void Selected(UIPickerView picker, int row, int component)
+        public override void Selected(UIPickerView picker, nint row, nint component)
         {
-            _selectedItem = _itemsSource == null ? null : _itemsSource.ElementAtIndex(row);
+            _selectedItem = _itemsSource == null ? null : _itemsSource.ElementAtIndex((int) row);
 
             EventHandler handler = SelectedItemChanged;
             if (handler != null)
                 handler(this, EventArgs.Empty);
         }
 
-        public override string GetTitle(UIPickerView picker, int row, int component)
+        public override string GetTitle(UIPickerView picker, nint row, nint component)
         {
             if (_itemsSource == null)
                 return EmptyTitle;
-            object item = _itemsSource.ElementAtIndex(row);
+            object item = _itemsSource.ElementAtIndex((int) row);
             if (item == null)
                 return EmptyTitle;
             if (!string.IsNullOrEmpty(DisplayMemberPath))

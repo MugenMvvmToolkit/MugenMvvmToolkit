@@ -468,6 +468,9 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Sources\BindingTarget.cs">
       <Link>Sources\BindingTarget.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
+      <Link>Properties\AssemblyInfoCommon.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="FodyWeavers.xml" />

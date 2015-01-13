@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit</id>
-    <version>3.2.1</version>
+    <version>3.3.0</version>
     <title>MugenMvvmToolkit</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -40,6 +40,7 @@
       - Added support for Xamarin.iOS 64 bit (Unified API). Requires Xamarin.iOS 8.6.0.0 or newer. (iOS, Xamarin.Forms)
       - Added UseAnimations hint for navigation, it allows to animate view during navigation (iOS, Xamarin.Forms).
       - Added ICollectionViewManager and IContentViewManager for Android platform.
+      - Added BindingServiceProvider.BindingPathFactory static property that allows to create an instance of IBindingPath for the specified string.
       - Minor changes.
     </releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -176,8 +177,8 @@
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\Xamarin.iOS10\MugenMvvmToolkit.Binding.dll" />
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\Xamarin.iOS10\MugenMvvmToolkit.Binding.pdb" />
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.xml" target="lib\Xamarin.iOS10\MugenMvvmToolkit.Binding.xml" />
-    <file src="..\bin\Platforms\Touch\MugenMvvmToolkit.Touch.dll" target="lib\Xamarin.iOS10\MugenMvvmToolkit.Touch.dll" />
-    <file src="..\bin\Platforms\Touch\MugenMvvmToolkit.Touch.xml" target="lib\Xamarin.iOS10\MugenMvvmToolkit.Touch.xml" />
+    <file src="..\bin\Platforms\Touch\MugenMvvmToolkit.iOS.dll" target="lib\Xamarin.iOS10\MugenMvvmToolkit.iOS.dll" />
+    <file src="..\bin\Platforms\Touch\MugenMvvmToolkit.iOS.xml" target="lib\Xamarin.iOS10\MugenMvvmToolkit.iOS.xml" />
 
     <file src="TouchContent\error.png" target="content\Xamarin.iOS10\Resources\error.png" />
     <file src="TouchContent\error@2x.png" target="content\Xamarin.iOS10\Resources\error@2x.png" />

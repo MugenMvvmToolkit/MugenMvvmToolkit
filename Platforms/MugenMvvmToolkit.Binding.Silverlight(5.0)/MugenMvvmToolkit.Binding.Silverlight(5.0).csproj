@@ -70,6 +70,9 @@
     <Reference Include="System.Windows.Browser" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
+      <Link>Properties\AssemblyInfoCommon.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android\Binding\Infrastructure\ItemsSourceGeneratorBase.cs">
       <Link>Infrastructure\ItemsSourceGeneratorBase.cs</Link>
     </Compile>

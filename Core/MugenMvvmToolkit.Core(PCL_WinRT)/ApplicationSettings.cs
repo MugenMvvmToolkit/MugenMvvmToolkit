@@ -33,9 +33,25 @@ namespace MugenMvvmToolkit
         #region Fields
 
         /// <summary>
-        /// Gets the data contract namespace.
+        ///     Gets the data contract namespace.
         /// </summary>
         public const string DataContractNamespace = "http://schemas.mugenmvvmtoolkit.com";
+
+        /// <summary>
+        ///     Gets the assembly version.
+        /// </summary>
+        public const string AssemblyVersion = "3.3.0.0";
+
+        /// <summary>
+        ///     Gets the assembly copyright.
+        /// </summary>
+        public const string AssemblyCopyright = "Copyright (c) 2012-2015 Vyacheslav Volkov";
+
+        /// <summary>
+        ///     Gets the assembly company.
+        /// </summary>
+        public const string AssemblyCompany = "Vyacheslav Volkov";
+
         private static IViewModelSettings _viewModelSettings;
         private static PlatformInfo _platform;
 

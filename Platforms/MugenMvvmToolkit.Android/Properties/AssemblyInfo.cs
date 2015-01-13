@@ -23,9 +23,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("MugenMvvmToolkit.Android")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Vyacheslav Volkov")]
 [assembly: AssemblyProduct("MugenMvvmToolkit.Android")]
-[assembly: AssemblyCopyright("Copyright (c) 2012-2015 Vyacheslav Volkov")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
@@ -34,6 +32,3 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Android.AppCompat")]
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Android.Fragment")]
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Android.RecyclerView")]
-
-[assembly: AssemblyVersion("1.2.0.0")]
-[assembly: AssemblyFileVersion("1.2.0.0")]

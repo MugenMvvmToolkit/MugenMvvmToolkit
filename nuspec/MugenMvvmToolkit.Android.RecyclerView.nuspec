@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.Android.RecyclerView</id>
-    <version>1.0.1</version>
+    <version>3.3.0</version>
     <title>MugenMvvmToolkit - Adnroid Support Library v7 RecyclerView</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -13,6 +13,7 @@
       - Added support for Xamarin.iOS 64 bit (Unified API). Requires Xamarin.iOS 8.6.0.0 or newer. (iOS, Xamarin.Forms)
       - Added UseAnimations hint for navigation, it allows to animate view during navigation (iOS, Xamarin.Forms).
       - Added ICollectionViewManager and IContentViewManager for Android platform.
+      - Added BindingServiceProvider.BindingPathFactory static property that allows to create an instance of IBindingPath for the specified string.
       - Minor changes.
     </releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -21,7 +22,7 @@
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
-      <dependency id="MugenMvvmToolkit" version="[3.2.1, 3.3.0)" />      
+      <dependency id="MugenMvvmToolkit" version="[3.3.0, 3.4.0)" />      
       <dependency id="Xamarin.Android.Support.v7.RecyclerView" />
     </dependencies>
   </metadata>

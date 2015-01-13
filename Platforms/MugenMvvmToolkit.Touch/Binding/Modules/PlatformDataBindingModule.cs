@@ -194,7 +194,7 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             //UIDatePicker
             memberProvider.Register(AttachedBindingMember.CreateMember<UIDatePicker, DateTime>("Date",
-                (info, picker) => picker.Date, (info, picker, arg3) => picker.Date = arg3, "ValueChanged"));
+                (info, picker) => NSDateToDateTime(picker.Date), (info, picker, arg3) => picker.Date = DateTimeToNSDate(arg3), "ValueChanged"));
 
             //UISwitch
             memberProvider.Register(AttachedBindingMember.CreateMember<UISwitch, bool>("On",
@@ -511,6 +511,21 @@ namespace MugenMvvmToolkit.Binding.Modules
                             AttachedMemberConstants.ItemTemplate,
                             (splitViewController, controllers) => splitViewController.ViewControllers = controllers), null);
             itemsSource.SetItemsSource(args.NewValue);
+        }
+
+        private static DateTime NSDateToDateTime(NSDate date)
+        {
+            DateTime reference = TimeZone.CurrentTimeZone.ToLocalTime(
+                new DateTime(2001, 1, 1, 0, 0, 0));
+            return reference.AddSeconds(date.SecondsSinceReferenceDate);
+        }
+
+        private static NSDate DateTimeToNSDate(DateTime date)
+        {
+            DateTime reference = TimeZone.CurrentTimeZone.ToLocalTime(
+                new DateTime(2001, 1, 1, 0, 0, 0));
+            return NSDate.FromTimeIntervalSinceReferenceDate(
+                (date - reference).TotalSeconds);
         }
 
         #endregion

@@ -268,7 +268,7 @@ namespace MugenMvvmToolkit.Views
 
             var size = GetOwnerBoundsSize();
             var constrainedToSize = new CGSize(size.Width * 0.8f, size.Height * 0.8f);
-            var cgSize = uiLabel.StringSize(uiLabel.Text, uiLabel.Font, constrainedToSize, uiLabel.LineBreakMode);
+            var cgSize = uiLabel.Text.StringSize(uiLabel.Font, constrainedToSize, uiLabel.LineBreakMode);
             uiLabel.Frame = new CGRect(0f, 0f, cgSize.Width, cgSize.Height);
 
             var width = uiLabel.Bounds.Size.Width;
