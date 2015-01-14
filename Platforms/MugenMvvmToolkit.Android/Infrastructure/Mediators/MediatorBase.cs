@@ -64,7 +64,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             StateKey = "!~state" + typeof(TTarget).Name;
             ViewModelTypeNameKey = "~vmtype" + typeof(TTarget).Name;
             IdKey = "~ctxid~" + typeof(TTarget).Name;
-            ClearCacheOnDisposeDelegate = ClearCacheOnDispose;
+            ClearCacheOnDisposeDelegate = ClearCacheOnDisposeViewModel;
         }
 
         /// <summary>
@@ -166,7 +166,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                     if (!viewModel.Settings.Metadata.TryGetData(ViewModelConstants.StateNotNeeded, out data) || !data)
                     {
                         outState.PutString(ViewModelTypeNameKey, viewModel.GetType().AssemblyQualifiedName);
-                        PreserveState(outState, viewModel);
+                        PreserveViewModel(viewModel, outState);
                     }
                 }
             }
@@ -176,22 +176,29 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// <summary>
         ///     Called when the target is starting.
         /// </summary>
-        protected void OnCreate(Bundle savedInstanceState)
+        protected void OnCreate(Bundle bundle)
         {
             if (_context == null)
                 _context = BindingServiceProvider.ContextManager.GetBindingContext(_target);
-            if (savedInstanceState != null)
-            {
-                var oldId = savedInstanceState.GetString(IdKey);
-                if (!string.IsNullOrEmpty(oldId))
-                {
-                    var oldContext = RestoreState(savedInstanceState, GetFromCache(Guid.Parse(oldId)));
-                    if (!ReferenceEquals(BindingContext.Value, oldContext))
-                        RestoreContext(oldContext);
-                }
-            }
             if (_id == Guid.Empty)
                 _id = Guid.NewGuid();
+            if (bundle == null)
+                return;
+            var oldId = bundle.GetString(IdKey);
+            if (string.IsNullOrEmpty(oldId))
+                return;
+            var currentDataContext = GetFromCache(Guid.Parse(oldId));
+            var vmTypeName = bundle.GetString(ViewModelTypeNameKey);
+            if (vmTypeName == null)
+                return;
+            bundle.Remove(ViewModelTypeNameKey);
+            var vmType = Type.GetType(vmTypeName, false);
+            if (vmType == null || (currentDataContext != null && currentDataContext.GetType().Equals(vmType)))
+                return;
+
+            var viewModel = RestoreViewModel(vmType, bundle);
+            if (!ReferenceEquals(BindingContext.Value, viewModel))
+                RestoreContext(viewModel);
         }
 
         /// <summary>
@@ -217,10 +224,38 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
         }
 
-        protected virtual void PreserveState(Bundle bundle, IViewModel viewModel)
+        /// <summary>
+        ///     Restores the view model.
+        /// </summary>
+        [CanBeNull]
+        protected virtual object RestoreViewModel([NotNull] Type viewModelType, [NotNull] Bundle bundle)
         {
-            if (viewModel == null || bundle == null)
-                return;
+            var context = new DataContext
+            {
+                {InitializationConstants.ViewModelType, viewModelType}
+            };
+            return Get<IViewModelProvider>().RestoreViewModel(RestoreViewModelState(bundle), context, false);
+        }
+
+        /// <summary>
+        ///     Restores the view model state.
+        /// </summary>
+        [NotNull]
+        protected virtual IDataContext RestoreViewModelState([NotNull] Bundle bundle)
+        {
+            var bytes = bundle.GetByteArray(StateKey);
+            if (bytes == null)
+                return Models.DataContext.Empty;
+            bundle.Remove(StateKey);
+            using (var ms = new MemoryStream(bytes))
+                return (IDataContext)Get<ISerializer>().Deserialize(ms);
+        }
+
+        /// <summary>
+        ///     Preserves the view model.
+        /// </summary>
+        protected virtual void PreserveViewModel([NotNull] IViewModel viewModel, [NotNull] Bundle bundle)
+        {
             var state = Get<IViewModelProvider>().PreserveViewModel(viewModel, Models.DataContext.Empty);
             if (state.Count == 0)
                 bundle.Remove(StateKey);
@@ -229,35 +264,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 using (var stream = Get<ISerializer>().Serialize(state))
                     bundle.PutByteArray(StateKey, stream.ToArray());
             }
-        }
-
-        protected virtual object RestoreState(Bundle bundle, object dataContext)
-        {
-            if (bundle == null)
-                return dataContext;
-
-            var vmTypeName = bundle.GetString(ViewModelTypeNameKey);
-            if (vmTypeName == null)
-                return dataContext;
-
-            bundle.Remove(ViewModelTypeNameKey);
-            var vmType = Type.GetType(vmTypeName, false);
-            if (vmType == null || (dataContext != null && dataContext.GetType().Equals(vmType)))
-                return dataContext;
-
-            IDataContext state = null;
-            var bytes = bundle.GetByteArray(StateKey);
-            if (bytes != null)
-            {
-                bundle.Remove(StateKey);
-                using (var ms = new MemoryStream(bytes))
-                    state = (IDataContext)Get<ISerializer>().Deserialize(ms);
-            }
-            var context = new DataContext
-            {
-                {InitializationConstants.ViewModelType, vmType}
-            };
-            return Get<IViewModelProvider>().RestoreViewModel(state, context, false);
         }
 
         protected virtual IDataContext CreateRestorePresenterContext()
@@ -284,7 +290,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 ContextCache.Remove(_id);
         }
 
-        protected static void ClearCacheOnDispose(IDisposableObject sender, EventArgs args)
+        protected static void ClearCacheOnDisposeViewModel(IDisposableObject sender, EventArgs args)
         {
             sender.Disposed -= ClearCacheOnDisposeDelegate;
             lock (ContextCache)

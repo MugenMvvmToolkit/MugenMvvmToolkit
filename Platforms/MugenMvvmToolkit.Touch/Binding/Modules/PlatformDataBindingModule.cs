@@ -177,7 +177,9 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             memberProvider.Register(CollectionViewManagerMember);
             memberProvider.Register(ContentViewManagerMember);
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<object, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplate));
+            var itemTemplateMember = AttachedBindingMember.CreateAutoProperty<object, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplate);
+            memberProvider.Register(itemTemplateMember);
+            memberProvider.Register(typeof(object), AttachedMemberConstants.ItemTemplateSelector, itemTemplateMember, true);
 
             //UIView
             memberProvider.Register(AttachedBindingMember.CreateMember<UIView, object>(AttachedMemberConstants.Parent,
@@ -185,6 +187,8 @@ namespace MugenMvvmToolkit.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateMember<UIView, object>(AttachedMemberConstants.FindByNameMethod, FindViewByName));
             memberProvider.Register(ContentMember);
             memberProvider.Register(ContentTemplateMember);
+            memberProvider.Register(typeof(UIView), AttachedMemberConstants.ContentTemplateSelector,
+                ContentTemplateMember, true);
             memberProvider.Register(AttachedBindingMember.CreateMember<UIView, bool>("Visible", (info, view) => !view.Hidden, (info, view, arg3) => view.Hidden = !arg3));
 
             //UIButton

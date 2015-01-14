@@ -34,6 +34,9 @@ using UIKit;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
+    /// <summary>
+    ///     Represents the base implementation of <see cref="IApplicationStateManager"/>.
+    /// </summary>
     public class ApplicationStateManager : IApplicationStateManager
     {
         #region Fields
@@ -103,6 +106,9 @@ namespace MugenMvvmToolkit.Infrastructure
             get { return _viewModelPresenter; }
         }
 
+        /// <summary>
+        ///     Gets or sets the delegate that allows to create an instance of <see cref="UIViewController" />.
+        /// </summary>
         [CanBeNull]
         public static Func<Type, NSCoder, IDataContext, UIViewController> ViewControllerFactory { get; set; }
 
@@ -113,7 +119,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Occurs on save element state.
         /// </summary>
-        public virtual void EncodeState(NSObject item, NSCoder state, IDataContext context = null)
+        public void EncodeState(NSObject item, NSCoder state, IDataContext context = null)
         {
             Should.NotBeNull(item, "item");
             Should.NotBeNull(state, "state");
@@ -123,29 +129,67 @@ namespace MugenMvvmToolkit.Infrastructure
             var view = item as UIView;
             if (view != null && string.IsNullOrEmpty(view.RestorationIdentifier))
                 return;
-            SaveState(item, Infrastructure.ViewManager.GetDataContext(item) as IViewModel, state);
+            object navigationParameter = (item as UIViewController).GetNavigationParameter();
+            if (navigationParameter != null)
+            {
+                using (Stream stream = _serializer.Serialize(navigationParameter))
+                    state.Encode(stream.ToArray(), ParameterStateKey);
+            }
+            var viewModel = Infrastructure.ViewManager.GetDataContext(item) as IViewModel;
+            if (viewModel != null)
+            {
+                state.Encode(new NSString(viewModel.GetType().AssemblyQualifiedName), VmTypeKey);
+                PreserveViewModel(viewModel, item, state, context ?? DataContext.Empty);
+            }
         }
 
         /// <summary>
         ///     Occurs on load element state.
         /// </summary>
-        public virtual void DecodeState(NSObject item, NSCoder state, IDataContext context = null)
+        public void DecodeState(NSObject item, NSCoder state, IDataContext context = null)
         {
             Should.NotBeNull(item, "item");
             Should.NotBeNull(state, "state");
-            RestoreState(item, state);
+            RestoreNavigationParameter(item, state);
+            if (!state.ContainsKey(VmTypeKey))
+                return;
+            var vmTypeName = (NSString)state.DecodeObject(VmTypeKey);
+            if (vmTypeName == null)
+                return;
+
+            object dataContext = Infrastructure.ViewManager.GetDataContext(item);
+            var vmType = Type.GetType(vmTypeName, false);
+            if (vmType != null && (dataContext == null || !dataContext.GetType().Equals(vmType)))
+            {
+                if (context == null)
+                    context = DataContext.Empty;
+                RestoreViewModel(vmType, RestoreViewModelState(item, state, context), item, state, context);
+            }
         }
 
         /// <summary>
         ///     Tries to restore view controller.
         /// </summary>
-        public virtual UIViewController GetViewController(string[] restorationIdentifierComponents, NSCoder coder,
-            IDataContext context = null)
+        public UIViewController GetViewController(string[] restorationIdentifierComponents, NSCoder coder, IDataContext context = null)
         {
             string id = restorationIdentifierComponents.LastOrDefault();
             Type type = PlatformExtensions.GetTypeFromRestorationIdentifier(id);
             if (type == null)
                 return null;
+            return GetViewControllerInternal(id, type, coder, context ?? DataContext.Empty);
+        }
+
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        ///     Tries to restore view controller.
+        /// </summary>
+        [CanBeNull]
+        protected virtual UIViewController GetViewControllerInternal([NotNull] string restorationIdentifier, [NotNull] Type type,
+            [NotNull] NSCoder coder, [NotNull] IDataContext context)
+        {
             UIViewController controller = null;
             Func<Type, NSCoder, IDataContext, UIViewController> factory = ViewControllerFactory;
             if (factory != null)
@@ -157,60 +201,48 @@ namespace MugenMvvmToolkit.Infrastructure
                 else
                     controller = (UIViewController)ServiceProvider.IocContainer.Get(type);
             }
-            controller.RestorationIdentifier = id;
+            controller.RestorationIdentifier = restorationIdentifier;
             return controller;
         }
 
-        #endregion
-
-        #region Methods
-
-        private void RestoreState(NSObject item, NSCoder coder)
+        /// <summary>
+        ///     Restores the view model state.
+        /// </summary>
+        [NotNull]
+        protected virtual IDataContext RestoreViewModelState([NotNull] NSObject item, [NotNull] NSCoder coder, [NotNull] IDataContext context)
         {
-            RestoreNavigationParameter(item, coder);
-            if (!coder.ContainsKey(VmStateKey) || !coder.ContainsKey(VmTypeKey))
-                return;
-
-            var vmTypeName = (NSString)coder.DecodeObject(VmTypeKey);
-            if (vmTypeName == null)
-                return;
-            object dataContext = Infrastructure.ViewManager.GetDataContext(item);
-
-            var vmType = Type.GetType(vmTypeName, false);
-            if (vmType == null || (dataContext != null && dataContext.GetType().Equals(vmType)))
-                return;
-
             byte[] bytes = coder.DecodeBytes(VmStateKey);
-            IDataContext state;
+            if (bytes == null)
+                return DataContext.Empty;
             using (var ms = new MemoryStream(bytes))
-                state = (IDataContext)_serializer.Deserialize(ms);
-            var context = new DataContext
-            {
-                {InitializationConstants.ViewModelType, vmType}                
-            };
+                return (IDataContext)_serializer.Deserialize(ms);
+        }
+
+        /// <summary>
+        ///     Restores the view model.
+        /// </summary>
+        protected virtual void RestoreViewModel([NotNull] Type viewModelType, [NotNull] IDataContext viewModelState, [NotNull] NSObject item, [NotNull] NSCoder coder,
+            [NotNull] IDataContext context)
+        {
+            context = context.ToNonReadOnly();
+            context.AddOrUpdate(InitializationConstants.ViewModelType, viewModelType);
+
             if (item is IModalView)
             {
                 context.Add(DynamicViewModelWindowPresenter.RestoredViewConstant, item);
                 context.Add(DynamicViewModelWindowPresenter.IsOpenViewConstant, true);
             }
-            var viewModel = _viewModelProvider.RestoreViewModel(state, context, false);
-            _viewManager.InitializeViewAsync(viewModel, item, context);
+            var viewModel = _viewModelProvider.RestoreViewModel(viewModelState, context, false);
+            _viewManager.InitializeViewAsync(viewModel, item, context).WithTaskExceptionHandler(this);
             _viewModelPresenter.Restore(viewModel, context);
         }
 
-        private void SaveState(NSObject item, IViewModel viewModel, NSCoder coder)
+        /// <summary>
+        ///     Preserves the view model.
+        /// </summary>
+        protected virtual void PreserveViewModel([NotNull] IViewModel viewModel, NSObject item, [NotNull] NSCoder coder, [NotNull] IDataContext context)
         {
-            object navigationParameter = (item as UIViewController).GetNavigationParameter();
-            if (navigationParameter != null)
-            {
-                using (Stream stream = _serializer.Serialize(navigationParameter))
-                    coder.Encode(stream.ToArray(), ParameterStateKey);
-            }
-
-            if (viewModel == null)
-                return;
-            coder.Encode(new NSString(viewModel.GetType().AssemblyQualifiedName), VmTypeKey);
-            var state = _viewModelProvider.PreserveViewModel(viewModel, DataContext.Empty);
+            var state = _viewModelProvider.PreserveViewModel(viewModel, context);
             using (var stream = _serializer.Serialize(state))
                 coder.Encode(stream.ToArray(), VmStateKey);
         }

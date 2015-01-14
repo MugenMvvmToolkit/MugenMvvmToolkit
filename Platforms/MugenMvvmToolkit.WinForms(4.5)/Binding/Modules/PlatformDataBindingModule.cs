@@ -74,7 +74,9 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             memberProvider.Register(CollectionViewManagerMember);
             memberProvider.Register(ContentViewManagerMember);
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<object, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplate));
+            var itemTemplateMember = AttachedBindingMember.CreateAutoProperty<object, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplate);
+            memberProvider.Register(itemTemplateMember);
+            memberProvider.Register(typeof(object), AttachedMemberConstants.ItemTemplateSelector, itemTemplateMember, true);
 
             //Control
             memberProvider.Register(AttachedBindingMember
@@ -89,6 +91,7 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             memberProvider.Register(ContentMember);
             memberProvider.Register(ContentTemplateMember);
+            memberProvider.Register(typeof(Control), AttachedMemberConstants.ContentTemplateSelector, ContentTemplateMember, true);
 
             //DateTimePicker
             memberProvider.Register(AttachedBindingMember.CreateMember<DateTimePicker, DateTime>("Value",

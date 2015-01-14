@@ -62,13 +62,15 @@ namespace MugenMvvmToolkit.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<UICollectionView, IEnumerable>(AttachedMemberConstants.ItemsSource, CollectionViewItemsSourceChanged));
             memberProvider.Register(AttachedBindingMember.CreateMember<UICollectionView, object>(AttachedMemberConstants.SelectedItem,
                     GetCollectionViewSelectedItem, SetCollectionViewSelectedItem, (info, view, arg3) => (IDisposable)CollectionViewSelectedItemChangedEvent.SetValue(view, arg3)));
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<UICollectionView, ICollectionCellTemplateSelector>(
-                    AttachedMemberConstants.ItemTemplate,
-                    (view, args) =>
-                    {
-                        if (args.NewValue != null)
-                            args.NewValue.Initialize(view);
-                    }));
+            var itemTemplateMember = AttachedBindingMember.CreateAutoProperty<UICollectionView, ICollectionCellTemplateSelector>(
+                AttachedMemberConstants.ItemTemplate,
+                (view, args) =>
+                {
+                    if (args.NewValue != null)
+                        args.NewValue.Initialize(view);
+                });
+            memberProvider.Register(itemTemplateMember);
+            memberProvider.Register(typeof(UICollectionView), AttachedMemberConstants.ItemTemplateSelector, itemTemplateMember, true);
 
             //UICollectionViewCell
             memberProvider.Register(CollectionViewCellSelectedMember);

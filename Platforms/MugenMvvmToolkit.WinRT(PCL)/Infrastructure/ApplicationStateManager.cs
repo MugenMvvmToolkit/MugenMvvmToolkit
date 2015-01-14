@@ -22,6 +22,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
@@ -45,7 +46,7 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Nested types
 
         [DataContract]
-        internal sealed class LazySerializableContainer
+        internal protected sealed class LazySerializableContainer
         {
             #region Fields
 
@@ -65,7 +66,6 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 _serializer = serializer;
                 _context = context;
-                ViewModelType = viewModel.GetType().AssemblyQualifiedName;
             }
 
             #endregion
@@ -83,9 +83,6 @@ namespace MugenMvvmToolkit.Infrastructure
                 }
                 set { _bytes = value; }
             }
-
-            [DataMember]
-            public string ViewModelType { get; set; }
 
             #endregion
 
@@ -111,6 +108,7 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         private const string VmStateKey = "@`vmstate";
+        private const string VmTypeKey = "@`vmtype";
 
         private static readonly Type[] KnownTypesStatic;
 
@@ -195,52 +193,92 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Occurs on save element state.
         /// </summary>
-        public virtual void OnSaveState(FrameworkElement element, IDictionary<string, object> state, object args,
+        public void OnSaveState(FrameworkElement element, IDictionary<string, object> state, object args,
             IDataContext context = null)
         {
             Should.NotBeNull(element, "element");
             Should.NotBeNull(state, "state");
             var viewModel = element.DataContext as IViewModel;
             if (viewModel != null)
-                state[VmStateKey] = new LazySerializableContainer(_serializer,
-                    _viewModelProvider.PreserveViewModel(viewModel, context ?? DataContext.Empty), viewModel);
+            {
+                state[VmTypeKey] = viewModel.GetType().AssemblyQualifiedName;
+                PreserveViewModel(viewModel, element, state, args, context ?? DataContext.Empty);
+            }
         }
 
         /// <summary>
         ///     Occurs on load element state.
         /// </summary>
-        public virtual void OnLoadState(FrameworkElement element, IDictionary<string, object> state, object args,
+        public void OnLoadState(FrameworkElement element, IDictionary<string, object> state, object args,
             IDataContext context = null)
         {
             Should.NotBeNull(element, "element");
             Should.NotBeNull(state, "state");
             object value;
-            if (!state.TryGetValue(VmStateKey, out value))
+            if (!state.TryGetValue(VmTypeKey, out value))
                 return;
-            state.Remove(VmStateKey);
-            var container = (LazySerializableContainer)value;
-            if (container == null)
-                return;
+            state.Remove(VmTypeKey);
             object dataContext = element.DataContext;
-            Type vmType = Type.GetType(container.ViewModelType, false);
+            Type vmType = Type.GetType(value as string, false);
             if (vmType == null || (dataContext != null && dataContext.GetType().Equals(vmType)))
                 return;
-            context = context.ToNonReadOnly();
-            context.AddOrUpdate(InitializationConstants.ViewModelType, vmType);
 
+            if (context == null)
+                context = DataContext.Empty;
+            var viewModelState = RestoreViewModelState(element, state, args, context);
             //The navigation is already handled.
             var eventArgs = args as NavigationEventArgs;
             if (eventArgs != null && eventArgs.GetHandled())
             {
                 eventArgs.SetHandled(false);
-                PlatformExtensions.SetViewModelState(eventArgs.Content, container.GetContext(_serializer));
+                PlatformExtensions.SetViewModelState(eventArgs.Content, viewModelState);
             }
             else
-            {
-                IViewModel viewModel = _viewModelProvider.RestoreViewModel(container.GetContext(_serializer), context, false);
-                _viewManager.InitializeViewAsync(viewModel, element, context).WithTaskExceptionHandler(this);
-                _viewModelPresenter.Restore(viewModel, context);
-            }
+                RestoreViewModel(vmType, viewModelState, element, state, args, context);
+        }
+
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        ///     Restores the view model state.
+        /// </summary>
+        [NotNull]
+        protected virtual IDataContext RestoreViewModelState([NotNull] FrameworkElement element, [NotNull] IDictionary<string, object> state,
+             [NotNull] object args, [NotNull] IDataContext context)
+        {
+            object value;
+            if (state.TryGetValue(VmStateKey, out value))
+                return ((LazySerializableContainer)value).GetContext(_serializer);
+            return DataContext.Empty;
+        }
+
+        /// <summary>
+        ///     Restores the view model.
+        /// </summary>
+        protected virtual void RestoreViewModel([NotNull] Type viewModelType, [NotNull] IDataContext viewModelState, [NotNull] FrameworkElement element,
+            [NotNull] IDictionary<string, object> state, [NotNull] object args, [NotNull] IDataContext context)
+        {
+            context = context.ToNonReadOnly();
+            context.AddOrUpdate(InitializationConstants.ViewModelType, viewModelType);
+
+#if WINDOWSCOMMON
+            context.Add(DynamicViewModelWindowPresenter.RestoredViewConstant, element);
+            context.Add(DynamicViewModelWindowPresenter.IsOpenViewConstant, true);
+#endif
+            IViewModel viewModel = _viewModelProvider.RestoreViewModel(viewModelState, context, false);
+            _viewManager.InitializeViewAsync(viewModel, element, context).WithTaskExceptionHandler(this);
+            _viewModelPresenter.Restore(viewModel, context);
+        }
+
+        /// <summary>
+        ///     Preserves the view model.
+        /// </summary>
+        protected virtual void PreserveViewModel([NotNull] IViewModel viewModel, [NotNull] FrameworkElement element,
+             [NotNull] IDictionary<string, object> state, [NotNull] object args, [NotNull] IDataContext context)
+        {
+            state[VmStateKey] = new LazySerializableContainer(_serializer, _viewModelProvider.PreserveViewModel(viewModel, context), viewModel);
         }
 
         #endregion

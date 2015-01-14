@@ -89,7 +89,10 @@ namespace MugenMvvmToolkit.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<UITableView, IEnumerable>(AttachedMemberConstants.ItemsSource, TableViewItemsSourceChanged));
             memberProvider.Register(AttachedBindingMember.CreateMember<UITableView, object>(AttachedMemberConstants.SelectedItem,
                     GetTableViewSelectedItem, SetTableViewSelectedItem, (info, view, arg3) => (IDisposable)TableViewSelectedItemChangedEvent.SetValue(view, arg3)));
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<UITableView, ITableCellTemplateSelector>(AttachedMemberConstants.ItemTemplate));
+            var itemTemplateMember = AttachedBindingMember.CreateAutoProperty<UITableView, ITableCellTemplateSelector>(
+                AttachedMemberConstants.ItemTemplate);
+            memberProvider.Register(itemTemplateMember);
+            memberProvider.Register(typeof(UITableView), AttachedMemberConstants.ItemTemplateSelector, itemTemplateMember, true);
 
             //UITableViewCell
             memberProvider.Register(TableViewCellAccessoryButtonTappedEvent);
