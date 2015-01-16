@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq.Expressions;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Binding.Modules;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
@@ -8,6 +10,12 @@ namespace MugenMvvmToolkit.Test
 {
     public abstract class BindingTestBase : TestBase
     {
+        #region Fields
+
+        protected static Func<IBindingMemberInfo, Type, object, object> ValueConverterEx;
+
+        #endregion
+
         #region Properties
 
         protected IDataContext EmptyContext
@@ -37,6 +45,14 @@ namespace MugenMvvmToolkit.Test
         {
             BindingServiceProvider.SetDefaultValues();
             base.OnInit();
+            if (ValueConverterEx == null)
+            {
+                //to invoke static constructor.
+                new PlatformDataBindingModule();
+                ValueConverterEx = BindingServiceProvider.ValueConverter;
+            }
+            else
+                BindingServiceProvider.ValueConverter = ValueConverterEx;
             ThreadManager.ImmediateInvokeAsync = true;
             ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
             ThreadManager.ImmediateInvokeOnUiThread = true;

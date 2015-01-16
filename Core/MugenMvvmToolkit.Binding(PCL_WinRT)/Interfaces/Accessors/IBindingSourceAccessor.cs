@@ -34,11 +34,6 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Accessors
     public interface IBindingSourceAccessor : IDisposable
     {
         /// <summary>
-        ///     Gets or sets the property that is responsible for the automatic value conversion.
-        /// </summary>
-        bool AutoConvertValue { get; set; }
-
-        /// <summary>
         ///     Gets the underlying sources.
         /// </summary>
         [NotNull]

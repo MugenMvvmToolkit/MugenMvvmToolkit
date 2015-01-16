@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Infrastructure.Navigation;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
@@ -57,6 +58,7 @@ namespace MugenMvvmToolkit.Infrastructure
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
             ServiceProvider.WeakReferenceFactory = PlatformExtensions.CreateWeakReference;
             ViewManager.DisposeView = true;
+            BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
         }
 
         /// <summary>

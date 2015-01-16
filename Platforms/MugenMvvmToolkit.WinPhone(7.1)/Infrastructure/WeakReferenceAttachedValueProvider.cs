@@ -79,7 +79,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #endregion
 
-            #region Destructors
+            #region Destructor
 
             ~AttachedValueDictionary()
             {
@@ -95,7 +95,8 @@ namespace MugenMvvmToolkit.Infrastructure
                         value.ClearInternal(ref _reference);
                     }
                 }
-                catch (Exception)
+                // ReSharper disable once EmptyGeneralCatchClause
+                catch
                 {
                 }
             }
@@ -281,9 +282,9 @@ namespace MugenMvvmToolkit.Infrastructure
                 return dict;
             }
 
+            WeakReference reference;
             lock (_internalDictionary)
             {
-                WeakReference reference;
                 if (!_internalDictionary.TryGetValue(new WeakKey(item, false), out reference))
                 {
                     if (!addNew)
@@ -292,8 +293,8 @@ namespace MugenMvvmToolkit.Infrastructure
                     reference = new WeakReference(new AttachedValueDictionary(weakKey, this), true);
                     _internalDictionary.Add(weakKey, reference);
                 }
-                return (LightDictionaryBase<string, object>)reference.Target;
             }
+            return (LightDictionaryBase<string, object>)reference.Target;
         }
 
         #endregion

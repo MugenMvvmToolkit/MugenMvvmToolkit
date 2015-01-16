@@ -25,6 +25,7 @@ using Android.App;
 using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -46,7 +47,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             #region Fields
 
-            public static readonly AssemblyNameComparer Instance;
+            public static readonly AssemblyNameComparer Comparer;
 
             #endregion
 
@@ -54,7 +55,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             static AssemblyNameComparer()
             {
-                Instance = new AssemblyNameComparer();
+                Comparer = new AssemblyNameComparer();
             }
 
             #endregion
@@ -101,6 +102,7 @@ namespace MugenMvvmToolkit.Infrastructure
             ServiceProvider.WeakReferenceFactory = PlatformExtensions.CreateWeakReference;
             DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
+            BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
         }
 
         #endregion
@@ -257,7 +259,7 @@ You must specify the type of application bootstraper using BootstrapperAttribute
                     viewAssemblies.Add(assembly);
             }
             _assemblies = assemblies;
-            return viewAssemblies.OrderBy(assembly => assembly.FullName, AssemblyNameComparer.Instance).ToArray();
+            return viewAssemblies.OrderBy(assembly => assembly.FullName, AssemblyNameComparer.Comparer).ToArray();
         }
 
         #endregion

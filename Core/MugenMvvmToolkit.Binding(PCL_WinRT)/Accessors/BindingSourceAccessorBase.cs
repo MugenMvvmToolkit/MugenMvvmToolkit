@@ -130,11 +130,6 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         #region Constructors
 
-        static BindingSourceAccessorBase()
-        {
-            AutoConvertValueDefault = true;
-        }
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="BindingSourceAccessorBase" /> class.
         /// </summary>
@@ -161,17 +156,11 @@ namespace MugenMvvmToolkit.Binding.Accessors
             if (hasValue)
                 _parameters = new BindingParameters(converterDelegate, converterCultureDelegate,
                     converterParameterDelegate, fallbackDelegate, targetNullValue);
-            AutoConvertValue = AutoConvertValueDefault;
         }
 
         #endregion
 
         #region Properties
-
-        /// <summary>
-        ///     Gets or sets the property that is responsible for the automatic value conversion.
-        /// </summary>
-        public static bool AutoConvertValueDefault { get; set; }
 
         /// <summary>
         /// Gets the value that indicats that accessor is a target.
@@ -193,11 +182,6 @@ namespace MugenMvvmToolkit.Binding.Accessors
         #endregion
 
         #region Implementation of IBindingSourceAccessor
-
-        /// <summary>
-        ///     Gets or sets the property that is responsible for the automatic value conversion.
-        /// </summary>
-        public bool AutoConvertValue { get; set; }
 
         /// <summary>
         ///     Gets the underlying sources.

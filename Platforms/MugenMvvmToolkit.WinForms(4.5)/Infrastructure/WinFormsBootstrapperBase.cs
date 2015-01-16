@@ -22,6 +22,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
@@ -50,6 +51,7 @@ namespace MugenMvvmToolkit.Infrastructure
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = (model, context, arg3) => false;
             ViewManager.DisposeView = true;
+            BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
         }
 
         /// <summary>

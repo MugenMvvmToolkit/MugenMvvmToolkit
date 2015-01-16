@@ -187,18 +187,16 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             var oldId = bundle.GetString(IdKey);
             if (string.IsNullOrEmpty(oldId))
                 return;
-            var currentDataContext = GetFromCache(Guid.Parse(oldId));
+            var cacheDataContext = GetFromCache(Guid.Parse(oldId));
             var vmTypeName = bundle.GetString(ViewModelTypeNameKey);
             if (vmTypeName == null)
                 return;
             bundle.Remove(ViewModelTypeNameKey);
             var vmType = Type.GetType(vmTypeName, false);
-            if (vmType == null || (currentDataContext != null && currentDataContext.GetType().Equals(vmType)))
-                return;
-
-            var viewModel = RestoreViewModel(vmType, bundle);
-            if (!ReferenceEquals(BindingContext.Value, viewModel))
-                RestoreContext(viewModel);
+            if (vmType != null && (cacheDataContext == null || !cacheDataContext.GetType().Equals(vmType)))
+                cacheDataContext = RestoreViewModel(vmType, bundle);
+            if (!ReferenceEquals(BindingContext.Value, cacheDataContext))
+                RestoreContext(cacheDataContext);
         }
 
         /// <summary>

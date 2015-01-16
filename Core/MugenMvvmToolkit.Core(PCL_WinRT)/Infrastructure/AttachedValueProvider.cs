@@ -16,6 +16,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 #if !PCL_Silverlight
 using System;
 using System.Runtime.CompilerServices;
@@ -24,6 +25,9 @@ using MugenMvvmToolkit.Collections;
 using Windows.UI.Xaml;
 #elif XAMARIN_FORMS
 using Xamarin.Forms;
+#elif TOUCH
+using Foundation;
+using MugenMvvmToolkit.Models;
 #else
 using System.Windows;
 #endif
@@ -42,7 +46,48 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Nested types
 
-        private sealed class AttachedValueDictionary : LightDictionaryBase<string, object>
+#if TOUCH
+        private sealed class WeakAttachedValueDictionary : AttachedValueDictionary
+        {
+            #region Fields
+
+            private readonly NativeReference _reference;
+
+            #endregion
+
+            #region Constructors
+
+            public WeakAttachedValueDictionary(NativeReference reference)
+            {
+                _reference = reference;
+            }
+
+            #endregion
+
+            #region Destructor
+
+            ~WeakAttachedValueDictionary()
+            {
+                try
+                {
+                    if (_reference.IsAlive)
+                        GC.ReRegisterForFinalize(this);
+                    else
+                    {
+                        lock (NativeReferenceDictionary)
+                            NativeReferenceDictionary.Remove(_reference);
+                    }
+                }
+                // ReSharper disable once EmptyGeneralCatchClause
+                catch
+                {
+                }
+            }
+
+            #endregion
+        }
+#endif
+        private class AttachedValueDictionary : LightDictionaryBase<string, object>
         {
             #region Constructors
 
@@ -87,6 +132,9 @@ namespace MugenMvvmToolkit.Infrastructure
         private static readonly BindableProperty AttachedValueDictionaryProperty = BindableProperty
             .CreateAttached("AttachedValueDictionary", typeof(AttachedValueDictionary), typeof(AttachedValueProvider),
                 null);
+#elif TOUCH
+        //Refcount(http://developer.xamarin.com/guides/ios/advanced_topics/newrefcount/) recreates NSObjects and breaks the mapping.
+        private static readonly Dictionary<NativeReference, WeakReference> NativeReferenceDictionary = new Dictionary<NativeReference, WeakReference>(157);
 #endif
         private static readonly ConditionalWeakTable<object, AttachedValueDictionary>.CreateValueCallback
             CreateDictionaryDelegate = o => new AttachedValueDictionary();
@@ -103,6 +151,17 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected override bool ClearInternal(object item)
         {
+#if TOUCH
+            var nsObject = item as NSObject;
+            if (nsObject != null)
+            {
+                var handle = nsObject.Handle;
+                if (handle == IntPtr.Zero)
+                    return false;
+                return NativeReferenceDictionary.Remove(new NativeReference(nsObject));
+            }
+#endif
+
 #if !WINFORMS && !PCL_WINRT && !PCL_Silverlight && !ANDROID && !TOUCH && !XAMARIN_FORMS
             var dependencyObject = item as DependencyObject;
             if (dependencyObject != null)
@@ -127,6 +186,26 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected override LightDictionaryBase<string, object> GetOrAddAttachedDictionary(object item, bool addNew)
         {
+#if TOUCH
+            var nsObject = item as NSObject;
+            if (nsObject != null)
+            {
+                var key = new NativeReference(nsObject);
+                WeakReference reference;
+                lock (NativeReferenceDictionary)
+                {
+                    if (!NativeReferenceDictionary.TryGetValue(key, out reference))
+                    {
+                        if (!addNew)
+                            return null;
+                        reference = new WeakReference(new WeakAttachedValueDictionary(key), true);
+                        NativeReferenceDictionary[key] = reference;
+                    }
+                }
+                return (LightDictionaryBase<string, object>)reference.Target;
+            }
+#endif
+
 #if !WINFORMS && !PCL_WINRT && !PCL_Silverlight && !ANDROID && !TOUCH && !XAMARIN_FORMS
             var dependencyObject = item as DependencyObject;
             if (dependencyObject != null)

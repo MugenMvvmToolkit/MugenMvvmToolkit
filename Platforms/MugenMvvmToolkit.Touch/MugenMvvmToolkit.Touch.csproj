@@ -39,6 +39,9 @@
     <DocumentationFile>..\..\bin\Platforms\Touch\MugenMvvmToolkit.iOS.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\Core\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Extensions\BindingReflectionExtensionsCommon.cs">
+      <Link>BindingReflectionExtensionsCommon.cs</Link>
+    </Compile>
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\AttachedValueProvider.cs">
       <Link>Infrastructure\AttachedValueProvider.cs</Link>
     </Compile>
@@ -108,6 +111,7 @@
     <Compile Include="Binding\Converters\BooleanToCheckmarkAccessoryConverter.cs" />
     <Compile Include="LinkerInclude.cs" />
     <Compile Include="Models\NativeObjectWeakReference.cs" />
+    <Compile Include="Models\NativeReference.cs" />
     <Compile Include="MonoTouchDialogExtensions.cs" />
     <Compile Include="Infrastructure\ApplicationStateManager.cs" />
     <Compile Include="Binding\Infrastructure\ArrayItemsSourceGenerator.cs" />

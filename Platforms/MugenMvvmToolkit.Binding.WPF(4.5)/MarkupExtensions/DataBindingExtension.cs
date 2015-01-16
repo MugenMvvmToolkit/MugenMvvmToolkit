@@ -118,6 +118,10 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
                     return RegisterAttachedProperty(depProp, targetObject);
                 return depProp.Name;
             }
+            var methodInfo = targetProperty as MethodInfo;
+            if (methodInfo != null && methodInfo.IsStatic && methodInfo.Name.StartsWith("Add", StringComparison.Ordinal) &&
+                methodInfo.Name.EndsWith("Handler", StringComparison.Ordinal))
+                return methodInfo.Name.Substring(3, methodInfo.Name.Length - 10);
 #endif
             var member = (MemberInfo)targetProperty;
 #if !WPF

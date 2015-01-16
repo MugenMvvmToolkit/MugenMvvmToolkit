@@ -41,9 +41,40 @@ using UIKit;
 
 namespace MugenMvvmToolkit
 {
-    public static class PlatformExtensions
+    public static partial class PlatformExtensions
     {
         #region Nested types
+
+        private sealed class WeakReferenceCollector
+        {
+            ~WeakReferenceCollector()
+            {
+                try
+                {
+                    if (WeakReferences.Count == 0)
+                        return;
+                    lock (WeakReferences)
+                    {
+                        for (int i = 0; i < WeakReferences.Count; i++)
+                        {
+                            if (WeakReferences[i].Target == null)
+                            {
+                                WeakReferences.RemoveAt(i);
+                                i--;
+                            }
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Tracer.Error(e.Flatten(true));
+                }
+                finally
+                {
+                    GC.ReRegisterForFinalize(this);
+                }
+            }
+        }
 
         private sealed class ActionSheetButtonClosure
         {
@@ -90,12 +121,15 @@ namespace MugenMvvmToolkit
         #region Fields
 
         private const string NavParamKey = "@~`NavParam";
-        private static IApplicationStateManager _applicationStateManager;
+
+        //NOTE Refcount(http://developer.xamarin.com/guides/ios/advanced_topics/newrefcount/) recreates NSObjects and breaks the mapping.
+        private static readonly List<WeakReference> WeakReferences;
         private static readonly Dictionary<Type, int> TypeToCounters;
         private static readonly Type[] CoderParameters;
-        private static Func<UIViewController, IDataContext, IMvvmViewControllerMediator> _mvvmViewControllerMediatorFactory;
-
         private static readonly List<WeakReference> OrientationChangeListeners;
+
+        private static IApplicationStateManager _applicationStateManager;
+        private static Func<UIViewController, IDataContext, IMvvmViewControllerMediator> _mvvmViewControllerMediatorFactory;
         private static bool _hasOrientationChangeSubscriber;
         private static bool? _isOs7;
         private static bool? _isOs8;
@@ -110,6 +144,7 @@ namespace MugenMvvmToolkit
             CoderParameters = new[] { typeof(NSCoder) };
             _mvvmViewControllerMediatorFactory = (controller, context) => new MvvmViewControllerMediator(controller);
             OrientationChangeListeners = new List<WeakReference>();
+            WeakReferences = new List<WeakReference>(128);
         }
 
         #endregion
@@ -479,10 +514,12 @@ namespace MugenMvvmToolkit
 
         internal static WeakReference CreateWeakReference(object item, bool trackResurrection)
         {
-            var obj = item as INativeObject;
-            var reference = obj == null
-                ? new WeakReference(item, trackResurrection)
-                : new NativeObjectWeakReference(obj, trackResurrection);
+            var obj = item as NSObject;
+            if (obj != null)
+                return new NativeObjectWeakReference(obj);
+            var reference = new WeakReference(item, trackResurrection);
+            lock (WeakReferences)
+                WeakReferences.Add(reference);
             return reference;
         }
 

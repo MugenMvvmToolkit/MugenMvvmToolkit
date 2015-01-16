@@ -65,6 +65,9 @@ namespace MugenMvvmToolkit.Binding.Modules
             if (View.BindChanged == null)
                 View.BindChanged = OnBindChanged;
             ViewManager.ViewCleared += OnViewCleared;
+#if !WINDOWSCOMMON && !NETFX_CORE
+            BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
+#endif
         }
 
         #endregion

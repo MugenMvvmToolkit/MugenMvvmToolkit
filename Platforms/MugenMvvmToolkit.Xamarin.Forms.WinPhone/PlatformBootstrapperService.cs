@@ -19,6 +19,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Models;
 
@@ -27,6 +29,11 @@ namespace MugenMvvmToolkit
     internal sealed class PlatformBootstrapperService : XamarinFormsBootstrapperBase.IPlatformService
     {
         #region Implementation of IPlatformService
+
+        public Func<IBindingMemberInfo, Type, object, object> ValueConverter
+        {
+            get { return BindingReflectionExtensions.Convert; }
+        }
 
         public PlatformInfo GetPlatformInfo()
         {

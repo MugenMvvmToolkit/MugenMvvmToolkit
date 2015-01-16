@@ -19,6 +19,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
@@ -48,7 +49,7 @@ using Object = Java.Lang.Object;
 
 namespace MugenMvvmToolkit
 {
-    public static class PlatformExtensions
+    public static partial class PlatformExtensions
     {
         #region Nested types
 

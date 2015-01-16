@@ -78,6 +78,7 @@
     <Compile Include="Builders\SyntaxBuilder.cs" />
     <Compile Include="Converters\InverseBooleanValueConverter.cs" />
     <Compile Include="Converters\ValueConverterBase.cs" />
+    <Compile Include="Extensions\BindingReflectionExtensionsCommon.cs" />
     <Compile Include="Infrastructure\BindingContextManager.cs" />
     <Compile Include="Infrastructure\BindingManager.cs" />
     <Compile Include="Infrastructure\BindingProvider.cs" />

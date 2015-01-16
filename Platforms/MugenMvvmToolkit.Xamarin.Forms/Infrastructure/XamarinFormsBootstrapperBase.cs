@@ -22,6 +22,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Infrastructure.Navigation;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
@@ -45,6 +46,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         internal interface IPlatformService
         {
+            Func<IBindingMemberInfo, Type, object, object> ValueConverter { get; }
+
             PlatformInfo GetPlatformInfo();
 
             ICollection<Assembly> GetAssemblies();
@@ -89,7 +92,10 @@ namespace MugenMvvmToolkit.Infrastructure
             var serviceType = typeof(IPlatformService).GetTypeInfo();
             serviceType = assembly.DefinedTypes.FirstOrDefault(serviceType.IsAssignableFrom);
             if (serviceType != null)
+            {
                 _platformService = (IPlatformService)Activator.CreateInstance(serviceType.AsType());
+                BindingServiceProvider.ValueConverter = _platformService.ValueConverter;
+            }
         }
 
         #endregion

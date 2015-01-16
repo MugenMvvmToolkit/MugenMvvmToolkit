@@ -42,7 +42,7 @@ namespace MugenMvvmToolkit.Binding
         private static IVisualTreeManager _visualTreeManager;
         private static IBindingResourceResolver _resourceResolver;
         private static IWeakEventManager _weakEventManager;
-        private static Func<Type, object, object> _valueConverter;
+        private static Func<IBindingMemberInfo, Type, object, object> _valueConverter;
         private static readonly Dictionary<string, int> MemberPriorities;
         private static readonly List<string> FakeMemberPrefixesField;
         private static readonly ICollection<string> DataContextMemberAliasesField;
@@ -111,10 +111,10 @@ namespace MugenMvvmToolkit.Binding
         ///     Gets or sets the delegate that allows to convert binding values.
         /// </summary>
         [NotNull]
-        public static Func<Type, object, object> ValueConverter
+        public static Func<IBindingMemberInfo, Type, object, object> ValueConverter
         {
             get { return _valueConverter; }
-            set { _valueConverter = value ?? BindingReflectionExtensions.Convert; }
+            set { _valueConverter = value ?? ((member, type, o) => o); }
         }
 
         /// <summary>

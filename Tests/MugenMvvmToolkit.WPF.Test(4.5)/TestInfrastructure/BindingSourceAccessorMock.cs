@@ -29,11 +29,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         #region Implementation of IBindingSourceAccessor
 
         /// <summary>
-        ///     Gets or sets the property that is responsible for the automatic value conversion.
-        /// </summary>
-        public bool AutoConvertValue { get; set; }
-
-        /// <summary>
         ///     Gets the underlying sources.
         /// </summary>
         public IList<IBindingSource> Sources

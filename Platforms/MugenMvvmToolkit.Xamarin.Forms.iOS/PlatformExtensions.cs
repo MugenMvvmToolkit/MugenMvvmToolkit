@@ -25,7 +25,7 @@ using MugenMvvmToolkit.Interfaces;
 
 namespace MugenMvvmToolkit
 {
-    public static class PlatformExtensions
+    public static partial class PlatformExtensions
     {
         #region Fields
 

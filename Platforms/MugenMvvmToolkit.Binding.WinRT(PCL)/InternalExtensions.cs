@@ -27,7 +27,7 @@ namespace MugenMvvmToolkit.Binding
         #region Methods
 
         public static bool IsAssignableFrom(this Type type, Type c)
-        {
+        {            
             if (c == null)
                 return false;
             return type.GetTypeInfo().IsAssignableFrom(c.GetTypeInfo());

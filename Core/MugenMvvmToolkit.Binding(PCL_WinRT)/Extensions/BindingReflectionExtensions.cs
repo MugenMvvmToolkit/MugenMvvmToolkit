@@ -31,7 +31,7 @@ using MugenMvvmToolkit.Models;
 // ReSharper disable once CheckNamespace
 namespace MugenMvvmToolkit.Binding
 {
-    internal static class BindingReflectionExtensions
+    internal static partial class BindingReflectionExtensions
     {
         #region Nested types
 
@@ -110,21 +110,6 @@ namespace MugenMvvmToolkit.Binding
         internal static object GetDefaultValue(this Type type)
         {
             return type.IsValueType() ? Activator.CreateInstance(type) : null;
-        }
-
-        internal static object Convert(Type type, object value)
-        {
-            if (type.IsInstanceOfType(value) || value == null)
-                return value;
-#if PCL_WINRT
-            if (TypeCodeTable.ContainsKey(value.GetType()))
-#else
-            if (value is IConvertible)
-#endif
-                return System.Convert.ChangeType(value, type.GetNonNullableType(), CultureInfo.CurrentCulture);
-            if (type == typeof(string))
-                return value.ToString();
-            return value;
         }
 
         internal static Func<object, object> GetGetPropertyAccessor(this PropertyInfo propertyInfo, MethodInfo getMethod, string path)
@@ -358,16 +343,6 @@ namespace MugenMvvmToolkit.Binding
             return actualArgs;
         }
 
-        private static Type GetNonNullableType(this Type type)
-        {
-            return IsNullableType(type) ? type.GetGenericArguments()[0] : type;
-        }
-
-        private static bool IsNullableType(this Type type)
-        {
-            return type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>);
-        }
-
         private static MethodData FindBestMethod(ArgumentData target, IList<MethodInfo> methods, IList<ArgumentData> args, Type[] typeArgs)
         {
             var candidates = new List<MethodData>();
@@ -591,7 +566,7 @@ namespace MugenMvvmToolkit.Binding
                 var s = strings[i];
                 if (parameters != null)
                     castType = parameters[i].ParameterType;
-                result[i] = s == "null" ? null : BindingServiceProvider.ValueConverter(castType, s);
+                result[i] = s == "null" ? null : BindingServiceProvider.ValueConverter(BindingMemberInfo.Empty, castType, s);
             }
             return result;
         }
@@ -672,11 +647,6 @@ namespace MugenMvvmToolkit.Binding
         private static bool IsValueType(this Type type)
         {
             return type.IsValueType;
-        }
-
-        private static bool IsGenericType(this Type type)
-        {
-            return type.IsGenericType;
         }
 #endif
         #endregion

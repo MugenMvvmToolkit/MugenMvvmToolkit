@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Globalization;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -21,6 +22,88 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
     [TestClass]
     public class SingleBindingSourceAccessorTest : BindingTestBase
     {
+#if !NETFX_CORE
+        #region Nested types
+
+        public sealed class DoubleConverter : TypeConverter
+        {
+            #region Overrides of TypeConverter
+
+            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+            {
+                return sourceType == typeof(double) || base.CanConvertFrom(context, sourceType);
+            }
+
+
+            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+            {
+                return new ConverterTestValue { Double = (double)value };
+            }
+
+            #endregion
+        }
+
+        public sealed class IntConverter : TypeConverter
+        {
+            #region Overrides of TypeConverter
+
+            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+            {
+                return sourceType == typeof(int) || base.CanConvertFrom(context, sourceType);
+            }
+
+
+            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+            {
+                return new ConverterTestValue { Int = (int)value };
+            }
+
+            #endregion
+        }
+
+        private sealed class StringConverter : TypeConverter
+        {
+            #region Overrides of TypeConverter
+
+            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+            {
+                return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+            }
+
+
+            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+            {
+                return new ConverterTestValue { String = (string)value };
+            }
+
+            #endregion
+        }
+
+        [TypeConverter(typeof(StringConverter))]
+        public class ConverterTestValue
+        {
+            public double Double;
+
+            public int Int;
+
+            public string String;
+        }
+
+        public class ConverterTestClass
+        {
+            public ConverterTestValue StringProperty { get; set; }
+
+            [TypeConverter(typeof(IntConverter))]
+            public ConverterTestValue IntField;
+
+            [TypeConverter(typeof(DoubleConverter))]
+            public ConverterTestValue DoubleProperty { get; set; }
+        }
+
+        #endregion
+#endif
+
+
         #region Methods
 
         [TestMethod]
@@ -588,7 +671,6 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             var sourceModel = new BindingSourceModel();
             string propertyName = GetMemberPath<BindingSourceModel>(model => model.IntProperty);
             var valueAccessor = GetAccessor(sourceModel, propertyName, EmptyContext, true);
-            valueAccessor.AutoConvertValue = true;
 
             srcAccessor.GetValue = (info, context, arg3) =>
             {
@@ -605,17 +687,73 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             var srcAccessor = new BindingSourceAccessorMock();
             var sourceModel = new BindingSourceModel();
             string propertyName = GetMemberPath<BindingSourceModel>(model => model.IntProperty);
-            var valueAccessor = GetAccessor(sourceModel, propertyName, EmptyContext, true);
-            valueAccessor.AutoConvertValue = false;
+            var valueAccessor = GetAccessor(sourceModel, propertyName, EmptyContext, true);            
+            BindingServiceProvider.ValueConverter = null;
 
             srcAccessor.GetValue = (info, context, arg3) =>
             {
                 context.ShouldEqual(EmptyContext);
                 return int.MaxValue.ToString();
             };
-            ShouldThrow<InvalidCastException>(() => valueAccessor.SetValue(srcAccessor, EmptyContext, true));
+            ShouldThrow<InvalidCastException>(() => valueAccessor.SetValue(srcAccessor, EmptyContext, true));            
         }
 
+#if !NETFX_CORE
+        [TestMethod]
+        public void SetValueShouldAutoConvertValueTypeConverterOnType()
+        {
+            const string value = "value";
+            var srcAccessor = new BindingSourceAccessorMock();
+            var sourceModel = new ConverterTestClass();
+            string propertyName = GetMemberPath<ConverterTestClass>(model => model.StringProperty);
+            var valueAccessor = GetAccessor(sourceModel, propertyName, EmptyContext, true);
+
+            srcAccessor.GetValue = (info, context, arg3) =>
+            {
+                context.ShouldEqual(EmptyContext);
+                return value;
+            };
+            valueAccessor.SetValue(srcAccessor, EmptyContext, true);
+            sourceModel.StringProperty.ShouldNotBeNull();
+            sourceModel.StringProperty.String.ShouldEqual(value);
+        }
+
+        [TestMethod]
+        public void SetValueShouldAutoConvertValueTypeConverterOnField()
+        {
+            var srcAccessor = new BindingSourceAccessorMock();
+            var sourceModel = new ConverterTestClass();
+            string propertyName = GetMemberPath<ConverterTestClass>(model => model.IntField);
+            var valueAccessor = GetAccessor(sourceModel, propertyName, EmptyContext, true);
+
+            srcAccessor.GetValue = (info, context, arg3) =>
+            {
+                context.ShouldEqual(EmptyContext);
+                return int.MaxValue;
+            };
+            valueAccessor.SetValue(srcAccessor, EmptyContext, true);
+            sourceModel.IntField.ShouldNotBeNull();
+            sourceModel.IntField.Int.ShouldEqual(int.MaxValue);
+        }
+
+        [TestMethod]
+        public void SetValueShouldAutoConvertValueTypeConverterOnProperty()
+        {
+            var srcAccessor = new BindingSourceAccessorMock();
+            var sourceModel = new ConverterTestClass();
+            string propertyName = GetMemberPath<ConverterTestClass>(model => model.DoubleProperty);
+            var valueAccessor = GetAccessor(sourceModel, propertyName, EmptyContext, true);
+
+            srcAccessor.GetValue = (info, context, arg3) =>
+            {
+                context.ShouldEqual(EmptyContext);
+                return double.MaxValue;
+            };
+            valueAccessor.SetValue(srcAccessor, EmptyContext, true);
+            sourceModel.DoubleProperty.ShouldNotBeNull();
+            sourceModel.DoubleProperty.Double.ShouldEqual(double.MaxValue);
+        }
+#endif
         [TestMethod]
         public void GetEventValueShouldAlwaysReturnBindingMemberValue()
         {

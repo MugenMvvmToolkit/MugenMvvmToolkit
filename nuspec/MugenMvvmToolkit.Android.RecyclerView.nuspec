@@ -9,11 +9,14 @@
       This package adds Adnroid Support Library v7 RecyclerView support for MugenMvvmToolkit.
     </description>
     <releaseNotes>
-      - Removed support for MonoTouch.
       - Added support for Xamarin.iOS 64 bit (Unified API). Requires Xamarin.iOS 8.6.0.0 or newer. (iOS, Xamarin.Forms)
       - Added UseAnimations hint for navigation, it allows to animate view during navigation (iOS, Xamarin.Forms).
       - Added ICollectionViewManager and IContentViewManager for Android platform.
+      - Added support for System.ComponentModel.TypeConverter (Binding).
+      - Added support for attached events for the DataBinding markup extension (WPF).
       - Added BindingServiceProvider.BindingPathFactory static property that allows to create an instance of IBindingPath for the specified string.
+      - Removed support for MonoTouch.
+      - Removed the AutoConvertValue property from the IBindingSourceAccessor interface, to disable value converter set BindingServiceProvider.ValueConverter to null.
       - Minor changes.
     </releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

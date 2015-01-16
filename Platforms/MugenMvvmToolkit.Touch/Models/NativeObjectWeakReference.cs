@@ -17,12 +17,18 @@
 #endregion
 
 using System;
-using ObjCRuntime;
+using Foundation;
 
 namespace MugenMvvmToolkit.Models
 {
-    internal class NativeObjectWeakReference : WeakReference
+    internal sealed class NativeObjectWeakReference : WeakReference
     {
+        #region Fields
+
+        private NativeReference _reference;
+
+        #endregion
+
         #region Constructors
 
         /// <summary>
@@ -30,13 +36,10 @@ namespace MugenMvvmToolkit.Models
         ///     using the specified resurrection tracking.
         /// </summary>
         /// <param name="target">An object to track. </param>
-        /// <param name="trackResurrection">
-        ///     Indicates when to stop tracking the object. If true, the object is tracked after
-        ///     finalization; if false, the object is only tracked until finalization.
-        /// </param>
-        public NativeObjectWeakReference(INativeObject target, bool trackResurrection)
-            : base(target, trackResurrection)
+        public NativeObjectWeakReference(NSObject target)
         {
+            _reference = new NativeReference(target);
+            GC.SuppressFinalize(this);
         }
 
         #endregion
@@ -53,7 +56,7 @@ namespace MugenMvvmToolkit.Models
         /// </returns>
         public override bool IsAlive
         {
-            get { return Target != null; }
+            get { return _reference.IsAlive; }
         }
 
         /// <summary>
@@ -71,21 +74,8 @@ namespace MugenMvvmToolkit.Models
         /// </exception>
         public override object Target
         {
-            get
-            {
-                var target = base.Target as INativeObject;
-                if (target != null)
-                {
-                    if (target.Handle == IntPtr.Zero)
-                    {
-                        base.Target = null;
-                        return null;
-                    }
-                    return target;
-                }
-                return null;
-            }
-            set { base.Target = value; }
+            get { return _reference.Target; }
+            set { _reference = value == null ? default(NativeReference) : new NativeReference((NSObject) value); }
         }
 
         #endregion

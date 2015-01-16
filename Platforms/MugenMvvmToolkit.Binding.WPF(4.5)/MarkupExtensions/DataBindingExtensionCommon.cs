@@ -356,6 +356,11 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
                     .GetBindingMember(targetObject.GetType(), targetPath, false, false);
             if (_targetMemberInfo == null)
                 return GetEmptyValue();
+#if WPF
+            eventInfo = _targetMemberInfo.Member as EventInfo;
+            if (eventInfo != null)
+                return CreateDelegateForEvent(eventInfo);
+#endif
             return _targetMemberInfo.GetValue(targetObject, null);
         }
 
