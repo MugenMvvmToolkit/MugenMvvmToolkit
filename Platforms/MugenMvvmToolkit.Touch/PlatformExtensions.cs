@@ -31,6 +31,7 @@ using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Modules;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Mediators;
@@ -44,37 +45,6 @@ namespace MugenMvvmToolkit
     public static partial class PlatformExtensions
     {
         #region Nested types
-
-        private sealed class WeakReferenceCollector
-        {
-            ~WeakReferenceCollector()
-            {
-                try
-                {
-                    if (WeakReferences.Count == 0)
-                        return;
-                    lock (WeakReferences)
-                    {
-                        for (int i = 0; i < WeakReferences.Count; i++)
-                        {
-                            if (WeakReferences[i].Target == null)
-                            {
-                                WeakReferences.RemoveAt(i);
-                                i--;
-                            }
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    Tracer.Error(e.Flatten(true));
-                }
-                finally
-                {
-                    GC.ReRegisterForFinalize(this);
-                }
-            }
-        }
 
         private sealed class ActionSheetButtonClosure
         {
@@ -122,8 +92,6 @@ namespace MugenMvvmToolkit
 
         private const string NavParamKey = "@~`NavParam";
 
-        //NOTE Refcount(http://developer.xamarin.com/guides/ios/advanced_topics/newrefcount/) recreates NSObjects and breaks the mapping.
-        private static readonly List<WeakReference> WeakReferences;
         private static readonly Dictionary<Type, int> TypeToCounters;
         private static readonly Type[] CoderParameters;
         private static readonly List<WeakReference> OrientationChangeListeners;
@@ -144,7 +112,6 @@ namespace MugenMvvmToolkit
             CoderParameters = new[] { typeof(NSCoder) };
             _mvvmViewControllerMediatorFactory = (controller, context) => new MvvmViewControllerMediator(controller);
             OrientationChangeListeners = new List<WeakReference>();
-            WeakReferences = new List<WeakReference>(128);
         }
 
         #endregion
@@ -515,12 +482,9 @@ namespace MugenMvvmToolkit
         internal static WeakReference CreateWeakReference(object item, bool trackResurrection)
         {
             var obj = item as NSObject;
-            if (obj != null)
-                return new NativeObjectWeakReference(obj);
-            var reference = new WeakReference(item, trackResurrection);
-            lock (WeakReferences)
-                WeakReferences.Add(reference);
-            return reference;
+            if (obj == null)
+                return new WeakReference(item, trackResurrection);
+            return AttachedValueProvider.GetNativeObjectWeakReference(obj);           
         }
 
         internal static bool IsAlive([NotNull] this INativeObject item)
@@ -529,13 +493,15 @@ namespace MugenMvvmToolkit
             return item.Handle != IntPtr.Zero;
         }
 
-        public static void ClearBindingsHierarchically([CanBeNull]this UIView view, bool clearDataContext, bool clearAttachedValues)
+        public static void ClearBindingsHierarchically([CanBeNull]this UIView view, bool clearDataContext, bool clearAttachedValues, bool disposeView)
         {
             if (view == null)
                 return;
             foreach (var subView in view.Subviews)
-                subView.ClearBindingsHierarchically(clearDataContext, clearAttachedValues);
+                subView.ClearBindingsHierarchically(clearDataContext, clearAttachedValues, disposeView);
             ClearBindings(view, clearDataContext, clearAttachedValues);
+            if (disposeView)
+                view.Dispose();
         }
 
         public static void ClearBindings<T>([CanBeNull]this T[] items, bool clearDataContext, bool clearAttachedValues)

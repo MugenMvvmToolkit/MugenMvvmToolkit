@@ -430,7 +430,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 ValidateToken(NextToken(true), TokenType.Identifier);
                 string left = Tokenizer.Value;
                 NextToken(true);
-                var setters = GetBindingParameterSetter(left);
+                var setters = GetBindingBehaviorSetter(left);
                 if (setters != null)
                 {
                     for (int i = 0; i < setters.Count; i++)
@@ -1109,6 +1109,18 @@ namespace MugenMvvmToolkit.Binding.Parse
                     else if (invoker != null)
                         context.Add(BindingBuilderConstants.MultiExpression, invoker.Invoke);
                     context.Add(BindingBuilderConstants.Sources, bindingSource);
+
+                    //using OneTimeBindingMode if the expression is a constant expression.
+                    if (isEmpty)
+                    {
+                        var behaviors = context.GetOrAddBehaviors();
+                        for (int i = 0; i < behaviors.Count; i++)
+                        {
+                            if (behaviors[i].Id == BindingModeBase.IdBindingMode)
+                                return;
+                        }
+                        behaviors.Add(new OneTimeBindingMode(true));
+                    }
                 };
             }
             finally
@@ -1118,7 +1130,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         }
 
         [CanBeNull]
-        protected virtual IList<Action<IDataContext>> GetBindingParameterSetter(string left)
+        protected virtual IList<Action<IDataContext>> GetBindingBehaviorSetter(string left)
         {
             Func<BindingParser, IList<Action<IDataContext>>> value;
             if (BindingParameterToAction.TryGetValue(left, out value))

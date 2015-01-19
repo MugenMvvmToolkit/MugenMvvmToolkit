@@ -76,6 +76,22 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #endregion
 
+        #region Fields
+
+        public static readonly DataConstant<bool> ClearErrorsConstant;
+        private const string ErrorsKey = "@#@er";
+
+        #endregion
+
+        #region Constructors
+
+        static BindingErrorProviderBase()
+        {
+            ClearErrorsConstant = DataConstant.Create(() => ClearErrorsConstant);
+        }
+
+        #endregion
+
         #region Implementation of IBindingErrorProvider
 
         /// <summary>
@@ -89,7 +105,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             Should.NotBeNull(target, "target");
             Should.NotBeNull(senderKey, "senderKey");
+            if (context == null)
+                context = DataContext.Empty;
             var dict = GetOrAddErrorsDictionary(target);
+            if (context.GetData(ClearErrorsConstant) && (dict.Count == 0 || (dict.Count == 1 && dict.ContainsKey(senderKey))))
+            {
+                ServiceProvider.AttachedValueProvider.Clear(target, ErrorsKey);
+                ClearErrors(target, context);
+                return;
+            }
+
             if (errors == null || errors.Count == 0)
                 dict.Remove(senderKey);
             else
@@ -100,7 +125,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 errors = dict.FirstOrDefault().Value;
             else
                 errors = dict.SelectMany(list => list.Value).ToList();
-            SetErrors(target, errors, context ?? DataContext.Empty);
+            SetErrors(target, errors, context);
         }
 
         #endregion
@@ -111,7 +136,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             return ServiceProvider
                 .AttachedValueProvider
-                .GetOrAdd(target, "@#@er", (o, o1) => new ErrorsDictionary(), null);
+                .GetOrAdd(target, ErrorsKey, (o, o1) => new ErrorsDictionary(), null);
         }
 
         /// <summary>
@@ -127,6 +152,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 .GetBindingMember(target.GetType(), AttachedMemberConstants.ErrorsPropertyMember, false, false);
             if (errorsMember != null && errorsMember.CanWrite)
                 errorsMember.SetValue(target, new object[] { errors });
+        }
+
+        /// <summary>
+        ///     Clears the errors for binding target.
+        /// </summary>
+        /// <param name="target">The binding target object.</param>
+        /// <param name="context">The specified context, if any.</param>
+        protected virtual void ClearErrors([NotNull] object target, [NotNull] IDataContext context)
+        {
+            SetErrors(target, Empty.Array<object>(), context);
         }
 
         #endregion

@@ -18,11 +18,11 @@
 
 using System;
 using MonoTouch.Dialog;
-using Foundation;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.MonoTouch.Dialog;
 
 namespace MugenMvvmToolkit.Binding.Modules
 {
@@ -32,6 +32,21 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         private static void RegisterDialogMembers(IBindingMemberProvider memberProvider)
         {
+            memberProvider.Register(AttachedBindingMember.CreateMember<Element, string>("Caption",
+                (info, element) => element.Caption,
+                (info, element, arg3) =>
+                {
+                    element.Caption = arg3;
+                    element.Reload();
+                }));
+            memberProvider.Register(AttachedBindingMember.CreateMember<StringElement, string>("Value",
+                (info, element) => element.Value,
+                (info, element, arg3) =>
+                {
+                    element.Value = arg3;
+                    element.Reload();
+                }));
+
             memberProvider.Register(AttachedBindingMember.CreateMember<Element, object>(AttachedMemberConstants.Parent,
                 (info, element) => element.Parent ?? BindingExtensions.AttachedParentMember.GetValue(element, null),
                 (info, element, arg3) => BindingExtensions.AttachedParentMember.SetValue(element, arg3),

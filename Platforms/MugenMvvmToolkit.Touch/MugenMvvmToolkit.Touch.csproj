@@ -111,7 +111,6 @@
     <Compile Include="Binding\Converters\BooleanToCheckmarkAccessoryConverter.cs" />
     <Compile Include="LinkerInclude.cs" />
     <Compile Include="Models\NativeObjectWeakReference.cs" />
-    <Compile Include="Models\NativeReference.cs" />
     <Compile Include="MonoTouchDialogExtensions.cs" />
     <Compile Include="Infrastructure\ApplicationStateManager.cs" />
     <Compile Include="Binding\Infrastructure\ArrayItemsSourceGenerator.cs" />

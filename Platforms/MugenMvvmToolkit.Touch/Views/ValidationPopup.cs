@@ -17,7 +17,6 @@
 #endregion
 
 using System;
-using System.Drawing;
 using CoreGraphics;
 using Foundation;
 using UIKit;
@@ -138,7 +137,7 @@ namespace MugenMvvmToolkit.Views
                 NSStringDrawingOptions.UsesLineFragmentOrigin, null).Size;
             size = new CGSize((nfloat)Math.Ceiling(size.Width), (nfloat)Math.Ceiling(size.Height));
 
-            var view = new UIView(RectangleF.Empty);
+            var view = new UIView(CGRect.Empty);
             InsertSubviewBelow(view, img);
             view.BackgroundColor = Color;
             view.Layer.CornerRadius = 5f;
@@ -160,7 +159,7 @@ namespace MugenMvvmToolkit.Views
                         size.Height + (PaddingInErrorPopUp * 2)),
                     NSLayoutFormatOptions.DirectionLeadingToTrailing, null, dict));
 
-            var lbl = new UILabel(RectangleF.Empty)
+            var lbl = new UILabel(CGRect.Empty)
             {
                 Font = font,
                 Lines = 0,

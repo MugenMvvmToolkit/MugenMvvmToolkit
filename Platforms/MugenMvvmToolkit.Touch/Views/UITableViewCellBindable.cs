@@ -17,7 +17,7 @@
 #endregion
 
 using System;
-using System.Drawing;
+using CoreGraphics;
 using Foundation;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
@@ -63,7 +63,7 @@ namespace MugenMvvmToolkit.Views
         {
         }
 
-        public UITableViewCellBindable(RectangleF frame)
+        public UITableViewCellBindable(CGRect frame)
             : base(frame)
         {
         }

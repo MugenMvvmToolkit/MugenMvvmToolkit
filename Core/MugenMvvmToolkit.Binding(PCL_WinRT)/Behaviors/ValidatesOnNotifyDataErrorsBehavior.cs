@@ -22,6 +22,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -119,7 +120,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             else
                 accessor.Source.ValueChanged += handler;
             UpdateSources(false);
-            UpdateErrors();
+            UpdateErrors(null);
             return true;
         }
 
@@ -143,7 +144,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             {
                 // Ensure that all concurrent adds have completed. 
             }
-            UpdateErrors(Empty.Array<object>());
+            var context = new DataContext(Binding.Context);
+            context.AddOrUpdate(BindingErrorProviderBase.ClearErrorsConstant, true);
+            UpdateErrors(Empty.Array<object>(), context);
         }
 
         /// <summary>
@@ -173,7 +176,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// <summary>
         /// Updates the current errors.
         /// </summary>
-        protected virtual void UpdateErrors([CanBeNull] IList<object> errors)
+        protected virtual void UpdateErrors([CanBeNull] IList<object> errors, IDataContext context)
         {
             var errorProvider = BindingServiceProvider.ErrorProvider;
             var binding = Binding;
@@ -181,7 +184,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 return;
             var target = binding.TargetAccessor.Source.GetPathMembers(false).PenultimateValue;
             if (target != null && !target.IsUnsetValue())
-                errorProvider.SetErrors(target, _senderKey, errors ?? Empty.Array<object>(), binding.Context);
+                errorProvider.SetErrors(target, _senderKey, errors ?? Empty.Array<object>(), context ?? binding.Context);
         }
 
         private void UpdateSources(bool detach)
@@ -205,7 +208,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             }
         }
 
-        private void UpdateErrors()
+        private void UpdateErrors(IDataContext context)
         {
             List<object> errors = null;
             lock (_subscribers)
@@ -220,7 +223,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 else
                     CollectErrors(ref errors, accessor.Source);
             }
-            UpdateErrors(errors);
+            UpdateErrors(errors, context);
         }
 
         private void TrySubscribe(IBindingSource source)
@@ -238,7 +241,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             if (args.LastMemberChanged)
                 return;
             UpdateSources(false);
-            UpdateErrors();
+            UpdateErrors(null);
         }
 
         private void CollectErrors(ref List<object> errors, IBindingSource bindingSource)
@@ -280,7 +283,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             if (message == null)
                 return true;
             if (MemberNameEqual(message.PropertyName, binding.SourceAccessor))
-                UpdateErrors();
+                UpdateErrors(null);
             return true;
         }
 

@@ -1,4 +1,4 @@
-using System.Drawing;
+using CoreGraphics;
 using Foundation;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
@@ -21,7 +21,7 @@ namespace $rootnamespace$.Views
             if (RespondsToSelector(new Selector("edgesForExtendedLayout")))
                 EdgesForExtendedLayout = UIRectEdge.None;
 
-            var label = new UILabel(new RectangleF(10, 10, View.Bounds.Width - 10, 40))
+            var label = new UILabel(new CGRect(10, 10, View.Bounds.Width - 10, 40))
             {
                 TextAlignment = UITextAlignment.Center
             };

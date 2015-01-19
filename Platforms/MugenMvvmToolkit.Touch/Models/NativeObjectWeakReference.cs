@@ -18,6 +18,7 @@
 
 using System;
 using Foundation;
+using ObjCRuntime;
 
 namespace MugenMvvmToolkit.Models
 {
@@ -25,21 +26,23 @@ namespace MugenMvvmToolkit.Models
     {
         #region Fields
 
-        private NativeReference _reference;
+        //NOTE Refcount(http://developer.xamarin.com/guides/ios/advanced_topics/newrefcount/) recreates NSObjects and breaks the weakreference.
+        public bool IsInvalid;
+        public readonly IntPtr Handle;
 
         #endregion
 
         #region Constructors
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="T:System.WeakReference" /> class, referencing the specified object and
-        ///     using the specified resurrection tracking.
+        ///     Initializes a new instance of the <see cref="T:System.NativeObjectWeakReference" /> class, referencing the
+        ///     specified object and using the specified resurrection tracking.
         /// </summary>
         /// <param name="target">An object to track. </param>
         public NativeObjectWeakReference(NSObject target)
+            : base(target)
         {
-            _reference = new NativeReference(target);
-            GC.SuppressFinalize(this);
+            Handle = target.Handle;
         }
 
         #endregion
@@ -56,7 +59,7 @@ namespace MugenMvvmToolkit.Models
         /// </returns>
         public override bool IsAlive
         {
-            get { return _reference.IsAlive; }
+            get { return Target != null; }
         }
 
         /// <summary>
@@ -74,8 +77,19 @@ namespace MugenMvvmToolkit.Models
         /// </exception>
         public override object Target
         {
-            get { return _reference.Target; }
-            set { _reference = value == null ? default(NativeReference) : new NativeReference((NSObject) value); }
+            get
+            {
+                if (IsInvalid)
+                    return null;
+                var target = (NSObject)base.Target;
+                if (target == null || !target.IsAlive())
+                {
+                    target = Runtime.GetNSObject(Handle);
+                    base.Target = target;
+                }
+                return target;
+            }
+            set { throw new NotSupportedException(); }
         }
 
         #endregion

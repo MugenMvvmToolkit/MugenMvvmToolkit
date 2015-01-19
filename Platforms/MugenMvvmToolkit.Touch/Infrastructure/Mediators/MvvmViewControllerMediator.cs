@@ -35,7 +35,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
     {
         #region Fields
 
-        private readonly UIViewController _viewController;
+        private UIViewController _viewController;
 
         #endregion
 
@@ -48,6 +48,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             var viewModel = ViewManager.GetDataContext(viewController) as IViewModel;
             if (viewModel == null || !viewModel.Settings.Metadata.Contains(ViewModelConstants.StateNotNeeded))
                 viewController.InititalizeRestorationIdentifier();
+            DisposeView = true;
         }
 
         #endregion
@@ -63,9 +64,13 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         #region Implementation of IMvvmViewControllerMediator
 
+        public bool DisposeView { get; set; }
+
         public virtual void ViewWillAppear(Action<bool> baseViewWillAppear, bool animated)
         {
             baseViewWillAppear(animated);
+            if (_viewController == null)
+                return;
             if (_viewController.View != null)
                 ParentObserver.Raise(_viewController.View, true);
             UINavigationItem navigationItem = _viewController.NavigationItem;
@@ -145,8 +150,10 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             Raise(DisposeHandler);
             if (disposing)
             {
+                if (_viewController == null)
+                    return;
                 var bindingContext = BindingServiceProvider.ContextManager.GetBindingContext(_viewController);
-                _viewController.View.ClearBindingsHierarchically(true, true);
+                _viewController.View.ClearBindingsHierarchically(true, true, DisposeView);
                 _viewController.ClearBindings(false, false);
                 _viewController.EditButtonItem.ClearBindings(true, true);
                 _viewController.ToolbarItems.ClearBindings(true, true);
@@ -161,8 +168,10 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 }
                 var dialogViewController = _viewController as DialogViewController;
                 if (dialogViewController != null)
-                    dialogViewController.Root.ClearBindingsHierarchically(true, true);
+                    dialogViewController.Root.ClearBindingsHierarchically(true, true, DisposeView);
                 bindingContext.Value = null;
+                ServiceProvider.AttachedValueProvider.Clear(_viewController);
+                _viewController = null;
             }
             baseDispose(disposing);
         }

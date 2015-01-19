@@ -18,8 +18,8 @@
 
 using System;
 using System.Collections;
-using System.Drawing;
 using System.Linq;
+using CoreGraphics;
 using Foundation;
 using UIKit;
 using MugenMvvmToolkit.Binding.Converters;
@@ -470,7 +470,7 @@ namespace MugenMvvmToolkit.Binding.Modules
                 if (viewController == null)
                 {
                     if (value != null)
-                        view = new UITextView(new RectangleF(4, 4, 300, 30))
+                        view = new UITextView(new CGRect(4, 4, 300, 30))
                         {
                             Editable = false,
                             DataDetectorTypes = UIDataDetectorType.None,

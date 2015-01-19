@@ -27,6 +27,8 @@ using Windows.UI.Xaml;
 using Xamarin.Forms;
 #elif TOUCH
 using Foundation;
+using ObjCRuntime;
+using System.Runtime.InteropServices;
 using MugenMvvmToolkit.Models;
 #else
 using System.Windows;
@@ -47,46 +49,84 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Nested types
 
 #if TOUCH
-        private sealed class WeakAttachedValueDictionary : AttachedValueDictionary
+        /// <summary>
+        ///     https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ObjCRuntimeRef/index.html#//apple_ref/c/tdef/objc_AssociationPolicy
+        /// </summary>
+        private enum OBJC_ASSOCIATION_POLICY
+        {
+            OBJC_ASSOCIATION_RETAIN = 01401
+        }
+
+        private sealed class IntPtrComparer : IEqualityComparer<IntPtr>
+        {
+            #region Implementation of IEqualityComparer<in IntPtr>
+
+            public bool Equals(IntPtr x, IntPtr y)
+            {
+                return x == y;
+            }
+
+            public int GetHashCode(IntPtr obj)
+            {
+                return obj.GetHashCode();
+            }
+
+            #endregion
+        }
+
+        [Register("NSObjectEx")]
+        private abstract class NSObjectEx : NSObject
+        {
+        }
+
+        [Register("AttachedValueHolder")]
+        private sealed class AttachedValueHolder : NSObjectEx
         {
             #region Fields
 
-            private readonly NativeReference _reference;
+            public readonly NativeObjectWeakReference WeakReference;
+            private AttachedValueDictionary _dictionary;
 
             #endregion
 
             #region Constructors
 
-            public WeakAttachedValueDictionary(NativeReference reference)
+            public AttachedValueHolder(NSObject target)
             {
-                _reference = reference;
+                objc_setAssociatedObject(target.Handle, AttachedValueKeyHandle, Handle,
+                    OBJC_ASSOCIATION_POLICY.OBJC_ASSOCIATION_RETAIN);
+                WeakReference = new NativeObjectWeakReference(target);
             }
 
             #endregion
 
-            #region Destructor
+            #region Methods
 
-            ~WeakAttachedValueDictionary()
+            public AttachedValueDictionary GetOrCreateDictionary()
             {
-                try
+                if (_dictionary == null)
                 {
-                    if (_reference.IsAlive)
-                        GC.ReRegisterForFinalize(this);
-                    else
+                    lock (this)
                     {
-                        lock (NativeReferenceDictionary)
-                            NativeReferenceDictionary.Remove(_reference);
+                        if (_dictionary == null)
+                            _dictionary = new AttachedValueDictionary();
                     }
                 }
-                // ReSharper disable once EmptyGeneralCatchClause
-                catch
-                {
-                }
+                return _dictionary;
+            }
+
+            [Export("dealloc")]
+            private void Dealloc()
+            {
+                WeakReference.IsInvalid = true;
+                lock (AttachedValueHolders)
+                    AttachedValueHolders.Remove(WeakReference.Handle);
             }
 
             #endregion
         }
 #endif
+
         private class AttachedValueDictionary : LightDictionaryBase<string, object>
         {
             #region Constructors
@@ -100,17 +140,11 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Overrides of LightDictionaryBase<string,object>
 
-            /// <summary>
-            ///     Determines whether the specified objects are equal.
-            /// </summary>
             protected override bool Equals(string x, string y)
             {
                 return string.Equals(x, y, StringComparison.Ordinal);
             }
 
-            /// <summary>
-            ///     Returns a hash code for the specified object.
-            /// </summary>
             protected override int GetHashCode(string key)
             {
                 return key.GetHashCode();
@@ -133,8 +167,8 @@ namespace MugenMvvmToolkit.Infrastructure
             .CreateAttached("AttachedValueDictionary", typeof(AttachedValueDictionary), typeof(AttachedValueProvider),
                 null);
 #elif TOUCH
-        //Refcount(http://developer.xamarin.com/guides/ios/advanced_topics/newrefcount/) recreates NSObjects and breaks the mapping.
-        private static readonly Dictionary<NativeReference, WeakReference> NativeReferenceDictionary = new Dictionary<NativeReference, WeakReference>(157);
+        private static readonly IntPtr AttachedValueKeyHandle = new NSObject().Handle;
+        private static readonly Dictionary<IntPtr, AttachedValueHolder> AttachedValueHolders = new Dictionary<IntPtr, AttachedValueHolder>(new IntPtrComparer());
 #endif
         private static readonly ConditionalWeakTable<object, AttachedValueDictionary>.CreateValueCallback
             CreateDictionaryDelegate = o => new AttachedValueDictionary();
@@ -142,6 +176,35 @@ namespace MugenMvvmToolkit.Infrastructure
         private readonly ConditionalWeakTable<object, AttachedValueDictionary> _internalDictionary =
             new ConditionalWeakTable<object, AttachedValueDictionary>();
 
+        #endregion
+
+        #region Methods
+
+#if TOUCH
+        /// <summary>
+        ///     https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ObjCRuntimeRef/index.html#//apple_ref/c/func/objc_setAssociatedObject
+        /// </summary>
+        [DllImport(Constants.ObjectiveCLibrary)]
+        private static extern void objc_setAssociatedObject(IntPtr target, IntPtr key, IntPtr value,
+            OBJC_ASSOCIATION_POLICY policy);
+
+        internal static WeakReference GetNativeObjectWeakReference(NSObject nsObject)
+        {
+            var handle = nsObject.Handle;
+            if (handle == IntPtr.Zero)
+                return Empty.WeakReference;
+            lock (AttachedValueHolders)
+            {
+                AttachedValueHolder value;
+                if (!AttachedValueHolders.TryGetValue(handle, out value))
+                {
+                    value = new AttachedValueHolder(nsObject);
+                    AttachedValueHolders[handle] = value;
+                }
+                return value.WeakReference;
+            }
+        }
+#endif
         #endregion
 
         #region Overrides of AttachedValueProviderBase<WeakKey,AttachedValueDictionary>
@@ -158,7 +221,18 @@ namespace MugenMvvmToolkit.Infrastructure
                 var handle = nsObject.Handle;
                 if (handle == IntPtr.Zero)
                     return false;
-                return NativeReferenceDictionary.Remove(new NativeReference(nsObject));
+                objc_setAssociatedObject(handle, AttachedValueKeyHandle, IntPtr.Zero, OBJC_ASSOCIATION_POLICY.OBJC_ASSOCIATION_RETAIN);
+
+                AttachedValueHolder value;
+                lock (AttachedValueHolders)
+                {
+                    if (AttachedValueHolders.TryGetValue(handle, out value))
+                        AttachedValueHolders.Remove(handle);
+                }
+                if (value == null)
+                    return false;
+                value.Dispose();
+                return true;
             }
 #endif
 
@@ -190,19 +264,28 @@ namespace MugenMvvmToolkit.Infrastructure
             var nsObject = item as NSObject;
             if (nsObject != null)
             {
-                var key = new NativeReference(nsObject);
-                WeakReference reference;
-                lock (NativeReferenceDictionary)
+                var handle = nsObject.Handle;
+                if (handle == IntPtr.Zero)
                 {
-                    if (!NativeReferenceDictionary.TryGetValue(key, out reference))
+                    if (addNew)
+                    {
+                        Tracer.Error("The object {0} is disposed the attached values cannot be obtained", item);
+                        return new AttachedValueDictionary();
+                    }
+                    return null;
+                }
+                AttachedValueHolder holder;
+                lock (AttachedValueHolders)
+                {
+                    if (!AttachedValueHolders.TryGetValue(handle, out holder))
                     {
                         if (!addNew)
                             return null;
-                        reference = new WeakReference(new WeakAttachedValueDictionary(key), true);
-                        NativeReferenceDictionary[key] = reference;
+                        holder = new AttachedValueHolder(nsObject);
+                        AttachedValueHolders[handle] = holder;
                     }
                 }
-                return (LightDictionaryBase<string, object>)reference.Target;
+                return holder.GetOrCreateDictionary();
             }
 #endif
 

@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models.EventArg;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
@@ -69,7 +70,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// <summary>
         ///     Updates the current errors.
         /// </summary>
-        protected override void UpdateErrors(IList<object> errors)
+        protected override void UpdateErrors(IList<object> errors, IDataContext context)
         {
             Errors = errors ?? Empty.Array<object>();
             IDataBinding dataBinding = Binding;
@@ -105,7 +106,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 ValidatesOnExceptionsBehavior.ShowOriginalException
                     ? args.OriginalException.Message
                     : args.Exception.Message
-            });
+            }, null);
         }
 
         #endregion

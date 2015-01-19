@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using ObjCRuntime;
 using UIKit;
 using MugenMvvmToolkit.Interfaces;
@@ -106,6 +107,17 @@ namespace MugenMvvmToolkit
                     }
                 }
             }
+        }
+
+        public static void ClearBindingsHierarchically([CanBeNull]this UIView view, bool clearDataContext, bool clearAttachedValues, bool disposeView)
+        {
+            if (view == null)
+                return;
+            foreach (var subView in view.Subviews)
+                subView.ClearBindingsHierarchically(clearDataContext, clearAttachedValues, disposeView);
+            BindingExtensions.ClearBindings(view, clearDataContext, clearAttachedValues);
+            if (disposeView)
+                view.Dispose();
         }
 
         internal static bool IsAlive([NotNull] this INativeObject item)

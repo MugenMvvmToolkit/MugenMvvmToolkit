@@ -18,14 +18,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Reflection;
 using CoreGraphics;
 using Foundation;
 using UIKit;
 #if XAMARIN_FORMS
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Models;
 using Xamarin.Forms;
 #else
@@ -79,15 +77,15 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Methods
 
-            public static void Save(UIView view)
+            public static void Save(UIView view, object target)
             {
-                ServiceProvider.AttachedValueProvider.GetOrAdd(view, Key, (uiView, o) => new LayoutInfo(uiView), null);
+                ServiceProvider.AttachedValueProvider.GetOrAdd(target, Key, (t, o) => new LayoutInfo((UIView)o), view);
             }
 
-            public static void Restore(UIView view)
+            public static void Restore(UIView view, object target)
             {
-                var info = ServiceProvider.AttachedValueProvider.GetValue<LayoutInfo>(view, Key, false);
-                ServiceProvider.AttachedValueProvider.Clear(view, Key);
+                var info = ServiceProvider.AttachedValueProvider.GetValue<LayoutInfo>(target, Key, false);
+                ServiceProvider.AttachedValueProvider.Clear(target, Key);
                 if (info == null || info._isEmpty)
                     return;
                 var layer = view.Layer;
@@ -108,7 +106,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             private ValidationPopup _popup;
             private readonly BindingErrorProvider _errorProvider;
-            private readonly UITextField _textField;
+            private UITextField _textField;
             private NSString _message;
 
             #endregion
@@ -116,7 +114,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             #region Constructors
 
             public ErrorButton(BindingErrorProvider errorProvider, UITextField textField)
-                : base(new RectangleF(0, 0, 25, 25))
+                : base(new CGRect(0, 0, 25, 25))
             {
                 _errorProvider = errorProvider;
                 _textField = textField;
@@ -169,12 +167,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (_popup == null)
                     return;
                 _popup.RemoveFromSuperview();
-                _popup.Dispose();
+                _popup.ClearBindingsHierarchically(true, true, true);
                 _popup = null;
             }
 
             private UIView GetTextFieldSuperview()
             {
+                if (_textField == null)
+                    return null;
                 var current = _textField.Superview;
                 UIView result = null;
                 while (current != null && !(current is UIWindow))
@@ -194,6 +194,20 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (_popup != null)
                     _message = _popup.Message;
                 HidePopup();
+            }
+
+            #endregion
+
+            #region Overrides of UIButton
+
+            protected override void Dispose(bool disposing)
+            {
+                if (disposing)
+                {
+                    HidePopup();
+                    _textField = null;
+                }
+                base.Dispose(disposing);
             }
 
             #endregion
@@ -270,9 +284,76 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return btn;
         }
 
+        private void SetErrors(object target, IList<object> errors, bool isClear)
+        {
+            var hasErrors = errors.Count != 0;
+#if XAMARIN_FORMS
+            var element = target as Element;
+            if (element != null)
+                target = GetNativeView(element);
+#else
+            var element = target as EntryElement;
+            if (element != null && GetEntryField != null)
+                target = GetEntryField(element);
+#endif
+            var uiView = target as UIView;
+            if (uiView != null && ErrorBorderWidth > 0)
+            {
+                if (hasErrors)
+                {
+                    LayoutInfo.Save(uiView, target);
+                    uiView.Layer.BorderColor = ErrorBorderColor.CGColor;
+                    uiView.Layer.BorderWidth = ErrorBorderWidth;
+                    uiView.Layer.CornerRadius = CornerRadius;
+                    uiView.ClipsToBounds = true;
+                }
+                else
+                    LayoutInfo.Restore(uiView, target);
+            }
+
+            var textField = target as UITextField;
+            if (textField != null && ErrorImage != null && textField.Superview != null)
+            {
+                ErrorButton errorButton;
+                UITextFieldViewMode mode = hasErrors ? UITextFieldViewMode.Always : UITextFieldViewMode.Never;
+                if (RightErrorImagePosition)
+                {
+                    textField.RightViewMode = mode;
+                    errorButton = textField.RightView as ErrorButton;
+                    if (isClear)
+                        textField.RightView = null;
+                    else if (errorButton == null)
+                    {
+                        errorButton = CreateErrorButton(textField);
+                        textField.RightView = errorButton;
+                    }
+                }
+                else
+                {
+                    textField.LeftViewMode = mode;
+                    errorButton = textField.LeftView as ErrorButton;
+                    if (isClear)
+                        textField.LeftView = null;
+                    else if (errorButton == null)
+                    {
+                        errorButton = CreateErrorButton(textField);
+                        textField.LeftView = errorButton;
+                    }
+                }
+
+                if (isClear)
+                {
+                    if (errorButton != null)
+                        errorButton.ClearBindingsHierarchically(true, true, true);
+                }
+                else
+                    errorButton.SetErrors(errors);
+            }
+        }
+
 #if XAMARIN_FORMS
         private static void FormsOnViewInitialized(object sender, ViewInitializedEventArgs args)
-        {            
+        {
             var view = args.View;
             if (view == null || args.NativeView == null)
                 return;
@@ -304,59 +385,17 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         protected override void SetErrors(object target, IList<object> errors, IDataContext context)
         {
             base.SetErrors(target, errors, context);
+            SetErrors(target, errors, false);
+        }
 
-            var hasErrors = errors.Count != 0;
-#if XAMARIN_FORMS
-            var element = target as Element;
-            if (element != null)
-                target = GetNativeView(element);
-#else
-            var element = target as EntryElement;
-            if (element != null && GetEntryField != null)
-                target = GetEntryField(element);
-#endif
-            var uiView = target as UIView;
-            if (uiView != null && ErrorBorderWidth > 0)
-            {
-                if (hasErrors)
-                {
-                    LayoutInfo.Save(uiView);
-                    uiView.Layer.BorderColor = ErrorBorderColor.CGColor;
-                    uiView.Layer.BorderWidth = ErrorBorderWidth;
-                    uiView.Layer.CornerRadius = CornerRadius;
-                    uiView.ClipsToBounds = true;
-                }
-                else
-                    LayoutInfo.Restore(uiView);
-            }
-
-            var textField = target as UITextField;
-            if (textField != null && ErrorImage != null && textField.Superview != null)
-            {
-                ErrorButton errorButton;
-                UITextFieldViewMode mode = hasErrors ? UITextFieldViewMode.Always : UITextFieldViewMode.Never;
-                if (RightErrorImagePosition)
-                {
-                    textField.RightViewMode = mode;
-                    errorButton = textField.RightView as ErrorButton;
-                    if (errorButton == null)
-                    {
-                        errorButton = CreateErrorButton(textField);
-                        textField.RightView = errorButton;
-                    }
-                }
-                else
-                {
-                    textField.LeftViewMode = mode;
-                    errorButton = textField.LeftView as ErrorButton;
-                    if (errorButton == null)
-                    {
-                        errorButton = CreateErrorButton(textField);
-                        textField.LeftView = errorButton;
-                    }
-                }
-                errorButton.SetErrors(errors);
-            }
+        /// <summary>
+        ///     Clears the errors for binding target.
+        /// </summary>
+        /// <param name="target">The binding target object.</param>
+        /// <param name="context">The specified context, if any.</param>
+        protected override void ClearErrors(object target, IDataContext context)
+        {
+            SetErrors(target, Empty.Array<object>(), true);
         }
 
         #endregion

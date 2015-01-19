@@ -17,22 +17,18 @@
 #endregion
 
 using System;
-using System.Drawing;
-using System.Threading;
 using System.Threading.Tasks;
 using CoreGraphics;
-using Foundation;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 using UIKit;
 
 namespace MugenMvvmToolkit.Views
 {
-    public class ToastView : NSObject, IOrientationChangeListener
+    public class ToastView : DisposableObject, IOrientationChangeListener
     {
         #region Fields
 
-        private int _disposed;
         private UILabel _label;
 
         #endregion
@@ -92,7 +88,7 @@ namespace MugenMvvmToolkit.Views
 
         public nfloat HorizontalPadding { get; set; }
 
-        public PointF? CustomPosition { get; set; }
+        public CGPoint? CustomPosition { get; set; }
 
         public int MaxMessageLines { get; set; }
 
@@ -331,18 +327,19 @@ namespace MugenMvvmToolkit.Views
 
         #endregion
 
-        #region Overrides of NSObject
+        #region Overrides of DisposableObject
 
-        protected override void Dispose(bool disposing)
+        protected override void OnDispose(bool disposing)
         {
-            if (disposing && Interlocked.Exchange(ref _disposed, 1) == 0)
+            if (disposing)
             {
                 TaskCompletionSource.TrySetResult(null);
                 View.RemoveFromSuperview();
-                View.Dispose();
+                View.ClearBindingsHierarchically(true, true, true);
                 PlatformExtensions.RemoveOrientationChangeListener(this);
+                ServiceProvider.AttachedValueProvider.Clear(this);
             }
-            base.Dispose(disposing);
+            base.OnDispose(disposing);
         }
 
         #endregion

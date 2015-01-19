@@ -197,6 +197,11 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (context == null)
                     context = DataContext.Empty;
                 view = ToolkitExtensions.GetUnderlyingView<object>(view);
+                if (ReferenceEquals(viewModel.Settings.Metadata.GetData(ViewModelConstants.View), view))
+                {
+                    tcs.SetResult(null);
+                    return;
+                }
                 InitializeView(viewModel, view, context);
                 var handler = ViewInitialized;
                 if (handler != null)
@@ -288,8 +293,6 @@ namespace MugenMvvmToolkit.Infrastructure
         protected virtual void InitializeView([NotNull]IViewModel viewModel, [CanBeNull] object view, [NotNull] IDataContext context)
         {
             var oldView = viewModel.Settings.Metadata.GetData(ViewModelConstants.View);
-            if (ReferenceEquals(oldView, view))
-                return;
             InitializeViewInternal(null, oldView);
             InitializeViewInternal(viewModel, view);
             PropertyInfo viewProperty = ReflectionExtensions.GetViewProperty(viewModel.GetType());

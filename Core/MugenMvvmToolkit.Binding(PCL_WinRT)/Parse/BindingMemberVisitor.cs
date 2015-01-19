@@ -168,8 +168,8 @@ namespace MugenMvvmToolkit.Binding.Parse
             IBindingPath path = BindingServiceProvider.BindingPathFactory(memberName);
             string firstMember = path.Parts[0];
             Type type = BindingServiceProvider.ResourceResolver.ResolveType(firstMember, DataContext.Empty, false);
-            var dynMember = (ResourceExpressionNode)nodes[0];
-            if (dynMember.Dynamic && type == null)
+            var resourceMember = (ResourceExpressionNode)nodes[0];
+            if (resourceMember.Dynamic && type == null)
             {
                 memberName = BindingExtensions.MergePath(path.Parts.Skip(1).ToArray());
                 return GetOrAddBindingMember("$" + path.Path, (s, i) => new BindingMemberExpressionNode(firstMember, memberName, s, i));
