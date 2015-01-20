@@ -27,14 +27,15 @@ namespace MugenMvvmToolkit.Binding.Models
         #region Fields
 
         private readonly IExpressionNode _node;
+        private readonly bool _isTypeAccess;
         private Expression _expression;
         private Type _type;
-
+        
         #endregion
 
         #region Constuctors
 
-        public ArgumentData(IExpressionNode node, Expression expression, Type type)
+        public ArgumentData(IExpressionNode node, Expression expression, Type type, bool isTypeAccess)
         {
             Should.NotBeNull(node, "node");
             _node = node;
@@ -42,6 +43,7 @@ namespace MugenMvvmToolkit.Binding.Models
             if (type == null && expression != null)
                 type = expression.Type;
             _type = type;
+            _isTypeAccess = isTypeAccess;
         }
 
         #endregion
@@ -51,6 +53,11 @@ namespace MugenMvvmToolkit.Binding.Models
         public bool IsLambda
         {
             get { return Node.NodeType == ExpressionNodeType.Lambda; }
+        }
+
+        public bool IsTypeAccess
+        {
+            get { return _isTypeAccess; }
         }
 
         public Type Type

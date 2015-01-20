@@ -594,6 +594,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         internal static Expression ConvertIfNeed(Expression expression, Type type, bool exactly)
         {
+            if (expression == null)
+                return null;
             if (type.Equals(typeof(void)) || type.Equals(expression.Type))
                 return expression;
 

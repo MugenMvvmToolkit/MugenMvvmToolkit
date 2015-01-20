@@ -22,13 +22,13 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Models
 {
-    internal class WeakActionSubscriber<T> : ISubscriber
+    internal class WeakActionSubscriber<T> : IActionSubscriber
     {
         #region Fields
 
         private readonly Action<object, object, T> _delegate;
         private readonly int _hash;
-        internal readonly MethodInfo Method;
+        private readonly MethodInfo _method;
         private readonly WeakReference _reference;
 
         #endregion
@@ -40,11 +40,11 @@ namespace MugenMvvmToolkit.Models
             Should.NotBeNull(target, "target");
             Should.NotBeNull(method, "method");
             _reference = ToolkitExtensions.GetWeakReference(target);
-            Method = method;
+            _method = method;
             _delegate = (Action<object, object, T>)ServiceProvider
                 .ReflectionManager
                 .GetMethodDelegate(typeof(Action<object, object, T>), method);
-            _hash = (target.GetHashCode() * 397) ^ Method.GetHashCode();
+            _hash = ActionSubscriber<object>.ActionSubscriberGetHashCode(target, method);
         }
 
         #endregion
@@ -53,12 +53,12 @@ namespace MugenMvvmToolkit.Models
 
         public bool Equals(ISubscriber other)
         {
-            return ActionSubscriber<object>.ActionSubscriberEquals(this, other);
+            return ActionSubscriber<object>.ActionSubscriberEquals(this, other as IActionSubscriber);
         }
 
         public override bool Equals(object obj)
         {
-            return ActionSubscriber<object>.ActionSubscriberEquals(this, obj);
+            return ActionSubscriber<object>.ActionSubscriberEquals(this, obj as IActionSubscriber);
         }
 
         public override int GetHashCode()
@@ -96,6 +96,15 @@ namespace MugenMvvmToolkit.Models
                 return HandlerResult.Handled;
             }
             return HandlerResult.Ignored;
+        }
+
+        #endregion
+
+        #region Implementation of IActionSubscriber
+
+        public MethodInfo Method
+        {
+            get { return _method; }
         }
 
         #endregion

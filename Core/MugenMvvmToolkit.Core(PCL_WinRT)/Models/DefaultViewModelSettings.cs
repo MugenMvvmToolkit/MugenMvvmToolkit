@@ -55,7 +55,6 @@ namespace MugenMvvmToolkit.Models
             _validationBusyMessage = string.Empty;
             DisposeIocContainer = true;
             DisposeCommands = true;
-            BroadcastAllMessages = true;
             HandleBusyMessageMode = HandleMode.HandleAndNotifyObservers;
             EventExecutionMode = ExecutionMode.AsynchronousOnUiThread;
         }

@@ -116,10 +116,8 @@ namespace MugenMvvmToolkit.Binding.Modules
             if (constructor == null || !constructor.IsPublic)
                 return;
             var converter = (IValueConverter)constructor.InvokeEx();
-            string name = RemoveTail(RemoveTail(type.Name, "ValueConverter"), "Converter");
-            if (BindingServiceProvider.ResourceResolver.TryAddConverter(name,
-                new ValueConverterWrapper(converter.Convert, converter.ConvertBack)))
-                Tracer.Info("The {0} converter is registered.", type);
+            BindingServiceProvider.ResourceResolver.AddConverter(new ValueConverterWrapper(converter.Convert, converter.ConvertBack), true);
+            Tracer.Info("The {0} converter is registered.", type);
         }
 
         /// <summary>

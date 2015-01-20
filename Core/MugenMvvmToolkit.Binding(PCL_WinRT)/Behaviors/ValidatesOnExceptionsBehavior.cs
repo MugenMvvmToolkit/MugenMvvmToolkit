@@ -21,6 +21,7 @@ using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
@@ -119,7 +120,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
             var context = new DataContext(binding.Context);
             context.AddOrUpdate(BindingErrorProviderBase.ClearErrorsConstant, true);
-            SetErrors(errorProvider, binding, Empty.Array<object>());
+            SetErrors(errorProvider, binding, Empty.Array<object>(), context);
         }
 
         /// <summary>
@@ -139,22 +140,22 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             IBindingErrorProvider errorProvider = BindingServiceProvider.ErrorProvider;
             if (errorProvider != null)
                 SetErrors(errorProvider, sender,
-                    new object[] { ShowOriginalException ? args.OriginalException.Message : args.Exception.Message });
+                    new object[] { ShowOriginalException ? args.OriginalException.Message : args.Exception.Message }, null);
         }
 
         private static void OnBindingUpdated(IDataBinding sender, BindingEventArgs args)
         {
             IBindingErrorProvider errorProvider = BindingServiceProvider.ErrorProvider;
             if (errorProvider != null)
-                SetErrors(errorProvider, sender, Empty.Array<object>());
+                SetErrors(errorProvider, sender, Empty.Array<object>(), null);
         }
 
-        private static void SetErrors(IBindingErrorProvider errorProvider, IDataBinding sender, object[] errors)
+        private static void SetErrors(IBindingErrorProvider errorProvider, IDataBinding sender, object[] errors, IDataContext context)
         {
             IBindingPathMembers pathMembers = sender.TargetAccessor.Source.GetPathMembers(false);
             object target = pathMembers.PenultimateValue;
             if (target != null && !target.IsUnsetValue())
-                errorProvider.SetErrors(target, Key + pathMembers.Path.Path, errors, sender.Context);
+                errorProvider.SetErrors(target, Key + pathMembers.Path.Path, errors, context ?? sender.Context);
         }
 
         #endregion

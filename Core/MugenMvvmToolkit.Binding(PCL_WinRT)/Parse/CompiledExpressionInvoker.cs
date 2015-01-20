@@ -498,10 +498,10 @@ namespace MugenMvvmToolkit.Binding.Parse
 
             var target = BuildExpression(methodCall.Target);
             var type = GetTargetType(ref target);
-            var targetData = new ArgumentData(methodCall.Target, target, type);
+            var targetData = new ArgumentData(methodCall.Target, target, type, target == null);
             var args = methodCall
                 .Arguments
-                .ToArrayEx(node => new ArgumentData(node, node.NodeType == ExpressionNodeType.Lambda ? null : BuildExpression(node), null));
+                .ToArrayEx(node => new ArgumentData(node, node.NodeType == ExpressionNodeType.Lambda ? null : BuildExpression(node), null, false));
 
             var method = targetData.FindMethod(methodCall.Method, typeArgs, args, BindingServiceProvider.ResourceResolver.GetKnownTypes(), target == null);
             if (method == null)
@@ -532,10 +532,10 @@ namespace MugenMvvmToolkit.Binding.Parse
                 return Expression.ArrayIndex(target, indexer.Arguments.Select(BuildExpression));
 
             var type = GetTargetType(ref target);
-            var targetData = new ArgumentData(indexer.Object, target, type);
+            var targetData = new ArgumentData(indexer.Object, target, type, target == null);
             var args = indexer
                 .Arguments
-                .ToArrayEx(node => new ArgumentData(node, node.NodeType == ExpressionNodeType.Lambda ? null : BuildExpression(node), null));
+                .ToArrayEx(node => new ArgumentData(node, node.NodeType == ExpressionNodeType.Lambda ? null : BuildExpression(node), null, false));
 
             var method = targetData.FindIndexer(args, target == null);
             if (method == null)
@@ -640,20 +640,36 @@ namespace MugenMvvmToolkit.Binding.Parse
         private static Expression[] ConvertParameters(MethodBase method, Expression[] args)
         {
             ParameterInfo[] parameters = method.GetParameters();
-            if (parameters.Length == 1 && parameters[0].IsDefined(typeof(ParamArrayAttribute), true))
+            var lastIndex = parameters.Length - 1;
+            if (parameters.Length != 0 && parameters[lastIndex].IsDefined(typeof(ParamArrayAttribute), true))
             {
-                var elementType = parameters[0].ParameterType.GetElementType();
-                var initializers = new Expression[args.Length];
-                for (int i = 0; i < args.Length; i++)
-                    initializers[i] = ExpressionReflectionManager.ConvertIfNeed(args[i], elementType, false);
-                var array = Expression.NewArrayInit(elementType, initializers);
-                return new Expression[] { array };
+                var parameter = parameters[lastIndex];
+                var elementType = parameter.ParameterType.GetElementType();
+                //Check last parameter, maybe it is array.
+                var initialized = args.Length == parameters.Length &&
+                                  parameter.ParameterType.IsAssignableFrom(args[lastIndex].Type);
+                //if args Length less than parameters, create empty array.
+                if (args.Length < parameters.Length)
+                {
+                    Array.Resize(ref args, parameters.Length);
+                    args[lastIndex] = Expression.NewArrayInit(elementType);
+                    initialized = true;
+                }
+
+                //Create array and fill parameters.
+                if (!initialized)
+                {
+                    var initializers = new Expression[args.Length - lastIndex];
+                    for (int i = 0; i < initializers.Length; i++)
+                        initializers[i] = ExpressionReflectionManager.ConvertIfNeed(args[i + lastIndex], elementType, false);
+                    Array.Resize(ref args, parameters.Length);
+                    args[lastIndex] = Expression.NewArrayInit(elementType, initializers);
+                }
             }
+
             for (int index = 0; index < args.Length; index++)
             {
-                Expression expression = args[index];
-                ParameterInfo parameter = parameters[index];
-                args[index] = ExpressionReflectionManager.ConvertIfNeed(expression, parameter.ParameterType, false);
+                args[index] = ExpressionReflectionManager.ConvertIfNeed(args[index], parameters[index].ParameterType, false);
             }
             return args;
         }

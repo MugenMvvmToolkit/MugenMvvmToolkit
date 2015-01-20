@@ -336,7 +336,7 @@ namespace MugenMvvmToolkit.Binding
 
         internal static IList<ArgumentData> GetMethodArgs(bool isExtensionMethod, ArgumentData target, IList<ArgumentData> args)
         {
-            if (!isExtensionMethod)
+            if (!isExtensionMethod || target.IsTypeAccess)
                 return args;
             var actualArgs = new List<ArgumentData> { target };
             actualArgs.AddRange(args);
@@ -356,14 +356,36 @@ namespace MugenMvvmToolkit.Binding
             }
             if (args.Any(data => data.IsLambda))
                 return null;
+            MethodData result = null;
+            MethodData resultParams = null;
             foreach (var candidate in candidates)
             {
-                if (candidate.Parameters.Count == args.Count)
-                    return candidate;
+                var lastIndex = candidate.Parameters.Count - 1;
+                //I think it is enough to choose the method with the highest number of matched arguments for params modifier.
+                if (candidate.Parameters.Count != 0 && candidate.Parameters[lastIndex].IsDefined(typeof(ParamArrayAttribute), true))
+                {
+                    if (candidate.Parameters.Count > args.Count)
+                        continue;
+                    bool isCompatible = true;
+                    for (int i = 0; i < lastIndex; i++)
+                    {
+                        var argumentData = args[i];
+                        if (!IsCompatible(candidate.Parameters[i].ParameterType, argumentData.Node,
+                                argumentData.Expression))
+                        {
+                            isCompatible = false;
+                            break;
+                        }
+                    }
+                    if (isCompatible &&
+                        (resultParams == null || candidate.Parameters.Count > resultParams.Parameters.Count))
+                        resultParams = candidate;
+                }
+                else if (candidate.Parameters.Count == args.Count)
+                    result = candidate;
             }
-            return null;
+            return resultParams ?? result;
         }
-
 
         private static MethodData TryInferMethod(MethodInfo method, ArgumentData target, IList<ArgumentData> args, Type[] typeArgs)
         {
@@ -430,21 +452,14 @@ namespace MugenMvvmToolkit.Binding
         private static bool IsCompatible(this MethodData m, IList<ArgumentData> args)
         {
             var parameters = m.Parameters;
-            ParameterInfo parameter = null;
-            if (m.IsExtensionMethod)
+            if (args.Count != parameters.Count)
             {
-                if (parameters.Count == 2)
-                    parameter = parameters[1];
+                if (parameters.Count == 0 || args.Count != parameters.Count - 1)
+                    return false;
+                if (!parameters[parameters.Count - 1].IsDefined(typeof(ParamArrayAttribute), true))
+                    return false;
             }
-            else
-            {
-                if (parameters.Count == 1)
-                    parameter = parameters[0];
-            }
-            if (parameter != null && parameter.IsDefined(typeof(ParamArrayAttribute), true))
-                return true;
-            if (parameters.Count != args.Count)
-                return false;
+
             for (int index = 0; index < args.Count; ++index)
             {
                 var data = args[index];

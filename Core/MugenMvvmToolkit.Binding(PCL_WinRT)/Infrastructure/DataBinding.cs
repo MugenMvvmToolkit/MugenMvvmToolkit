@@ -572,7 +572,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         IList<DataConstantValue> IDataContext.ToList()
         {
-            if (_lazyContext == null)
+            if (_lazyContext == null || _lazyContext == DataContext.Empty)
                 return new List<DataConstantValue> { BindingConstants.Binding.ToValue(this) };
             return _lazyContext.ToList();
         }

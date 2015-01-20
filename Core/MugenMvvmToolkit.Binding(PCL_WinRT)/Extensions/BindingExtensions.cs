@@ -285,19 +285,6 @@ namespace MugenMvvmToolkit.Binding
         }
 
         /// <summary>
-        /// Tries to add the specified converter 
-        /// </summary>
-        public static bool TryAddConverter([CanBeNull]this IBindingResourceResolver resourceResolver, [NotNull] string name, [NotNull] IBindingValueConverter converter)
-        {
-            if (resourceResolver == null)
-                return false;
-            if (resourceResolver.ResolveConverter(name, DataContext.Empty, false) != null)
-                return false;
-            resourceResolver.AddConverter(name, converter, true);
-            return true;
-        }
-
-        /// <summary>
         ///     Registers the specified member.
         /// </summary>
         public static void Register<TTarget, TType>([NotNull]this IBindingMemberProvider memberProvider, [NotNull] IAttachedBindingMemberInfo<TTarget, TType> member, bool rewrite = true)
@@ -312,6 +299,60 @@ namespace MugenMvvmToolkit.Binding
         {
             Should.NotBeNull(memberProvider, "memberProvider");
             memberProvider.Register(typeof(TTarget), path, member, rewrite);
+        }
+
+        /// <summary>
+        ///     Adds the specified object to resources.
+        /// </summary>
+        public static void AddObject([NotNull]this IBindingResourceResolver resolver, [NotNull] string name, object value, bool rewrite = true)
+        {
+            Should.NotBeNull(resolver, "resolver");
+            resolver.AddObject(name, new BindingResourceObject(value), rewrite);
+        }
+
+        /// <summary>
+        ///     Adds the specified type to resources.
+        /// </summary>
+        public static void AddType([NotNull]this IBindingResourceResolver resolver, [NotNull] Type type,
+            bool rewrite = true)
+        {
+            Should.NotBeNull(resolver, "resolver");
+            resolver.AddType(type.Name, type, rewrite);
+            resolver.AddType(type.FullName, type, rewrite);
+        }
+
+        /// <summary>
+        ///     Adds the specified converter to resources.
+        /// </summary>
+        public static void AddConverter([NotNull]this IBindingResourceResolver resolver, [NotNull] IBindingValueConverter converter, bool rewrite = true)
+        {
+            Should.NotBeNull(resolver, "resolver");
+            Should.NotBeNull(converter, "converter");
+            var type = converter.GetType();
+            var name = RemoveTail(RemoveTail(RemoveTail(type.Name, "BindingValueConverter"), "ValueConverter"), "Converter");
+            resolver.AddConverter(name, converter, rewrite);
+            if (name != type.Name)
+                resolver.AddConverter(type.Name, converter, rewrite);
+        }
+
+        /// <summary>
+        ///     Adds the specified method to resources.
+        /// </summary>
+        public static void AddMethod<TArg1, TResult>([NotNull]this IBindingResourceResolver resolver, [NotNull] string name, [NotNull] Func<TArg1, IDataContext, TResult> method, bool rewrite = true)
+        {
+            Should.NotBeNull(resolver, "resolver");
+            resolver.AddMethod(name,
+                new BindingResourceMethod(method.AsResourceMethodDelegate, typeof(TResult)), rewrite);
+        }
+
+        /// <summary>
+        ///     Adds the specified method to resources.
+        /// </summary>
+        public static void AddMethod<TArg1, TArg2, TResult>([NotNull]this IBindingResourceResolver resolver, [NotNull] string name, [NotNull] Func<TArg1, TArg2, IDataContext, TResult> method, bool rewrite = true)
+        {
+            Should.NotBeNull(resolver, "resolver");
+            resolver.AddMethod(name,
+                new BindingResourceMethod(method.AsResourceMethodDelegate, typeof(TResult)), rewrite);
         }
 
         /// <summary>
@@ -511,6 +552,16 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
+        /// <summary>
+        ///     Removes the tail
+        /// </summary>
+        private static string RemoveTail(string name, string word)
+        {
+            if (name.EndsWith(word, StringComparison.OrdinalIgnoreCase))
+                name = name.Substring(0, name.Length - word.Length);
+            return name;
+        }
+
         internal static void CheckDuplicateLambdaParameter(ICollection<string> parameters)
         {
             if (parameters.Count == 0)
@@ -594,6 +645,16 @@ namespace MugenMvvmToolkit.Binding
             if (getValue == null)
                 return value;
             return getValue(context);
+        }
+
+        private static object AsResourceMethodDelegate<TArg1, TResult>(this Func<TArg1, IDataContext, TResult> method, IList<Type> types, IList<object> args, IDataContext context)
+        {
+            return method((TArg1)args[0], context);
+        }
+
+        private static object AsResourceMethodDelegate<TArg1, TArg2, TResult>(this Func<TArg1, TArg2, IDataContext, TResult> method, IList<Type> types, IList<object> args, IDataContext context)
+        {
+            return method((TArg1)args[0], (TArg2)args[1], context);
         }
 
         #endregion

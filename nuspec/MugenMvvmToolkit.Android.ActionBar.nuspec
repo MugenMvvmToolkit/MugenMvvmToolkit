@@ -13,6 +13,7 @@
       - Added UseAnimations hint for navigation, it allows to animate view during navigation (iOS, Xamarin.Forms).
       - Added ICollectionViewManager and IContentViewManager for Android platform.
       - Added support for System.ComponentModel.TypeConverter (Binding).
+      - Added support for params keyword (Binding).
       - Added support for attached events for the DataBinding markup extension (WPF).
       - Added BindingServiceProvider.BindingPathFactory static property that allows to create an instance of IBindingPath for the specified string.
       - Removed support for MonoTouch.

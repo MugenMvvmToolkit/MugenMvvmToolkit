@@ -53,7 +53,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Control rootControl = PlatformExtensions.GetRootControl(control);
             if (rootControl == null)
                 return;
-            ErrorProvider errorProvider = GetErrorProvider(rootControl);
+            ErrorProvider errorProvider = GetErrorProviderInternal(rootControl);
             if (errorProvider == null)
                 return;
 
@@ -63,10 +63,37 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (!ReferenceEquals(oldProvider, errorProvider))
             {
                 if (oldProvider != null)
+                {
                     oldProvider.SetError(control, null);
+                    TryDispose(oldProvider);
+                }
                 ServiceProvider.AttachedValueProvider.SetValue(control, ErrorProviderName, errorProvider);
+                if (errorProvider.Tag == null)
+                    errorProvider.Tag = 1;
+                else if (errorProvider.Tag is int)
+                    errorProvider.Tag = (int)errorProvider.Tag + 1;
             }
             SetErrors(control, errorProvider, errors, context);
+        }
+
+        /// <summary>
+        ///     Clears the errors for binding target.
+        /// </summary>
+        /// <param name="target">The binding target object.</param>
+        /// <param name="context">The specified context, if any.</param>
+        protected override sealed void ClearErrors(object target, IDataContext context)
+        {
+            var control = target as Control;
+            if (control == null)
+                return;
+            var errorProvider = ServiceProvider
+                .AttachedValueProvider
+                .GetValue<ErrorProvider>(target, ErrorProviderName, false);
+            if (errorProvider == null)
+                return;
+            ServiceProvider.AttachedValueProvider.Clear(control, ErrorProviderName);
+            errorProvider.SetError(control, null);
+            TryDispose(errorProvider);
         }
 
         #endregion
@@ -88,9 +115,26 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         [CanBeNull]
         protected virtual ErrorProvider GetErrorProvider(Control rootControl)
         {
+            return new ErrorProvider { ContainerControl = rootControl.GetContainerControl() as ContainerControl };
+        }
+
+        [CanBeNull]
+        private ErrorProvider GetErrorProviderInternal(Control rootControl)
+        {
             return ServiceProvider
                 .AttachedValueProvider
-                .GetOrAdd(rootControl, ErrorProviderName, (control, o) => new ErrorProvider { ContainerControl = control.GetContainerControl() as ContainerControl }, null);
+                .GetOrAdd(rootControl, ErrorProviderName, (control, o) => ((BindingErrorProvider)o).GetErrorProvider(control), this);
+        }
+
+        private static void TryDispose(ErrorProvider errorProvider)
+        {
+            if (!(errorProvider.Tag is int))
+                return;
+            var count = (int)errorProvider.Tag - 1;
+            if (count == 0)
+                errorProvider.Dispose();
+            else
+                errorProvider.Tag = count;
         }
 
         #endregion
