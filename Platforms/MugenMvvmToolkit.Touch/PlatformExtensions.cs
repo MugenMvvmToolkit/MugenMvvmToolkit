@@ -479,18 +479,14 @@ namespace MugenMvvmToolkit
             }
         }
 
-        internal static WeakReference CreateWeakReference(object item, bool trackResurrection)
+        public static object GetDataContext([NotNull] this INativeObject item)
         {
-            var obj = item as NSObject;
-            if (obj == null)
-                return new WeakReference(item, trackResurrection);
-            return AttachedValueProvider.GetNativeObjectWeakReference(obj);           
+            return ViewManager.GetDataContext(item);
         }
 
-        internal static bool IsAlive([NotNull] this INativeObject item)
+        public static void SetDataContext([NotNull] this INativeObject item, object value)
         {
-            Should.NotBeNull(item, "item");
-            return item.Handle != IntPtr.Zero;
+            ViewManager.SetDataContext(item, value);
         }
 
         public static void ClearBindingsHierarchically([CanBeNull]this UIView view, bool clearDataContext, bool clearAttachedValues, bool disposeView)
@@ -516,6 +512,93 @@ namespace MugenMvvmToolkit
         public static void ClearBindings(this INativeObject nativeObject, bool clearDataContext, bool clearAttachedValues)
         {
             BindingExtensions.ClearBindings(nativeObject, clearDataContext, clearAttachedValues);
+        }
+
+        internal static WeakReference CreateWeakReference(object item, bool trackResurrection)
+        {
+            var obj = item as NSObject;
+            if (obj == null)
+                return new WeakReference(item, trackResurrection);
+            return AttachedValueProvider.GetNativeObjectWeakReference(obj);
+        }
+
+        internal static bool IsAlive([NotNull] this INativeObject item)
+        {
+            Should.NotBeNull(item, "item");
+            return item.Handle != IntPtr.Zero;
+        }
+
+        [CanBeNull]
+        internal static T FindParent<T>([CanBeNull] this INativeObject obj)
+            where T : class
+        {
+            if (obj == null)
+                return null;
+            object item = BindingServiceProvider.VisualTreeManager.FindParent(obj);
+            while (item != null)
+            {
+                var result = item as T;
+                if (result != null)
+                    return result;
+                item = BindingServiceProvider.VisualTreeManager.FindParent(item);
+            }
+            return null;
+        }
+
+        internal static object SelectTemplateWithContext(this IDataTemplateSelector selector,
+            [CanBeNull] object item, [NotNull] object container)
+        {
+            object template = selector.SelectTemplate(item, container);
+            if (template != null)
+                BindingServiceProvider.ContextManager.GetBindingContext(template).Value = item;
+            return template;
+        }
+
+        internal static UIView GetRootView(this UIView uiView)
+        {
+            UIView root = null;
+            while (uiView != null)
+            {
+                root = uiView;
+                uiView = uiView.Superview;
+            }
+            return root;
+        }
+
+        internal static PlatformInfo GetPlatformInfo()
+        {
+            Version result;
+            Version.TryParse(UIDevice.CurrentDevice.SystemVersion, out result);
+            return new PlatformInfo(PlatformType.iOS, result);
+        }
+
+        internal static bool IsSerializable(this Type type)
+        {
+            return type.IsDefined(typeof(DataContractAttribute), false) || type.IsPrimitive;
+        }
+
+        internal static NSIndexPath[] CreateNSIndexPathArray(int startingPosition, int count)
+        {
+            var newIndexPaths = new NSIndexPath[count];
+            for (int i = 0; i < count; i++)
+                newIndexPaths[i] = NSIndexPath.FromRowSection(i + startingPosition, 0);
+            return newIndexPaths;
+        }
+
+        private static void SetParent(object[] items, object parent)
+        {
+            if (items == null)
+                return;
+            for (int index = 0; index < items.Length; index++)
+                BindingExtensions.AttachedParentMember.SetValue(items[index], parent);
+        }
+
+        private static void RaiseParentChanged(UIView[] items)
+        {
+            if (items == null)
+                return;
+            for (int index = 0; index < items.Length; index++)
+                ParentObserver.Raise(items[index], true);
         }
 
         private static void AddButtonOS7([NotNull] this UIActionSheet actionSheet, string title, string binding, IList<object> sources)
@@ -568,79 +651,6 @@ namespace MugenMvvmToolkit
             }
             for (int index = 0; index < listeners.Count; index++)
                 listeners[index].OnOrientationChanged();
-        }
-
-        [CanBeNull]
-        internal static T FindParent<T>([CanBeNull] this INativeObject obj)
-            where T : class
-        {
-            if (obj == null)
-                return null;
-            object item = BindingServiceProvider.VisualTreeManager.FindParent(obj);
-            while (item != null)
-            {
-                var result = item as T;
-                if (result != null)
-                    return result;
-                item = BindingServiceProvider.VisualTreeManager.FindParent(item);
-            }
-            return null;
-        }
-
-        internal static object SelectTemplateWithContext(this IDataTemplateSelector selector,
-            [CanBeNull] object item, [NotNull] object container)
-        {
-            object template = selector.SelectTemplate(item, container);
-            if (template != null && item != null)
-                BindingServiceProvider.ContextManager.GetBindingContext(template).Value = item;
-            return template;
-        }
-
-        internal static UIView GetRootView(this UIView uiView)
-        {
-            UIView root = null;
-            while (uiView != null)
-            {
-                root = uiView;
-                uiView = uiView.Superview;
-            }
-            return root;
-        }
-
-        internal static PlatformInfo GetPlatformInfo()
-        {
-            Version result;
-            Version.TryParse(UIDevice.CurrentDevice.SystemVersion, out result);
-            return new PlatformInfo(PlatformType.iOS, result);
-        }
-
-        internal static bool IsSerializable(this Type type)
-        {
-            return type.IsDefined(typeof(DataContractAttribute), false) || type.IsPrimitive;
-        }
-
-        internal static NSIndexPath[] CreateNSIndexPathArray(int startingPosition, int count)
-        {
-            var newIndexPaths = new NSIndexPath[count];
-            for (int i = 0; i < count; i++)
-                newIndexPaths[i] = NSIndexPath.FromRowSection(i + startingPosition, 0);
-            return newIndexPaths;
-        }
-
-        private static void SetParent(object[] items, object parent)
-        {
-            if (items == null)
-                return;
-            for (int index = 0; index < items.Length; index++)
-                BindingExtensions.AttachedParentMember.SetValue(items[index], parent);
-        }
-
-        private static void RaiseParentChanged(UIView[] items)
-        {
-            if (items == null)
-                return;
-            for (int index = 0; index < items.Length; index++)
-                ParentObserver.Raise(items[index], true);
         }
 
         #endregion

@@ -513,6 +513,16 @@ namespace MugenMvvmToolkit
             ContentViewManagerField.Remove(contentViewManager);
         }
 
+        public static object GetDataContext([NotNull] this IJavaObject item)
+        {
+            return ViewManager.GetDataContext(item);
+        }
+
+        public static void SetDataContext([NotNull] this IJavaObject item, object value)
+        {
+            ViewManager.SetDataContext(item, value);
+        }
+
         internal static PlatformInfo GetPlatformInfo()
         {
             Version result;

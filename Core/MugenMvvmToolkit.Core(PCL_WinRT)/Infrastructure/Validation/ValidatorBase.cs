@@ -743,8 +743,8 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                     message = new AsyncValidationMessage(Guid.NewGuid(), propertyName, false);
                     Publish(message);
                     Interlocked.Increment(ref _validationThreadCount);
-                    Tracer.Info("Start asynchronous validation, property name '{0}', validator '{1}'", propertyName,
-                        GetType());
+                    if (Tracer.TraceInformation)
+                        Tracer.Info("Start asynchronous validation, property name '{0}', validator '{1}'", propertyName, GetType());
                 }
             }
             catch
@@ -764,6 +764,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
             return validationTask.TryExecuteSynchronously(task =>
             {
+                Exception exception = null;
                 try
                 {
                     if (ReferenceEquals(task.Result, DoNothingResult.Result))
@@ -790,6 +791,10 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                     foreach (var property in properties)
                         RaiseErrorsChanged(property, isAsync);
                 }
+                catch (Exception e)
+                {
+                    exception = e;
+                }
                 finally
                 {
                     lock (_validatingMembers)
@@ -798,9 +803,10 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                     {
                         Interlocked.Decrement(ref _validationThreadCount);
                         if (message != null)
-                            Publish(message.ToEndMessage());
-                        Tracer.Info("Finish asynchronous validation, property name '{0}', validator '{1}'",
-                            propertyName, GetType());
+                            Publish(message.ToEndMessage(exception));
+                        if (Tracer.TraceInformation)
+                            Tracer.Info("Finish asynchronous validation, property name '{0}', validator '{1}'",
+                                propertyName, GetType());
                     }
                 }
             });

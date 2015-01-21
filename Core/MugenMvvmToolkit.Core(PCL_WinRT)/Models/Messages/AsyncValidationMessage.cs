@@ -17,6 +17,8 @@
 #endregion
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Models.Messages
@@ -29,13 +31,21 @@ namespace MugenMvvmToolkit.Models.Messages
     {
         #region Fields
 
+        private static readonly TaskCompletionSource<object> EmptyTcs;
         private readonly Guid _id;
         private readonly bool _isEndOperation;
         private readonly string _propertyName;
+        private TaskCompletionSource<object> _tcs;
 
         #endregion
 
         #region Constructors
+
+        static AsyncValidationMessage()
+        {
+            EmptyTcs = new TaskCompletionSource<object>();
+            EmptyTcs.SetResult(null);
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="AsyncValidationMessage" /> class.
@@ -75,6 +85,19 @@ namespace MugenMvvmToolkit.Models.Messages
             get { return _id; }
         }
 
+        /// <summary>
+        ///     Gets the validation task.
+        /// </summary>
+        public Task Task
+        {
+            get
+            {
+                if (_tcs == null)
+                    Interlocked.CompareExchange(ref _tcs, new TaskCompletionSource<object>(), null);
+                return _tcs.Task;
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -84,9 +107,15 @@ namespace MugenMvvmToolkit.Models.Messages
         /// </summary>
         /// <returns>An instance of <c>AsyncValidationMessage</c>.</returns>
         [NotNull]
-        public AsyncValidationMessage ToEndMessage()
+        public AsyncValidationMessage ToEndMessage(Exception exception)
         {
-            return new AsyncValidationMessage(Id, PropertyName, true);
+            if (_tcs == null)
+                Interlocked.CompareExchange(ref _tcs, exception == null ? EmptyTcs : new TaskCompletionSource<object>(), null);
+            if (exception == null)
+                _tcs.TrySetResult(null);
+            else
+                _tcs.TrySetException(exception);
+            return new AsyncValidationMessage(Id, PropertyName, true) { _tcs = _tcs };
         }
 
         #endregion

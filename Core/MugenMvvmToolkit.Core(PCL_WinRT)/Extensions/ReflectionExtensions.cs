@@ -325,7 +325,7 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        /// Tries to get data context.
+        ///     Tries to get data context.
         /// </summary>
         internal static object GetDataContext(object item)
         {
@@ -348,7 +348,7 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        /// Tries to set data context.
+        ///     Tries to set data context.
         /// </summary>
         internal static bool SetDataContext(object item, object dataContext)
         {

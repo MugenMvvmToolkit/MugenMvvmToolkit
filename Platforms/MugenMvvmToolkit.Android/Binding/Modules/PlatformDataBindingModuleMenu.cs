@@ -147,10 +147,10 @@ namespace MugenMvvmToolkit.Binding.Modules
                             item.SetNumericShortcut(value.ToStringSafe()[0]);
                     }));
             memberProvider.Register(AttachedBindingMember.CreateMember<IMenuItem, string>("Title",
-                (info, item) => item.TitleFormatted.ToString(),
+                (info, item) => item.TitleFormatted.ToStringSafe(),
                 (info, item, value) => item.SetTitle(value)));
             memberProvider.Register(AttachedBindingMember.CreateMember<IMenuItem, string>("TitleCondensed",
-                (info, item) => item.TitleCondensedFormatted.ToString(),
+                (info, item) => item.TitleCondensedFormatted.ToStringSafe(),
                 (info, item, value) => item.SetTitleCondensed(value)));
         }
 

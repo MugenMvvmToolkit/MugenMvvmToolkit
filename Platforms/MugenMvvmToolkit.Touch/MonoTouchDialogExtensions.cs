@@ -23,6 +23,7 @@ using JetBrains.Annotations;
 using MonoTouch.Dialog;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Infrastructure;
 using UIKit;
 
 // ReSharper disable once CheckNamespace
@@ -83,6 +84,16 @@ namespace MugenMvvmToolkit.MonoTouch.Dialog
         public static void ClearBindings([CanBeNull] this Element element, bool clearDataContext, bool clearAttachedValues)
         {
             BindingExtensions.ClearBindings(element, clearDataContext, clearAttachedValues);
+        }
+
+        public static object GetDataContext([NotNull] this Element item)
+        {
+            return ViewManager.GetDataContext(item);
+        }
+
+        public static void SetDataContext([NotNull] this Element item, object value)
+        {
+            ViewManager.SetDataContext(item, value);
         }
 
         #endregion

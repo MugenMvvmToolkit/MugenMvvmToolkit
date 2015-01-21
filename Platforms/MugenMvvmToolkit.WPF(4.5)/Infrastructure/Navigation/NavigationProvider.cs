@@ -627,8 +627,8 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 }
                 if (vmFrom != null)
                     TryCompleteOperationCallback(vmFrom, context);
-
-                Tracer.Info("Navigated from '{0}' to '{1}', navigation mode '{2}'", vmFrom, vmTo, mode);
+                if (Tracer.TraceInformation)
+                    Tracer.Info("Navigated from '{0}' to '{1}', navigation mode '{2}'", vmFrom, vmTo, mode);
             }
             catch (Exception ex)
             {

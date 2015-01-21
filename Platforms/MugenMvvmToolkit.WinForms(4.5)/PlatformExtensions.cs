@@ -27,6 +27,7 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Collections;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit
@@ -126,11 +127,21 @@ namespace MugenMvvmToolkit
             return root;
         }
 
+        public static object GetDataContext([NotNull] this IComponent item)
+        {
+            return ViewManager.GetDataContext(item);
+        }
+
+        public static void SetDataContext([NotNull] this IComponent item, object value)
+        {
+            ViewManager.SetDataContext(item, value);
+        }
+
         internal static object SelectTemplateWithContext(this IDataTemplateSelector selector,
             [CanBeNull] object item, [NotNull] object container)
         {
             var template = selector.SelectTemplate(item, container);
-            if (template != null && item != null)
+            if (template != null)
                 BindingServiceProvider.ContextManager.GetBindingContext(template).Value = item;
             return template;
         }

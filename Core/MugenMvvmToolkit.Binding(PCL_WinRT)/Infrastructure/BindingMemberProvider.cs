@@ -305,7 +305,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
             lock (_tempMembersCache)
                 _tempMembersCache.Clear();
-            Tracer.Info("The attached property (path: {0}, type: {1}, target type: {2}) was registered.", path, member.Type, type);
+            if (Tracer.TraceInformation)
+                Tracer.Info("The attached property (path: {0}, type: {1}, target type: {2}) was registered.", path, member.Type, type);
         }
 
         /// <summary>

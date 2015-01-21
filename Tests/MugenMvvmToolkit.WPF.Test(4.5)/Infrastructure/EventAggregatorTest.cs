@@ -417,7 +417,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         {
             var listener = new GenericHandler<object>();
             IEventAggregator eventAggregator = CreateEventAggregator();
-            var subscriber = eventAggregator.Subscribe<object>(listener.Handle);
+            var subscriber = eventAggregator.Subscribe<string>(listener.Handle);
             eventAggregator.Contains(subscriber).ShouldBeTrue();
             eventAggregator.GetSubscribers().Count.ShouldEqual(1);
 
@@ -430,7 +430,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         {
             var listener = new GenericHandler<object>();
             IEventAggregator eventAggregator = CreateEventAggregator();
-            var subscriber = eventAggregator.Subscribe<object>(listener.Handle, false);
+            var subscriber = eventAggregator.Subscribe<string>(listener.Handle, false);
             eventAggregator.Contains(subscriber).ShouldBeTrue();
             eventAggregator.GetSubscribers().Count.ShouldEqual(1);
 

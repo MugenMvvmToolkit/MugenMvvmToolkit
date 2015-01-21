@@ -103,6 +103,7 @@ namespace MugenMvvmToolkit.Binding.Modules
                 memberProvider.Register(AttachedBindingMember.CreateAutoProperty<object, IEnumerable<object>>(
                         AttachedMemberConstants.ErrorsPropertyMember, getDefaultValue: (o, info) => Empty.Array<object>()));
                 memberProvider.Register(AttachedBindingMember.CreateMember<object, bool>("HasErrors", GetHasErrors, null, ObserveHasErrors));
+                memberProvider.Register(AttachedBindingMember.CreateMember<object, object>("Root", GetRootMember, null, ObserveRootMember));
                 var setErrorsMember = AttachedBindingMember.CreateMember<object, IEnumerable<object>>(ErrorProviderErrors, getValue: null,
                     setValue: SetErrorProviderErrors);
                 memberProvider.Register(setErrorsMember);
@@ -160,7 +161,8 @@ namespace MugenMvvmToolkit.Binding.Modules
                 return;
             var converter = (IBindingValueConverter)constructor.InvokeEx();
             BindingServiceProvider.ResourceResolver.AddConverter(converter, true);
-            Tracer.Info("The {0} converter is registered.", type);
+            if (Tracer.TraceInformation)
+                Tracer.Info("The {0} converter is registered.", type);
         }
 
         /// <summary>
@@ -364,6 +366,22 @@ namespace MugenMvvmToolkit.Binding.Modules
             if (errorsList == null)
                 errorsList = errors == null ? Empty.Array<object>() : errors.ToArray();
             errorProvider.SetErrors(o, ErrorProviderErrors, errorsList, DataContext.Empty);
+        }
+
+        private static IDisposable ObserveRootMember(IBindingMemberInfo member, object o, IEventListener arg3)
+        {
+            var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(o.GetType());
+            if (rootMember == null)
+                return null;
+            return rootMember.TryObserve(o, arg3);
+        }
+
+        private static object GetRootMember(IBindingMemberInfo member, object o, object[] arg3)
+        {
+            var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(o.GetType());
+            if (rootMember == null)
+                return null;
+            return rootMember.GetValue(o, arg3);
         }
 
         private static IBindingMemberInfo GetParentMember(object instance)

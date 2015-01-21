@@ -416,7 +416,8 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 #else
                 Func<DynamicDataAnnotationsElementProvider, string> displayNameAccessor = d => GetDisplayName(d, type);
 #endif
-                Tracer.Info("Type {0} implements IValidatableObject", type);
+                if (Tracer.TraceInformation)
+                    Tracer.Info("Type {0} implements IValidatableObject", type);
                 elements.Add(new DynamicValidatableObject(displayNameAccessor, contextConverter, methodDelegate,
                     o => ConvertValidationResults(o, validationResultConverter)));
             }
@@ -523,8 +524,9 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 var element = new DynamicValidationAttribute(originalMember.Name, displayNameAccessor, getPropertyValue,
                     (o, context) =>
                         resultConverter(methodDelegate(attr, new[] { o, validationContextConverter(context) })));
-                Tracer.Info("Added a '{0}' validation attribute for type: '{1}', member: '{2}'", attr,
-                    originalMember.DeclaringType, originalMember);
+                if (Tracer.TraceInformation)
+                    Tracer.Info("Added a '{0}' validation attribute for type: '{1}', member: '{2}'", attr,
+                        originalMember.DeclaringType, originalMember);
                 validationAttributes.Add(element);
             }
             return validationAttributes;
@@ -601,8 +603,11 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                         if (metaType != null)
                             result.Add(metaType);
                     }
-                    foreach (var metaType in result)
-                        Tracer.Info("Added MetadataTypeAttribute for type: {0}, MetadataClassType: {1}", type, metaType);
+                    if (Tracer.TraceInformation)
+                    {
+                        foreach (var metaType in result)
+                            Tracer.Info("Added MetadataTypeAttribute for type: {0}, MetadataClassType: {1}", type, metaType);
+                    }
                     list = result.ToArrayEx();
                     MetadataTypeCache[type] = list;
                 }

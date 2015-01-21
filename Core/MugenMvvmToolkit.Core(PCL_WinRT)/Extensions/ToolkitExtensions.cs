@@ -1409,7 +1409,8 @@ namespace MugenMvvmToolkit
 
         internal static void TraceModule(this IModule module, bool load)
         {
-            Tracer.Info("The module '{0}' was {1}loaded.", module.GetType(), load ? null : "un");
+            if (Tracer.TraceInformation)
+                Tracer.Info("The module '{0}' was {1}loaded.", module.GetType(), load ? null : "un");
         }
 
         /// <summary>

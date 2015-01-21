@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <returns>An app-specific template to apply.</returns>
         int IResourceDataTemplateSelector.SelectTemplate(object item, object container)
         {
-            return SelectTemplate((TSource) item, container);
+            return SelectTemplate((TSource)item, container);
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <returns>An app-specific template to apply, or null.</returns>
         object IDataTemplateSelector.SelectTemplate(object item, object container)
         {
-            return SelectTemplate((TSource) item, container);
+            return SelectTemplate((TSource)item, container);
         }
 
         #endregion

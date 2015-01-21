@@ -92,9 +92,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             var errorProvider = BindingServiceProvider.ErrorProvider;
             if (errorProvider == null)
                 return;
-            var dictionary = GetOrAddErrorsDictionary(view);
-            foreach (var item in dictionary)
-                errorProvider.SetErrors(view, item.Key, item.Value, DataContext.Empty);
+            var dictionary = GetErrorsDictionary(view);
+            if (dictionary != null)
+            {
+                foreach (var item in dictionary)
+                    errorProvider.SetErrors(view, item.Key, item.Value, DataContext.Empty);
+            }
         }
 
         #endregion

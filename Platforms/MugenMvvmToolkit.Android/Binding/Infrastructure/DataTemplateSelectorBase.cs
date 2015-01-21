@@ -16,6 +16,7 @@
 
 #endregion
 
+using System.Threading;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Interfaces;
 
@@ -26,6 +27,31 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
     /// </summary>
     public abstract class DataTemplateSelectorBase<TSource, TTemplate> : IDataTemplateSelector where TTemplate : class
     {
+        #region Fields
+
+        // ReSharper disable once StaticFieldInGenericType
+        private static readonly bool SetAttachedParentMemberField;
+        private BindingSet<TTemplate, TSource> _bindingSet;
+
+        #endregion
+
+        #region Constructors
+
+        static DataTemplateSelectorBase()
+        {
+#if ANDROID
+            SetAttachedParentMemberField = !typeof(Android.Views.View).IsAssignableFrom(typeof(TTemplate));
+#elif TOUCH
+            SetAttachedParentMemberField = !typeof(UIKit.UIView).IsAssignableFrom(typeof(TTemplate));
+#elif WINFORMS
+            SetAttachedParentMemberField =
+                !typeof(System.Windows.Forms.ToolStripItem).IsAssignableFrom(typeof(TTemplate)) &&
+                !typeof(System.Windows.Forms.Control).IsAssignableFrom(typeof(TTemplate));
+#endif
+        }
+
+        #endregion
+
         #region Implementation of IDataTemplateSelector
 
         /// <summary>
@@ -39,11 +65,30 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public object SelectTemplate(object item, object container)
         {
             TTemplate template = SelectTemplate((TSource)item, container);
-            if (SupportInitialize && template != null)
+            if (template != null)
             {
-                var bindingSet = new BindingSet<TTemplate, TSource>(template);
-                Initialize(template, bindingSet);
-                bindingSet.Apply();
+                if (SupportInitialize)
+                {
+                    if (_bindingSet == null)
+                        Interlocked.CompareExchange(ref _bindingSet, new BindingSet<TTemplate, TSource>(template), null);
+                    bool lockTaken = false;
+                    try
+                    {
+                        Monitor.Enter(_bindingSet, ref lockTaken);
+                        _bindingSet.Target = template;
+                        Initialize(template, _bindingSet);
+                        _bindingSet.Apply();
+                    }
+                    finally
+                    {
+                        _bindingSet.Target = null;
+                        if (lockTaken)
+                            Monitor.Exit(_bindingSet);
+                    }
+                }
+                if (SetAttachedParentMember && container != null &&
+                    BindingExtensions.AttachedParentMember.GetValue(template, Empty.Array<object>()) == null)
+                    BindingExtensions.AttachedParentMember.SetValue(template, container);
             }
             return template;
         }
@@ -58,6 +103,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         protected virtual bool SupportInitialize
         {
             get { return true; }
+        }
+
+        /// <summary>
+        ///     If <c>true</c> the container will be set as parent for a template; default is <c>true</c>.
+        /// </summary>
+        protected virtual bool SetAttachedParentMember
+        {
+            get { return SetAttachedParentMemberField; }
         }
 
         #endregion

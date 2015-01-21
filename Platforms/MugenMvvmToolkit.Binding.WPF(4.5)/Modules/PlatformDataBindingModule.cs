@@ -344,7 +344,8 @@ namespace MugenMvvmToolkit.Binding.Modules
                 return;
             var converter = (IValueConverter)constructor.InvokeEx();
             BindingServiceProvider.ResourceResolver.AddConverter(new ValueConverterWrapper(converter.Convert, converter.ConvertBack), true);
-            Tracer.Info("The {0} converter is registered.", type);
+            if (Tracer.TraceInformation)
+                Tracer.Info("The {0} converter is registered.", type);
         }
 
         #endregion

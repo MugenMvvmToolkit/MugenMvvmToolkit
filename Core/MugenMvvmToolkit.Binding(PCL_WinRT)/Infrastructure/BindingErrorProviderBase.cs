@@ -132,7 +132,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Methods
 
-        protected static ErrorsDictionary GetOrAddErrorsDictionary(object target)
+        [CanBeNull]
+        protected static ErrorsDictionary GetErrorsDictionary(object target)
+        {
+            return ServiceProvider.AttachedValueProvider.GetValue<ErrorsDictionary>(target, ErrorsKey, false);
+        }
+
+        private static ErrorsDictionary GetOrAddErrorsDictionary(object target)
         {
             return ServiceProvider
                 .AttachedValueProvider

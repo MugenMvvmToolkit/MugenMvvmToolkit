@@ -63,7 +63,7 @@ namespace MugenMvvmToolkit.Infrastructure
             _assemblies = assemblies;
             _viewPostfix = viewPostfix ?? new[]
             {
-                "ActivityView", "FragmentView", "WindowView", "ViewController", "PageView", "FormView", "ModalView",
+                "ActivityView", "ViewActivity", "FragmentView", "ViewFragment", "WindowView", "ViewController", "PageView", "FormView", "ModalView",
                 "Form", "View", "V", "Activity", "Fragment", "Page", "Window", "Controller"
             };
             _viewModelPostfix = viewModelPostfix ?? new[] { "ViewModel", "Vm" };
@@ -240,8 +240,9 @@ namespace MugenMvvmToolkit.Infrastructure
                 return;
             }
             value[name] = mappingItem;
-            Tracer.Info("The view mapping to view model was created: ({0} ---> {1}), name: {2}",
-                mappingItem.ViewModelType, mappingItem.ViewType, mappingItem.Name);
+            if (Tracer.TraceInformation)
+                Tracer.Info("The view mapping to view model was created: ({0} ---> {1}), name: {2}",
+                    mappingItem.ViewModelType, mappingItem.ViewType, mappingItem.Name);
         }
 
         private static bool TryGetNames(Type type, IList<string> postFixes, out List<string> names)

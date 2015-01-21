@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using CoreGraphics;
 using Foundation;
+using ObjCRuntime;
 using UIKit;
 #if XAMARIN_FORMS
 using JetBrains.Annotations;
@@ -296,6 +297,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (element != null && GetEntryField != null)
                 target = GetEntryField(element);
 #endif
+            var nativeObject = target as INativeObject;
+            if (nativeObject == null || !nativeObject.IsAlive())
+                return;
             var uiView = target as UIView;
             if (uiView != null && ErrorBorderWidth > 0)
             {
@@ -361,9 +365,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             var errorProvider = BindingServiceProvider.ErrorProvider;
             if (errorProvider == null)
                 return;
-            var dictionary = GetOrAddErrorsDictionary(view);
-            foreach (var item in dictionary)
-                errorProvider.SetErrors(view, item.Key, item.Value, DataContext.Empty);
+            var dictionary = GetErrorsDictionary(view);
+            if (dictionary != null)
+            {
+                foreach (var item in dictionary)
+                    errorProvider.SetErrors(view, item.Key, item.Value, DataContext.Empty);
+            }
         }
 
         [CanBeNull]
@@ -395,6 +402,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <param name="context">The specified context, if any.</param>
         protected override void ClearErrors(object target, IDataContext context)
         {
+            base.SetErrors(target, Empty.Array<object>(), context);
             SetErrors(target, Empty.Array<object>(), true);
         }
 

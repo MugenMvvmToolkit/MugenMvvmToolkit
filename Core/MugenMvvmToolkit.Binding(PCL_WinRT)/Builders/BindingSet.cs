@@ -241,11 +241,11 @@ namespace MugenMvvmToolkit.Binding.Builders
     /// <summary>
     ///     Represents the binding set that allows to configure multiple bindings for a target.
     /// </summary>
-    public sealed class BindingSet<TTarget, TSource> : BindingSet<TSource> where TTarget : class
+    public class BindingSet<TTarget, TSource> : BindingSet<TSource> where TTarget : class
     {
         #region Fields
 
-        private readonly TTarget _target;
+        private TTarget _target;
 
         #endregion
 
@@ -254,11 +254,24 @@ namespace MugenMvvmToolkit.Binding.Builders
         /// <summary>
         ///     Initializes a new instance of the <see cref="BindingSet{TTarget,TSource}" /> class.
         /// </summary>
-        public BindingSet([NotNull] TTarget target, IBindingProvider bindingProvider = null)
+        public BindingSet([CanBeNull]TTarget target, IBindingProvider bindingProvider = null)
             : base(bindingProvider)
         {
-            Should.NotBeNull(target, "target");
             _target = target;
+        }
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        ///     Gets or sets the binding target.
+        /// </summary>
+        [CanBeNull]
+        public TTarget Target
+        {
+            get { return _target; }
+            set { _target = value; }
         }
 
         #endregion

@@ -155,7 +155,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #endregion
 
-        #region Implementation of ITargetTreeManager
+        #region Implementation of IVisualTreeManager
 
         /// <summary>
         ///     Gets the root member, if any.

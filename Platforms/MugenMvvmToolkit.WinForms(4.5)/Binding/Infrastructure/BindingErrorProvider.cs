@@ -83,6 +83,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <param name="context">The specified context, if any.</param>
         protected override sealed void ClearErrors(object target, IDataContext context)
         {
+            base.SetErrors(target, Empty.Array<object>(), context);
             var control = target as Control;
             if (control == null)
                 return;

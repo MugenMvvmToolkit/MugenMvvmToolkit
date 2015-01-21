@@ -113,9 +113,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             var errorProvider = BindingServiceProvider.ErrorProvider;
             if (errorProvider != null)
             {
-                var dictionary = GetOrAddErrorsDictionary(sender);
-                foreach (var item in dictionary)
-                    errorProvider.SetErrors(sender, item.Key, item.Value, DataContext.Empty);
+                var dictionary = GetErrorsDictionary(sender);
+                if (dictionary != null)
+                {
+                    foreach (var item in dictionary)
+                        errorProvider.SetErrors(sender, item.Key, item.Value, DataContext.Empty);
+                }
             }
             return true;
         }
