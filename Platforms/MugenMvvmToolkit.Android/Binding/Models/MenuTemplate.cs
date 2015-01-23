@@ -23,7 +23,6 @@ using Android.Content;
 using Android.Views;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Infrastructure;
-using MugenMvvmToolkit.Binding.Interfaces;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
@@ -32,14 +31,17 @@ namespace MugenMvvmToolkit.Binding.Models
     {
         #region Properties
 
+        [XmlAttribute("DATACONTEXT")]
+        public string DataContext { get; set; }
+
+        [XmlAttribute("BIND")]
+        public string Bind { get; set; }
+
         [XmlAttribute("ISENABLED")]
         public string IsEnabled { get; set; }
 
         [XmlAttribute("ISVISIBLE")]
         public string IsVisible { get; set; }
-
-        [XmlAttribute("DATACONTEXT")]
-        public string DataContext { get; set; }
 
         [XmlAttribute("ITEMSSOURCE")]
         public string ItemsSource { get; set; }
@@ -62,6 +64,8 @@ namespace MugenMvvmToolkit.Binding.Models
             setter.SetBinding(template => template.DataContext, DataContext, false);
             setter.SetBoolProperty(template => template.IsVisible, IsVisible);
             setter.SetBoolProperty(template => template.IsEnabled, IsEnabled);
+            if (!string.IsNullOrEmpty(Bind))
+                setter.BindingSet.BindFromExpression(menu, Bind);
             if (string.IsNullOrEmpty(ItemsSource))
             {
                 if (Items != null)
@@ -82,7 +86,7 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             try
             {
-                Clear(menu, BindingServiceProvider.BindingManager);
+                ClearInternal(menu);
             }
             catch (Exception e)
             {
@@ -90,16 +94,15 @@ namespace MugenMvvmToolkit.Binding.Models
             }
         }
 
-        internal static void Clear(IMenu menu, IBindingManager bindingManager)
+        internal static void ClearInternal(IMenu menu)
         {
             if (menu == null)
                 return;
-            bindingManager.ClearBindings(menu);
             int size = menu.Size();
             for (int i = 0; i < size; i++)
-                MenuItemTemplate.Clear(menu.GetItem(i), bindingManager);
+                MenuItemTemplate.ClearInternal(menu.GetItem(i));
             menu.Clear();
-            BindingExtensions.AttachedParentMember.SetValue(menu, BindingExtensions.NullValue);
+            menu.ClearBindings(true, true);
         }
 
         #endregion

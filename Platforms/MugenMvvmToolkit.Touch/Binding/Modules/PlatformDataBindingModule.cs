@@ -39,6 +39,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         #region Fields
 
         internal readonly static IAttachedBindingMemberInfo<object, ICollectionViewManager> CollectionViewManagerMember;
+        internal static readonly IAttachedBindingMemberInfo<object, bool?> AutoDisposeMember;
 
         private static readonly EventHandler<UITabBarSelectionEventArgs> SelecectedControllerChangedHandler;
         private readonly static IAttachedBindingMemberInfo<object, IContentViewManager> ContentViewManagerMember;
@@ -66,6 +67,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             ItemsSourceMember = AttachedBindingMember.CreateAutoProperty<object, IEnumerable>(AttachedMemberConstants.ItemsSource, ObjectItemsSourceChanged);
             CollectionViewManagerMember = AttachedBindingMember.CreateAutoProperty<object, ICollectionViewManager>("CollectionViewManager");
             ContentViewManagerMember = AttachedBindingMember.CreateAutoProperty<object, IContentViewManager>("ContentViewManager");
+            AutoDisposeMember = AttachedBindingMember.CreateAutoProperty<object, bool?>("AutoDispose");
 
             //UIView
             ContentMember = AttachedBindingMember.CreateAutoProperty<UIView, object>(AttachedMemberConstants.Content, ContentChanged);
@@ -177,6 +179,7 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             memberProvider.Register(CollectionViewManagerMember);
             memberProvider.Register(ContentViewManagerMember);
+            memberProvider.Register(AutoDisposeMember);
             var itemTemplateMember = AttachedBindingMember.CreateAutoProperty<object, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplate);
             memberProvider.Register(itemTemplateMember);
             memberProvider.Register(typeof(object), AttachedMemberConstants.ItemTemplateSelector, itemTemplateMember, true);

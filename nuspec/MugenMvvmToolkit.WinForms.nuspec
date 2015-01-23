@@ -46,6 +46,7 @@
       - Added BindingServiceProvider.BindingPathFactory static property that allows to create an instance of IBindingPath for the specified string.
       - Removed support for MonoTouch.
       - Removed the AutoConvertValue property from the IBindingSourceAccessor interface, to disable value converter set BindingServiceProvider.ValueConverter to null.
+      - Reduced memory usage (iOS, Android).
       - Minor changes.
     </releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

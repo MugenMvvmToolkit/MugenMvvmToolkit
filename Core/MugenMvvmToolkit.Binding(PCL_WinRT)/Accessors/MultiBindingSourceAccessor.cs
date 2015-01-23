@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
     {
         #region Fields
 
-        private readonly IBindingSource[] _sources;
+        private IBindingSource[] _sources;
         private Func<IDataContext, IList<object>, object> _formatExpression;
         private BindingMemberValue _getSourceMemberValue;
 
@@ -76,8 +76,11 @@ namespace MugenMvvmToolkit.Binding.Accessors
         public override void Dispose()
         {
             _formatExpression = null;
+            _getSourceMemberValue = null;
             for (int index = 0; index < _sources.Length; index++)
                 _sources[index].Dispose();
+            _sources = Empty.Array<IBindingSource>();
+            base.Dispose();
         }
 
         /// <summary>

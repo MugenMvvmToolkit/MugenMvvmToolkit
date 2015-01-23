@@ -56,7 +56,7 @@ namespace MugenMvvmToolkit.FragmentSupport
 
         static FragmentExtensions()
         {
-            FragmentViewMember = FragmentViewMember = AttachedBindingMember.CreateAutoProperty<View, Fragment>("!$fragment");
+            FragmentViewMember = AttachedBindingMember.CreateAutoProperty<View, Fragment>("!$fragment");
             _mvvmFragmentMediatorFactory = MvvmFragmentMediatorFactoryMethod;
         }
 

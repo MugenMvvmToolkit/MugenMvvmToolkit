@@ -48,7 +48,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             var viewModel = ViewManager.GetDataContext(viewController) as IViewModel;
             if (viewModel == null || !viewModel.Settings.Metadata.Contains(ViewModelConstants.StateNotNeeded))
                 viewController.InititalizeRestorationIdentifier();
-            DisposeView = true;
         }
 
         #endregion
@@ -63,8 +62,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         #endregion
 
         #region Implementation of IMvvmViewControllerMediator
-
-        public bool DisposeView { get; set; }
 
         public virtual void ViewWillAppear(Action<bool> baseViewWillAppear, bool animated)
         {
@@ -152,25 +149,27 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             {
                 if (_viewController == null)
                     return;
-                var bindingContext = BindingServiceProvider.ContextManager.GetBindingContext(_viewController);
-                _viewController.View.ClearBindingsHierarchically(true, true, DisposeView);
-                _viewController.ClearBindings(false, false);
+
+                _viewController.View.ClearBindingsHierarchically(true, true);
                 _viewController.EditButtonItem.ClearBindings(true, true);
                 _viewController.ToolbarItems.ClearBindings(true, true);
                 UINavigationItem navigationItem = _viewController.NavigationItem;
                 if (navigationItem != null)
                 {
-                    navigationItem.ClearBindings(true, true);
                     navigationItem.LeftBarButtonItem.ClearBindings(true, true);
                     navigationItem.LeftBarButtonItems.ClearBindings(true, true);
                     navigationItem.RightBarButtonItem.ClearBindings(true, true);
                     navigationItem.RightBarButtonItems.ClearBindings(true, true);
+                    navigationItem.ClearBindings(true, true);
                 }
                 var dialogViewController = _viewController as DialogViewController;
                 if (dialogViewController != null)
-                    dialogViewController.Root.ClearBindingsHierarchically(true, true, DisposeView);
-                bindingContext.Value = null;
-                ServiceProvider.AttachedValueProvider.Clear(_viewController);
+                    dialogViewController.Root.ClearBindingsHierarchically(true, true);
+                var tabBarController = ViewController as UITabBarController;
+                if (tabBarController != null)
+                    tabBarController.ViewControllers.ClearBindings(true, true);
+                _viewController.ChildViewControllers.ClearBindings(true, true);
+                _viewController.ClearBindings(true, true, false);
                 _viewController = null;
             }
             baseDispose(disposing);

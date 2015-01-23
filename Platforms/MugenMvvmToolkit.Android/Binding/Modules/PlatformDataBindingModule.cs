@@ -194,6 +194,7 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         #region Fields
 
+        internal static readonly IAttachedBindingMemberInfo<object, bool?> AutoDisposeMember;
         internal static readonly IAttachedBindingMemberInfo<AdapterView, int> AdapterViewSelectedPositionMember;
         internal readonly static IAttachedBindingMemberInfo<Object, ICollectionViewManager> CollectionViewManagerMember;
 
@@ -220,6 +221,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             //Object
             CollectionViewManagerMember = AttachedBindingMember.CreateAutoProperty<Object, ICollectionViewManager>("CollectionViewManager");
             ContentViewManagerMember = AttachedBindingMember.CreateAutoProperty<Object, IContentViewManager>("ContentViewManager");
+            AutoDisposeMember = AttachedBindingMember.CreateAutoProperty<object, bool?>("AutoDispose");
 
             //Menu
             MenuItemsSourceMember = AttachedBindingMember.CreateAutoProperty<IMenu, IEnumerable>(AttachedMemberConstants.ItemsSource, MenuItemsSourceChanged);
@@ -262,6 +264,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             //Object
             memberProvider.Register(CollectionViewManagerMember);
             memberProvider.Register(ContentViewManagerMember);
+            memberProvider.Register(AutoDisposeMember);
 
             //Dialog
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Dialog, object>("Title",

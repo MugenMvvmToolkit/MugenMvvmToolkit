@@ -240,7 +240,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
         #region Fields
 
         private readonly bool _toggleEnabledState;
-        private readonly IBindingSource _bindingSource;
+        private IBindingSource _bindingSource;
         private EventClosure _closure;
 
         #endregion
@@ -298,7 +298,12 @@ namespace MugenMvvmToolkit.Binding.Accessors
         /// </summary>
         public override IList<IBindingSource> Sources
         {
-            get { return new[] { _bindingSource }; }
+            get
+            {
+                if (_bindingSource == null)
+                    return Empty.Array<IBindingSource>();
+                return new[] { _bindingSource };
+            }
         }
 
         /// <summary>
@@ -306,11 +311,14 @@ namespace MugenMvvmToolkit.Binding.Accessors
         /// </summary>
         public override void Dispose()
         {
-            _bindingSource.Dispose();
-            ValueChanging = null;
-            ValueChanged = null;
             if (_closure != null)
                 _closure.Unsubscribe(true);
+            _bindingSource.Dispose();
+            _bindingSource = null;
+            ValueChanging = null;
+            ValueChanged = null;
+            _closure = null;
+            base.Dispose();
         }
 
         /// <summary>

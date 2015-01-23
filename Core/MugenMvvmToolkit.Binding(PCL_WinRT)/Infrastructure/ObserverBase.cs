@@ -45,9 +45,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         private static readonly EventInfo CollectionChangedEvent;
         private static readonly Exception DisposedException;
+        private static readonly ISourceValue EmptySource;
 
         private readonly bool _isSourceValue;
-        private readonly object _sourceValue;
+        private object _sourceValue;
         private readonly IBindingPath _path;
 
         private int _state;
@@ -62,6 +63,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             CollectionChangedEvent = typeof(INotifyCollectionChanged).GetEventEx("CollectionChanged", MemberFlags.Instance | MemberFlags.Public);
             DisposedException = ExceptionManager.ObjectDisposed(typeof(ObserverBase));
+            EmptySource = new BindingResourceObject(null, typeof(object));
         }
 
         /// <summary>
@@ -306,9 +308,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
                 return;
             _observationException = DisposedException;
-            var sourceValue = _sourceValue as ISourceValue;
-            if (sourceValue != null)
-                sourceValue.ValueChanged -= OnMemberChangedImpl;
+            if (_isSourceValue)
+            {
+                ((ISourceValue)_sourceValue).ValueChanged -= OnMemberChangedImpl;
+                _sourceValue = EmptySource;
+            }
+            else
+                _sourceValue = Empty.WeakReference;
             _listener = null;
             OnDispose();
         }

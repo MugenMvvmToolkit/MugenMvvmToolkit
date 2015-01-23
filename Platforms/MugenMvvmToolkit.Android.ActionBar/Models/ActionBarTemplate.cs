@@ -50,6 +50,9 @@ namespace MugenMvvmToolkit.ActionBarSupport.Models
         [XmlAttribute("DATACONTEXT")]
         public string DataContext { get; set; }
 
+        [XmlAttribute("BIND")]
+        public string Bind { get; set; }
+
         [XmlAttribute("BACKGROUNDDRAWABLE")]
         public string BackgroundDrawable { get; set; }
 
@@ -148,6 +151,8 @@ namespace MugenMvvmToolkit.ActionBarSupport.Models
             setter.SetEnumProperty<ActionBarNavigationMode>(template => template.NavigationMode, NavigationMode);
             setter.SetProperty(template => template.DataContext, DataContext);
 
+            if (!string.IsNullOrEmpty(Bind))
+                setter.BindingSet.BindFromExpression(actionBar, Bind);
             setter.SetProperty(template => template.ContextActionBarTemplate, ContextActionBarTemplate);
             setter.SetBinding(template => template.ContextActionBarVisible, ContextActionBarVisible, false);
             setter.SetProperty(template => template.BackgroundDrawable, BackgroundDrawable);

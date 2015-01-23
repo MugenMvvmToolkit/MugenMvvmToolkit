@@ -129,8 +129,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (_collectionViewManager == null)
             {
                 var view = _viewGroup.GetChildAt(index);
-                view.ClearBindingsHierarchically(true, true);
                 _viewGroup.RemoveViewAt(index);
+                view.ClearBindingsHierarchically(true, true);
             }
             else
                 _collectionViewManager.RemoveAt(_viewGroup, index);

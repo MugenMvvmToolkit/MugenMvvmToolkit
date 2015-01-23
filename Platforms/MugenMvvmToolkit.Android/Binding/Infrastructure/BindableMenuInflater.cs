@@ -115,6 +115,5 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         }
 
         #endregion
-
     }
 }

@@ -183,8 +183,6 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         private static object GetViewParentValue(IBindingMemberInfo arg1, View view)
         {
-            if (view.Id == Android.Resource.Id.Content)
-                return view.Context.GetActivity();
             return ParentObserver.GetOrAdd(view).Parent;
         }
 

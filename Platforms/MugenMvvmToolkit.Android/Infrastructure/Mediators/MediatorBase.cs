@@ -22,8 +22,6 @@ using System.IO;
 using System.Linq;
 using Android.OS;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -48,8 +46,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         private static readonly EventHandler<IDisposableObject, EventArgs> ClearCacheOnDisposeDelegate;
         // ReSharper restore StaticFieldInGenericType
 
-        private IBindingContext _context;
-        private readonly TTarget _target;
         private Guid _id;
         private object _dataContext;
         private bool _isDestroyed;
@@ -73,7 +69,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         protected MediatorBase([NotNull] TTarget target)
         {
             Should.NotBeNull(target, "target");
-            _target = target;
+            Target = target;            
         }
 
         #endregion
@@ -88,13 +84,15 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             get { return _dataContext; }
             set
             {
+                if (Target == null)
+                    value = null;
                 if (ReferenceEquals(value, _dataContext))
                     return;
                 var oldValue = _dataContext;
                 _dataContext = value;
                 OnDataContextChanged(oldValue, _dataContext);
                 var handler = DataContextChanged;
-                if (handler != null)
+                if (handler != null && Target != null)
                     handler(Target, EventArgs.Empty);
             }
         }
@@ -107,20 +105,10 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             get { return _isDestroyed; }
         }
 
-        protected TTarget Target
-        {
-            get { return _target; }
-        }
-
-        protected IBindingContext BindingContext
-        {
-            get
-            {
-                if (_context == null)
-                    _context = BindingServiceProvider.ContextManager.GetBindingContext(_target);
-                return _context;
-            }
-        }
+        /// <summary>
+        ///     Gets or sets the current target object.
+        /// </summary>
+        protected TTarget Target { get; set; }
 
         #endregion
 
@@ -129,7 +117,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// <summary>
         ///     Occurs when the DataContext property changed.
         /// </summary>
-        public event EventHandler<TTarget, EventArgs> DataContextChanged;
+        public virtual event EventHandler<TTarget, EventArgs> DataContextChanged;
 
         #endregion
 
@@ -140,10 +128,12 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         public virtual void OnDestroy(Action baseOnDestroy)
         {
-            _isDestroyed = true;
-            var viewModel = BindingContext.Value as IViewModel;
+            var viewModel = DataContext as IViewModel;
             if (viewModel != null && !viewModel.IsDisposed)
                 Get<IViewManager>().CleanupViewAsync(viewModel);
+            DataContext = null;
+            DataContextChanged = null;
+            _isDestroyed = true;
             baseOnDestroy();
         }
 
@@ -153,9 +143,9 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public virtual void OnSaveInstanceState(Bundle outState, Action<Bundle> baseOnSaveInstanceState)
         {
             lock (ContextCache)
-                ContextCache[_id] = BindingContext.Value;
+                ContextCache[_id] = DataContext;
             outState.PutString(IdKey, _id.ToString());
-            var viewModel = BindingContext.Value as IViewModel;
+            var viewModel = DataContext as IViewModel;
             if (viewModel != null)
             {
                 viewModel.Disposed += ClearCacheOnDisposeDelegate;
@@ -178,8 +168,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         protected void OnCreate(Bundle bundle)
         {
-            if (_context == null)
-                _context = BindingServiceProvider.ContextManager.GetBindingContext(_target);
             if (_id == Guid.Empty)
                 _id = Guid.NewGuid();
             if (bundle == null)
@@ -195,23 +183,23 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             var vmType = Type.GetType(vmTypeName, false);
             if (vmType != null && (cacheDataContext == null || !cacheDataContext.GetType().Equals(vmType)))
                 cacheDataContext = RestoreViewModel(vmType, bundle);
-            if (!ReferenceEquals(BindingContext.Value, cacheDataContext))
-                RestoreContext(cacheDataContext);
+            if (!ReferenceEquals(DataContext, cacheDataContext) && Target != null)
+                RestoreContext(Target, cacheDataContext);
         }
 
         /// <summary>
         ///     Tries to restore instance context.
         /// </summary>
-        protected virtual void RestoreContext(object dataContext)
+        protected virtual void RestoreContext(TTarget target, object dataContext)
         {
             var viewModel = dataContext as IViewModel;
             if (viewModel == null)
-                BindingContext.Value = dataContext;
+                DataContext = dataContext;
             else
             {
-                Get<IViewManager>().InitializeViewAsync(viewModel, Target).WithTaskExceptionHandler(this);
+                Get<IViewManager>().InitializeViewAsync(viewModel, target).WithTaskExceptionHandler(this);
                 viewModel.Disposed -= ClearCacheOnDisposeDelegate;
-                Get<IViewModelPresenter>().Restore(viewModel, CreateRestorePresenterContext());
+                Get<IViewModelPresenter>().Restore(viewModel, CreateRestorePresenterContext(target));
             }
         }
 
@@ -264,7 +252,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             }
         }
 
-        protected virtual IDataContext CreateRestorePresenterContext()
+        protected virtual IDataContext CreateRestorePresenterContext(TTarget target)
         {
             return new DataContext
             {
@@ -274,7 +262,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         protected T Get<T>()
         {
-            var viewModel = BindingContext.Value as IViewModel;
+            var viewModel = DataContext as IViewModel;
             if (viewModel == null)
                 return ServiceProvider.IocContainer.Get<T>();
             return viewModel.GetIocContainer(true).Get<T>();

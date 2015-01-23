@@ -133,6 +133,18 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #endregion
 
+        #region Methods
+
+        private void ClearListener()
+        {
+            var listener = _weakEventListener;
+            _weakEventListener = null;
+            if (listener != null)
+                listener.Dispose();
+        }
+
+        #endregion
+
         #region Overrides of ObserverBase
 
         /// <summary>
@@ -142,8 +154,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             try
             {
-                if (_weakEventListener != null)
-                    _weakEventListener.Dispose();
+                ClearListener();
                 object source = GetActualSource();
                 if (source == null || source.IsUnsetValue())
                     _pathMembers = UnsetBindingPathMembers.Instance;
@@ -156,7 +167,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     _weakEventListener = TryObserveMember(source, lastMember, this, Path.Path);
                 }
             }
-            catch (Exception)
+            catch
             {
                 _pathMembers = UnsetBindingPathMembers.Instance;
                 throw;
@@ -176,9 +187,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         protected override void OnDispose()
         {
-            var listener = _weakEventListener;
-            if (listener != null)
-                listener.Dispose();
+            ClearListener();
+            _pathMembers = UnsetBindingPathMembers.Instance;
             base.OnDispose();
         }
 

@@ -24,7 +24,6 @@ using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Infrastructure;
-using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Modules;
 
 namespace MugenMvvmToolkit.Binding.Models
@@ -35,6 +34,9 @@ namespace MugenMvvmToolkit.Binding.Models
 
         [CanBeNull]
         public static Action<MenuItemTemplate, IMenuItem, XmlPropertySetter<MenuItemTemplate, IMenuItem>> Initalized;
+
+        [XmlAttribute("BIND")]
+        public string Bind { get; set; }
 
         [XmlAttribute("DATACONTEXT")]
         public string DataContext { get; set; }
@@ -123,7 +125,7 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             try
             {
-                Clear(item, BindingServiceProvider.BindingManager);
+                ClearInternal(item);
             }
             catch (Exception e)
             {
@@ -131,14 +133,13 @@ namespace MugenMvvmToolkit.Binding.Models
             }
         }
 
-        internal static void Clear(IMenuItem item, IBindingManager bindingManager)
+        internal static void ClearInternal(IMenuItem item)
         {
             if (item == null)
                 return;
-            bindingManager.ClearBindings(item);
             if (item.HasSubMenu)
-                MenuTemplate.Clear(item.SubMenu, bindingManager);
-            BindingExtensions.AttachedParentMember.SetValue(item, BindingExtensions.NullValue);
+                MenuTemplate.ClearInternal(item.SubMenu);
+            item.ClearBindings(true, true);
         }
 
         private void ApplyInternal(IMenu menu, Context context, int id, int order, object dataContext, bool useContext)
@@ -180,6 +181,8 @@ namespace MugenMvvmToolkit.Binding.Models
 
         private void ApplySelf(IMenuItem menuItem, XmlPropertySetter<MenuItemTemplate, IMenuItem> setter)
         {
+            if (!string.IsNullOrEmpty(Bind))
+                setter.BindingSet.BindFromExpression(menuItem, Bind);
             setter.SetStringProperty(template => template.AlphabeticShortcut, AlphabeticShortcut);
             setter.SetStringProperty(template => template.NumericShortcut, NumericShortcut);
             setter.SetProperty(template => template.Icon, Icon);

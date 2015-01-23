@@ -66,7 +66,7 @@ namespace MugenMvvmToolkit.MonoTouch.Dialog
                 BindingExtensions.AttachedParentMember.SetValue(element, parent);
         }
 
-        public static void ClearBindingsHierarchically([CanBeNull] this Element element, bool clearDataContext, bool clearAttachedValues, bool disposeElement)
+        public static void ClearBindingsHierarchically([CanBeNull] this Element element, bool clearDataContext, bool clearAttachedValues, bool? disposeAllElement = null)
         {
             if (element == null)
                 return;
@@ -74,16 +74,16 @@ namespace MugenMvvmToolkit.MonoTouch.Dialog
             if (enumerable != null)
             {
                 foreach (object item in enumerable)
-                    ClearBindingsHierarchically(item as Element, clearDataContext, clearAttachedValues, disposeElement);
+                    ClearBindingsHierarchically(item as Element, clearDataContext, clearAttachedValues, disposeAllElement);
             }
-            element.ClearBindings(clearDataContext, clearAttachedValues);
-            if (disposeElement)
-                element.Dispose();
+            element.ClearBindings(clearDataContext, clearAttachedValues, disposeAllElement);
         }
 
-        public static void ClearBindings([CanBeNull] this Element element, bool clearDataContext, bool clearAttachedValues)
+        public static void ClearBindings([CanBeNull] this Element element, bool clearDataContext, bool clearAttachedValues, bool? disposeItem = null)
         {
             BindingExtensions.ClearBindings(element, clearDataContext, clearAttachedValues);
+            if (element != null && disposeItem.GetValueOrDefault(element.GetAutoDispose()))
+                element.Dispose();
         }
 
         public static object GetDataContext([NotNull] this Element item)
@@ -94,6 +94,16 @@ namespace MugenMvvmToolkit.MonoTouch.Dialog
         public static void SetDataContext([NotNull] this Element item, object value)
         {
             ViewManager.SetDataContext(item, value);
+        }
+
+        public static bool GetAutoDispose(this Element element)
+        {
+            return PlatformExtensions.GetAutoDispose(element);
+        }
+
+        public static void SetAutoDispose(this Element element, bool value)
+        {
+            PlatformExtensions.SetAutoDispose(element, value);
         }
 
         #endregion

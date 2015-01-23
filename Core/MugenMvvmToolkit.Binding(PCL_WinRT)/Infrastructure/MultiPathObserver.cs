@@ -288,6 +288,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         protected override void OnDispose()
         {
             ClearListeners();
+            _members = UnsetBindingPathMembers.Instance;
             base.OnDispose();
         }
 

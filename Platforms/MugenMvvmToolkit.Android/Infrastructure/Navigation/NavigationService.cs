@@ -187,7 +187,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// <summary>
         ///     Called when the activity is starting.
         /// </summary>
-        public void OnCreateActivity(Activity activity, IDataContext context = null)
+        public virtual void OnCreateActivity(Activity activity, IDataContext context = null)
         {
             OnStartActivity(activity);
         }
@@ -195,7 +195,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// <summary>
         ///     Call this when your activity is done and should be closed.
         /// </summary>
-        public bool OnFinishActivity(Activity activity, bool isBackNavigation, IDataContext context = null)
+        public virtual bool OnFinishActivity(Activity activity, bool isBackNavigation, IDataContext context = null)
         {
             if (!isBackNavigation)
                 return true;
@@ -209,10 +209,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 //Trying to dispose main view model.
                 if (!mainActivity)
                 {
-                    var viewModel = BindingServiceProvider
-                        .ContextManager
-                        .GetBindingContext(activity)
-                        .Value as IViewModel;
+                    var viewModel = ViewManager.GetDataContext(activity) as IViewModel;
                     if (viewModel != null)
                         viewModel.Dispose();
                 }

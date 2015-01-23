@@ -142,7 +142,11 @@ namespace MugenMvvmToolkit
         {
             var template = selector.SelectTemplate(item, container);
             if (template != null)
+            {
                 BindingServiceProvider.ContextManager.GetBindingContext(template).Value = item;
+                if (!(template is Control) && !(template is ToolStripItem) && BindingExtensions.AttachedParentMember.GetValue(template, null) == null)
+                    BindingExtensions.AttachedParentMember.SetValue(template, container);
+            }
             return template;
         }
 

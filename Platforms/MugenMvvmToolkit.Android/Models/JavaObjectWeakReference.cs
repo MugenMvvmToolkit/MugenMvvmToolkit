@@ -16,21 +16,28 @@
 
 #endregion
 
+using System;
+using Android.Runtime;
 using Android.Views;
 using MugenMvvmToolkit.Interfaces.Views;
-using Object = Java.Lang.Object;
-using WeakReference = System.WeakReference;
 
 namespace MugenMvvmToolkit.Models
 {
     //see https://bugzilla.xamarin.com/show_bug.cgi?id=16343
     internal sealed class JavaObjectWeakReference : WeakReference
     {
+        #region Fields
+
+        private bool _invalidContext;
+
+        #endregion
+
         #region Constructors
 
-        public JavaObjectWeakReference(Object item, bool trackResurrection)
-            : base(item, trackResurrection)
+        public JavaObjectWeakReference(IJavaObject item)
+            : base(item, true)
         {
+
         }
 
         #endregion
@@ -46,17 +53,24 @@ namespace MugenMvvmToolkit.Models
         {
             get
             {
-                var target = (Object)base.Target;
+                var target = (IJavaObject)base.Target;
                 if (target != null)
                 {
                     if (target.IsAlive())
                     {
                         var activity = target as IActivityView;
-                        if (activity == null)
+                        if (activity == null && !_invalidContext)
                         {
                             var view = target as View;
-                            if (view != null && view.Context != null)
-                                activity = view.Context.GetActivity() as IActivityView;
+                            try
+                            {
+                                if (view != null && view.Context != null)
+                                    activity = view.Context.GetActivity() as IActivityView;
+                            }
+                            catch
+                            {
+                                _invalidContext = true;
+                            }
                         }
                         if (activity == null || !activity.Mediator.IsDestroyed)
                             return target;
@@ -66,7 +80,7 @@ namespace MugenMvvmToolkit.Models
                 }
                 return null;
             }
-            set { base.Target = value; }
+            set { throw new NotSupportedException(); }
         }
 
         #endregion

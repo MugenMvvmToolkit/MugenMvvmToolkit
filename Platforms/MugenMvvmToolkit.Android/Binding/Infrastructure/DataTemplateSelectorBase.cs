@@ -16,7 +16,9 @@
 
 #endregion
 
+using System;
 using System.Threading;
+using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Interfaces;
 
@@ -30,7 +32,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Fields
 
         // ReSharper disable once StaticFieldInGenericType
-        private static readonly bool SetAttachedParentMemberField;
+        private static readonly bool IsTemplateObjectType;
         private BindingSet<TTemplate, TSource> _bindingSet;
 
         #endregion
@@ -39,15 +41,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         static DataTemplateSelectorBase()
         {
-#if ANDROID
-            SetAttachedParentMemberField = !typeof(Android.Views.View).IsAssignableFrom(typeof(TTemplate));
-#elif TOUCH
-            SetAttachedParentMemberField = !typeof(UIKit.UIView).IsAssignableFrom(typeof(TTemplate));
-#elif WINFORMS
-            SetAttachedParentMemberField =
-                !typeof(System.Windows.Forms.ToolStripItem).IsAssignableFrom(typeof(TTemplate)) &&
-                !typeof(System.Windows.Forms.Control).IsAssignableFrom(typeof(TTemplate));
-#endif
+            IsTemplateObjectType = typeof(TTemplate) == typeof(object);
         }
 
         #endregion
@@ -65,52 +59,26 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public object SelectTemplate(object item, object container)
         {
             TTemplate template = SelectTemplate((TSource)item, container);
-            if (template != null)
+            if (template != null && CanInitialize(template, container))
             {
-                if (SupportInitialize)
+                if (_bindingSet == null)
+                    Interlocked.CompareExchange(ref _bindingSet, new BindingSet<TTemplate, TSource>(template), null);
+                bool lockTaken = false;
+                try
                 {
-                    if (_bindingSet == null)
-                        Interlocked.CompareExchange(ref _bindingSet, new BindingSet<TTemplate, TSource>(template), null);
-                    bool lockTaken = false;
-                    try
-                    {
-                        Monitor.Enter(_bindingSet, ref lockTaken);
-                        _bindingSet.Target = template;
-                        Initialize(template, _bindingSet);
-                        _bindingSet.Apply();
-                    }
-                    finally
-                    {
-                        _bindingSet.Target = null;
-                        if (lockTaken)
-                            Monitor.Exit(_bindingSet);
-                    }
+                    Monitor.Enter(_bindingSet, ref lockTaken);
+                    _bindingSet.Target = template;
+                    Initialize(template, _bindingSet);
+                    _bindingSet.Apply();
                 }
-                if (SetAttachedParentMember && container != null &&
-                    BindingExtensions.AttachedParentMember.GetValue(template, Empty.Array<object>()) == null)
-                    BindingExtensions.AttachedParentMember.SetValue(template, container);
+                finally
+                {
+                    _bindingSet.Target = null;
+                    if (lockTaken)
+                        Monitor.Exit(_bindingSet);
+                }
             }
             return template;
-        }
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        ///     Specifies that this template supports initialize method default is <c>true</c>.
-        /// </summary>
-        protected virtual bool SupportInitialize
-        {
-            get { return true; }
-        }
-
-        /// <summary>
-        ///     If <c>true</c> the container will be set as parent for a template; default is <c>true</c>.
-        /// </summary>
-        protected virtual bool SetAttachedParentMember
-        {
-            get { return SetAttachedParentMemberField; }
         }
 
         #endregion
@@ -131,6 +99,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         ///     Initializes the specified template.
         /// </summary>
         protected abstract void Initialize(TTemplate template, BindingSet<TTemplate, TSource> bindingSet);
+
+        /// <summary>
+        ///     Checks to see whether the template selector can initialize template.
+        /// </summary>
+        protected virtual bool CanInitialize([NotNull] TTemplate template, [NotNull] object container)
+        {
+            return !IsTemplateObjectType || !(template is ValueType);
+        }
 
         #endregion
     }

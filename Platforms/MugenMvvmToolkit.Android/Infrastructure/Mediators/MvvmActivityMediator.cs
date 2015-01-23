@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
     {
         #region Fields
 
-        private readonly MenuInflater _menuInflater;
+        private MenuInflater _menuInflater;
         private IMenu _menu;
         private Bundle _bundle;
         private bool _isBackNavigation;
@@ -51,12 +51,11 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         #region Constructors
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="T:System.Object" /> class.
+        ///     Initializes a new instance of the <see cref="MvvmActivityMediator" /> class.
         /// </summary>
         public MvvmActivityMediator([NotNull] Activity target)
             : base(target)
         {
-            _menuInflater = PlatformExtensions.MenuInflaterFactory(target, Models.DataContext.Empty);
         }
 
         #endregion
@@ -66,7 +65,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// <summary>
         ///     Gets the <see cref="IMvvmActivityMediator.Activity" />.
         /// </summary>
-        public Activity Activity
+        Activity IMvvmActivityMediator.Activity
         {
             get { return Target; }
         }
@@ -88,7 +87,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             if (handler != null)
             {
                 var args = new CancelEventArgs();
-                handler(Activity, args);
+                handler(Target, args);
                 if (args.Cancel)
                     return;
             }
@@ -100,7 +99,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// <summary>
         ///     Called when the activity is starting.
         /// </summary>
-        public void OnCreate(Bundle savedInstanceState, Action<Bundle> baseOnCreate)
+        public virtual void OnCreate(Bundle savedInstanceState, Action<Bundle> baseOnCreate)
         {
             AndroidBootstrapperBase.EnsureInitialized();
             Tracer.Info("OnCreate activity({0})", Target);
@@ -108,13 +107,13 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             OnCreate(savedInstanceState);
 
             var service = Get<INavigationService>();
-            service.OnCreateActivity(Activity);
+            service.OnCreateActivity(Target);
 
             baseOnCreate(savedInstanceState);
 
             var handler = Created;
             if (handler != null)
-                handler(Activity, new ValueEventArgs<Bundle>(savedInstanceState));
+                handler(Target, new ValueEventArgs<Bundle>(savedInstanceState));
         }
 
         /// <summary>
@@ -122,11 +121,11 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         public virtual bool OnCreateOptionsMenu(IMenu menu, Func<IMenu, bool> baseOnCreateOptionsMenu)
         {
-            var optionsMenu = Activity.FindViewById<OptionsMenu>(Resource.Id.OptionsMenu);
+            var optionsMenu = Target.FindViewById<OptionsMenu>(Resource.Id.OptionsMenu);
             if (optionsMenu != null)
             {
                 _menu = menu;
-                optionsMenu.Inflate(Activity, menu);
+                optionsMenu.Inflate(Target, menu);
             }
             return baseOnCreateOptionsMenu(menu);
         }
@@ -138,16 +137,16 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             var handler = SaveInstanceState;
             if (handler != null)
-                handler(Activity, new ValueEventArgs<Bundle>(outState));
+                handler(Target, new ValueEventArgs<Bundle>(outState));
             base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
         }
 
         /// <summary>
         ///     Tries to restore instance context.
         /// </summary>
-        protected override void RestoreContext(object dataContext)
+        protected override void RestoreContext(Activity target, object dataContext)
         {
-            base.RestoreContext(dataContext);
+            base.RestoreContext(target, dataContext);
             var viewModel = dataContext as IViewModel;
             if (viewModel != null)
             {
@@ -169,13 +168,21 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             Tracer.Info("OnDestroy activity({0})", Target);
             var handler = Destroyed;
             if (handler != null)
-                handler(Activity, EventArgs.Empty);
+                handler(Target, EventArgs.Empty);
             _view.ClearBindingsHierarchically(true, true);
             _view = null;
 
             MenuTemplate.Clear(_menu);
-            BindingContext.Value = null;
+            _menu = null;
+
+            if (_menuInflater != null)
+            {
+                _menuInflater.Dispose();
+                _menuInflater = null;
+            }
             base.OnDestroy(baseOnDestroy);
+            Target.ClearBindings(false, true);
+            Target = null;
             OptionsItemSelected = null;
             ConfigurationChanged = null;
             PostCreate = null;
@@ -198,11 +205,11 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public virtual void OnPause(Action baseOnPause)
         {
             var service = Get<INavigationService>();
-            service.OnPauseActivity(Activity);
+            service.OnPauseActivity(Target);
             baseOnPause();
             var handler = Paused;
             if (handler != null)
-                handler(Activity, EventArgs.Empty);
+                handler(Target, EventArgs.Empty);
         }
 
         /// <summary>
@@ -213,7 +220,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             baseOnRestart();
             var handler = Restarted;
             if (handler != null)
-                handler(Activity, EventArgs.Empty);
+                handler(Target, EventArgs.Empty);
         }
 
         /// <summary>
@@ -224,7 +231,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             baseOnResume();
             var handler = Resume;
             if (handler != null)
-                handler(Activity, EventArgs.Empty);
+                handler(Target, EventArgs.Empty);
         }
 
         /// <summary>
@@ -233,12 +240,12 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public virtual void OnStart(Action baseOnStart)
         {
             var service = Get<INavigationService>();
-            service.OnStartActivity(Activity);
+            service.OnStartActivity(Target);
 
             baseOnStart();
             var handler = Started;
             if (handler != null)
-                handler(Activity, EventArgs.Empty);
+                handler(Target, EventArgs.Empty);
         }
 
         /// <summary>
@@ -249,7 +256,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             baseOnStop();
             var handler = Stoped;
             if (handler != null)
-                handler(Activity, EventArgs.Empty);
+                handler(Target, EventArgs.Empty);
         }
 
         /// <summary>
@@ -258,11 +265,11 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// <param name="layoutResId">Resource ID to be inflated.</param>
         public virtual void SetContentView(int layoutResId)
         {
-            _view = Activity.CreateBindableView(layoutResId, Get<IViewFactory>()).Item1;
-            Activity.SetContentView(_view);
-            _view = Activity.FindViewById(Android.Resource.Id.Content) ?? _view;
+            _view = Target.CreateBindableView(layoutResId, Get<IViewFactory>()).Item1;
+            Target.SetContentView(_view);
+            _view = Target.FindViewById(Android.Resource.Id.Content) ?? _view;
             _view.ListenParentChange();
-            PlatformExtensions.NotifyActivityAttached(Activity, _view);
+            PlatformExtensions.NotifyActivityAttached(Target, _view);
         }
 
         /// <summary>
@@ -270,10 +277,12 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         public virtual MenuInflater GetMenuInflater(MenuInflater baseMenuInflater)
         {
+            if (_menuInflater == null && Target != null)
+                _menuInflater = PlatformExtensions.MenuInflaterFactory(Target, Models.DataContext.Empty);
             var menuInflater = _menuInflater as IBindableMenuInflater;
             if (menuInflater != null)
                 menuInflater.MenuInflater = baseMenuInflater;
-            return _menuInflater;
+            return _menuInflater ?? baseMenuInflater;
         }
 
         /// <summary>
@@ -282,7 +291,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public virtual void Finish(Action baseFinish)
         {
             var navigationService = Get<INavigationService>();
-            if (!navigationService.OnFinishActivity(Activity, _isBackNavigation))
+            if (!navigationService.OnFinishActivity(Target, _isBackNavigation))
                 return;
             ClearContextCache();
             baseFinish();
@@ -291,29 +300,29 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// <summary>
         ///     Called by the system when the device configuration changes while your activity is running.
         /// </summary>
-        public void OnConfigurationChanged(Configuration newConfig, Action<Configuration> baseOnConfigurationChanged)
+        public virtual void OnConfigurationChanged(Configuration newConfig, Action<Configuration> baseOnConfigurationChanged)
         {
             baseOnConfigurationChanged(newConfig);
             var handler = ConfigurationChanged;
             if (handler != null)
-                handler(Activity, new ValueEventArgs<Configuration>(newConfig));
+                handler(Target, new ValueEventArgs<Configuration>(newConfig));
         }
 
         /// <summary>
         ///     Called when activity start-up is complete (after <c>OnStart</c> and <c>OnRestoreInstanceState</c> have been called).
         /// </summary>
-        public void OnPostCreate(Bundle savedInstanceState, Action<Bundle> baseOnPostCreate)
+        public virtual void OnPostCreate(Bundle savedInstanceState, Action<Bundle> baseOnPostCreate)
         {
             var handler = PostCreate;
             if (handler != null)
-                handler(Activity, new ValueEventArgs<Bundle>(savedInstanceState));
+                handler(Target, new ValueEventArgs<Bundle>(savedInstanceState));
             baseOnPostCreate(savedInstanceState);
         }
 
         /// <summary>
         ///     This hook is called whenever an item in your options menu is selected.
         /// </summary>
-        public bool OnOptionsItemSelected(IMenuItem item, Func<IMenuItem, bool> baseOnOptionsItemSelected)
+        public virtual bool OnOptionsItemSelected(IMenuItem item, Func<IMenuItem, bool> baseOnOptionsItemSelected)
         {
             var optionsItemSelected = OptionsItemSelected;
             if (optionsItemSelected == null)
@@ -324,17 +333,17 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// <summary>
         ///     This hook is called whenever an item in your options menu is selected.
         /// </summary>
-        public Func<IMenuItem, bool> OptionsItemSelected { get; set; }
+        public virtual Func<IMenuItem, bool> OptionsItemSelected { get; set; }
 
         /// <summary>
         ///     Called by the system when the device configuration changes while your activity is running.
         /// </summary>
-        public event EventHandler<Activity, ValueEventArgs<Configuration>> ConfigurationChanged;
+        public virtual event EventHandler<Activity, ValueEventArgs<Configuration>> ConfigurationChanged;
 
         /// <summary>
         ///     Called when activity start-up is complete (after <c>OnStart</c> and <c>OnRestoreInstanceState</c> have been called).
         /// </summary>
-        public event EventHandler<Activity, ValueEventArgs<Bundle>> PostCreate;
+        public virtual event EventHandler<Activity, ValueEventArgs<Bundle>> PostCreate;
 
         /// <summary>
         /// Occurs when the activity has detected the user's press of the back key.

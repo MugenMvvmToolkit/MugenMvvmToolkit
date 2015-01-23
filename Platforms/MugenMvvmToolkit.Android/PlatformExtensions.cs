@@ -19,7 +19,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
@@ -35,6 +34,7 @@ using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Binding.Modules;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Mediators;
@@ -52,6 +52,23 @@ namespace MugenMvvmToolkit
     public static partial class PlatformExtensions
     {
         #region Nested types
+
+        private sealed class IntPtrComparer : IEqualityComparer<IntPtr>
+        {
+            #region Implementation of IEqualityComparer<in IntPtr>
+
+            public bool Equals(IntPtr x, IntPtr y)
+            {
+                return x == y;
+            }
+
+            public int GetHashCode(IntPtr obj)
+            {
+                return obj.GetHashCode();
+            }
+
+            #endregion
+        }
 
         private sealed class ContentViewManager
         {
@@ -191,16 +208,37 @@ namespace MugenMvvmToolkit
             {
                 try
                 {
-                    if (WeakReferences.Count == 0)
-                        return;
-                    lock (WeakReferences)
+                    if (WeakReferences.Count != 0)
                     {
-                        for (int i = 0; i < WeakReferences.Count; i++)
+                        lock (WeakReferences)
                         {
-                            if (WeakReferences[i].Target == null)
+                            for (int i = 0; i < WeakReferences.Count; i++)
                             {
-                                WeakReferences.RemoveAt(i);
-                                i--;
+                                if (WeakReferences[i].Target == null)
+                                {
+                                    WeakReferences.RemoveAt(i);
+                                    i--;
+                                }
+                            }
+                        }
+                    }
+                    if (NativeWeakReferences.Count != 0)
+                    {
+                        lock (NativeWeakReferences)
+                        {
+                            List<IntPtr> itemsToDelete = null;
+                            foreach (var keyPair in NativeWeakReferences)
+                            {
+                                if (keyPair.Value.Target != null)
+                                    continue;
+                                if (itemsToDelete == null)
+                                    itemsToDelete = new List<IntPtr>();
+                                itemsToDelete.Add(keyPair.Key);
+                            }
+                            if (itemsToDelete != null)
+                            {
+                                for (int i = 0; i < itemsToDelete.Count; i++)
+                                    NativeWeakReferences.Remove(itemsToDelete[i]);
                             }
                         }
                     }
@@ -227,6 +265,7 @@ namespace MugenMvvmToolkit
 
         //NOTE ConditionalWeakTable invokes finalizer for value, even if the key object is still alive https://bugzilla.xamarin.com/show_bug.cgi?id=21620
         private static readonly List<WeakReference> WeakReferences;
+        private static readonly Dictionary<IntPtr, JavaObjectWeakReference> NativeWeakReferences;
         private static readonly ContentViewManager ContentViewManagerField;
         private const string VisitedParentPath = "$``!Visited~";
         private static Func<Activity, IDataContext, IMvvmActivityMediator> _mvvmActivityMediatorFactory;
@@ -242,7 +281,7 @@ namespace MugenMvvmToolkit
 
         static PlatformExtensions()
         {
-            CurrentFragment = DataConstant.Create(() => CurrentFragment, true);
+            CurrentFragment = DataConstant.Create(() => CurrentFragment, false);
             _menuInflaterFactory = (context, dataContext) => new BindableMenuInflater(context);
             ContentViewManagerField = new ContentViewManager();
             ContentViewManagerField.Add(new ViewContentViewManager());
@@ -251,7 +290,9 @@ namespace MugenMvvmToolkit
             _setContentViewDelegete = ContentViewManagerField.SetContent;
             _isFragment = o => false;
             _isActionBar = _isFragment;
-            WeakReferences = new List<WeakReference>(256);
+            WeakReferences = new List<WeakReference>(128);
+            NativeWeakReferences = new Dictionary<IntPtr, JavaObjectWeakReference>(109, new IntPtrComparer());
+            AutoDisposeDefault = true;
             // ReSharper disable once ObjectCreationAsStatement
             new WeakReferenceCollector();
         }
@@ -259,6 +300,11 @@ namespace MugenMvvmToolkit
         #endregion
 
         #region Properties
+
+        /// <summary>
+        ///     Gets or sets the default value for the attached property AutoDispose. Default is a <c>true</c>.
+        /// </summary>
+        public static bool AutoDisposeDefault { get; set; }
 
         /// <summary>
         ///     Gets or sets the delegate that allows to handle view creation.
@@ -464,22 +510,28 @@ namespace MugenMvvmToolkit
             return item;
         }
 
-        public static void ClearBindingsHierarchically([CanBeNull]this View view, bool clearDataContext, bool clearAttachedValues)
+        public static void ClearBindingsHierarchically([CanBeNull]this View view, bool clearDataContext, bool clearAttachedValues, bool? disposeAllView = null)
         {
-            if (view == null || !view.IsAlive())
+            if (view == null)
                 return;
             var viewGroup = view as ViewGroup;
-            if (viewGroup != null)
+            if (viewGroup != null && view.IsAlive())
             {
                 for (int i = 0; i < viewGroup.ChildCount; i++)
-                    viewGroup.GetChildAt(i).ClearBindingsHierarchically(clearDataContext, clearAttachedValues);
+                    viewGroup.GetChildAt(i).ClearBindingsHierarchically(clearDataContext, clearAttachedValues, disposeAllView);
             }
-            view.ClearBindings(clearDataContext, clearAttachedValues);
+            view.ClearBindings(clearDataContext, clearAttachedValues, disposeAllView);
         }
 
-        public static void ClearBindings([CanBeNull]this IJavaObject item, bool clearDataContext, bool clearAttachedValues)
+        public static void ClearBindings([CanBeNull]this IJavaObject item, bool clearDataContext, bool clearAttachedValues, bool? disposeItem = null)
         {
             BindingExtensions.ClearBindings(item, clearDataContext, clearAttachedValues);
+            if (item != null && disposeItem.GetValueOrDefault(item.GetAutoDispose()))
+            {
+                lock (NativeWeakReferences)
+                    NativeWeakReferences.Remove(item.Handle);
+                item.Dispose();
+            }
         }
 
         public static void NotifyActivityAttached([CanBeNull] Activity activity, [CanBeNull] View view)
@@ -523,6 +575,29 @@ namespace MugenMvvmToolkit
             ViewManager.SetDataContext(item, value);
         }
 
+        public static bool GetAutoDispose(this IJavaObject javaObject)
+        {
+            return GetAutoDispose(item: javaObject);
+        }
+
+        public static void SetAutoDispose(this IJavaObject javaObject, bool value)
+        {
+            SetAutoDispose(item: javaObject, value: value);
+        }
+
+        public static bool GetAutoDispose(object item)
+        {
+            if (item == null)
+                return false;
+            return PlatformDataBindingModule.AutoDisposeMember.GetValue(item, null).GetValueOrDefault(AutoDisposeDefault);
+        }
+
+        public static void SetAutoDispose(object item, bool value)
+        {
+            if (item != null)
+                PlatformDataBindingModule.AutoDisposeMember.SetValue(item, value);
+        }
+
         internal static PlatformInfo GetPlatformInfo()
         {
             Version result;
@@ -537,13 +612,28 @@ namespace MugenMvvmToolkit
 
         internal static WeakReference CreateWeakReference(object item, bool trackResurrection)
         {
-            var obj = item as Object;
-            var reference = obj == null
-                ? new WeakReference(item, trackResurrection)
-                : new JavaObjectWeakReference(obj, trackResurrection);
-            lock (WeakReferences)
-                WeakReferences.Add(reference);
-            return reference;
+            var obj = item as IJavaObject;
+            if (obj == null)
+            {
+                var reference = new WeakReference(item, trackResurrection);
+                lock (WeakReferences)
+                    WeakReferences.Add(reference);
+                return reference;
+            }
+            var handle = obj.Handle;
+            if (handle == IntPtr.Zero)
+                return Empty.WeakReference;
+
+            lock (NativeWeakReferences)
+            {
+                JavaObjectWeakReference value;
+                if (!NativeWeakReferences.TryGetValue(handle, out value) || !ReferenceEquals(value.Target, obj))
+                {
+                    value = new JavaObjectWeakReference(obj);
+                    NativeWeakReferences[handle] = value;
+                }
+                return value;
+            }
         }
 
         internal static object GetOrCreateView(IViewModel vm, bool? alwaysCreateNewView, IDataContext dataContext = null)

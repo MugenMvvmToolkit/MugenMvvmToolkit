@@ -77,7 +77,9 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
             {
                 if (keyCode != Keycode.Back || e.Action != KeyEventActions.Up)
                     return false;
-                _mediator._dialogFragment.Dismiss();
+                var dialogFragment = _mediator.Target as DialogFragment;
+                if (dialogFragment != null)
+                    dialogFragment.Dismiss();
                 return true;
             }
 
@@ -88,7 +90,6 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
 
         #region Fields
 
-        private readonly DialogFragment _dialogFragment;
         private DialogInterfaceOnKeyListener _keyListener;
         private View _view;
 
@@ -97,12 +98,11 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         #region Constructors
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="MediatorBase{TTarget}" /> class.
+        ///     Initializes a new instance of the <see cref="MvvmFragmentMediator" /> class.
         /// </summary>
         public MvvmFragmentMediator([NotNull] Fragment target)
             : base(target)
         {
-            _dialogFragment = target as DialogFragment;
         }
 
         #endregion
@@ -131,13 +131,14 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         public virtual void OnCreateOptionsMenu(IMenu menu, MenuInflater inflater,
             Action<IMenu, MenuInflater> baseOnCreateOptionsMenu)
         {
-            if (Target.Activity == null || Target.View == null)
+            var fragment = Target;
+            if (fragment == null || fragment.Activity == null || fragment.View == null)
                 baseOnCreateOptionsMenu(menu, inflater);
             else
             {
-                var optionsMenu = Target.View.FindViewById<OptionsMenu>(Resource.Id.OptionsMenu);
+                var optionsMenu = fragment.View.FindViewById<OptionsMenu>(Resource.Id.OptionsMenu);
                 if (optionsMenu != null)
-                    optionsMenu.Inflate(Target.Activity, menu);
+                    optionsMenu.Inflate(fragment.Activity, menu);
             }
         }
 
@@ -161,13 +162,13 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         /// <summary>
         ///     Called when the target is starting.
         /// </summary>
-        public void OnCreate(Bundle savedInstanceState, Action<Bundle> baseOnCreate)
+        public virtual void OnCreate(Bundle savedInstanceState, Action<Bundle> baseOnCreate)
         {
             Tracer.Info("OnCreate fragment({0})", Target);
             OnCreate(savedInstanceState);
             baseOnCreate(savedInstanceState);
 
-            var viewModel = BindingContext.Value as IViewModel;
+            var viewModel = DataContext as IViewModel;
             if (viewModel != null)
             {
                 if (!viewModel.Settings.Metadata.Contains(ViewModelConstants.StateNotNeeded) && !viewModel.Settings.Metadata.Contains(ViewModelConstants.StateManager))
@@ -181,11 +182,15 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         /// </summary>
         public virtual void OnViewCreated(View view, Bundle savedInstanceState, Action<View, Bundle> baseOnViewCreated)
         {
-            if (_dialogFragment == null)
-                PlatformExtensions.NotifyActivityAttached(Target.Activity, view);
+            var dialogFragment = Target as DialogFragment;
+            if (dialogFragment == null)
+            {
+                if (Target != null)
+                    PlatformExtensions.NotifyActivityAttached(Target.Activity, view);
+            }
             else
             {
-                var dialog = _dialogFragment.Dialog;
+                var dialog = dialogFragment.Dialog;
                 if (dialog != null)
                 {
                     TrySetTitleBinding();
@@ -204,15 +209,23 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         {
             Tracer.Info("OnDestroy fragment({0})", Target);
             var handler = Destroyed;
-            if (handler != null)
+            if (handler != null && Target is IWindowView)
                 handler((IWindowView)Target, EventArgs.Empty);
 
             _view.ClearBindingsHierarchically(true, true);
-            if (_dialogFragment != null)
-                _dialogFragment.Dialog.ClearBindings(true, true);
-            Target.ClearBindings(false, true);
+            _view = null;
 
-            var viewModel = BindingContext.Value as IViewModel;
+            var dialogFragment = Target as DialogFragment;
+            if (dialogFragment != null)
+                dialogFragment.Dialog.ClearBindings(true, true);
+
+            if (_keyListener != null)
+            {
+                _keyListener.Dispose();
+                _keyListener = null;
+            }
+
+            var viewModel = DataContext as IViewModel;
             if (viewModel != null)
             {
                 viewModel.Settings.Metadata.Remove(PlatformExtensions.CurrentFragment);
@@ -221,9 +234,10 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
                     stateManager == this)
                     viewModel.Settings.Metadata.Remove(ViewModelConstants.StateManager);
             }
-            _view = null;
-            BindingContext.Value = null;
+
             base.OnDestroy(baseOnDestroy);
+            Target.ClearBindings(false, true);
+            Target = null;
             Closing = null;
             Canceled = null;
             Destroyed = null;
@@ -244,9 +258,9 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         public virtual void OnInflate(Activity activity, IAttributeSet attrs, Bundle savedInstanceState,
             Action<Activity, IAttributeSet, Bundle> baseOnInflate)
         {
-            Target.ClearBindings(false, false);
+            Target.ClearBindings(false, false, false);
             List<string> strings = ViewFactory.ReadStringAttributeValue(activity, attrs, MugenMvvmToolkit.Resource.Styleable.Binding, null);
-            if (strings != null && strings.Count != 0)
+            if (strings != null && strings.Count != 0 && Target != null)
             {
                 foreach (string bind in strings)
                     BindingServiceProvider.BindingProvider.CreateBindingsFromString(Target, bind, null);
@@ -276,9 +290,12 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         public virtual void OnStart(Action baseOnStart)
         {
             baseOnStart();
-            var view = Target.View;
-            if (view != null)
-                view.ListenParentChange();
+            if (Target != null)
+            {
+                var view = Target.View;
+                if (view != null)
+                    view.ListenParentChange();
+            }
         }
 
         /// <summary>
@@ -322,7 +339,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         /// <summary>
         ///     Occurred on destroyed view.
         /// </summary>
-        public event EventHandler<IWindowView, EventArgs> Destroyed;
+        public virtual event EventHandler<IWindowView, EventArgs> Destroyed;
 
         #endregion
 
@@ -334,19 +351,22 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         protected override void OnDataContextChanged(object oldValue, object newValue)
         {
             base.OnDataContextChanged(oldValue, newValue);
-            View view = Target.View;
-            if (view != null)
-                BindingServiceProvider.ContextManager
-                    .GetBindingContext(view)
-                    .Value = DataContext;
+            if (Target != null)
+            {
+                View view = Target.View;
+                if (view != null)
+                    BindingServiceProvider.ContextManager
+                        .GetBindingContext(view)
+                        .Value = DataContext;
+            }
         }
 
-        protected override IDataContext CreateRestorePresenterContext()
+        protected override IDataContext CreateRestorePresenterContext(Fragment target)
         {
             return new DataContext
             {
                 {DynamicViewModelWindowPresenter.IsOpenViewConstant, true},
-                {DynamicViewModelWindowPresenter.RestoredViewConstant, Target},
+                {DynamicViewModelWindowPresenter.RestoredViewConstant, target},
                 {NavigationConstants.SuppressPageNavigation, true}
             };
         }
@@ -367,10 +387,11 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
 
         private void TrySetTitleBinding()
         {
-            var hasDisplayName = BindingContext.Value as IHasDisplayName;
-            if (_dialogFragment == null || hasDisplayName == null)
+            var hasDisplayName = DataContext as IHasDisplayName;
+            var dialogFragment = Target as DialogFragment;
+            if (dialogFragment == null || hasDisplayName == null)
                 return;
-            var dialog = _dialogFragment.Dialog;
+            var dialog = dialogFragment.Dialog;
             if (dialog != null)
                 BindingServiceProvider.BindingProvider.CreateBindingsFromString(dialog, "Title DisplayName", new object[] { hasDisplayName });
         }

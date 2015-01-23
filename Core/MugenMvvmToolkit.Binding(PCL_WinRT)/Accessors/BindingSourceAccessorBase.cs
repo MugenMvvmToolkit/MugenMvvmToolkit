@@ -124,7 +124,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
         #region Fields
 
         private readonly bool _isTarget;
-        private readonly BindingParameters _parameters;
+        private BindingParameters _parameters;
 
         #endregion
 
@@ -239,7 +239,10 @@ namespace MugenMvvmToolkit.Binding.Accessors
         /// <summary>
         ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public abstract void Dispose();
+        public virtual void Dispose()
+        {
+            _parameters = null;
+        }
 
         /// <summary>
         ///     Occurs before the value changes.

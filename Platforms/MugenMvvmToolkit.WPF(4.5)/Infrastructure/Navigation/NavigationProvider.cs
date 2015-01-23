@@ -228,7 +228,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         public IViewModel CurrentViewModel
         {
             get { return (IViewModel)_vmReference.Target; }
-            protected set { _vmReference = ToolkitExtensions.GetWeakReference(value); }
+            protected set { _vmReference = ToolkitExtensions.GetWeakReferenceOrDefault(value, Empty.WeakReference, true); }
         }
 
         /// <summary>

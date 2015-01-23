@@ -42,7 +42,7 @@ namespace MugenMvvmToolkit.Binding.Models
         private ParentObserver(View view)
         {
             _view = ServiceProvider.WeakReferenceFactory(view, true);
-            _parent = ToolkitExtensions.GetWeakReferenceOrDefault(view.Parent, Empty.WeakReference, false);
+            _parent = ToolkitExtensions.GetWeakReferenceOrDefault(GetParent(view), Empty.WeakReference, false);
         }
 
         #endregion
@@ -104,9 +104,10 @@ namespace MugenMvvmToolkit.Binding.Models
             var view = GetSource();
             if (view == null)
                 return;
-            if (_isAttached || view.Id == Android.Resource.Id.Content || ReferenceEquals(view.Parent, _parent.Target))
+            var parent = GetParent(view);
+            if (_isAttached || view.Id == Android.Resource.Id.Content || ReferenceEquals(parent, _parent.Target))
                 return;
-            _parent = ToolkitExtensions.GetWeakReferenceOrDefault(view.Parent, Empty.WeakReference, false);
+            _parent = ToolkitExtensions.GetWeakReferenceOrDefault(parent, Empty.WeakReference, false);
             Raise(view, EventArgs.Empty);
         }
 
@@ -128,6 +129,15 @@ namespace MugenMvvmToolkit.Binding.Models
             if (source == null)
                 Clear();
             return source;
+        }
+
+        private static object GetParent(View view)
+        {
+            if (view == null)
+                return null;
+            if (view.Id == Android.Resource.Id.Content)
+                return view.Context.GetActivity();
+            return view.Parent;
         }
 
         #endregion

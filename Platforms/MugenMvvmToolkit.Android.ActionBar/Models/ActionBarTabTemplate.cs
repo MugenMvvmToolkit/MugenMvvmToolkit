@@ -191,6 +191,9 @@ namespace MugenMvvmToolkit.ActionBarSupport.Models
         [XmlAttribute("DATACONTEXT")]
         public string DataContext { get; set; }
 
+        [XmlAttribute("BIND")]
+        public string Bind { get; set; }
+
         [XmlAttribute("CONTENT")]
         public string Content { get; set; }
 
@@ -237,7 +240,7 @@ namespace MugenMvvmToolkit.ActionBarSupport.Models
             BindingServiceProvider.BindingManager.ClearBindings(tab);
             if (removeFragment)
                 listener.Clear(bar, tab);
-            ServiceProvider.AttachedValueProvider.Clear(tab);
+            tab.ClearBindings(true, true);
         }
 
         private ActionBar.Tab CreateTabInternal(ActionBar bar, object context, bool useContext)
@@ -250,6 +253,8 @@ namespace MugenMvvmToolkit.ActionBarSupport.Models
                 BindingServiceProvider.ContextManager.GetBindingContext(newTab).Value = context;
             else
                 setter.SetProperty(template => template.DataContext, DataContext);
+            if (!string.IsNullOrEmpty(Bind))
+                setter.BindingSet.BindFromExpression(newTab, Bind);
             setter.SetBinding(template => template.ContentTemplateSelector, ContentTemplateSelector, false);
             setter.SetProperty(template => template.ContentTemplate, ContentTemplate);
             setter.SetProperty(template => template.Content, Content);

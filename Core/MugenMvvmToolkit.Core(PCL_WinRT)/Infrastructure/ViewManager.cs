@@ -106,12 +106,12 @@ namespace MugenMvvmToolkit.Infrastructure
         public static bool AlwaysCreateNewView { get; set; }
 
         /// <summary>
-        ///     Gets or sets property, that is responsible for auto dispose view when the view model disposing.
+        ///     Gets or sets property that is responsible for auto dispose view when the view model disposed.
         /// </summary>
         public static bool DisposeView { get; set; }
 
         /// <summary>
-        ///     Gets or sets property, that is responsible for clear view data context when the view model disposing.
+        ///     Gets or sets property that is responsible for clear view data context when the view model disposing.
         /// </summary>
         public static bool ClearDataContext { get; set; }
 

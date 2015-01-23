@@ -112,6 +112,7 @@ namespace MugenMvvmToolkit
             CoderParameters = new[] { typeof(NSCoder) };
             _mvvmViewControllerMediatorFactory = (controller, context) => new MvvmViewControllerMediator(controller);
             OrientationChangeListeners = new List<WeakReference>();
+            AutoDisposeDefault = true;
         }
 
         #endregion
@@ -167,6 +168,11 @@ namespace MugenMvvmToolkit
                 _mvvmViewControllerMediatorFactory = value;
             }
         }
+
+        /// <summary>
+        ///     Gets or sets the default value for the attached property AutoDispose. Default is a <c>true</c>.
+        /// </summary>
+        public static bool AutoDisposeDefault { get; set; }
 
         #endregion
 
@@ -489,29 +495,56 @@ namespace MugenMvvmToolkit
             ViewManager.SetDataContext(item, value);
         }
 
-        public static void ClearBindingsHierarchically([CanBeNull]this UIView view, bool clearDataContext, bool clearAttachedValues, bool disposeView)
+        public static void ClearBindingsHierarchically([CanBeNull]this UIView view, bool clearDataContext, bool clearAttachedValues, bool? disposeAllView = null)
         {
             if (view == null)
                 return;
             foreach (var subView in view.Subviews)
-                subView.ClearBindingsHierarchically(clearDataContext, clearAttachedValues, disposeView);
-            ClearBindings(view, clearDataContext, clearAttachedValues);
-            if (disposeView)
-                view.Dispose();
+                subView.ClearBindingsHierarchically(clearDataContext, clearAttachedValues, disposeAllView);
+            ClearBindings(view, clearDataContext, clearAttachedValues, disposeAllView);
         }
 
-        public static void ClearBindings<T>([CanBeNull]this T[] items, bool clearDataContext, bool clearAttachedValues)
+        public static void ClearBindings<T>([CanBeNull]this T[] items, bool clearDataContext, bool clearAttachedValues, bool? disposeAllItems = null)
             where T : INativeObject
         {
             if (items == null)
                 return;
             for (int i = 0; i < items.Length; i++)
-                ClearBindings(items[i], clearDataContext, clearAttachedValues);
+                ClearBindings(items[i], clearDataContext, clearAttachedValues, disposeAllItems);
         }
 
-        public static void ClearBindings(this INativeObject nativeObject, bool clearDataContext, bool clearAttachedValues)
+        public static void ClearBindings(this INativeObject nativeObject, bool clearDataContext, bool clearAttachedValues, bool? disposeItem = null)
         {
             BindingExtensions.ClearBindings(nativeObject, clearDataContext, clearAttachedValues);
+            if (disposeItem.GetValueOrDefault(nativeObject.GetAutoDispose()))
+            {
+                var disposable = nativeObject as IDisposable;
+                if (disposable != null)
+                    disposable.Dispose();
+            }
+        }
+
+        public static bool GetAutoDispose(this INativeObject nativeObject)
+        {
+            return GetAutoDispose(item: nativeObject);
+        }
+
+        public static void SetAutoDispose(this INativeObject nativeObject, bool value)
+        {
+            SetAutoDispose(item: nativeObject, value: value);
+        }
+
+        public static bool GetAutoDispose(object item)
+        {
+            if (item == null)
+                return false;
+            return PlatformDataBindingModule.AutoDisposeMember.GetValue(item, null).GetValueOrDefault(AutoDisposeDefault);
+        }
+
+        public static void SetAutoDispose(object item, bool value)
+        {
+            if (item != null)
+                PlatformDataBindingModule.AutoDisposeMember.SetValue(item, value);
         }
 
         internal static WeakReference CreateWeakReference(object item, bool trackResurrection)
@@ -550,7 +583,11 @@ namespace MugenMvvmToolkit
         {
             object template = selector.SelectTemplate(item, container);
             if (template != null)
+            {
                 BindingServiceProvider.ContextManager.GetBindingContext(template).Value = item;
+                if (!(template is UIView) && BindingExtensions.AttachedParentMember.GetValue(template, null) == null)
+                    BindingExtensions.AttachedParentMember.SetValue(template, container);
+            }
             return template;
         }
 

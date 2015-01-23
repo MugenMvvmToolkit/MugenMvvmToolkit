@@ -168,7 +168,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 null);
 #elif TOUCH
         private static readonly IntPtr AttachedValueKeyHandle = new NSObject().Handle;
-        private static readonly Dictionary<IntPtr, AttachedValueHolder> AttachedValueHolders = new Dictionary<IntPtr, AttachedValueHolder>(new IntPtrComparer());
+        private static readonly Dictionary<IntPtr, AttachedValueHolder> AttachedValueHolders = new Dictionary<IntPtr, AttachedValueHolder>(109, new IntPtrComparer());
 #endif
         private static readonly ConditionalWeakTable<object, AttachedValueDictionary>.CreateValueCallback
             CreateDictionaryDelegate = o => new AttachedValueDictionary();
