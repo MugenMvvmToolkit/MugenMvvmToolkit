@@ -181,6 +181,8 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
                 FinishUpdate(_viewPager);
             }
             SetItemsSource(null, false);
+            if (ReferenceEquals(_viewPager.Adapter, this))
+                _viewPager.Adapter = null;
         }
 
         #endregion

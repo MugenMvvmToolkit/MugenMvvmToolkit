@@ -133,7 +133,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
         private static object GetParent(View view)
         {
-            if (view == null)
+            if (!view.IsAlive())
                 return null;
             if (view.Id == Android.Resource.Id.Content)
                 return view.Context.GetActivity();

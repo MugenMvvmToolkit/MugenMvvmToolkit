@@ -109,6 +109,7 @@
       <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
     </Compile>
     <Compile Include="Binding\Converters\BooleanToCheckmarkAccessoryConverter.cs" />
+    <Compile Include="Interfaces\Views\IViewControllerView.cs" />
     <Compile Include="LinkerInclude.cs" />
     <Compile Include="Models\NativeObjectWeakReference.cs" />
     <Compile Include="MonoTouchDialogExtensions.cs" />
@@ -134,7 +135,6 @@
     <Compile Include="Binding\Interfaces\ITableCellTemplateSelector.cs" />
     <Compile Include="Interfaces\Mediators\IMvvmViewControllerMediator.cs" />
     <Compile Include="Interfaces\Views\IModalView.cs" />
-    <Compile Include="Interfaces\Views\IMvvmViewController.cs" />
     <Compile Include="Interfaces\Views\IMvvmNavigationController.cs" />
     <Compile Include="Models\EventArg\NavigatingCancelEventArgs.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgs.cs" />

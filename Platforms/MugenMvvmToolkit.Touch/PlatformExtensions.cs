@@ -513,35 +513,44 @@ namespace MugenMvvmToolkit
                 ClearBindings(items[i], clearDataContext, clearAttachedValues, disposeAllItems);
         }
 
-        public static void ClearBindings(this INativeObject nativeObject, bool clearDataContext, bool clearAttachedValues, bool? disposeItem = null)
+        public static void ClearBindings([CanBeNull]this INativeObject nativeObject, bool clearDataContext, bool clearAttachedValues, bool? disposeItem = null)
         {
-            BindingExtensions.ClearBindings(nativeObject, clearDataContext, clearAttachedValues);
-            if (disposeItem.GetValueOrDefault(nativeObject.GetAutoDispose()))
+            ClearBindings(item: nativeObject, clearDataContext: clearDataContext,
+                clearAttachedValues: clearAttachedValues, disposeItem: disposeItem);
+        }
+
+        public static void ClearBindings([CanBeNull]object item, bool clearDataContext, bool clearAttachedValues, bool? disposeItem = null)
+        {
+            if (item == null)
+                return;
+            var dispose = disposeItem.GetValueOrDefault(GetAutoDispose(item));
+            BindingExtensions.ClearBindings(item, clearDataContext, clearAttachedValues);
+            if (dispose)
             {
-                var disposable = nativeObject as IDisposable;
+                var disposable = item as IDisposable;
                 if (disposable != null)
                     disposable.Dispose();
             }
         }
 
-        public static bool GetAutoDispose(this INativeObject nativeObject)
+        public static bool GetAutoDispose([CanBeNull] this INativeObject nativeObject)
         {
             return GetAutoDispose(item: nativeObject);
         }
 
-        public static void SetAutoDispose(this INativeObject nativeObject, bool value)
+        public static void SetAutoDispose([CanBeNull]this INativeObject nativeObject, bool value)
         {
             SetAutoDispose(item: nativeObject, value: value);
         }
 
-        public static bool GetAutoDispose(object item)
+        public static bool GetAutoDispose([CanBeNull]object item)
         {
             if (item == null)
                 return false;
             return PlatformDataBindingModule.AutoDisposeMember.GetValue(item, null).GetValueOrDefault(AutoDisposeDefault);
         }
 
-        public static void SetAutoDispose(object item, bool value)
+        public static void SetAutoDispose([CanBeNull]object item, bool value)
         {
             if (item != null)
                 PlatformDataBindingModule.AutoDisposeMember.SetValue(item, value);
@@ -555,10 +564,9 @@ namespace MugenMvvmToolkit
             return AttachedValueProvider.GetNativeObjectWeakReference(obj);
         }
 
-        internal static bool IsAlive([NotNull] this INativeObject item)
+        internal static bool IsAlive([CanBeNull] this INativeObject item)
         {
-            Should.NotBeNull(item, "item");
-            return item.Handle != IntPtr.Zero;
+            return item != null && item.Handle != IntPtr.Zero;
         }
 
         [CanBeNull]

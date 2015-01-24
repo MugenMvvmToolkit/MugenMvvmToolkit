@@ -407,10 +407,9 @@ namespace MugenMvvmToolkit
 
         #region Methods
 
-        public static void ListenParentChange([NotNull] this View view)
+        public static void ListenParentChange([CanBeNull] this View view)
         {
-            Should.NotBeNull(view, "view");
-            if (view.Context == null)
+            if (!view.IsAlive())
                 return;
             ParentObserver.Raise(view);
             if (ServiceProvider.AttachedValueProvider.GetValue<object>(view, VisitedParentPath, false) != null)
@@ -515,7 +514,7 @@ namespace MugenMvvmToolkit
             if (view == null)
                 return;
             var viewGroup = view as ViewGroup;
-            if (viewGroup != null && view.IsAlive())
+            if (viewGroup.IsAlive())
             {
                 for (int i = 0; i < viewGroup.ChildCount; i++)
                     viewGroup.GetChildAt(i).ClearBindingsHierarchically(clearDataContext, clearAttachedValues, disposeAllView);
@@ -523,14 +522,33 @@ namespace MugenMvvmToolkit
             view.ClearBindings(clearDataContext, clearAttachedValues, disposeAllView);
         }
 
-        public static void ClearBindings([CanBeNull]this IJavaObject item, bool clearDataContext, bool clearAttachedValues, bool? disposeItem = null)
+        public static void ClearBindings([CanBeNull]this IJavaObject javaObject, bool clearDataContext, bool clearAttachedValues, bool? disposeItem = null)
         {
+            ClearBindings(item: javaObject, clearDataContext: clearDataContext, clearAttachedValues: clearAttachedValues,
+                disposeItem: disposeItem);
+        }
+
+        public static void ClearBindings([CanBeNull]object item, bool clearDataContext, bool clearAttachedValues, bool? disposeItem = null)
+        {
+            if (item == null)
+                return;
+            var dispose = disposeItem.GetValueOrDefault(GetAutoDispose(item));
             BindingExtensions.ClearBindings(item, clearDataContext, clearAttachedValues);
-            if (item != null && disposeItem.GetValueOrDefault(item.GetAutoDispose()))
+            if (dispose)
             {
-                lock (NativeWeakReferences)
-                    NativeWeakReferences.Remove(item.Handle);
-                item.Dispose();
+                var javaObject = item as IJavaObject;
+                if (javaObject == null)
+                {
+                    var disposable = item as IDisposable;
+                    if (disposable != null)
+                        disposable.Dispose();
+                }
+                else
+                {
+                    lock (NativeWeakReferences)
+                        NativeWeakReferences.Remove(javaObject.Handle);
+                    javaObject.Dispose();
+                }
             }
         }
 
@@ -575,24 +593,24 @@ namespace MugenMvvmToolkit
             ViewManager.SetDataContext(item, value);
         }
 
-        public static bool GetAutoDispose(this IJavaObject javaObject)
+        public static bool GetAutoDispose([CanBeNull]this IJavaObject javaObject)
         {
             return GetAutoDispose(item: javaObject);
         }
 
-        public static void SetAutoDispose(this IJavaObject javaObject, bool value)
+        public static void SetAutoDispose([CanBeNull]this IJavaObject javaObject, bool value)
         {
             SetAutoDispose(item: javaObject, value: value);
         }
 
-        public static bool GetAutoDispose(object item)
+        public static bool GetAutoDispose([CanBeNull]object item)
         {
             if (item == null)
                 return false;
             return PlatformDataBindingModule.AutoDisposeMember.GetValue(item, null).GetValueOrDefault(AutoDisposeDefault);
         }
 
-        public static void SetAutoDispose(object item, bool value)
+        public static void SetAutoDispose([CanBeNull]object item, bool value)
         {
             if (item != null)
                 PlatformDataBindingModule.AutoDisposeMember.SetValue(item, value);
@@ -669,9 +687,9 @@ namespace MugenMvvmToolkit
                 throw new InvalidOperationException("Operation is not valid while ItemsSource is in use.");
         }
 
-        internal static bool IsAlive(this IJavaObject javaObj)
+        internal static bool IsAlive([CanBeNull] this IJavaObject javaObj)
         {
-            return javaObj.Handle != IntPtr.Zero;
+            return javaObj != null && javaObj.Handle != IntPtr.Zero;
         }
 
         internal static View CreateView(this Type type, Context ctx)

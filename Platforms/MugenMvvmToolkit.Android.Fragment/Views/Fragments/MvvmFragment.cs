@@ -26,6 +26,7 @@ using Android.Views;
 using MugenMvvmToolkit.Models;
 #if APPCOMPAT
 using MugenMvvmToolkit.AppCompat.Interfaces.Mediators;
+using MugenMvvmToolkit.AppCompat.Interfaces.Views;
 using FragmentManager = Android.Support.V4.App.FragmentManager;
 using Fragment = Android.Support.V4.App.Fragment;
 using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
@@ -33,11 +34,12 @@ using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
 namespace MugenMvvmToolkit.AppCompat.Views.Fragments
 #else
 using MugenMvvmToolkit.FragmentSupport.Interfaces.Mediators;
+using MugenMvvmToolkit.FragmentSupport.Interfaces.Views;
 
 namespace MugenMvvmToolkit.FragmentSupport.Views.Fragments
 #endif
 {
-    public abstract class MvvmFragment : Fragment
+    public abstract class MvvmFragment : Fragment, IFragmentView
     {
         #region Fields
 
@@ -60,12 +62,12 @@ namespace MugenMvvmToolkit.FragmentSupport.Views.Fragments
 
         #endregion
 
-        #region Properties
+        #region Implementation of IView
 
         /// <summary>
         ///     Gets the current <see cref="IMvvmFragmentMediator" />.
         /// </summary>
-        protected IMvvmFragmentMediator Mediator
+        public virtual IMvvmFragmentMediator Mediator
         {
             get
             {
@@ -75,10 +77,6 @@ namespace MugenMvvmToolkit.FragmentSupport.Views.Fragments
                 return _mediator;
             }
         }
-
-        #endregion
-
-        #region Implementation of IView
 
         /// <summary>
         ///     Gets or sets the data context of the current view.

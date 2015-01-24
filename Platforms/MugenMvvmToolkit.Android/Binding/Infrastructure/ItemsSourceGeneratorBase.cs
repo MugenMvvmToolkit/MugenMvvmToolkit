@@ -27,7 +27,10 @@ using Android.Content;
 using MugenMvvmToolkit.Interfaces.Views;
 #elif WINFORMS
 using System.ComponentModel;
+#elif TOUCH
+using ObjCRuntime;
 #endif
+using MugenMvvmToolkit.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
@@ -104,6 +107,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (component != null)
                 component.Disposed += OnTargetDisposed;
         }
+#elif TOUCH
+        protected void TryListenController(INativeObject item)
+        {
+            var viewControllerView = item.FindParent<IViewControllerView>();
+            if (viewControllerView != null)
+                viewControllerView.Mediator.DisposeHandler += OnTargetDisposed;
+        }
 #endif
         protected object GetItem(int position)
         {
@@ -120,7 +130,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (activityView != null)
                 activityView.Mediator.Destroyed -= OnTargetDisposed;
 #elif WINFORMS
-            ((IComponent)sender).Disposed -= OnTargetDisposed;
+            var component = sender as IComponent;
+            if (component != null)
+                component.Disposed -= OnTargetDisposed;
+#elif TOUCH
+            var controllerView = sender as IViewControllerView;
+            if (controllerView != null)
+                controllerView.Mediator.DisposeHandler -= OnTargetDisposed;
 #endif
             var collectionChanged = ItemsSource as INotifyCollectionChanged;
             if (collectionChanged != null)

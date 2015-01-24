@@ -104,6 +104,9 @@
     <Compile Include="..\MugenMvvmToolkit.Android.Fragment\Interfaces\Mediators\IMvvmFragmentMediator.cs">
       <Link>Interfaces\Mediators\IMvvmFragmentMediator.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android.Fragment\Interfaces\Views\IFragmentView.cs">
+      <Link>Interfaces\Views\IFragmentView.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android.Fragment\Interfaces\Views\IWindowView.cs">
       <Link>Interfaces\Views\IWindowView.cs</Link>
     </Compile>

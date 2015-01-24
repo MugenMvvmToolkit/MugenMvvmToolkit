@@ -26,6 +26,7 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Modules;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Views;
 using UIKit;
 
@@ -133,6 +134,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _itemTemplateMember = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(tableView.GetType(), itemTemplate, false, false);
+            var controllerView = tableView.FindParent<IViewControllerView>();
+            if (controllerView != null && !(controllerView is IMvvmNavigationController))
+                controllerView.Mediator.DisposeHandler += ControllerOnDispose;
         }
 
         #endregion
@@ -256,6 +260,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         protected abstract object GetItemAt(NSIndexPath indexPath);
 
         protected abstract void SetSelectedCellByItem(object selectedItem);
+
+        protected virtual void ControllerOnDispose(object sender, EventArgs eventArgs)
+        {
+            ((IViewControllerView)sender).Mediator.DisposeHandler -= ControllerOnDispose;
+            if (ReferenceEquals(_tableView.Source, this))
+                _tableView.Source = null;
+        }
 
         protected void ClearSelection()
         {

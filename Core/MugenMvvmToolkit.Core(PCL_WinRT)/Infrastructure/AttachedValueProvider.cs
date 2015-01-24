@@ -121,6 +121,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 WeakReference.IsInvalid = true;
                 lock (AttachedValueHolders)
                     AttachedValueHolders.Remove(WeakReference.Handle);
+                Dispose();
             }
 
             #endregion

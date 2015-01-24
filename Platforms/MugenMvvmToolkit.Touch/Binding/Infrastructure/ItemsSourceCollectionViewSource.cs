@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public virtual IEnumerable ItemsSource
         {
             get { return _itemsSource; }
-            set { SetItemsSource(value); }
+            set { SetItemsSource(value, true); }
         }
 
         #endregion
@@ -86,11 +86,17 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
+        protected override void ControllerOnDispose(object sender, EventArgs eventArgs)
+        {
+            SetItemsSource(null, false);
+            base.ControllerOnDispose(sender, eventArgs);
+        }
+
         #endregion
 
         #region Methods
 
-        protected virtual void SetItemsSource(IEnumerable value)
+        protected virtual void SetItemsSource(IEnumerable value, bool reload)
         {
             if (ReferenceEquals(value, _itemsSource))
                 return;
@@ -107,7 +113,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (notifyCollectionChanged != null)
                     notifyCollectionChanged.CollectionChanged += _weakHandler;
             }
-            ReloadData();
+            if (reload)
+                ReloadData();
         }
 
         protected virtual void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)

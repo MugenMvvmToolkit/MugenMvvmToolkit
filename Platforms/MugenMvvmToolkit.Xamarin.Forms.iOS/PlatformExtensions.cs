@@ -120,10 +120,9 @@ namespace MugenMvvmToolkit
                 view.Dispose();
         }
 
-        internal static bool IsAlive([NotNull] this INativeObject item)
+        internal static bool IsAlive([CanBeNull] this INativeObject item)
         {
-            Should.NotBeNull(item, "item");
-            return item.Handle != IntPtr.Zero;
+            return item != null && item.Handle != IntPtr.Zero;
         }
 
         private static void DidChangeStatusBarOrientation(object sender,

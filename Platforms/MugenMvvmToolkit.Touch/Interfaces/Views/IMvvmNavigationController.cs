@@ -21,7 +21,7 @@ using System.ComponentModel;
 
 namespace MugenMvvmToolkit.Interfaces.Views
 {
-    public interface IMvvmNavigationController : IMvvmViewController
+    public interface IMvvmNavigationController : IViewControllerView
     {
         event EventHandler<CancelEventArgs> ShouldPopViewController;
 

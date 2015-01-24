@@ -17,7 +17,6 @@
 #endregion
 
 using System;
-using System.ComponentModel;
 using System.Threading;
 using Android.App;
 using Android.Content;
@@ -65,12 +64,12 @@ namespace MugenMvvmToolkit.FragmentSupport.Views.Fragments
 
         #endregion
 
-        #region Properties
+        #region Implementation of IView
 
         /// <summary>
         ///     Gets the current <see cref="IMvvmFragmentMediator" />.
         /// </summary>
-        protected IMvvmFragmentMediator Mediator
+        public virtual IMvvmFragmentMediator Mediator
         {
             get
             {
@@ -81,10 +80,6 @@ namespace MugenMvvmToolkit.FragmentSupport.Views.Fragments
             }
         }
 
-        #endregion
-
-        #region Implementation of IView
-
         /// <summary>
         ///     Gets or sets the data context of the current view.
         /// </summary>
@@ -92,33 +87,6 @@ namespace MugenMvvmToolkit.FragmentSupport.Views.Fragments
         {
             get { return Mediator.DataContext; }
             set { Mediator.DataContext = value; }
-        }
-
-        /// <summary>
-        ///     Occurred on closing window.
-        /// </summary>
-        public event EventHandler<IWindowView, CancelEventArgs> Closing
-        {
-            add { Mediator.Closing += value; }
-            remove { Mediator.Closing -= value; }
-        }
-
-        /// <summary>
-        ///     Occurred on closed window.
-        /// </summary>
-        public event EventHandler<IWindowView, EventArgs> Canceled
-        {
-            add { Mediator.Canceled += value; }
-            remove { Mediator.Canceled -= value; }
-        }
-
-        /// <summary>
-        ///     Occurred on destroyed view.
-        /// </summary>
-        public event EventHandler<IWindowView, EventArgs> Destroyed
-        {
-            add { Mediator.Destroyed += value; }
-            remove { Mediator.Destroyed -= value; }
         }
 
         /// <summary>

@@ -82,7 +82,7 @@ namespace MugenMvvmToolkit.Models
                 if (IsInvalid)
                     return null;
                 var target = (NSObject)base.Target;
-                if (target == null || !target.IsAlive())
+                if (!target.IsAlive())
                 {
                     target = Runtime.GetNSObject(Handle);
                     base.Target = target;

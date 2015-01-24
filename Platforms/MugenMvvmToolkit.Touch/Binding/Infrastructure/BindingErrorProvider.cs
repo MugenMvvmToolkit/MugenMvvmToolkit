@@ -298,7 +298,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 target = GetEntryField(element);
 #endif
             var nativeObject = target as INativeObject;
-            if (nativeObject == null || !nativeObject.IsAlive())
+            if (!nativeObject.IsAlive())
                 return;
             var uiView = target as UIView;
             if (uiView != null && ErrorBorderWidth > 0)

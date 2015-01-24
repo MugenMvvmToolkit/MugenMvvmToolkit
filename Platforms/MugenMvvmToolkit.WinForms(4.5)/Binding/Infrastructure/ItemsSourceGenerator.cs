@@ -53,6 +53,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 #if WINFORMS
             ListenDisposeEvent(view as IComponent);
             _isTabControl = view is TabControl;
+#elif TOUCH
+            TryListenController(view as INativeObject);
 #endif
             _view = view;
             _itemTemplateMember = BindingServiceProvider

@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.Views.Activities
         /// <summary>
         ///     Gets the current <see cref="IMvvmActivityMediator" />.
         /// </summary>
-        public IMvvmActivityMediator Mediator
+        public virtual IMvvmActivityMediator Mediator
         {
             get
             {

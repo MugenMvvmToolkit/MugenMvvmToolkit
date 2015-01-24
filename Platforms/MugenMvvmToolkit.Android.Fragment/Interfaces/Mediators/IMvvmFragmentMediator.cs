@@ -135,6 +135,11 @@ namespace MugenMvvmToolkit.FragmentSupport.Interfaces.Mediators
         event EventHandler<Fragment, EventArgs> DataContextChanged;
 
         /// <summary>
+        ///     Occurred on destroyed fragment.
+        /// </summary>
+        event EventHandler<Fragment, EventArgs> Destroyed;
+
+        /// <summary>
         ///     Occurred on closing window.
         /// </summary>
         event EventHandler<IWindowView, CancelEventArgs> Closing;
@@ -143,10 +148,5 @@ namespace MugenMvvmToolkit.FragmentSupport.Interfaces.Mediators
         ///     Occurred on closed window.
         /// </summary>
         event EventHandler<IWindowView, EventArgs> Canceled;
-
-        /// <summary>
-        ///     Occurred on destroyed view.
-        /// </summary>
-        event EventHandler<IWindowView, EventArgs> Destroyed;
     }
 }

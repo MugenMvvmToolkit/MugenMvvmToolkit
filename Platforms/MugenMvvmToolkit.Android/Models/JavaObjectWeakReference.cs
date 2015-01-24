@@ -56,7 +56,7 @@ namespace MugenMvvmToolkit.Models
                 var target = (IJavaObject)base.Target;
                 if (target != null)
                 {
-                    if (target.IsAlive())
+                    if (target.Handle != IntPtr.Zero)
                     {
                         var activity = target as IActivityView;
                         if (activity == null && !_invalidContext)

@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         internal readonly static IAttachedBindingMemberInfo<object, ICollectionViewManager> CollectionViewManagerMember;
         internal static readonly IAttachedBindingMemberInfo<object, bool?> AutoDisposeMember;
-
+        
         private static readonly EventHandler<UITabBarSelectionEventArgs> SelecectedControllerChangedHandler;
         private readonly static IAttachedBindingMemberInfo<object, IContentViewManager> ContentViewManagerMember;
         private readonly static IAttachedBindingMemberInfo<object, IEnumerable> ItemsSourceMember;
@@ -68,7 +68,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             CollectionViewManagerMember = AttachedBindingMember.CreateAutoProperty<object, ICollectionViewManager>("CollectionViewManager");
             ContentViewManagerMember = AttachedBindingMember.CreateAutoProperty<object, IContentViewManager>("ContentViewManager");
             AutoDisposeMember = AttachedBindingMember.CreateAutoProperty<object, bool?>("AutoDispose");
-
+            
             //UIView
             ContentMember = AttachedBindingMember.CreateAutoProperty<UIView, object>(AttachedMemberConstants.Content, ContentChanged);
             ContentTemplateMember = AttachedBindingMember.CreateAutoProperty<UIView, IDataTemplateSelector>(AttachedMemberConstants.ContentTemplate, ContentTemplateChanged);
@@ -176,10 +176,10 @@ namespace MugenMvvmToolkit.Binding.Modules
             //Object
             memberProvider.Register(AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.ItemsSource,
                     GetObjectItemsSource, SetObjectItemsSource, ObserveObjectItemsSource));
-
             memberProvider.Register(CollectionViewManagerMember);
             memberProvider.Register(ContentViewManagerMember);
             memberProvider.Register(AutoDisposeMember);
+
             var itemTemplateMember = AttachedBindingMember.CreateAutoProperty<object, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplate);
             memberProvider.Register(itemTemplateMember);
             memberProvider.Register(typeof(object), AttachedMemberConstants.ItemTemplateSelector, itemTemplateMember, true);

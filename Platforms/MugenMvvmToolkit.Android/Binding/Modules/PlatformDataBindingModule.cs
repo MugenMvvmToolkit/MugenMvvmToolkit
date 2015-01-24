@@ -222,7 +222,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             CollectionViewManagerMember = AttachedBindingMember.CreateAutoProperty<Object, ICollectionViewManager>("CollectionViewManager");
             ContentViewManagerMember = AttachedBindingMember.CreateAutoProperty<Object, IContentViewManager>("ContentViewManager");
             AutoDisposeMember = AttachedBindingMember.CreateAutoProperty<object, bool?>("AutoDispose");
-
+            
             //Menu
             MenuItemsSourceMember = AttachedBindingMember.CreateAutoProperty<IMenu, IEnumerable>(AttachedMemberConstants.ItemsSource, MenuItemsSourceChanged);
             IsCheckedMenuItemMember = AttachedBindingMember.CreateNotifiableMember<IMenuItem, bool>("IsChecked",
@@ -265,7 +265,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             memberProvider.Register(CollectionViewManagerMember);
             memberProvider.Register(ContentViewManagerMember);
             memberProvider.Register(AutoDisposeMember);
-
+            
             //Dialog
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Dialog, object>("Title",
                 (dialog, args) => dialog.SetTitle(args.NewValue.ToStringSafe())));
@@ -374,12 +374,12 @@ namespace MugenMvvmToolkit.Binding.Modules
                 }));
         }
 
-        private static object GetAdapter(AdapterView item)
+        internal static object GetAdapter(AdapterView item)
         {
             return _rawAdapterMember.GetValue(item, null);
         }
 
-        private static void SetAdapter(AdapterView item, IAdapter adapter)
+        internal static void SetAdapter(AdapterView item, IAdapter adapter)
         {
             _rawAdapterMember.SetValue(item, new object[] { adapter });
         }

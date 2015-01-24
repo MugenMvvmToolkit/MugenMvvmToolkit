@@ -113,11 +113,6 @@ namespace MugenMvvmToolkit.RecyclerView.Infrastructure
             return ItemsSource.ElementAtIndex(position);
         }
 
-        public virtual int GetPosition(object value)
-        {
-            return ItemsSource.IndexOf(value);
-        }
-
         protected virtual void SetItemsSource(IEnumerable value, bool notifyDataSet)
         {
             if (ReferenceEquals(value, _itemsSource))
@@ -178,6 +173,8 @@ namespace MugenMvvmToolkit.RecyclerView.Infrastructure
         {
             ((IActivityView)sender).Mediator.Destroyed -= ActivityViewOnDestroyed;
             SetItemsSource(null, false);
+            if (ReferenceEquals(_recyclerView.GetAdapter(), this))
+                _recyclerView.SetAdapter(null);
         }
 
         #endregion

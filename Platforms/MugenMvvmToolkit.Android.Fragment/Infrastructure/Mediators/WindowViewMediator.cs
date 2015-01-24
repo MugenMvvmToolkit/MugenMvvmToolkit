@@ -32,7 +32,6 @@ using MugenMvvmToolkit.ViewModels;
 using MugenMvvmToolkit.AppCompat.Interfaces.Views;
 using Fragment = Android.Support.V4.App.Fragment;
 using FragmentManager = Android.Support.V4.App.FragmentManager;
-using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
 
 namespace MugenMvvmToolkit.AppCompat.Infrastructure.Mediators
 #else
@@ -98,9 +97,9 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         /// </summary>
         protected override void InitializeView(IWindowView windowView, IDataContext context)
         {
-            windowView.Closing += OnViewClosing;
-            windowView.Canceled += OnViewClosed;
-            windowView.Destroyed += WindowViewOnDestroyed;
+            windowView.Mediator.Closing += OnViewClosing;
+            windowView.Mediator.Canceled += OnViewClosed;
+            windowView.Mediator.Destroyed += WindowViewOnDestroyed;
         }
 
         /// <summary>
@@ -109,18 +108,18 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         /// <param name="windowView">The specified window-view to dispose.</param>
         protected override void CleanupView(IWindowView windowView)
         {
-            windowView.Closing -= OnViewClosing;
-            windowView.Canceled -= OnViewClosed;
-            windowView.Destroyed -= WindowViewOnDestroyed;
+            windowView.Mediator.Closing -= OnViewClosing;
+            windowView.Mediator.Canceled -= OnViewClosed;
+            windowView.Mediator.Destroyed -= WindowViewOnDestroyed;
         }
 
         #endregion
 
         #region Methods
 
-        private void WindowViewOnDestroyed(IWindowView sender, EventArgs args)
+        private void WindowViewOnDestroyed(Fragment sender, EventArgs args)
         {
-            sender.Destroyed -= WindowViewOnDestroyed;
+            ((IWindowView)sender).Mediator.Destroyed -= WindowViewOnDestroyed;
             UpdateView(null, false, DataContext.Empty);
         }
 

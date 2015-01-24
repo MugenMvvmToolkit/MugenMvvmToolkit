@@ -312,11 +312,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return Container is Spinner || PlatformExtensions.IsActionBar(Container);
         }
 
-
         private void ActivityViewOnDestroyed(Activity sender, EventArgs args)
         {
             ((IActivityView)sender).Mediator.Destroyed -= ActivityViewOnDestroyed;
             SetItemsSource(null, false);
+            var adapterView = _container as AdapterView;
+            if (adapterView != null && ReferenceEquals(PlatformDataBindingModule.GetAdapter(adapterView), this))
+                PlatformDataBindingModule.SetAdapter(adapterView, null);
         }
 
         #endregion

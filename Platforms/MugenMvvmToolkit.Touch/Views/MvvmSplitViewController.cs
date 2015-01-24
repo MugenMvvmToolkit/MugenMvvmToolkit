@@ -22,12 +22,11 @@ using Foundation;
 using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Models.EventArg;
 using UIKit;
 
 namespace MugenMvvmToolkit.Views
 {
-    public abstract class MvvmSplitViewController : UISplitViewController, IMvvmViewController
+    public abstract class MvvmSplitViewController : UISplitViewController, IViewControllerView
     {
         #region Fields
 
@@ -38,37 +37,37 @@ namespace MugenMvvmToolkit.Views
         #region Constructors
 
         protected MvvmSplitViewController()
-        {            
+        {
         }
 
         protected MvvmSplitViewController(NSCoder coder)
             : base(coder)
-        {            
+        {
         }
 
         protected MvvmSplitViewController(NSObjectFlag t)
             : base(t)
-        {            
+        {
         }
 
         protected MvvmSplitViewController(IntPtr handle)
             : base(handle)
-        {            
+        {
         }
 
         protected MvvmSplitViewController(string nibName, NSBundle bundle)
             : base(nibName, bundle)
-        {            
+        {
         }
 
         #endregion
 
-        #region Properties
+        #region Implementation of IViewControllerView
 
         /// <summary>
         ///     Gets the current <see cref="IMvvmViewControllerMediator" />.
         /// </summary>
-        protected IMvvmViewControllerMediator Mediator
+        public virtual IMvvmViewControllerMediator Mediator
         {
             get
             {
@@ -76,58 +75,6 @@ namespace MugenMvvmToolkit.Views
                     Interlocked.CompareExchange(ref _mediator, PlatformExtensions.MvvmViewControllerMediatorFactory(this, DataContext.Empty), null);
                 return _mediator;
             }
-        }
-
-        #endregion
-
-        #region Implementation of IMvvmViewController
-
-        public event EventHandler ViewDidLoadHandler
-        {
-            add { Mediator.ViewDidLoadHandler += value; }
-            remove { Mediator.ViewDidLoadHandler -= value; }
-        }
-
-        public event EventHandler<ValueEventArgs<bool>> ViewWillAppearHandler
-        {
-            add { Mediator.ViewWillAppearHandler += value; }
-            remove { Mediator.ViewWillAppearHandler -= value; }
-        }
-
-        public event EventHandler<ValueEventArgs<bool>> ViewDidAppearHandler
-        {
-            add { Mediator.ViewDidAppearHandler += value; }
-            remove { Mediator.ViewDidAppearHandler -= value; }
-        }
-
-        public event EventHandler<ValueEventArgs<bool>> ViewDidDisappearHandler
-        {
-            add { Mediator.ViewDidDisappearHandler += value; }
-            remove { Mediator.ViewDidDisappearHandler -= value; }
-        }
-
-        public event EventHandler<ValueEventArgs<bool>> ViewWillDisappearHandler
-        {
-            add { Mediator.ViewWillDisappearHandler += value; }
-            remove { Mediator.ViewWillDisappearHandler -= value; }
-        }
-
-        public event EventHandler<ValueEventArgs<NSCoder>> DecodeRestorableStateHandler
-        {
-            add { Mediator.DecodeRestorableStateHandler += value; }
-            remove { Mediator.DecodeRestorableStateHandler -= value; }
-        }
-
-        public event EventHandler<ValueEventArgs<NSCoder>> EncodeRestorableStateHandler
-        {
-            add { Mediator.EncodeRestorableStateHandler += value; }
-            remove { Mediator.EncodeRestorableStateHandler -= value; }
-        }
-
-        public event EventHandler DisposeHandler
-        {
-            add { Mediator.DisposeHandler += value; }
-            remove { Mediator.DisposeHandler -= value; }
         }
 
         #endregion

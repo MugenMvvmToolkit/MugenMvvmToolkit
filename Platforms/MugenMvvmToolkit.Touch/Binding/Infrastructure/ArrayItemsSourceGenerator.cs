@@ -62,6 +62,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _templateMemberInfo = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(container.GetType(), templateMemberName, false, false);
+            TryListenController(container as INativeObject);
         }
 
         #endregion

@@ -33,7 +33,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Interfaces.Views
     /// <summary>
     ///     Represent the base interface for a window view.
     /// </summary>
-    public interface IWindowView : IView
+    public interface IWindowView : IFragmentView
     {
         /// <summary>
         ///     Gets or sets the cancelable value.
@@ -49,20 +49,5 @@ namespace MugenMvvmToolkit.FragmentSupport.Interfaces.Views
         ///     Dismiss the window
         /// </summary>
         void Dismiss();
-
-        /// <summary>
-        ///     Occurred on closing window.
-        /// </summary>
-        event EventHandler<IWindowView, CancelEventArgs> Closing;
-
-        /// <summary>
-        ///     Occurred on closed window.
-        /// </summary>
-        event EventHandler<IWindowView, EventArgs> Canceled;
-
-        /// <summary>
-        ///     Occurred on destroyed view.
-        /// </summary>
-        event EventHandler<IWindowView, EventArgs> Destroyed;
     }
 }

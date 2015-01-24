@@ -140,7 +140,7 @@ namespace MugenMvvmToolkit.Binding.Models
         private void Raise(out UIView view)
         {
             view = GetSource();
-            if (view == null || !view.IsAlive())
+            if (!view.IsAlive())
             {
                 view = null;
                 return;

@@ -63,6 +63,7 @@
     <Compile Include="Infrastructure\Mediators\MvvmFragmentMediator.cs" />
     <Compile Include="Infrastructure\Mediators\WindowViewMediator.cs" />
     <Compile Include="Interfaces\Mediators\IMvvmFragmentMediator.cs" />
+    <Compile Include="Interfaces\Views\IFragmentView.cs" />
     <Compile Include="Interfaces\Views\IWindowView.cs" />
     <Compile Include="InternalExtensionsFragment.cs" />
     <Compile Include="Modules\FragmentDataBindingModule.cs" />

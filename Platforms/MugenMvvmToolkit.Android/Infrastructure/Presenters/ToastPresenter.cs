@@ -19,6 +19,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Android.App;
 using Android.Content;
 using Android.Views;
 using Android.Widget;
@@ -136,6 +137,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         private const string ToastWrapperMember = "!@!ToastWrap@$2";
         private const string DisposedEventHandler = "3w4toasthandler3w5rews";
 #if !XAMARIN_FORMS
+        private static readonly EventHandler<Activity, EventArgs> ActivityOnDestroyedDelegate = ActivityOnDestroyed;
         private readonly INavigationProvider _navigationProvider;
 #endif
         private readonly IThreadManager _threadManager;
@@ -145,7 +147,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         #region Constructors
 
 #if XAMARIN_FORMS
-                /// <summary>
+        /// <summary>
         ///     Initializes a new instance of the <see cref="ToastPresenter" /> class.
         /// </summary>
         public ToastPresenter([NotNull] IThreadManager threadManager)
@@ -227,9 +229,9 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             var activityView = ctx as IActivityView;
             if (activityView == null)
                 return;
-            ServiceProvider.AttachedValueProvider.GetOrAdd(activityView, DisposedEventHandler, (view1, o) =>
+            ServiceProvider.AttachedValueProvider.GetOrAdd(activityView, DisposedEventHandler, (v, o) =>
             {
-                view1.Mediator.Destroyed += ActivityOnDestroyed;
+                v.Mediator.Destroyed += ActivityOnDestroyedDelegate;
                 return DisposedEventHandler;
             }, null);
 #endif
@@ -247,7 +249,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 BindingServiceProvider.ContextManager.GetBindingContext(view).Value = content;
             return view;
 #endif
-
         }
 
         private static void ActivityOnDestroyed(object sender, EventArgs eventArgs)

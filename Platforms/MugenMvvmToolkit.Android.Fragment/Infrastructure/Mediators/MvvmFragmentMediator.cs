@@ -208,9 +208,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         public override void OnDestroy(Action baseOnDestroy)
         {
             Tracer.Info("OnDestroy fragment({0})", Target);
-            var handler = Destroyed;
-            if (handler != null && Target is IWindowView)
-                handler((IWindowView)Target, EventArgs.Empty);
+            RaiseDestroy();
 
             _view.ClearBindingsHierarchically(true, true);
             _view = null;
@@ -337,9 +335,9 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         public virtual event EventHandler<IWindowView, EventArgs> Canceled;
 
         /// <summary>
-        ///     Occurred on destroyed view.
+        ///     Occurred on destroyed fragment.
         /// </summary>
-        public virtual event EventHandler<IWindowView, EventArgs> Destroyed;
+        public virtual event EventHandler<Fragment, EventArgs> Destroyed;
 
         #endregion
 
@@ -374,6 +372,16 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         #endregion
 
         #region Methods
+
+        private void RaiseDestroy()
+        {
+            var fragment = Target;
+            if (fragment == null)
+                return;
+            var handler = Destroyed;
+            if (handler != null)
+                handler(fragment, EventArgs.Empty);
+        }
 
         private bool OnClosing()
         {
