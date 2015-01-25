@@ -17,8 +17,6 @@
 #endregion
 
 using System;
-using Android.App;
-using Android.OS;
 using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -29,10 +27,10 @@ using MugenMvvmToolkit.AppCompat.Infrastructure.Mediators;
 using MugenMvvmToolkit.AppCompat.Interfaces.Mediators;
 using FragmentManager = Android.Support.V4.App.FragmentManager;
 using Fragment = Android.Support.V4.App.Fragment;
-using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
 
 namespace MugenMvvmToolkit.AppCompat
 #else
+using Android.App;
 using MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators;
 using MugenMvvmToolkit.FragmentSupport.Interfaces.Mediators;
 
@@ -58,6 +56,7 @@ namespace MugenMvvmToolkit.FragmentSupport
         {
             FragmentViewMember = AttachedBindingMember.CreateAutoProperty<View, Fragment>("!$fragment");
             _mvvmFragmentMediatorFactory = MvvmFragmentMediatorFactoryMethod;
+            AutoDisposeFragmentDefault = false;
         }
 
         #endregion
@@ -77,6 +76,16 @@ namespace MugenMvvmToolkit.FragmentSupport
                 _mvvmFragmentMediatorFactory = value;
             }
         }
+
+        /// <summary>
+        ///     Gets or sets the default value for the attached property AutoDispose for Activity.
+        /// </summary>
+        public static bool? AutoDisposeFragmentDefault { get; set; }
+
+        /// <summary>
+        ///     Gets or sets that is responsible for cache view in fragment.
+        /// </summary>
+        public static bool CacheFragmentViewDefault { get; set; }
 
         #endregion
 

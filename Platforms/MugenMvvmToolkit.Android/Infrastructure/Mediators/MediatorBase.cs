@@ -38,6 +38,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
     {
         #region Fields
 
+        internal const string IgnoreStateKey = "#$@noState";
         // ReSharper disable StaticFieldInGenericType
         private static readonly Dictionary<Guid, object> ContextCache;
         private static readonly string StateKey;
@@ -69,7 +70,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         protected MediatorBase([NotNull] TTarget target)
         {
             Should.NotBeNull(target, "target");
-            Target = target;            
+            Target = target;
         }
 
         #endregion
@@ -149,16 +150,21 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             if (viewModel != null)
             {
                 viewModel.Disposed += ClearCacheOnDisposeDelegate;
+                outState.PutString(ViewModelTypeNameKey, viewModel.GetType().AssemblyQualifiedName);
+
+                bool saved = false;
                 object currentStateManager;
                 if (!viewModel.Settings.Metadata.TryGetData(ViewModelConstants.StateManager, out currentStateManager) || currentStateManager == this)
                 {
                     bool data;
                     if (!viewModel.Settings.Metadata.TryGetData(ViewModelConstants.StateNotNeeded, out data) || !data)
                     {
-                        outState.PutString(ViewModelTypeNameKey, viewModel.GetType().AssemblyQualifiedName);
                         PreserveViewModel(viewModel, outState);
+                        saved = true;
                     }
                 }
+                if (!saved)
+                    outState.PutString(IgnoreStateKey, null);
             }
             baseOnSaveInstanceState(outState);
         }
@@ -182,7 +188,10 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             bundle.Remove(ViewModelTypeNameKey);
             var vmType = Type.GetType(vmTypeName, false);
             if (vmType != null && (cacheDataContext == null || !cacheDataContext.GetType().Equals(vmType)))
-                cacheDataContext = RestoreViewModel(vmType, bundle);
+            {
+                if (!bundle.ContainsKey(IgnoreStateKey))
+                    cacheDataContext = RestoreViewModel(vmType, bundle);
+            }
             if (!ReferenceEquals(DataContext, cacheDataContext) && Target != null)
                 RestoreContext(Target, cacheDataContext);
         }

@@ -170,19 +170,34 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
         private void ActivityViewOnDestroyed(Activity sender, EventArgs args)
         {
             ((IActivityView)sender).Mediator.Destroyed -= ActivityViewOnDestroyed;
-            if (ItemsSource != null)
+            if (ReferenceEquals(_viewPager.Adapter, this))
             {
-                foreach (var item in ItemsSource)
+                _viewPager.Adapter = null;
+                if (ItemsSource != null)
                 {
-                    var value = ServiceProvider.AttachedValueProvider.GetValue<Object>(item, ContentPath, false);
-                    if (value != null)
-                        DestroyItem(_viewPager, PositionNone, value);
+                    foreach (var item in ItemsSource)
+                    {
+                        if (item != null)
+                            ServiceProvider.AttachedValueProvider.Clear(item, ContentPath);
+                    }
                 }
-                FinishUpdate(_viewPager);
+            }
+            else
+            {
+                if (ItemsSource != null)
+                {
+                    foreach (var item in ItemsSource)
+                    {
+                        if (item == null)
+                            continue;
+                        var value = ServiceProvider.AttachedValueProvider.GetValue<Object>(item, ContentPath, false);
+                        if (value != null)
+                            DestroyItem(_viewPager, PositionNone, value);
+                    }
+                    FinishUpdate(_viewPager);
+                }
             }
             SetItemsSource(null, false);
-            if (ReferenceEquals(_viewPager.Adapter, this))
-                _viewPager.Adapter = null;
         }
 
         #endregion
@@ -282,7 +297,7 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
             var fragment = @object as Fragment;
             if (fragment != _currentPrimaryItem)
             {
-                if (_currentPrimaryItem != null)
+                if (_currentPrimaryItem.IsAlive())
                 {
                     _currentPrimaryItem.SetMenuVisibility(false);
                     _currentPrimaryItem.UserVisibleHint = false;

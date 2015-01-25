@@ -307,6 +307,11 @@ namespace MugenMvvmToolkit
         public static bool AutoDisposeDefault { get; set; }
 
         /// <summary>
+        ///     Gets or sets the default value for the attached property AutoDispose for Activity.
+        /// </summary>
+        public static bool? AutoDisposeActivityDefault { get; set; }
+
+        /// <summary>
         ///     Gets or sets the delegate that allows to handle view creation.
         /// </summary>
         [CanBeNull]
@@ -630,7 +635,7 @@ namespace MugenMvvmToolkit
 
         internal static WeakReference CreateWeakReference(object item, bool trackResurrection)
         {
-            var obj = item as IJavaObject;
+            var obj = item as Object;
             if (obj == null)
             {
                 var reference = new WeakReference(item, trackResurrection);

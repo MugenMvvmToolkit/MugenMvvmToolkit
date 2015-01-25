@@ -99,7 +99,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Modules
                 var fragment = oldValue as Fragment;
                 if (fragment == null)
                     baseAction(generator, oldValue, newValue, true, false);
-                else
+                else if (fragment.IsAlive())
                 {
                     fragmentManager = generator.TabHost.GetFragmentManager();
                     if (fragmentManager != null)

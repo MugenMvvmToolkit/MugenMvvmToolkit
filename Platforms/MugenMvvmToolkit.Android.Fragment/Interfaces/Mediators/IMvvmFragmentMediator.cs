@@ -50,6 +50,11 @@ namespace MugenMvvmToolkit.FragmentSupport.Interfaces.Mediators
         object DataContext { get; set; }
 
         /// <summary>
+        ///     Gets or sets that is responsible for cache view in fragment.
+        /// </summary>
+        bool CacheFragmentView { get; set; }
+
+        /// <summary>
         ///     Called when a fragment is first attached to its activity.
         /// </summary>
         void OnAttach([NotNull]Activity activity, [NotNull] Action<Activity> baseOnAttach);
@@ -74,6 +79,11 @@ namespace MugenMvvmToolkit.FragmentSupport.Interfaces.Mediators
         ///     Called immediately after <c>OnCreateView(Android.Views.LayoutInflater, Android.Views.ViewGroup, Android.Views.ViewGroup)</c> has returned, but before any saved state has been restored in to the view.
         /// </summary>
         void OnViewCreated([NotNull]View view, Bundle savedInstanceState, [NotNull] Action<View, Bundle> baseOnViewCreated);
+
+        /// <summary>
+        ///     Called when the view previously created by <c>OnCreateView</c> has been detached from the fragment.
+        /// </summary>
+        void OnDestroyView([NotNull]Action baseOnDestroyView);
 
         /// <summary>
         ///     Called when the fragment is no longer in use.

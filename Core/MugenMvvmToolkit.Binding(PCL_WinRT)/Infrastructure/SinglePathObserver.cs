@@ -22,13 +22,14 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
     /// <summary>
     ///     Represents the observer that uses the single path member to observe.
     /// </summary>
-    public sealed class SinglePathObserver : ObserverBase, IEventListener
+    public sealed class SinglePathObserver : ObserverBase, IEventListener, IHasWeakReference
     {
         #region Nested types
 
@@ -112,6 +113,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Fields
 
         private readonly bool _ignoreAttachedMembers;
+        private readonly WeakReference _ref;
         private IDisposable _weakEventListener;
         private IBindingPathMembers _pathMembers;
 
@@ -128,6 +130,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Should.BeSupported(path.IsSingle, "The SinglePathObserver supports only single path members.");
             _ignoreAttachedMembers = ignoreAttachedMembers;
             _pathMembers = UnsetBindingPathMembers.Instance;
+            _ref = ServiceProvider.WeakReferenceFactory(this, true);
             Update();
         }
 
@@ -194,12 +197,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #endregion
 
-        #region Implementation of IEventListener
-
-        bool IEventListener.IsAlive
-        {
-            get { return IsAlive; }
-        }
+        #region Implementation of interfaces
 
         bool IEventListener.IsWeak
         {
@@ -210,6 +208,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             RaiseValueChanged(ValueChangedEventArgs.TrueEventArgs);
             return true;
+        }
+
+        WeakReference IHasWeakReference.WeakReference
+        {
+            get { return _ref; }
         }
 
         #endregion

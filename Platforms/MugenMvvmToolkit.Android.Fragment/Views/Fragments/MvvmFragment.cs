@@ -120,6 +120,11 @@ namespace MugenMvvmToolkit.FragmentSupport.Views.Fragments
             return Mediator.OnCreateView(_viewId, inflater, container, savedInstanceState, base.OnCreateView);
         }
 
+        public override void OnDestroyView()
+        {
+            Mediator.OnDestroyView(base.OnDestroyView);
+        }
+
         public override void OnDestroy()
         {
             Mediator.OnDestroy(base.OnDestroy);

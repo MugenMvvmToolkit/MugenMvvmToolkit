@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.Models
     ///     Represents the base class which adds support <see cref="INotifyPropertyChanged" />.
     /// </summary>
     [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable]
-    public abstract class NotifyPropertyChangedBase : ISuspendNotifications
+    public abstract class NotifyPropertyChangedBase : ISuspendNotifications, IHasWeakReference
     {
         #region Fields
 
@@ -45,6 +45,9 @@ namespace MugenMvvmToolkit.Models
 
         [XmlIgnore, NonSerialized]
         private int _suspendCount;
+
+        [XmlIgnore, NonSerialized]
+        private WeakReference _ref;
 
         #endregion
 
@@ -273,6 +276,23 @@ namespace MugenMvvmToolkit.Models
             if (Interlocked.Increment(ref _suspendCount) == 1)
                 OnPropertyChanged("IsNotificationsSuspended");
             return WeakActionToken.Create(this, @base => @base.EndSuspendNotifications());
+        }
+
+        #endregion
+
+        #region Implementation of IHasWeakReference
+
+        /// <summary>
+        ///     Gets the <see cref="WeakReference" /> of current object.
+        /// </summary>
+        WeakReference IHasWeakReference.WeakReference
+        {
+            get
+            {
+                if (_ref == null)
+                    _ref = ServiceProvider.WeakReferenceFactory(this, true);
+                return _ref;
+            }
         }
 
         #endregion

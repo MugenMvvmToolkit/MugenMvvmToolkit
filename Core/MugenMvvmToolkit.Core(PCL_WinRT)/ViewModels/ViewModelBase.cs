@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.ViewModels
     ///     Represents the base class for all view models.
     /// </summary>
     [BaseViewModel(Priority = 9)]
-    public abstract class ViewModelBase : NotifyPropertyChangedBase, IViewModel, IHandler<object>, IHasWeakReference
+    public abstract class ViewModelBase : NotifyPropertyChangedBase, IViewModel, IHandler<object>
     {
         #region Fields
 
@@ -52,7 +52,6 @@ namespace MugenMvvmToolkit.ViewModels
         private IIocContainer _iocContainer;
         private IViewModelProvider _viewModelProvider;
         private IThreadManager _threadManager;
-        private WeakReference _weakReference;
         private object _busyMessage;
 
         private int _state;
@@ -380,19 +379,6 @@ namespace MugenMvvmToolkit.ViewModels
             if (!ReferenceEquals(sender, this))
                 HandleInternal(sender, message);
             OnHandle(sender, message);
-        }
-
-        /// <summary>
-        ///     Gets the <see cref="System.WeakReference" /> of current object.
-        /// </summary>
-        WeakReference IHasWeakReference.WeakReference
-        {
-            get
-            {
-                if (_weakReference == null)
-                    _weakReference = ServiceProvider.WeakReferenceFactory(this, true);
-                return _weakReference;
-            }
         }
 
         #endregion

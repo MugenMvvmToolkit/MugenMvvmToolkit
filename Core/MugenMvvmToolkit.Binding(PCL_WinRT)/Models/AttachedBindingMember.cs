@@ -653,7 +653,13 @@ namespace MugenMvvmToolkit.Binding.Models
             IEventListener arg3)
         {
             string eventName = ((IAttachedBindingMemberInternal)member).MemberChangeEventName;
-            return BindingServiceProvider.WeakEventManager.TrySubscribe(source, eventName, arg3);
+            var eventMember = BindingServiceProvider.MemberProvider.GetBindingMember(source.GetType(), eventName, false, false);
+            if (eventMember == null)
+            {
+                Tracer.Warn("The event-member '{0}' on type '{1}' was not found", eventName, source.GetType());
+                return null;
+            }
+            return (IDisposable)eventMember.SetValue(source, new object[] { arg3 });
         }
 
         private static T UpdateType<T>(this T member, Type type)

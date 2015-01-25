@@ -184,7 +184,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private readonly LastMemberListener _lastMemberListener;
 
         private IBindingPathMembers _members;
-        private readonly WeakReference _selfReference;
+        private readonly WeakReference _ref;
 
         #endregion
 
@@ -200,8 +200,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _listeners = new List<IDisposable>(path.Parts.Count - 1);
             _ignoreAttachedMembers = ignoreAttachedMembers;
             _members = UnsetBindingPathMembers.Instance;
-            _selfReference = ServiceProvider.WeakReferenceFactory(this, true);
-            _lastMemberListener = new LastMemberListener(_selfReference);
+            _ref = ServiceProvider.WeakReferenceFactory(this, true);
+            _lastMemberListener = new LastMemberListener(_ref);
             Update();
         }
 
@@ -236,7 +236,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                         var observer = TryObserveMember(source, pathMember, true);
                         if (observer != null)
                             _listeners.Add(observer);
-                        _members = new MultiBindingPathMembers(_selfReference, source, Path, new[] { pathMember });
+                        _members = new MultiBindingPathMembers(_ref, source, Path, new[] { pathMember });
                         return;
                     }
                 }
@@ -264,7 +264,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 }
 
                 _members = allMembersAvailable
-                    ? new MultiBindingPathMembers(_selfReference, source, Path, members)
+                    ? new MultiBindingPathMembers(_ref, source, Path, members)
                     : UnsetBindingPathMembers.Instance;
             }
             catch (Exception)
@@ -326,11 +326,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of interfaces
 
-        bool IEventListener.IsAlive
-        {
-            get { return IsAlive; }
-        }
-
         bool IEventListener.IsWeak
         {
             get { return false; }
@@ -344,7 +339,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         WeakReference IHasWeakReference.WeakReference
         {
-            get { return _selfReference; }
+            get { return _ref; }
         }
 
         #endregion

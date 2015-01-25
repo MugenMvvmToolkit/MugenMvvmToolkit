@@ -27,7 +27,7 @@ namespace MugenMvvmToolkit.Interfaces.Models
     public interface IHasWeakReference
     {
         /// <summary>
-        ///     Gets the <see cref="System.WeakReference" /> of current object.
+        ///     Gets the <see cref="WeakReference" /> of current object.
         /// </summary>
         [NotNull]
         WeakReference WeakReference { get; }

@@ -103,6 +103,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         public MvvmFragmentMediator([NotNull] Fragment target)
             : base(target)
         {
+            CacheFragmentView = FragmentExtensions.CacheFragmentViewDefault;
         }
 
         #endregion
@@ -116,6 +117,11 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         {
             get { return Target; }
         }
+
+        /// <summary>
+        ///     Gets or sets that is responsible for cache view in fragment.
+        /// </summary>
+        public bool CacheFragmentView { get; set; }
 
         /// <summary>
         ///     Called when a fragment is first attached to its activity.
@@ -148,12 +154,19 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         public virtual View OnCreateView(int? viewId, LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState, Func<LayoutInflater, ViewGroup, Bundle, View> baseOnCreateView)
         {
+            if (CacheFragmentView && _view != null)
+            {
+                var parent = _view.Parent as ViewGroup;
+                if (parent != null)
+                    parent.RemoveView(_view);
+                return _view;
+            }
             _view.ClearBindingsHierarchically(true, true);
             if (viewId.HasValue)
             {
                 _view = inflater.CreateBindableView(viewId.Value, container, false).Item1;
                 FragmentExtensions.FragmentViewMember.SetValue(_view, Target);
-                BindingServiceProvider.ContextManager.GetBindingContext(_view).Value = DataContext;
+                ViewManager.SetDataContext(_view, DataContext);
                 return _view;
             }
             return baseOnCreateView(inflater, container, savedInstanceState);
@@ -174,6 +187,13 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
                 if (!viewModel.Settings.Metadata.Contains(ViewModelConstants.StateNotNeeded) && !viewModel.Settings.Metadata.Contains(ViewModelConstants.StateManager))
                     viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateManager, this);
                 viewModel.Settings.Metadata.AddOrUpdate(PlatformExtensions.CurrentFragment, Target);
+            }
+            else if (DataContext == null && savedInstanceState != null && savedInstanceState.ContainsKey(IgnoreStateKey))
+            {
+                Target.FragmentManager
+                    .BeginTransaction()
+                    .Remove(Target)
+                    .Commit();
             }
         }
 
@@ -200,6 +220,19 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
                 }
             }
             baseOnViewCreated(view, savedInstanceState);
+        }
+
+        /// <summary>
+        ///     Called when the view previously created by <c>OnCreateView</c> has been detached from the fragment.
+        /// </summary>
+        public void OnDestroyView(Action baseOnDestroyView)
+        {
+            baseOnDestroyView();
+            if (!CacheFragmentView)
+            {
+                _view.ClearBindingsHierarchically(true, true);
+                _view = null;
+            }
         }
 
         /// <summary>
@@ -234,8 +267,6 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
             }
 
             base.OnDestroy(baseOnDestroy);
-            Target.ClearBindings(false, true);
-            Target = null;
             Closing = null;
             Canceled = null;
             Destroyed = null;
@@ -247,6 +278,8 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         public virtual void OnDetach(Action baseOnDetach)
         {
             baseOnDetach();
+            Target.ClearBindings(false, true, FragmentExtensions.AutoDisposeFragmentDefault);
+            Target = null;
         }
 
         /// <summary>
@@ -288,12 +321,11 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         public virtual void OnStart(Action baseOnStart)
         {
             baseOnStart();
-            if (Target != null)
-            {
-                var view = Target.View;
-                if (view != null)
-                    view.ListenParentChange();
-            }
+            if (Target == null)
+                return;
+            var view = Target.View;
+            if (view != null)
+                view.ListenParentChange();
         }
 
         /// <summary>
@@ -349,14 +381,11 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         protected override void OnDataContextChanged(object oldValue, object newValue)
         {
             base.OnDataContextChanged(oldValue, newValue);
-            if (Target != null)
-            {
-                View view = Target.View;
-                if (view != null)
-                    BindingServiceProvider.ContextManager
-                        .GetBindingContext(view)
-                        .Value = DataContext;
-            }
+            if (Target == null)
+                return;
+            View view = Target.View;
+            if (view != null)
+                ViewManager.SetDataContext(view, DataContext);
         }
 
         protected override IDataContext CreateRestorePresenterContext(Fragment target)

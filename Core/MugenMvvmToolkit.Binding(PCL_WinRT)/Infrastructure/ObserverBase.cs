@@ -90,14 +90,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Properties
 
         /// <summary>
-        /// Gets the original source object.
-        /// </summary>
-        protected object OriginalSource
-        {
-            get { return _sourceValue; }
-        }
-
-        /// <summary>
         ///     Gets an indication whether the object referenced by the current <see cref="ObserverBase" /> object has
         ///     been garbage collected.
         /// </summary>
@@ -105,7 +97,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         ///     true if the object referenced by the current <see cref="ObserverBase" /> object has not been garbage
         ///     collected and is still accessible; otherwise, false.
         /// </returns>
-        protected bool IsAlive
+        public bool IsAlive
         {
             get
             {
@@ -113,6 +105,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     return ((ISourceValue)_sourceValue).IsAlive;
                 return ((WeakReference)_sourceValue).Target != null;
             }
+        }
+
+        /// <summary>
+        /// Gets the original source object.
+        /// </summary>
+        protected object OriginalSource
+        {
+            get { return _sourceValue; }
         }
 
         #endregion

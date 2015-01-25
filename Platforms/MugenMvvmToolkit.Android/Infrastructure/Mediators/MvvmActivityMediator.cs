@@ -181,7 +181,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 _menuInflater = null;
             }
             base.OnDestroy(baseOnDestroy);
-            Target.ClearBindings(false, true);
+            Target.ClearBindings(false, true, PlatformExtensions.AutoDisposeActivityDefault);
             Target = null;
             OptionsItemSelected = null;
             ConfigurationChanged = null;

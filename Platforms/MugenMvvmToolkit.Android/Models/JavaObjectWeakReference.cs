@@ -17,9 +17,6 @@
 #endregion
 
 using System;
-using Android.Runtime;
-using Android.Views;
-using MugenMvvmToolkit.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Models
 {
@@ -28,16 +25,16 @@ namespace MugenMvvmToolkit.Models
     {
         #region Fields
 
-        private bool _invalidContext;
+        private readonly Java.Lang.Ref.WeakReference _nativeRef;
 
         #endregion
 
         #region Constructors
 
-        public JavaObjectWeakReference(IJavaObject item)
+        public JavaObjectWeakReference(Java.Lang.Object item)
             : base(item, true)
         {
-
+            _nativeRef = new Java.Lang.Ref.WeakReference(item);
         }
 
         #endregion
@@ -53,32 +50,20 @@ namespace MugenMvvmToolkit.Models
         {
             get
             {
-                var target = (IJavaObject)base.Target;
-                if (target != null)
+                var target = (Java.Lang.Object)base.Target;
+                if (target == null)
+                    return null;
+                if (target.Handle == IntPtr.Zero)
                 {
-                    if (target.Handle != IntPtr.Zero)
-                    {
-                        var activity = target as IActivityView;
-                        if (activity == null && !_invalidContext)
-                        {
-                            var view = target as View;
-                            try
-                            {
-                                if (view != null && view.Context != null)
-                                    activity = view.Context.GetActivity() as IActivityView;
-                            }
-                            catch
-                            {
-                                _invalidContext = true;
-                            }
-                        }
-                        if (activity == null || !activity.Mediator.IsDestroyed)
-                            return target;
-                    }
                     base.Target = null;
                     return null;
                 }
-                return null;
+                if (_nativeRef.Get() == null)
+                {
+                    base.Target = null;
+                    return null;
+                }
+                return target;
             }
             set { throw new NotSupportedException(); }
         }

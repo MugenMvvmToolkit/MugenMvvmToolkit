@@ -29,8 +29,8 @@ using MugenMvvmToolkit.Interfaces.Views;
 using System.ComponentModel;
 #elif TOUCH
 using ObjCRuntime;
-#endif
 using MugenMvvmToolkit.Interfaces.Views;
+#endif
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {

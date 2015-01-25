@@ -24,7 +24,6 @@ using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 #if APPCOMPAT
-using Android.Support.V7.App;
 using MugenMvvmToolkit.AppCompat.Models;
 using MugenMvvmToolkit.AppCompat.Modules;
 using MugenMvvmToolkit.AppCompat.Views;
