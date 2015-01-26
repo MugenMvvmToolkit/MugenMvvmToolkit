@@ -48,12 +48,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private static readonly ISourceValue EmptySource;
 
         private readonly bool _isSourceValue;
-        private object _sourceValue;
         private readonly IBindingPath _path;
 
-        private int _state;
+        private object _sourceValue;
         private Exception _observationException;
         private IHandler<ValueChangedEventArgs> _listener;
+        private int _state;
 
         #endregion
 

@@ -71,6 +71,7 @@ namespace MugenMvvmToolkit.Test
             ServiceProvider.Initialize(IocContainer, PlatformInfo.UnitTest);
             ViewModelProvider = new ViewModelProvider(IocContainer);
             OnInit();
+            ServiceProvider.Initialize(IocContainer, PlatformInfo.UnitTest);
         }
 
         protected T GetViewModel<T>() where T : IViewModel, new()

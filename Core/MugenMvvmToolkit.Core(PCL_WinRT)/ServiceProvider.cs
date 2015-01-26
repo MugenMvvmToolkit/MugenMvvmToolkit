@@ -219,7 +219,7 @@ namespace MugenMvvmToolkit
             get
             {
                 if (_reflectionManager == null)
-                    Interlocked.CompareExchange(ref _reflectionManager, new ExpressionReflectionManager(), null);
+                    _reflectionManager = new ExpressionReflectionManager();
                 return _reflectionManager;
             }
             set { _reflectionManager = value; }
@@ -288,13 +288,21 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Gets or sets the default <see cref="IViewModelProvider" />.
         /// </summary>
-        [CanBeNull]
+        [NotNull]
         public static IViewModelProvider ViewModelProvider
         {
-            get { return _viewModelProvider; }
+            get
+            {
+                if (_viewModelProvider == null)
+                    _viewModelProvider = new ViewModelProvider(_iocContainer);
+                return _viewModelProvider;
+            }
             set { _viewModelProvider = value; }
         }
 
+        /// <summary>
+        ///     Gets or sets the default <see cref="IEventAggregator" />.
+        /// </summary>
         [NotNull]
         public static IEventAggregator EventAggregator
         {

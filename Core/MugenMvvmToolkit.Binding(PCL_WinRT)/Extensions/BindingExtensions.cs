@@ -418,6 +418,28 @@ namespace MugenMvvmToolkit.Binding
         /// <summary>
         ///     Gets the value of binding member.
         /// </summary>
+        public static object GetMemberValue([NotNull] this IBindingMemberProvider memberProvider, [NotNull] object item,
+            [NotNull] string path, object[] args = null)
+        {
+            Should.NotBeNull(memberProvider, "memberProvider");
+            Should.NotBeNull(item, "item");
+            return memberProvider.GetBindingMember(item.GetType(), path, false, true).GetValue(item, args);
+        }
+
+        /// <summary>
+        ///     Sets the value of binding member.
+        /// </summary>
+        public static object SetMemberValue([NotNull] this IBindingMemberProvider memberProvider, [NotNull] object item,
+            [NotNull] string path, object[] args = null)
+        {
+            Should.NotBeNull(memberProvider, "memberProvider");
+            Should.NotBeNull(item, "item");
+            return memberProvider.GetBindingMember(item.GetType(), path, false, true).SetValue(item, args);
+        }
+
+        /// <summary>
+        ///     Gets the value of binding member.
+        /// </summary>
         public static object GetValue([CanBeNull]this BindingMemberValue memberValue, object[] args)
         {
             if (memberValue == null)

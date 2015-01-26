@@ -375,6 +375,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             viewModel.Settings.DisposeIocContainer = true;
             viewModel.Dispose();
             ((IocContainerMock)viewModel.IocContainer).IsDisposed.ShouldBeTrue();
+            viewModel.IsDisposed.ShouldBeTrue();
         }
 
         [TestMethod]
@@ -384,6 +385,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             viewModel.Settings.DisposeIocContainer = false;
             viewModel.Dispose();
             ((IocContainerMock)viewModel.IocContainer).IsDisposed.ShouldBeFalse();
+            viewModel.IsDisposed.ShouldBeTrue();
         }
 
         [TestMethod]
@@ -401,6 +403,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             viewModelBaseWithCommand.Dispose();
             command.IsDisposed.ShouldBeTrue();
             withoutGetter.IsDisposed.ShouldBeTrue();
+            viewModelBaseWithCommand.IsDisposed.ShouldBeTrue();
         }
 
         [TestMethod]
@@ -418,6 +421,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             viewModelBaseWithCommand.Dispose();
             command.IsDisposed.ShouldBeFalse();
             withoutGetter.IsDisposed.ShouldBeFalse();
+            viewModelBaseWithCommand.IsDisposed.ShouldBeTrue();
         }
 
         [TestMethod]
@@ -429,6 +433,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             viewModel.LocalEventAggregator.GetObservers().Contains(spyHandler).ShouldBeTrue();
             viewModel.Dispose();
             viewModel.LocalEventAggregator.GetObservers().Contains(spyHandler).ShouldBeFalse();
+            viewModel.IsDisposed.ShouldBeTrue();
         }
 
         [TestMethod]
@@ -436,6 +441,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         {
             ViewModelBase viewModel = GetViewModelBase();
             viewModel.Dispose();
+            viewModel.IsDisposed.ShouldBeTrue();
 
             ShouldThrow<ObjectDisposedException>(() => viewModel.GetViewModel<TestViewModelBase>());
             ShouldThrow<ObjectDisposedException>(() => viewModel.GetViewModel(typeof(TestViewModelBase)));

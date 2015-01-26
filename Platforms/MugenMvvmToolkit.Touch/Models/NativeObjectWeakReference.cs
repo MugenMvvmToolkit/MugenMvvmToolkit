@@ -34,11 +34,6 @@ namespace MugenMvvmToolkit.Models
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="T:System.NativeObjectWeakReference" /> class, referencing the
-        ///     specified object and using the specified resurrection tracking.
-        /// </summary>
-        /// <param name="target">An object to track. </param>
         public NativeObjectWeakReference(NSObject target)
             : base(target)
         {
@@ -49,32 +44,11 @@ namespace MugenMvvmToolkit.Models
 
         #region Overrides of WeakReference
 
-        /// <summary>
-        ///     Gets an indication whether the object referenced by the current <see cref="T:System.WeakReference" /> object has
-        ///     been garbage collected.
-        /// </summary>
-        /// <returns>
-        ///     true if the object referenced by the current <see cref="T:System.WeakReference" /> object has not been garbage
-        ///     collected and is still accessible; otherwise, false.
-        /// </returns>
         public override bool IsAlive
         {
             get { return Target != null; }
         }
 
-        /// <summary>
-        ///     Gets or sets the object (the target) referenced by the current <see cref="T:System.WeakReference" /> object.
-        /// </summary>
-        /// <returns>
-        ///     null if the object referenced by the current <see cref="T:System.WeakReference" /> object has been garbage
-        ///     collected; otherwise, a reference to the object referenced by the current <see cref="T:System.WeakReference" />
-        ///     object.
-        /// </returns>
-        /// <exception cref="T:System.InvalidOperationException">
-        ///     The reference to the target object is invalid. This exception can
-        ///     be thrown while setting this property if the value is a null reference or if the object has been finalized during
-        ///     the set operation.
-        /// </exception>
         public override object Target
         {
             get

@@ -23,6 +23,7 @@ using System.Linq;
 using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
+using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -38,40 +39,70 @@ namespace MugenMvvmToolkit.ViewModels
     [BaseViewModel(Priority = 9)]
     public abstract class ViewModelBase : NotifyPropertyChangedBase, IViewModel, IHandler<object>
     {
+        #region Nested types
+
+        private sealed class BusyDict : LightDictionaryBase<Guid, object>
+        {
+            #region Constructors
+
+            public BusyDict()
+                : base(false)
+            {
+            }
+
+            #endregion
+
+            #region Overrides of LightDictionaryBase<Guid,object>
+
+            protected override bool Equals(Guid x, Guid y)
+            {
+                return x == y;
+            }
+
+            protected override int GetHashCode(Guid key)
+            {
+                return key.GetHashCode();
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
+        private static readonly CancellationTokenSource DisposedToken;
         private const int DisposedState = 2;
         private const int InitializedState = 1;
         private const int DefaultState = 0;
 
-        private readonly Dictionary<Guid, object> _busyCollection;
-        private readonly IEventAggregator _localEventAggregator;
         private readonly IViewModelSettings _settings;
 
         private CancellationTokenSource _disposeCancellationToken;
         private IIocContainer _iocContainer;
-        private IViewModelProvider _viewModelProvider;
-        private IThreadManager _threadManager;
+        private IEventAggregator _localEventAggregator;
+        private BusyDict _busyMessages;
         private object _busyMessage;
-
         private int _state;
         private bool _isBusy;
         private bool _isRestored;
-        private bool _isDisposed;
 
         #endregion
 
         #region Constructors
+
+        static ViewModelBase()
+        {
+            DisposedToken = new CancellationTokenSource();
+            DisposedToken.Cancel();
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ViewModelBase" /> class.
         /// </summary>
         protected ViewModelBase()
         {
-            _busyCollection = new Dictionary<Guid, object>();
-            _disposeCancellationToken = new CancellationTokenSource();
             _settings = ApplicationSettings.ViewModelSettings.Clone();
-            _localEventAggregator = ServiceProvider.InstanceEventAggregatorFactory(this);
 
             Tracer.TraceViewModel(AuditAction.Created, this);
             if (IsDesignMode)
@@ -95,19 +126,10 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         protected internal IEventAggregator LocalEventAggregator
         {
-            get { return _localEventAggregator; }
-        }
-
-        /// <summary>
-        ///     Gets or sets the default view model provider to create view models.
-        /// </summary>
-        protected IViewModelProvider ViewModelProvider
-        {
-            get { return _viewModelProvider ?? ServiceProvider.ViewModelProvider; }
-            set
+            get
             {
-                Should.PropertyBeNotNull(value);
-                _viewModelProvider = value;
+                InitializeEventAggregator(true);
+                return _localEventAggregator;
             }
         }
 
@@ -117,6 +139,14 @@ namespace MugenMvvmToolkit.ViewModels
         protected bool IsRestored
         {
             get { return _isRestored; }
+        }
+
+        /// <summary>
+        ///     Gets or sets the default view model provider to create view models.
+        /// </summary>
+        protected virtual IViewModelProvider ViewModelProvider
+        {
+            get { return ServiceProvider.ViewModelProvider; }
         }
 
         #endregion
@@ -130,8 +160,6 @@ namespace MugenMvvmToolkit.ViewModels
         {
             get
             {
-                if (IsDisposed)
-                    return new CancellationToken(true);
                 if (_disposeCancellationToken == null)
                 {
                     var cts = new CancellationTokenSource();
@@ -148,7 +176,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         public bool IsInitialized
         {
-            get { return _state == InitializedState; }
+            get { return _state != DefaultState; }
         }
 
         /// <summary>
@@ -203,7 +231,7 @@ namespace MugenMvvmToolkit.ViewModels
                 if (ReferenceEquals(_iocContainer, value))
                     return;
                 _iocContainer = value;
-                OnPropertyChanged("IsDisposed");
+                OnPropertyChanged("IocContainer");
             }
         }
 
@@ -212,7 +240,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         public bool IsDisposed
         {
-            get { return _isDisposed; }
+            get { return _disposeCancellationToken != null && _disposeCancellationToken.IsCancellationRequested; }
         }
 
         /// <summary>
@@ -232,9 +260,6 @@ namespace MugenMvvmToolkit.ViewModels
             }
             context.TryGetData(InitializationConstants.IsRestored, out _isRestored);
             IocContainer = context.GetData(InitializationConstants.IocContainer, true);
-            _threadManager = _iocContainer.Get<IThreadManager>();
-            if (_viewModelProvider == null)
-                ViewModelProvider = _iocContainer.Get<IViewModelProvider>();
 
             OnInitializing(context);
             OnInitializedInternal();
@@ -279,11 +304,13 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         public void ClearBusy()
         {
-            Guid[] guids;
-            lock (_busyCollection)
-                guids = _busyCollection.Keys.ToArrayEx();
-            for (int index = 0; index < guids.Length; index++)
-                EndBusy(guids[index]);
+            if (!InitializeBusyDict(false))
+                return;
+            KeyValuePair<Guid, object>[] messages;
+            lock (_busyMessages)
+                messages = _busyMessages.ToArray();
+            for (int index = 0; index < messages.Length; index++)
+                EndBusy(messages[index].Key);
         }
 
         /// <summary>
@@ -354,7 +381,8 @@ namespace MugenMvvmToolkit.ViewModels
             }
             finally
             {
-                _isDisposed = true;
+                Interlocked.CompareExchange(ref _disposeCancellationToken, DisposedToken, null);
+                _disposeCancellationToken.Cancel();
             }
         }
 
@@ -460,7 +488,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="mode">The execution mode.</param>
         protected void Publish([NotNull] object message, ExecutionMode mode = ExecutionMode.None)
         {
-            this.Publish(this, message, mode);
+            ThreadManager.Invoke(mode, this, message, (@base, o) => @base.Publish(@base, o));
         }
 
         /// <summary>
@@ -496,12 +524,14 @@ namespace MugenMvvmToolkit.ViewModels
 
         private void NotifyBeginBusy(IViewModel viewModel)
         {
-            lock (_busyCollection)
+            if (!InitializeBusyDict(false))
+                return;
+            lock (_busyMessages)
             {
-                if (_busyCollection.Count == 0)
+                if (_busyMessages.Count == 0)
                     return;
                 var isVmb = viewModel is ViewModelBase;
-                foreach (var o in _busyCollection)
+                foreach (var o in _busyMessages)
                 {
                     var message = new BeginBusyMessage(o.Key, o.Value);
                     if (isVmb)
@@ -514,14 +544,16 @@ namespace MugenMvvmToolkit.ViewModels
 
         private void NotifyEndBusy(IViewModel viewModel)
         {
-            lock (_busyCollection)
+            if (!InitializeBusyDict(false))
+                return;
+            lock (_busyMessages)
             {
-                if (_busyCollection.Count == 0)
+                if (_busyMessages.Count == 0)
                     return;
                 var isVmb = viewModel is ViewModelBase;
-                foreach (Guid o in _busyCollection.Keys)
+                foreach (var o in _busyMessages)
                 {
-                    var message = new EndBusyMessage(o);
+                    var message = new EndBusyMessage(o.Key);
                     if (isVmb)
                         ((IHandler<object>)viewModel).Handle(this, message);
                     else
@@ -532,11 +564,12 @@ namespace MugenMvvmToolkit.ViewModels
 
         private void AddBusy(Guid idBusy, object message, bool notify)
         {
-            lock (_busyCollection)
+            InitializeBusyDict(true);
+            lock (_busyMessages)
             {
-                if (_busyCollection.ContainsKey(idBusy))
+                if (_busyMessages.ContainsKey(idBusy))
                     return;
-                _busyCollection.Add(idBusy, message);
+                _busyMessages.Add(idBusy, message);
                 BusyMessage = message;
                 IsBusy = true;
             }
@@ -547,19 +580,22 @@ namespace MugenMvvmToolkit.ViewModels
 
         private void RemoveBusy(Guid idBusy, bool notify)
         {
-            lock (_busyCollection)
+            if (InitializeBusyDict(false))
             {
-                if (!_busyCollection.Remove(idBusy))
-                    return;
-                if (_busyCollection.Count == 0)
+                lock (_busyMessages)
                 {
-                    IsBusy = false;
-                    BusyMessage = null;
+                    if (!_busyMessages.Remove(idBusy))
+                        return;
+                    if (_busyMessages.Count == 0)
+                    {
+                        IsBusy = false;
+                        BusyMessage = null;
+                    }
+                    else
+                        BusyMessage = _busyMessages.FirstOrDefault().Value;
                 }
-                else
-                    BusyMessage = _busyCollection.Values.FirstOrDefault();
+                OnEndBusy(idBusy);
             }
-            OnEndBusy(idBusy);
             if (notify)
                 Publish(new EndBusyMessage(idBusy));
         }
@@ -572,41 +608,50 @@ namespace MugenMvvmToolkit.ViewModels
 
             ClearBusy();
             ClearPropertyChangedSubscribers();
-            var toRemove = _localEventAggregator.GetSubscribers();
-            for (int index = 0; index < toRemove.Count; index++)
-                Unsubscribe(toRemove[index]);
+            if (InitializeEventAggregator(false))
+            {
+                var toRemove = _localEventAggregator.GetSubscribers();
+                for (int index = 0; index < toRemove.Count; index++)
+                    Unsubscribe(toRemove[index]);
+            }
 
             IViewManager viewManager;
             if (IocContainer.TryGet(out viewManager))
                 viewManager.CleanupViewAsync(this);
 
-            _viewModelProvider = null;
             //Disposing ioc adapter.
             if (Settings.DisposeIocContainer && _iocContainer != null)
                 _iocContainer.Dispose();
 
-            _disposeCancellationToken.Cancel();
-            Tracer.TraceViewModel(AuditAction.Disposed, this);
             Settings.Metadata.Clear();
             ServiceProvider.AttachedValueProvider.Clear(this);
+            Tracer.TraceViewModel(AuditAction.Disposed, this);
+        }
+
+        private bool InitializeBusyDict(bool required)
+        {
+            if (_busyMessages != null)
+                return true;
+            if (!required)
+                return false;
+            Interlocked.CompareExchange(ref _busyMessages, new BusyDict(), null);
+            return true;
+        }
+
+        private bool InitializeEventAggregator(bool required)
+        {
+            if (_localEventAggregator != null)
+                return true;
+            if (!required)
+                return false;
+            Interlocked.CompareExchange(ref _localEventAggregator, ServiceProvider.InstanceEventAggregatorFactory(this),
+                null);
+            return true;
         }
 
         #endregion
 
         #region Overrides of NotifyPropertyChangedBase
-
-        /// <summary>
-        ///     Gets the current <see cref="IThreadManager" />.
-        /// </summary>
-        protected override IThreadManager ThreadManager
-        {
-            get
-            {
-                if (_threadManager == null)
-                    return base.ThreadManager;
-                return _threadManager;
-            }
-        }
 
         internal override void OnPropertyChangedInternal(PropertyChangedEventArgs args)
         {
@@ -623,7 +668,8 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="subscriber">The instance to subscribe for event publication.</param>
         protected virtual bool SubscribeInternal(ISubscriber subscriber)
         {
-            return !ReferenceEquals(subscriber.Target, this) && _localEventAggregator.Subscribe(subscriber);
+            return !ReferenceEquals(subscriber.Target, this) && InitializeEventAggregator(true) &&
+                   _localEventAggregator.Subscribe(subscriber);
         }
 
         /// <summary>
@@ -632,7 +678,9 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="subscriber">The instance to unsubscribe.</param>
         protected virtual bool UnsubscribeInternal(ISubscriber subscriber)
         {
-            return _localEventAggregator.Unsubscribe(subscriber);
+            if (InitializeEventAggregator(false))
+                return _localEventAggregator.Unsubscribe(subscriber);
+            return false;
         }
 
         /// <summary>
@@ -642,7 +690,8 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="message">The message instance.</param>
         protected virtual void PublishInternal(object sender, object message)
         {
-            _localEventAggregator.Publish(sender, message);
+            if (InitializeEventAggregator(false))
+                _localEventAggregator.Publish(sender, message);
         }
 
         /// <summary>

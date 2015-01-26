@@ -86,6 +86,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             bool isInvoked = false;
 
             var providerMock = new ViewModelProviderMock();
+            ServiceProvider.ViewModelProvider = providerMock;
             var func = IocContainer.GetFunc;
             IocContainer.GetFunc = (type, s, arg3) =>
             {
