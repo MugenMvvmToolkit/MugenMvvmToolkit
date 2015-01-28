@@ -507,7 +507,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// <summary>
         ///     Invokes the <see cref="Navigated" /> event.
         /// </summary>
-        protected void RaiseNavigated(INavigationContext ctx, IViewModel vm)
+        protected virtual void RaiseNavigated(INavigationContext ctx, IViewModel vm)
         {
             var handler = Navigated;
             if (handler != null)

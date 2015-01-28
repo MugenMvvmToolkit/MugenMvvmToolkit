@@ -197,6 +197,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Fields
 
+        internal bool IsAssociated;
         private readonly BehaviorCollection _behaviors;
         private readonly IBindingSourceAccessor _sourceAccessor;
         private readonly ISingleBindingSourceAccessor _targetAccessor;
@@ -219,12 +220,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _sourceAccessor = source;
             _behaviors = new BehaviorCollection(this);
         }
-
-        #endregion
-
-        #region Properties
-
-        internal bool IsAssociated { get; set; }
 
         #endregion
 

@@ -21,6 +21,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading;
 using System.Xml.Linq;
 using Android.App;
 using Android.Content;
@@ -619,6 +620,13 @@ namespace MugenMvvmToolkit
         {
             if (item != null)
                 PlatformDataBindingModule.AutoDisposeMember.SetValue(item, value);
+        }
+
+        internal static IMvvmActivityMediator GetOrCreateMediator(this Activity activity, ref IMvvmActivityMediator mediator)
+        {
+            if (mediator == null)
+                Interlocked.CompareExchange(ref mediator, MvvmActivityMediatorFactory(activity, DataContext.Empty), null);
+            return mediator;
         }
 
         internal static PlatformInfo GetPlatformInfo()

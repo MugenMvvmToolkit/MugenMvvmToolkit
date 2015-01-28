@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using MugenMvvmToolkit.Interfaces;
 
 namespace MugenMvvmToolkit.Models.IoC
@@ -25,6 +26,7 @@ namespace MugenMvvmToolkit.Models.IoC
     /// <summary>
     ///     Represents an information about binding.
     /// </summary>
+    [StructLayout(LayoutKind.Auto)]
     public struct BindingInfo<T>
     {
         #region Fields

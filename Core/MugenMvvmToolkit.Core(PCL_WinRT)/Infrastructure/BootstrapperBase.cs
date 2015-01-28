@@ -40,6 +40,7 @@ namespace MugenMvvmToolkit.Infrastructure
         private static int _state;
         private IList<Assembly> _assemblies;
         private IDataContext _initializationContext;
+        private IIocContainer _iocContainer;
 
         #endregion
 
@@ -75,7 +76,16 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Gets the current <see cref="IIocContainer" />.
         /// </summary>
         [NotNull]
-        public IIocContainer IocContainer { get; protected set; }
+        public IIocContainer IocContainer
+        {
+            get
+            {
+                if (_iocContainer == null && Instance != null)
+                    return Instance.IocContainer;
+                return _iocContainer;
+            }
+            protected set { _iocContainer = value; }
+        }
 
         /// <summary>
         ///     Gets the current platform.
@@ -89,7 +99,12 @@ namespace MugenMvvmToolkit.Infrastructure
         [NotNull]
         public IDataContext InitializationContext
         {
-            get { return _initializationContext ?? DataContext.Empty; }
+            get
+            {
+                if (_initializationContext == null && Instance != null)
+                    return Instance.InitializationContext;
+                return _initializationContext ?? DataContext.Empty;
+            }
             set { _initializationContext = value; }
         }
 
@@ -118,7 +133,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 return;
             try
             {
-                OnStop();
+                Instance.OnStop();
             }
             finally
             {

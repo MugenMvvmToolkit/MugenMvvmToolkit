@@ -77,7 +77,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         #region Properties
 
         public bool UseAnimations { get; set; }
-        
+
         /// <summary>
         ///     Gets the current <see cref="MvvmNavigationController" />.
         /// </summary>
@@ -292,7 +292,10 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             RaiseNavigated(controller, NavigationMode.Back, controller.GetNavigationParameter());
         }
 
-        private bool RaiseNavigating(NavigatingCancelEventArgs args)
+        /// <summary>
+        ///     Invokes the <see cref="Navigating" /> event.
+        /// </summary>
+        protected virtual bool RaiseNavigating(NavigatingCancelEventArgs args)
         {
             EventHandler<INavigationService, NavigatingCancelEventArgsBase> handler = Navigating;
             if (handler == null)
@@ -301,17 +304,20 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             return !args.Cancel;
         }
 
-        private void RaiseNavigated(object content, NavigationMode mode, object parameter)
-        {
-            if (Navigated != null)
-                RaiseNavigated(new NavigationEventArgs(content, parameter, mode));
-        }
-
-        private void RaiseNavigated(NavigationEventArgs args)
+        /// <summary>
+        ///     Invokes the <see cref="Navigated" /> event.
+        /// </summary>
+        protected virtual void RaiseNavigated(NavigationEventArgs args)
         {
             EventHandler<INavigationService, NavigationEventArgsBase> handler = Navigated;
             if (handler != null)
                 handler(this, args);
+        }
+
+        private void RaiseNavigated(object content, NavigationMode mode, object parameter)
+        {
+            if (Navigated != null)
+                RaiseNavigated(new NavigationEventArgs(content, parameter, mode));
         }
 
         private void ClearNavigationStackIfNeed(UIViewController newItem, IDataContext context)

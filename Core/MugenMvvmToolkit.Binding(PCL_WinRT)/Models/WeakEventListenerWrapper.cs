@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 
@@ -25,6 +26,7 @@ namespace MugenMvvmToolkit.Binding.Models
     /// <summary>
     ///     Represents the weak event listener container.
     /// </summary>
+    [StructLayout(LayoutKind.Auto)]
     public struct WeakEventListenerWrapper
     {
         #region Fields

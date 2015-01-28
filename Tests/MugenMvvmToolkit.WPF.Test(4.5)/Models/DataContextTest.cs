@@ -82,7 +82,7 @@ namespace MugenMvvmToolkit.Test.Models
     {
         #region Overrides of SerializationTestBase<DataContext>
 
-        [Ignore, TestMethod]
+        [Ignore]
         public override void TestXmlSerialization()
         {
             base.TestXmlSerialization();

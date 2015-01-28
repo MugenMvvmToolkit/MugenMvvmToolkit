@@ -17,11 +17,13 @@
 #endregion
 
 using System;
+using System.Threading;
 using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 #if APPCOMPAT
 using MugenMvvmToolkit.AppCompat.Infrastructure.Mediators;
 using MugenMvvmToolkit.AppCompat.Interfaces.Mediators;
@@ -108,6 +110,13 @@ namespace MugenMvvmToolkit.FragmentSupport
                 return null;
             }
             return activity.GetFragmentManager();
+        }
+
+        internal static IMvvmFragmentMediator GetOrCreateMediator(this Fragment fragment, ref IMvvmFragmentMediator mediator)
+        {
+            if (mediator == null)
+                Interlocked.CompareExchange(ref mediator, MvvmFragmentMediatorFactory(fragment, DataContext.Empty), null);
+            return mediator;
         }
 
         private static IMvvmFragmentMediator MvvmFragmentMediatorFactoryMethod(Fragment fragment, IDataContext dataContext)

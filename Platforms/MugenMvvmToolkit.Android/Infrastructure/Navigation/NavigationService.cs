@@ -22,7 +22,6 @@ using System.Linq;
 using Android.App;
 using Android.Content;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -66,7 +65,10 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         #region Methods
 
-        private bool RaiseNavigating(NavigatingCancelEventArgs args)
+        /// <summary>
+        ///     Invokes the <see cref="Navigating" /> event.
+        /// </summary>
+        protected virtual bool RaiseNavigating(NavigatingCancelEventArgs args)
         {
             var handler = Navigating;
             if (handler != null)
@@ -77,7 +79,10 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             return true;
         }
 
-        private void RaiseNavigated(object content, NavigationMode mode, object parameter)
+        /// <summary>
+        ///     Invokes the <see cref="Navigated" /> event.
+        /// </summary>
+        protected virtual void RaiseNavigated(object content, NavigationMode mode, object parameter)
         {
             var handler = Navigated;
             if (handler != null)

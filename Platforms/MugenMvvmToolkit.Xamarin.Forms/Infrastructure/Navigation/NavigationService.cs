@@ -35,19 +35,14 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
     {
         #region Fields
 
-        private readonly NavigationPage _rootPage;
+        private NavigationPage _rootPage;
 
         #endregion
 
         #region Constructors
 
-        public NavigationService([NotNull] NavigationPage rootPage)
+        public NavigationService()
         {
-            Should.NotBeNull(rootPage, "rootPage");
-            _rootPage = rootPage;
-            _rootPage.Pushed += OnPushed;
-            _rootPage.Popped += OnPopped;
-            _rootPage.PoppedToRoot += OnPopped;
             XamarinFormsExtensions.BackButtonPressed += ReflectionExtensions
                 .CreateWeakDelegate<NavigationService, CancelEventArgs, EventHandler<Page, CancelEventArgs>>(this,
                     (service, o, arg3) => service.OnBackButtonPressed((Page)o, arg3),
@@ -90,7 +85,12 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// </summary>
         public object CurrentContent
         {
-            get { return _rootPage.CurrentPage; }
+            get
+            {
+                if (_rootPage == null)
+                    return null;
+                return _rootPage.CurrentPage;
+            }
         }
 
         /// <summary>
@@ -98,7 +98,8 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// </summary>
         public void GoBack()
         {
-            _rootPage.PopAsync(UseAnimations);
+            if (_rootPage != null)
+                _rootPage.PopAsync(UseAnimations);
         }
 
         /// <summary>
@@ -107,6 +108,26 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         public void GoForward()
         {
             throw new NotSupportedException();
+        }
+
+        /// <summary>
+        ///     Updates the current root page.
+        /// </summary>
+        public void UpdateRootPage(NavigationPage page)
+        {
+            if (_rootPage != null)
+            {
+                _rootPage.Pushed -= OnPushed;
+                _rootPage.Popped -= OnPopped;
+                _rootPage.PoppedToRoot -= OnPopped;
+            }
+            if (page != null)
+            {
+                page.Pushed += OnPushed;
+                page.Popped += OnPopped;
+                page.PoppedToRoot += OnPopped;
+            }
+            _rootPage = page;
         }
 
         /// <summary>
@@ -161,6 +182,8 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         public bool Navigate(IViewMappingItem source, object parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, "source");
+            if (_rootPage == null)
+                return false;
             if (!RaiseNavigating(new NavigatingCancelEventArgs(source, NavigationMode.New, parameter)))
                 return false;
             if (dataContext == null)

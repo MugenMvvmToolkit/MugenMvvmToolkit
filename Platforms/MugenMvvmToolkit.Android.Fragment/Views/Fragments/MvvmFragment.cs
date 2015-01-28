@@ -17,7 +17,6 @@
 #endregion
 
 using System;
-using System.Threading;
 using Android.App;
 using Android.OS;
 using Android.Runtime;
@@ -69,13 +68,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Views.Fragments
         /// </summary>
         public virtual IMvvmFragmentMediator Mediator
         {
-            get
-            {
-                if (_mediator == null)
-                    Interlocked.CompareExchange(ref _mediator,
-                        FragmentExtensions.MvvmFragmentMediatorFactory(this, MugenMvvmToolkit.Models.DataContext.Empty), null);
-                return _mediator;
-            }
+            get { return this.GetOrCreateMediator(ref _mediator); }
         }
 
         /// <summary>

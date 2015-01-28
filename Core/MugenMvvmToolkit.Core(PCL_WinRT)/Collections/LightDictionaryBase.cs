@@ -20,6 +20,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using MugenMvvmToolkit.Infrastructure;
@@ -36,7 +37,7 @@ namespace MugenMvvmToolkit.Collections
     {
         #region Nested types
 
-        [Serializable]
+        [StructLayout(LayoutKind.Auto), Serializable]
         internal struct Entry
         {
             public int HashCode;
@@ -51,6 +52,7 @@ namespace MugenMvvmToolkit.Collections
         /// <summary>
         ///     Enumerates the elements of a <see cref="LightDictionaryBase{TKey,TValue}" />.
         /// </summary>
+        [StructLayout(LayoutKind.Auto)]
         public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>
         {
             #region Fields

@@ -215,7 +215,7 @@ namespace MugenMvvmToolkit.Models
         }
 
         /// <summary>
-        /// Occurs on end suspend notifications.
+        ///     Occurs on end suspend notifications.
         /// </summary>
         protected virtual void OnEndSuspendNotifications(bool isDirty)
         {

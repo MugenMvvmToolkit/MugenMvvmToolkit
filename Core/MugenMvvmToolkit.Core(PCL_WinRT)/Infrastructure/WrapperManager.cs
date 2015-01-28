@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -38,6 +39,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Represents the wrapper registration.
         /// </summary>
+        [StructLayout(LayoutKind.Auto)]
         protected struct WrapperRegistration
         {
             #region Fields

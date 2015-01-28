@@ -83,7 +83,6 @@ namespace MugenMvvmToolkit
             }
 
             #endregion
-
         }
 
         #endregion
@@ -554,6 +553,13 @@ namespace MugenMvvmToolkit
         {
             if (item != null)
                 PlatformDataBindingModule.AutoDisposeMember.SetValue(item, value);
+        }
+
+        internal static IMvvmViewControllerMediator GetOrCreateMediator(this UIViewController controller, ref IMvvmViewControllerMediator mediator)
+        {
+            if (mediator == null)
+                Interlocked.CompareExchange(ref mediator, MvvmViewControllerMediatorFactory(controller, DataContext.Empty), null);
+            return mediator;
         }
 
         internal static WeakReference CreateWeakReference(object item, bool trackResurrection)

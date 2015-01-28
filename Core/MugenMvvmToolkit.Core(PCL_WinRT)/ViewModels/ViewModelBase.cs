@@ -381,8 +381,8 @@ namespace MugenMvvmToolkit.ViewModels
             }
             finally
             {
-                Interlocked.CompareExchange(ref _disposeCancellationToken, DisposedToken, null);
-                _disposeCancellationToken.Cancel();
+                if (Interlocked.CompareExchange(ref _disposeCancellationToken, DisposedToken, null) != null)
+                    _disposeCancellationToken.Cancel();
             }
         }
 

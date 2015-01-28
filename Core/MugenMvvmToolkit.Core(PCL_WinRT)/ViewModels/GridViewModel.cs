@@ -386,7 +386,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Invokes the <c>SelectedItemChanged</c> event.
         /// </summary>
-        protected void RaiseSelectedItemChanged(T oldValue, T newValue)
+        protected virtual void RaiseSelectedItemChanged(T oldValue, T newValue)
         {
             if (SelectedItemChanged == null && _selectedItemChangedNonGeneric == null)
                 return;
@@ -405,7 +405,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Invokes the event <c>ItemsSourceChanged</c>.
         /// </summary>
-        protected void RaiseItemsSourceChanged(IEnumerable<T> data)
+        protected virtual void RaiseItemsSourceChanged(IEnumerable<T> data)
         {
             if (ItemsSourceChanged == null && _itemsSourceChangedNonGeneric == null)
                 return;

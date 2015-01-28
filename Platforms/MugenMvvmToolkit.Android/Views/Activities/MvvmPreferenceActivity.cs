@@ -17,7 +17,6 @@
 #endregion
 
 using System;
-using System.Threading;
 using Android.App;
 using Android.Content.Res;
 using Android.OS;
@@ -60,12 +59,7 @@ namespace MugenMvvmToolkit.Views.Activities
         /// </summary>
         public virtual IMvvmActivityMediator Mediator
         {
-            get
-            {
-                if (_mediator == null)
-                    Interlocked.CompareExchange(ref _mediator, PlatformExtensions.MvvmActivityMediatorFactory(this, Models.DataContext.Empty), null);
-                return _mediator;
-            }
+            get { return this.GetOrCreateMediator(ref _mediator); }
         }
 
         /// <summary>

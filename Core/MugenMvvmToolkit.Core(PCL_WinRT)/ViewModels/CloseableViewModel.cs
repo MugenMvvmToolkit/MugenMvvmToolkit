@@ -142,7 +142,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Invokes the Closing event.
         /// </summary>
-        protected bool RaiseClosingEvent(object parameter)
+        protected virtual bool RaiseClosingEvent(object parameter)
         {
             var handler = Closing;
             if (handler == null)
@@ -155,7 +155,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Invokes the Closed event.
         /// </summary>
-        protected void RaiseClosedEvent(object parameter)
+        protected virtual void RaiseClosedEvent(object parameter)
         {
             var handler = Closed;
             if (handler != null)

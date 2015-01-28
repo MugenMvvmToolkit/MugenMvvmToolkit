@@ -28,18 +28,17 @@ namespace MugenMvvmToolkit.Models
     /// <summary>
     ///     An extension to ICommand to provide an ability to raise changed events.
     /// </summary>
-    public abstract class RelayCommandBase : NotifyPropertyChangedBase, IRelayCommand, IHandler<IBroadcastMessage>, IHasWeakReference
+    public abstract class RelayCommandBase : NotifyPropertyChangedBase, IRelayCommand, IHandler<IBroadcastMessage>
     {
         #region Fields
 
         private static readonly Action<RelayCommandBase, EventArgs> RaiseCanExecuteChangedDelegate;
         private static readonly Action<RelayCommandBase, object, PropertyChangedEventArgs> OnPropertyChangedDelegate;
+        private static readonly List<KeyValuePair<WeakReference, Action<RelayCommandBase, object>>> DisposedFlag;
 
-        private readonly List<KeyValuePair<WeakReference, Action<RelayCommandBase, object>>> _notifiers;
-        private readonly PropertyChangedEventHandler _weakHandler;
+        private PropertyChangedEventHandler _weakHandler;
+        private List<KeyValuePair<WeakReference, Action<RelayCommandBase, object>>> _notifiers;
         private EventHandler _canExecuteChangedInternal;
-        private int _disposeState;
-        private WeakReference _weakReference;
 
         #endregion
 
@@ -47,6 +46,7 @@ namespace MugenMvvmToolkit.Models
 
         static RelayCommandBase()
         {
+            DisposedFlag = new List<KeyValuePair<WeakReference, Action<RelayCommandBase, object>>>();
             RaiseCanExecuteChangedDelegate = RaiseCanExecuteChangedStatic;
             OnPropertyChangedDelegate = OnPropertyChangedStatic;
         }
@@ -106,7 +106,7 @@ namespace MugenMvvmToolkit.Models
         /// </summary>
         public bool HasCanExecuteImpl
         {
-            get { return _notifiers != null; }
+            get { return _weakHandler != null; }
         }
 
         /// <summary>
@@ -159,7 +159,8 @@ namespace MugenMvvmToolkit.Models
                     break;
             }
             if (ExecuteAsynchronously)
-                ThreadManager.InvokeAsync(() => ExecuteInternal(parameter));
+                ThreadManager.Invoke(Models.ExecutionMode.Asynchronous, this, parameter,
+                    (@base, o) => @base.ExecuteInternal(o));
             else
                 ExecuteInternal(parameter);
         }
@@ -194,9 +195,12 @@ namespace MugenMvvmToolkit.Models
         /// </summary>
         public void Dispose()
         {
-            if (Interlocked.Exchange(ref _disposeState, 1) == 1)
+            var notifiers = Interlocked.Exchange(ref _notifiers, DisposedFlag);
+            if (notifiers == DisposedFlag)
                 return;
-            ClearNotifiers();
+            if (notifiers != null)
+                ClearInternal(notifiers);
+            _weakHandler = null;
             _canExecuteChangedInternal = null;
             OnDispose();
             ServiceProvider.AttachedValueProvider.Clear(this);
@@ -280,19 +284,8 @@ namespace MugenMvvmToolkit.Models
         /// </summary>
         public void ClearNotifiers()
         {
-            if (!HasCanExecuteImpl)
-                return;
-            lock (_notifiers)
-            {
-                for (int index = 0; index < _notifiers.Count; index++)
-                {
-                    var notifier = _notifiers[index];
-                    object target = notifier.Key.Target;
-                    if (target != null)
-                        notifier.Value(this, target);
-                }
-                _notifiers.Clear();
-            }
+            if (HasCanExecuteImpl)
+                ClearInternal(_notifiers);
         }
 
         /// <summary>
@@ -379,6 +372,21 @@ namespace MugenMvvmToolkit.Models
             return false;
         }
 
+        private void ClearInternal(List<KeyValuePair<WeakReference, Action<RelayCommandBase, object>>> notifiers)
+        {
+            lock (notifiers)
+            {
+                for (int index = 0; index < notifiers.Count; index++)
+                {
+                    var notifier = notifiers[index];
+                    object target = notifier.Key.Target;
+                    if (target != null)
+                        notifier.Value(this, target);
+                }
+                notifiers.Clear();
+            }
+        }
+
         private static void RaiseCanExecuteChangedStatic(RelayCommandBase @this, EventArgs args)
         {
             EventHandler handler = @this._canExecuteChangedInternal;
@@ -395,28 +403,13 @@ namespace MugenMvvmToolkit.Models
 
         #region Overrides of NotifyPropertyChangedBase
 
-
         /// <summary>
-        /// Occurs on end suspend notifications.
+        ///     Occurs on end suspend notifications.
         /// </summary>
         protected override void OnEndSuspendNotifications(bool isDirty)
         {
             if (isDirty)
                 RaiseCanExecuteChanged();
-        }
-
-        #endregion
-
-        #region Implementation of IHasWeakReference
-
-        WeakReference IHasWeakReference.WeakReference
-        {
-            get
-            {
-                if (_weakReference == null)
-                    _weakReference = ServiceProvider.WeakReferenceFactory(this, true);
-                return _weakReference;
-            }
         }
 
         #endregion

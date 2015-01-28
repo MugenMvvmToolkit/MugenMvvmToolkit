@@ -133,6 +133,23 @@ namespace MugenMvvmToolkit.Test.Models
         }
 
         [TestMethod]
+        public void CmdShouldClearAllNotifiersOnDispose()
+        {
+            var notifier1 = new BindingSourceModel();
+            var notifier2 = new BindingSourceModel();
+            var relayCommand = CreateCommand(NodoAction, o => true);
+            relayCommand.AddNotifier(notifier1).ShouldBeTrue();
+            relayCommand.AddNotifier(notifier2).ShouldBeTrue();
+            var list = relayCommand.GetNotifiers();
+            list.Count.ShouldEqual(2);
+            list.Contains(notifier1).ShouldBeTrue();
+            list.Contains(notifier2).ShouldBeTrue();
+
+            relayCommand.Dispose();
+            relayCommand.GetNotifiers().ShouldBeEmpty();
+        }
+
+        [TestMethod]
         public void CmdShouldNotAddNotifierNotSupportedNotifier()
         {
             var notifier = new object();
@@ -328,7 +345,7 @@ namespace MugenMvvmToolkit.Test.Models
         }
 
         [TestMethod]
-        public void CmdShouldBeExecutedInNewThreadIfAsync()
+        public void CmdShouldBeExecutedInNewThreadExecuteAsynchronouslyTrue()
         {
             bool isInvoked = false;
             var cmd = CreateCommand(o => isInvoked = true, o => true);

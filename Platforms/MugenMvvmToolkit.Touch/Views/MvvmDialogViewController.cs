@@ -17,12 +17,10 @@
 #endregion
 
 using System;
-using System.Threading;
 using Foundation;
 using MonoTouch.Dialog;
 using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Views;
-using MugenMvvmToolkit.Models;
 using UIKit;
 
 namespace MugenMvvmToolkit.Views
@@ -71,12 +69,7 @@ namespace MugenMvvmToolkit.Views
         /// </summary>
         public virtual IMvvmViewControllerMediator Mediator
         {
-            get
-            {
-                if (_mediator == null)
-                    Interlocked.CompareExchange(ref _mediator, PlatformExtensions.MvvmViewControllerMediatorFactory(this, DataContext.Empty), null);
-                return _mediator;
-            }
+            get { return this.GetOrCreateMediator(ref _mediator); }
         }
 
         #endregion

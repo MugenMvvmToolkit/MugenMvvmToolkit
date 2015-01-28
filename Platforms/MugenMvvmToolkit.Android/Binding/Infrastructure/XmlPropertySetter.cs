@@ -18,12 +18,14 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using Android.Content;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Builders;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
+    [StructLayout(LayoutKind.Auto)]
     public struct XmlPropertySetter<TWrapper, TTarget>
         where TTarget : class
     {

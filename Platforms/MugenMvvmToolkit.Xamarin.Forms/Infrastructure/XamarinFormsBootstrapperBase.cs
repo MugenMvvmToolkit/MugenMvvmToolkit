@@ -58,9 +58,9 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         protected static readonly DataConstant<bool> WrapToNavigationPageConstant;
-        private PlatformInfo _platform;
         private readonly IPlatformService _platformService;
-        private static Page _page;
+        private PlatformInfo _platform;
+        private IViewModel _mainViewModel;
 
         #endregion
 
@@ -86,6 +86,8 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected XamarinFormsBootstrapperBase()
         {
+            if (Instance is XamarinFormsBootstrapperBase && Instance.IsInitialized)
+                return;
             var assembly = TryLoadAssembly(BindingAssemblyName, null);
             if (assembly == null)
                 return;
@@ -126,13 +128,16 @@ namespace MugenMvvmToolkit.Infrastructure
             get
             {
                 if (_platform == null)
+                {
+                    if (Instance != null)
+                        return Instance.Platform;
                     _platform = _platformService == null
-                        ? XamarinFormsExtensions.GetPlatformInfo()
-                        : _platformService.GetPlatformInfo();
+                           ? XamarinFormsExtensions.GetPlatformInfo()
+                           : _platformService.GetPlatformInfo();
+                }
                 return _platform;
             }
         }
-
 
         /// <summary>
         ///     Gets the application assemblies.
@@ -153,26 +158,30 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public virtual Page Start(bool wrapToNavigationPage = true)
         {
-            if (_page != null)
-                return _page;
+            var bootstrapper = Instance as XamarinFormsBootstrapperBase;
+            if (bootstrapper != null && !ReferenceEquals(Instance, this))
+                return bootstrapper.Start(wrapToNavigationPage);
 
             InitializationContext = InitializationContext.ToNonReadOnly();
             InitializationContext.AddOrUpdate(WrapToNavigationPageConstant, wrapToNavigationPage);
+            if (_mainViewModel == null)
+            {
+                Initialize();
+                var viewModelType = GetMainViewModelType();
+                _mainViewModel = CreateMainViewModel(viewModelType);
+            }
 
-            Initialize();
-            var viewModelType = GetMainViewModelType();
-            var viewModel = CreateMainViewModel(viewModelType);
-            var view = (Page)ViewManager.GetOrCreateView(viewModel, null, InitializationContext);
+            var view = (Page)ViewManager.GetOrCreateView(_mainViewModel, true, new DataContext(InitializationContext));
             var page = view as NavigationPage ?? CreateNavigationPage(view);
             if (page == null)
-            {
-                _page = view;
                 return view;
+            INavigationService navigationService;
+            if (!IocContainer.TryGet(out navigationService))
+            {
+                navigationService = new NavigationService();
+                IocContainer.BindToConstant(navigationService);
             }
-            _page = page;
-            if (IocContainer.CanResolve<INavigationService>())
-                IocContainer.Unbind<INavigationService>();
-            IocContainer.BindToConstant<INavigationService>(new NavigationService(page));
+            navigationService.UpdateRootPage(page);
             //Activating navigation provider
             INavigationProvider provider;
             IocContainer.TryGet(out provider);

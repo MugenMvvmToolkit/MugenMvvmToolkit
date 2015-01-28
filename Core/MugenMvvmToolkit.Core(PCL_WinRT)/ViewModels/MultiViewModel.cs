@@ -288,7 +288,7 @@ namespace MugenMvvmToolkit.ViewModels
                     var selectable = viewModel as ISelectable;
                     if (selectable != null)
                         selectable.PropertyChanged += _propertyChangedWeakEventHandler;
-                    OnViewModelAddedEvent(viewModel);
+                    RaiseViewModelAdded(viewModel);
                 }
             }
 
@@ -315,21 +315,21 @@ namespace MugenMvvmToolkit.ViewModels
                             selectable.IsSelected = false;
                         selectable.PropertyChanged -= _propertyChangedWeakEventHandler;
                     }
-                    OnViewModelRemovedEvent(viewModel);
+                    RaiseViewModelRemoved(viewModel);
                     if (DisposeViewModelOnRemove)
                         viewModel.Dispose();
                 }
             }
         }
 
-        private void OnViewModelAddedEvent(IViewModel vm)
+        private void RaiseViewModelAdded(IViewModel vm)
         {
             OnViewModelAdded(vm);
             var handler = ViewModelAdded;
             if (handler != null) handler(this, new ValueEventArgs<IViewModel>(vm));
         }
 
-        private void OnViewModelRemovedEvent(IViewModel vm)
+        private void RaiseViewModelRemoved(IViewModel vm)
         {
             OnViewModelRemoved(vm);
             var handler = ViewModelRemoved;

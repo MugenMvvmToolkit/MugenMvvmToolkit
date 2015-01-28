@@ -404,7 +404,7 @@ namespace MugenMvvmToolkit.ViewModels
         ///     Raises this object's ErrorsChangedChanged event.
         /// </summary>
         /// <param name="args">The event args.</param>
-        protected void RaiseErrorsChanged(DataErrorsChangedEventArgs args)
+        protected virtual void RaiseErrorsChanged(DataErrorsChangedEventArgs args)
         {
             OnPropertyChanged("HasErrors");
             OnPropertyChanged("IsValid");

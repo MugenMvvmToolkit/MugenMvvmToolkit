@@ -90,6 +90,11 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
         ///     Call this when your activity is done and should be closed.
         /// </summary>
         bool OnFinishActivity([NotNull] Activity activity, bool isBackNavigation, IDataContext context = null);
+#elif XAMARIN_FORMS
+        /// <summary>
+        ///     Updates the current root page.
+        /// </summary>
+        void UpdateRootPage(NavigationPage page);
 #endif
         /// <summary>
         /// Gets a navigation parameter from event args.

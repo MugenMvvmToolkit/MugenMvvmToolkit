@@ -20,6 +20,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Foundation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces;
@@ -36,6 +37,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
     {
         #region Nested types
 
+        [StructLayout(LayoutKind.Auto)]
         private struct IdentifierKey : IEquatable<IdentifierKey>
         {
             #region Equality members
@@ -73,8 +75,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Fields
 
-            public readonly string Id;
-            public readonly Type ItemType;
+            private readonly string Id;
+            private readonly Type ItemType;
 
             #endregion
 

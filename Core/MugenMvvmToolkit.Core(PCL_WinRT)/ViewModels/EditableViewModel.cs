@@ -376,7 +376,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Raises the <c>EntityInitialized</c> event
         /// </summary>
-        protected void RaiseEntityInitialized(T originalEntity, T entity)
+        protected virtual void RaiseEntityInitialized(T originalEntity, T entity)
         {
             EntityInitializedEventArgs<T> args = null;
             var genericHandler = EntityInitialized;
@@ -393,7 +393,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Raises the <c>ChangesApplied</c> event
         /// </summary>
-        protected void RaiseChangesApplied(IList<IEntityStateEntry> entityStateEntries)
+        protected virtual void RaiseChangesApplied(IList<IEntityStateEntry> entityStateEntries)
         {
             var handler = ChangesApplied;
             if (handler != null)
@@ -403,7 +403,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Raises the <c>ChangesCanceled</c> event
         /// </summary>
-        protected void RaiseChangesCanceled(T entity)
+        protected virtual void RaiseChangesCanceled(T entity)
         {
             ChangesCanceledEventArgs<T> args = null;
             var genericHandler = ChangesCanceled;

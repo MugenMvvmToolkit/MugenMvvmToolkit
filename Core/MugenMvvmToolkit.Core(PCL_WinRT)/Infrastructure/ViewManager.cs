@@ -228,10 +228,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (context == null)
                     context = DataContext.Empty;
                 view = ToolkitExtensions.GetUnderlyingView<object>(view);
-                CleanupView(viewModel, view, context);
-                Action<IViewManager, IViewModel, object, IDataContext> handler = ViewCleared;
-                if (handler != null)
-                    handler(this, viewModel, view, context);
+                CleanupViewInternal(viewModel, view, context);
                 tcs.SetResult(null);
             }, OperationPriority.Low);
             return tcs.Task;
@@ -296,15 +293,16 @@ namespace MugenMvvmToolkit.Infrastructure
             [NotNull] IDataContext context)
         {
             object oldView = viewModel.Settings.Metadata.GetData(ViewModelConstants.View);
-            InitializeViewInternal(null, oldView);
+            if (oldView != null)
+                CleanupViewInternal(viewModel, oldView, context);
             InitializeViewInternal(viewModel, view);
             PropertyInfo viewProperty = ReflectionExtensions.GetViewProperty(viewModel.GetType());
             if (viewProperty == null)
                 return;
 
             if (view != null && !viewProperty.PropertyType.IsInstanceOfType(view) &&
-                _wrapperManager.CanWrap(view.GetType(), viewProperty.PropertyType, DataContext.Empty))
-                view = _wrapperManager.Wrap(view, viewProperty.PropertyType, DataContext.Empty);
+                WrapperManager.CanWrap(view.GetType(), viewProperty.PropertyType, DataContext.Empty))
+                view = WrapperManager.Wrap(view, viewProperty.PropertyType, DataContext.Empty);
             viewProperty.SetValueEx(viewModel, view);
         }
 
@@ -333,24 +331,29 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Configures the specified view to the specified view-model.
-        /// </summary>
-        protected static void InitializeViewInternal(IViewModel viewModel, object view)
+        private void CleanupViewInternal(IViewModel viewModel, object view, IDataContext context)
+        {
+            CleanupView(viewModel, view, context);
+            Action<IViewManager, IViewModel, object, IDataContext> handler = ViewCleared;
+            if (handler != null)
+                handler(this, viewModel, view, context);
+        }
+
+        private static void InitializeViewInternal(IViewModel viewModel, object view)
         {
             if (view == null)
                 return;
             if (viewModel != null)
+            {
+                viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.View, view);
                 viewModel.Subscribe(view);
+            }
 
             if (viewModel != null || ClearDataContext)
                 SetDataContext(view, viewModel);
             Action<object, IViewModel> propertySetter = ReflectionExtensions.GetViewModelPropertySetter(view.GetType());
             if (propertySetter != null)
                 propertySetter(view, viewModel);
-
-            if (viewModel != null)
-                viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.View, view);
         }
 
         #endregion
