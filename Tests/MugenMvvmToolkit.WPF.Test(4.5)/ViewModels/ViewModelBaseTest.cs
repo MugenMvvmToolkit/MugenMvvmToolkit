@@ -237,7 +237,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             var viewModel = GetViewModelBase();
             var childViewModel = viewModel.GetViewModel<TestViewModelBase>(observationMode: ObservationMode.None);
             viewModel.Subscribe(childViewModel);
-            viewModel.Settings.HandleBusyMessageMode = HandleMode.HandleAndNotifyObservers;
+            viewModel.Settings.HandleBusyMessageMode = HandleMode.HandleAndNotifySubscribers;
             var busyMessage = new BeginBusyMessage(Guid.NewGuid(), busyMessageString);
             IHandler<BeginBusyMessage> beginBusyHandler = viewModel;
             IHandler<EndBusyMessage> endBusyHandler = viewModel;
@@ -262,7 +262,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             var viewModel = GetViewModelBase();
             var childViewModel = viewModel.GetViewModel<TestViewModelBase>(observationMode: ObservationMode.None);
             viewModel.Subscribe(childViewModel);
-            viewModel.Settings.HandleBusyMessageMode = HandleMode.HandleAndNotifyObservers;
+            viewModel.Settings.HandleBusyMessageMode = HandleMode.HandleAndNotifySubscribers;
 
             var beginBusy = viewModel.BeginBusy(busyMessageString);
             viewModel.IsBusy.ShouldBeTrue();
@@ -304,7 +304,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             ViewModelBase viewModel = GetViewModelBase();
             var childViewModel = viewModel.GetViewModel<TestViewModelBase>(observationMode: ObservationMode.None);
             viewModel.Subscribe(childViewModel);
-            viewModel.Settings.HandleBusyMessageMode = HandleMode.HandleAndNotifyObservers;
+            viewModel.Settings.HandleBusyMessageMode = HandleMode.HandleAndNotifySubscribers;
 
             viewModel.BeginBusy(firstBusyMessage);
             viewModel.BeginBusy(secondBusyMessage);
@@ -351,7 +351,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             var childViewModel = viewModel.GetViewModel<TestViewModelBase>(observationMode: ObservationMode.None);
             viewModel.Subscribe(childViewModel);
 
-            viewModel.Settings.HandleBusyMessageMode = HandleMode.HandleAndNotifyObservers;
+            viewModel.Settings.HandleBusyMessageMode = HandleMode.HandleAndNotifySubscribers;
 
             viewModel.BeginBusy(firstBusyMessage);
             viewModel.BeginBusy(secondBusyMessage);

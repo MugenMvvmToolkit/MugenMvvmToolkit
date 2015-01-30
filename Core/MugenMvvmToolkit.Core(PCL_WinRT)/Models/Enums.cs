@@ -21,12 +21,30 @@ using System.Runtime.Serialization;
 
 namespace MugenMvvmToolkit.Models
 {
+    /// <summary>
+    ///     Specifies flags that control the way in which the search for members and types is conducted by reflection.
+    /// </summary>
     [Flags]
     public enum MemberFlags
     {
+        /// <summary>
+        ///     Specifies that static members are to be included in the search.
+        /// </summary>
         Static = 1,
+
+        /// <summary>
+        ///     Specifies that instance members are to be included in the search.
+        /// </summary>
         Instance = 2,
+
+        /// <summary>
+        ///     Specifies that public members are to be included in the search.
+        /// </summary>
         Public = 4,
+
+        /// <summary>
+        ///     Specifies that non-public members are to be included in the search.
+        /// </summary>
         NonPublic = 8,
     }
 
@@ -171,7 +189,7 @@ namespace MugenMvvmToolkit.Models
     }
 
     /// <summary>
-    ///     Specifies the hadnle mode.
+    ///     Specifies the handle mode.
     /// </summary>
     [Flags]
     public enum HandleMode
@@ -182,19 +200,19 @@ namespace MugenMvvmToolkit.Models
         None = 0,
 
         /// <summary>
-        ///     Handles and processes a message.
+        ///     Handles a message.
         /// </summary>
         Handle = 1,
 
         /// <summary>
-        ///     Handles and notifies observers about a message.
+        ///     Notifies subscribers about a message.
         /// </summary>
-        NotifyObservers = 2,
+        NotifySubscribers = 2,
 
         /// <summary>
-        ///     Handles and processes a message and notifies observers about the message.
+        ///     Handles a message and notifies subscribers about the message.
         /// </summary>
-        HandleAndNotifyObservers = Handle | NotifyObservers
+        HandleAndNotifySubscribers = Handle | NotifySubscribers
     }
 
     /// <summary>

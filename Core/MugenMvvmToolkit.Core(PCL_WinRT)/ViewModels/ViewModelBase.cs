@@ -507,7 +507,7 @@ namespace MugenMvvmToolkit.ViewModels
                 HandleMode messageMode = Settings.HandleBusyMessageMode;
                 if (messageMode.HasFlagEx(HandleMode.Handle))
                     AddBusy(beginBusyMessage.Id, beginBusyMessage.Message, false);
-                if (messageMode.HasFlagEx(HandleMode.NotifyObservers))
+                if (messageMode.HasFlagEx(HandleMode.NotifySubscribers))
                     PublishInternal(sender, message);
                 return;
             }
