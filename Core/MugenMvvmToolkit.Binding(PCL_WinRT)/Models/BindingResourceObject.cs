@@ -25,12 +25,11 @@ namespace MugenMvvmToolkit.Binding.Models
     /// <summary>
     ///     Represents the binding expression object.
     /// </summary>
-    public class BindingResourceObject : IBindingResourceObject
+    public class BindingResourceObject : ISourceValue
     {
         #region Fields
 
-        private readonly Type _type;
-        private readonly object _value;
+        private object _value;
 
         #endregion
 
@@ -39,25 +38,14 @@ namespace MugenMvvmToolkit.Binding.Models
         /// <summary>
         ///     Initializes a new instance of the <see cref="BindingResourceObject" /> class.
         /// </summary>
-        public BindingResourceObject(object value, Type type = null)
+        public BindingResourceObject(object value)
         {
             _value = value;
-            if (type == null && value != null)
-                type = value.GetType();
-            _type = type ?? typeof(object);
         }
 
         #endregion
 
-        #region Implementation of IBindingResourceObject
-
-        /// <summary>
-        ///     Gets the type of object.
-        /// </summary>
-        public Type Type
-        {
-            get { return _type; }
-        }
+        #region Implementation of ISourceValue
 
         /// <summary>
         ///     Gets an indication whether the object referenced by the current <see cref="ISourceValue" /> object has
@@ -78,16 +66,21 @@ namespace MugenMvvmToolkit.Binding.Models
         public object Value
         {
             get { return _value; }
+            set
+            {
+                if (Equals(_value, value))
+                    return;
+                _value = value;
+                var handler = ValueChanged;
+                if (handler != null)
+                    handler(this, EventArgs.Empty);
+            }
         }
 
         /// <summary>
-        ///     Occurs when the <see cref="ISourceValue.Value"/>  property changed.
+        ///     Occurs when the <see cref="Value"/>  property changed.
         /// </summary>
-        event EventHandler<ISourceValue, EventArgs> ISourceValue.ValueChanged
-        {
-            add { }
-            remove { }
-        }
+        public event EventHandler<ISourceValue, EventArgs> ValueChanged;
 
         #endregion
     }

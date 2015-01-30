@@ -661,19 +661,20 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         {
             if (_ignoreCloseFromViewModel)
                 return;
-            _threadManager.InvokeOnUiThreadAsync(() =>
-            {
-                try
+            _threadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, NavigationService,
+                (provider, service) =>
                 {
-                    _closedFromViewModel = true;
-                    if (NavigationService.CanGoBack)
-                        NavigationService.GoBack();
-                }
-                finally
-                {
-                    _closedFromViewModel = false;
-                }
-            });
+                    try
+                    {
+                        provider._closedFromViewModel = true;
+                        if (service.CanGoBack)
+                            service.GoBack();
+                    }
+                    finally
+                    {
+                        provider._closedFromViewModel = false;
+                    }
+                });
         }
 
         private void TryCacheViewModel(INavigationContext context, object view, IViewModel viewModel)

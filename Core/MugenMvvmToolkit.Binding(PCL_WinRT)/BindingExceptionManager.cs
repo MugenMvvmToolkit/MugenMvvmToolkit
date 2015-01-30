@@ -39,6 +39,8 @@ namespace MugenMvvmToolkit.Binding
         internal const string RelativeSourceNotFoundFormat3 =
             "The RelativeSource cannot be found, the provider returns the null result for the source type '{0}' target type name '{1}' level '{2}'";
 
+        internal const string CannotResolveInstanceFormat2 = "The {0} with name '{1}' is not registered in the '{2}'";
+
         #endregion
 
         #region Methods
@@ -46,8 +48,7 @@ namespace MugenMvvmToolkit.Binding
         internal static Exception CannotResolveInstanceByName(object sender, string instanceName, string name)
         {
             return
-                new InvalidOperationException(string.Format("The {0} with name '{1}' is not registered in the '{2}'",
-                    instanceName, name, sender));
+                new InvalidOperationException(string.Format(CannotResolveInstanceFormat2, instanceName, name, sender));
         }
 
         internal static Exception ExpressionNodeCannotBeNull(Type ownerType)

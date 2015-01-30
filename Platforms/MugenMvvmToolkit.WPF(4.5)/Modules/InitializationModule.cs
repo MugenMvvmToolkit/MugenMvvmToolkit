@@ -89,10 +89,10 @@ namespace MugenMvvmToolkit.Modules
                 {
                     ApplicationSettings.AddCanExecuteChangedEvent = (@base, handler) => ServiceProvider
                        .ThreadManager
-                       .InvokeOnUiThreadAsync(() => System.Windows.Input.CommandManager.RequerySuggested += handler);
+                       .Invoke(ExecutionMode.AsynchronousOnUiThread, handler, handler, (h1, h2) => System.Windows.Input.CommandManager.RequerySuggested += h1);
                     ApplicationSettings.RemoveCanExecuteChangedEvent = (@base, handler) => ServiceProvider
                         .ThreadManager
-                        .InvokeOnUiThreadAsync(() => System.Windows.Input.CommandManager.RequerySuggested -= handler);
+                        .Invoke(ExecutionMode.AsynchronousOnUiThread, handler, handler, (h1, h2) => System.Windows.Input.CommandManager.RequerySuggested -= h1);
                 }
 #elif NETFX_CORE || WINDOWSCOMMON || WINDOWS_PHONE
                 IocContainer.BindToBindingInfo(GetApplicationStateManager());

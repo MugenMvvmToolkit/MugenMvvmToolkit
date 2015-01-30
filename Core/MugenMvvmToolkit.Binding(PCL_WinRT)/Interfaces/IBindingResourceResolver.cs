@@ -72,7 +72,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         IBindingResourceMethod ResolveMethod([NotNull] string name, IDataContext context, bool throwOnError);
 
         /// <summary>
-        ///     Gets an instance of <see cref="IBindingResourceObject" /> by the specified name.
+        ///     Gets an instance of <see cref="ISourceValue" /> by the specified name.
         /// </summary>
         /// <param name="name">The specified name.</param>
         /// <param name="context">The specified data context, if any.</param>
@@ -80,8 +80,8 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         ///     true to throw an exception if the object cannot be found; false to return null. Specifying
         ///     false also suppresses some other exception conditions, but not all of them.
         /// </param>
-        /// <returns>An instance of <see cref="IBindingResourceMethod" />.</returns>
-        IBindingResourceObject ResolveObject([NotNull] string name, IDataContext context, bool throwOnError);
+        /// <returns>An instance of <see cref="ISourceValue" />.</returns>
+        ISourceValue ResolveObject([NotNull] string name, IDataContext context, bool throwOnError);
 
         /// <summary>
         ///     Gets an instance of <see cref="IBindingBehavior" /> by the specified name.
@@ -119,7 +119,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         /// <summary>
         ///     Adds the specified object.
         /// </summary>
-        void AddObject([NotNull] string name, [NotNull] IBindingResourceObject obj, bool rewrite = true);
+        void AddObject([NotNull] string name, [NotNull] ISourceValue obj, bool rewrite = true);
 
         /// <summary>
         ///     Removes the specified behavior using name.

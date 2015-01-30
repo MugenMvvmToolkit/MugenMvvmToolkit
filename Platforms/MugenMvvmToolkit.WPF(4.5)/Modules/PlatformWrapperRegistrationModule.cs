@@ -16,7 +16,6 @@
 
 #endregion
 
-using System;
 using System.ComponentModel;
 using System.Windows;
 using MugenMvvmToolkit.Infrastructure;
@@ -47,11 +46,6 @@ namespace MugenMvvmToolkit.Modules
             #endregion
 
             #region Implementation of IWindowView
-
-            public Type ViewType
-            {
-                get { return _window.GetType(); }
-            }
 
             public object View
             {

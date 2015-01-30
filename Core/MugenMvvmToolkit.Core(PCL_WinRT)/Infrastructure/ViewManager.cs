@@ -197,11 +197,14 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (context == null)
                     context = DataContext.Empty;
                 view = ToolkitExtensions.GetUnderlyingView<object>(view);
-                if (ReferenceEquals(viewModel.Settings.Metadata.GetData(ViewModelConstants.View), view))
+                var oldView = viewModel.Settings.Metadata.GetData(ViewModelConstants.View);
+                if (ReferenceEquals(oldView, view))
                 {
                     tcs.SetResult(null);
                     return;
                 }
+                if (oldView != null)
+                    CleanupViewInternal(viewModel, oldView, context);
                 InitializeView(viewModel, view, context);
                 Action<IViewManager, IViewModel, object, IDataContext> handler = ViewInitialized;
                 if (handler != null)
@@ -227,8 +230,7 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 if (context == null)
                     context = DataContext.Empty;
-                view = ToolkitExtensions.GetUnderlyingView<object>(view);
-                CleanupViewInternal(viewModel, view, context);
+                CleanupViewInternal(viewModel, ToolkitExtensions.GetUnderlyingView<object>(view), context);
                 tcs.SetResult(null);
             }, OperationPriority.Low);
             return tcs.Task;
@@ -292,17 +294,14 @@ namespace MugenMvvmToolkit.Infrastructure
         protected virtual void InitializeView([NotNull] IViewModel viewModel, [CanBeNull] object view,
             [NotNull] IDataContext context)
         {
-            object oldView = viewModel.Settings.Metadata.GetData(ViewModelConstants.View);
-            if (oldView != null)
-                CleanupViewInternal(viewModel, oldView, context);
             InitializeViewInternal(viewModel, view);
             PropertyInfo viewProperty = ReflectionExtensions.GetViewProperty(viewModel.GetType());
             if (viewProperty == null)
                 return;
 
             if (view != null && !viewProperty.PropertyType.IsInstanceOfType(view) &&
-                WrapperManager.CanWrap(view.GetType(), viewProperty.PropertyType, DataContext.Empty))
-                view = WrapperManager.Wrap(view, viewProperty.PropertyType, DataContext.Empty);
+                WrapperManager.CanWrap(view.GetType(), viewProperty.PropertyType, context))
+                view = WrapperManager.Wrap(view, viewProperty.PropertyType, context);
             viewProperty.SetValueEx(viewModel, view);
         }
 

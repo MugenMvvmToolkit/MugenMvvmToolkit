@@ -16,7 +16,6 @@
 
 #endregion
 
-using System;
 using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Interfaces.Views
@@ -26,12 +25,6 @@ namespace MugenMvvmToolkit.Interfaces.Views
     /// </summary>
     public interface IViewWrapper : IView
     {
-        /// <summary>
-        ///     Gets the underlying view type.
-        /// </summary>
-        [NotNull]
-        Type ViewType { get; }
-
         /// <summary>
         ///     Gets the view object.
         /// </summary>

@@ -33,11 +33,12 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Fields
 
+        private const int StoppedState = 0;
         private const int InitializedState = 1;
-        private const int StoppedState = 2;
+        private static int _state;
+
         private IModuleContext _context;
         private IList<IModule> _loadedModules;
-        private static int _state;
         private IList<Assembly> _assemblies;
         private IDataContext _initializationContext;
         private IIocContainer _iocContainer;
@@ -51,6 +52,11 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected BootstrapperBase()
         {
+            if (Current != null)
+            {
+                Tracer.Error("The application is already has a bootstrapper " + Current);
+                return;
+            }
             // ReSharper disable once DoNotCallOverridableMethodsInConstructor
             ServiceProvider.DesignTimeManager = new DesignTimeManagerImpl(Platform);
         }
@@ -62,7 +68,13 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Gets or sets the current <see cref="BootstrapperBase" />.
         /// </summary>
-        public static BootstrapperBase Instance { get; set; }
+        public static BootstrapperBase Current { get; protected set; }
+
+        /// <summary>
+        ///     Gets the current platform.
+        /// </summary>
+        [NotNull]
+        public abstract PlatformInfo Platform { get; }
 
         /// <summary>
         ///     Gets the initialized state of the current bootstraper.
@@ -78,20 +90,9 @@ namespace MugenMvvmToolkit.Infrastructure
         [NotNull]
         public IIocContainer IocContainer
         {
-            get
-            {
-                if (_iocContainer == null && Instance != null)
-                    return Instance.IocContainer;
-                return _iocContainer;
-            }
+            get { return _iocContainer; }
             protected set { _iocContainer = value; }
         }
-
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
-        [NotNull]
-        public abstract PlatformInfo Platform { get; }
 
         /// <summary>
         ///     Gets the initialization context.
@@ -99,12 +100,7 @@ namespace MugenMvvmToolkit.Infrastructure
         [NotNull]
         public IDataContext InitializationContext
         {
-            get
-            {
-                if (_initializationContext == null && Instance != null)
-                    return Instance.InitializationContext;
-                return _initializationContext ?? DataContext.Empty;
-            }
+            get { return _initializationContext ?? DataContext.Empty; }
             set { _initializationContext = value; }
         }
 
@@ -119,7 +115,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (Interlocked.Exchange(ref _state, InitializedState) == InitializedState)
                 return;
-            Instance = this;
+            Current = this;
             IocContainer = CreateIocContainer();
             OnInitialize();
         }
@@ -131,16 +127,18 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (Interlocked.Exchange(ref _state, StoppedState) == StoppedState)
                 return;
+            if (Current != null && !ReferenceEquals(Current, this))
+                Current.Stop();
             try
             {
-                Instance.OnStop();
+                OnStop();
             }
             finally
             {
                 var iocContainer = IocContainer;
                 if (iocContainer != null)
                     iocContainer.Dispose();
-
+                Current = null;
             }
         }
 
@@ -150,9 +148,11 @@ namespace MugenMvvmToolkit.Infrastructure
         protected virtual void OnInitialize()
         {
             LoadModules();
-            IViewModelSettings settings = CreateViewModelSettings();
             if (!IocContainer.CanResolve<IViewModelSettings>())
+            {
+                IViewModelSettings settings = CreateViewModelSettings();
                 IocContainer.BindToConstant(settings);
+            }
             ServiceProvider.Initialize(IocContainer, Platform);
         }
 
@@ -182,10 +182,11 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected virtual void UnloadModules()
         {
-            if (_loadedModules == null)
-                return;
-            for (int index = 0; index < _loadedModules.Count; index++)
-                _loadedModules[index].Unload(_context);
+            if (_loadedModules != null)
+            {
+                for (int index = 0; index < _loadedModules.Count; index++)
+                    _loadedModules[index].Unload(_context);
+            }
         }
 
         /// <summary>

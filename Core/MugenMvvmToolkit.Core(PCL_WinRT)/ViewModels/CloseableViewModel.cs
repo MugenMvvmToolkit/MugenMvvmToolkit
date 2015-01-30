@@ -88,7 +88,7 @@ namespace MugenMvvmToolkit.ViewModels
             return OnClosing(parameter)
                 .TryExecuteSynchronously(task =>
                 {
-                    if (!task.Result || !RaiseClosingEvent(parameter))
+                    if (!task.Result || !RaiseClosing(parameter))
                         return false;
                     CloseInternal(parameter);
                     return true;
@@ -142,7 +142,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Invokes the Closing event.
         /// </summary>
-        protected virtual bool RaiseClosingEvent(object parameter)
+        protected virtual bool RaiseClosing(object parameter)
         {
             var handler = Closing;
             if (handler == null)
@@ -155,7 +155,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Invokes the Closed event.
         /// </summary>
-        protected virtual void RaiseClosedEvent(object parameter)
+        protected virtual void RaiseClosed(object parameter)
         {
             var handler = Closed;
             if (handler != null)
@@ -165,7 +165,7 @@ namespace MugenMvvmToolkit.ViewModels
         private Task<bool> CloseInternal(object parameter)
         {
             OnClosed(parameter);
-            RaiseClosedEvent(parameter);
+            RaiseClosed(parameter);
             return Empty.TrueTask;
         }
 

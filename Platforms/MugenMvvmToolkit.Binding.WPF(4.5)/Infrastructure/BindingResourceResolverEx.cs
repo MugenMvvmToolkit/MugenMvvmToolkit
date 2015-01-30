@@ -44,7 +44,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
     {
         #region Nested types
 
-        private sealed class XamlUnresolvedResource : IBindingResourceObject, IEventListener
+        private sealed class XamlUnresolvedResource : ISourceValue, IEventListener
         {
             #region Fields
 
@@ -69,25 +69,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Implementation of interfaces
 
-            public Type Type
-            {
-                get
-                {
-                    var value = _value;
-                    if (ReferenceEquals(value, BindingConstants.UnsetValue))
-                        return typeof(object);
-                    return value.GetType();
-                }
-            }
-
             public object Value
             {
-                get
-                {
-                    if (ReferenceEquals(_value, BindingConstants.UnsetValue))
-                        Tracer.Warn("The XAML resource with key '{0}' cannot be found.", _key);
-                    return _value;
-                }
+                get { return _value; }
                 private set
                 {
                     if (Equals(_value, value))
@@ -180,37 +164,62 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         }
 
         /// <summary>
-        ///     Gets an instance of <see cref="IBindingResourceObject" /> by the specified name.
+        ///     Gets an instance of <see cref="ISourceValue" /> by the specified name.
         /// </summary>
+        /// <param name="target">The binding target.</param>
         /// <param name="name">The specified name.</param>
         /// <param name="context">The specified data context, if any.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the type cannot be found; false to return null. Specifying
-        ///     false also suppresses some other exception conditions, but not all of them.
-        /// </param>
-        /// <returns>An instance of <see cref="IBindingResourceMethod" />.</returns>
-        public override IBindingResourceObject ResolveObject(string name, IDataContext context, bool throwOnError)
+        protected override ISourceValue ResolveObjectInternal(object target, string name, IDataContext context)
         {
-            var result = base.ResolveObject(name, context, false);
-            if (result != null)
-                return result;
+            var value = base.ResolveObjectInternal(target, name, context);
+            if (value != null)
+                return value;
 
-            var target = TryGetTarget(context);
             var item = TryFindResource(target, name);
             if (item != null)
                 return new BindingResourceObject(item);
 
-            if (throwOnError)
+            var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
+            if (rootMember != null)
             {
-                if (target != null)
-                {
-                    var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
-                    if (rootMember != null)
-                        return new XamlUnresolvedResource(target, name, rootMember);
-                }
+                Tracer.Warn("The XAML resource with key '{0}' cannot be found.", name);
+                return new XamlUnresolvedResource(target, name, rootMember);
             }
-            return base.ResolveObject(name, context, throwOnError);
+            return null;
         }
+
+        /* /// <summary>
+         ///     Gets an instance of <see cref="ISourceValue" /> by the specified name.
+         /// </summary>
+         /// <param name="name">The specified name.</param>
+         /// <param name="context">The specified data context, if any.</param>
+         /// <param name="throwOnError">
+         ///     true to throw an exception if the type cannot be found; false to return null. Specifying
+         ///     false also suppresses some other exception conditions, but not all of them.
+         /// </param>
+         /// <returns>An instance of <see cref="ISourceValue" />.</returns>
+         public override ISourceValue ResolveObject(string name, IDataContext context, bool throwOnError)
+         {
+             var result = base.ResolveObject(name, context, false);
+             if (result != null)
+                 return result;
+
+             var target = TryGetTarget(context);
+             var item = TryFindResource(target, name);
+             if (item != null)
+                 return new BindingResourceObject(item);
+
+             if (throwOnError)
+             {
+                 if (target != null)
+                 {
+                     var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
+                     if (rootMember != null)
+                         return new XamlUnresolvedResource(target, name, rootMember);
+                 }
+             }
+             return base.ResolveObject(name, context, throwOnError);
+         }*/
 
         #endregion
 

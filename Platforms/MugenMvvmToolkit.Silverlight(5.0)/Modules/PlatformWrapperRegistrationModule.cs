@@ -48,11 +48,6 @@ namespace MugenMvvmToolkit.Modules
 
             #region Implementation of IWindowView
 
-            public Type ViewType
-            {
-                get { return _window.GetType(); }
-            }
-
             public object View
             {
                 get { return _window; }

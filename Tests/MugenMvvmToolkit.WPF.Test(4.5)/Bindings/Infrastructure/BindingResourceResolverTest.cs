@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Converters;
+using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestModels;
 using Should;
 
@@ -81,9 +84,86 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var source = new BindingResourceObject("test");
             var resolver = CreateBindingResourceResolver();
 
-            resolver.ResolveObject(name, EmptyContext, false).ShouldBeNull();
+            resolver.ResolveObject(name, EmptyContext, false).Value.ShouldBeNull();
             resolver.AddObject(name, source, true);
-            resolver.ResolveObject(name, EmptyContext, true).ShouldEqual(source);
+            resolver.ResolveObject(name, EmptyContext, true).Value.ShouldEqual(source.Value);
+        }
+
+        [TestMethod]
+        public void ResolverShouldRegisterAndResolveDynamicObject()
+        {
+            const string name = "name";
+            const string firstValue = "1";
+            const string secondValue = "2";
+            var source = new BindingResourceObject(firstValue);
+            var resolver = CreateBindingResourceResolver();
+
+            bool isInvoked = false;
+            var value = resolver.ResolveObject(name, EmptyContext, false);
+            value.Value.ShouldBeNull();
+            value.ValueChanged += (sender, args) => isInvoked = true;
+
+            resolver.AddObject(name, source, true);
+            value.Value.ShouldEqual(firstValue);
+            isInvoked.ShouldBeTrue();
+
+            isInvoked = false;
+            resolver.AddObject(name, new BindingResourceObject(secondValue), true);
+            value.Value.ShouldEqual(secondValue);
+            isInvoked.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public void ResolverShouldResolveRootMember()
+        {
+            const string name = "root";
+            var visualTreeManagerMock = new VisualTreeManagerMock();
+            BindingServiceProvider.VisualTreeManager = visualTreeManagerMock;
+            var rootMember = AttachedBindingMember.CreateAutoProperty<object, object>(name);
+            visualTreeManagerMock.GetRootMember = type => rootMember;
+            var target = new object();
+
+            var dataContext = new DataContext
+            {
+                {BindingBuilderConstants.Target, target}
+            };
+
+            var resolver = CreateBindingResourceResolver();
+            var value = resolver.ResolveObject(name, dataContext, false);
+            value.Value.ShouldBeNull();
+
+            rootMember.SetValue(target, target);
+            value.Value.ShouldEqual(target);
+        }
+
+        [TestMethod]
+        public void ResolverShouldRegisterAndResolveDynamicObjectTarget()
+        {
+            const string name = "root";
+            const string firstValue = "1";
+            var visualTreeManagerMock = new VisualTreeManagerMock();
+            BindingServiceProvider.VisualTreeManager = visualTreeManagerMock;
+            var rootMember = AttachedBindingMember.CreateAutoProperty<object, object>("root");
+            visualTreeManagerMock.GetRootMember = type => rootMember;
+            var target = new object();
+            rootMember.SetValue(target, target);
+
+            var dataContext = new DataContext
+            {
+                {BindingBuilderConstants.Target, target}
+            };
+
+            var source = new BindingResourceObject(firstValue);
+            var resolver = CreateBindingResourceResolver();
+
+            bool isInvoked = false;
+            var value = resolver.ResolveObject(name, dataContext, false);
+            value.Value.ShouldEqual(target);
+            value.ValueChanged += (sender, args) => isInvoked = true;
+
+            resolver.AddObject(name, source, true);
+            value.Value.ShouldEqual(firstValue);
+            isInvoked.ShouldBeTrue();
         }
 
         [TestMethod]
@@ -94,39 +174,41 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var resolver = CreateBindingResourceResolver();
 
             resolver.AddObject(name, source, true);
-            resolver.ResolveObject(name, EmptyContext, true).ShouldEqual(source);
+            resolver.ResolveObject(name, EmptyContext, true).Value.ShouldEqual(source.Value);
 
             resolver.RemoveObject(name).ShouldBeTrue();
-            resolver.ResolveObject(name, EmptyContext, false).ShouldBeNull();
+            resolver.ResolveObject(name, EmptyContext, false).Value.ShouldBeNull();
         }
 
         [TestMethod]
-        public void ResolverShouldThrowExceptionIfObjectIsNotRegistered()
+        public void ResolverShouldNotThrowExceptionIfObjectIsNotRegistered()
         {
             var resolver = CreateBindingResourceResolver();
-            ShouldThrow(() => resolver.ResolveObject("test", EmptyContext, true));
+            resolver.ResolveObject("test", EmptyContext, true).Value.ShouldBeNull();
         }
 
         [TestMethod]
-        public void ResolverShouldThrowExceptionIfObjectIsAlreadyRegisteredRewriteFalse()
+        public void ResolverShouldNotThrowExceptionIfObjectIsAlreadyRegisteredRewriteFalse()
         {
             const string name = "name";
-            var source = new BindingResourceObject("test");
+            var source = new BindingResourceObject("test1");
+            var source2 = new BindingResourceObject("test2");
             var resolver = CreateBindingResourceResolver();
             resolver.AddObject(name, source, false);
-            ShouldThrow(() => resolver.AddObject(name, source, false));
+            resolver.AddObject(name, source2, true);
+            resolver.ResolveObject(name, EmptyContext, true).Value.ShouldEqual(source2.Value);
         }
 
         [TestMethod]
         public void ResolverShouldNotThrowExceptionIfObjectIsAlreadyRegisteredRewriteTrue()
         {
             const string name = "name";
-            var source = new BindingResourceObject("test");
-            var source2 = new BindingResourceObject("test");
+            var source = new BindingResourceObject("test1");
+            var source2 = new BindingResourceObject("test2");
             var resolver = CreateBindingResourceResolver();
             resolver.AddObject(name, source, false);
             resolver.AddObject(name, source2, true);
-            resolver.ResolveObject(name, EmptyContext, true).ShouldEqual(source2);
+            resolver.ResolveObject(name, EmptyContext, true).Value.ShouldEqual(source2.Value);
         }
 
         [TestMethod]

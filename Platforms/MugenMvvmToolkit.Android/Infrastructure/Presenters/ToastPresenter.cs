@@ -96,14 +96,14 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                     _delayTimer.Dispose();
                 if (_showTimer != null)
                     _showTimer.Dispose();
-                _threadManager.InvokeOnUiThread(() =>
+                _threadManager.Invoke(ExecutionMode.SynchronousOnUiThread, this, this, (w, wrapper) =>
                 {
-                    Toast toast = _toast;
+                    Toast toast = w._toast;
                     if (toast != null)
                     {
-                        _toast = null;
+                        w._toast = null;
                         toast.Cancel();
-                        _task.TrySetResult(null);
+                        w._task.TrySetResult(null);
                     }
                 }, OperationPriority.High);
             }
@@ -111,15 +111,16 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             private static void ShowTimerCallback(object state)
             {
                 var closure = (ToastWrapper)state;
-                closure._threadManager.InvokeOnUiThread(() =>
-                {
-                    if (!closure._task.Task.IsCompleted)
+                closure._threadManager.Invoke(ExecutionMode.SynchronousOnUiThread, closure, closure,
+                    (w, wrapper) =>
                     {
-                        Toast toast = closure._toast;
-                        if (toast != null)
-                            toast.Show();
-                    }
-                }, OperationPriority.High);
+                        if (!w._task.Task.IsCompleted)
+                        {
+                            Toast toast = w._toast;
+                            if (toast != null)
+                                toast.Show();
+                        }
+                    }, OperationPriority.High);
             }
 
             private static void DelayTimerCallback(object state)

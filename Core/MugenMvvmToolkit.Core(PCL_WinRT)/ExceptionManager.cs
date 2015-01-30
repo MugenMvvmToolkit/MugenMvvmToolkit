@@ -48,8 +48,7 @@ namespace MugenMvvmToolkit
             string typeName = obj == null ? "empty" : obj.GetType().FullName;
             return
                 new InvalidOperationException(string.Format("The '{0}' is already initialized, type '{1}'. {2}",
-                    objectName,
-                    typeName, hint));
+                    objectName, typeName, hint));
         }
 
         internal static Exception EnumOutOfRange(string paramName, Enum @enum)

@@ -17,6 +17,7 @@
       - Added support for attached events for the DataBinding markup extension (WPF).
       - Added BindingServiceProvider.BindingPathFactory static property that allows to create an instance of IBindingPath for the specified string.
       - Added GetMemberValue and SetMemberValue extension methods for IBindingMemberProvider.
+      - Updated BindingResourceResolver now it tracks the resources and updates them if they have changed. Analog of dynamic resources for WPF.
       - Optimized memory usage for ViewModelBase.
       - Removed support for MonoTouch.
       - Removed the AutoConvertValue property from the IBindingSourceAccessor interface, to disable value converter set BindingServiceProvider.ValueConverter to null.

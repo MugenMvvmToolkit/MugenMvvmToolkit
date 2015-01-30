@@ -279,9 +279,6 @@
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\models\IBindingResourceMethod.cs">
       <Link>Interfaces\Models\IBindingResourceMethod.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\models\IBindingResourceObject.cs">
-      <Link>Interfaces\Models\IBindingResourceObject.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\models\IDynamicObject.cs">
       <Link>Interfaces\Models\IDynamicObject.cs</Link>
     </Compile>

@@ -181,12 +181,12 @@ namespace MugenMvvmToolkit.Binding.Parse
             {
                 if (type == null)
                 {
-                    IBindingResourceObject resourceObject = BindingServiceProvider
+                    var resourceObject = BindingServiceProvider
                         .ResourceResolver
                         .ResolveObject(firstMember, DataContext.Empty, true);
                     var dynamicObject = resourceObject.Value as IDynamicObject;
                     if (dynamicObject == null || path.Parts.Count <= 1)
-                        staticValue = new ConstantExpressionNode(resourceObject.Value, resourceObject.Type);
+                        staticValue = new ConstantExpressionNode(resourceObject.Value);
                     else
                     {
                         staticValue = new ConstantExpressionNode(dynamicObject.GetMember(path.Parts[1], Empty.Array<object>()));

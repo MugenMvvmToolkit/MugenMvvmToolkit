@@ -128,11 +128,6 @@ namespace MugenMvvmToolkit.Modules
 
             #region Implementation of IViewWrapper
 
-            public Type ViewType
-            {
-                get { return _window.GetType(); }
-            }
-
             public object View
             {
                 get { return _window; }

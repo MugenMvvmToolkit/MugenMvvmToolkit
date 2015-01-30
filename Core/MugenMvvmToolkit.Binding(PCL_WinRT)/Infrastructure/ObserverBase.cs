@@ -63,7 +63,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             CollectionChangedEvent = typeof(INotifyCollectionChanged).GetEventEx("CollectionChanged", MemberFlags.Instance | MemberFlags.Public);
             DisposedException = ExceptionManager.ObjectDisposed(typeof(ObserverBase));
-            EmptySource = new BindingResourceObject(null, typeof(object));
+            EmptySource = new BindingResourceObject(null);
         }
 
         /// <summary>

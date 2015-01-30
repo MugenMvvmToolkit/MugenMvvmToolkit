@@ -77,6 +77,7 @@ namespace MugenMvvmToolkit.Infrastructure
             DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
             ViewManager.ViewCleared += OnViewCleared;
+            ViewManager.ClearDataContext = true;
             BindingServiceProvider.DataContextMemberAliases.Add("BindingContext");
             BindingServiceProvider.BindingMemberPriorities["BindingContext"] = int.MaxValue - 1;
         }
@@ -86,8 +87,6 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected XamarinFormsBootstrapperBase()
         {
-            if (Instance is XamarinFormsBootstrapperBase && Instance.IsInitialized)
-                return;
             var assembly = TryLoadAssembly(BindingAssemblyName, null);
             if (assembly == null)
                 return;
@@ -103,6 +102,15 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Properties
+
+        /// <summary>
+        ///     Gets or sets the current <see cref="XamarinFormsBootstrapperBase" />.
+        /// </summary>
+        [CanBeNull]
+        public new static XamarinFormsBootstrapperBase Current
+        {
+            get { return BootstrapperBase.Current as XamarinFormsBootstrapperBase; }
+        }
 
         /// <summary>
         ///     Gets the name of binding assembly.
@@ -128,13 +136,9 @@ namespace MugenMvvmToolkit.Infrastructure
             get
             {
                 if (_platform == null)
-                {
-                    if (Instance != null)
-                        return Instance.Platform;
                     _platform = _platformService == null
-                           ? XamarinFormsExtensions.GetPlatformInfo()
-                           : _platformService.GetPlatformInfo();
-                }
+                        ? XamarinFormsExtensions.GetPlatformInfo()
+                        : _platformService.GetPlatformInfo();
                 return _platform;
             }
         }
@@ -158,9 +162,8 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public virtual Page Start(bool wrapToNavigationPage = true)
         {
-            var bootstrapper = Instance as XamarinFormsBootstrapperBase;
-            if (bootstrapper != null && !ReferenceEquals(Instance, this))
-                return bootstrapper.Start(wrapToNavigationPage);
+            if (Current != null && !ReferenceEquals(Current, this))
+                return Current.Start(wrapToNavigationPage);
 
             InitializationContext = InitializationContext.ToNonReadOnly();
             InitializationContext.AddOrUpdate(WrapToNavigationPageConstant, wrapToNavigationPage);

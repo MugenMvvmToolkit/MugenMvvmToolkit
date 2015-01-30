@@ -1795,24 +1795,25 @@ namespace MugenMvvmToolkit
             return context.ToList().ToArrayEx();
         }
 
-        internal static void Invoke(this IThreadManager threadManager, ExecutionMode mode, Action invokeAction)
+        /// <summary>
+        ///     Invokes an action using the specified execution mode.
+        /// </summary>
+        public static void Invoke(this IThreadManager threadManager, ExecutionMode mode, Action invokeAction, OperationPriority priority = OperationPriority.Normal, CancellationToken token = default (CancellationToken))
         {
             switch (mode)
             {
                 case ExecutionMode.SynchronousOnUiThread:
                     if (threadManager.IsUiThread)
-                        invokeAction();
-                    else
-                        threadManager.InvokeOnUiThread(invokeAction);
+                        goto default;
+                    threadManager.InvokeOnUiThread(invokeAction, priority, token);
                     break;
                 case ExecutionMode.Asynchronous:
-                    threadManager.InvokeAsync(invokeAction);
+                    threadManager.InvokeAsync(invokeAction, priority, token);
                     break;
                 case ExecutionMode.AsynchronousOnUiThread:
-                    if (threadManager.IsUiThread)
-                        invokeAction();
-                    else
-                        threadManager.InvokeOnUiThreadAsync(invokeAction);
+                    if (priority != OperationPriority.Low && threadManager.IsUiThread)
+                        goto default;
+                    threadManager.InvokeOnUiThreadAsync(invokeAction, priority, token);
                     break;
                 default:
                     invokeAction();
@@ -1820,22 +1821,25 @@ namespace MugenMvvmToolkit
             }
         }
 
-        internal static void Invoke<TTarget, TArg>(this IThreadManager threadManager, ExecutionMode mode, TTarget target, TArg arg1, Action<TTarget, TArg> invokeAction)
+        /// <summary>
+        ///     Invokes an action using the specified execution mode.
+        /// </summary>
+        public static void Invoke<TTarget, TArg>(this IThreadManager threadManager, ExecutionMode mode, TTarget target, TArg arg1, Action<TTarget, TArg> invokeAction, OperationPriority priority = OperationPriority.Normal, CancellationToken token = default (CancellationToken))
         {
             switch (mode)
             {
                 case ExecutionMode.SynchronousOnUiThread:
                     if (threadManager.IsUiThread)
                         goto default;
-                    threadManager.InvokeOnUiThread(new ThreadManagerClosure<TTarget, TArg, object>(invokeAction, target, arg1).Invoke);
+                    threadManager.InvokeOnUiThread(new ThreadManagerClosure<TTarget, TArg, object>(invokeAction, target, arg1).Invoke, priority, token);
                     break;
                 case ExecutionMode.Asynchronous:
-                    threadManager.InvokeAsync(new ThreadManagerClosure<TTarget, TArg, object>(invokeAction, target, arg1).Invoke);
+                    threadManager.InvokeAsync(new ThreadManagerClosure<TTarget, TArg, object>(invokeAction, target, arg1).Invoke, priority, token);
                     break;
                 case ExecutionMode.AsynchronousOnUiThread:
-                    if (threadManager.IsUiThread)
+                    if (priority != OperationPriority.Low && threadManager.IsUiThread)
                         goto default;
-                    threadManager.InvokeOnUiThreadAsync(new ThreadManagerClosure<TTarget, TArg, object>(invokeAction, target, arg1).Invoke);
+                    threadManager.InvokeOnUiThreadAsync(new ThreadManagerClosure<TTarget, TArg, object>(invokeAction, target, arg1).Invoke, priority, token);
                     break;
                 default:
                     invokeAction(target, arg1);
@@ -1843,22 +1847,25 @@ namespace MugenMvvmToolkit
             }
         }
 
-        internal static void Invoke<TTarget, TArg1, TArg2>(this IThreadManager threadManager, ExecutionMode mode, TTarget target, TArg1 arg1, TArg2 arg2, Action<TTarget, TArg1, TArg2> invokeAction)
+        /// <summary>
+        ///     Invokes an action using the specified execution mode.
+        /// </summary>
+        public static void Invoke<TTarget, TArg1, TArg2>(this IThreadManager threadManager, ExecutionMode mode, TTarget target, TArg1 arg1, TArg2 arg2, Action<TTarget, TArg1, TArg2> invokeAction, OperationPriority priority = OperationPriority.Normal, CancellationToken token = default (CancellationToken))
         {
             switch (mode)
             {
                 case ExecutionMode.SynchronousOnUiThread:
                     if (threadManager.IsUiThread)
                         goto default;
-                    threadManager.InvokeOnUiThread(new ThreadManagerClosure<TTarget, TArg1, TArg2>(invokeAction, target, arg1, arg2).Invoke);
+                    threadManager.InvokeOnUiThread(new ThreadManagerClosure<TTarget, TArg1, TArg2>(invokeAction, target, arg1, arg2).Invoke, priority, token);
                     break;
                 case ExecutionMode.Asynchronous:
-                    threadManager.InvokeAsync(new ThreadManagerClosure<TTarget, TArg1, TArg2>(invokeAction, target, arg1, arg2).Invoke);
+                    threadManager.InvokeAsync(new ThreadManagerClosure<TTarget, TArg1, TArg2>(invokeAction, target, arg1, arg2).Invoke, priority, token);
                     break;
                 case ExecutionMode.AsynchronousOnUiThread:
-                    if (threadManager.IsUiThread)
+                    if (priority != OperationPriority.Low && threadManager.IsUiThread)
                         goto default;
-                    threadManager.InvokeOnUiThreadAsync(new ThreadManagerClosure<TTarget, TArg1, TArg2>(invokeAction, target, arg1, arg2).Invoke);
+                    threadManager.InvokeOnUiThreadAsync(new ThreadManagerClosure<TTarget, TArg1, TArg2>(invokeAction, target, arg1, arg2).Invoke, priority, token);
                     break;
                 default:
                     invokeAction(target, arg1, arg2);

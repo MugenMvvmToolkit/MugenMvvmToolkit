@@ -39,7 +39,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
     {
         #region Nested types
 
-        private sealed class RootResourceObject : IBindingResourceObject, IEventListener
+        private sealed class RootResourceObject : ISourceValue, IEventListener
         {
             #region Fields
 
@@ -59,7 +59,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #endregion
 
-            #region Implementation of IBindingResourceObject
+            #region Implementation of ISourceValue
 
             public bool IsAlive
             {
@@ -90,29 +90,88 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 }
             }
 
-            public Type Type
+            public event EventHandler<ISourceValue, EventArgs> ValueChanged;
+
+            #endregion
+        }
+
+        private sealed class DynamicResourceObject : ISourceValue
+        {
+            #region Fields
+
+            private ISourceValue _value;
+            private string _name;
+
+            #endregion
+
+            #region Implementation of ISourceValue
+
+            public bool IsAlive
+            {
+                get { return true; }
+            }
+
+            public object Value
             {
                 get
                 {
-                    var value = Value;
-                    return value == null ? typeof(object) : value.GetType();
+                    var value = _value;
+                    if (value == null)
+                        return null;
+                    return value.Value;
                 }
             }
 
             public event EventHandler<ISourceValue, EventArgs> ValueChanged;
 
             #endregion
+
+            #region Methods
+
+            public void SetValue(ISourceValue value, string name, bool rewrite)
+            {
+                if (_value != null)
+                {
+                    if (!rewrite)
+                        throw ExceptionManager.ObjectInitialized("resource", _value.Value, "Name - " + name);
+                    _value.ValueChanged -= OnValueChanged;
+                }
+                _name = name;
+                _value = value;
+                if (value != null)
+                    value.ValueChanged += OnValueChanged;
+                OnValueChanged(null, EventArgs.Empty);
+            }
+
+            public void OnResourceAdded(ISourceValue value, string name)
+            {
+                if (_name == name)
+                    SetValue(value, name, true);
+            }
+
+            private void OnValueChanged(ISourceValue sender, EventArgs args)
+            {
+                var handler = ValueChanged;
+                if (handler != null)
+                    handler(this, args);
+            }
+
+            #endregion
+
         }
 
         #endregion
 
         #region Fields
 
+        private const int MaxInstanceObject = 200;
+        private const string ResourcePrefix = "@$res.";
         private readonly Dictionary<string, IBindingValueConverter> _converters;
         private readonly Dictionary<string, IBindingResourceMethod> _dynamicMethods;
-        private readonly Dictionary<string, IBindingResourceObject> _objects;
+        private readonly Dictionary<string, DynamicResourceObject> _objects;
         private readonly Dictionary<string, Func<IDataContext, IList<object>, IBindingBehavior>> _behaviors;
         private readonly Dictionary<string, Type> _types;
+        private readonly List<WeakReference> _instanceObjects;
 
         #endregion
 
@@ -131,51 +190,53 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 {DefaultBindingParserHandler.GetEventArgsMethod, new BindingResourceMethod(GetEventArgs, GetEventArgsReturnType)},
                 {DefaultBindingParserHandler.GetErrorsMethod, new BindingResourceMethod(GetErrorsMethod, typeof(IList<object>))}
             };
-            _objects = new Dictionary<string, IBindingResourceObject>();
+            _objects = new Dictionary<string, DynamicResourceObject>();
+            _instanceObjects = new List<WeakReference>();
             _types = new Dictionary<string, Type>
             {
-                {"Object", typeof (Object)},
                 {"object", typeof (Object)},
-                {"Boolean", typeof (Boolean)},
                 {"bool", typeof (Boolean)},
-                {"Char", typeof (Char)},
                 {"char", typeof (Char)},
-                {"String", typeof (String)},
                 {"string", typeof (String)},
-                {"SByte", typeof (SByte)},
                 {"sbyte", typeof (SByte)},
-                {"Byte", typeof (Byte)},
                 {"byte", typeof (Byte)},
-                {"Int16", typeof (Int16)},
                 {"short", typeof (Int16)},
-                {"UInt16", typeof (UInt16)},
                 {"ushort", typeof (UInt16)},
-                {"Int32", typeof (Int32)},
                 {"int", typeof (Int32)},
-                {"UInt32", typeof (UInt32)},
                 {"uint", typeof (UInt32)},
-                {"Int64", typeof (Int64)},
                 {"long", typeof (Int64)},
-                {"UInt64", typeof (UInt64)},
                 {"ulong", typeof (UInt64)},
-                {"Single", typeof (Single)},
                 {"float", typeof (Single)},
-                {"Double", typeof (Double)},
                 {"double", typeof (Double)},
-                {"Decimal", typeof (Decimal)},
                 {"decimal", typeof (Decimal)},
-                {"DateTime", typeof (DateTime)},
-                {"TimeSpan", typeof (TimeSpan)},
-                {"Guid", typeof (Guid)},
-                {"Math", typeof (Math)},
-                {"Convert", typeof (Convert)},
-                {"Enumerable", typeof (Enumerable)},
-                {"Environment", typeof(Environment)}
             };
+            //to reduce constant string size.
+            this.AddType(typeof(Object));
+            this.AddType(typeof(Boolean));
+            this.AddType(typeof(Char));
+            this.AddType(typeof(String));
+            this.AddType(typeof(SByte));
+            this.AddType(typeof(Byte));
+            this.AddType(typeof(Int16));
+            this.AddType(typeof(UInt16));
+            this.AddType(typeof(Int32));
+            this.AddType(typeof(UInt32));
+            this.AddType(typeof(Int64));
+            this.AddType(typeof(UInt64));
+            this.AddType(typeof(Single));
+            this.AddType(typeof(Double));
+            this.AddType(typeof(Decimal));
+            this.AddType(typeof(DateTime));
+            this.AddType(typeof(TimeSpan));
+            this.AddType(typeof(Guid));
+            this.AddType(typeof(Math));
+            this.AddType(typeof(Convert));
+            this.AddType(typeof(Enumerable));
+            this.AddType(typeof(Environment));
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BindingResourceResolver"/> class.
+        ///     Initializes a new instance of the <see cref="BindingResourceResolver" /> class.
         /// </summary>
         public BindingResourceResolver([NotNull] BindingResourceResolver resolver)
         {
@@ -183,8 +244,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _behaviors = new Dictionary<string, Func<IDataContext, IList<object>, IBindingBehavior>>(resolver._behaviors);
             _converters = new Dictionary<string, IBindingValueConverter>(resolver._converters);
             _dynamicMethods = new Dictionary<string, IBindingResourceMethod>(resolver._dynamicMethods);
-            _objects = new Dictionary<string, IBindingResourceObject>(resolver._objects);
+            _objects = new Dictionary<string, DynamicResourceObject>(resolver._objects);
             _types = new Dictionary<string, Type>(resolver._types);
+            _instanceObjects = new List<WeakReference>(resolver._instanceObjects);
         }
 
         #endregion
@@ -253,6 +315,60 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (behavior == null)
                 return Empty.Array<object>();
             return behavior.Errors;
+        }
+
+        /// <summary>
+        ///     Gets an instance of <see cref="ISourceValue" /> by the specified name.
+        /// </summary>
+        /// <param name="target">The binding target.</param>
+        /// <param name="name">The specified name.</param>
+        /// <param name="context">The specified data context, if any.</param>
+        [CanBeNull]
+        protected virtual ISourceValue ResolveObjectInternal([NotNull] object target, string name, IDataContext context)
+        {
+            if ("root".Equals(name, StringComparison.OrdinalIgnoreCase) ||
+                    "rootElement".Equals(name, StringComparison.OrdinalIgnoreCase))
+            {
+                var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
+                if (rootMember != null)
+                    return new RootResourceObject(target, rootMember);
+            }
+            return null;
+        }
+
+        private DynamicResourceObject GetTargetResourceObject(string name, IDataContext context)
+        {
+            var target = TryGetTarget(context);
+            if (target == null)
+                return null;
+
+            string key = ResourcePrefix + name;
+            var sourceValue = ServiceProvider.AttachedValueProvider.GetValue<DynamicResourceObject>(target, key, false);
+            if (sourceValue == null)
+            {
+                var value = ResolveObjectInternal(target, name, context);
+                if (value == null)
+                    return null;
+                sourceValue = new DynamicResourceObject();
+                sourceValue.SetValue(value, name, true);
+                ServiceProvider.AttachedValueProvider.SetValue(target, key, sourceValue);
+                lock (_instanceObjects)
+                {
+                    if (_instanceObjects.Count > MaxInstanceObject)
+                    {
+                        for (int i = 0; i < _instanceObjects.Count; i++)
+                        {
+                            if (_instanceObjects[i].Target == null)
+                            {
+                                _instanceObjects.RemoveAt(i);
+                                --i;
+                            }
+                        }
+                    }
+                    _instanceObjects.Add(ServiceProvider.WeakReferenceFactory(sourceValue, true));
+                }
+            }
+            return sourceValue;
         }
 
         #endregion
@@ -337,7 +453,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         }
 
         /// <summary>
-        ///     Gets an instance of <see cref="IBindingResourceObject" /> by the specified name.
+        ///     Gets an instance of <see cref="ISourceValue" /> by the specified name.
         /// </summary>
         /// <param name="name">The specified name.</param>
         /// <param name="context">The specified data context, if any.</param>
@@ -345,28 +461,22 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         ///     true to throw an exception if the type cannot be found; false to return null. Specifying
         ///     false also suppresses some other exception conditions, but not all of them.
         /// </param>
-        /// <returns>An instance of <see cref="IBindingResourceMethod" />.</returns>
-        public virtual IBindingResourceObject ResolveObject(string name, IDataContext context, bool throwOnError)
+        /// <returns>An instance of <see cref="ISourceValue" />.</returns>
+        public virtual ISourceValue ResolveObject(string name, IDataContext context, bool throwOnError)
         {
             Should.NotBeNullOrWhitespace(name, "name");
             lock (_objects)
             {
-                IBindingResourceObject value;
+                DynamicResourceObject value;
                 if (!_objects.TryGetValue(name, out value))
                 {
-                    if ("root".Equals(name, StringComparison.OrdinalIgnoreCase) ||
-                        "rootElement".Equals(name, StringComparison.OrdinalIgnoreCase))
-                    {
-                        var target = TryGetTarget(context);
-                        if (target != null)
-                        {
-                            var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
-                            if (rootMember != null)
-                                return new RootResourceObject(target, rootMember);
-                        }
-                    }
-                    if (throwOnError)
-                        throw BindingExceptionManager.CannotResolveInstanceByName(this, "resource object", name);
+                    var targetResourceObject = GetTargetResourceObject(name, context);
+                    if (targetResourceObject != null)
+                        return targetResourceObject;
+                    if (Tracer.TraceWarning)
+                        Tracer.Warn(BindingExceptionManager.CannotResolveInstanceFormat2, "resource", name, GetType().Name);
+                    value = new DynamicResourceObject();
+                    _objects[name] = value;
                 }
                 return value;
             }
@@ -466,16 +576,33 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <summary>
         ///     Adds the specified object.
         /// </summary>
-        public virtual void AddObject(string name, IBindingResourceObject obj, bool rewrite)
+        public virtual void AddObject(string name, ISourceValue obj, bool rewrite)
         {
             Should.NotBeNullOrWhitespace(name, "name");
             Should.NotBeNull(obj, "obj");
             lock (_objects)
             {
-                if (rewrite)
-                    _objects[name] = obj;
-                else
-                    _objects.Add(name, obj);
+                DynamicResourceObject value;
+                if (!_objects.TryGetValue(name, out value))
+                {
+                    value = new DynamicResourceObject();
+                    _objects[name] = value;
+                }
+                value.SetValue(obj, name, rewrite);
+            }
+            lock (_instanceObjects)
+            {
+                for (int i = 0; i < _instanceObjects.Count; i++)
+                {
+                    var resourceObject = (DynamicResourceObject)_instanceObjects[i].Target;
+                    if (resourceObject == null)
+                    {
+                        _instanceObjects.RemoveAt(i);
+                        --i;
+                    }
+                    else
+                        resourceObject.OnResourceAdded(obj, name);
+                }
             }
         }
 

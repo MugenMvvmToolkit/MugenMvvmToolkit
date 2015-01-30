@@ -74,11 +74,6 @@ namespace MugenMvvmToolkit.Modules
                 _form.Dispose();
             }
 
-            public Type ViewType
-            {
-                get { return _form.GetType(); }
-            }
-
             public object View
             {
                 get { return _form; }

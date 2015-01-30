@@ -7,7 +7,8 @@ namespace $rootnamespace$
     {
         public App()
         {
-            var bootstrapper = new Bootstrapper<MainViewModel>(new IIocContainer());
+            XamarinFormsBootstrapperBase bootstrapper = XamarinFormsBootstrapperBase.Current ??
+                                                        new Bootstrapper<MainViewModel>(/*new IIocContainer()*/);
             MainPage = bootstrapper.Start();
         }
     }

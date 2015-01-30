@@ -163,6 +163,7 @@ namespace MugenMvvmToolkit.ViewModels
             Should.PropertyBeNotNull(Entity, "Entity");
             OnChangesApplied(result);
             RaiseChangesApplied(result);
+            OnPropertyChanged(string.Empty);
             return result;
         }
 
@@ -222,6 +223,7 @@ namespace MugenMvvmToolkit.ViewModels
             Entity = cancel;
             OnChangesCanceled();
             RaiseChangesCanceled(cancel);
+            OnPropertyChanged(string.Empty);
             return cancel;
         }
 

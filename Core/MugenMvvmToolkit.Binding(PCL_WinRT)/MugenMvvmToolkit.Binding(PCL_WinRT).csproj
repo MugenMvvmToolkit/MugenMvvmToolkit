@@ -121,7 +121,6 @@
     <Compile Include="Interfaces\Models\IBindingPath.cs" />
     <Compile Include="Interfaces\Models\IBindingPathMembers.cs" />
     <Compile Include="Interfaces\Models\IBindingResourceMethod.cs" />
-    <Compile Include="Interfaces\Models\IBindingResourceObject.cs" />
     <Compile Include="Interfaces\Models\IDynamicObject.cs" />
     <Compile Include="Interfaces\Models\IEventListener.cs" />
     <Compile Include="Interfaces\Models\ISourceValue.cs" />

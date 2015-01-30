@@ -352,7 +352,9 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                     bool isDialog;
                     if (!context.TryGetData(NavigationConstants.IsDialog, out isDialog))
                         isDialog = true;
-                    OnShown(context);
+                    //NOTE to call method OnShown after ShowView.
+                    ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, context,
+                        (@base, dataContext) => @base.OnShown(dataContext), OperationPriority.Low);
                     ShowView(View, isDialog, context);
                 }, ViewModel.DisposeCancellationToken)
                 .WithBusyIndicator(ViewModel, true);
@@ -404,12 +406,12 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             TView view = View;
             if (view == null)
                 return;
-            ThreadManager.InvokeOnUiThreadAsync(() =>
+            ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, view, context, (@base, v, ctx) =>
             {
-                CleanupView(view);
-                _viewManager
-                    .CleanupViewAsync(ViewModel, context)
-                    .WithTaskExceptionHandler(ViewModel);
+                @base.CleanupView(v);
+                @base._viewManager
+                     .CleanupViewAsync(@base.ViewModel, ctx)
+                     .WithTaskExceptionHandler(@base.ViewModel);
             });
             View = null;
         }
