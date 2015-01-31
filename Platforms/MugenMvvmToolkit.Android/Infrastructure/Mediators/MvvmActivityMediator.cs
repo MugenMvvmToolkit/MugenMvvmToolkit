@@ -239,10 +239,11 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         public virtual void OnStart(Action baseOnStart)
         {
+            baseOnStart();
+
             var service = Get<INavigationService>();
             service.OnStartActivity(Target);
 
-            baseOnStart();
             var handler = Started;
             if (handler != null)
                 handler(Target, EventArgs.Empty);

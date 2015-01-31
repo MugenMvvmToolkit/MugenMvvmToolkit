@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <item name="OptionsMenu" type="id" />
+  <item name="ListenParentChangeId" type="id" />
 
   <declare-styleable name="Binding">
     <attr name="Bind" format="string" />

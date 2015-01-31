@@ -21,6 +21,7 @@ using System.ComponentModel;
 using Foundation;
 using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Views;
+using MugenMvvmToolkit.Models;
 using UIKit;
 
 namespace MugenMvvmToolkit.Views
@@ -76,7 +77,7 @@ namespace MugenMvvmToolkit.Views
 
         public override UIViewController PopViewController(bool animated)
         {
-            EventHandler<CancelEventArgs> handler = ShouldPopViewController;
+            var handler = ShouldPopViewController;
             if (handler != null)
             {
                 var args = new CancelEventArgs();
@@ -175,9 +176,9 @@ namespace MugenMvvmToolkit.Views
             get { return this.GetOrCreateMediator(ref _mediator); }
         }
 
-        public event EventHandler<CancelEventArgs> ShouldPopViewController;
+        public event EventHandler<IMvvmNavigationController, CancelEventArgs> ShouldPopViewController;
 
-        public event EventHandler<EventArgs> DidPopViewController;
+        public event EventHandler<IMvvmNavigationController, EventArgs> DidPopViewController;
 
         #endregion
     }

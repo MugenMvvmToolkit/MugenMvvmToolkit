@@ -22,6 +22,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Models;
@@ -35,14 +36,17 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
     {
         #region Fields
 
+        private readonly IThreadManager _threadManager;
         private NavigationPage _rootPage;
 
         #endregion
 
         #region Constructors
 
-        public NavigationService()
+        public NavigationService([NotNull] IThreadManager threadManager)
         {
+            Should.NotBeNull(threadManager, "threadManager");
+            _threadManager = threadManager;
             XamarinFormsExtensions.BackButtonPressed += ReflectionExtensions
                 .CreateWeakDelegate<NavigationService, CancelEventArgs, EventHandler<Page, CancelEventArgs>>(this,
                     (service, o, arg3) => service.OnBackButtonPressed((Page)o, arg3),
@@ -128,6 +132,11 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 page.PoppedToRoot += OnPopped;
             }
             _rootPage = page;
+
+            var currentPage = CurrentContent as Page;
+            _threadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, currentPage,
+                (service, p) => service.RaiseNavigated(p, p.GetNavigationParameter(), NavigationMode.New),
+                OperationPriority.Low);
         }
 
         /// <summary>
@@ -219,19 +228,13 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         private void OnPopped(object sender, NavigationEventArgs args)
         {
-            var handler = Navigated;
-            if (handler != null)
-            {
-                var page = CurrentContent as Page;
-                handler(this, new Models.EventArg.NavigationEventArgs(CurrentContent, page.GetNavigationParameter(), NavigationMode.Back));
-            }
+            var page = CurrentContent as Page;
+            RaiseNavigated(CurrentContent, page.GetNavigationParameter(), NavigationMode.Back);
         }
 
         private void OnPushed(object sender, NavigationEventArgs args)
         {
-            var handler = Navigated;
-            if (handler != null)
-                handler(this, new Models.EventArg.NavigationEventArgs(args.Page, args.Page.GetNavigationParameter(), NavigationMode.New));
+            RaiseNavigated(args.Page, args.Page.GetNavigationParameter(), NavigationMode.New);
         }
 
         private bool RaiseNavigating(NavigatingCancelEventArgs args)
@@ -243,6 +246,13 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             return !args.Cancel;
         }
 
+        private void RaiseNavigated(object page, object parameter, NavigationMode mode)
+        {
+            var handler = Navigated;
+            if (handler != null)
+                handler(this, new Models.EventArg.NavigationEventArgs(page, parameter, mode));
+        }
+
         private void OnBackButtonPressed(Page page, CancelEventArgs args)
         {
             if (CurrentContent != page)
@@ -250,6 +260,10 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             var eventArgs = new NavigatingCancelEventArgs(null, NavigationMode.Back, null);
             RaiseNavigating(eventArgs);
             args.Cancel = eventArgs.Cancel;
+
+            if (!args.Cancel && _rootPage.Navigation.NavigationStack.Count == 1 &&
+                _rootPage.Navigation.NavigationStack[0] == page)
+                RaiseNavigated(null, null, NavigationMode.Back);
         }
 
         private void ClearNavigationStackIfNeed(IDataContext context, Page page, Task task)

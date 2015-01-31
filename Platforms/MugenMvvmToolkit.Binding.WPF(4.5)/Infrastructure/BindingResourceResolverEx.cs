@@ -188,39 +188,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return null;
         }
 
-        /* /// <summary>
-         ///     Gets an instance of <see cref="ISourceValue" /> by the specified name.
-         /// </summary>
-         /// <param name="name">The specified name.</param>
-         /// <param name="context">The specified data context, if any.</param>
-         /// <param name="throwOnError">
-         ///     true to throw an exception if the type cannot be found; false to return null. Specifying
-         ///     false also suppresses some other exception conditions, but not all of them.
-         /// </param>
-         /// <returns>An instance of <see cref="ISourceValue" />.</returns>
-         public override ISourceValue ResolveObject(string name, IDataContext context, bool throwOnError)
-         {
-             var result = base.ResolveObject(name, context, false);
-             if (result != null)
-                 return result;
-
-             var target = TryGetTarget(context);
-             var item = TryFindResource(target, name);
-             if (item != null)
-                 return new BindingResourceObject(item);
-
-             if (throwOnError)
-             {
-                 if (target != null)
-                 {
-                     var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
-                     if (rootMember != null)
-                         return new XamlUnresolvedResource(target, name, rootMember);
-                 }
-             }
-             return base.ResolveObject(name, context, throwOnError);
-         }*/
-
         #endregion
 
         #region Methods

@@ -71,7 +71,7 @@
     <Compile Include="Infrastructure\DesignTimeManagerBase.cs" />
     <Compile Include="Infrastructure\ExpressionReflectionManagerEx.cs" />
     <Compile Include="Infrastructure\Mediators\WindowViewMediator.cs" />
-    <Compile Include="Infrastructure\DebugTracer.cs" />
+    <Compile Include="Infrastructure\TracerEx.cs" />
     <Compile Include="Infrastructure\Presenters\MessagePresenter.cs" />
     <Compile Include="MarkupExtensions\ViewModelToViewBinding.cs" />
     <Compile Include="Models\EventArg\NavigatingCancelEventArgsBase.cs" />

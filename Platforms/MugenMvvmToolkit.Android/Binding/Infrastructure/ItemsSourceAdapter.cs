@@ -302,8 +302,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return;
             }
             var adapterView = Container as AdapterView;
-            if (adapterView != null)
-                PlatformDataBindingModule.AdapterViewSelectedPositionMember.SetValue(adapterView, adapterView.SelectedItemPosition);
+            if (adapterView != null && args.Action != NotifyCollectionChangedAction.Add)
+            {
+                var value = PlatformDataBindingModule.AdapterViewSelectedItemMember.GetValue(adapterView, null);
+                if (value != null && GetPosition(value) < 0)
+                    PlatformDataBindingModule.AdapterViewSelectedPositionMember.SetValue(adapterView, -1);
+            }
             NotifyDataSetChanged();
         }
 

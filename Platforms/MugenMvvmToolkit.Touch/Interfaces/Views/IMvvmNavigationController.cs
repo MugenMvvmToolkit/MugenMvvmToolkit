@@ -18,13 +18,14 @@
 
 using System;
 using System.ComponentModel;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces.Views
 {
     public interface IMvvmNavigationController : IViewControllerView
     {
-        event EventHandler<CancelEventArgs> ShouldPopViewController;
+        event EventHandler<IMvvmNavigationController, CancelEventArgs> ShouldPopViewController;
 
-        event EventHandler<EventArgs> DidPopViewController;
+        event EventHandler<IMvvmNavigationController, EventArgs> DidPopViewController;
     }
 }

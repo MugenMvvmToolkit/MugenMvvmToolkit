@@ -19,6 +19,7 @@
 #define DEBUG
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
@@ -32,7 +33,7 @@ namespace MugenMvvmToolkit
     /// <summary>
     ///     Represents the default tracer.
     /// </summary>
-    public sealed class Tracer : ITracer, ITaskExceptionHandler
+    public class Tracer : ITracer, ITaskExceptionHandler
     {
         #region Fields
 
@@ -48,12 +49,16 @@ namespace MugenMvvmToolkit
         static Tracer()
         {
             Instance = new Tracer();
-            TraceFinalized = Debugger.IsAttached;
-            TraceWarning = true;
-            TraceError = true;
+            var isAttached = Debugger.IsAttached;
+            TraceFinalized = isAttached;
+            TraceWarning = isAttached;
+            TraceError = isAttached;
         }
 
-        private Tracer()
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Tracer" /> class.
+        /// </summary>
+        protected Tracer()
         {
         }
 
@@ -90,14 +95,14 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static void TraceViewModel(AuditAction auditAction, IViewModel viewModel)
         {
-            var handler = TraceViewModelHandler;
+            Action<AuditAction, IViewModel> handler = TraceViewModelHandler;
             if (handler != null)
                 handler(auditAction, viewModel);
             ServiceProvider.Tracer.TraceViewModel(auditAction, viewModel);
         }
 
         /// <summary>
-        /// Writes an info message to the default tracer.
+        ///     Writes an info message to the default tracer.
         /// </summary>
         public static void Info(string message)
         {
@@ -106,7 +111,7 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        /// Writes a warning message to the default tracer.
+        ///     Writes a warning message to the default tracer.
         /// </summary>
         public static void Warn(string message)
         {
@@ -115,7 +120,7 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        /// Writes an error message to the default tracer.
+        ///     Writes an error message to the default tracer.
         /// </summary>
         public static void Error(string message)
         {
@@ -124,7 +129,7 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        /// Writes an info message to the default tracer.
+        ///     Writes an info message to the default tracer.
         /// </summary>
         [StringFormatMethod("format")]
         public static void Info(string format, params object[] args)
@@ -134,7 +139,7 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        /// Writes a warning message to the default tracer.
+        ///     Writes a warning message to the default tracer.
         /// </summary>
         [StringFormatMethod("format")]
         public static void Warn(string format, params object[] args)
@@ -144,7 +149,7 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        /// Writes an error message to the default tracer.
+        ///     Writes an error message to the default tracer.
         /// </summary>
         [StringFormatMethod("format")]
         public static void Error(string format, params object[] args)
@@ -154,12 +159,49 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        /// Writes information about an item.
+        ///     Writes information about an item.
         /// </summary>
         public static void Finalized(object item, string message = null)
         {
             if (TraceFinalized)
-                Warn("Finalized - {0} ({1}); {2}", item.GetType(), item.GetHashCode().ToString(), message);
+                Warn("Finalized - {0} ({1}); {2}", item.GetType(), item.GetHashCode(), message);
+        }
+
+        /// <summary>
+        ///     Returns value that indicates that tracer can trace the level.
+        /// </summary>
+        public static bool CanTrace(TraceLevel level)
+        {
+            switch (level)
+            {
+                case TraceLevel.Information:
+                    return TraceInformation;
+                case TraceLevel.Warning:
+                    return TraceWarning;
+                case TraceLevel.Error:
+                    return TraceError;
+                default:
+                    throw ExceptionManager.EnumOutOfRange("level", level);
+            }
+        }
+
+        /// <summary>
+        ///     Writes an informational message to the trace listeners.
+        /// </summary>
+        protected virtual void TraceInternal(TraceLevel level, string message)
+        {
+            switch (level)
+            {
+                case TraceLevel.Information:
+                    Debug.WriteLine(message);
+                    break;
+                case TraceLevel.Warning:
+                    Debug.WriteLine(message);
+                    break;
+                case TraceLevel.Error:
+                    Debug.WriteLine(message);
+                    break;
+            }
         }
 
         #endregion
@@ -180,15 +222,17 @@ namespace MugenMvvmToolkit
         /// </summary>
         void ITracer.TraceViewModel(AuditAction auditAction, IViewModel viewModel)
         {
-            var hasDisplayName = viewModel as IHasDisplayName;
-            var traceLevel = auditAction == AuditAction.Finalized ? TraceLevel.Warning : TraceLevel.Information;
-            if (hasDisplayName == null)
-                Trace(traceLevel,
-                    string.Format("{0} ({1}) - {2}", viewModel.GetType(), viewModel.GetHashCode().ToString(), auditAction));
+            TraceLevel traceLevel = auditAction == AuditAction.Finalized ? TraceLevel.Warning : TraceLevel.Information;
+            if (!CanTrace(traceLevel))
+                return;
+            var displayName = viewModel as IHasDisplayName;
+            if (displayName == null)
+                TraceInternal(traceLevel,
+                    string.Format("{0} ({1}) - {2};", viewModel.GetType(), viewModel.GetHashCode().ToString(CultureInfo.InvariantCulture), auditAction));
             else
-                Trace(traceLevel,
+                TraceInternal(traceLevel,
                     string.Format("{0} (Hash - {1}; DisplayName - {2};) - {3}", viewModel.GetType(),
-                        viewModel.GetHashCode().ToString(), hasDisplayName.DisplayName, auditAction));
+                        viewModel.GetHashCode().ToString(CultureInfo.InvariantCulture), displayName.DisplayName, auditAction));
         }
 
         /// <summary>
@@ -198,21 +242,8 @@ namespace MugenMvvmToolkit
         /// <param name="message">The message to write.</param>
         public void Trace(TraceLevel level, string message)
         {
-            if (!Debugger.IsAttached)
-                return;
-            message = level + ": " + message;
-            switch (level)
-            {
-                case TraceLevel.Information:
-                    Debug.WriteLine(message);
-                    break;
-                case TraceLevel.Warning:
-                    Debug.WriteLine(message);
-                    break;
-                case TraceLevel.Error:
-                    Debug.WriteLine(message);
-                    break;
-            }
+            if (CanTrace(level))
+                TraceInternal(level, level + ": " + message);
         }
 
         /// <summary>
@@ -223,7 +254,8 @@ namespace MugenMvvmToolkit
         /// <param name="args">The string format members.</param>
         public void Trace(TraceLevel level, string format, params object[] args)
         {
-            Trace(level, string.Format(format, args));
+            if (CanTrace(level))
+                TraceInternal(level, level + ": " + string.Format(format, args));
         }
 
         #endregion

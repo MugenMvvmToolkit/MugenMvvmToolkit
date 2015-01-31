@@ -41,7 +41,6 @@ namespace MugenMvvmToolkit.Infrastructure
         private IList<IModule> _loadedModules;
         private IList<Assembly> _assemblies;
         private IDataContext _initializationContext;
-        private IIocContainer _iocContainer;
 
         #endregion
 
@@ -53,12 +52,7 @@ namespace MugenMvvmToolkit.Infrastructure
         protected BootstrapperBase()
         {
             if (Current != null)
-            {
                 Tracer.Error("The application is already has a bootstrapper " + Current);
-                return;
-            }
-            // ReSharper disable once DoNotCallOverridableMethodsInConstructor
-            ServiceProvider.DesignTimeManager = new DesignTimeManagerImpl(Platform);
         }
 
         #endregion
@@ -88,11 +82,7 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Gets the current <see cref="IIocContainer" />.
         /// </summary>
         [NotNull]
-        public IIocContainer IocContainer
-        {
-            get { return _iocContainer; }
-            protected set { _iocContainer = value; }
-        }
+        public IIocContainer IocContainer { get; protected set; }
 
         /// <summary>
         ///     Gets the initialization context.

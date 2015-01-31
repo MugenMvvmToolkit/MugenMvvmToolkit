@@ -25,6 +25,7 @@ using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.MonoTouch.Dialog;
 using UIKit;
@@ -66,6 +67,11 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         #endregion
 
         #region Implementation of IMvvmViewControllerMediator
+
+        public bool IsAppeared
+        {
+            get { return !_canDispose; }
+        }
 
         public virtual void ViewWillAppear(Action<bool> baseViewWillAppear, bool animated)
         {
@@ -165,21 +171,21 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             baseDispose(disposing);
         }
 
-        public virtual event EventHandler ViewDidLoadHandler;
+        public virtual event EventHandler<UIViewController, EventArgs> ViewDidLoadHandler;
 
-        public virtual event EventHandler<ValueEventArgs<NSCoder>> EncodeRestorableStateHandler;
+        public virtual event EventHandler<UIViewController, ValueEventArgs<NSCoder>> EncodeRestorableStateHandler;
 
-        public virtual event EventHandler DisposeHandler;
+        public virtual event EventHandler<UIViewController, EventArgs> DisposeHandler;
 
-        public virtual event EventHandler<ValueEventArgs<bool>> ViewWillAppearHandler;
+        public virtual event EventHandler<UIViewController, ValueEventArgs<bool>> ViewWillAppearHandler;
 
-        public virtual event EventHandler<ValueEventArgs<bool>> ViewDidAppearHandler;
+        public virtual event EventHandler<UIViewController, ValueEventArgs<bool>> ViewDidAppearHandler;
 
-        public virtual event EventHandler<ValueEventArgs<bool>> ViewDidDisappearHandler;
+        public virtual event EventHandler<UIViewController, ValueEventArgs<bool>> ViewDidDisappearHandler;
 
-        public virtual event EventHandler<ValueEventArgs<bool>> ViewWillDisappearHandler;
+        public virtual event EventHandler<UIViewController, ValueEventArgs<bool>> ViewWillDisappearHandler;
 
-        public virtual event EventHandler<ValueEventArgs<NSCoder>> DecodeRestorableStateHandler;
+        public virtual event EventHandler<UIViewController, ValueEventArgs<NSCoder>> DecodeRestorableStateHandler;
 
         #endregion
 
@@ -220,7 +226,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             DecodeRestorableStateHandler = null;
             EncodeRestorableStateHandler = null;
             DisposeHandler = null;
-            _viewController = null;            
+            _viewController = null;
         }
 
         private void SetParent<T>(T[] items)
@@ -237,13 +243,13 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 BindingExtensions.AttachedParentMember.SetValue(item, _viewController);
         }
 
-        private void Raise(EventHandler handler)
+        private void Raise(EventHandler<UIViewController, EventArgs> handler)
         {
             if (handler != null)
                 handler(_viewController, EventArgs.Empty);
         }
 
-        private void Raise<T>(EventHandler<ValueEventArgs<T>> handler, T value)
+        private void Raise<T>(EventHandler<UIViewController, ValueEventArgs<T>> handler, T value)
         {
             if (handler != null)
                 handler(_viewController, new ValueEventArgs<T>(value));

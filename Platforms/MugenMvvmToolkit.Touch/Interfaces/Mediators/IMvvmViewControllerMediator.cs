@@ -19,12 +19,16 @@
 using System;
 using Foundation;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using UIKit;
 
 namespace MugenMvvmToolkit.Interfaces.Mediators
 {
     public interface IMvvmViewControllerMediator
     {
+        bool IsAppeared { get; }
+
         void ViewWillAppear([NotNull] Action<bool> baseViewWillAppear, bool animated);
 
         void ViewDidAppear([NotNull] Action<bool> baseViewDidAppear, bool animated);
@@ -41,20 +45,20 @@ namespace MugenMvvmToolkit.Interfaces.Mediators
 
         void Dispose([NotNull] Action<bool> baseDispose, bool disposing);
 
-        event EventHandler ViewDidLoadHandler;
+        event EventHandler<UIViewController, EventArgs> ViewDidLoadHandler;
 
-        event EventHandler<ValueEventArgs<bool>> ViewWillAppearHandler;
+        event EventHandler<UIViewController, ValueEventArgs<bool>> ViewWillAppearHandler;
 
-        event EventHandler<ValueEventArgs<bool>> ViewDidAppearHandler;
+        event EventHandler<UIViewController, ValueEventArgs<bool>> ViewDidAppearHandler;
 
-        event EventHandler<ValueEventArgs<bool>> ViewDidDisappearHandler;
+        event EventHandler<UIViewController, ValueEventArgs<bool>> ViewDidDisappearHandler;
 
-        event EventHandler<ValueEventArgs<bool>> ViewWillDisappearHandler;
+        event EventHandler<UIViewController, ValueEventArgs<bool>> ViewWillDisappearHandler;
 
-        event EventHandler<ValueEventArgs<NSCoder>> DecodeRestorableStateHandler;
+        event EventHandler<UIViewController, ValueEventArgs<NSCoder>> DecodeRestorableStateHandler;
 
-        event EventHandler<ValueEventArgs<NSCoder>> EncodeRestorableStateHandler;
+        event EventHandler<UIViewController, ValueEventArgs<NSCoder>> EncodeRestorableStateHandler;
 
-        event EventHandler DisposeHandler;
+        event EventHandler<UIViewController, EventArgs> DisposeHandler;
     }
 }

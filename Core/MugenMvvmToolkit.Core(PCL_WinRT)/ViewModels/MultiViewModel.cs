@@ -57,9 +57,7 @@ namespace MugenMvvmToolkit.ViewModels
         private static readonly DataConstant<int> SelectedIndex;
 
         private readonly IList<IViewModel> _itemsSource;
-        private bool _ignoreSelectedItemChange;
         private IViewModel _selectedItem;
-        private int _prevIndex;
 
         private readonly EventHandler<ICloseableViewModel, ViewModelClosedEventArgs> _weakEventHandler;
         private readonly PropertyChangedEventHandler _propertyChangedWeakEventHandler;
@@ -79,12 +77,10 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         public MultiViewModel()
         {
-            _prevIndex = -1;
             DisposeViewModelOnRemove = true;
 
             var collection = new SynchronizedNotifiableCollection<IViewModel>();
             _itemsSource = ServiceProvider.TryDecorate(collection);
-            collection.BeforeCollectionChanged = (sender, args) => _ignoreSelectedItemChange = true;
             collection.AfterCollectionChanged = OnViewModelsChanged;
             _weakEventHandler = ReflectionExtensions.CreateWeakDelegate<MultiViewModel, ViewModelClosedEventArgs, EventHandler<ICloseableViewModel, ViewModelClosedEventArgs>>(this,
                 (model, o, arg3) => model.ItemsSource.Remove(arg3.ViewModel), UnsubscribeAction, handler => handler.Handle);
@@ -109,15 +105,11 @@ namespace MugenMvvmToolkit.ViewModels
             get { return _selectedItem; }
             set
             {
-                if (_ignoreSelectedItemChange || ReferenceEquals(value, _selectedItem) || (value != null && !ItemsSource.Contains(value)))
+                if (ReferenceEquals(value, _selectedItem) || (value != null && !ItemsSource.Contains(value)))
                     return;
-                int oldValueIndex = -1;
-                if (_selectedItem != null)
-                    oldValueIndex = ItemsSource.IndexOf(_selectedItem);
-                _prevIndex = oldValueIndex;
                 IViewModel oldValue = _selectedItem;
                 _selectedItem = value;
-                OnSelectedItemChangedInternal(oldValueIndex, oldValue, _selectedItem);
+                OnSelectedItemChangedInternal(oldValue, _selectedItem);
                 OnPropertyChanged("SelectedItem");
             }
         }
@@ -274,7 +266,6 @@ namespace MugenMvvmToolkit.ViewModels
         private void OnViewModelsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             Should.BeSupported(e.Action != NotifyCollectionChangedAction.Reset, "The IMultiViewModel.ItemsSource doesn't support Clear method.");
-            _ignoreSelectedItemChange = false;
             if (e.NewItems != null && e.NewItems.Count != 0)
             {
                 for (int index = 0; index < e.NewItems.Count; index++)
@@ -297,7 +288,8 @@ namespace MugenMvvmToolkit.ViewModels
                 for (int index = 0; index < e.OldItems.Count; index++)
                 {
                     var viewModel = (IViewModel)e.OldItems[index];
-                    TrySetPreviousValue(viewModel, e.OldStartingIndex + index);
+                    if (SelectedItem == null || ReferenceEquals(SelectedItem, viewModel))
+                        TryUpdateSelectedValue(e.OldStartingIndex + index);
 
                     var closeableViewModel = viewModel as ICloseableViewModel;
                     if (closeableViewModel != null)
@@ -336,32 +328,23 @@ namespace MugenMvvmToolkit.ViewModels
             if (handler != null) handler(this, new ValueEventArgs<IViewModel>(vm));
         }
 
-        private void TrySetPreviousValue(IViewModel oldVm, int oldIndex)
+        private void TryUpdateSelectedValue(int oldIndex)
         {
-            if (!ReferenceEquals(oldVm, SelectedItem))
-                return;
-            if (_prevIndex >= 0 && oldIndex <= _prevIndex)
-                --_prevIndex;
-            var prevIndex = _prevIndex;
-            if (prevIndex < 0)
-            {
-                if (oldIndex == 0)
-                    prevIndex = oldIndex + 1;
-                else
-                    prevIndex = oldIndex - 1;
-            }
-            if (prevIndex >= 0 && ItemsSource.Count > prevIndex)
-                SelectedItem = ItemsSource[prevIndex];
+            var maxIndex = ItemsSource.Count - 1;
+            while (oldIndex > maxIndex)
+                --oldIndex;
+            if (oldIndex >= 0 && ItemsSource.Count > oldIndex)
+                SelectedItem = ItemsSource[oldIndex];
             else
                 SelectedItem = ItemsSource.FirstOrDefault();
         }
 
-        private void OnSelectedItemChangedInternal(int oldValueIndex, IViewModel oldValue, IViewModel newValue)
+        private void OnSelectedItemChangedInternal(IViewModel oldValue, IViewModel newValue)
         {
             ISelectable selectable;
             INavigableViewModel navigableViewModel;
             NavigationContext ctx = null;
-            if (oldValueIndex >= 0)
+            if (ItemsSource.Contains(oldValue))
             {
                 selectable = oldValue as ISelectable;
                 if (selectable != null)
@@ -415,7 +398,19 @@ namespace MugenMvvmToolkit.ViewModels
             if (selectableModel.IsSelected)
                 SelectedItem = vm;
             else
-                TrySetPreviousValue(vm, ItemsSource.IndexOf(vm));
+            {
+                if (ItemsSource.Count == 1 || ItemsSource.Count == 0)
+                {
+                    SelectedItem = null;
+                    return;
+                }
+                var oldIndex = ItemsSource.IndexOf(vm);
+                if (oldIndex > 0)
+                    --oldIndex;
+                else
+                    ++oldIndex;
+                TryUpdateSelectedValue(oldIndex);
+            }
         }
 
         private static void UnsubscribeAction(object sender, EventHandler<ICloseableViewModel, ViewModelClosedEventArgs> eventHandler)

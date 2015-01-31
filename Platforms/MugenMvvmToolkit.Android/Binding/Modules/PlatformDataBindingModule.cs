@@ -197,10 +197,10 @@ namespace MugenMvvmToolkit.Binding.Modules
         internal static readonly IAttachedBindingMemberInfo<object, bool?> AutoDisposeMember;
         internal static readonly IAttachedBindingMemberInfo<AdapterView, int> AdapterViewSelectedPositionMember;
         internal readonly static IAttachedBindingMemberInfo<Object, ICollectionViewManager> CollectionViewManagerMember;
+        internal static readonly IAttachedBindingMemberInfo<AdapterView, object> AdapterViewSelectedItemMember;
 
         private readonly static IAttachedBindingMemberInfo<Object, IContentViewManager> ContentViewManagerMember;
-        private static readonly IAttachedBindingMemberInfo<AdapterView, object> AdapterViewSelectedItemMember;
-        private static readonly IAttachedBindingMemberInfo<AdapterView, bool> ScrollToSelectedItemMember;
+        private static readonly IAttachedBindingMemberInfo<AdapterView, bool?> ScrollToSelectedItemMember;
 
         private static readonly IAttachedBindingMemberInfo<ViewGroup, object> ContentMember;
         private static readonly IAttachedBindingMemberInfo<ViewGroup, int?> ContentTemplateIdMember;
@@ -222,7 +222,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             CollectionViewManagerMember = AttachedBindingMember.CreateAutoProperty<Object, ICollectionViewManager>("CollectionViewManager");
             ContentViewManagerMember = AttachedBindingMember.CreateAutoProperty<Object, IContentViewManager>("ContentViewManager");
             AutoDisposeMember = AttachedBindingMember.CreateAutoProperty<object, bool?>("AutoDispose");
-            
+
             //Menu
             MenuItemsSourceMember = AttachedBindingMember.CreateAutoProperty<IMenu, IEnumerable>(AttachedMemberConstants.ItemsSource, MenuItemsSourceChanged);
             IsCheckedMenuItemMember = AttachedBindingMember.CreateNotifiableMember<IMenuItem, bool>("IsChecked",
@@ -248,7 +248,7 @@ namespace MugenMvvmToolkit.Binding.Modules
                     AdapterViewSelectedItemPositionChanged, AdapterViewSelectedMemberAttached, (view, info) => view.SelectedItemPosition);
             AdapterViewSelectedItemMember = AttachedBindingMember.CreateAutoProperty<AdapterView, object>(
                 AttachedMemberConstants.SelectedItem, AdapterViewSelectedItemChanged, AdapterViewSelectedMemberAttached);
-            ScrollToSelectedItemMember = AttachedBindingMember.CreateAutoProperty<AdapterView, bool>("ScrollToSelectedItem");
+            ScrollToSelectedItemMember = AttachedBindingMember.CreateAutoProperty<AdapterView, bool?>("ScrollToSelectedItem");
         }
 
         #endregion
@@ -265,7 +265,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             memberProvider.Register(CollectionViewManagerMember);
             memberProvider.Register(ContentViewManagerMember);
             memberProvider.Register(AutoDisposeMember);
-            
+
             //Dialog
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Dialog, object>("Title",
                 (dialog, args) => dialog.SetTitle(args.NewValue.ToStringSafe())));
@@ -424,10 +424,9 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         #region AdapterView
 
-        private static void AdapterViewSelectedItemPositionChanged(AdapterView sender,
-            AttachedMemberChangedEventArgs<int> args)
+        private static void AdapterViewSelectedItemPositionChanged(AdapterView sender, AttachedMemberChangedEventArgs<int> args)
         {
-            if (!(sender is ListView) || ScrollToSelectedItemMember.GetValue(sender, null))
+            if (ScrollToSelectedItemMember.GetValue(sender, null).GetValueOrDefault(true))
                 sender.SetSelection(args.NewValue);
 
             var adapter = GetAdapter(sender) as ItemsSourceAdapter;
@@ -449,11 +448,24 @@ namespace MugenMvvmToolkit.Binding.Modules
         private static void AdapterViewSelectedMemberAttached(AdapterView adapterView, MemberAttachedEventArgs arg)
         {
             if (adapterView is ListView)
-                adapterView.ItemClick += (sender, args) => AdapterViewSelectedPositionMember.SetValue((AdapterView)sender, args.Position);
+                adapterView.ItemClick += (sender, args) => SetSelectedIndexAdapterView((AdapterView)sender, args.Position);
             else
             {
-                adapterView.ItemSelected += (sender, args) => AdapterViewSelectedPositionMember.SetValue((AdapterView)sender, args.Position);
-                adapterView.NothingSelected += (sender, args) => AdapterViewSelectedPositionMember.SetValue((AdapterView)sender, -1);
+                adapterView.ItemSelected += (sender, args) => SetSelectedIndexAdapterView((AdapterView)sender, args.Position);
+                adapterView.NothingSelected += (sender, args) => SetSelectedIndexAdapterView((AdapterView)sender, -1);
+            }
+        }
+
+        private static void SetSelectedIndexAdapterView(AdapterView adapter, int index)
+        {
+            var oldValue = ScrollToSelectedItemMember.GetValue(adapter, null);
+            if (oldValue == null || !oldValue.Value)
+                AdapterViewSelectedPositionMember.SetValue(adapter, index);
+            else
+            {
+                ScrollToSelectedItemMember.SetValue(adapter, false);
+                AdapterViewSelectedPositionMember.SetValue(adapter, index);
+                ScrollToSelectedItemMember.SetValue(adapter, true);
             }
         }
 
@@ -461,8 +473,7 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         #region DatePicker
 
-        private static IDisposable ObserveSelectedDate(IBindingMemberInfo bindingMemberInfo, DatePicker datePicker,
-            IEventListener arg3)
+        private static IDisposable ObserveSelectedDate(IBindingMemberInfo bindingMemberInfo, DatePicker datePicker, IEventListener arg3)
         {
             return DateChangedListener.AddDateChangedListener(datePicker, arg3);
         }

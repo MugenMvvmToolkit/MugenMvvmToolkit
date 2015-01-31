@@ -60,7 +60,12 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public PlatformInfo Platform
         {
-            get { return _platform; }
+            get
+            {
+                if (_platform == null && BootstrapperBase.Current != null)
+                    return BootstrapperBase.Current.Platform;
+                return _platform;
+            }
         }
 
         public IIocContainer IocContainer
@@ -85,6 +90,6 @@ namespace MugenMvvmToolkit.Infrastructure
         {
         }
 
-        #endregion        
+        #endregion
     }
 }

@@ -218,20 +218,18 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             try
             {
                 _ingoreTabChanged = true;
-                string selectedTag = TabHost.CurrentTabTag;
+                string oldTag = TabHost.CurrentTabTag;
                 var oldValues = new Dictionary<string, TabInfo>(_tabToContent);
+                var oldIndex = TabHost.CurrentTab;
                 TabHost.CurrentTab = 0;
                 TabHost.ClearAllTabs();
                 _tabToContent.Clear();
 
                 int count = ItemsSource.Count();
-                TabInfo firstTab = null;
                 for (int i = 0; i < count; i++)
                 {
                     var tabInfo = TryRecreateTabInfo(i, oldValues);
                     TabHost.AddTab(tabInfo.TabSpec);
-                    if (i == 0)
-                        firstTab = tabInfo;
                 }
                 foreach (var oldValue in oldValues)
                     RemoveTabDelegate(this, oldValue.Value);
@@ -242,10 +240,18 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     OnEmptyTab();
                 else
                 {
-                    if (selectedTag == null || !_tabToContent.ContainsKey(selectedTag))
-                        selectedTag = firstTab.TabSpec.Tag;
-                    TabHost.SetCurrentTabByTag(selectedTag);
-                    OnTabChanged(selectedTag);
+                    if (oldTag != null && _tabToContent.ContainsKey(oldTag))
+                        TabHost.SetCurrentTabByTag(oldTag);
+                    else
+                    {
+                        var maxIndex = TabHost.TabWidget.TabCount - 1;
+                        while (oldIndex > maxIndex)
+                            --oldIndex;
+                        if (oldIndex >= 0)
+                            TabHost.CurrentTab = oldIndex;
+                        oldTag = TabHost.CurrentTabTag;
+                    }
+                    OnTabChanged(oldTag);
                 }
             }
             finally

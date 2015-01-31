@@ -22,10 +22,12 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
@@ -199,7 +201,14 @@ namespace MugenMvvmToolkit.Infrastructure
             var viewModel = item as IViewModel;
             if (viewModel != null && typeof(IWrapperViewModel).IsAssignableFrom(wrapperType))
             {
-                var vm = (IWrapperViewModel)_viewModelProvider.GetViewModel(wrapperType, dataContext ?? DataContext.Empty);
+                dataContext = dataContext.ToNonReadOnly();
+                if (!dataContext.Contains(InitializationConstants.ParentViewModel))
+                {
+                    var parentViewModel = viewModel.GetParentViewModel();
+                    if (parentViewModel != null)
+                        dataContext.AddOrUpdate(InitializationConstants.ParentViewModel, parentViewModel);
+                }
+                var vm = (IWrapperViewModel)_viewModelProvider.GetViewModel(wrapperType, dataContext);
                 vm.Wrap(viewModel, dataContext);
                 return vm;
             }

@@ -126,7 +126,7 @@
     <Compile Include="Infrastructure\Presenters\MessagePresenter.cs" />
     <Compile Include="Infrastructure\Mediators\MvvmActivityMediator.cs" />
     <Compile Include="Infrastructure\Navigation\NavigationService.cs" />
-    <Compile Include="Infrastructure\DebugTracer.cs" />
+    <Compile Include="Infrastructure\TracerEx.cs" />
     <Compile Include="Infrastructure\TypeCache.cs" />
     <Compile Include="Infrastructure\ViewFactory.cs" />
     <Compile Include="Binding\Infrastructure\XmlPropertySetter.cs" />

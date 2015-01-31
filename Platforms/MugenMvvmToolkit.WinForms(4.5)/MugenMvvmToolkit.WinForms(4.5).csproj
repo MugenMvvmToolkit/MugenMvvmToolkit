@@ -87,9 +87,6 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Bootstrapper.cs">
       <Link>Infrastructure\Bootstrapper.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\DebugTracer.cs">
-      <Link>Infrastructure\DebugTracer.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\DesignTimeManagerBase.cs">
       <Link>Infrastructure\DesignTimeManagerBase.cs</Link>
     </Compile>
@@ -101,6 +98,9 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\DynamicViewModelWindowPresenter.cs">
       <Link>Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\TracerEx.cs">
+      <Link>Infrastructure\TracerEx.cs</Link>
     </Compile>
     <Compile Include="Binding\Models\AutoCompleteItem.cs" />
     <Compile Include="Binding\Parse\Nodes\XmlAttributeExpressionNode.cs" />

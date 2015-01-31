@@ -403,10 +403,6 @@ namespace MugenMvvmToolkit.Test.ViewModels
             validator.SetErrors(PropToValidate1, PropToValidate2);
             countInvoke.ShouldEqual(2);
             notifyDataError.HasErrors.ShouldBeTrue();
-
-            //NOTE: Event is not invoked, if errors is not changed.
-            /*viewModel.ValidateAsync(PropToValidate1);
-            countInvoke.ShouldEqual(2);*/
         }
 
         #endregion

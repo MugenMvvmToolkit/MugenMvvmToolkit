@@ -224,7 +224,11 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 NavigationController.PushViewController(viewController, animated);
                 ClearNavigationStackIfNeed(viewController, dataContext);
             }
-            RaiseNavigated(viewController, NavigationMode.New, parameter);
+            var view = viewController as IViewControllerView;
+            if (view == null || view.Mediator.IsAppeared)
+                RaiseNavigated(viewController, NavigationMode.New, parameter);
+            else
+                view.Mediator.ViewDidAppearHandler += OnViewDidAppearHandler;
             return true;
         }
 
@@ -241,6 +245,28 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         #endregion
 
         #region Methods
+
+        /// <summary>
+        ///     Invokes the <see cref="Navigating" /> event.
+        /// </summary>
+        protected virtual bool RaiseNavigating(NavigatingCancelEventArgs args)
+        {
+            EventHandler<INavigationService, NavigatingCancelEventArgsBase> handler = Navigating;
+            if (handler == null)
+                return true;
+            handler(this, args);
+            return !args.Cancel;
+        }
+
+        /// <summary>
+        ///     Invokes the <see cref="Navigated" /> event.
+        /// </summary>
+        protected virtual void RaiseNavigated(NavigationEventArgs args)
+        {
+            EventHandler<INavigationService, NavigationEventArgsBase> handler = Navigated;
+            if (handler != null)
+                handler(this, args);
+        }
 
         protected void EnsureInitialized()
         {
@@ -292,28 +318,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             RaiseNavigated(controller, NavigationMode.Back, controller.GetNavigationParameter());
         }
 
-        /// <summary>
-        ///     Invokes the <see cref="Navigating" /> event.
-        /// </summary>
-        protected virtual bool RaiseNavigating(NavigatingCancelEventArgs args)
-        {
-            EventHandler<INavigationService, NavigatingCancelEventArgsBase> handler = Navigating;
-            if (handler == null)
-                return true;
-            handler(this, args);
-            return !args.Cancel;
-        }
-
-        /// <summary>
-        ///     Invokes the <see cref="Navigated" /> event.
-        /// </summary>
-        protected virtual void RaiseNavigated(NavigationEventArgs args)
-        {
-            EventHandler<INavigationService, NavigationEventArgsBase> handler = Navigated;
-            if (handler != null)
-                handler(this, args);
-        }
-
         private void RaiseNavigated(object content, NavigationMode mode, object parameter)
         {
             if (Navigated != null)
@@ -329,6 +333,12 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 NavigationController.ViewControllers = new[] { newItem };
                 context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
             }
+        }
+
+        private void OnViewDidAppearHandler(UIViewController sender, ValueEventArgs<bool> args)
+        {
+            ((IViewControllerView)sender).Mediator.ViewDidAppearHandler -= OnViewDidAppearHandler;
+            RaiseNavigated(sender, NavigationMode.New, sender.GetNavigationParameter());
         }
 
         #endregion

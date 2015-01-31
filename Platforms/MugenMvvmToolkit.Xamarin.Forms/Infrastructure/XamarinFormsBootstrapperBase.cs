@@ -59,8 +59,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         protected static readonly DataConstant<bool> WrapToNavigationPageConstant;
         private readonly IPlatformService _platformService;
-        private PlatformInfo _platform;
         private IViewModel _mainViewModel;
+        private PlatformInfo _platform;
 
         #endregion
 
@@ -87,10 +87,10 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected XamarinFormsBootstrapperBase()
         {
-            var assembly = TryLoadAssembly(BindingAssemblyName, null);
+            Assembly assembly = TryLoadAssembly(BindingAssemblyName, null);
             if (assembly == null)
                 return;
-            var serviceType = typeof(IPlatformService).GetTypeInfo();
+            TypeInfo serviceType = typeof(IPlatformService).GetTypeInfo();
             serviceType = assembly.DefinedTypes.FirstOrDefault(serviceType.IsAssignableFrom);
             if (serviceType != null)
             {
@@ -170,24 +170,25 @@ namespace MugenMvvmToolkit.Infrastructure
             if (_mainViewModel == null)
             {
                 Initialize();
-                var viewModelType = GetMainViewModelType();
+                Type viewModelType = GetMainViewModelType();
                 _mainViewModel = CreateMainViewModel(viewModelType);
             }
 
             var view = (Page)ViewManager.GetOrCreateView(_mainViewModel, true, new DataContext(InitializationContext));
-            var page = view as NavigationPage ?? CreateNavigationPage(view);
+            NavigationPage page = view as NavigationPage ?? CreateNavigationPage(view);
             if (page == null)
                 return view;
             INavigationService navigationService;
             if (!IocContainer.TryGet(out navigationService))
             {
-                navigationService = new NavigationService();
+                navigationService = CreateNavigationService();
                 IocContainer.BindToConstant(navigationService);
             }
-            navigationService.UpdateRootPage(page);
             //Activating navigation provider
             INavigationProvider provider;
             IocContainer.TryGet(out provider);
+
+            navigationService.UpdateRootPage(page);
             return page;
         }
 
@@ -209,7 +210,7 @@ namespace MugenMvvmToolkit.Infrastructure
         protected abstract Type GetMainViewModelType();
 
         /// <summary>
-        /// Creates an instance of <see cref="NavigationPage"/>
+        ///     Creates an instance of <see cref="NavigationPage" />
         /// </summary>
         [CanBeNull]
         protected virtual NavigationPage CreateNavigationPage(Page mainPage)
@@ -219,24 +220,36 @@ namespace MugenMvvmToolkit.Infrastructure
             return null;
         }
 
-        private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
+        /// <summary>
+        ///     Creates an instance of <see cref="INavigationService" />
+        /// </summary>
+        [NotNull]
+        protected virtual INavigationService CreateNavigationService()
         {
-            var viewName = viewModel.GetViewName(dataContext);
-            var container = viewModel.GetIocContainer(true);
+            return new NavigationService(IocContainer.Get<IThreadManager>());
+        }
+
+        private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext,
+            IViewModelPresenter arg3)
+        {
+            string viewName = viewModel.GetViewName(dataContext);
+            IIocContainer container = viewModel.GetIocContainer(true);
             var mappingProvider = container.Get<IViewMappingProvider>();
-            var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
+            IViewMappingItem mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
             return mappingItem == null ||
                    typeof(ITabView).GetTypeInfo().IsAssignableFrom(mappingItem.ViewType.GetTypeInfo()) ||
                    !typeof(Page).GetTypeInfo().IsAssignableFrom(mappingItem.ViewType.GetTypeInfo());
         }
 
-        private static bool CanShowViewModelNavigationPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
+        private static bool CanShowViewModelNavigationPresenter(IViewModel viewModel, IDataContext dataContext,
+            IViewModelPresenter arg3)
         {
-            var viewName = viewModel.GetViewName(dataContext);
-            var container = viewModel.GetIocContainer(true);
+            string viewName = viewModel.GetViewName(dataContext);
+            IIocContainer container = viewModel.GetIocContainer(true);
             var mappingProvider = container.Get<IViewMappingProvider>();
-            var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
-            return mappingItem != null && typeof(Page).GetTypeInfo().IsAssignableFrom(mappingItem.ViewType.GetTypeInfo());
+            IViewMappingItem mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
+            return mappingItem != null &&
+                   typeof(Page).GetTypeInfo().IsAssignableFrom(mappingItem.ViewType.GetTypeInfo());
         }
 
         private static void OnViewCleared(IViewManager viewManager, IViewModel viewModel, object arg3, IDataContext arg4)

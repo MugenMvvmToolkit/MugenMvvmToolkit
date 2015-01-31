@@ -196,7 +196,7 @@ namespace MugenMvvmToolkit.Modules
         /// <returns>An instance of <see cref="ITracer" />.</returns>
         protected override BindingInfo<ITracer> GetTracer()
         {
-            return BindingInfo<ITracer>.FromType<DebugTracer>(DependencyLifecycle.SingleInstance);
+            return BindingInfo<ITracer>.FromType<TracerEx>(DependencyLifecycle.SingleInstance);
         }
 #endif
         /// <summary>

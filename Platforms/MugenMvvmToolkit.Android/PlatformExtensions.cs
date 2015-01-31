@@ -268,7 +268,6 @@ namespace MugenMvvmToolkit
         private static readonly List<WeakReference> WeakReferences;
         private static readonly Dictionary<IntPtr, JavaObjectWeakReference> NativeWeakReferences;
         private static readonly ContentViewManager ContentViewManagerField;
-        private const string VisitedParentPath = "$``!Visited~";
         private static Func<Activity, IDataContext, IMvvmActivityMediator> _mvvmActivityMediatorFactory;
         private static Func<Context, IDataContext, MenuInflater> _menuInflaterFactory;
         private static Func<object, Context, object, int?, IDataTemplateSelector, object> _getContentViewDelegete;
@@ -417,10 +416,11 @@ namespace MugenMvvmToolkit
         {
             if (!view.IsAlive())
                 return;
+
             ParentObserver.Raise(view);
-            if (ServiceProvider.AttachedValueProvider.GetValue<object>(view, VisitedParentPath, false) != null)
+            if (view.GetTag(Resource.Id.ListenParentChangeId) != null)
                 return;
-            ServiceProvider.AttachedValueProvider.SetValue(view, VisitedParentPath, view);
+            view.SetTag(Resource.Id.ListenParentChangeId, GlobalViewParentListener.Instance);
             var parent = BindingServiceProvider.VisualTreeManager.FindParent(view) as View;
             if (parent != null)
                 parent.ListenParentChange();
