@@ -109,7 +109,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 }
             }
             bool trace = _trace || message is ITracebleMessage;
-            for (int i = 0; i < subscribers.Length; i++)
+            for (int i = 0; i < size; i++)
             {
                 if (subscribers[i].Handle(sender, message) == HandlerResult.Handled && trace)
                     Tracer.Warn("The message '{0}' from sender '{1}' was sended to '{2}'", message.GetType(),

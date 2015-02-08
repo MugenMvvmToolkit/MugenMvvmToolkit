@@ -141,6 +141,9 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Callbacks\OperationResult.cs">
       <Link>Infrastructure\Callbacks\OperationResult.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\CompositeEqualityComparer.cs">
+      <Link>Infrastructure\CompositeEqualityComparer.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\DelegateComparer.cs">
       <Link>Infrastructure\DelegateComparer.cs</Link>
     </Compile>

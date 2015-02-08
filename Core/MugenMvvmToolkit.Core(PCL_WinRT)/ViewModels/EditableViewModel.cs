@@ -115,7 +115,7 @@ namespace MugenMvvmToolkit.ViewModels
             {
                 if (value.Equals(_hasChanges)) return;
                 _hasChanges = value;
-                OnPropertyChanged("HasChanges");
+                OnPropertyChanged(Empty.HasChangesChangedArgs);
             }
         }
 
@@ -489,7 +489,7 @@ namespace MugenMvvmToolkit.ViewModels
             base.OnPropertyChangedInternal(args);
             if (IsEntityInitialized && UpdateChangesOnPropertyChanged &&
                 !IgnoreProperties.Contains(args.PropertyName) && !IsDisposed)
-                OnPropertyChanged("HasChanges");
+                OnPropertyChanged(Empty.HasChangesChangedArgs, ExecutionMode.None);
         }
 
         #endregion

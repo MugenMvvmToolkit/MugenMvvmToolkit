@@ -306,7 +306,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 var value = PlatformDataBindingModule.AdapterViewSelectedItemMember.GetValue(adapterView, null);
                 if (value != null && GetPosition(value) < 0)
-                    PlatformDataBindingModule.AdapterViewSelectedPositionMember.SetValue(adapterView, -1);
+                {
+                    var index = args.OldStartingIndex;
+                    var maxIndex = ItemsSource.Count() - 1;
+                    while (index > maxIndex)
+                        --index;
+                    PlatformDataBindingModule.AdapterViewSelectedItemMember.SetValue(adapterView, GetRawItem(index));
+                }
             }
             NotifyDataSetChanged();
         }

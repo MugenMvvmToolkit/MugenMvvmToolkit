@@ -18,14 +18,16 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Foundation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Modules;
+using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Views;
@@ -104,18 +106,18 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Fields
 
-        private const string InitializedPath = "@!~init";
+        internal const int InitializingStateMask = 1;
+        private const int InitializedStateMask = 2;
+        private const int SelectedFromBindingStateFalseMask = 4;
         private static Func<UITableView, IDataContext, TableViewSourceBase> _factory;
         private static readonly ConcurrentDictionary<IdentifierKey, NSString> TypeToIdentifier;
 
         private readonly IBindingMemberInfo _itemTemplateMember;
         private readonly UITableView _tableView;
-        private readonly HashSet<object> _selectedItems;
 
-        private UITableViewCell _lastCreatedCell;
         private NSIndexPath _lastCreatedCellPath;
+        private UITableViewCell _lastCreatedCell;
         private object _selectedItem;
-        private bool _ignoreSelectedItems;
 
         #endregion
 
@@ -127,11 +129,15 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _factory = (o, context) => new ItemsSourceTableViewSource(o);
         }
 
+        protected TableViewSourceBase(IntPtr handle)
+            : base(handle)
+        {
+        }
+
         protected TableViewSourceBase([NotNull] UITableView tableView,
             string itemTemplate = AttachedMemberConstants.ItemTemplate)
         {
             Should.NotBeNull(tableView, "tableView");
-            _selectedItems = new HashSet<object>();
             _tableView = tableView;
             _itemTemplateMember = BindingServiceProvider
                 .MemberProvider
@@ -235,28 +241,51 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _tableView.ReloadData();
         }
 
-        public virtual void ItemSelected(object item)
+        public virtual bool UpdateSelectedBindValue(UITableViewCell cell, bool selected)
         {
-            if (_ignoreSelectedItems || (!_tableView.AllowsSelection && !_tableView.AllowsMultipleSelection))
-                return;
-            if (!_tableView.AllowsMultipleSelection)
-                _selectedItems.Clear();
-            if (item != null && _selectedItems.Add(item))
-                SetSelectedItem(item, false);
+            if (TableView.AllowsMultipleSelection)
+                return selected;
+            if (!TableView.AllowsSelection)
+                return false;
+            if (HasMask(cell, InitializingStateMask))
+            {
+                if (Equals(ViewManager.GetDataContext(cell), SelectedItem))
+                    return true;
+                return selected && SelectedItem == null;
+            }
+            return selected;
         }
 
-        public virtual void ItemDeselected(object item)
+        public virtual void OnCellSelectionChanged(UITableViewCell cell, bool selected, bool setFromBinding)
         {
-            if (_ignoreSelectedItems || (!_tableView.AllowsSelection && !_tableView.AllowsMultipleSelection))
+            if (!setFromBinding)
                 return;
 
-            if (item != null && _selectedItems.Remove(item))
+            UpdateSelectedItemInternal(ViewManager.GetDataContext(cell), selected);
+            var path = IndexPathForCell(TableView, cell);
+            if (path == null)
+                return;
+            if (selected)
+                TableView.SelectRow(path, false, UITableViewScrollPosition.None);
+            else
             {
-                if (_selectedItems.Count == 0)
-                    SetSelectedItem(null, false);
-                else if (Equals(SelectedItem, item))
-                    SetSelectedItem(_selectedItems.FirstOrDefault(), false);
+                try
+                {
+                    //NOTE sometimes this code throw an exception on iOS 8, in this case we are using the WillDisplay method to deselect row.
+                    TableView.DeselectRow(path, false);
+                }
+                catch
+                {
+                    cell.Tag |= SelectedFromBindingStateFalseMask;
+                }
             }
+        }
+
+        public virtual void OnCellEditingChanged(UITableViewCell cell, bool editing, bool setFromBinding)
+        {
+            var path = IndexPathForCell(TableView, cell);
+            if (path != null)
+                UpdateSelectedItemInternal(GetItemAt(path), cell.Selected);
         }
 
         protected abstract object GetItemAt(NSIndexPath indexPath);
@@ -276,25 +305,30 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (rows != null)
             {
                 foreach (NSIndexPath indexPath in rows)
-                {
                     TableView.DeselectRow(indexPath, UseAnimations);
-                    RowDeselected(_tableView, indexPath);
-                }
             }
-            _selectedItems.Clear();
             SetSelectedItem(null, false);
+        }
+
+        internal static bool HasMask(UITableViewCell cell, int mask)
+        {
+            return (cell.Tag & mask) == mask;
         }
 
         internal UITableViewCell CellAt(UITableView view, NSIndexPath path)
         {
             if (path == null)
                 return null;
-            UITableViewCell cell = view.CellAt(path);
-            if (cell != null)
-                return cell;
             if (_lastCreatedCellPath != null && path.Equals(_lastCreatedCellPath))
                 return _lastCreatedCell;
-            return null;
+            return view.CellAt(path);
+        }
+
+        internal NSIndexPath IndexPathForCell(UITableView tableView, UITableViewCell cell)
+        {
+            if (ReferenceEquals(cell, _lastCreatedCell))
+                return _lastCreatedCellPath;
+            return tableView.IndexPathForCell(cell);
         }
 
         private void SetSelectedItem(object value, bool sourceUpdate)
@@ -322,6 +356,17 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     .GetValue(tableView, null);
             if (bindValue != null)
                 bindValue(cell);
+        }
+
+        private void UpdateSelectedItemInternal(object item, bool selected)
+        {
+            if (selected)
+            {
+                if (!TableView.AllowsMultipleSelection || SelectedItem == null)
+                    SetSelectedItem(item, false);
+            }
+            else if (Equals(item, SelectedItem))
+                SetSelectedItem(null, false);
         }
 
         #endregion
@@ -368,7 +413,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public override void CellDisplayingEnded(UITableView tableView, UITableViewCell cell, NSIndexPath indexPath)
         {
             BindingServiceProvider.ContextManager.GetBindingContext(cell).Value = null;
-            cell.Selected = false;
+            var callback = cell as IHasDisplayCallback;
+            if (callback != null)
+                callback.DisplayingEnded();
         }
 
         public override nfloat GetHeightForRow(UITableView tableView, NSIndexPath indexPath)
@@ -386,47 +433,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return PlatformDataBindingModule
                 .TitleForDeleteConfirmationMember
                 .TryGetValue(cell, "Delete");
-        }
-
-        public override void WillDisplay(UITableView tableView, UITableViewCell cell, NSIndexPath indexPath)
-        {
-            object item = GetItemAt(indexPath);
-            _ignoreSelectedItems = true;
-            BindingServiceProvider.ContextManager.GetBindingContext(cell).Value = item;
-            var bindable = cell as UITableViewCellBindable;
-            if (bindable == null)
-            {
-                if (!ServiceProvider.AttachedValueProvider.Contains(cell, InitializedPath))
-                {
-                    ServiceProvider.AttachedValueProvider.SetValue(cell, InitializedPath, null);
-                    SetCellBinding(tableView, cell);
-                }
-            }
-            else
-            {
-                if (!bindable.Initialized)
-                {
-                    bindable.Initialized = true;
-                    SetCellBinding(tableView, cell);
-                }
-            }
-            _ignoreSelectedItems = false;
-
-            if (tableView.AllowsMultipleSelection)
-            {
-                if (cell.Selected)
-                {
-                    tableView.SelectRow(indexPath, false, UITableViewScrollPosition.None);
-                    ItemSelected(item);
-                }
-                else
-                {
-                    tableView.DeselectRow(indexPath, false);
-                    ItemDeselected(item);
-                }
-            }
-            else
-                cell.Selected = tableView.AllowsSelection && _selectedItems.Contains(item ?? cell);
         }
 
         public override UITableViewCellEditingStyle EditingStyleForRow(UITableView tableView, NSIndexPath indexPath)
@@ -454,11 +460,35 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     var cellStyle = PlatformDataBindingModule.TableViewDefaultCellStyleMember.TryGetValue(tableView, UITableViewCellStyle.Default);
                     cell = new UITableViewCellBindable(cellStyle, cellIdentifier);
                 }
-                BindingServiceProvider.ContextManager.GetBindingContext(cell).Value = null;
             }
             _lastCreatedCell = cell;
             _lastCreatedCellPath = indexPath;
+
+            if (Equals(item, _selectedItem) && !cell.Selected)
+                TableView.SelectRow(indexPath, false, UITableViewScrollPosition.None);
+
+            cell.Tag |= InitializingStateMask;
+            BindingServiceProvider.ContextManager.GetBindingContext(cell).Value = item;
+            if (!HasMask(cell, InitializedStateMask))
+            {
+                cell.Tag |= InitializedStateMask;
+                ParentObserver.GetOrAdd(cell).Parent = tableView;
+                SetCellBinding(tableView, cell);
+            }
+            cell.Tag &= ~InitializingStateMask;
+            var initializableItem = cell as IHasDisplayCallback;
+            if (initializableItem != null)
+                initializableItem.WillDisplay();
             return cell;
+        }
+
+        public override void WillDisplay(UITableView tableView, UITableViewCell cell, NSIndexPath indexPath)
+        {
+            if (HasMask(cell, SelectedFromBindingStateFalseMask))
+            {
+                TableView.DeselectRow(indexPath, false);
+                cell.Tag &= ~SelectedFromBindingStateFalseMask;
+            }
         }
 
         public override nint NumberOfSections(UITableView tableView)
@@ -473,14 +503,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 .TryGetValue(CellAt(tableView, rowIndexPath), true);
         }
 
-        public override void RowDeselected(UITableView tableView, NSIndexPath indexPath)
-        {
-            ItemDeselected(GetItemAt(indexPath));
-        }
-
         public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
         {
-            ItemSelected(GetItemAt(indexPath));
+            UpdateSelectedItemInternal(GetItemAt(indexPath), true);
+        }
+
+        public override void RowDeselected(UITableView tableView, NSIndexPath indexPath)
+        {
+            UpdateSelectedItemInternal(GetItemAt(indexPath), false);
         }
 
         #endregion

@@ -19,6 +19,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure;
@@ -32,16 +33,15 @@ namespace MugenMvvmToolkit.Collections
     /// <summary>
     ///     Represents the collection that allows to track the changes of entities.
     /// </summary>
-    [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable, KnownType(typeof(StateTransitionManager))]
+    [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable, KnownType(typeof(StateTransitionManager)), KnownType(typeof(CompositeEqualityComparer))]
     public class TrackingCollection : ITrackingCollection
     {
         #region Fields
 
-        [DataMember]
-        internal readonly Dictionary<object, EntityState> ItemsInternal;
+        private static readonly PropertyChangedEventArgs StateTransitionManagerArgs;
 
         [DataMember]
-        internal readonly object Locker;
+        internal readonly Dictionary<object, EntityState> ItemsInternal;
 
         [DataMember]
         internal IStateTransitionManager StateTransitionManagerInternal;
@@ -53,22 +53,28 @@ namespace MugenMvvmToolkit.Collections
 
         #region Constructors
 
+        static TrackingCollection()
+        {
+            StateTransitionManagerArgs = new PropertyChangedEventArgs("StateTransitionManager");            
+        }
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="TrackingCollection" /> class.
         /// </summary>
-        public TrackingCollection(IStateTransitionManager stateTransitionManager = null,
-            IEqualityComparer<object> comparer = null)
+        public TrackingCollection(IEqualityComparer<object> comparer = null)
+            : this(null, comparer)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="TrackingCollection" /> class.
+        /// </summary>
+        public TrackingCollection(IStateTransitionManager stateTransitionManager, IEqualityComparer<object> comparer = null)
         {
             if (stateTransitionManager == null)
-                stateTransitionManager = ServiceProvider.TrackingCollectionStateTransitionManagerFactory(this) ??
-                                         Infrastructure.StateTransitionManager.Instance;
-            if (comparer == null)
-                comparer = ServiceProvider.TrackingCollectionEqualityComparerFactory(this) ??
-                           ReferenceEqualityComparer.Instance;
-
-            Locker = new object();
+                stateTransitionManager = Infrastructure.StateTransitionManager.Instance;
             StateTransitionManagerInternal = stateTransitionManager;
-            ItemsInternal = new Dictionary<object, EntityState>(comparer);
+            ItemsInternal = new Dictionary<object, EntityState>(comparer ?? ReferenceEqualityComparer.Instance);
         }
 
         /// <summary>
@@ -120,6 +126,14 @@ namespace MugenMvvmToolkit.Collections
             get { return ItemsInternal; }
         }
 
+        /// <summary>
+        ///     Gets an object that can be used to synchronize access
+        /// </summary>
+        protected object Locker
+        {
+            get { return ItemsInternal; }
+        }
+
         #endregion
 
         #region Implementation of IEnumerable
@@ -157,6 +171,11 @@ namespace MugenMvvmToolkit.Collections
         #region Implementation of ITrackingCollection
 
         /// <summary>
+        ///     Gets or sets the property that indicates that the state will be validated before assigned.
+        /// </summary>
+        public bool ValidateState { get; set; }
+
+        /// <summary>
         ///     Gets the number of elements contained in the <see cref="ITrackingCollection" />.
         /// </summary>
         /// <returns>
@@ -177,6 +196,7 @@ namespace MugenMvvmToolkit.Collections
             {
                 Should.PropertyBeNotNull(value);
                 StateTransitionManagerInternal = value;
+                OnPropertyChanged(StateTransitionManagerArgs);
             }
         }
 
@@ -187,6 +207,11 @@ namespace MugenMvvmToolkit.Collections
         {
             get { return ChangedCount != 0; }
         }
+
+        /// <summary>
+        ///     Occurs when the collection changes.
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
         ///     Determines whether the <see cref="ITrackingCollection" /> contains a specific value.
@@ -226,18 +251,18 @@ namespace MugenMvvmToolkit.Collections
         /// </returns>
         public IList<TEntity> Find<TEntity>(Func<TrackingEntity<TEntity>, bool> predicate)
         {
+            var result = new List<TEntity>();
             lock (Locker)
             {
-                var list = new List<TEntity>();
                 foreach (var keyValuePair in ItemsInternal)
                 {
                     if (!(keyValuePair.Key is TEntity)) continue;
                     var item = (TEntity)keyValuePair.Key;
                     if (predicate == null || predicate(new TrackingEntity<TEntity>(item, keyValuePair.Value)))
-                        list.Add(item);
+                        result.Add(item);
                 }
-                return list;
             }
+            return result;
         }
 
         /// <summary>
@@ -288,11 +313,18 @@ namespace MugenMvvmToolkit.Collections
         /// <returns>
         ///     If <c>true</c> the state was changed; otherwise <c>false</c>.
         /// </returns>
-        public bool UpdateState(object value, EntityState state, bool validateState = false)
+        public bool UpdateState(object value, EntityState state, bool? validateState = null)
         {
             Should.NotBeNull(value, "value");
+            bool updated;
             lock (Locker)
-                return UpdateStateInternal(value, state, validateState);
+                updated = UpdateStateInternal(value, state, validateState.GetValueOrDefault(ValidateState));
+            if (updated)
+            {
+                OnPropertyChanged(Empty.HasChangesChangedArgs);
+                OnPropertyChanged(Empty.CountChangedArgs);
+            }
+            return updated;
         }
 
         /// <summary>
@@ -302,6 +334,8 @@ namespace MugenMvvmToolkit.Collections
         {
             lock (Locker)
                 ClearInternal();
+            OnPropertyChanged(Empty.HasChangesChangedArgs);
+            OnPropertyChanged(Empty.CountChangedArgs);
         }
 
         /// <summary>
@@ -368,6 +402,16 @@ namespace MugenMvvmToolkit.Collections
         }
 
         /// <summary>
+        ///     Raises the <see cref="PropertyChanged" /> event.
+        /// </summary>
+        protected virtual void OnPropertyChanged(PropertyChangedEventArgs args)
+        {
+            var handler = PropertyChanged;
+            if (handler != null)
+                handler(this, args);
+        }
+
+        /// <summary>
         ///     Creates a new object that is a copy of the current instance.
         /// </summary>
         /// <returns>
@@ -375,7 +419,10 @@ namespace MugenMvvmToolkit.Collections
         /// </returns>
         protected virtual ITrackingCollection CloneInternal()
         {
-            return new TrackingCollection(ItemsInternal, StateTransitionManager);
+            IEnumerable<KeyValuePair<object, EntityState>> items;
+            lock (Locker)
+                items = ItemsInternal.ToArrayEx();
+            return new TrackingCollection(items, StateTransitionManager, ItemsInternal.Comparer);
         }
 
         #endregion

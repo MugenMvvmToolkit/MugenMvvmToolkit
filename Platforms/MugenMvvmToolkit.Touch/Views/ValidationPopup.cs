@@ -48,6 +48,11 @@ namespace MugenMvvmToolkit.Views
             EmptyNSString = new NSString(string.Empty);
         }
 
+        protected internal ValidationPopup(IntPtr handle)
+            : base(handle)
+        {
+        }
+
         public ValidationPopup(CGRect showOnRect, CGRect fieldFrame)
         {
             ShowOnRect = showOnRect;

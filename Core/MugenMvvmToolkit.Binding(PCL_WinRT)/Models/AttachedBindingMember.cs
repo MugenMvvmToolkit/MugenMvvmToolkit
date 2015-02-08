@@ -308,7 +308,7 @@ namespace MugenMvvmToolkit.Binding.Models
             {
                 var property = ServiceProvider.AttachedValueProvider.GetValue<AttachedProperty<TTarget, TType>>(target, member.Id, false);
                 if (property != null)
-                    property.Raise(target, o);
+                    property.RaiseWithMemberChanged(target, o);
             }
 
             private static IDisposable ObserveAttached(IBindingMemberInfo member, TTarget source, IEventListener listener)
@@ -393,6 +393,13 @@ namespace MugenMvvmToolkit.Binding.Models
                 if (Member != null)
                     Member.MemberChanged(source, oldValue, value, args);
                 Raise(source, EventArgs.Empty);
+            }
+
+            public void RaiseWithMemberChanged(TTarget source, object arg)
+            {
+                if (Member != null)
+                    Member.MemberChanged(source, Value, Value, Empty.Array<object>());
+                Raise(source, arg);
             }
 
             #endregion

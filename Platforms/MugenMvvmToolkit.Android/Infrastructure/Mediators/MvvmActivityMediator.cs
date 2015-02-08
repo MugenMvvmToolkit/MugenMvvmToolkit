@@ -169,6 +169,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             var handler = Destroyed;
             if (handler != null)
                 handler(Target, EventArgs.Empty);
+            _view.RemoveFromParent();
             _view.ClearBindingsHierarchically(true, true);
             _view = null;
 

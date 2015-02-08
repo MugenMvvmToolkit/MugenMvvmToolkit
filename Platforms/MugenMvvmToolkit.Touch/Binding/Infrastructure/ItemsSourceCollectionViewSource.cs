@@ -121,6 +121,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             if (!TryUpdateItems(args))
                 ReloadData();
+            if (args.Action == NotifyCollectionChangedAction.Remove ||
+                args.Action == NotifyCollectionChangedAction.Replace ||
+                args.Action == NotifyCollectionChangedAction.Reset)
+                ClearSelectedItemIfNeed();
         }
 
         protected bool TryUpdateItems(NotifyCollectionChangedEventArgs args)
@@ -133,10 +137,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     CollectionView.InsertItems(newIndexPaths);
                     return true;
                 case NotifyCollectionChangedAction.Remove:
-                    foreach (var oldItem in args.OldItems)
-                        ItemDeselected(oldItem);
-                    NSIndexPath[] oldIndexPaths = PlatformExtensions.CreateNSIndexPathArray(args.OldStartingIndex,
-                            args.OldItems.Count);
+                    NSIndexPath[] oldIndexPaths = PlatformExtensions.CreateNSIndexPathArray(args.OldStartingIndex, args.OldItems.Count);
                     CollectionView.DeleteItems(oldIndexPaths);
                     return true;
                 case NotifyCollectionChangedAction.Move:
@@ -156,6 +157,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 default:
                     return false;
             }
+        }
+
+        private void ClearSelectedItemIfNeed()
+        {
+            if (SelectedItem != null && ItemsSource != null && ItemsSource.IndexOf(SelectedItem) < 0)
+                SelectedItem = null;
         }
 
         #endregion

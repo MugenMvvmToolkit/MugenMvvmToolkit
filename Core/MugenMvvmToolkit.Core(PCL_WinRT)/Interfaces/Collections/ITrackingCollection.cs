@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
@@ -27,13 +28,18 @@ namespace MugenMvvmToolkit.Interfaces.Collections
     /// <summary>
     ///     Represents the collection that allows to track the changes of entities.
     /// </summary>
-    public interface ITrackingCollection : IEnumerable<TrackingEntity<object>>
+    public interface ITrackingCollection : INotifyPropertyChanged, IEnumerable<TrackingEntity<object>>
     {
         /// <summary>
         ///     Gets or sets the <see cref="IStateTransitionManager" />.
         /// </summary>
         [NotNull]
         IStateTransitionManager StateTransitionManager { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the property that indicates that the state will be validated before assigned.
+        /// </summary>
+        bool ValidateState { get; set; }
 
         /// <summary>
         ///     Gets the number of elements contained in the <see cref="ITrackingCollection" />.
@@ -76,7 +82,8 @@ namespace MugenMvvmToolkit.Interfaces.Collections
         ///     An instance of <see cref="IList{T}" />.
         /// </returns>
         [NotNull]
-        IList<IEntityStateEntry> GetChanges(EntityState entityState = EntityState.Added | EntityState.Modified | EntityState.Deleted);
+        IList<IEntityStateEntry> GetChanges(
+            EntityState entityState = EntityState.Added | EntityState.Modified | EntityState.Deleted);
 
         /// <summary>
         ///     Gets the object state.
@@ -97,7 +104,7 @@ namespace MugenMvvmToolkit.Interfaces.Collections
         /// <returns>
         ///     If <c>true</c> the state was changed; otherwise <c>false</c>.
         /// </returns>
-        bool UpdateState([NotNull] object value, EntityState state, bool validateState = false);
+        bool UpdateState([NotNull] object value, EntityState state, bool? validateState = null);
 
         /// <summary>
         ///     Removes all items from the <see cref="ITrackingCollection" />.

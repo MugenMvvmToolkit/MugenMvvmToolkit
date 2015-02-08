@@ -114,6 +114,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Constructors
 
+            public ErrorButton(IntPtr handle)
+                : base(handle)
+            {
+            }
+
             public ErrorButton(BindingErrorProvider errorProvider, UITextField textField)
                 : base(new CGRect(0, 0, 25, 25))
             {

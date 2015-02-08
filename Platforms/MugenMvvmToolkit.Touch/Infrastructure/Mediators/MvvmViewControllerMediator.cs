@@ -198,6 +198,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             if (!_canDispose || !_isDisposeCalled)
                 return;
             Raise(DisposeHandler);
+            if (_viewController.View != null)
+                _viewController.View.RemoveFromSuperview();
             _viewController.View.ClearBindingsHierarchically(true, true);
             _viewController.EditButtonItem.ClearBindings(true, true);
             _viewController.ToolbarItems.ClearBindings(true, true);

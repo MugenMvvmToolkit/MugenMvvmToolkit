@@ -4,11 +4,13 @@ using System.Linq;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MugenMvvmToolkit.Collections;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Test.Infrastructure;
 using MugenMvvmToolkit.Test.TestInfrastructure;
+using MugenMvvmToolkit.Test.TestModels;
 using Should;
 
 namespace MugenMvvmToolkit.Test.Collections
@@ -134,8 +136,28 @@ namespace MugenMvvmToolkit.Test.Collections
             collection.GetChanges().ShouldBeEmpty();
         }
 
-        protected virtual ITrackingCollection Create(IStateTransitionManager transitionManager = null,
-            IEqualityComparer<object> comparer = null)
+        [TestMethod]
+        public void CustomEqualityComparerTest()
+        {
+            var comparer = new CompositeEqualityComparer().AddComparer<BindingSourceModel>(
+                (model, sourceModel) => model.IntProperty == sourceModel.IntProperty,
+                model => model.IntProperty.GetHashCode());
+            var collection = Create(comparer: comparer);
+
+            var item1 = new BindingSourceModel { IntProperty = 1 };
+            var item2 = new BindingSourceModel { IntProperty = 1 };
+            collection.UpdateState(item1, EntityState.Added);
+            collection.Count.ShouldEqual(1);
+
+            collection.UpdateState(item2, EntityState.Added);
+            collection.Count.ShouldEqual(1);
+
+            var changes = collection.GetChanges(EntityState.Added);
+            changes.Count.ShouldEqual(1);
+            changes[0].Entity.ShouldEqual(item2);
+        }
+
+        protected virtual ITrackingCollection Create(IStateTransitionManager transitionManager = null, IEqualityComparer<object> comparer = null)
         {
             return new TrackingCollection(transitionManager, comparer);
         }
@@ -156,12 +178,45 @@ namespace MugenMvvmToolkit.Test.Collections
 
         [Ignore]
         public override void TestXmlSerialization()
-        {         
+        {
         }
 
         protected override TrackingCollection GetObject()
         {
             var c = new TrackingCollection();
+            c.UpdateState(Target, EntityState.Added);
+            return c;
+        }
+
+        protected override void AssertObject(TrackingCollection deserializedObj)
+        {
+            deserializedObj.GetChanges(EntityState.Added).Single().Entity.ShouldNotBeNull();
+            deserializedObj.Count.ShouldEqual(1);
+            deserializedObj.StateTransitionManager.ShouldNotBeNull();
+        }
+
+        #endregion
+    }
+
+    [TestClass]
+    public class TrackingCollectionCustomComparerSerializationTest : SerializationTestBase<TrackingCollection>
+    {
+        #region Fields
+
+        private static readonly object Target = new object();
+
+        #endregion
+
+        #region Overrides of SerializationTestBase
+
+        [Ignore]
+        public override void TestXmlSerialization()
+        {
+        }
+
+        protected override TrackingCollection GetObject()
+        {
+            var c = new TrackingCollection(new CompositeEqualityComparer().AddComparer(ReferenceEqualityComparer.Instance));
             c.UpdateState(Target, EntityState.Added);
             return c;
         }

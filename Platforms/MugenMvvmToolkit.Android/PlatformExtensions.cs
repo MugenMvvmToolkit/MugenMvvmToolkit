@@ -622,6 +622,15 @@ namespace MugenMvvmToolkit
                 PlatformDataBindingModule.AutoDisposeMember.SetValue(item, value);
         }
 
+        internal static void RemoveFromParent([CanBeNull] this View view)
+        {
+            if (view == null)
+                return;
+            var viewGroup = view.Parent as ViewGroup;
+            if (viewGroup != null)
+                viewGroup.RemoveView(view);
+        }
+
         internal static IMvvmActivityMediator GetOrCreateMediator(this Activity activity, ref IMvvmActivityMediator mediator)
         {
             if (mediator == null)

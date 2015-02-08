@@ -22,6 +22,7 @@ using System.Reflection;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 #if NETFX_CORE || WINDOWSCOMMON
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -53,7 +54,7 @@ namespace MugenMvvmToolkit.Binding.Models
 #if WINDOWS_PHONE
         private static class DataContextChangedHelper
         {
-            #region Fields
+        #region Fields
 
             public static readonly DependencyProperty InternalDataContextProperty = DependencyProperty.RegisterAttached(
                 "InternalDataContext", typeof(object), typeof(DataContextChangedHelper),
@@ -62,9 +63,9 @@ namespace MugenMvvmToolkit.Binding.Models
             public static readonly DependencyProperty DataContextListenerProperty = DependencyProperty.RegisterAttached(
                 "DataContextListener", typeof(EventListenerList), typeof(DataContextChangedHelper), new PropertyMetadata(default(EventListenerList)));
 
-            #endregion
+        #endregion
 
-            #region Methods
+        #region Methods
 
             private static void OnDataContextChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
             {
@@ -91,7 +92,7 @@ namespace MugenMvvmToolkit.Binding.Models
                 return value.AddWithUnsubscriber(listener);
             }
 
-            #endregion
+        #endregion
         }
 #endif
 
@@ -239,6 +240,8 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Fields
 
+        internal static readonly Func<object, bool> IsNamedObjectFunc;
+
         private readonly bool _canWrite;
         private readonly IBindingMemberInfo _changePropertyMember;
         private readonly DependencyProperty _dependencyProperty;
@@ -249,6 +252,24 @@ namespace MugenMvvmToolkit.Binding.Models
         #endregion
 
         #region Constructors
+
+        static DependencyPropertyBindingMember()
+        {
+            try
+            {
+                var type = DependencyProperty.UnsetValue.GetType();
+                var methodInfo = typeof(DependencyPropertyBindingMember).GetMethodEx("Is", MemberFlags.Static | MemberFlags.Public);
+                if (methodInfo == null)
+                    IsNamedObjectFunc = o => false;
+                else
+                    IsNamedObjectFunc = (Func<object, bool>)ServiceProvider.ReflectionManager.TryCreateDelegate(typeof(Func<object, bool>), null, methodInfo.MakeGenericMethod(type));
+            }
+            catch (Exception e)
+            {
+                IsNamedObjectFunc = o => false;
+                Tracer.Error(e.Flatten(true));
+            }
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DependencyPropertyBindingMember" /> class.
@@ -270,6 +291,15 @@ namespace MugenMvvmToolkit.Binding.Models
 #endif
             _member = member;
             _changePropertyMember = changePropertyMember;
+        }
+
+        #endregion
+
+        #region Methods
+
+        public static bool Is<T>(object item)
+        {
+            return item is T;
         }
 
         #endregion
@@ -333,7 +363,7 @@ namespace MugenMvvmToolkit.Binding.Models
         public object GetValue(object source, object[] args)
         {
             object value = ((DependencyObject)source).GetValue(_dependencyProperty);
-            if (ReferenceEquals(value, DependencyProperty.UnsetValue))
+            if (value != null && (ReferenceEquals(value, DependencyProperty.UnsetValue) || IsNamedObjectFunc(value)))
                 return BindingConstants.UnsetValue;
             return value;
         }

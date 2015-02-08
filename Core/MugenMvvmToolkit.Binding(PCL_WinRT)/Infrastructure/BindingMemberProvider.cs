@@ -253,7 +253,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                         foreach (var prefix in BindingServiceProvider.FakeMemberPrefixes)
                         {
                             if (path.StartsWith(prefix, StringComparison.Ordinal))
-                            {
+                            { 
                                 bindingMember = BindingMemberInfo.EmptyHasSetter;
                                 break;
                             }

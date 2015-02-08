@@ -848,18 +848,18 @@ namespace MugenMvvmToolkit.Collections
             {
                 case NotifyCollectionChangedAction.Add:
                     _notificationCount++;
-                    OnPropertyChanged(Empty.CountPropertyChangedArgs);
-                    OnPropertyChanged(Empty.NotificationCountPropertyChangedArgs);
+                    OnPropertyChanged(Empty.CountChangedArgs);
+                    OnPropertyChanged(Empty.NotificationCountChangedArgs);
                     break;
                 case NotifyCollectionChangedAction.Remove:
                     _notificationCount--;
-                    OnPropertyChanged(Empty.CountPropertyChangedArgs);
-                    OnPropertyChanged(Empty.NotificationCountPropertyChangedArgs);
+                    OnPropertyChanged(Empty.CountChangedArgs);
+                    OnPropertyChanged(Empty.NotificationCountChangedArgs);
                     break;
                 case NotifyCollectionChangedAction.Reset:
                     _notificationCount = count;
-                    OnPropertyChanged(Empty.CountPropertyChangedArgs);
-                    OnPropertyChanged(Empty.NotificationCountPropertyChangedArgs);
+                    OnPropertyChanged(Empty.CountChangedArgs);
+                    OnPropertyChanged(Empty.NotificationCountChangedArgs);
                     break;
             }
             OnPropertyChanged(Empty.IndexerPropertyChangedArgs);
@@ -873,7 +873,7 @@ namespace MugenMvvmToolkit.Collections
             if (Interlocked.Decrement(ref _suspendCount) != 0)
                 return;
             RaiseEvents();
-            OnPropertyChanged(new PropertyChangedEventArgs("IsNotificationsSuspended"));
+            OnPropertyChanged(Empty.IsNotificationsSuspendedChangedArgs);
         }
 
         /// <summary>
@@ -981,7 +981,7 @@ namespace MugenMvvmToolkit.Collections
         public virtual IDisposable SuspendNotifications()
         {
             if (Interlocked.Increment(ref _suspendCount) == 1)
-                OnPropertyChanged(new PropertyChangedEventArgs("IsNotificationsSuspended"));
+                OnPropertyChanged(Empty.IsNotificationsSuspendedChangedArgs);
             return WeakActionToken.Create(this, collection => collection.EndSuspendNotifications());
         }
 

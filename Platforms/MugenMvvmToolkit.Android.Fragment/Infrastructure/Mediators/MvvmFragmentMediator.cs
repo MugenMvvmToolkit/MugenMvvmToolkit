@@ -156,9 +156,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         {
             if (CacheFragmentView && _view != null)
             {
-                var parent = _view.Parent as ViewGroup;
-                if (parent != null)
-                    parent.RemoveView(_view);
+                _view.RemoveFromParent();
                 return _view;
             }
             _view.ClearBindingsHierarchically(true, true);
@@ -243,6 +241,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
             Tracer.Info("OnDestroy fragment({0})", Target);
             RaiseDestroy();
 
+            _view.RemoveFromParent();
             _view.ClearBindingsHierarchically(true, true);
             _view = null;
 

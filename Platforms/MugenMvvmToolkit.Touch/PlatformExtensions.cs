@@ -273,6 +273,15 @@ namespace MugenMvvmToolkit
             return sourceBase.CellAt(tableView, indexPath);
         }
 
+        public static NSIndexPath IndexPathForCellEx(this UITableView tableView, UITableViewCell cell)
+        {
+            Should.NotBeNull(tableView, "tableView");
+            var sourceBase = tableView.Source as TableViewSourceBase;
+            if (sourceBase == null)
+                return tableView.IndexPathForCell(cell);
+            return sourceBase.IndexPathForCell(tableView, cell);
+        }
+
         public static UICollectionViewCell CellForItemEx(this UICollectionView collectionView, NSIndexPath indexPath)
         {
             Should.NotBeNull(collectionView, "collectionView");
@@ -280,6 +289,15 @@ namespace MugenMvvmToolkit
             if (sourceBase == null)
                 return collectionView.CellForItem(indexPath);
             return sourceBase.CellForItem(collectionView, indexPath);
+        }
+
+        public static NSIndexPath IndexPathForCellEx(this UICollectionView collectionView, UICollectionViewCell cell)
+        {
+            Should.NotBeNull(collectionView, "collectionView");
+            var sourceBase = collectionView.Source as CollectionViewSourceBase;
+            if (sourceBase == null)
+                return collectionView.IndexPathForCell(cell);
+            return sourceBase.IndexPathForCell(collectionView, cell);
         }
 
         public static void SetEditingStyle([NotNull]this UITableViewCell cell, UITableViewCellEditingStyle editingStyle)

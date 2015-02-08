@@ -195,7 +195,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         #region Fields
 
         internal static readonly IAttachedBindingMemberInfo<object, bool?> AutoDisposeMember;
-        internal static readonly IAttachedBindingMemberInfo<AdapterView, int> AdapterViewSelectedPositionMember;
+        internal static readonly INotifiableAttachedBindingMemberInfo<AdapterView, int> AdapterViewSelectedPositionMember;
         internal readonly static IAttachedBindingMemberInfo<Object, ICollectionViewManager> CollectionViewManagerMember;
         internal static readonly IAttachedBindingMemberInfo<AdapterView, object> AdapterViewSelectedItemMember;
 
@@ -428,21 +428,16 @@ namespace MugenMvvmToolkit.Binding.Modules
         {
             if (ScrollToSelectedItemMember.GetValue(sender, null).GetValueOrDefault(true))
                 sender.SetSelection(args.NewValue);
-
             var adapter = GetAdapter(sender) as ItemsSourceAdapter;
-            if (adapter == null)
-                return;
-            object item = adapter.GetRawItem(args.NewValue);
-            AdapterViewSelectedItemMember.SetValue(sender, item);
+            if (adapter != null)
+                AdapterViewSelectedItemMember.SetValue(sender, adapter.GetRawItem(args.NewValue));
         }
 
         private static void AdapterViewSelectedItemChanged(AdapterView sender, AttachedMemberChangedEventArgs<object> args)
         {
             var adapter = GetAdapter(sender) as ItemsSourceAdapter;
-            if (adapter == null)
-                return;
-            int position = adapter.GetPosition(args.NewValue);
-            AdapterViewSelectedPositionMember.SetValue(sender, position);
+            if (adapter != null)
+                AdapterViewSelectedPositionMember.SetValue(sender, adapter.GetPosition(args.NewValue));
         }
 
         private static void AdapterViewSelectedMemberAttached(AdapterView adapterView, MemberAttachedEventArgs arg)
@@ -459,13 +454,13 @@ namespace MugenMvvmToolkit.Binding.Modules
         private static void SetSelectedIndexAdapterView(AdapterView adapter, int index)
         {
             var oldValue = ScrollToSelectedItemMember.GetValue(adapter, null);
-            if (oldValue == null || !oldValue.Value)
+            if (oldValue != null && !oldValue.Value)
                 AdapterViewSelectedPositionMember.SetValue(adapter, index);
             else
             {
                 ScrollToSelectedItemMember.SetValue(adapter, false);
                 AdapterViewSelectedPositionMember.SetValue(adapter, index);
-                ScrollToSelectedItemMember.SetValue(adapter, true);
+                ScrollToSelectedItemMember.SetValue(adapter, oldValue);
             }
         }
 

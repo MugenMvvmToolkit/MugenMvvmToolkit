@@ -35,6 +35,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
     {
         #region Fields
 
+        private static Type _sharedDpType;
         private string _targetMemberName;
 
         #endregion
@@ -80,8 +81,16 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
             var targetProperty = target.TargetProperty;
             if (targetObject == null || targetProperty == null)
                 return GetEmptyValue();
-            if (!(targetObject is DependencyObject) && targetObject.GetType().FullName == "System.Windows.SharedDp")
-                return this;
+            if (!(targetObject is DependencyObject))
+            {
+                var type = targetObject.GetType();
+                if (_sharedDpType == type || "System.Windows.SharedDp".Equals(type.FullName, StringComparison.Ordinal))
+                {
+                    if (_sharedDpType == null)
+                        _sharedDpType = type;
+                    return this;
+                }
+            }
 #if WPF
             if (targetObject is Setter || targetObject is DataTrigger || targetObject is Condition)
 #else

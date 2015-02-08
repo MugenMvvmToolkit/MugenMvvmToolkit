@@ -50,8 +50,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 #else
             private readonly WeakReference _sourceReference;
 #endif
-            private static Type _namedObjectType;
-
             #endregion
 
             #region Constructors
@@ -102,16 +100,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     object context = target.DataContext;
                     if (context == null)
                         return null;
-                    if (_namedObjectType == null)
-                    {
-                        if (context.GetType().FullName.Equals("MS.Internal.NamedObject", StringComparison.Ordinal))
-                        {
-                            _namedObjectType = context.GetType();
-                            return null;
-                        }
-                    }
-                    else if (_namedObjectType == context.GetType())
-                        return null;
+                    if (DependencyPropertyBindingMember.IsNamedObjectFunc(context))
+                        return BindingConstants.UnsetValue;
                     return context;
                 }
                 set
@@ -120,8 +110,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     if (target == null)
                         return;
                     if (ReferenceEquals(value, BindingConstants.UnsetValue))
-                        value = DependencyProperty.UnsetValue;
-                    target.DataContext = value;
+                        target.DataContext = DependencyProperty.UnsetValue;
+                    else
+                        target.DataContext = value;
                 }
             }
 

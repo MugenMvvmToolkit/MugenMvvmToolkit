@@ -494,12 +494,12 @@ namespace MugenMvvmToolkit.ViewModels
         {
             string value;
             if (string.IsNullOrEmpty(args.PropertyName))
-                OnPropertyChanged(args, PropertyChangeExecutionMode);
+                OnPropertyChanged(args, ExecutionMode.None);
             else if (WrappedPropertyNames.TryGetValue(args.PropertyName, out value))
             {
                 if (args.PropertyName != value)
                     args = new PropertyChangedEventArgs(value);
-                OnPropertyChanged(args, PropertyChangeExecutionMode);
+                OnPropertyChanged(args, ExecutionMode.None);
             }
         }
 

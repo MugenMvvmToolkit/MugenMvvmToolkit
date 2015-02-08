@@ -45,7 +45,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
                 Empty.IndexerPropertyChangedArgs.PropertyName)
                 _indexerRaised = true;
             if (propertyChangedEventArgs.PropertyName ==
-                Empty.CountPropertyChangedArgs.PropertyName)
+                Empty.CountChangedArgs.PropertyName)
                 _countRaised = true;
         }
 

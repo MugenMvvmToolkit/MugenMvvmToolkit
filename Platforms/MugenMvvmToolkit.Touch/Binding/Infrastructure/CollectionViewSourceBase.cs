@@ -17,13 +17,14 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Foundation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Modules;
+using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Views;
 using UIKit;
@@ -34,16 +35,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
     {
         #region Fields
 
+        internal const int InitializingStateMask = 1;
+        private const int InitializedStateMask = 2;
         private static Func<UICollectionView, IDataContext, CollectionViewSourceBase> _factory;
 
         private readonly UICollectionView _collectionView;
         private readonly IBindingMemberInfo _itemTemplateMember;
-        private readonly HashSet<object> _selectedItems;
 
         private UICollectionViewCell _lastCreatedCell;
         private NSIndexPath _lastCreatedCellPath;
         private object _selectedItem;
-        private bool _ignoreSelectedItems;
 
         #endregion
 
@@ -54,11 +55,15 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _factory = (o, context) => new ItemsSourceCollectionViewSource(o);
         }
 
+        protected CollectionViewSourceBase(IntPtr handle)
+            : base(handle)
+        {
+        }
+
         protected CollectionViewSourceBase([NotNull] UICollectionView collectionView,
             string itemTemplate = AttachedMemberConstants.ItemTemplate)
         {
             Should.NotBeNull(collectionView, "collectionView");
-            _selectedItems = new HashSet<object>();
             _collectionView = collectionView;
             _itemTemplateMember = BindingServiceProvider
                 .MemberProvider
@@ -129,28 +134,33 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _collectionView.ReloadData();
         }
 
-        public virtual void ItemSelected(object item)
+        public virtual bool UpdateSelectedBindValue(UICollectionViewCell cell, bool selected)
         {
-            if (_ignoreSelectedItems || (!_collectionView.AllowsSelection && !_collectionView.AllowsMultipleSelection))
-                return;
-            if (!_collectionView.AllowsMultipleSelection)
-                _selectedItems.Clear();
-            if (item != null && _selectedItems.Add(item))
-                SetSelectedItem(item, false);
+            if (CollectionView.AllowsMultipleSelection)
+                return selected;
+            if (!CollectionView.AllowsSelection)
+                return false;
+            if (HasMask(cell, InitializingStateMask))
+            {
+                if (Equals(ViewManager.GetDataContext(cell), SelectedItem))
+                    return true;
+                return selected && SelectedItem == null;
+            }
+            return selected;
         }
 
-        public virtual void ItemDeselected(object item)
+        public virtual void OnCellSelectionChanged(UICollectionViewCell cell, bool selected, bool setFromBinding)
         {
-            if (_ignoreSelectedItems || (!_collectionView.AllowsSelection && !_collectionView.AllowsMultipleSelection))
+            if (!setFromBinding)
                 return;
-
-            if (item != null && _selectedItems.Remove(item))
-            {
-                if (_selectedItems.Count == 0)
-                    SetSelectedItem(null, false);
-                else if (Equals(SelectedItem, item))
-                    SetSelectedItem(_selectedItems.FirstOrDefault(), false);
-            }
+            UpdateSelectedItemInternal(ViewManager.GetDataContext(cell), selected);
+            var path = IndexPathForCell(CollectionView, cell);
+            if (path == null)
+                return;
+            if (selected)
+                CollectionView.SelectItem(path, false, UICollectionViewScrollPosition.None);
+            else
+                CollectionView.DeselectItem(path, false);
         }
 
         protected abstract object GetItemAt(NSIndexPath indexPath);
@@ -172,8 +182,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 foreach (NSIndexPath indexPath in indexPaths)
                     _collectionView.DeselectItem(indexPath, UseAnimations);
             }
-            _selectedItems.Clear();
             SetSelectedItem(null, false);
+        }
+
+        internal static bool HasMask(UICollectionViewCell cell, int mask)
+        {
+            return (cell.Tag & mask) == mask;
         }
 
         internal UICollectionViewCell CellForItem(UICollectionView view, NSIndexPath path)
@@ -188,6 +202,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return null;
         }
 
+        internal NSIndexPath IndexPathForCell(UICollectionView collectionView, UICollectionViewCell cell)
+        {
+            if (ReferenceEquals(cell, _lastCreatedCell))
+                return _lastCreatedCellPath;
+            return collectionView.IndexPathForCell(cell);
+        }
+
         private void SetSelectedItem(object value, bool sourceUpdate)
         {
             if (Equals(_selectedItem, value))
@@ -198,28 +219,15 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             PlatformDataBindingModule.CollectionViewSelectedItemChangedEvent.Raise(_collectionView, EventArgs.Empty);
         }
 
-        private void SetCellContext(UICollectionView collectionView, UICollectionViewCell cell,
-            NSIndexPath indexPath, object item)
+        private void UpdateSelectedItemInternal(object item, bool selected)
         {
-            _ignoreSelectedItems = true;
-            BindingServiceProvider.ContextManager.GetBindingContext(cell).Value = item;
-            _ignoreSelectedItems = false;
-
-            if (collectionView.AllowsMultipleSelection)
+            if (selected)
             {
-                if (cell.Selected)
-                {
-                    collectionView.SelectItem(indexPath, UseAnimations, UICollectionViewScrollPosition.None);
-                    ItemSelected(item);
-                }
-                else
-                {
-                    collectionView.DeselectItem(indexPath, false);
-                    ItemDeselected(item);
-                }
+                if (!CollectionView.AllowsMultipleSelection || SelectedItem == null)
+                    SetSelectedItem(item, false);
             }
-            else
-                cell.Selected = collectionView.AllowsSelection && _selectedItems.Contains(item ?? cell);
+            else if (Equals(item, SelectedItem))
+                SetSelectedItem(null, false);
         }
 
         #endregion
@@ -230,35 +238,49 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             NSIndexPath indexPath)
         {
             BindingServiceProvider.ContextManager.GetBindingContext(cell).Value = null;
-            cell.Selected = false;
+            var callback = cell as IHasDisplayCallback;
+            if (callback != null)
+                callback.DisplayingEnded();
         }
 
         public override UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
         {
             var selector = _itemTemplateMember.TryGetValue<ICollectionCellTemplateSelector>(collectionView);
             if (selector == null)
-                throw new NotSupportedException(
-                    "The ItemTemplate is null to create UICollectionViewCell use the ItemTemplate with ICollectionCellTemplateSelector value.");
+                throw new NotSupportedException("The ItemTemplate is null to create UICollectionViewCell use the ItemTemplate with ICollectionCellTemplateSelector value.");
             object item = GetItemAt(indexPath);
             NSString identifier = selector.GetIdentifier(item, collectionView);
             var cell = (UICollectionViewCell)collectionView.DequeueReusableCell(identifier, indexPath);
-            if (!BindingServiceProvider.ContextManager.HasBindingContext(cell))
-                selector.InitializeTemplate(collectionView, cell);
 
-            SetCellContext(collectionView, cell, indexPath, item);
             _lastCreatedCell = cell;
             _lastCreatedCellPath = indexPath;
+
+
+            if (Equals(item, _selectedItem) && !cell.Selected)
+                CollectionView.SelectItem(indexPath, false, UICollectionViewScrollPosition.None);
+            cell.Tag |= InitializingStateMask;
+            BindingServiceProvider.ContextManager.GetBindingContext(cell).Value = item;
+            if (!HasMask(cell, InitializedStateMask))
+            {
+                cell.Tag |= InitializedStateMask;
+                ParentObserver.GetOrAdd(cell).Parent = collectionView;
+                selector.InitializeTemplate(collectionView, cell);
+            }
+            cell.Tag &= ~InitializingStateMask;
+            var initializableItem = cell as IHasDisplayCallback;
+            if (initializableItem != null)
+                initializableItem.WillDisplay();
             return cell;
         }
 
         public override void ItemDeselected(UICollectionView collectionView, NSIndexPath indexPath)
         {
-            ItemDeselected(GetItemAt(indexPath));
+            UpdateSelectedItemInternal(GetItemAt(indexPath), false);
         }
 
         public override void ItemSelected(UICollectionView collectionView, NSIndexPath indexPath)
         {
-            ItemSelected(GetItemAt(indexPath));
+            UpdateSelectedItemInternal(GetItemAt(indexPath), true);
         }
 
         public override void ItemHighlighted(UICollectionView collectionView, NSIndexPath indexPath)

@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Collections;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -603,7 +604,7 @@ namespace MugenMvvmToolkit
             if (itemsSource == null)
                 return false;
             int indexOf = itemsSource.IndexOf(item);
-            if (indexOf > 0)
+            if (indexOf <= 0)
                 return false;
             itemsSource.RemoveAt(indexOf);
             itemsSource.Insert(indexOf - 1, item);
@@ -618,7 +619,7 @@ namespace MugenMvvmToolkit
             if (itemsSource == null)
                 return false;
             int indexOf = itemsSource.IndexOf(item);
-            if (indexOf >= 0 && indexOf < itemsSource.Count - 1)
+            if (indexOf < 0 || indexOf >= itemsSource.Count - 1)
                 return false;
             itemsSource.RemoveAt(indexOf);
             itemsSource.Insert(indexOf + 1, item);
@@ -1572,7 +1573,7 @@ namespace MugenMvvmToolkit
         /// <param name="state">The state value.</param>
         /// <param name="validateState">The flag indicating that state will be validated before assigned.</param>
         public static void SetStateForAll([NotNull] this ITrackingCollection collection, EntityState state,
-            bool validateState = false)
+            bool? validateState = null)
         {
             Should.NotBeNull(collection, "collection");
             foreach (var item in collection)
@@ -1598,7 +1599,7 @@ namespace MugenMvvmToolkit
         /// <param name="predicate">The specified condition.</param>
         /// <param name="state">The specified state.</param>
         /// <param name="validateState">The flag indicating that state will be validated before assigned.</param>
-        public static void SetStateForAll([NotNull] this ITrackingCollection collection, [NotNull] Func<TrackingEntity<object>, bool> predicate, EntityState state, bool validateState = false)
+        public static void SetStateForAll([NotNull] this ITrackingCollection collection, [NotNull] Func<TrackingEntity<object>, bool> predicate, EntityState state, bool? validateState = null)
         {
             Should.NotBeNull(collection, "collection");
             Should.NotBeNull(predicate, "predicate");
@@ -1618,7 +1619,7 @@ namespace MugenMvvmToolkit
         /// <param name="newState">The state if item is new.</param>
         /// <param name="updateState">The state if item exist in collection.</param>
         public static bool UpdateState([NotNull] this ITrackingCollection collection, [NotNull] object item,
-            EntityState newState, EntityState updateState, bool validateState = false)
+            EntityState newState, EntityState updateState, bool? validateState = null)
         {
             Should.NotBeNull(collection, "collection");
             Should.NotBeNull(item, "item");
@@ -1634,7 +1635,7 @@ namespace MugenMvvmToolkit
         /// <param name="item">The item to add.</param>
         /// <param name="validateState">The flag indicating that state will be validated before assigned.</param>
         public static bool UpdateState([NotNull] this ITrackingCollection collection, [NotNull] IEntityStateEntry item,
-            bool validateState = false)
+            bool? validateState = null)
         {
             Should.NotBeNull(collection, "collection");
             Should.NotBeNull(item, "item");
@@ -1649,7 +1650,7 @@ namespace MugenMvvmToolkit
         /// <param name="state">The specified state.</param>
         /// <param name="validateState">The flag indicating that state will be validated before assigned.</param>
         public static void UpdateStates([NotNull] this ITrackingCollection collection, [NotNull] IEnumerable items,
-            EntityState state, bool validateState = false)
+            EntityState state, bool? validateState = null)
         {
             Should.NotBeNull(items, "items");
             foreach (object value in items)
@@ -1663,7 +1664,7 @@ namespace MugenMvvmToolkit
         /// <param name="items">Items to add</param>
         /// <param name="validateState">The flag indicating that state will be validated before assigned.</param>
         public static void UpdateStates([NotNull] this ITrackingCollection collection,
-            [NotNull] IEnumerable<IEntityStateEntry> items, bool validateState = false)
+            [NotNull] IEnumerable<IEntityStateEntry> items, bool? validateState = null)
         {
             Should.NotBeNull(collection, "collection");
             Should.NotBeNull(items, "items");

@@ -109,6 +109,7 @@
       <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
     </Compile>
     <Compile Include="Binding\Converters\BooleanToCheckmarkAccessoryConverter.cs" />
+    <Compile Include="Interfaces\IHasDisplayCallback.cs" />
     <Compile Include="Interfaces\Views\IViewControllerView.cs" />
     <Compile Include="LinkerInclude.cs" />
     <Compile Include="Models\NativeObjectWeakReference.cs" />

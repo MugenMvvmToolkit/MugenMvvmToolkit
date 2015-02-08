@@ -85,9 +85,16 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static readonly WeakReference WeakReference;
 
-        internal static readonly PropertyChangedEventArgs CountPropertyChangedArgs;
-        internal static readonly PropertyChangedEventArgs NotificationCountPropertyChangedArgs;
+        internal static readonly PropertyChangedEventArgs CountChangedArgs;
+        internal static readonly PropertyChangedEventArgs NotificationCountChangedArgs;
         internal static readonly PropertyChangedEventArgs IndexerPropertyChangedArgs;
+        internal static readonly PropertyChangedEventArgs IsNotificationsSuspendedChangedArgs;
+        internal static readonly PropertyChangedEventArgs HasChangesChangedArgs;
+        internal static readonly PropertyChangedEventArgs SelectedItemChangedArgs;
+        internal static readonly PropertyChangedEventArgs HasErrorsChangedArgs;
+        internal static readonly PropertyChangedEventArgs IsValidChangedArgs;
+        internal static readonly PropertyChangedEventArgs IsBusyChangedArgs;
+        internal static readonly PropertyChangedEventArgs BusyMessageChangedArgs;
 
         #endregion
 
@@ -101,9 +108,16 @@ namespace MugenMvvmToolkit
             TrueTask = ToolkitExtensions.FromResult(true);
             FalseTask = ToolkitExtensions.FromResult(false);
             Task = FalseTask;
-            CountPropertyChangedArgs = new PropertyChangedEventArgs("Count");
-            NotificationCountPropertyChangedArgs = new PropertyChangedEventArgs("NotificationCount");
+            CountChangedArgs = new PropertyChangedEventArgs("Count");
+            NotificationCountChangedArgs = new PropertyChangedEventArgs("NotificationCount");
             IndexerPropertyChangedArgs = new PropertyChangedEventArgs("Item[]");
+            IsNotificationsSuspendedChangedArgs = new PropertyChangedEventArgs("IsNotificationsSuspended");
+            HasChangesChangedArgs = new PropertyChangedEventArgs("HasChanges");
+            SelectedItemChangedArgs = new PropertyChangedEventArgs("SelectedItem");
+            HasErrorsChangedArgs = new PropertyChangedEventArgs("HasErrors");
+            IsValidChangedArgs = new PropertyChangedEventArgs("IsValid");
+            IsBusyChangedArgs = new PropertyChangedEventArgs("IsBusy");
+            BusyMessageChangedArgs = new PropertyChangedEventArgs("BusyMessage");
         }
 
         #endregion

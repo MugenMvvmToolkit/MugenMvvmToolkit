@@ -205,7 +205,7 @@ namespace MugenMvvmToolkit.ViewModels
 
                 OnSelectedItemChanged(oldValue, _selectedItem);
                 RaiseSelectedItemChanged(oldValue, _selectedItem);
-                OnPropertyChanged("SelectedItem");
+                OnPropertyChanged(Empty.SelectedItemChangedArgs);
             }
         }
 

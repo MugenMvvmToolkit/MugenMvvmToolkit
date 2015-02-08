@@ -110,7 +110,7 @@ namespace MugenMvvmToolkit.ViewModels
                 IViewModel oldValue = _selectedItem;
                 _selectedItem = value;
                 OnSelectedItemChangedInternal(oldValue, _selectedItem);
-                OnPropertyChanged("SelectedItem");
+                OnPropertyChanged(Empty.SelectedItemChangedArgs);
             }
         }
 
@@ -303,9 +303,9 @@ namespace MugenMvvmToolkit.ViewModels
                     var selectable = viewModel as ISelectable;
                     if (selectable != null)
                     {
+                        selectable.PropertyChanged -= _propertyChangedWeakEventHandler;
                         if (selectable.IsSelected)
                             selectable.IsSelected = false;
-                        selectable.PropertyChanged -= _propertyChangedWeakEventHandler;
                     }
                     RaiseViewModelRemoved(viewModel);
                     if (DisposeViewModelOnRemove)
@@ -397,9 +397,9 @@ namespace MugenMvvmToolkit.ViewModels
                 return;
             if (selectableModel.IsSelected)
                 SelectedItem = vm;
-            else
+            else if (ReferenceEquals(SelectedItem, vm))
             {
-                if (ItemsSource.Count == 1 || ItemsSource.Count == 0)
+                if (ItemsSource.Count == 0 || ItemsSource.Count == 1)
                 {
                     SelectedItem = null;
                     return;

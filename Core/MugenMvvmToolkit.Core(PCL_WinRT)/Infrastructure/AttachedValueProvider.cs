@@ -270,7 +270,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 {
                     if (addNew)
                     {
-                        Tracer.Error("The object {0} is disposed the attached values cannot be obtained", item);
+                        Tracer.Error("The object {0} is disposed the attached values cannot be obtained", item.GetType());
                         return new AttachedValueDictionary();
                     }
                     return null;

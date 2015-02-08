@@ -19,24 +19,16 @@
 using System;
 using CoreGraphics;
 using Foundation;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Modules;
+using MugenMvvmToolkit.Interfaces;
 using UIKit;
 
 namespace MugenMvvmToolkit.Views
 {
     [Register("UICollectionViewCellBindable")]
-    public class UICollectionViewCellBindable : UICollectionViewCell
+    public class UICollectionViewCellBindable : UICollectionViewCell, IHasDisplayCallback
     {
-        #region Fields
-
-        private UICollectionView _collectionView;
-        private IBindingContext _bindingContext;
-
-        #endregion
-
         #region Constructors
 
         public UICollectionViewCellBindable()
@@ -67,33 +59,22 @@ namespace MugenMvvmToolkit.Views
 
         #region Properties
 
-        protected IBindingContext BindingContext
-        {
-            get
-            {
-                if (_bindingContext == null)
-                    _bindingContext = BindingServiceProvider.ContextManager.GetBindingContext(this);
-                return _bindingContext;
-            }
-        }
-
-        internal bool SelectedBind
+        internal bool? SelectedBind
         {
             get { return Selected; }
             set
             {
-                var oldValue = Selected;
-                Selected = value;
-                var collectionView = _collectionView;
-                if (collectionView == null)
+                if (value == null)
                     return;
-                var indexPath = Selected == oldValue ? null : collectionView.IndexPathForCell(this);
-                if (indexPath == null)
-                    return;
-                if (value)
-                    collectionView.SelectItem(indexPath, false, UICollectionViewScrollPosition.None);
-                else
-                    collectionView.DeselectItem(indexPath, false);
+
+                var tableViewSource = GetCollectionViewSource();
+                if (tableViewSource != null)
+                    value = tableViewSource.UpdateSelectedBindValue(this, value.Value);
+
+                base.Selected = value.Value;
+                PlatformDataBindingModule.CollectionViewCellSelectedMember.Raise(this, EventArgs.Empty);
+                if (tableViewSource != null)
+                    tableViewSource.OnCellSelectionChanged(this, value.Value, true);
             }
         }
 
@@ -101,10 +82,12 @@ namespace MugenMvvmToolkit.Views
 
         #region Methods
 
-        private void Raise(bool oldValue, bool newValue, INotifiableAttachedBindingMemberInfo<UICollectionViewCell, bool> member)
+        private CollectionViewSourceBase GetCollectionViewSource()
         {
-            if (oldValue != newValue)
-                member.Raise(this, EventArgs.Empty);
+            var parent = this.FindParent<UICollectionView>();
+            if (parent == null)
+                return null;
+            return parent.Source as CollectionViewSourceBase;
         }
 
         #endregion
@@ -116,9 +99,10 @@ namespace MugenMvvmToolkit.Views
             get { return base.Highlighted; }
             set
             {
-                var oldValue = Highlighted;
+                if (value == Highlighted)
+                    return;
                 base.Highlighted = value;
-                Raise(oldValue, value, PlatformDataBindingModule.CollectionViewCellHighlightedMember);
+                PlatformDataBindingModule.CollectionViewCellHighlightedMember.Raise(this, EventArgs.Empty);
             }
         }
 
@@ -127,43 +111,28 @@ namespace MugenMvvmToolkit.Views
             get { return base.Selected; }
             set
             {
-                var oldValue = Selected;
+                if (value == Selected)
+                    return;
                 base.Selected = value;
-                Raise(oldValue, value, PlatformDataBindingModule.CollectionViewCellSelectedMember);
-
-                object dataContext = BindingContext.Value;
-                var collectionView = _collectionView;
-                if (dataContext == null || collectionView == null)
-                    return;
-                var tableViewSourceBase = collectionView.Source as CollectionViewSourceBase;
-                if (tableViewSourceBase == null)
-                    return;
-                if (value)
-                    tableViewSourceBase.ItemSelected(dataContext);
-                else
-                    tableViewSourceBase.ItemDeselected(dataContext);
+                PlatformDataBindingModule.CollectionViewCellSelectedMember.Raise(this, EventArgs.Empty);
+                var tableViewSource = GetCollectionViewSource();
+                if (tableViewSource != null)
+                    tableViewSource.OnCellSelectionChanged(this, value, false);
             }
         }
 
-        public override void MovedToSuperview()
+        #endregion
+
+        #region Implementation of IHasDisplayCallback
+
+        public virtual void WillDisplay()
         {
-            base.MovedToSuperview();
-            this.RaiseParentChanged();
-            UIView view = Superview;
-            while (view != null)
-            {
-                _collectionView = view as UICollectionView;
-                if (_collectionView != null)
-                    break;
-                view = view.Superview;
-            }
+            PlatformDataBindingModule.CollectionViewCellSelectedMember.Raise(this, EventArgs.Empty);
+            PlatformDataBindingModule.CollectionViewCellHighlightedMember.Raise(this, EventArgs.Empty);
         }
 
-        public override void RemoveFromSuperview()
+        public virtual void DisplayingEnded()
         {
-            base.RemoveFromSuperview();
-            this.RaiseParentChanged();
-            _collectionView = null;
         }
 
         #endregion

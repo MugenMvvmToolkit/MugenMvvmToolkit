@@ -19,24 +19,16 @@
 using System;
 using CoreGraphics;
 using Foundation;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Modules;
+using MugenMvvmToolkit.Interfaces;
 using UIKit;
 
 namespace MugenMvvmToolkit.Views
 {
     [Register("UITableViewCellBindable")]
-    public class UITableViewCellBindable : UITableViewCell
+    public class UITableViewCellBindable : UITableViewCell, IHasDisplayCallback
     {
-        #region Fields
-
-        private UITableView _tableView;
-        private IBindingContext _bindingContext;
-
-        #endregion
-
         #region Constructors
 
         public UITableViewCellBindable(UITableViewCellStyle style, string reuseIdentifier)
@@ -77,35 +69,22 @@ namespace MugenMvvmToolkit.Views
 
         #region Properties
 
-        protected IBindingContext BindingContext
-        {
-            get
-            {
-                if (_bindingContext == null)
-                    _bindingContext = BindingServiceProvider.ContextManager.GetBindingContext(this);
-                return _bindingContext;
-            }
-        }
-
-        internal bool Initialized { get; set; }
-
-        internal bool SelectedBind
+        internal bool? SelectedBind
         {
             get { return Selected; }
             set
             {
-                var oldValue = Selected;
-                Selected = value;
-                var tableView = _tableView;
-                if (tableView == null)
+                if (value == null)
                     return;
-                var indexPath = Selected == oldValue ? null : tableView.IndexPathForCell(this);
-                if (indexPath == null)
-                    return;
-                if (value)
-                    tableView.SelectRow(indexPath, false, UITableViewScrollPosition.None);
-                else
-                    tableView.DeselectRow(indexPath, false);
+
+                var tableViewSource = GetTableViewSource();
+                if (tableViewSource != null)
+                    value = tableViewSource.UpdateSelectedBindValue(this, value.Value);
+
+                base.SetSelected(value.Value, false);
+                PlatformDataBindingModule.TableViewCellSelectedMember.Raise(this, EventArgs.Empty);
+                if (tableViewSource != null)
+                    tableViewSource.OnCellSelectionChanged(this, value.Value, true);
             }
         }
 
@@ -113,11 +92,12 @@ namespace MugenMvvmToolkit.Views
 
         #region Methods
 
-        private void Raise(bool oldValue, bool newValue,
-            INotifiableAttachedBindingMemberInfo<UITableViewCell, bool> member)
+        private TableViewSourceBase GetTableViewSource()
         {
-            if (oldValue != newValue)
-                member.Raise(this, EventArgs.Empty);
+            var parent = this.FindParent<UITableView>();
+            if (parent == null)
+                return null;
+            return parent.Source as TableViewSourceBase;
         }
 
         #endregion
@@ -126,58 +106,47 @@ namespace MugenMvvmToolkit.Views
 
         public override void SetEditing(bool editing, bool animated)
         {
-            bool oldValue = Editing;
+            if (editing == Editing)
+                return;
             base.SetEditing(editing, animated);
-            Raise(oldValue, editing, PlatformDataBindingModule.TableViewCellEditingMember);
+            PlatformDataBindingModule.TableViewCellEditingMember.Raise(this, EventArgs.Empty);
+            var tableViewSource = GetTableViewSource();
+            if (tableViewSource != null)
+                tableViewSource.OnCellEditingChanged(this, editing, false);
         }
 
         public override void SetHighlighted(bool highlighted, bool animated)
         {
-            bool oldValue = Highlighted;
+            if (highlighted == Highlighted)
+                return;
             base.SetHighlighted(highlighted, animated);
-            Raise(oldValue, highlighted, PlatformDataBindingModule.TableViewCellHighlightedMember);
+            PlatformDataBindingModule.TableViewCellHighlightedMember.Raise(this, EventArgs.Empty);
         }
 
         public override void SetSelected(bool selected, bool animated)
         {
-            bool oldValue = Selected;
+            if (selected == Selected)
+                return;
             base.SetSelected(selected, animated);
-            Raise(oldValue, selected, PlatformDataBindingModule.TableViewCellSelectedMember);
-
-            if (!Initialized)
-                return;
-            object dataContext = BindingContext.Value;
-            UITableView tableView = _tableView;
-            if (dataContext == null || tableView == null)
-                return;
-            var tableViewSourceBase = tableView.Source as TableViewSourceBase;
-            if (tableViewSourceBase == null)
-                return;
-            if (selected)
-                tableViewSourceBase.ItemSelected(dataContext);
-            else
-                tableViewSourceBase.ItemDeselected(dataContext);
+            PlatformDataBindingModule.TableViewCellSelectedMember.Raise(this, EventArgs.Empty);
+            var tableViewSource = GetTableViewSource();
+            if (tableViewSource != null)
+                tableViewSource.OnCellSelectionChanged(this, selected, false);
         }
 
-        public override void MovedToSuperview()
+        #endregion
+
+        #region Implementation of IHasDisplayCallback
+
+        public virtual void WillDisplay()
         {
-            base.MovedToSuperview();
-            this.RaiseParentChanged();
-            UIView view = Superview;
-            while (view != null)
-            {
-                _tableView = view as UITableView;
-                if (_tableView != null)
-                    break;
-                view = view.Superview;
-            }
+            PlatformDataBindingModule.TableViewCellSelectedMember.Raise(this, EventArgs.Empty);
+            PlatformDataBindingModule.TableViewCellEditingMember.Raise(this, EventArgs.Empty);
+            PlatformDataBindingModule.TableViewCellHighlightedMember.Raise(this, EventArgs.Empty);
         }
 
-        public override void RemoveFromSuperview()
+        public virtual void DisplayingEnded()
         {
-            base.RemoveFromSuperview();
-            this.RaiseParentChanged();
-            _tableView = null;
         }
 
         #endregion

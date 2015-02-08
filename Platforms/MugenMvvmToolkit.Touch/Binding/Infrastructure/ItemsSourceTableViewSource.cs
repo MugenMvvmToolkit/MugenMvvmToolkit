@@ -123,6 +123,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             if (!UseAnimations || !TryUpdateItems(args))
                 ReloadData();
+            if (args.Action == NotifyCollectionChangedAction.Remove ||
+                args.Action == NotifyCollectionChangedAction.Replace ||
+                args.Action == NotifyCollectionChangedAction.Reset)
+                ClearSelectedItemIfNeed();
         }
 
         protected bool TryUpdateItems(NotifyCollectionChangedEventArgs args)
@@ -134,8 +138,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     TableView.InsertRows(newIndexPaths, AddAnimation);
                     return true;
                 case NotifyCollectionChangedAction.Remove:
-                    foreach (var oldItem in args.OldItems)
-                        ItemDeselected(oldItem);
                     NSIndexPath[] oldIndexPaths = PlatformExtensions.CreateNSIndexPathArray(args.OldStartingIndex, args.OldItems.Count);
                     TableView.DeleteRows(oldIndexPaths, RemoveAnimation);
                     return true;
@@ -156,6 +158,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 default:
                     return false;
             }
+        }
+
+        private void ClearSelectedItemIfNeed()
+        {
+            if (SelectedItem != null && ItemsSource != null && ItemsSource.IndexOf(SelectedItem) < 0)
+                SelectedItem = null;
         }
 
         #endregion

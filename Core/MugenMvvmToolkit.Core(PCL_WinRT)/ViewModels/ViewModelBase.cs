@@ -189,7 +189,7 @@ namespace MugenMvvmToolkit.ViewModels
             {
                 if (_isBusy == value) return;
                 _isBusy = value;
-                OnPropertyChanged("IsBusy");
+                OnPropertyChanged(Empty.IsBusyChangedArgs);
             }
         }
 
@@ -203,7 +203,7 @@ namespace MugenMvvmToolkit.ViewModels
             {
                 if (_busyMessage == value) return;
                 _busyMessage = value;
-                OnPropertyChanged("BusyMessage");
+                OnPropertyChanged(Empty.BusyMessageChangedArgs);
             }
         }
 

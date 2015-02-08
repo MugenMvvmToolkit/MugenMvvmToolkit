@@ -129,7 +129,8 @@ namespace MugenMvvmToolkit.Models
         [NotifyPropertyChangedInvocator("propName")]
         protected internal void OnPropertyChanged(string propName, ExecutionMode executionMode)
         {
-            OnPropertyChanged(new PropertyChangedEventArgs(propName ?? string.Empty), executionMode);
+            if (PropertyChanged != null)
+                OnPropertyChanged(new PropertyChangedEventArgs(propName ?? string.Empty), executionMode);
         }
 
         /// <summary>
@@ -202,6 +203,15 @@ namespace MugenMvvmToolkit.Models
         ///     Calls the event for the specified property.
         /// </summary>
         /// <param name="args">The specified property args.</param>
+        protected void OnPropertyChanged(PropertyChangedEventArgs args)
+        {
+            OnPropertyChanged(args, PropertyChangeExecutionMode);
+        }
+
+        /// <summary>
+        ///     Calls the event for the specified property.
+        /// </summary>
+        /// <param name="args">The specified property args.</param>
         /// <param name="executionMode">
         ///     Specifies the execution mode for raise property changed event.
         /// </param>
@@ -251,7 +261,7 @@ namespace MugenMvvmToolkit.Models
                 IsNotificationsDirty = false;
                 OnPropertyChanged(string.Empty);
             }
-            OnPropertyChanged("IsNotificationsSuspended");
+            OnPropertyChanged(Empty.IsNotificationsSuspendedChangedArgs);
         }
 
         #endregion
@@ -274,7 +284,7 @@ namespace MugenMvvmToolkit.Models
         public virtual IDisposable SuspendNotifications()
         {
             if (Interlocked.Increment(ref _suspendCount) == 1)
-                OnPropertyChanged("IsNotificationsSuspended");
+                OnPropertyChanged(Empty.IsNotificationsSuspendedChangedArgs);
             return WeakActionToken.Create(this, @base => @base.EndSuspendNotifications());
         }
 

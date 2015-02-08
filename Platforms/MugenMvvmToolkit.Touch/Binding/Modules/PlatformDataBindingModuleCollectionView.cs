@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         public static readonly IAttachedBindingMemberInfo<UICollectionView, bool?> CollectionViewUseAnimationsMember;
         public static readonly IAttachedBindingMemberInfo<UICollectionView, UICollectionViewScrollPosition?> CollectionViewScrollPositionMember;
 
-        public static readonly INotifiableAttachedBindingMemberInfo<UICollectionViewCell, bool> CollectionViewCellSelectedMember;
+        public static readonly INotifiableAttachedBindingMemberInfo<UICollectionViewCell, bool?> CollectionViewCellSelectedMember;
         public static readonly INotifiableAttachedBindingMemberInfo<UICollectionViewCell, bool> CollectionViewCellHighlightedMember;
 
         public static readonly IAttachedBindingMemberInfo<UICollectionViewCell, bool?> CollectionViewCellShouldHighlightMember;

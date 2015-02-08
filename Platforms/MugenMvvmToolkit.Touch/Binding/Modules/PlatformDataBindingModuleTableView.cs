@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         public static readonly INotifiableAttachedBindingMemberInfo<UITableViewCell, object> TableViewCellAccessoryButtonTappedEvent;
         public static readonly INotifiableAttachedBindingMemberInfo<UITableViewCell, object> TableViewCellDeleteClickEvent;
         public static readonly INotifiableAttachedBindingMemberInfo<UITableViewCell, object> TableViewCellInsertClickEvent;
-        public static readonly INotifiableAttachedBindingMemberInfo<UITableViewCell, bool> TableViewCellSelectedMember;
+        public static readonly INotifiableAttachedBindingMemberInfo<UITableViewCell, bool?> TableViewCellSelectedMember;
         public static readonly INotifiableAttachedBindingMemberInfo<UITableViewCell, bool> TableViewCellHighlightedMember;
         public static readonly INotifiableAttachedBindingMemberInfo<UITableViewCell, bool> TableViewCellEditingMember;
 

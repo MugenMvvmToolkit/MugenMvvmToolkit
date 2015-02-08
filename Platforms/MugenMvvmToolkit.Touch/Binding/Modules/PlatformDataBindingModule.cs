@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         internal readonly static IAttachedBindingMemberInfo<object, ICollectionViewManager> CollectionViewManagerMember;
         internal static readonly IAttachedBindingMemberInfo<object, bool?> AutoDisposeMember;
-        
+
         private static readonly EventHandler<UITabBarSelectionEventArgs> SelecectedControllerChangedHandler;
         private readonly static IAttachedBindingMemberInfo<object, IContentViewManager> ContentViewManagerMember;
         private readonly static IAttachedBindingMemberInfo<object, IEnumerable> ItemsSourceMember;
@@ -68,7 +68,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             CollectionViewManagerMember = AttachedBindingMember.CreateAutoProperty<object, ICollectionViewManager>("CollectionViewManager");
             ContentViewManagerMember = AttachedBindingMember.CreateAutoProperty<object, IContentViewManager>("ContentViewManager");
             AutoDisposeMember = AttachedBindingMember.CreateAutoProperty<object, bool?>("AutoDispose");
-            
+
             //UIView
             ContentMember = AttachedBindingMember.CreateAutoProperty<UIView, object>(AttachedMemberConstants.Content, ContentChanged);
             ContentTemplateMember = AttachedBindingMember.CreateAutoProperty<UIView, IDataTemplateSelector>(AttachedMemberConstants.ContentTemplate, ContentTemplateChanged);
@@ -94,18 +94,20 @@ namespace MugenMvvmToolkit.Binding.Modules
             TableViewCellEditingStyleMember = AttachedBindingMember.CreateAutoProperty<UITableViewCell, UITableViewCellEditingStyle?>("EditingStyle");
             TableViewCellShouldHighlightMember = AttachedBindingMember.CreateAutoProperty<UITableViewCell, bool?>("ShouldHighlight");
 
-            TableViewCellSelectedMember = AttachedBindingMember.CreateNotifiableMember<UITableViewCell, bool>(
+            TableViewCellSelectedMember = AttachedBindingMember.CreateNotifiableMember<UITableViewCell, bool?>(
                 "Selected", (info, cell) =>
                 {
+                    if (TableViewSourceBase.HasMask(cell, TableViewSourceBase.InitializingStateMask))
+                        return null;
                     var cellBindable = cell as UITableViewCellBindable;
                     if (cellBindable == null)
                         return cell.Selected;
-                    return cellBindable.SelectedBind;
+                    return cellBindable.SelectedBind.GetValueOrDefault();
                 }, (info, cell, arg3) =>
                 {
                     var cellBindable = cell as UITableViewCellBindable;
                     if (cellBindable == null)
-                        cell.Selected = arg3;
+                        cell.Selected = arg3.GetValueOrDefault();
                     else
                         cellBindable.SelectedBind = arg3;
                     return true;
@@ -140,12 +142,20 @@ namespace MugenMvvmToolkit.Binding.Modules
             CollectionViewCellShouldHighlightMember = AttachedBindingMember.CreateAutoProperty<UICollectionViewCell, bool?>("ShouldHighlight");
 
             CollectionViewCellSelectedMember = AttachedBindingMember
-                .CreateNotifiableMember<UICollectionViewCell, bool>("Selected", (info, cell) => cell.Selected,
+                .CreateNotifiableMember<UICollectionViewCell, bool?>("Selected", (info, cell) =>
+                {
+                    if (CollectionViewSourceBase.HasMask(cell, CollectionViewSourceBase.InitializingStateMask))
+                        return null;
+                    var cellBindable = cell as UICollectionViewCellBindable;
+                    if (cellBindable == null)
+                        return cell.Selected;
+                    return cellBindable.SelectedBind.GetValueOrDefault();
+                },
                     (info, cell, arg3) =>
                     {
                         var cellBindable = cell as UICollectionViewCellBindable;
                         if (cellBindable == null)
-                            cell.Selected = arg3;
+                            cell.Selected = arg3.GetValueOrDefault();
                         else
                             cellBindable.SelectedBind = arg3;
                         return true;

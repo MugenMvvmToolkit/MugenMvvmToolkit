@@ -38,6 +38,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
+        protected internal MvvmPickerViewModel(IntPtr handle)
+            : base(handle)
+        {
+        }
+
         public MvvmPickerViewModel([NotNull] UIPickerView pickerView)
         {
             Should.NotBeNull(pickerView, "pickerView");

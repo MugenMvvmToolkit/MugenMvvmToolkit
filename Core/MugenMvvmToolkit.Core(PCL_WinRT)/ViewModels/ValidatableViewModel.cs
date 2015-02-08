@@ -406,8 +406,8 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="args">The event args.</param>
         protected virtual void RaiseErrorsChanged(DataErrorsChangedEventArgs args)
         {
-            OnPropertyChanged("HasErrors");
-            OnPropertyChanged("IsValid");
+            OnPropertyChanged(Empty.HasErrorsChangedArgs);
+            OnPropertyChanged(Empty.IsValidChangedArgs);
             if (ErrorsChanged != null)
                 ThreadManager.Invoke(Settings.EventExecutionMode, this, args, RaiseErrorsChangedDelegate);
         }

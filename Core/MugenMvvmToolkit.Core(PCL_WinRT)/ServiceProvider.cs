@@ -27,7 +27,6 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
-using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 #if NET4
@@ -53,8 +52,6 @@ namespace MugenMvvmToolkit
         private static IValidatorProvider _validatorProvider;
         private static IOperationCallbackFactory _operationCallbackFactory;
 
-        private static Func<ITrackingCollection, IStateTransitionManager> _trackingCollectionStateTransitionManagerFactory;
-        private static Func<ITrackingCollection, IEqualityComparer<object>> _trackingCollectionEqualityComparerFactory;
         private static Func<object, IEventAggregator> _instanceEventAggregatorFactory;
         private static Func<object, bool, WeakReference> _weakReferenceFactory;
         private static IDesignTimeManager _designTimeManager;
@@ -114,36 +111,6 @@ namespace MugenMvvmToolkit
         {
             get { return _instanceEventAggregatorFactory; }
             set { _instanceEventAggregatorFactory = value ?? GetInstanceEventAggregator; }
-        }
-
-        /// <summary>
-        ///     Gets or sets the factory that creates an instance of <see cref="IEqualityComparer{T}" />
-        /// </summary>
-        [NotNull]
-        public static Func<ITrackingCollection, IEqualityComparer<object>> TrackingCollectionEqualityComparerFactory
-        {
-            get
-            {
-                if (_trackingCollectionEqualityComparerFactory == null)
-                    _trackingCollectionEqualityComparerFactory = collection => ReferenceEqualityComparer.Instance;
-                return _trackingCollectionEqualityComparerFactory;
-            }
-            set { _trackingCollectionEqualityComparerFactory = value; }
-        }
-
-        /// <summary>
-        ///     Gets or sets the factory that creates an instance of <see cref="IStateTransitionManager" />
-        /// </summary>
-        [NotNull]
-        public static Func<ITrackingCollection, IStateTransitionManager> TrackingCollectionStateTransitionManagerFactory
-        {
-            get
-            {
-                if (_trackingCollectionStateTransitionManagerFactory == null)
-                    _trackingCollectionStateTransitionManagerFactory = collection => StateTransitionManager.Instance;
-                return _trackingCollectionStateTransitionManagerFactory;
-            }
-            set { _trackingCollectionStateTransitionManagerFactory = value; }
         }
 
         /// <summary>

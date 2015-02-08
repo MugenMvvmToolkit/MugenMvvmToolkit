@@ -338,6 +338,7 @@ namespace MugenMvvmToolkit.Views
                 View.ClearBindingsHierarchically(true, true, true);
                 PlatformExtensions.RemoveOrientationChangeListener(this);
                 ServiceProvider.AttachedValueProvider.Clear(this);
+                _label = null;
             }
             base.OnDispose(disposing);
         }

@@ -91,7 +91,7 @@ namespace MugenMvvmToolkit.Binding.Models
         /// </summary>
         public static void Raise(UIView view, bool recursively)
         {
-            if (view != null)
+            if (view.IsAlive())
                 GetOrAdd(view).Raise(recursively);
         }
 
