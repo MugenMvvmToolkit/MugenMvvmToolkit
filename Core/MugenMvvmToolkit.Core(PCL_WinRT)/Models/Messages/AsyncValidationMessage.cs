@@ -107,14 +107,19 @@ namespace MugenMvvmToolkit.Models.Messages
         /// </summary>
         /// <returns>An instance of <c>AsyncValidationMessage</c>.</returns>
         [NotNull]
-        public AsyncValidationMessage ToEndMessage(Exception exception)
+        public AsyncValidationMessage ToEndMessage(Exception exception, bool canceled)
         {
             if (_tcs == null)
-                Interlocked.CompareExchange(ref _tcs, exception == null ? EmptyTcs : new TaskCompletionSource<object>(), null);
-            if (exception == null)
+                Interlocked.CompareExchange(ref _tcs, exception == null && !canceled ? EmptyTcs : new TaskCompletionSource<object>(), null);
+            if (exception == null && !canceled)
                 _tcs.TrySetResult(null);
             else
-                _tcs.TrySetException(exception);
+            {
+                if (canceled)
+                    _tcs.SetCanceled();
+                else
+                    _tcs.TrySetException(exception);
+            }
             return new AsyncValidationMessage(Id, PropertyName, true) { _tcs = _tcs };
         }
 

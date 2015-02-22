@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
     {
         #region Fields
 
-        private UIViewController _viewController;
+        private WeakReference _viewController;
         private bool _isAppeared;
         private bool _canDispose;
         private bool _isDisposeCalled;
@@ -48,7 +48,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public MvvmViewControllerMediator([NotNull] UIViewController viewController)
         {
             Should.NotBeNull(viewController, "viewController");
-            _viewController = viewController;
+            _viewController = ServiceProvider.WeakReferenceFactory(viewController, true);
             _canDispose = true;
             var viewModel = ViewManager.GetDataContext(viewController) as IViewModel;
             if (viewModel == null || !viewModel.Settings.Metadata.Contains(ViewModelConstants.StateNotNeeded))
@@ -59,14 +59,25 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         #region Properties
 
+        [CanBeNull]
         public UIViewController ViewController
         {
-            get { return _viewController; }
+            get
+            {
+                if (_viewController == null)
+                    return null;
+                return (UIViewController)_viewController.Target;
+            }
         }
 
         #endregion
 
         #region Implementation of IMvvmViewControllerMediator
+
+        public bool IsDisappeared
+        {
+            get { return _canDispose; }
+        }
 
         public bool IsAppeared
         {
@@ -76,29 +87,31 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public virtual void ViewWillAppear(Action<bool> baseViewWillAppear, bool animated)
         {
             baseViewWillAppear(animated);
-            if (_viewController != null && !_isAppeared)
+
+            var viewController = ViewController;
+            if (viewController != null && !_isAppeared)
             {
-                if (_viewController.View != null)
-                    ParentObserver.Raise(_viewController.View, true);
-                UINavigationItem navigationItem = _viewController.NavigationItem;
+                if (viewController.View != null)
+                    ParentObserver.Raise(viewController.View, true);
+                UINavigationItem navigationItem = viewController.NavigationItem;
                 if (navigationItem != null)
                 {
-                    SetParent(navigationItem);
-                    SetParent(navigationItem.LeftBarButtonItem);
-                    SetParent(navigationItem.LeftBarButtonItems);
-                    SetParent(navigationItem.RightBarButtonItem);
-                    SetParent(navigationItem.RightBarButtonItems);
+                    SetParent(navigationItem, viewController);
+                    SetParent(navigationItem.LeftBarButtonItem, viewController);
+                    SetParent(navigationItem.LeftBarButtonItems, viewController);
+                    SetParent(navigationItem.RightBarButtonItem, viewController);
+                    SetParent(navigationItem.RightBarButtonItems, viewController);
                 }
-                SetParent(_viewController.EditButtonItem);
-                SetParent(_viewController.ToolbarItems);
-                var dialogViewController = _viewController as DialogViewController;
+                SetParent(viewController.EditButtonItem, viewController);
+                SetParent(viewController.ToolbarItems, viewController);
+                var dialogViewController = viewController as DialogViewController;
                 if (dialogViewController != null)
-                    SetParent(dialogViewController.Root);
-                var viewControllers = ViewController.ChildViewControllers;
+                    SetParent(dialogViewController.Root, viewController);
+                var viewControllers = viewController.ChildViewControllers;
                 foreach (var controller in viewControllers)
                     BindingExtensions.AttachedParentMember.Raise(controller, EventArgs.Empty);
 
-                var tabBarController = ViewController as UITabBarController;
+                var tabBarController = viewController as UITabBarController;
                 if (tabBarController != null)
                 {
                     viewControllers = tabBarController.ViewControllers;
@@ -146,14 +159,18 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public virtual void DecodeRestorableState(Action<NSCoder> baseDecodeRestorableState, NSCoder coder)
         {
             baseDecodeRestorableState(coder);
-            PlatformExtensions.ApplicationStateManager.DecodeState(_viewController, coder);
+            var viewController = ViewController;
+            if (viewController != null)
+                PlatformExtensions.ApplicationStateManager.DecodeState(viewController, coder);
             Raise(DecodeRestorableStateHandler, coder);
         }
 
         public virtual void EncodeRestorableState(Action<NSCoder> baseEncodeRestorableState, NSCoder coder)
         {
             baseEncodeRestorableState(coder);
-            PlatformExtensions.ApplicationStateManager.EncodeState(_viewController, coder);
+            var viewController = ViewController;
+            if (viewController != null)
+                PlatformExtensions.ApplicationStateManager.EncodeState(viewController, coder);
             Raise(EncodeRestorableStateHandler, coder);
         }
 
@@ -193,33 +210,50 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         private void TryDispose()
         {
-            if (_viewController == null)
+            var viewController = ViewController;
+            if (viewController == null)
                 return;
             if (!_canDispose || !_isDisposeCalled)
                 return;
             Raise(DisposeHandler);
-            if (_viewController.View != null)
-                _viewController.View.RemoveFromSuperview();
-            _viewController.View.ClearBindingsHierarchically(true, true);
-            _viewController.EditButtonItem.ClearBindings(true, true);
-            _viewController.ToolbarItems.ClearBindings(true, true);
-            UINavigationItem navigationItem = _viewController.NavigationItem;
+
+            viewController.View.ClearBindingsRecursively(true, true);
+            viewController.View.DisposeEx();
+            viewController.EditButtonItem.ClearBindings(true, true);
+            viewController.EditButtonItem.DisposeEx();
+            viewController.ToolbarItems.ClearBindings(true, true);
+            viewController.ToolbarItems.DisposeEx();
+            UINavigationItem navigationItem = viewController.NavigationItem;
             if (navigationItem != null)
             {
                 navigationItem.LeftBarButtonItem.ClearBindings(true, true);
+                navigationItem.LeftBarButtonItem.DisposeEx();
                 navigationItem.LeftBarButtonItems.ClearBindings(true, true);
+                navigationItem.LeftBarButtonItems.DisposeEx();
                 navigationItem.RightBarButtonItem.ClearBindings(true, true);
+                navigationItem.RightBarButtonItem.DisposeEx();
                 navigationItem.RightBarButtonItems.ClearBindings(true, true);
+                navigationItem.RightBarButtonItems.DisposeEx();
                 navigationItem.ClearBindings(true, true);
+                navigationItem.DisposeEx();
             }
-            var dialogViewController = _viewController as DialogViewController;
+            var dialogViewController = viewController as DialogViewController;
             if (dialogViewController != null)
-                dialogViewController.Root.ClearBindingsHierarchically(true, true);
+            {
+                dialogViewController.Root.ClearBindingsRecursively(true, true);
+                dialogViewController.Root.DisposeEx();
+            }
+
             var tabBarController = ViewController as UITabBarController;
             if (tabBarController != null)
+            {
                 tabBarController.ViewControllers.ClearBindings(true, true);
-            _viewController.ChildViewControllers.ClearBindings(true, true);
-            _viewController.ClearBindings(true, true, true);
+                tabBarController.ViewControllers.DisposeEx();
+            }
+            viewController.ChildViewControllers.ClearBindings(true, true);
+            viewController.ChildViewControllers.DisposeEx();
+            viewController.ClearBindings(true, true);
+            viewController.DisposeEx();
             ViewDidLoadHandler = null;
             ViewWillAppearHandler = null;
             ViewDidAppearHandler = null;
@@ -231,30 +265,32 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             _viewController = null;
         }
 
-        private void SetParent<T>(T[] items)
+        private static void SetParent<T>(T[] items, UIViewController parent)
         {
             if (items == null)
                 return;
             for (int index = 0; index < items.Length; index++)
-                SetParent(items[index]);
+                SetParent(items[index], parent);
         }
 
-        private void SetParent(object item)
+        private static void SetParent(object item, UIViewController parent)
         {
             if (item != null)
-                BindingExtensions.AttachedParentMember.SetValue(item, _viewController);
+                BindingExtensions.AttachedParentMember.SetValue(item, parent);
         }
 
         private void Raise(EventHandler<UIViewController, EventArgs> handler)
         {
-            if (handler != null)
-                handler(_viewController, EventArgs.Empty);
+            var viewController = ViewController;
+            if (viewController != null && handler != null)
+                handler(viewController, EventArgs.Empty);
         }
 
         private void Raise<T>(EventHandler<UIViewController, ValueEventArgs<T>> handler, T value)
         {
-            if (handler != null)
-                handler(_viewController, new ValueEventArgs<T>(value));
+            var viewController = ViewController;
+            if (viewController != null && handler != null)
+                handler(viewController, new ValueEventArgs<T>(value));
         }
 
         #endregion

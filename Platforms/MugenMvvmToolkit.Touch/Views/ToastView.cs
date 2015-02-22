@@ -25,7 +25,7 @@ using UIKit;
 
 namespace MugenMvvmToolkit.Views
 {
-    public class ToastView : DisposableObject, IOrientationChangeListener
+    public class ToastView : IDisposable, IOrientationChangeListener
     {
         #region Fields
 
@@ -327,31 +327,24 @@ namespace MugenMvvmToolkit.Views
 
         #endregion
 
-        #region Overrides of DisposableObject
-
-        protected override void OnDispose(bool disposing)
-        {
-            if (disposing)
-            {
-                TaskCompletionSource.TrySetResult(null);
-                View.RemoveFromSuperview();
-                View.ClearBindingsHierarchically(true, true, true);
-                PlatformExtensions.RemoveOrientationChangeListener(this);
-                ServiceProvider.AttachedValueProvider.Clear(this);
-                _label = null;
-            }
-            base.OnDispose(disposing);
-        }
-
-        #endregion
-
-        #region Implementation of IOrientationChangeListener
+        #region Implementation of interfaces
 
         public virtual void OnOrientationChanged()
         {
             if (_label != null)
                 UpdateFrame(View, _label);
             UpdateWindowOrientation(View);
+        }
+
+        public virtual void Dispose()
+        {
+            TaskCompletionSource.TrySetResult(null);
+            View.RemoveFromSuperview();
+            View.ClearBindingsRecursively(true, true);
+            View.DisposeEx();
+            PlatformExtensions.RemoveOrientationChangeListener(this);
+            ServiceProvider.AttachedValueProvider.Clear(this);
+            _label = null;
         }
 
         #endregion

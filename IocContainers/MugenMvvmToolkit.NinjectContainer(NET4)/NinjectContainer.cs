@@ -199,12 +199,6 @@ namespace MugenMvvmToolkit
             return parameterContainer.Parameters;
         }
 
-        private void OnDisposed()
-        {
-            var handler = Disposed;
-            if (handler != null) handler(this, EventArgs.Empty);
-        }
-
         #endregion
 
         #region Implementation of IIocContainer
@@ -226,7 +220,7 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        ///     Occured after disposed current <see cref="IDisposableObject" />.
+        ///     Occurs when the object is disposed by a call to the Dispose method.
         /// </summary>
         public event EventHandler<IDisposableObject, EventArgs> Disposed;
 
@@ -381,15 +375,16 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
-            lock (_kernel)
+            if (IsDisposed)
+                return;
+            _kernel.Dispose();
+            var handler = Disposed;
+            if (handler != null)
             {
-                if (IsDisposed)
-                    return;
-                _kernel.Dispose();
-                OnDisposed();
+                Disposed = null;
+                handler(this, EventArgs.Empty);
             }
         }
 

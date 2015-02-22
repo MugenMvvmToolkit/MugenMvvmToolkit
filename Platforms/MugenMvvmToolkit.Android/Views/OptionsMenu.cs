@@ -16,9 +16,11 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using Android.App;
 using Android.Content;
+using Android.Runtime;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
@@ -39,13 +41,24 @@ namespace MugenMvvmToolkit.Views
 
         #region Constructors
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="OptionsMenu" /> class.
+        /// </summary>
+        private OptionsMenu(IntPtr javaReference, JniHandleOwnership transfer)
+            : base(javaReference, transfer)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="OptionsMenu" /> class.
+        /// </summary>
         public OptionsMenu(Context context, IAttributeSet attrs)
             : base(context, attrs)
         {
             SetMinimumWidth(0);
             SetMinimumHeight(0);
-            base.Visibility = ViewStates.Gone;
-            base.Id = Resource.Id.OptionsMenu;
+            Visibility = ViewStates.Gone;
+            Id = Resource.Id.OptionsMenu;
         }
 
         #endregion
@@ -74,22 +87,6 @@ namespace MugenMvvmToolkit.Views
         {
             _bindings = bindings;
             return Empty.Array<IDataBinding>();
-        }
-
-        #endregion
-
-        #region Overrides of View
-
-        public override int Id
-        {
-            get { return Resource.Id.OptionsMenu; }
-            set { }
-        }
-
-        public override ViewStates Visibility
-        {
-            get { return ViewStates.Gone; }
-            set { }
         }
 
         #endregion

@@ -82,6 +82,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
                 fragmentManager = activity.GetFragmentManager();
             }
             view.Show(fragmentManager, Guid.NewGuid().ToString("n"));
+            fragmentManager.ExecutePendingTransactions();
         }
 
         /// <summary>

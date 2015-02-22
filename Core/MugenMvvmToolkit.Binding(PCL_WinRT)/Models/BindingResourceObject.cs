@@ -30,6 +30,7 @@ namespace MugenMvvmToolkit.Binding.Models
         #region Fields
 
         private object _value;
+        private readonly bool _isWeak;
 
         #endregion
 
@@ -38,9 +39,19 @@ namespace MugenMvvmToolkit.Binding.Models
         /// <summary>
         ///     Initializes a new instance of the <see cref="BindingResourceObject" /> class.
         /// </summary>
-        public BindingResourceObject(object value)
+        public BindingResourceObject(WeakReference value)
         {
-            _value = value;
+            _isWeak = true;
+            _value = value ?? Empty.WeakReference;
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="BindingResourceObject" /> class.
+        /// </summary>
+        public BindingResourceObject(object value, bool isWeak = false)
+        {
+            _isWeak = isWeak;
+            SetValue(value);
         }
 
         #endregion
@@ -57,7 +68,12 @@ namespace MugenMvvmToolkit.Binding.Models
         /// </returns>
         bool ISourceValue.IsAlive
         {
-            get { return true; }
+            get
+            {
+                if (_isWeak)
+                    return ((WeakReference)_value).Target != null;
+                return true;
+            }
         }
 
         /// <summary>
@@ -65,12 +81,18 @@ namespace MugenMvvmToolkit.Binding.Models
         /// </summary>
         public object Value
         {
-            get { return _value; }
+            get
+            {
+                if (_isWeak)
+                    return ((WeakReference)_value).Target;
+                return _value;
+            }
             set
             {
-                if (Equals(_value, value))
+                if (Equals(Value, value))
                     return;
-                _value = value;
+
+                SetValue(value);
                 var handler = ValueChanged;
                 if (handler != null)
                     handler(this, EventArgs.Empty);
@@ -81,6 +103,15 @@ namespace MugenMvvmToolkit.Binding.Models
         ///     Occurs when the <see cref="Value"/>  property changed.
         /// </summary>
         public event EventHandler<ISourceValue, EventArgs> ValueChanged;
+
+        #endregion
+
+        #region Methods
+
+        private void SetValue(object value)
+        {
+            _value = _isWeak ? ToolkitExtensions.GetWeakReference(value) : value;
+        }
 
         #endregion
     }

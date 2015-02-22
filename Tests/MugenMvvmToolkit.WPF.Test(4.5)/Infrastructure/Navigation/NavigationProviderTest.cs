@@ -82,7 +82,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 {NavigationConstants.ViewModel, viewModel},
                 {NavigationConstants.ViewName, viewName}
             };
-            NavigationProvider.Navigate(new OperationCallbackMock(), dataContext);
+            NavigationProvider.NavigateAsync(new OperationCallbackMock(), dataContext);
             isInvoked.ShouldBeTrue();
             isInvokedNavigate.ShouldBeTrue();
         }
@@ -114,7 +114,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 return true;
             };
 
-            NavigationProvider.Navigate(new OperationCallbackMock(), new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
+            NavigationProvider.NavigateAsync(new OperationCallbackMock(), new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
             isInvoked.ShouldBeTrue();
             isInvokedNavigate.ShouldBeTrue();
         }
@@ -148,7 +148,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 {NavigationConstants.ViewModel, viewModel},
                 {NavigationConstants.Parameters, new DataContext()}
             };
-            NavigationProvider.Navigate(new OperationCallbackMock(), dataContext);
+            NavigationProvider.NavigateAsync(new OperationCallbackMock(), dataContext);
             isInvoked.ShouldBeTrue();
             isInvokedNavigate.ShouldBeTrue();
         }
@@ -175,7 +175,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 arg3.ShouldEqual(callbackMock);
                 isInvoked = true;
             };
-            NavigationProvider.Navigate(callbackMock, new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
+            NavigationProvider.NavigateAsync(callbackMock, new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
             NavigationService.OnNavigated(new NavigationEventArgsMock(new ViewMock(), NavigationMode.New));
             isInvoked.ShouldBeTrue();
         }
@@ -402,7 +402,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             {
                 isInvoked = true;
             };
-            NavigationProvider.Navigate(callbackMock, new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
+            NavigationProvider.NavigateAsync(callbackMock, new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
             NavigationService.OnNavigated(new NavigationEventArgsMock(null, NavigationMode.New));
 
             NavigationService.OnNavigated(new NavigationEventArgsMock(null, NavigationMode.Back));
@@ -428,7 +428,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             {
                 isInvoked = true;
             };
-            NavigationProvider.Navigate(callbackMock, new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
+            NavigationProvider.NavigateAsync(callbackMock, new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
             NavigationService.OnNavigated(new NavigationEventArgsMock(null, NavigationMode.New));
 
             NavigationService.OnNavigated(new NavigationEventArgsMock(null, NavigationMode.Refresh));

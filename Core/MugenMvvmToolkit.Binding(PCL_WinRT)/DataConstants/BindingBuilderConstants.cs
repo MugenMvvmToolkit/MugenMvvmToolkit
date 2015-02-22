@@ -36,6 +36,8 @@ namespace MugenMvvmToolkit.Binding.DataConstants
 
         public static readonly DataConstant<IList<object>> RawSources;
 
+        public static readonly DataConstant<object> Source;
+
         public static readonly DataConstant<Func<IDataContext, IDataBinding>> BuildDelegate;
 
         public static readonly DataConstant<object> Target;
@@ -69,6 +71,7 @@ namespace MugenMvvmToolkit.Binding.DataConstants
         static BindingBuilderConstants()
         {
             RawSources = DataConstant.Create(() => RawSources, true);
+            Source = DataConstant.Create(() => Source, true);
             BuildDelegate = DataConstant.Create(() => BuildDelegate, true);
             Target = DataConstant.Create(() => Target, true);
             TargetPath = DataConstant.Create(() => TargetPath, true);

@@ -20,11 +20,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using Xamarin.Forms;
 
@@ -35,6 +37,16 @@ namespace MugenMvvmToolkit
         #region Fields
 
         private const string NavParamKey = "@~`NavParam";
+        private static readonly Dictionary<Type, IBindingMemberInfo> TypeToContentMember;
+
+        #endregion
+
+        #region Constructors
+
+        static XamarinFormsExtensions()
+        {
+            TypeToContentMember = new Dictionary<Type, IBindingMemberInfo>();
+        }
 
         #endregion
 
@@ -109,29 +121,28 @@ namespace MugenMvvmToolkit
             return item;
         }
 
-        public static void ClearBindingsHierarchically([CanBeNull] this BindableObject item, bool clearDataContext, bool clearAttachedValues)
+        public static void ClearBindingsRecursively([CanBeNull] this BindableObject item, bool clearDataContext, bool clearAttachedValues)
         {
             if (item == null)
                 return;
-            Type type = item.GetType();
-            var attribute = type
-                .GetTypeInfo()
-                .GetCustomAttribute<ContentPropertyAttribute>(true);
-            if (attribute != null)
+            var contentMember = GetContentMember(item.GetType());
+            if (contentMember != null)
             {
-                var bindingMember = BindingServiceProvider
-                    .MemberProvider
-                    .GetBindingMember(type, attribute.Name, true, false);
-                if (bindingMember != null)
+                var content = contentMember.GetValue(item, null);
+                if (!(content is string))
                 {
-                    object content = bindingMember.GetValue(item, null);
                     var enumerable = content as IEnumerable;
                     if (enumerable == null)
-                        ClearBindingsHierarchically(content as BindableObject, clearDataContext, clearAttachedValues);
+                        ClearBindingsRecursively(content as BindableObject, clearDataContext, clearAttachedValues);
                     else
                     {
                         foreach (object child in enumerable)
-                            ClearBindingsHierarchically(child as BindableObject, clearDataContext, clearAttachedValues);
+                        {
+                            var bindableObject = child as BindableObject;
+                            if (child == null || bindableObject == null)
+                                break;
+                            bindableObject.ClearBindingsRecursively(clearDataContext, clearAttachedValues);
+                        }
                     }
                 }
             }
@@ -151,6 +162,26 @@ namespace MugenMvvmToolkit
         internal static void AsEventHandler<TArg>(this Action action, object sender, TArg arg)
         {
             action();
+        }
+
+        private static IBindingMemberInfo GetContentMember(Type type)
+        {
+            lock (TypeToContentMember)
+            {
+                IBindingMemberInfo info;
+                if (!TypeToContentMember.TryGetValue(type, out info))
+                {
+                    var attribute = type
+                        .GetTypeInfo()
+                        .GetCustomAttribute<ContentPropertyAttribute>(true);
+                    if (attribute != null)
+                        info = BindingServiceProvider
+                            .MemberProvider
+                            .GetBindingMember(type, attribute.Name, true, false);
+                    TypeToContentMember[type] = info;
+                }
+                return info;
+            }
         }
 
         #endregion

@@ -4,6 +4,7 @@ using System.Threading;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
+using MugenMvvmToolkit.Test.TestModels;
 
 namespace MugenMvvmToolkit.Test.TestInfrastructure
 {

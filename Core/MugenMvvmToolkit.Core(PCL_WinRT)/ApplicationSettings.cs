@@ -111,7 +111,7 @@ namespace MugenMvvmToolkit
         public static Action<RelayCommandBase, EventHandler> RemoveCanExecuteChangedEvent { get; set; }
 
         /// <summary>
-        ///     Specifies the execution mode for <c>SyncronizedNotifiableCollection</c> by default, if not set explicitly.
+        ///     Specifies the execution mode for <c>SynchronizedNotifiableCollection</c> by default, if not set explicitly.
         /// </summary>
         public static ExecutionMode SynchronizedCollectionExecutionMode { get; set; }
 

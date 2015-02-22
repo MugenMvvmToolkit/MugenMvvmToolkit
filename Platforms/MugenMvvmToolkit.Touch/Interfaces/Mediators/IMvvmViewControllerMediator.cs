@@ -27,6 +27,8 @@ namespace MugenMvvmToolkit.Interfaces.Mediators
 {
     public interface IMvvmViewControllerMediator
     {
+        bool IsDisappeared { get; }
+
         bool IsAppeared { get; }
 
         void ViewWillAppear([NotNull] Action<bool> baseViewWillAppear, bool animated);

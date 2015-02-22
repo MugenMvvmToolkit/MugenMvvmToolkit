@@ -167,21 +167,6 @@ namespace MugenMvvmToolkit
             return new ArgumentException(string.Format("The item '{0}' already in the collection.", item));
         }
 
-        internal static Exception InvalidContexValidator(object validator)
-        {
-            return
-                new ArgumentException(string.Format(
-                    "The specified context cannot be used in the current validator '{0}'.", validator.GetType()));
-        }
-
-        internal static Exception DuplicateValidator(Type validatorType)
-        {
-            return new ArgumentException(
-                string.Format(
-                    "The validator with type '{0}' already registered, because validator is unique you can add only one instance of it.",
-                    validatorType));
-        }
-
         internal static Exception MissingMetadataProperty(Type type, string propertyName, Type classType)
         {
             return new MissingMemberException(
@@ -202,16 +187,12 @@ namespace MugenMvvmToolkit
         internal static Exception DataConstantNotFound(DataConstant dataConstant)
         {
             return
-                new InvalidOperationException(
-                    string.Format("The DataContext doesn't contain the DataConstant with id '{0}', type '{1}'",
-                        dataConstant.Id, dataConstant.Type));
+                new InvalidOperationException(string.Format("The DataContext doesn't contain the DataConstant with id '{0}'", dataConstant.Id));
         }
 
         internal static Exception DataConstantCannotBeNull(DataConstant dataConstant)
         {
-            return
-                new InvalidOperationException(string.Format("The DataConstant cannot be null, id '{0}', type '{1}'",
-                    dataConstant.Id, dataConstant.Type));
+            return new InvalidOperationException(string.Format("The DataConstant cannot be null, id '{0}'", dataConstant.Id));
         }
 
         internal static Exception ObjectDisposed(Type type)

@@ -84,12 +84,15 @@ namespace MugenMvvmToolkit.Views
                 handler(this, args);
                 if (args.Cancel)
                 {
-                    foreach (UIView view in NavigationBar.Subviews)
+                    if (NavigationBar.Subviews != null)
                     {
-                        if (view.Alpha < 1)
+                        foreach (UIView view in NavigationBar.Subviews)
                         {
-                            UIView uiView = view;
-                            UIView.Animate(0.25, () => uiView.Alpha = 1);
+                            if (view.Alpha < 1)
+                            {
+                                UIView uiView = view;
+                                UIView.Animate(0.25, () => uiView.Alpha = 1);
+                            }
                         }
                     }
                     return null;

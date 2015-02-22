@@ -16,6 +16,8 @@
 
 #endregion
 
+using System;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -28,7 +30,7 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
     /// <summary>
     ///     Represent the interface for navigation provider.
     /// </summary>
-    public interface INavigationProvider : IDisposableObject
+    public interface INavigationProvider : IDisposable
     {
         /// <summary>
         ///     Gets the active view model.
@@ -41,6 +43,12 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
         /// </summary>
         [CanBeNull]
         object CurrentContent { get; }
+
+        /// <summary>
+        ///     Gets the current navigation task.
+        /// </summary>
+        [NotNull]
+        Task CurrentNavigateTask { get; }
 
         /// <summary>
         ///     Gets the cache policy, if any.
@@ -73,7 +81,7 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
         /// </summary>
         /// <param name="callback">The specified callback, if any.</param>
         /// <param name="context"> The specified <see cref="IDataContext" />.</param>
-        void Navigate([CanBeNull] IOperationCallback callback, [NotNull] IDataContext context);
+        Task NavigateAsync([CanBeNull] IOperationCallback callback, [NotNull] IDataContext context);
 
         /// <summary>
         ///     Raised after the view model navigation.

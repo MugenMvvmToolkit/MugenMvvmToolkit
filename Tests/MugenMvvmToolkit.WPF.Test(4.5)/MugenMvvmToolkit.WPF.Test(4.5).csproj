@@ -142,9 +142,8 @@
     <Compile Include="Infrastructure\ViewModelProviderTest.cs" />
     <Compile Include="SerializationTestBase.cs" />
     <Compile Include="Collections\SynchronizedNotifiableCollectionTest.cs" />
-    <Compile Include="Infrastructure\Validation\DynamicDataAnnotationsElementProviderTest.cs" />
     <Compile Include="Infrastructure\Validation\ManualValidatorTest.cs" />
-    <Compile Include="Infrastructure\Validation\ValidationElementValidatorTest.cs" />
+    <Compile Include="Infrastructure\Validation\DataAnnotationValidatorTest.cs" />
     <Compile Include="Infrastructure\Validation\ValidatorBaseTest.cs" />
     <Compile Include="Infrastructure\ViewMappingProviderTestBase.cs" />
     <Compile Include="Ioc\AutofacIocAdapterTest.cs" />
@@ -171,13 +170,13 @@
     <Compile Include="TestInfrastructure\StateTransitionManagerMock.cs" />
     <Compile Include="TestInfrastructure\ThreadManagerMock.cs" />
     <Compile Include="TestInfrastructure\ValidationElementMock.cs" />
-    <Compile Include="TestInfrastructure\ValidationElementProviderMock.cs" />
     <Compile Include="TestInfrastructure\ViewManagerMock.cs" />
     <Compile Include="TestInfrastructure\ViewModelProviderMock.cs" />
     <Compile Include="TestInfrastructure\ViewModelSettingsMock.cs" />
     <Compile Include="TestInfrastructure\ViewPageMappingProviderMock.cs" />
     <Compile Include="TestInfrastructure\VisualStateManagerMock.cs" />
     <Compile Include="TestModels\DialogViewMock.cs" />
+    <Compile Include="TestModels\DisposableObject.cs" />
     <Compile Include="TestModels\DynamicObjectMock.cs" />
     <Compile Include="TestModels\EventListenerMock.cs" />
     <Compile Include="TestModels\GridModel.cs" />

@@ -50,7 +50,6 @@ namespace MugenMvvmToolkit
         {
             Instance = new Tracer();
             var isAttached = Debugger.IsAttached;
-            TraceFinalized = isAttached;
             TraceWarning = isAttached;
             TraceError = isAttached;
         }
@@ -65,11 +64,6 @@ namespace MugenMvvmToolkit
         #endregion
 
         #region Properties
-
-        /// <summary>
-        ///     Gets or sets the value that is responsible to trace finalized items.
-        /// </summary>
-        public static bool TraceFinalized { get; set; }
 
         /// <summary>
         ///     Gets the value that indicates that tracer should trace information messages.
@@ -156,15 +150,6 @@ namespace MugenMvvmToolkit
         {
             if (TraceError)
                 ServiceProvider.Tracer.Trace(TraceLevel.Error, format, args);
-        }
-
-        /// <summary>
-        ///     Writes information about an item.
-        /// </summary>
-        public static void Finalized(object item, string message = null)
-        {
-            if (TraceFinalized)
-                Warn("Finalized - {0} ({1}); {2}", item.GetType(), item.GetHashCode(), message);
         }
 
         /// <summary>

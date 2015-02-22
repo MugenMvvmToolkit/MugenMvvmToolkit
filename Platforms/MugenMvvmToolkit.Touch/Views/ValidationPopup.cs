@@ -48,7 +48,7 @@ namespace MugenMvvmToolkit.Views
             EmptyNSString = new NSString(string.Empty);
         }
 
-        protected internal ValidationPopup(IntPtr handle)
+        protected ValidationPopup(IntPtr handle)
             : base(handle)
         {
         }

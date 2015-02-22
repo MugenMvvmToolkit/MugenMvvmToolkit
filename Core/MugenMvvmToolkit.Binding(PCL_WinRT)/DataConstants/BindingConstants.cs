@@ -16,6 +16,7 @@
 
 #endregion
 
+using System;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Models;
 
@@ -35,12 +36,15 @@ namespace MugenMvvmToolkit.Binding.DataConstants
 
         public static readonly DataConstant<object> CurrentEventArgs;
 
+        public static readonly DataConstant<WeakReference> Source;
+
         #endregion
 
         #region Constructors
 
         static BindingConstants()
         {
+            Source = DataConstant.Create(() => Source, true);
             DoNothing = DataConstant.Create(() => DoNothing);
             UnsetValue = DataConstant.Create(() => UnsetValue);
             InvalidValue = DataConstant.Create(() => InvalidValue);

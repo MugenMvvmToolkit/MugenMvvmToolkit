@@ -20,8 +20,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
-using MugenMvvmToolkit.Interfaces.Validation;
 
 namespace MugenMvvmToolkit.Infrastructure.Validation
 {
@@ -78,29 +78,10 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         #region Overrides of ValidatorBase
 
         /// <summary>
-        ///     Gets a value indicating whether an attempt to add a duplicate validator to the collection will cause an exception to be thrown.
-        /// </summary>
-        public override bool AllowDuplicate
-        {
-            get { return true; }
-        }
-
-        /// <summary>
-        ///     Checks to see whether the validator can validate objects of the specified IValidatorContext.
-        /// </summary>
-        protected override bool CanValidateInternal(IValidatorContext validatorContext)
-        {
-            return true;
-        }
-
-        /// <summary>
         ///     Updates information about errors in the specified property.
         /// </summary>
-        /// <param name="propertyName">The specified property name.</param>
-        /// <returns>
-        ///     The result of validation.
-        /// </returns>
-        protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(string propertyName)
+        /// <returns> The result of validation.</returns>
+        protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(string propertyName, CancellationToken token)
         {
             return DoNothingResult;
         }
@@ -108,23 +89,10 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <summary>
         ///     Updates information about all errors.
         /// </summary>
-        /// <returns>
-        ///     The result of validation.
-        /// </returns>
-        protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync()
+        /// <returns>The result of validation.</returns>
+        protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(CancellationToken token)
         {
             return DoNothingResult;
-        }
-
-        /// <summary>
-        ///     Creates a new validator that is a copy of the current instance.
-        /// </summary>
-        /// <returns>
-        ///     A new validator that is a copy of this instance.
-        /// </returns>
-        protected override IValidator CloneInternal()
-        {
-            return new ManualValidator<T>();
         }
 
         #endregion

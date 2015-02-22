@@ -20,6 +20,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Models.EventArg;
@@ -49,14 +50,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         #endregion
 
         #region Overrides of ValidatorBase
-
-        /// <summary>
-        ///     Gets a value indicating whether an attempt to add a duplicate validator to the collection will cause an exception to be thrown.
-        /// </summary>
-        public override bool AllowDuplicate
-        {
-            get { return true; }
-        }
 
         /// <summary>
         ///     Gets the validation errors for a specified property or for the entire entity.
@@ -126,12 +119,13 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <summary>
         ///     Occurs after current view model disposed, use for clear resource and event listeners.
         /// </summary>
-        protected override void OnDispose(bool disposing)
+        protected override void OnDispose()
         {
-            if (_weakHandler == null || !disposing)
-                return;
-            Instance.ErrorsChanged -= _weakHandler;
-            _weakHandler = null;
+            if (_weakHandler != null && Instance != null)
+            {
+                Instance.ErrorsChanged -= _weakHandler;
+                _weakHandler = null;
+            }
         }
 
         /// <summary>
@@ -148,11 +142,8 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <summary>
         ///     Updates information about errors in the specified property.
         /// </summary>
-        /// <param name="propertyName">The specified property name.</param>
-        /// <returns>
-        ///     The result of validation.
-        /// </returns>
-        protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(string propertyName)
+        /// <returns> The result of validation.</returns>
+        protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(string propertyName, CancellationToken token)
         {
             Instance.ValidateAsync(propertyName);
             return DoNothingResult;
@@ -161,24 +152,11 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <summary>
         ///     Updates information about all errors.
         /// </summary>
-        /// <returns>
-        ///     The result of validation.
-        /// </returns>
-        protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync()
+        /// <returns>The result of validation.</returns>
+        protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(CancellationToken token)
         {
             Instance.ValidateAsync();
             return DoNothingResult;
-        }
-
-        /// <summary>
-        ///     Creates a new validator that is a copy of the current instance.
-        /// </summary>
-        /// <returns>
-        ///     A new validator that is a copy of this instance.
-        /// </returns>
-        protected override IValidator CloneInternal()
-        {
-            return new ValidatableViewModelValidator();
         }
 
         #endregion

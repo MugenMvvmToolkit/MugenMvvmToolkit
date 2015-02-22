@@ -28,7 +28,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
     {
         #region Fields
 
-        private readonly UIPickerView _pickerView;
+        private readonly WeakReference _pickerView;
         private readonly NotifyCollectionChangedEventHandler _weakHandler;
         private IEnumerable _itemsSource;
         private object _selectedItem;
@@ -38,7 +38,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
-        protected internal MvvmPickerViewModel(IntPtr handle)
+        protected MvvmPickerViewModel(IntPtr handle)
             : base(handle)
         {
         }
@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public MvvmPickerViewModel([NotNull] UIPickerView pickerView)
         {
             Should.NotBeNull(pickerView, "pickerView");
-            _pickerView = pickerView;
+            _pickerView = ServiceProvider.WeakReferenceFactory(pickerView, true);
             _weakHandler = ReflectionExtensions.MakeWeakCollectionChangedHandler(this,
                 (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));
             EmptyTitle = "-";
@@ -81,7 +81,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public virtual IEnumerable ItemsSource
         {
             get { return _itemsSource; }
-            set { SetItemsSource(value); }
+            set { SetItemsSource(value, true); }
+        }
+
+        [CanBeNull]
+        protected UIPickerView PickerView
+        {
+            get { return (UIPickerView)_pickerView.Target; }
         }
 
         #endregion
@@ -94,7 +100,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Methods
 
-        protected virtual void SetItemsSource(IEnumerable value)
+        protected virtual void SetItemsSource(IEnumerable value, bool reload)
         {
             if (ReferenceEquals(value, _itemsSource))
                 return;
@@ -111,8 +117,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (notifyCollectionChanged != null)
                     notifyCollectionChanged.CollectionChanged += _weakHandler;
             }
-            ReloadData();
-            SetSelectedItem(SelectedItem);
+            if (reload)
+            {
+                ReloadData();
+                SetSelectedItem(SelectedItem);
+            }
         }
 
         protected virtual void OnCollectionChanged(object o, NotifyCollectionChangedEventArgs args)
@@ -122,7 +131,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         protected virtual void ReloadData()
         {
-            _pickerView.ReloadComponent(0);
+            var pickerView = PickerView;
+            if (pickerView != null)
+                pickerView.ReloadComponent(0);
         }
 
         protected virtual void SetSelectedItem(object item)
@@ -134,8 +145,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (position < 0)
                 return;
 
-            bool animated = !_pickerView.Hidden;
-            _pickerView.Select(position, 0, animated);
+            var pickerView = PickerView;
+            if (pickerView != null)
+                pickerView.Select(position, 0, !pickerView.Hidden);
         }
 
         #endregion
@@ -156,7 +168,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public override void Selected(UIPickerView picker, nint row, nint component)
         {
-            _selectedItem = _itemsSource == null ? null : _itemsSource.ElementAtIndex((int) row);
+            _selectedItem = _itemsSource == null ? null : _itemsSource.ElementAtIndex((int)row);
 
             EventHandler handler = SelectedItemChanged;
             if (handler != null)
@@ -167,7 +179,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             if (_itemsSource == null)
                 return EmptyTitle;
-            object item = _itemsSource.ElementAtIndex((int) row);
+            object item = _itemsSource.ElementAtIndex((int)row);
             if (item == null)
                 return EmptyTitle;
             if (!string.IsNullOrEmpty(DisplayMemberPath))
@@ -175,6 +187,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (item == null)
                 return EmptyTitle;
             return item.ToString();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                SetItemsSource(null, false);
+                _selectedItem = null;
+            }
+            base.Dispose(disposing);
         }
 
         #endregion

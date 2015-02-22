@@ -94,7 +94,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             get { return _factory; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _factory = value;
             }
         }
@@ -327,7 +327,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             ((IActivityView)sender).Mediator.Destroyed -= ActivityViewOnDestroyed;
             SetItemsSource(null, false);
             var adapterView = _container as AdapterView;
-            if (adapterView != null && ReferenceEquals(PlatformDataBindingModule.GetAdapter(adapterView), this))
+            if (adapterView.IsAlive() && ReferenceEquals(PlatformDataBindingModule.GetAdapter(adapterView), this))
                 PlatformDataBindingModule.SetAdapter(adapterView, null);
         }
 

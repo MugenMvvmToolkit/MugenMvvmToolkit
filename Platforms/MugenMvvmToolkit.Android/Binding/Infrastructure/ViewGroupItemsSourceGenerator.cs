@@ -130,7 +130,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 var view = _viewGroup.GetChildAt(index);
                 _viewGroup.RemoveViewAt(index);
-                view.ClearBindingsHierarchically(true, true);
+                view.ClearBindingsRecursively(true, true);
             }
             else
                 _collectionViewManager.RemoveAt(_viewGroup, index);

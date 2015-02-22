@@ -118,7 +118,7 @@ namespace MugenMvvmToolkit
             get { return _defaultViewModelTemplateFactory; }
             set
             {
-                Should.PropertyBeNotNull(value, "DefaultViewModelTemplateFactory");
+                Should.PropertyNotBeNull(value, "DefaultViewModelTemplateFactory");
                 _defaultViewModelTemplateFactory = value;
             }
         }

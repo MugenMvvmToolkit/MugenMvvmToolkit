@@ -73,8 +73,11 @@ namespace MugenMvvmToolkit
 		public partial class Id
 		{
 			
+			// aapt resource value: 0x7f020002
+			public static int AttachedProperties = 2130837506;
+			
 			// aapt resource value: 0x7f020001
-			public static int ListenParentChangeId = 2130837505;
+			public static int ListenParentChange = 2130837505;
 			
 			// aapt resource value: 0x7f020000
 			public static int OptionsMenu = 2130837504;

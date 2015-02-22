@@ -17,6 +17,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Threading;
 #if !PCL_Silverlight
 using System;
 using System.Runtime.CompilerServices;
@@ -30,6 +31,10 @@ using Foundation;
 using ObjCRuntime;
 using System.Runtime.InteropServices;
 using MugenMvvmToolkit.Models;
+#elif ANDROID
+using Android.OS;
+using Android.Runtime;
+using Android.Views;
 #else
 using System.Windows;
 #endif
@@ -84,7 +89,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             #region Fields
 
-            public readonly NativeObjectWeakReference WeakReference;
+            internal readonly NativeObjectWeakReference WeakReference;
             private AttachedValueDictionary _dictionary;
 
             #endregion
@@ -93,8 +98,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public AttachedValueHolder(NSObject target)
             {
-                objc_setAssociatedObject(target.Handle, AttachedValueKeyHandle, Handle,
-                    OBJC_ASSOCIATION_POLICY.OBJC_ASSOCIATION_RETAIN);
+                objc_setAssociatedObject(target.Handle, AttachedValueKeyHandle, Handle, OBJC_ASSOCIATION_POLICY.OBJC_ASSOCIATION_RETAIN);
                 WeakReference = new NativeObjectWeakReference(target);
             }
 
@@ -105,13 +109,7 @@ namespace MugenMvvmToolkit.Infrastructure
             public AttachedValueDictionary GetOrCreateDictionary()
             {
                 if (_dictionary == null)
-                {
-                    lock (this)
-                    {
-                        if (_dictionary == null)
-                            _dictionary = new AttachedValueDictionary();
-                    }
-                }
+                    Interlocked.CompareExchange(ref _dictionary, new AttachedValueDictionary(), null);
                 return _dictionary;
             }
 
@@ -126,8 +124,33 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #endregion
         }
-#endif
 
+#elif ANDROID
+        private sealed class AttachedValueDictionaryJava : Java.Lang.Object
+        {
+        #region Fields
+
+            public readonly AttachedValueDictionary Dictionary;
+
+        #endregion
+
+        #region Constructors
+
+            public AttachedValueDictionaryJava(IntPtr handle, JniHandleOwnership transfer)
+                : base(handle, transfer)
+            {
+                Dictionary = new AttachedValueDictionary();
+                Tracer.Error("The {0} is recreated", this);
+            }
+
+            public AttachedValueDictionaryJava()
+            {
+                Dictionary = new AttachedValueDictionary();
+            }
+
+        #endregion
+        }
+#endif
         private class AttachedValueDictionary : LightDictionaryBase<string, object>
         {
             #region Constructors
@@ -143,7 +166,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             protected override bool Equals(string x, string y)
             {
-                return string.Equals(x, y, StringComparison.Ordinal);
+                return x.Equals(y, StringComparison.Ordinal);
             }
 
             protected override int GetHashCode(string key)
@@ -162,14 +185,17 @@ namespace MugenMvvmToolkit.Infrastructure
         //NOTE ConditionalWeakTable incorrectly tracks WinRT objects https://connect.microsoft.com/VisualStudio/feedback/details/930200/conditionalweaktable-incorrectly-tracks-winrt-objects
         private static readonly DependencyProperty AttachedValueDictionaryProperty = DependencyProperty.RegisterAttached(
             "AttachedValueDictionary", typeof(AttachedValueDictionary), typeof(AttachedValueProvider), new PropertyMetadata(default(AttachedValueDictionary)));
-#endif
-#if XAMARIN_FORMS
+#elif XAMARIN_FORMS
         private static readonly BindableProperty AttachedValueDictionaryProperty = BindableProperty
             .CreateAttached("AttachedValueDictionary", typeof(AttachedValueDictionary), typeof(AttachedValueProvider),
                 null);
 #elif TOUCH
         private static readonly IntPtr AttachedValueKeyHandle = new NSObject().Handle;
         private static readonly Dictionary<IntPtr, AttachedValueHolder> AttachedValueHolders = new Dictionary<IntPtr, AttachedValueHolder>(109, new IntPtrComparer());
+#elif ANDROID
+        //Prior to Android 4.0, the implementation of View.setTag(int, Object) would store the objects in a static map, where the values were strongly referenced. 
+        //This means that if the object contains any references pointing back to the context, the context (which points to pretty much everything else) will leak. 
+        private static readonly bool SetTagSupported = (int)Build.VERSION.SdkInt >= 14;
 #endif
         private static readonly ConditionalWeakTable<object, AttachedValueDictionary>.CreateValueCallback
             CreateDictionaryDelegate = o => new AttachedValueDictionary();
@@ -235,22 +261,29 @@ namespace MugenMvvmToolkit.Infrastructure
                 value.Dispose();
                 return true;
             }
-#endif
-
-#if !WINFORMS && !PCL_WINRT && !PCL_Silverlight && !ANDROID && !TOUCH && !XAMARIN_FORMS
+#elif !WINFORMS && !PCL_WINRT && !PCL_Silverlight && !ANDROID && !TOUCH && !XAMARIN_FORMS
             var dependencyObject = item as DependencyObject;
             if (dependencyObject != null)
             {
                 dependencyObject.ClearValue(AttachedValueDictionaryProperty);
                 return true;
             }
-#endif
-#if XAMARIN_FORMS
+#elif XAMARIN_FORMS
             var bindableObject = item as BindableObject;
             if (bindableObject != null)
             {
                 bindableObject.ClearValue(AttachedValueDictionaryProperty);
                 return true;
+            }
+#elif ANDROID
+            if (SetTagSupported)
+            {
+                var view = item as View;
+                if (view.IsAlive())
+                {
+                    view.SetTag(Resource.Id.AttachedProperties, null);
+                    return true;
+                }
             }
 #endif
             return _internalDictionary.Remove(item);
@@ -288,9 +321,8 @@ namespace MugenMvvmToolkit.Infrastructure
                 }
                 return holder.GetOrCreateDictionary();
             }
-#endif
-
-#if !WINFORMS && !PCL_WINRT && !PCL_Silverlight && !ANDROID && !TOUCH && !XAMARIN_FORMS
+#elif !WINFORMS && !PCL_WINRT && !PCL_Silverlight && !ANDROID && !TOUCH && !XAMARIN_FORMS
+            //Synchronization is not necessary because accessing the DependencyObject is possible only from the main thread.
             var dependencyObject = item as DependencyObject;
             if (dependencyObject != null)
             {
@@ -302,18 +334,48 @@ namespace MugenMvvmToolkit.Infrastructure
                 }
                 return dict;
             }
-#endif
-#if XAMARIN_FORMS
+#elif XAMARIN_FORMS
             var bindableObject = item as BindableObject;
             if (bindableObject != null)
             {
                 var dict = (AttachedValueDictionary)bindableObject.GetValue(AttachedValueDictionaryProperty);
                 if (dict == null && addNew)
                 {
-                    dict = new AttachedValueDictionary();
-                    bindableObject.SetValue(AttachedValueDictionaryProperty, dict);
+                    lock (_internalDictionary)
+                    {
+                        dict = (AttachedValueDictionary)bindableObject.GetValue(AttachedValueDictionaryProperty);
+                        if (dict == null)
+                        {
+                            dict = new AttachedValueDictionary();
+                            bindableObject.SetValue(AttachedValueDictionaryProperty, dict);
+                        }
+                    }
                 }
                 return dict;
+            }
+#elif ANDROID
+            if (SetTagSupported)
+            {
+                var view = item as View;
+                if (view.IsAlive())
+                {
+                    var dict = (AttachedValueDictionaryJava)view.GetTag(Resource.Id.AttachedProperties);
+                    if (dict == null && addNew)
+                    {
+                        lock (_internalDictionary)
+                        {
+                            dict = (AttachedValueDictionaryJava)view.GetTag(Resource.Id.AttachedProperties);
+                            if (dict == null)
+                            {
+                                dict = new AttachedValueDictionaryJava();
+                                view.SetTag(Resource.Id.AttachedProperties, dict);
+                            }
+                        }
+                    }
+                    if (dict == null)
+                        return null;
+                    return dict.Dictionary;
+                }
             }
 #endif
             if (addNew)

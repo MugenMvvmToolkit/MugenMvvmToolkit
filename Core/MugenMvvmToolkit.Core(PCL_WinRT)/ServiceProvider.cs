@@ -30,7 +30,7 @@ using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 #if NET4
-using AttachedValueProviderDefault = MugenMvvmToolkit.Infrastructure.AttachedValueProvider;    
+using AttachedValueProviderDefault = MugenMvvmToolkit.Infrastructure.AttachedValueProvider;
 #endif
 
 namespace MugenMvvmToolkit
@@ -231,7 +231,7 @@ namespace MugenMvvmToolkit
             get
             {
                 if (_validatorProvider == null)
-                    _validatorProvider = new ValidatorProvider(true, _iocContainer);
+                    _validatorProvider = new ValidatorProvider();
                 return _validatorProvider;
             }
             set { _validatorProvider = value; }

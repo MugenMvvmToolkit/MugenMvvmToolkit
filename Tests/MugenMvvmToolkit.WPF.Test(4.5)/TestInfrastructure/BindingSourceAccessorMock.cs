@@ -7,6 +7,7 @@ using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Test.TestModels;
 
 namespace MugenMvvmToolkit.Test.TestInfrastructure
 {

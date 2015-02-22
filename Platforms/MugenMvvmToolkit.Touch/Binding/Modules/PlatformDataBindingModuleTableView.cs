@@ -70,12 +70,12 @@ namespace MugenMvvmToolkit.Binding.Modules
             BindingServiceProvider.ResourceResolver.AddType("UITableViewCellSeparatorStyle", typeof(UITableViewCellSeparatorStyle));
             BindingServiceProvider.ResourceResolver.AddType("UITableViewCellStyle", typeof(UITableViewCellStyle));
 
-            BindingServiceProvider.BindingMemberPriorities[TableViewUseAnimationsMember.Path] = 1;
-            BindingServiceProvider.BindingMemberPriorities[TableViewAddAnimationMember.Path] = 1;
-            BindingServiceProvider.BindingMemberPriorities[TableViewRemoveAnimationMember.Path] = 1;
-            BindingServiceProvider.BindingMemberPriorities[TableViewReplaceAnimationMember.Path] = 1;
-            BindingServiceProvider.BindingMemberPriorities[TableViewScrollPositionMember.Path] = 1;
-            BindingServiceProvider.BindingMemberPriorities[TableViewCellBindMember.Path] = 1;
+            BindingServiceProvider.BindingMemberPriorities[TableViewUseAnimationsMember.Path] = 2;
+            BindingServiceProvider.BindingMemberPriorities[TableViewAddAnimationMember.Path] = 2;
+            BindingServiceProvider.BindingMemberPriorities[TableViewRemoveAnimationMember.Path] = 2;
+            BindingServiceProvider.BindingMemberPriorities[TableViewReplaceAnimationMember.Path] = 2;
+            BindingServiceProvider.BindingMemberPriorities[TableViewScrollPositionMember.Path] = 2;
+            BindingServiceProvider.BindingMemberPriorities[TableViewCellBindMember.Path] = 2;
 
             //UITableView
             memberProvider.Register(TableViewReadOnlyMember);

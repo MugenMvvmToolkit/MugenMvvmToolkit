@@ -107,7 +107,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             private ValidationPopup _popup;
             private readonly BindingErrorProvider _errorProvider;
-            private UITextField _textField;
+            private IntPtr _textFieldHandle;
             private NSString _message;
 
             #endregion
@@ -123,7 +123,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 : base(new CGRect(0, 0, 25, 25))
             {
                 _errorProvider = errorProvider;
-                _textField = textField;
+                _textFieldHandle = textField.Handle;
                 TouchUpInside += OnTouchUpInside;
                 PlatformExtensions.AddOrientationChangeListener(this);
             }
@@ -140,16 +140,18 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             private void OnTouchUpInside(object sender, EventArgs eventArgs)
             {
-                var superview = GetTextFieldSuperview();
+                UITextField textField;
+                var superview = GetTextFieldSuperview(out textField);
                 if (superview == null)
                 {
-                    Tracer.Warn("Cannot get superview for " + _textField);
+                    Tracer.Warn("Cannot get superview for " + textField);
                     return;
                 }
+
                 if (_popup == null)
                 {
-                    var showOnRect = _textField.ConvertRectToView(Frame, superview);
-                    var fieldFrame = superview.ConvertRectToView(_textField.Frame, superview);
+                    var showOnRect = textField.ConvertRectToView(Frame, superview);
+                    var fieldFrame = superview.ConvertRectToView(textField.Frame, superview);
                     _popup = _errorProvider.CreateValidationPopup(showOnRect, fieldFrame);
                     _popup.TranslatesAutoresizingMaskIntoConstraints = false;
                     _popup.Message = _message;
@@ -173,15 +175,24 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (_popup == null)
                     return;
                 _popup.RemoveFromSuperview();
-                _popup.ClearBindingsHierarchically(true, true, true);
+                _popup.ClearBindingsRecursively(true, true);
+                _popup.DisposeEx();
                 _popup = null;
             }
 
-            private UIView GetTextFieldSuperview()
+            private UIView GetTextFieldSuperview(out UITextField textField)
             {
-                if (_textField == null)
+                var fieldHandle = _textFieldHandle;
+                if (fieldHandle == IntPtr.Zero)
+                {
+                    textField = null;
                     return null;
-                var current = _textField.Superview;
+                }
+
+                textField = Runtime.GetNSObject<UITextField>(_textFieldHandle);
+                if (textField == null)
+                    return null;
+                var current = textField.Superview;
                 UIView result = null;
                 while (current != null && !(current is UIWindow))
                 {
@@ -211,7 +222,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (disposing)
                 {
                     HidePopup();
-                    _textField = null;
+                    _textFieldHandle = IntPtr.Zero;
                 }
                 base.Dispose(disposing);
             }
@@ -353,7 +364,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (isClear)
                 {
                     if (errorButton != null)
-                        errorButton.ClearBindingsHierarchically(true, true, true);
+                    {
+                        errorButton.ClearBindingsRecursively(true, true);
+                        errorButton.DisposeEx();
+                    }
                 }
                 else
                     errorButton.SetErrors(errors);

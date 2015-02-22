@@ -168,7 +168,7 @@ namespace MugenMvvmToolkit.Infrastructure
             get { return _createLambdaExpressionByType; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _createLambdaExpressionByType = value;
             }
         }
@@ -181,7 +181,7 @@ namespace MugenMvvmToolkit.Infrastructure
             get { return _createLambdaExpression; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _createLambdaExpression = value;
             }
         }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvmToolkit.Infrastructure.Validation;
 using MugenMvvmToolkit.Interfaces.Validation;
@@ -83,37 +83,22 @@ namespace MugenMvvmToolkit.Test.TestModels
         /// <summary>
         ///     Updates information about errors in the specified property.
         /// </summary>
-        /// <param name="propertyName">The specified property name.</param>
-        /// <returns>
-        ///     The result of validation.
-        /// </returns>
-        protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(string propertyName)
+        /// <returns> The result of validation.</returns>
+        protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(string propertyName, CancellationToken token)
         {
             ValidateProperties.Add(propertyName);
             ValidateCount++;
-            return base.ValidateInternalAsync(propertyName);
+            return base.ValidateInternalAsync(propertyName, token);
         }
 
         /// <summary>
         ///     Updates information about all errors.
         /// </summary>
-        /// <returns>
-        ///     The result of validation.
-        /// </returns>
-        protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync()
+        /// <returns>The result of validation.</returns>
+        protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(CancellationToken token)
         {
             ValidateAllCount++;
-            return base.ValidateInternalAsync();
-        }
-        /// <summary>
-        ///     Creates a new validator that is a copy of the current instance.
-        /// </summary>
-        /// <returns>
-        ///     A new validator that is a copy of this instance.
-        /// </returns>
-        protected override IValidator CloneInternal()
-        {
-            return new SpyValidator();
+            return base.ValidateInternalAsync(token);
         }
 
         #endregion

@@ -118,9 +118,8 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             var operation = new AsyncOperation<bool?>();
             context = context.ToNonReadOnly();
             context.AddOrUpdate(NavigationConstants.ViewModel, viewModel);
-            viewModel.GetIocContainer(true)
-                .Get<INavigationProvider>()
-                .Navigate(operation.ToOperationCallback(), context);
+            var provider = viewModel.GetIocContainer(true).Get<INavigationProvider>();
+            provider.CurrentNavigateTask.TryExecuteSynchronously(task => provider.NavigateAsync(operation.ToOperationCallback(), context));
             return operation;
         }
 

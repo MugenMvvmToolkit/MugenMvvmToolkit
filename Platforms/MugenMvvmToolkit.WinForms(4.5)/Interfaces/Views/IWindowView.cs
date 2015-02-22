@@ -18,14 +18,12 @@
 
 using System.ComponentModel;
 using System.Windows.Forms;
-using MugenMvvmToolkit.Annotations;
 
 namespace MugenMvvmToolkit.Interfaces.Views
 {
     /// <summary>
     ///     Represent the base interface for a window view.
     /// </summary>
-    [BaseView(Priority = 1, ViewTypeName = "System.Windows.Forms.Form")]
     public interface IWindowView : IView
     {
         /// <summary>

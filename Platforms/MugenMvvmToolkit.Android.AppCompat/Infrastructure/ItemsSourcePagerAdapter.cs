@@ -170,6 +170,8 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
         private void ActivityViewOnDestroyed(Activity sender, EventArgs args)
         {
             ((IActivityView)sender).Mediator.Destroyed -= ActivityViewOnDestroyed;
+            if (!_viewPager.IsAlive())
+                return;
             if (ReferenceEquals(_viewPager.Adapter, this))
             {
                 _viewPager.Adapter = null;
@@ -279,7 +281,7 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
                 var view = (View)@object;
                 container.RemoveView(view);
                 if (removed)
-                    view.ClearBindingsHierarchically(true, true);
+                    view.ClearBindingsRecursively(true, true);
             }
             else
             {

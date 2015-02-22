@@ -18,6 +18,7 @@
 
 using System;
 using Android.OS;
+using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using MugenMvvmToolkit.Binding;
@@ -30,11 +31,18 @@ namespace MugenMvvmToolkit.Views
 
         private bool _checked;
         private readonly int _templateId;
-        private object _dataContext;
 
         #endregion
 
         #region Constructors
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ListItem" /> class.
+        /// </summary>
+        protected ListItem(IntPtr javaReference, JniHandleOwnership transfer)
+            : base(javaReference, transfer)
+        {
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ListItem" /> class.
@@ -71,26 +79,6 @@ namespace MugenMvvmToolkit.Views
                 return firstChild;
             }
         }
-
-        //NOTE ConditionalWeakTable invokes finalizer for value, even if the key object is still alive https://bugzilla.xamarin.com/show_bug.cgi?id=21620
-        public object DataContext
-        {
-            get { return _dataContext; }
-            set
-            {
-                if (Equals(value, _dataContext))
-                    return;
-                _dataContext = value;
-                var eventHandler = DataContextChanged;
-                if (eventHandler != null)
-                    eventHandler(this, EventArgs.Empty);
-            }
-        }
-
-        /// <summary>
-        ///     Occurs when the DataContext property changed.
-        /// </summary>
-        public event EventHandler DataContextChanged;
 
         #endregion
 
@@ -134,7 +122,7 @@ namespace MugenMvvmToolkit.Views
 
         private static void TrySetActivated(View view, bool value)
         {
-            if (view == null || Build.VERSION.SdkInt <= BuildVersionCodes.GingerbreadMr1)
+            if (Build.VERSION.SdkInt <= BuildVersionCodes.GingerbreadMr1 || !view.IsAlive())
                 return;
             var type = view.GetType();
             var member = BindingServiceProvider.MemberProvider.GetBindingMember(type, "Activated", false, false);

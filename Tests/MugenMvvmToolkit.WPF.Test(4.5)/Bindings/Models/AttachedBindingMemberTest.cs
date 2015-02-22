@@ -195,8 +195,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             bool isInvoked = false;
             var source = new BindingSourceModel();
             const string path = "path";
-            var property = AttachedBindingMember.CreateAutoProperty<BindingSourceModel, string>(path, null,
-                (model, args) =>
+            var property = AttachedBindingMember.CreateAutoProperty<BindingSourceModel, string>(path, memberChangedHandler: null,
+                memberAttachedHandler: (model, args) =>
                 {
                     model.ShouldEqual(source);
                     args.ShouldNotBeNull();

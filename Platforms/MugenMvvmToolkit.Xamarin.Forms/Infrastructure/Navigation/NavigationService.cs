@@ -51,8 +51,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 .CreateWeakDelegate<NavigationService, CancelEventArgs, EventHandler<Page, CancelEventArgs>>(this,
                     (service, o, arg3) => service.OnBackButtonPressed((Page)o, arg3),
                     (o, handler) => XamarinFormsExtensions.BackButtonPressed -= handler, handler => handler.Handle);
-            //BUG: Xamarin forms removes the page incorrectly using the RemovePage method, possible in future versions it will be fixed
-            IgnoreClearBackStackHint = true;
             UseAnimations = true;
         }
 

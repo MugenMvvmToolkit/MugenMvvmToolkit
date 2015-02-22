@@ -254,9 +254,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static void OnViewCleared(IViewManager viewManager, IViewModel viewModel, object arg3, IDataContext arg4)
         {
-            var bindableObject = arg3 as BindableObject;
-            if (bindableObject != null)
-                bindableObject.ClearBindingsHierarchically(true, true);
+            XamarinFormsExtensions.ClearBindingsRecursively(arg3 as BindableObject, true, true);
         }
 
         #endregion

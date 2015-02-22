@@ -116,7 +116,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             get { return _parser; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _parser = value;
             }
         }
@@ -281,6 +281,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             else
                 sourceAccessor = new BindingSourceAccessor(Decorate(sourceDelegates[0].Invoke(context), false, context), context, false);
             var binding = new DataBinding(new BindingSourceAccessor(GetBindingTarget(context, out target, out targetPath), context, true), sourceAccessor);
+            object source;
+            if (context.TryGetData(BindingBuilderConstants.Source, out source))
+                binding.Context.AddOrUpdate(BindingConstants.Source, ToolkitExtensions.GetWeakReference(source));
             AddBehaviors(binding, context);
             return binding;
         }

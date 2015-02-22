@@ -104,7 +104,7 @@ namespace MugenMvvmToolkit.ViewModels
             get { return _validatorProvider; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _validatorProvider = value;
             }
         }
@@ -233,7 +233,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="validator">The specified validator.</param>
         protected virtual void AddValidatorInternal(IValidator validator)
         {
-            if (!validator.IsInitialized)
+            if (validator.Context == null)
                 throw ExceptionManager.ValidatorNotInitialized("validator");
             //To prevent recursive validation call.
             if (validator is ValidatableViewModelValidator && ReferenceEquals(validator.Context.Instance, this))
@@ -250,7 +250,6 @@ namespace MugenMvvmToolkit.ViewModels
             }
             validators.Add(validator);
             validator.ErrorsChanged += _weakHandler;
-            validator.Subscribe(this);
             validator.ValidateAsync();
         }
 
@@ -260,14 +259,13 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="validator">The specified validator.</param>
         protected virtual bool RemoveValidatorInternal(IValidator validator)
         {
-            if (!validator.IsInitialized)
+            if (validator.Context == null)
                 throw ExceptionManager.ValidatorNotInitialized("validator");
             List<IValidator> validators;
             if (!_instanceToValidators.TryGetValue(validator.Context.Instance, out validators) ||
                 validators == null || !validators.Contains(validator))
                 return false;
             validator.ErrorsChanged -= _weakHandler;
-            validator.Unsubscribe(this);
             validator.Dispose();
             return validators.Remove(validator);
         }
@@ -394,14 +392,7 @@ namespace MugenMvvmToolkit.ViewModels
         }
 
         /// <summary>
-        ///     Occurs when the validation errors have changed for a property or for the entire entity.
-        /// </summary>
-        protected virtual void OnErrorsChanged(object sender, DataErrorsChangedMessage message)
-        {
-        }
-
-        /// <summary>
-        ///     Raises this object's ErrorsChangedChanged event.
+        ///     Raises the <see cref="ErrorsChanged"/> event.
         /// </summary>
         /// <param name="args">The event args.</param>
         protected virtual void RaiseErrorsChanged(DataErrorsChangedEventArgs args)
@@ -417,6 +408,25 @@ namespace MugenMvvmToolkit.ViewModels
             var handler = @this.ErrorsChanged;
             if (handler != null)
                 handler(@this, args);
+#if NONOTIFYDATAERROR
+            string ignoreProperty = args.PropertyName ?? string.Empty;
+            lock (@this._locker)
+            {
+                //Disable validation to prevent cycle
+                var contains = @this.IgnoreProperties.Contains(ignoreProperty);
+                if (!contains)
+                    @this.IgnoreProperties.Add(ignoreProperty);
+                try
+                {
+                    @this.OnPropertyChanged(ignoreProperty, ExecutionMode.None);
+                }
+                finally
+                {
+                    if (!contains)
+                        @this.IgnoreProperties.Remove(ignoreProperty);
+                }
+            }
+#endif
         }
 
         private IValidatorContext CreateContextInternal(object instanceToValidate)
@@ -433,38 +443,7 @@ namespace MugenMvvmToolkit.ViewModels
         {
             var validationMessage = message as AsyncValidationMessage;
             if (validationMessage != null)
-            {
-                RaiseErrorsChanged(new DataErrorsChangedEventArgs(validationMessage.PropertyName));
                 OnHandleAsyncValidationMessage(sender, validationMessage);
-                return;
-            }
-            var errorsMessage = message as DataErrorsChangedMessage;
-            if (errorsMessage == null)
-                return;
-            OnErrorsChanged(sender, errorsMessage);
-#if NONOTIFYDATAERROR
-            //To update property error in UI.
-            ThreadManager.InvokeOnUiThreadAsync(() =>
-            {
-                string ignoreProperty = errorsMessage.PropertyName ?? string.Empty;
-                lock (_locker)
-                {
-                    //Disable validation to prevent cycle
-                    var contains = IgnoreProperties.Contains(ignoreProperty);
-                    if (!contains)
-                        IgnoreProperties.Add(ignoreProperty);
-                    try
-                    {
-                        OnPropertyChanged(errorsMessage.PropertyName, ExecutionMode.None);
-                    }
-                    finally
-                    {
-                        if (!contains)
-                            IgnoreProperties.Remove(ignoreProperty);
-                    }
-                }
-            });
-#endif
         }
 
         #endregion
@@ -566,8 +545,12 @@ namespace MugenMvvmToolkit.ViewModels
         {
             Should.NotBeNull(validator, "validator");
             EnsureNotDisposed();
+            bool result;
             lock (_locker)
-                return RemoveValidatorInternal(validator);
+                result = RemoveValidatorInternal(validator);
+            if (result)
+                RaiseErrorsChanged(Empty.EmptyDataErrorsChangedArgs);
+            return result;
         }
 
         /// <summary>
@@ -590,8 +573,12 @@ namespace MugenMvvmToolkit.ViewModels
         {
             Should.NotBeNull(instanceToValidate, "instanceToValidate");
             EnsureNotDisposed();
+            bool result;
             lock (_locker)
-                return RemoveInstanceInternal(instanceToValidate);
+                result = RemoveInstanceInternal(instanceToValidate);
+            if (result)
+                RaiseErrorsChanged(Empty.EmptyDataErrorsChangedArgs);
+            return result;
         }
 
         /// <summary>
@@ -748,9 +735,6 @@ namespace MugenMvvmToolkit.ViewModels
             base.HandleInternal(sender, message);
         }
 
-        /// <summary>
-        ///     Occurs after the initialization of the current <see cref="ViewModelBase" />.
-        /// </summary>
         internal override void OnInitializedInternal()
         {
             if (ValidatorProvider == null)
@@ -759,9 +743,6 @@ namespace MugenMvvmToolkit.ViewModels
             base.OnInitializedInternal();
         }
 
-        /// <summary>
-        ///     Occurs after current view model disposed, use for clear resource and event listeners(Internal only).
-        /// </summary>
         internal override void OnDisposeInternal(bool disposing)
         {
             if (disposing)

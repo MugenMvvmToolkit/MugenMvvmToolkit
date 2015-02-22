@@ -77,7 +77,6 @@ namespace MugenMvvmToolkit.Modules
             IocContainer.BindToBindingInfo(GetViewModelPresenter());
             IocContainer.BindToBindingInfo(GetWrapperManager());
             IocContainer.BindToBindingInfo(GetEventAggregator());
-            IocContainer.BindToBindingInfo(GetValidationElementProvider());
             IocContainer.BindToBindingInfo(GetEntityStateProvider());
             IocContainer.BindToBindingInfo(GetValidatorProvider());
             IocContainer.BindToBindingInfo(GetTracer());
@@ -208,16 +207,6 @@ namespace MugenMvvmToolkit.Modules
         }
 
         /// <summary>
-        ///     Gets the <see cref="IValidationElementProvider" /> that will be used by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IValidationElementProvider" />.</returns>
-        protected virtual BindingInfo<IValidationElementProvider> GetValidationElementProvider()
-        {
-            return BindingInfo<IValidationElementProvider>
-                .FromType<DynamicDataAnnotationsElementProvider>(DependencyLifecycle.SingleInstance);
-        }
-
-        /// <summary>
         ///     Gets the <see cref="IEntityStateManager" /> that will be used by default.
         /// </summary>
         /// <returns>An instance of <see cref="IEntityStateManager" />.</returns>
@@ -232,8 +221,7 @@ namespace MugenMvvmToolkit.Modules
         /// <returns>An instance of <see cref="IValidatorProvider" />.</returns>
         protected virtual BindingInfo<IValidatorProvider> GetValidatorProvider()
         {
-            return BindingInfo<IValidatorProvider>
-                .FromMethod((adapter, list) => new ValidatorProvider(true, adapter.GetRoot()), DependencyLifecycle.SingleInstance);
+            return BindingInfo<IValidatorProvider>.FromType<ValidatorProvider>(DependencyLifecycle.SingleInstance);
         }
 
         /// <summary>

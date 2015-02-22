@@ -194,7 +194,6 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         #region Fields
 
-        internal static readonly IAttachedBindingMemberInfo<object, bool?> AutoDisposeMember;
         internal static readonly INotifiableAttachedBindingMemberInfo<AdapterView, int> AdapterViewSelectedPositionMember;
         internal readonly static IAttachedBindingMemberInfo<Object, ICollectionViewManager> CollectionViewManagerMember;
         internal static readonly IAttachedBindingMemberInfo<AdapterView, object> AdapterViewSelectedItemMember;
@@ -221,8 +220,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             //Object
             CollectionViewManagerMember = AttachedBindingMember.CreateAutoProperty<Object, ICollectionViewManager>("CollectionViewManager");
             ContentViewManagerMember = AttachedBindingMember.CreateAutoProperty<Object, IContentViewManager>("ContentViewManager");
-            AutoDisposeMember = AttachedBindingMember.CreateAutoProperty<object, bool?>("AutoDispose");
-
+            
             //Menu
             MenuItemsSourceMember = AttachedBindingMember.CreateAutoProperty<IMenu, IEnumerable>(AttachedMemberConstants.ItemsSource, MenuItemsSourceChanged);
             IsCheckedMenuItemMember = AttachedBindingMember.CreateNotifiableMember<IMenuItem, bool>("IsChecked",
@@ -264,8 +262,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             //Object
             memberProvider.Register(CollectionViewManagerMember);
             memberProvider.Register(ContentViewManagerMember);
-            memberProvider.Register(AutoDisposeMember);
-
+            
             //Dialog
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Dialog, object>("Title",
                 (dialog, args) => dialog.SetTitle(args.NewValue.ToStringSafe())));
@@ -387,16 +384,34 @@ namespace MugenMvvmToolkit.Binding.Modules
         private static void MenuTemplateChanged(View view, AttachedMemberChangedEventArgs<int> args)
         {
             var type = view.GetType();
-            if (type.FullName != "Android.Widget.Toolbar")
+            if (!IsToolbar(type))
                 return;
             var activity = view.Context.GetActivity();
-            if (activity != null)
-            {
-                var menuMember = BindingServiceProvider
-                    .MemberProvider
-                    .GetBindingMember(type, "Menu", true, true);
+            if (activity == null)
+                return;
+            var menuMember = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(type, "Menu", true, true);
+            if (menuMember != null)
                 activity.MenuInflater.Inflate(args.NewValue, (IMenu)menuMember.GetValue(view, null), view);
-            }
+        }
+
+        private static void ToolbarIsActionBarChanged(View view, AttachedMemberChangedEventArgs<bool> args)
+        {
+            var type = view.GetType();
+            if (!args.NewValue || !IsToolbar(type))
+                return;
+            var activity = view.Context.GetActivity();
+            if (activity == null)
+                return;
+            var methodInfo = activity.GetType().GetMethodEx("SetActionBar", MemberFlags.Instance | MemberFlags.Public);
+            if (methodInfo != null)
+                methodInfo.SetValueEx(activity, view);
+        }
+
+        private static bool IsToolbar(Type type)
+        {
+            return type.FullName == "Android.Widget.Toolbar";
         }
 
         #region TabHost

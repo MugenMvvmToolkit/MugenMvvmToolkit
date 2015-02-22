@@ -16,6 +16,7 @@
 
 #endregion
 
+using System;
 using System.Collections;
 using MugenMvvmToolkit.Binding.Converters;
 using MugenMvvmToolkit.Binding.Interfaces;
@@ -39,7 +40,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Fields
 
         private readonly IBindingMemberInfo _itemTemplateMember;
-        private readonly object _view;
+        private readonly WeakReference _view;
+
 #if WINFORMS
         private readonly bool _isTabControl;
 #endif
@@ -56,7 +58,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 #elif TOUCH
             TryListenController(view as INativeObject);
 #endif
-            _view = view;
+            _view = ServiceProvider.WeakReferenceFactory(view, true);
             _itemTemplateMember = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(view.GetType(), AttachedMemberConstants.ItemTemplate, false, false);
@@ -72,13 +74,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             get
             {
+                var view = GetView();
+                if (view == null)
+                    return true;
 #if WINFORMS
-                var control = _view as Control;
+                var control = view as Control;
                 if (control == null)
                     return false;
                 return control.IsDisposed;
 #elif TOUCH
-                var nativeObject = _view as INativeObject;
+                var nativeObject = view as INativeObject;
                 if (nativeObject == null)
                     return false;
                 return !nativeObject.IsAlive();
@@ -88,39 +93,51 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         protected override void Add(int insertionIndex, int count)
         {
-            ICollectionViewManager viewManager = GetCollectionViewManager();
+            var view = GetView();
+            if (view == null)
+                return;
+            ICollectionViewManager viewManager = GetCollectionViewManager(view);
             for (int i = 0; i < count; i++)
             {
                 int index = insertionIndex + i;
-                viewManager.Insert(_view, index, GetItemFromTemplate(index));
+                viewManager.Insert(view, index, GetItemFromTemplate(view, index));
             }
         }
 
         protected override void Remove(int removalIndex, int count)
         {
-            ICollectionViewManager viewManager = GetCollectionViewManager();
+            var view = GetView();
+            if (view == null)
+                return;
+            ICollectionViewManager viewManager = GetCollectionViewManager(view);
             for (int i = 0; i < count; i++)
-                viewManager.RemoveAt(_view, removalIndex + i);
+                viewManager.RemoveAt(view, removalIndex + i);
         }
 
         protected override void Replace(int startIndex, int count)
         {
-            ICollectionViewManager viewManager = GetCollectionViewManager();
+            var view = GetView();
+            if (view == null)
+                return;
+            ICollectionViewManager viewManager = GetCollectionViewManager(view);
             for (int i = 0; i < count; i++)
             {
                 int index = startIndex + i;
-                viewManager.RemoveAt(_view, index);
-                viewManager.Insert(_view, index, GetItemFromTemplate(index));
+                viewManager.RemoveAt(view, index);
+                viewManager.Insert(view, index, GetItemFromTemplate(view, index));
             }
         }
 
         protected override void Refresh()
         {
-            ICollectionViewManager viewManager = GetCollectionViewManager();
-            viewManager.Clear(_view);
+            var view = GetView();
+            if (view == null)
+                return;
+            ICollectionViewManager viewManager = GetCollectionViewManager(view);
+            viewManager.Clear(view);
             int count = ItemsSource.Count();
             for (int i = 0; i < count; i++)
-                viewManager.Insert(_view, i, GetItemFromTemplate(i));
+                viewManager.Insert(view, i, GetItemFromTemplate(view, i));
         }
 
         #endregion
@@ -134,14 +151,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 .GetOrAdd(item, Key, (o, o1) => new ItemsSourceGenerator(o), null);
         }
 
-        private ICollectionViewManager GetCollectionViewManager()
+        private ICollectionViewManager GetCollectionViewManager(object view)
         {
             return PlatformDataBindingModule
                 .CollectionViewManagerMember
-                .GetValue(_view, null) ?? DefaultCollectionViewManager.Instance;
+                .GetValue(view, null) ?? DefaultCollectionViewManager.Instance;
         }
 
-        private object GetItemFromTemplate(int index)
+        private object GetItemFromTemplate(object view, int index)
         {
             object item = GetItem(index);
             if (_itemTemplateMember == null)
@@ -152,7 +169,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 #endif
                 return GetDefaultTemplate(item);
             }
-            var selector = (IDataTemplateSelector)_itemTemplateMember.GetValue(_view, null);
+            var selector = (IDataTemplateSelector)_itemTemplateMember.GetValue(view, null);
             if (selector == null)
             {
 #if WINFORMS
@@ -161,7 +178,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 #endif
                 return GetDefaultTemplate(item);
             }
-            return selector.SelectTemplateWithContext(item, _view);
+            return selector.SelectTemplateWithContext(item, view);
         }
 
         private static object GetDefaultTemplate(object item)
@@ -169,6 +186,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (item is IViewModel)
                 return ViewModelToViewConverter.Instance.Convert(item);
             return item;
+        }
+
+        private object GetView()
+        {
+            return _view.Target;
         }
 
 #if WINFORMS

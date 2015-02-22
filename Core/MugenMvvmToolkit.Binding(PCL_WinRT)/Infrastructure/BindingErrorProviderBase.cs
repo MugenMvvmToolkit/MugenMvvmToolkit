@@ -63,7 +63,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             protected override bool Equals(string x, string y)
             {
-                return string.Equals(x, y, StringComparison.Ordinal);
+                return x.Equals(y, StringComparison.Ordinal);
             }
 
             protected override int GetHashCode(string key)

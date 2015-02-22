@@ -160,7 +160,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             if (constructor == null || !constructor.IsPublic)
                 return;
             var converter = (IBindingValueConverter)constructor.InvokeEx();
-            BindingServiceProvider.ResourceResolver.AddConverter(converter, true);
+            BindingServiceProvider.ResourceResolver.AddConverter(converter, null, true);
             if (Tracer.TraceInformation)
                 Tracer.Info("The {0} converter is registered.", type);
         }

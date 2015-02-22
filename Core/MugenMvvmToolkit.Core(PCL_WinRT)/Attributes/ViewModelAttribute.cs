@@ -58,7 +58,6 @@ namespace MugenMvvmToolkit.Attributes
         /// <summary>
         ///     Gets the url.
         /// </summary>
-        [NotNull]
         public string Uri { get; set; }
 
         /// <summary>
@@ -67,7 +66,7 @@ namespace MugenMvvmToolkit.Attributes
         [NotNull]
         public Type ViewModelType
         {
-            get { return _viewModelType; }            
+            get { return _viewModelType; }
         }
 
         /// <summary>

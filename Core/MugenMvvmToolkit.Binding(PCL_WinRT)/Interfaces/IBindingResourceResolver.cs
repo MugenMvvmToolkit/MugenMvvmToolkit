@@ -30,6 +30,18 @@ namespace MugenMvvmToolkit.Binding.Interfaces
     public interface IBindingResourceResolver
     {
         /// <summary>
+        ///     Gets or sets the name of binding source resource default is <c>root</c>.
+        /// </summary>
+        [NotNull]
+        string RootElementResourceName { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the name of binding source resource default is <c>src</c>.
+        /// </summary>
+        [NotNull]
+        string BindingSourceResourceName { get; set; }
+
+        /// <summary>
         ///     Gets a collection of known types.
         /// </summary>
         [NotNull]

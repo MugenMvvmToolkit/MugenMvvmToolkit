@@ -583,7 +583,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             public object Invoke(IOperationResult result)
             {
                 var invokeInternal = InvokeInternal(result);
-                Tracer.Info("The restored callback was invoked, target type '{0}', method '{1}'", TargetType, MethodName);
+                if (Tracer.TraceInformation)
+                    Tracer.Info("The restored callback was invoked, target type '{0}', method '{1}'", TargetType, MethodName);
                 return invokeInternal;
             }
 

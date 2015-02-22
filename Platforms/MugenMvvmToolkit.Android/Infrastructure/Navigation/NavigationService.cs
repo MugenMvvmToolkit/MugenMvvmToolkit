@@ -21,8 +21,10 @@ using System.IO;
 using System.Linq;
 using Android.App;
 using Android.Content;
+using Android.OS;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
@@ -40,6 +42,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         private const string ParameterSerializer = "viewmodelparameterdata";
         private const string ParameterString = "viewmodelparameter";
         private const string FirstActivityKey = "@%$#first";
+        private const int ClearTask = 32768;
 
         private readonly ISerializer _serializer;
         private Activity _currentActivity;
@@ -178,14 +181,14 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             _currentActivity = activity;
             if (_isNew)
             {
-                RaiseNavigated(activity, NavigationMode.New, _parameter);
                 _isNew = false;
+                RaiseNavigated(activity, NavigationMode.New, _parameter);
                 _parameter = null;
             }
             else
             {
-                RaiseNavigated(activity, NavigationMode.Back, GetParameterFromIntent(activity.Intent));
                 _isBack = false;
+                RaiseNavigated(activity, NavigationMode.Back, GetParameterFromIntent(activity.Intent));
             }
         }
 
@@ -300,10 +303,17 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 intent.AddFlags(ActivityFlags.NewTask);
             else if (dataContext.GetData(NavigationConstants.ClearBackStack))
             {
-                intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTop);
+                if (Build.VERSION.SdkInt <= BuildVersionCodes.GingerbreadMr1)
+                {
+                    intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTop);
+                    ServiceProvider.EventAggregator.Publish(this, MvvmActivityMediator.FinishActivityMessage.Instance);
+                }
+                else
+                    intent.AddFlags(ActivityFlags.NewTask | (ActivityFlags)ClearTask);
                 dataContext.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
                 isFirstActivity = true;
                 _prevIntent = null;
+                _currentActivity = null;
             }
             if (isFirstActivity)
                 intent.PutExtra(FirstActivityKey, true);

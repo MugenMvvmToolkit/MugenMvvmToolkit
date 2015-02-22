@@ -95,7 +95,7 @@ namespace MugenMvvmToolkit.Infrastructure
 #else
                 var type = typeInfo;
 #endif
-                var metadataTypes = new List<Type>(DynamicDataAnnotationsElementProvider.GetMetadataTypes(type));
+                var metadataTypes = new List<Type>(DataAnnotationValidatior.GetMetadataTypes(type));
                 metadataTypes.Insert(0, type);
                 for (int index = 0; index < metadataTypes.Count; index++)
                 {
@@ -114,10 +114,10 @@ namespace MugenMvvmToolkit.Infrastructure
             if (accessor != null)
                 return accessor;
 
-            ICollection<Type> types = DynamicDataAnnotationsElementProvider.GetMetadataTypes(ExpressionReflectionManager.GetDeclaringType(memberInfo));
-            foreach (Type metaType in types)
+            var types = DataAnnotationValidatior.GetMetadataTypes(ExpressionReflectionManager.GetDeclaringType(memberInfo));
+            for (int index = 0; index < types.Length; index++)
             {
-                MemberInfo metaMemberInfo = TryFindMetaMemberInfo(metaType, memberInfo);
+                MemberInfo metaMemberInfo = TryFindMetaMemberInfo(types[index], memberInfo);
                 if (metaMemberInfo == null)
                     continue;
                 accessor = TryGetDisplayAttributeAccessor(metaMemberInfo);

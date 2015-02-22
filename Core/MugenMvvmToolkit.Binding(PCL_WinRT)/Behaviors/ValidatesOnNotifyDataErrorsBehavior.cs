@@ -238,7 +238,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         private void OnBindingSourceValueChanged(IBindingSource sender, ValueChangedEventArgs args)
         {
-            if (args.LastMemberChanged)
+            if (args.LastMemberChanged && !sender.Path.IsEmpty)
                 return;
             UpdateSources(false);
             UpdateErrors(null);

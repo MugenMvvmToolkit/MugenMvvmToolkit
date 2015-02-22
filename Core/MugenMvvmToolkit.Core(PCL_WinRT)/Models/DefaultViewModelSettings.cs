@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.Models
 
         #endregion
 
-        #region Constructor
+        #region Constructors
 
         private DefaultViewModelSettings(IDataContext metadata, IDataContext state)
         {
@@ -55,7 +55,7 @@ namespace MugenMvvmToolkit.Models
             _validationBusyMessage = string.Empty;
             DisposeIocContainer = true;
             DisposeCommands = true;
-            HandleBusyMessageMode = HandleMode.HandleAndNotifySubscribers;
+            HandleBusyMessageMode = HandleMode.Handle;
             EventExecutionMode = ExecutionMode.AsynchronousOnUiThread;
         }
 
@@ -92,7 +92,7 @@ namespace MugenMvvmToolkit.Models
             get { return _defaultBusyMessage; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _defaultBusyMessage = value;
             }
         }
@@ -105,7 +105,7 @@ namespace MugenMvvmToolkit.Models
             get { return _validationBusyMessage; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _validationBusyMessage = value;
             }
         }

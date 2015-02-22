@@ -107,7 +107,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             public bool Equals(CacheKey x, CacheKey y)
             {
                 return x.IgnoreAttachedMembers == y.IgnoreAttachedMembers &&
-                       string.Equals(x.Path, y.Path, StringComparison.Ordinal) && x.Type.Equals(y.Type);
+                       x.Path.Equals(y.Path, StringComparison.Ordinal) && x.Type.Equals(y.Type);
             }
 
             /// <summary>
@@ -253,7 +253,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                         foreach (var prefix in BindingServiceProvider.FakeMemberPrefixes)
                         {
                             if (path.StartsWith(prefix, StringComparison.Ordinal))
-                            { 
+                            {
                                 bindingMember = BindingMemberInfo.EmptyHasSetter;
                                 break;
                             }

@@ -81,7 +81,7 @@ namespace MugenMvvmToolkit.Infrastructure
             get { return _getDataContext; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _getDataContext = item => value(ToolkitExtensions.GetUnderlyingView<object>(item));
             }
         }
@@ -95,7 +95,7 @@ namespace MugenMvvmToolkit.Infrastructure
             get { return _setDataContext; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _setDataContext = (item, context) => value(ToolkitExtensions.GetUnderlyingView<object>(item), context);
             }
         }

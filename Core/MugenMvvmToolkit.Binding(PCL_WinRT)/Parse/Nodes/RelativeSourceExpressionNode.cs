@@ -16,7 +16,6 @@
 
 #endregion
 
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Models;
@@ -26,15 +25,15 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
     /// <summary>
     ///     Represents accessing a relative source.
     /// </summary>
-    public class RelativeSourceExpressionNode : ExpressionNode, IRelativeSourceExpressionNode
+    public sealed class RelativeSourceExpressionNode : ExpressionNode, IRelativeSourceExpressionNode
     {
         #region Fields
 
         public const string RelativeSourceType = "RelativeSource";
         public const string ElementSourceType = "ElementSource";
         public const string SelfType = "Self";
-        public const string MemberSourceType = "MemberSource";
-
+        public const string ContextSourceType = "ContextSource";
+        
         private string _elementName;
         private uint _level;
         private string _path;
@@ -52,38 +51,51 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         {
         }
 
+        #endregion
+
+        #region Methods
+
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelativeSourceExpressionNode" /> class.
+        ///     Creates an instance of <see cref="RelativeSourceExpressionNode" /> with value {ElementSource Element, Path=Value}
         /// </summary>
-        public RelativeSourceExpressionNode(string path, bool isSelf)
-            : base(ExpressionNodeType.RelativeSource)
+        public static RelativeSourceExpressionNode CreateRelativeSource(string type, uint level, string path)
         {
-            _type = isSelf ? SelfType : MemberSourceType;
-            _path = path;
+            Should.NotBeNull(type, "type");
+            return new RelativeSourceExpressionNode
+            {
+                _type = type,
+                _level = level,
+                _path = path
+            };
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelativeSourceExpressionNode" /> class.
+        ///     Creates an instance of <see cref="RelativeSourceExpressionNode" /> with value {ElementSource Element, Path=Value}
         /// </summary>
-        public RelativeSourceExpressionNode([NotNull] string elementName, string path)
-            : base(ExpressionNodeType.RelativeSource)
+        public static RelativeSourceExpressionNode CreateElementSource(string elementName, string path)
         {
-            Should.NotBeNullOrWhitespace(elementName, "elementName");
-            _type = ElementSourceType;
-            _elementName = elementName;
-            _path = path;
+            return new RelativeSourceExpressionNode
+            {
+                _type = ElementSourceType,
+                _elementName = elementName,
+                _path = path
+            };
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelativeSourceExpressionNode" /> class.
+        ///     Creates an instance of <see cref="RelativeSourceExpressionNode" /> with  value {RelativeSource Self, Path=Value}
         /// </summary>
-        public RelativeSourceExpressionNode([NotNull] string type, uint level, string path)
-            : base(ExpressionNodeType.RelativeSource)
+        public static RelativeSourceExpressionNode CreateSelfSource(string path)
         {
-            Should.NotBeNullOrWhitespace(type, "type");
-            _type = type;
-            _level = level;
-            _path = path;
+            return new RelativeSourceExpressionNode { _type = SelfType, _path = path };
+        }
+
+        /// <summary>
+        ///     Creates an instance of <see cref="RelativeSourceExpressionNode" /> with value {RelativeSource Self, Path=DataContext.Value}
+        /// </summary>
+        public static RelativeSourceExpressionNode CreateBindingContextSource(string path)
+        {
+            return new RelativeSourceExpressionNode { _type = ContextSourceType, _path = path };
         }
 
         #endregion

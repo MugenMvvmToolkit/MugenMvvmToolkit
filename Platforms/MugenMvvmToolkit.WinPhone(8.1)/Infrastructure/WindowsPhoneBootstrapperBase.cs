@@ -100,7 +100,7 @@ namespace MugenMvvmToolkit.Infrastructure
             var service = CreateNavigationService(_rootFrame);
             if (service != null)
                 IocContainer.BindToConstant(service);
-            Should.PropertyBeNotNull(PhoneApplicationService.Current, "PhoneApplicationService.Current");
+            Should.PropertyNotBeNull(PhoneApplicationService.Current, "PhoneApplicationService.Current");
         }
 
         /// <summary>

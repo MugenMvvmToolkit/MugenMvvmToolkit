@@ -315,7 +315,7 @@ namespace MugenMvvmToolkit.Collections
 
         #endregion
 
-        #region Overrides of SyncronizedNotifiableCollection<T>
+        #region Overrides of SynchronizedNotifiableCollection<T>
 
         /// <summary>
         ///     Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.
@@ -339,9 +339,9 @@ namespace MugenMvvmToolkit.Collections
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            var syncronizedNotifiableCollection = Items as SynchronizedNotifiableCollection<T>;
-            if (syncronizedNotifiableCollection != null)
-                syncronizedNotifiableCollection.ExecutionMode = Models.ExecutionMode.None;
+            var collection = Items as SynchronizedNotifiableCollection<T>;
+            if (collection != null)
+                collection.ExecutionMode = Models.ExecutionMode.None;
             _filterCollection = new OrderedListInternal<int, T>();
             _notifyCollectionChanged = Items as INotifyCollectionChanged;
             _notifyCollectionChanging = Items as INotifyCollectionChanging;

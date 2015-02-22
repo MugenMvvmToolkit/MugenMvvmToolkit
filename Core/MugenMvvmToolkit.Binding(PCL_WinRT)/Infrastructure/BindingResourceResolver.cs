@@ -172,6 +172,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private readonly Dictionary<string, Func<IDataContext, IList<object>, IBindingBehavior>> _behaviors;
         private readonly Dictionary<string, Type> _types;
         private readonly List<WeakReference> _instanceObjects;
+        private string _bindingSourceResourceName;
+        private string _rootElementResourceName;
 
         #endregion
 
@@ -182,6 +184,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         public BindingResourceResolver()
         {
+            BindingSourceResourceName = "src";
+            RootElementResourceName = "root";
             _behaviors = new Dictionary<string, Func<IDataContext, IList<object>, IBindingBehavior>>();
             _converters = new Dictionary<string, IBindingValueConverter>();
             _dynamicMethods = new Dictionary<string, IBindingResourceMethod>
@@ -241,6 +245,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public BindingResourceResolver([NotNull] BindingResourceResolver resolver)
         {
             Should.NotBeNull(resolver, "resolver");
+            RootElementResourceName = resolver.RootElementResourceName;
+            BindingSourceResourceName = resolver.BindingSourceResourceName;
             _behaviors = new Dictionary<string, Func<IDataContext, IList<object>, IBindingBehavior>>(resolver._behaviors);
             _converters = new Dictionary<string, IBindingValueConverter>(resolver._converters);
             _dynamicMethods = new Dictionary<string, IBindingResourceMethod>(resolver._dynamicMethods);
@@ -326,8 +332,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         [CanBeNull]
         protected virtual ISourceValue ResolveObjectInternal([NotNull] object target, string name, IDataContext context)
         {
-            if ("root".Equals(name, StringComparison.OrdinalIgnoreCase) ||
-                    "rootElement".Equals(name, StringComparison.OrdinalIgnoreCase))
+            if (RootElementResourceName.Equals(name, StringComparison.Ordinal))
             {
                 var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
                 if (rootMember != null)
@@ -374,6 +379,32 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #endregion
 
         #region Implementation of IExpressionMemberResolver
+
+        /// <summary>
+        ///     Gets or sets the name of binding source resource default is <c>root</c>.
+        /// </summary>
+        public string RootElementResourceName
+        {
+            get { return _rootElementResourceName; }
+            set
+            {
+                Should.PropertyNotBeNull(value);
+                _rootElementResourceName = value;
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the name of binding source resource default is <c>src</c>.
+        /// </summary>
+        public string BindingSourceResourceName
+        {
+            get { return _bindingSourceResourceName; }
+            set
+            {
+                Should.PropertyNotBeNull(value);
+                _bindingSourceResourceName = value;
+            }
+        }
 
         /// <summary>
         ///     Gets a collection of known types.
@@ -465,6 +496,26 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public virtual ISourceValue ResolveObject(string name, IDataContext context, bool throwOnError)
         {
             Should.NotBeNullOrWhitespace(name, "name");
+            if (context != null && BindingSourceResourceName.Equals(name, StringComparison.Ordinal))
+            {
+                object src;
+                if (context.TryGetData(BindingBuilderConstants.Source, out src))
+                    return new BindingResourceObject(src, true);
+
+                object target = null;
+                IDataBinding binding;
+                if (context.TryGetData(BindingConstants.Binding, out binding))
+                {
+                    WeakReference srcWeak;
+                    if (binding.Context.TryGetData(BindingConstants.Source, out srcWeak))
+                        return new BindingResourceObject(srcWeak);
+                    target = binding.TargetAccessor.Source.GetSource(false);
+                }
+                if (target == null)
+                    target = context.GetData(BindingBuilderConstants.Target);
+                if (target != null)
+                    return BindingServiceProvider.ContextManager.GetBindingContext(target);
+            }
             lock (_objects)
             {
                 DynamicResourceObject value;

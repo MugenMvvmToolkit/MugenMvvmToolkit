@@ -37,32 +37,6 @@ namespace MugenMvvmToolkit.Models
         [IgnoreDataMember, XmlIgnore]
         private bool _notNull;
 
-        [IgnoreDataMember, XmlIgnore]
-        private string _typeName;
-
-        [NonSerialized, IgnoreDataMember, XmlIgnore]
-        private Type _type;
-
-        #endregion
-
-        #region Equality members
-
-        /// <summary>
-        ///     Indicates whether the current object is equal to another object of the same type.
-        /// </summary>
-        /// <returns>
-        ///     true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
-        /// </returns>
-        /// <param name="other">An object to compare with this object.</param>
-        public override bool Equals(DataConstant other)
-        {
-            if (ReferenceEquals(null, other))
-                return false;
-            if (ReferenceEquals(this, other))
-                return true;
-            return string.Equals(Id, other.Id, StringComparison.Ordinal) && Type.Equals(other.Type);
-        }
-
         #endregion
 
         #region Constructors
@@ -70,31 +44,15 @@ namespace MugenMvvmToolkit.Models
         /// <summary>
         ///     Initializes a new instance of the <see cref="DataConstant" /> class.
         /// </summary>
-        protected internal DataConstant([NotNull] string id, [NotNull] Type type, bool notNull = false)
+        protected internal DataConstant([NotNull] string id, bool notNull = false)
             : base(id)
         {
-            Should.NotBeNull(type, "type");
-            _type = type;
             _notNull = notNull;
-            _typeName = type.AssemblyQualifiedName;
         }
 
         #endregion
 
         #region Properties
-
-        /// <summary>
-        ///     Gets the type of the constant.
-        /// </summary>
-        public Type Type
-        {
-            get
-            {
-                if (_type == null)
-                    _type = Type.GetType(_typeName, true);
-                return _type;
-            }
-        }
 
         /// <summary>
         ///     Gets the value that indicates that the constant value cannot be null.
@@ -104,13 +62,6 @@ namespace MugenMvvmToolkit.Models
         {
             get { return _notNull; }
             internal set { _notNull = value; }
-        }
-
-        [DataMember(Name = "tn")]
-        internal string TypeName
-        {
-            get { return _typeName; }
-            set { _typeName = value; }
         }
 
         #endregion
@@ -194,22 +145,14 @@ namespace MugenMvvmToolkit.Models
         ///     Initializes a new instance of the <see cref="DataConstant{T}" /> class.
         /// </summary>
         public DataConstant([NotNull] string id, bool notNull = false)
-            : this(id, typeof(T), notNull)
+            : this(new DataConstant(id, notNull))
         {
         }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DataConstant{T}" /> class.
         /// </summary>
-        private DataConstant([NotNull] string id, Type type, bool notNull)
-            : this(new DataConstant(id, type, notNull))
-        {
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DataConstant{T}" /> class.
-        /// </summary>
-        private DataConstant(DataConstant constant)
+        public DataConstant(DataConstant constant)
         {
             Constant = constant;
         }
@@ -249,7 +192,7 @@ namespace MugenMvvmToolkit.Models
 
         public static implicit operator DataConstant<T>(string dataConstantId)
         {
-            return new DataConstant<T>(dataConstantId, typeof(object), false);
+            return new DataConstant<T>(dataConstantId, false);
         }
 
         public static implicit operator DataConstant(DataConstant<T> dataConstant)
@@ -303,7 +246,7 @@ namespace MugenMvvmToolkit.Models
         ///     true if the specified object  is equal to the current object; otherwise, false.
         /// </returns>
         /// <param name="obj">The object to compare with the current object. </param>
-        public override bool Equals(object obj)
+        public sealed override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
@@ -317,7 +260,7 @@ namespace MugenMvvmToolkit.Models
         /// <returns>
         ///     A hash code for the current <see cref="T:System.Object" />.
         /// </returns>
-        public override int GetHashCode()
+        public sealed override int GetHashCode()
         {
             return Constant.GetHashCode();
         }

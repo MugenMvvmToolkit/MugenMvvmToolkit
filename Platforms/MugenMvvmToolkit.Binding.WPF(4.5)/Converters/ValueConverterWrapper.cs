@@ -18,6 +18,7 @@
 
 using System;
 using System.Globalization;
+using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
@@ -36,8 +37,7 @@ namespace MugenMvvmToolkit.Binding.Converters
     {
         #region Fields
 
-        private readonly Func<object, Type, object, CultureInfo, object> _convert;
-        private readonly Func<object, Type, object, CultureInfo, object> _convertBack;
+        private readonly IValueConverter _valueConverter;
 
         #endregion
 
@@ -46,11 +46,10 @@ namespace MugenMvvmToolkit.Binding.Converters
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueConverterWrapper" /> class.
         /// </summary>
-        public ValueConverterWrapper(Func<object, Type, object, CultureInfo, object> convert,
-            Func<object, Type, object, CultureInfo, object> convertBack)
+        public ValueConverterWrapper([NotNull] IValueConverter valueConverter)
         {
-            _convert = convert;
-            _convertBack = convertBack;
+            Should.NotBeNull(valueConverter, "valueConverter");
+            _valueConverter = valueConverter;
         }
 
         #endregion
@@ -70,8 +69,7 @@ namespace MugenMvvmToolkit.Binding.Converters
         /// <param name="context">The current context to use in the converter.</param>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture, IDataContext context)
         {
-            Should.MethodBeSupported(_convert != null, "Convert");
-            return _convert(value, targetType, parameter, culture);
+            return _valueConverter.Convert(value, targetType, parameter, culture);
         }
 
         /// <summary>
@@ -87,8 +85,7 @@ namespace MugenMvvmToolkit.Binding.Converters
         /// <param name="context">The current context to use in the converter.</param>
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture, IDataContext context)
         {
-            Should.MethodBeSupported(_convertBack != null, "ConvertBack");
-            return _convertBack(value, targetType, parameter, culture);
+            return _valueConverter.ConvertBack(value, targetType, parameter, culture);
         }
 
         #endregion

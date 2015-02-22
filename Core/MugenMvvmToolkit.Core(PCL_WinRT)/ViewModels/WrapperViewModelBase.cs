@@ -70,6 +70,7 @@ namespace MugenMvvmToolkit.ViewModels
                 {"IsSelected", "IsSelected"},
                 {"OperationResult", "OperationResult"}
             };
+            Settings.HandleBusyMessageMode |= HandleMode.Handle;
         }
 
         #endregion

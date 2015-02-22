@@ -324,11 +324,12 @@ namespace MugenMvvmToolkit.Binding
         /// <summary>
         ///     Adds the specified converter to resources.
         /// </summary>
-        public static void AddConverter([NotNull]this IBindingResourceResolver resolver, [NotNull] IBindingValueConverter converter, bool rewrite = true)
+        public static void AddConverter([NotNull]this IBindingResourceResolver resolver, [NotNull] IBindingValueConverter converter, Type type = null, bool rewrite = true)
         {
             Should.NotBeNull(resolver, "resolver");
             Should.NotBeNull(converter, "converter");
-            var type = converter.GetType();
+            if (type == null)
+                type = converter.GetType();
             var name = RemoveTail(RemoveTail(RemoveTail(type.Name, "BindingValueConverter"), "ValueConverter"), "Converter");
             resolver.AddConverter(name, converter, rewrite);
             if (name != type.Name)
@@ -546,14 +547,19 @@ namespace MugenMvvmToolkit.Binding
                 .TryGetValue(item, defaultValue);
         }
 
-        public static TValue TryGetValue<TValue>([CanBeNull] this IBindingMemberInfo bindingMember, object item, TValue defaultValue = default(TValue), bool itemCanBeNull = false)
+        public static TValue TryGetValue<TValue>([CanBeNull] this IBindingMemberInfo bindingMember, [CanBeNull]object item, TValue defaultValue = default(TValue), bool itemCanBeNull = false)
         {
-            if (bindingMember == null || (!itemCanBeNull && item == null))
+            if (bindingMember == null || item == null)
                 return defaultValue;
             var value = bindingMember.GetValue(item, null);
             if (value is TValue)
                 return (TValue)value;
             return defaultValue;
+        }
+
+        public static TValue TryGetValue<TItem, TValue>([CanBeNull] this IAttachedBindingMemberInfo<TItem, TValue> attachedBindingMember, [CanBeNull] TItem item, TValue defaultValue = default(TValue))
+        {
+            return TryGetValue(bindingMember: attachedBindingMember, item: item, defaultValue: defaultValue);
         }
 
         public static void ClearBindings([CanBeNull] object item, bool clearDataContext, bool clearAttachedValues)
@@ -574,14 +580,9 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
-        /// <summary>
-        ///     Removes the tail
-        /// </summary>
-        private static string RemoveTail(string name, string word)
+        public static Exception DuplicateLambdaParameter(string parameterName)
         {
-            if (name.EndsWith(word, StringComparison.OrdinalIgnoreCase))
-                name = name.Substring(0, name.Length - word.Length);
-            return name;
+            return BindingExceptionManager.DuplicateLambdaParameter(parameterName);
         }
 
         internal static void CheckDuplicateLambdaParameter(ICollection<string> parameters)
@@ -595,11 +596,6 @@ namespace MugenMvvmToolkit.Binding
                     throw BindingExceptionManager.DuplicateLambdaParameter(parameter);
                 strings.Add(parameter);
             }
-        }
-
-        public static Exception DuplicateLambdaParameter(string parameterName)
-        {
-            return BindingExceptionManager.DuplicateLambdaParameter(parameterName);
         }
 
         internal static string TryGetMemberName(this IExpressionNode target, bool allowIndexer, bool allowDynamicMember, IList<IExpressionNode> nodes = null, List<string> members = null)
@@ -642,7 +638,7 @@ namespace MugenMvvmToolkit.Binding
                     target = expressionNode.Target;
                 }
             }
-            return string.Join(".", members);
+            return MergePath(members);
         }
 
         internal static bool IsUnsetValueOrDoNothing(this object obj)
@@ -677,6 +673,13 @@ namespace MugenMvvmToolkit.Binding
         private static object AsResourceMethodDelegate<TArg1, TArg2, TResult>(this Func<TArg1, TArg2, IDataContext, TResult> method, IList<Type> types, IList<object> args, IDataContext context)
         {
             return method((TArg1)args[0], (TArg2)args[1], context);
+        }
+
+        private static string RemoveTail(string name, string word)
+        {
+            if (name.EndsWith(word, StringComparison.OrdinalIgnoreCase))
+                name = name.Substring(0, name.Length - word.Length);
+            return name;
         }
 
         #endregion

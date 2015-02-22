@@ -36,7 +36,7 @@ using MugenMvvmToolkit.Models.EventArg;
 namespace MugenMvvmToolkit.Collections
 {
     /// <summary>
-    ///     Represents the syncronized observable collection.
+    ///     Represents the synchronized observable collection.
     /// </summary>
     /// <typeparam name="T">The type of model.</typeparam>
     [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable]

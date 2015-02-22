@@ -292,7 +292,6 @@ namespace MugenMvvmToolkit
             _isActionBar = _isFragment;
             WeakReferences = new List<WeakReference>(128);
             NativeWeakReferences = new Dictionary<IntPtr, JavaObjectWeakReference>(109, new IntPtrComparer());
-            AutoDisposeDefault = true;
             // ReSharper disable once ObjectCreationAsStatement
             new WeakReferenceCollector();
         }
@@ -300,16 +299,6 @@ namespace MugenMvvmToolkit
         #endregion
 
         #region Properties
-
-        /// <summary>
-        ///     Gets or sets the default value for the attached property AutoDispose. Default is a <c>true</c>.
-        /// </summary>
-        public static bool AutoDisposeDefault { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the default value for the attached property AutoDispose for Activity.
-        /// </summary>
-        public static bool? AutoDisposeActivityDefault { get; set; }
 
         /// <summary>
         ///     Gets or sets the delegate that allows to handle view creation.
@@ -333,7 +322,7 @@ namespace MugenMvvmToolkit
             get { return _mvvmActivityMediatorFactory; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _mvvmActivityMediatorFactory = value;
             }
         }
@@ -347,7 +336,7 @@ namespace MugenMvvmToolkit
             get { return _menuInflaterFactory; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _menuInflaterFactory = value;
             }
         }
@@ -361,7 +350,7 @@ namespace MugenMvvmToolkit
             get { return _getContentViewDelegete; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _getContentViewDelegete = value;
             }
         }
@@ -376,7 +365,7 @@ namespace MugenMvvmToolkit
             get { return _setContentViewDelegete; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _setContentViewDelegete = value;
             }
         }
@@ -390,7 +379,7 @@ namespace MugenMvvmToolkit
             get { return _isFragment; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _isFragment = value;
             }
         }
@@ -403,7 +392,7 @@ namespace MugenMvvmToolkit
             get { return _isActionBar; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _isActionBar = value;
             }
         }
@@ -418,9 +407,9 @@ namespace MugenMvvmToolkit
                 return;
 
             ParentObserver.Raise(view);
-            if (view.GetTag(Resource.Id.ListenParentChangeId) != null)
+            if (view.GetTag(Resource.Id.ListenParentChange) != null)
                 return;
-            view.SetTag(Resource.Id.ListenParentChangeId, GlobalViewParentListener.Instance);
+            view.SetTag(Resource.Id.ListenParentChange, GlobalViewParentListener.Instance);
             var parent = BindingServiceProvider.VisualTreeManager.FindParent(view) as View;
             if (parent != null)
                 parent.ListenParentChange();
@@ -515,7 +504,7 @@ namespace MugenMvvmToolkit
             return item;
         }
 
-        public static void ClearBindingsHierarchically([CanBeNull]this View view, bool clearDataContext, bool clearAttachedValues, bool? disposeAllView = null)
+        public static void ClearBindingsRecursively([CanBeNull]this View view, bool clearDataContext, bool clearAttachedValues)
         {
             if (view == null)
                 return;
@@ -523,44 +512,19 @@ namespace MugenMvvmToolkit
             if (viewGroup.IsAlive())
             {
                 for (int i = 0; i < viewGroup.ChildCount; i++)
-                    viewGroup.GetChildAt(i).ClearBindingsHierarchically(clearDataContext, clearAttachedValues, disposeAllView);
+                    viewGroup.GetChildAt(i).ClearBindingsRecursively(clearDataContext, clearAttachedValues);
             }
-            view.ClearBindings(clearDataContext, clearAttachedValues, disposeAllView);
+            view.ClearBindings(clearDataContext, clearAttachedValues);
         }
 
-        public static void ClearBindings([CanBeNull]this IJavaObject javaObject, bool clearDataContext, bool clearAttachedValues, bool? disposeItem = null)
+        public static void ClearBindings([CanBeNull]this IJavaObject javaObject, bool clearDataContext, bool clearAttachedValues)
         {
-            ClearBindings(item: javaObject, clearDataContext: clearDataContext, clearAttachedValues: clearAttachedValues,
-                disposeItem: disposeItem);
-        }
-
-        public static void ClearBindings([CanBeNull]object item, bool clearDataContext, bool clearAttachedValues, bool? disposeItem = null)
-        {
-            if (item == null)
-                return;
-            var dispose = disposeItem.GetValueOrDefault(GetAutoDispose(item));
-            BindingExtensions.ClearBindings(item, clearDataContext, clearAttachedValues);
-            if (dispose)
-            {
-                var javaObject = item as IJavaObject;
-                if (javaObject == null)
-                {
-                    var disposable = item as IDisposable;
-                    if (disposable != null)
-                        disposable.Dispose();
-                }
-                else
-                {
-                    lock (NativeWeakReferences)
-                        NativeWeakReferences.Remove(javaObject.Handle);
-                    javaObject.Dispose();
-                }
-            }
+            BindingExtensions.ClearBindings(javaObject, clearDataContext, clearAttachedValues: clearAttachedValues);
         }
 
         public static void NotifyActivityAttached([CanBeNull] Activity activity, [CanBeNull] View view)
         {
-            if (view == null || activity == null)
+            if (!view.IsAlive() || !activity.IsAlive())
                 return;
             var viewGroup = view as ViewGroup;
             if (viewGroup != null)
@@ -599,32 +563,9 @@ namespace MugenMvvmToolkit
             ViewManager.SetDataContext(item, value);
         }
 
-        public static bool GetAutoDispose([CanBeNull]this IJavaObject javaObject)
-        {
-            return GetAutoDispose(item: javaObject);
-        }
-
-        public static void SetAutoDispose([CanBeNull]this IJavaObject javaObject, bool value)
-        {
-            SetAutoDispose(item: javaObject, value: value);
-        }
-
-        public static bool GetAutoDispose([CanBeNull]object item)
-        {
-            if (item == null)
-                return false;
-            return PlatformDataBindingModule.AutoDisposeMember.GetValue(item, null).GetValueOrDefault(AutoDisposeDefault);
-        }
-
-        public static void SetAutoDispose([CanBeNull]object item, bool value)
-        {
-            if (item != null)
-                PlatformDataBindingModule.AutoDisposeMember.SetValue(item, value);
-        }
-
         internal static void RemoveFromParent([CanBeNull] this View view)
         {
-            if (view == null)
+            if (!view.IsAlive())
                 return;
             var viewGroup = view.Parent as ViewGroup;
             if (viewGroup != null)

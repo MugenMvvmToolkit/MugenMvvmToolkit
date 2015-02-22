@@ -18,7 +18,6 @@
 
 using System;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -51,7 +50,7 @@ namespace MugenMvvmToolkit.Interfaces
         ///     An instance of <see cref="IViewModel" />.
         /// </returns>
         [Pure, NotNull]
-        IViewModel GetViewModel([NotNull, ViewModelTypeRequired] Type viewModelType, [NotNull] IDataContext dataContext);
+        IViewModel GetViewModel([NotNull] Type viewModelType, [NotNull] IDataContext dataContext);
 
         /// <summary>
         ///     Initializes the specified <see cref="IViewModel" />, use this method if you have created an

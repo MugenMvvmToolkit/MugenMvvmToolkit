@@ -36,6 +36,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
+        protected ItemsSourceTableViewSource(IntPtr handle)
+            : base(handle)
+        {
+        }
+
         public ItemsSourceTableViewSource([NotNull] UITableView tableView,
             string itemTemplate = AttachedMemberConstants.ItemTemplate)
             : base(tableView, itemTemplate)
@@ -71,19 +76,19 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return ItemsSource.ElementAtIndex(indexPath.Row);
         }
 
-        protected override void SetSelectedCellByItem(object selectedItem)
+        protected override void SetSelectedCellByItem(UITableView tableView, object selectedItem)
         {
             if (selectedItem == null)
-                ClearSelection();
+                ClearSelection(tableView);
             else
             {
                 int i = ItemsSource.IndexOf(selectedItem);
-                ClearSelection();
+                ClearSelection(tableView);
                 if (i >= 0)
                 {
                     var indexPath = NSIndexPath.FromRowSection(i, 0);
-                    TableView.SelectRow(indexPath, UseAnimations, ScrollPosition);
-                    RowSelected(TableView, indexPath);
+                    tableView.SelectRow(indexPath, UseAnimations, ScrollPosition);
+                    RowSelected(tableView, indexPath);
                 }
             }
         }
@@ -92,6 +97,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             SetItemsSource(null, false);
             base.ControllerOnDispose(sender, eventArgs);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            SetItemsSource(null, false);
         }
 
         #endregion
@@ -131,15 +142,18 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         protected bool TryUpdateItems(NotifyCollectionChangedEventArgs args)
         {
+            var tableView = TableView;
+            if (tableView == null)
+                return false;
             switch (args.Action)
             {
                 case NotifyCollectionChangedAction.Add:
                     NSIndexPath[] newIndexPaths = PlatformExtensions.CreateNSIndexPathArray(args.NewStartingIndex, args.NewItems.Count);
-                    TableView.InsertRows(newIndexPaths, AddAnimation);
+                    tableView.InsertRows(newIndexPaths, AddAnimation);
                     return true;
                 case NotifyCollectionChangedAction.Remove:
                     NSIndexPath[] oldIndexPaths = PlatformExtensions.CreateNSIndexPathArray(args.OldStartingIndex, args.OldItems.Count);
-                    TableView.DeleteRows(oldIndexPaths, RemoveAnimation);
+                    tableView.DeleteRows(oldIndexPaths, RemoveAnimation);
                     return true;
                 case NotifyCollectionChangedAction.Move:
                     if (args.NewItems.Count != 1 && args.OldItems.Count != 1)
@@ -147,13 +161,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
                     NSIndexPath oldIndexPath = NSIndexPath.FromRowSection(args.OldStartingIndex, 0);
                     NSIndexPath newIndexPath = NSIndexPath.FromRowSection(args.NewStartingIndex, 0);
-                    TableView.MoveRow(oldIndexPath, newIndexPath);
+                    tableView.MoveRow(oldIndexPath, newIndexPath);
                     return true;
                 case NotifyCollectionChangedAction.Replace:
                     if (args.NewItems.Count != args.OldItems.Count)
                         return false;
                     NSIndexPath indexPath = NSIndexPath.FromRowSection(args.NewStartingIndex, 0);
-                    TableView.ReloadRows(new[] { indexPath }, ReplaceAnimation);
+                    tableView.ReloadRows(new[] { indexPath }, ReplaceAnimation);
                     return true;
                 default:
                     return false;

@@ -415,8 +415,14 @@ namespace MugenMvvmToolkit.Binding.Parse
                             } while (Char.IsDigit(CurrentChar));
                             if (CurrentChar == '.')
                             {
-                                t = TokenType.RealLiteral;
                                 NextChar();
+                                if (!Char.IsDigit(CurrentChar))
+                                {
+                                    CurrentChar = '.';
+                                    --Position;
+                                    break;
+                                }
+                                t = TokenType.RealLiteral;
                                 if (!ValidateDigit())
                                 {
                                     t = TokenType.Unknown;

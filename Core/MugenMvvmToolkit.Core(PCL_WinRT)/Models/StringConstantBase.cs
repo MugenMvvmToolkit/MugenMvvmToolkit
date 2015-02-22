@@ -84,7 +84,7 @@ namespace MugenMvvmToolkit.Models
                 return false;
             if (ReferenceEquals(this, other))
                 return true;
-            return string.Equals(_id, other._id, StringComparison.Ordinal);
+            return _id.Equals(other._id, StringComparison.Ordinal);
         }
 
         /// <summary>

@@ -126,8 +126,11 @@ namespace MugenMvvmToolkit.Binding.Models
         private View GetSource()
         {
             var source = Source;
-            if (source == null)
+            if (!source.IsAlive())
+            {
                 Clear();
+                source = null;
+            }
             return source;
         }
 

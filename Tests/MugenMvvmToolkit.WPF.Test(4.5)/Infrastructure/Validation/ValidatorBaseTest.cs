@@ -7,7 +7,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MugenMvvmToolkit.Infrastructure.Validation;
 using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Models.Messages;
 using MugenMvvmToolkit.Models.Validation;
 using MugenMvvmToolkit.Test.TestModels;
 using Should;
@@ -45,42 +44,21 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Validation
         }
 
         [TestMethod]
-        public void CloneShouldCreateNewValidator()
-        {
-            ValidatorBase validator = GetValidator();
-            validator.Context.ShouldBeNull();
-            IValidator clone = validator.Clone();
-            validator.ShouldNotEqual(clone);
-            clone.Context.ShouldBeNull();
-
-            clone.Initialize(new ValidatorContext(new object(), GetServiceProvider()));
-            clone.Context.ShouldNotBeNull();
-            IValidator clone2 = clone.Clone();
-            clone.ShouldNotEqual(clone2);
-            clone2.Context.ShouldBeNull();
-        }
-
-        [TestMethod]
         public void UpdateErrorsShouldNotifyListeners()
         {
-            bool isAsync = false;
+            int count = 0;
             ValidatorBase validator = GetValidator();
             validator.Initialize(new ValidatorContext(new object(), GetServiceProvider()));
-            var spyHandler = new SpyHandler
+            validator.ErrorsChanged += (sender, args) =>
             {
-                HandleDelegate = (o, o1) =>
-                {
-                    o.ShouldEqual(validator);
-                    ((DataErrorsChangedMessage)o1).PropertyName.ShouldEqual(PropertyToValidate);
-                    ((DataErrorsChangedMessage)o1).IsAsyncValidate.ShouldEqual(isAsync);
-                }
+                sender.ShouldEqual(validator);
+                count++;
+                args.PropertyName.ShouldEqual(PropertyToValidate);
             };
-            validator.Subscribe(spyHandler).ShouldNotBeNull();
 
-            validator.UpdateErrors(PropertyToValidate, ValidatorErrors, isAsync);
-            isAsync = true;
-            validator.UpdateErrors(PropertyToValidate, ValidatorErrors, isAsync);
-            spyHandler.HandleCount.ShouldEqual(2);
+            validator.UpdateErrors(PropertyToValidate, ValidatorErrors, true);
+            validator.UpdateErrors(PropertyToValidate, ValidatorErrors, false);
+            count.ShouldEqual(2);
         }
 
         [TestMethod]

@@ -84,7 +84,13 @@ namespace MugenMvvmToolkit.Binding
 
         internal static object Convert(IBindingMemberInfo member, Type type, object value)
         {
-            if (type.IsInstanceOfType(value) || value == null)
+            if (value == null)
+            {
+                if (type.IsValueType() && !type.IsNullableType())
+                    return Activator.CreateInstance(type);
+                return null;
+            }
+            if (type.IsInstanceOfType(value))
                 return value;
 #if WPF || ANDROID || TOUCH || WINFORMS || WINDOWS_PHONE || SILVERLIGHT
             var converter = GetTypeConverter(type, member.Member);
@@ -157,6 +163,11 @@ namespace MugenMvvmToolkit.Binding
         }
 
 #if !PCL_WINRT
+        private static bool IsValueType(this Type type)
+        {
+            return type.IsValueType;
+        }
+
         private static bool IsGenericType(this Type type)
         {
             return type.IsGenericType;

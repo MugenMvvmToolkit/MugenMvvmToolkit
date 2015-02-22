@@ -20,6 +20,7 @@ using System;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
+using Android.OS;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
@@ -40,6 +41,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         private readonly INavigationProvider _navigationProvider;
 #endif
         private readonly IThreadManager _threadManager;
+        private const int Lollipop = 21;
 
         #endregion
 
@@ -148,10 +150,20 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 case MessageButton.YesNoCancel:
                     builder.SetPositiveButton(GetButtonText(MessageResult.Yes),
                         (sender, args) => tcs.TrySetResult(MessageResult.Yes));
-                    builder.SetNeutralButton(GetButtonText(MessageResult.Cancel),
-                        (sender, args) => tcs.TrySetResult(MessageResult.Cancel));
-                    builder.SetNegativeButton(GetButtonText(MessageResult.No),
-                        (sender, args) => tcs.TrySetResult(MessageResult.No));
+                    if ((int)Build.VERSION.SdkInt >= Lollipop)
+                    {
+                        builder.SetNegativeButton(GetButtonText(MessageResult.No),
+                            (sender, args) => tcs.TrySetResult(MessageResult.No));
+                        builder.SetNeutralButton(GetButtonText(MessageResult.Cancel),
+                            (sender, args) => tcs.TrySetResult(MessageResult.Cancel));
+                    }
+                    else
+                    {
+                        builder.SetNeutralButton(GetButtonText(MessageResult.No),
+                            (sender, args) => tcs.TrySetResult(MessageResult.No));
+                        builder.SetNegativeButton(GetButtonText(MessageResult.Cancel),
+                            (sender, args) => tcs.TrySetResult(MessageResult.Cancel));
+                    }
                     break;
                 case MessageButton.AbortRetryIgnore:
                     builder.SetPositiveButton(GetButtonText(MessageResult.Abort),
@@ -175,7 +187,13 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 builder.SetIcon(drawable.Value);
             AlertDialog dialog = builder.Create();
 #if !XAMARIN_FORMS
-            activity.Mediator.Destroyed += (sender, args) => tcs.TrySetResult(defaultResult);
+            EventHandler<Activity, EventArgs> handler = null;
+            handler = (sender, args) =>
+            {
+                ((IActivityView)sender).Mediator.Destroyed -= handler;
+                tcs.TrySetResult(defaultResult);
+            };
+            activity.Mediator.Destroyed += handler;
 #endif
             dialog.Show();
         }

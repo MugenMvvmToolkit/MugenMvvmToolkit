@@ -126,7 +126,7 @@ namespace MugenMvvmToolkit.Binding
             get { return _bindingPathFactory; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _bindingPathFactory = value;
             }
         }
@@ -140,7 +140,7 @@ namespace MugenMvvmToolkit.Binding
             get { return _bindingProvider; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _bindingProvider = value;
             }
         }
@@ -154,7 +154,7 @@ namespace MugenMvvmToolkit.Binding
             get { return _bindingManager; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _bindingManager = value;
             }
         }
@@ -168,7 +168,7 @@ namespace MugenMvvmToolkit.Binding
             get { return _memberProvider; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _memberProvider = value;
             }
         }
@@ -182,7 +182,7 @@ namespace MugenMvvmToolkit.Binding
             get { return _observerProvider; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _observerProvider = value;
             }
         }
@@ -196,7 +196,7 @@ namespace MugenMvvmToolkit.Binding
             get { return _contextManager; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _contextManager = value;
             }
         }
@@ -210,7 +210,7 @@ namespace MugenMvvmToolkit.Binding
             get { return _resourceResolver; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _resourceResolver = value;
             }
         }
@@ -224,7 +224,7 @@ namespace MugenMvvmToolkit.Binding
             get { return _visualTreeManager; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _visualTreeManager = value;
             }
         }
@@ -238,7 +238,7 @@ namespace MugenMvvmToolkit.Binding
             get { return _weakEventManager; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _weakEventManager = value;
             }
         }

@@ -27,6 +27,7 @@ using Autofac.Core;
 using Autofac.Core.Lifetime;
 using Autofac.Features.ResolveAnything;
 using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
 
@@ -35,7 +36,7 @@ namespace MugenMvvmToolkit
     /// <summary>
     ///     Represents the Autofac ioc adapter.
     /// </summary>
-    public class AutofacContainer : DisposableObject, IIocContainer
+    public class AutofacContainer : IIocContainer
     {
         #region Nested types
 
@@ -392,19 +393,32 @@ namespace MugenMvvmToolkit
             return Get(serviceType);
         }
 
-        #endregion
-
-        #region Overrides of DisposableObject
+        /// <summary>
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            if (IsDisposed)
+                return;
+            IsDisposed = true;
+            _container.Dispose();
+            var handler = Disposed;
+            if (handler != null)
+            {
+                Disposed = null;
+                handler(this, EventArgs.Empty);
+            }
+        }
 
         /// <summary>
-        ///     Releases resources held by the object.
+        ///     Gets a value indicating whether this instance is disposed.
         /// </summary>
-        protected override void OnDispose(bool disposing)
-        {
-            if (disposing)
-                _container.Dispose();
-            base.OnDispose(disposing);
-        }
+        public bool IsDisposed { get; private set; }
+
+        /// <summary>
+        ///     Occurs when the object is disposed by a call to the Dispose method.
+        /// </summary>
+        public event EventHandler<IDisposableObject, EventArgs> Disposed;
 
         #endregion
     }

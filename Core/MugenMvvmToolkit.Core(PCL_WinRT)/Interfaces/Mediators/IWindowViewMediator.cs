@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit.Interfaces.Mediators
         /// </summary>
         /// <param name="callback">The specified callback, if any.</param>
         /// <param name="context">The specified context.</param>
-        void Show([CanBeNull] IOperationCallback callback, [CanBeNull] IDataContext context);
+        Task ShowAsync([CanBeNull] IOperationCallback callback, [CanBeNull] IDataContext context);
 
         /// <summary>
         ///     Tries to close view-model.

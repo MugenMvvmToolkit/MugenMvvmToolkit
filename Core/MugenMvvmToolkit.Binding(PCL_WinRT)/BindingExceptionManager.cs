@@ -225,9 +225,8 @@ namespace MugenMvvmToolkit.Binding
 
         internal static Exception DuplicateDataConstant(DataConstant constant)
         {
-            return
-                new InvalidOperationException(string.Format("The data constant '{0}'-'{1}' was defined more than once.",
-                    constant.Id, constant.Type));
+            return new InvalidOperationException(string.Format("The data constant '{0}' was defined more than once.",
+                    constant.Id));
         }
 
         internal static Exception DuplicateBindingMember(Type type, string path)

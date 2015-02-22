@@ -28,7 +28,7 @@ using MugenMvvmToolkit.Models.EventArg;
 namespace MugenMvvmToolkit.Collections
 {
     /// <summary>
-    ///     Represents the sorted syncronized observable collection, duplicate items (items that compare equal to each other)
+    ///     Represents the sorted synchronized observable collection, duplicate items (items that compare equal to each other)
     ///     are allows in an OrderedNotifiableCollection.
     /// </summary>
     /// <typeparam name="T">The type of model.</typeparam>
@@ -107,7 +107,7 @@ namespace MugenMvvmToolkit.Collections
 
         #endregion
 
-        #region Overrides of SyncronizedNotifiableCollection<T>
+        #region Overrides of SynchronizedNotifiableCollection<T>
 
         /// <summary>
         ///     Initializes default values.

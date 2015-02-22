@@ -92,6 +92,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
 
         private DialogInterfaceOnKeyListener _keyListener;
         private View _view;
+        private bool _removed;
 
         #endregion
 
@@ -137,14 +138,13 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         public virtual void OnCreateOptionsMenu(IMenu menu, MenuInflater inflater,
             Action<IMenu, MenuInflater> baseOnCreateOptionsMenu)
         {
-            var fragment = Target;
-            if (fragment == null || fragment.Activity == null || fragment.View == null)
+            if (Target.Activity == null || Target.View == null)
                 baseOnCreateOptionsMenu(menu, inflater);
             else
             {
-                var optionsMenu = fragment.View.FindViewById<OptionsMenu>(Resource.Id.OptionsMenu);
+                var optionsMenu = Target.View.FindViewById<OptionsMenu>(Resource.Id.OptionsMenu);
                 if (optionsMenu != null)
-                    optionsMenu.Inflate(fragment.Activity, menu);
+                    optionsMenu.Inflate(Target.Activity, menu);
             }
         }
 
@@ -154,12 +154,14 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         public virtual View OnCreateView(int? viewId, LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState, Func<LayoutInflater, ViewGroup, Bundle, View> baseOnCreateView)
         {
+            if (_removed)
+                return null;
             if (CacheFragmentView && _view != null)
             {
                 _view.RemoveFromParent();
                 return _view;
             }
-            _view.ClearBindingsHierarchically(true, true);
+            _view.ClearBindingsRecursively(true, true);
             if (viewId.HasValue)
             {
                 _view = inflater.CreateBindableView(viewId.Value, container, false).Item1;
@@ -175,7 +177,8 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         /// </summary>
         public virtual void OnCreate(Bundle savedInstanceState, Action<Bundle> baseOnCreate)
         {
-            Tracer.Info("OnCreate fragment({0})", Target);
+            if (Tracer.TraceInformation)
+                Tracer.Info("OnCreate fragment({0})", Target);
             OnCreate(savedInstanceState);
             baseOnCreate(savedInstanceState);
 
@@ -188,10 +191,11 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
             }
             else if (DataContext == null && savedInstanceState != null && savedInstanceState.ContainsKey(IgnoreStateKey))
             {
+                _removed = true;
                 Target.FragmentManager
                     .BeginTransaction()
                     .Remove(Target)
-                    .Commit();
+                    .CommitAllowingStateLoss();
             }
         }
 
@@ -202,10 +206,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         {
             var dialogFragment = Target as DialogFragment;
             if (dialogFragment == null)
-            {
-                if (Target != null)
-                    PlatformExtensions.NotifyActivityAttached(Target.Activity, view);
-            }
+                PlatformExtensions.NotifyActivityAttached(Target.Activity, view);
             else
             {
                 var dialog = dialogFragment.Dialog;
@@ -223,12 +224,12 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         /// <summary>
         ///     Called when the view previously created by <c>OnCreateView</c> has been detached from the fragment.
         /// </summary>
-        public void OnDestroyView(Action baseOnDestroyView)
+        public virtual void OnDestroyView(Action baseOnDestroyView)
         {
             baseOnDestroyView();
             if (!CacheFragmentView)
             {
-                _view.ClearBindingsHierarchically(true, true);
+                _view.ClearBindingsRecursively(true, true);
                 _view = null;
             }
         }
@@ -238,11 +239,12 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         /// </summary>
         public override void OnDestroy(Action baseOnDestroy)
         {
-            Tracer.Info("OnDestroy fragment({0})", Target);
+            if (Tracer.TraceInformation)
+                Tracer.Info("OnDestroy fragment({0})", Target);
             RaiseDestroy();
 
             _view.RemoveFromParent();
-            _view.ClearBindingsHierarchically(true, true);
+            _view.ClearBindingsRecursively(true, true);
             _view = null;
 
             var dialogFragment = Target as DialogFragment;
@@ -277,8 +279,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         public virtual void OnDetach(Action baseOnDetach)
         {
             baseOnDetach();
-            Target.ClearBindings(false, true, FragmentExtensions.AutoDisposeFragmentDefault);
-            Target = null;
+            Target.ClearBindings(false, true);
         }
 
         /// <summary>
@@ -288,9 +289,9 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         public virtual void OnInflate(Activity activity, IAttributeSet attrs, Bundle savedInstanceState,
             Action<Activity, IAttributeSet, Bundle> baseOnInflate)
         {
-            Target.ClearBindings(false, false, false);
+            Target.ClearBindings(false, false);
             List<string> strings = ViewFactory.ReadStringAttributeValue(activity, attrs, MugenMvvmToolkit.Resource.Styleable.Binding, null);
-            if (strings != null && strings.Count != 0 && Target != null)
+            if (strings != null && strings.Count != 0)
             {
                 foreach (string bind in strings)
                     BindingServiceProvider.BindingProvider.CreateBindingsFromString(Target, bind, null);
@@ -320,8 +321,6 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         public virtual void OnStart(Action baseOnStart)
         {
             baseOnStart();
-            if (Target == null)
-                return;
             var view = Target.View;
             if (view != null)
                 view.ListenParentChange();
@@ -380,8 +379,6 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
         protected override void OnDataContextChanged(object oldValue, object newValue)
         {
             base.OnDataContextChanged(oldValue, newValue);
-            if (Target == null)
-                return;
             View view = Target.View;
             if (view != null)
                 ViewManager.SetDataContext(view, DataContext);
@@ -403,12 +400,9 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
 
         private void RaiseDestroy()
         {
-            var fragment = Target;
-            if (fragment == null)
-                return;
             var handler = Destroyed;
             if (handler != null)
-                handler(fragment, EventArgs.Empty);
+                handler(Target, EventArgs.Empty);
         }
 
         private bool OnClosing()

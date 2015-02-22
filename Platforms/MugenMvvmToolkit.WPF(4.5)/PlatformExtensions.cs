@@ -50,7 +50,7 @@ namespace MugenMvvmToolkit
             get { return _defaultViewModelTemplateFactory; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _defaultViewModelTemplateFactory = value;
             }
         }

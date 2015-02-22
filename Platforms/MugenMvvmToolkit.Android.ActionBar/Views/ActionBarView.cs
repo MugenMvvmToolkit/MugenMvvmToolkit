@@ -24,6 +24,7 @@ using System.Xml.Serialization;
 using Android.App;
 using Android.Content;
 using Android.Content.Res;
+using Android.Runtime;
 using Android.Util;
 using Android.Views;
 using MugenMvvmToolkit.Attributes;
@@ -69,12 +70,23 @@ namespace MugenMvvmToolkit.ActionBarSupport.Views
             Serializer = new XmlSerializer(typeof(ActionBarTemplate), string.Empty);
         }
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ActionBarView" /> class.
+        /// </summary>
+        private ActionBarView(IntPtr javaReference, JniHandleOwnership transfer)
+            : base(javaReference, transfer)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ActionBarView" /> class.
+        /// </summary>
         public ActionBarView(Context context, IAttributeSet attrs)
             : base(context, attrs)
         {
             SetMinimumWidth(0);
             SetMinimumHeight(0);
-            base.Visibility = ViewStates.Gone;
+            Visibility = ViewStates.Gone;
             TypedArray typedArray = Context.ObtainStyledAttributes(attrs, Resource.Styleable.ActionBar);
             try
             {
@@ -99,19 +111,24 @@ namespace MugenMvvmToolkit.ActionBarSupport.Views
             return null;
         }
 
+        private static void ActivityViewOnDestroyed(Activity sender, EventArgs args)
+        {
+            ((IActivityView)sender).Mediator.Destroyed -= DestroyedHandler;
+            ActionBarTemplate.Clear(sender);
+        }
+
         #endregion
 
-        #region Implementation of IHasActivityDependency
+        #region Implementation of interfaces
 
         public void OnAttached(Activity activity)
         {
             var activityView = activity as IActivityView;
             if (activityView == null)
-            {
                 Tracer.Warn("The IActivityView is null {0}", this);
-                return;
-            }
-            activityView.Mediator.Destroyed += DestroyedHandler;
+            else
+                activityView.Mediator.Destroyed += DestroyedHandler;
+
             var actionBar = activity.GetActionBar();
             if (_resourceId != int.MinValue)
             {
@@ -134,32 +151,14 @@ namespace MugenMvvmToolkit.ActionBarSupport.Views
                 return;
             for (int i = 0; i < _bindings.Count; i++)
                 BindingServiceProvider.BindingProvider.CreateBindingsFromString(actionBar, _bindings[i], null);
+            this.RemoveFromParent();
+            this.ClearBindingsRecursively(true, true);
         }
-
-        private static void ActivityViewOnDestroyed(Activity sender, EventArgs args)
-        {
-            ((IActivityView)sender).Mediator.Destroyed -= DestroyedHandler;
-            ActionBarTemplate.Clear(sender);
-        }
-
-        #endregion
-
-        #region Implementation of IManualBindings
 
         public IList<IDataBinding> SetBindings(IList<string> bindings)
         {
             _bindings = bindings;
             return Empty.Array<IDataBinding>();
-        }
-
-        #endregion
-
-        #region Overrides of View
-
-        public override ViewStates Visibility
-        {
-            get { return ViewStates.Gone; }
-            set { }
         }
 
         #endregion

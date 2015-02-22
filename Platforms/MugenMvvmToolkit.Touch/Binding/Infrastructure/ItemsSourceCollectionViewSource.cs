@@ -36,6 +36,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
+        protected ItemsSourceCollectionViewSource(IntPtr handle)
+            : base(handle)
+        {
+        }
+
         public ItemsSourceCollectionViewSource([NotNull] UICollectionView collectionView,
             string itemTemplate = AttachedMemberConstants.ItemTemplate)
             : base(collectionView, itemTemplate)
@@ -72,17 +77,17 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return ItemsSource.ElementAtIndex(indexPath.Row);
         }
 
-        protected override void SetSelectedCellByItem(object selectedItem)
+        protected override void SetSelectedCellByItem(UICollectionView collectionView, object selectedItem)
         {
             if (selectedItem == null)
-                ClearSelection();
+                ClearSelection(collectionView);
             else
             {
                 int i = ItemsSource.IndexOf(selectedItem);
                 if (i < 0)
-                    ClearSelection();
+                    ClearSelection(collectionView);
                 else
-                    CollectionView.SelectItem(NSIndexPath.FromRowSection(i, 0), UseAnimations, ScrollPosition);
+                    collectionView.SelectItem(NSIndexPath.FromRowSection(i, 0), UseAnimations, ScrollPosition);
             }
         }
 
@@ -90,6 +95,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             SetItemsSource(null, false);
             base.ControllerOnDispose(sender, eventArgs);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            SetItemsSource(null, false);
         }
 
         #endregion
@@ -129,16 +140,19 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         protected bool TryUpdateItems(NotifyCollectionChangedEventArgs args)
         {
+            var collectionView = CollectionView;
+            if (collectionView == null)
+                return false;
             switch (args.Action)
             {
                 case NotifyCollectionChangedAction.Add:
                     NSIndexPath[] newIndexPaths = PlatformExtensions.CreateNSIndexPathArray(args.NewStartingIndex,
                         args.NewItems.Count);
-                    CollectionView.InsertItems(newIndexPaths);
+                    collectionView.InsertItems(newIndexPaths);
                     return true;
                 case NotifyCollectionChangedAction.Remove:
                     NSIndexPath[] oldIndexPaths = PlatformExtensions.CreateNSIndexPathArray(args.OldStartingIndex, args.OldItems.Count);
-                    CollectionView.DeleteItems(oldIndexPaths);
+                    collectionView.DeleteItems(oldIndexPaths);
                     return true;
                 case NotifyCollectionChangedAction.Move:
                     if (args.NewItems.Count != 1 && args.OldItems.Count != 1)
@@ -146,13 +160,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
                     NSIndexPath oldIndexPath = NSIndexPath.FromRowSection(args.OldStartingIndex, 0);
                     NSIndexPath newIndexPath = NSIndexPath.FromRowSection(args.NewStartingIndex, 0);
-                    CollectionView.MoveItem(oldIndexPath, newIndexPath);
+                    collectionView.MoveItem(oldIndexPath, newIndexPath);
                     return true;
                 case NotifyCollectionChangedAction.Replace:
                     if (args.NewItems.Count != args.OldItems.Count)
                         return false;
                     NSIndexPath indexPath = NSIndexPath.FromRowSection(args.NewStartingIndex, 0);
-                    CollectionView.ReloadItems(new[] { indexPath });
+                    collectionView.ReloadItems(new[] { indexPath });
                     return true;
                 default:
                     return false;

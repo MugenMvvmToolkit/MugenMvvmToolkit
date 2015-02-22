@@ -240,6 +240,15 @@ namespace MugenMvvmToolkit.AppCompat.Modules
                 activity.MenuInflater.Inflate(args.NewValue, toolbar.Menu, toolbar);
         }
 
+        private static void ToolbarIsActionBarChanged(Toolbar toolbar, AttachedMemberChangedEventArgs<bool> args)
+        {
+            if (!args.NewValue)
+                return;
+            var activity = toolbar.Context.GetActivity() as ActionBarActivity;
+            if (activity != null)
+                activity.SetSupportActionBar(toolbar);
+        }
+
         private static void ViewDrawerIsOpenedChanged(View view, AttachedMemberChangedEventArgs<bool> args)
         {
             var drawer = FindDrawer(view);
@@ -293,6 +302,7 @@ namespace MugenMvvmToolkit.AppCompat.Modules
 
             //Toolbar
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Toolbar, int>(AttachedMemberNames.MenuTemplate, ToolbarMenuTemplateChanged));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Toolbar, bool>("IsActionBar", ToolbarIsActionBarChanged));
 
             //DrawerLayout
             var actionBarDrawerToggleEnabledMember = AttachedBindingMember.CreateAutoProperty<DrawerLayout, bool>("ActionBarDrawerToggleEnabled",

@@ -93,13 +93,9 @@ namespace MugenMvvmToolkit
 
         private static readonly Dictionary<Type, int> TypeToCounters;
         private static readonly Type[] CoderParameters;
-        private static readonly List<WeakReference> OrientationChangeListeners;
 
         private static IApplicationStateManager _applicationStateManager;
         private static Func<UIViewController, IDataContext, IMvvmViewControllerMediator> _mvvmViewControllerMediatorFactory;
-        private static bool _hasOrientationChangeSubscriber;
-        private static bool? _isOs7;
-        private static bool? _isOs8;
 
         #endregion
 
@@ -110,33 +106,11 @@ namespace MugenMvvmToolkit
             TypeToCounters = new Dictionary<Type, int>();
             CoderParameters = new[] { typeof(NSCoder) };
             _mvvmViewControllerMediatorFactory = (controller, context) => new MvvmViewControllerMediator(controller);
-            OrientationChangeListeners = new List<WeakReference>();
-            AutoDisposeDefault = true;
         }
 
         #endregion
 
         #region Properties
-
-        public static bool IsOS7
-        {
-            get
-            {
-                if (_isOs7 == null)
-                    _isOs7 = UIDevice.CurrentDevice.CheckSystemVersion(7, 0);
-                return _isOs7.Value;
-            }
-        }
-
-        public static bool IsOS8
-        {
-            get
-            {
-                if (_isOs8 == null)
-                    _isOs8 = UIDevice.CurrentDevice.CheckSystemVersion(8, 0);
-                return _isOs8.Value;
-            }
-        }
 
         /// <summary>
         ///     Gets or sets the <see cref="IApplicationStateManager" />.
@@ -163,15 +137,10 @@ namespace MugenMvvmToolkit
             get { return _mvvmViewControllerMediatorFactory; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _mvvmViewControllerMediatorFactory = value;
             }
         }
-
-        /// <summary>
-        ///     Gets or sets the default value for the attached property AutoDispose. Default is a <c>true</c>.
-        /// </summary>
-        public static bool AutoDisposeDefault { get; set; }
 
         #endregion
 
@@ -395,6 +364,8 @@ namespace MugenMvvmToolkit
         public static void ClearSubViews(this UIView view)
         {
             Should.NotBeNull(view, "view");
+            if (view.Subviews == null)
+                return;
             foreach (UIView subview in view.Subviews)
                 subview.RemoveFromSuperviewEx();
         }
@@ -465,43 +436,6 @@ namespace MugenMvvmToolkit
             return Type.GetType(typeName, false);
         }
 
-        public static void AddOrientationChangeListener([NotNull] IOrientationChangeListener listener)
-        {
-            Should.NotBeNull(listener, "listener");
-            lock (OrientationChangeListeners)
-            {
-                if (!_hasOrientationChangeSubscriber)
-                {
-                    UIApplication.Notifications.ObserveDidChangeStatusBarOrientation(DidChangeStatusBarOrientation);
-                    _hasOrientationChangeSubscriber = true;
-                }
-                OrientationChangeListeners.Add(ToolkitExtensions.GetWeakReference(listener));
-            }
-        }
-
-        public static void RemoveOrientationChangeListener(IOrientationChangeListener listener)
-        {
-            Should.NotBeNull(listener, "listener");
-            lock (OrientationChangeListeners)
-            {
-                for (int i = 0; i < OrientationChangeListeners.Count; i++)
-                {
-                    var target = OrientationChangeListeners[i].Target;
-                    if (target == null)
-                    {
-                        OrientationChangeListeners.RemoveAt(i);
-                        --i;
-                        continue;
-                    }
-                    if (ReferenceEquals(target, listener))
-                    {
-                        OrientationChangeListeners.RemoveAt(i);
-                        return;
-                    }
-                }
-            }
-        }
-
         public static object GetDataContext([NotNull] this INativeObject item)
         {
             return ViewManager.GetDataContext(item);
@@ -512,65 +446,13 @@ namespace MugenMvvmToolkit
             ViewManager.SetDataContext(item, value);
         }
 
-        public static void ClearBindingsHierarchically([CanBeNull]this UIView view, bool clearDataContext, bool clearAttachedValues, bool? disposeAllView = null)
-        {
-            if (view == null)
-                return;
-            foreach (var subView in view.Subviews)
-                subView.ClearBindingsHierarchically(clearDataContext, clearAttachedValues, disposeAllView);
-            ClearBindings(view, clearDataContext, clearAttachedValues, disposeAllView);
-        }
-
-        public static void ClearBindings<T>([CanBeNull]this T[] items, bool clearDataContext, bool clearAttachedValues, bool? disposeAllItems = null)
+        public static void ClearBindings<T>([CanBeNull]this T[] items, bool clearDataContext, bool clearAttachedValues)
             where T : INativeObject
         {
             if (items == null)
                 return;
             for (int i = 0; i < items.Length; i++)
-                ClearBindings(items[i], clearDataContext, clearAttachedValues, disposeAllItems);
-        }
-
-        public static void ClearBindings([CanBeNull]this INativeObject nativeObject, bool clearDataContext, bool clearAttachedValues, bool? disposeItem = null)
-        {
-            ClearBindings(item: nativeObject, clearDataContext: clearDataContext,
-                clearAttachedValues: clearAttachedValues, disposeItem: disposeItem);
-        }
-
-        public static void ClearBindings([CanBeNull]object item, bool clearDataContext, bool clearAttachedValues, bool? disposeItem = null)
-        {
-            if (item == null)
-                return;
-            var dispose = disposeItem.GetValueOrDefault(GetAutoDispose(item));
-            BindingExtensions.ClearBindings(item, clearDataContext, clearAttachedValues);
-            if (dispose)
-            {
-                var disposable = item as IDisposable;
-                if (disposable != null)
-                    disposable.Dispose();
-            }
-        }
-
-        public static bool GetAutoDispose([CanBeNull] this INativeObject nativeObject)
-        {
-            return GetAutoDispose(item: nativeObject);
-        }
-
-        public static void SetAutoDispose([CanBeNull]this INativeObject nativeObject, bool value)
-        {
-            SetAutoDispose(item: nativeObject, value: value);
-        }
-
-        public static bool GetAutoDispose([CanBeNull]object item)
-        {
-            if (item == null)
-                return false;
-            return PlatformDataBindingModule.AutoDisposeMember.GetValue(item, null).GetValueOrDefault(AutoDisposeDefault);
-        }
-
-        public static void SetAutoDispose([CanBeNull]object item, bool value)
-        {
-            if (item != null)
-                PlatformDataBindingModule.AutoDisposeMember.SetValue(item, value);
+                ClearBindings(items[i], clearDataContext, clearAttachedValues);
         }
 
         internal static IMvvmViewControllerMediator GetOrCreateMediator(this UIViewController controller, ref IMvvmViewControllerMediator mediator)
@@ -586,11 +468,6 @@ namespace MugenMvvmToolkit
             if (obj == null)
                 return new WeakReference(item, trackResurrection);
             return AttachedValueProvider.GetNativeObjectWeakReference(obj);
-        }
-
-        internal static bool IsAlive([CanBeNull] this INativeObject item)
-        {
-            return item != null && item.Handle != IntPtr.Zero;
         }
 
         [CanBeNull]
@@ -697,29 +574,6 @@ namespace MugenMvvmToolkit
             BindingExtensions.AttachedParentMember.SetValue(buttonClosure, actionSheet);
             if (!string.IsNullOrEmpty(binding))
                 BindingServiceProvider.BindingProvider.CreateBindingsFromString(buttonClosure, binding, sources);
-        }
-
-        private static void DidChangeStatusBarOrientation(object sender, UIStatusBarOrientationChangeEventArgs orientation)
-        {
-            if (OrientationChangeListeners.Count == 0)
-                return;
-            var listeners = new List<IOrientationChangeListener>(OrientationChangeListeners.Count);
-            lock (OrientationChangeListeners)
-            {
-                for (int i = 0; i < OrientationChangeListeners.Count; i++)
-                {
-                    var target = (IOrientationChangeListener)OrientationChangeListeners[i].Target;
-                    if (target == null)
-                    {
-                        OrientationChangeListeners.RemoveAt(i);
-                        --i;
-                    }
-                    else
-                        listeners.Add(target);
-                }
-            }
-            for (int index = 0; index < listeners.Count; index++)
-                listeners[index].OnOrientationChanged();
         }
 
         #endregion

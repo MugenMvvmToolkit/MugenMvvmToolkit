@@ -28,6 +28,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MugenMvvmToolkit;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Infrastructure;
@@ -100,6 +101,149 @@ namespace MugenMvvmToolkit
             }
 
             #endregion
+        }
+
+        private sealed class DataContextDictionaryWrapper : IDictionary<object, object>
+        {
+            #region Fields
+
+            public readonly IDataContext Context;
+
+            #endregion
+
+            #region Constructors
+
+            public DataContextDictionaryWrapper(IDataContext context)
+            {
+                Context = context;
+            }
+
+            #endregion
+
+            #region Implementation of IDictionary<object,object>
+
+            public IEnumerator<KeyValuePair<object, object>> GetEnumerator()
+            {
+                return Context
+                    .ToList()
+                    .Select(value => new KeyValuePair<object, object>(value.DataConstant, value.Value))
+                    .GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+
+            public void Add(KeyValuePair<object, object> item)
+            {
+                Add(item.Key, item.Value);
+            }
+
+            public void Clear()
+            {
+                Context.Clear();
+            }
+
+            public bool Contains(KeyValuePair<object, object> item)
+            {
+                return ContainsKey(item.Key);
+            }
+
+            public void CopyTo(KeyValuePair<object, object>[] array, int arrayIndex)
+            {
+                Context.ToList()
+                    .Select(value => new KeyValuePair<object, object>(value.DataConstant, value.Value))
+                    .ToList()
+                    .CopyTo(array, arrayIndex);
+            }
+
+            public bool Remove(KeyValuePair<object, object> item)
+            {
+                return Remove(item.Key);
+            }
+
+            public int Count
+            {
+                get { return Context.Count; }
+            }
+
+            public bool IsReadOnly
+            {
+                get { return false; }
+            }
+
+            public void Add(object key, object value)
+            {
+                Context.Add(GetConstant(key), value);
+            }
+
+            public bool ContainsKey(object key)
+            {
+                return Context.Contains(GetSimpleConstant(key));
+            }
+
+            public bool Remove(object key)
+            {
+                return Context.Remove(GetSimpleConstant(key));
+            }
+
+            public bool TryGetValue(object key, out object value)
+            {
+                return Context.TryGetData(GetConstant(key), out value);
+            }
+
+            public object this[object key]
+            {
+                get { return Context.GetData(GetConstant(key), true); }
+                set { Context.AddOrUpdate(GetConstant(key), value); }
+            }
+
+            public ICollection<object> Keys
+            {
+                get
+                {
+                    if (Context.Count == 0)
+                        return Empty.Array<object>();
+                    var list = Context.ToList();
+                    var values = new List<object>(list.Count);
+                    values.AddRange(list.Select(value => (object)value.DataConstant));
+                    return values;
+                }
+            }
+
+            public ICollection<object> Values
+            {
+                get
+                {
+                    if (Context.Count == 0)
+                        return Empty.Array<object>();
+                    var list = Context.ToList();
+                    var values = new List<object>(list.Count);
+                    values.AddRange(list.Select(value => value.Value));
+                    return values;
+                }
+            }
+
+            #endregion
+
+            #region Methods
+
+            private static DataConstant GetSimpleConstant(object key)
+            {
+                var s = key as string;
+                if (s == null)
+                    return (DataConstant)key;
+                return new DataConstant((string)key, false);
+            }
+
+            private static DataConstant<object> GetConstant(object key)
+            {
+                return key as string ?? new DataConstant<object>((DataConstant)key);
+            }
+
+            #endregion
+
         }
 
         #endregion
@@ -455,12 +599,12 @@ namespace MugenMvvmToolkit
         ///     Tries to inline task callback method.
         /// </summary>
         public static Task TryExecuteSynchronously<T>([NotNull] this Task<T> task, [NotNull] Action<Task<T>> action,
-            CancellationToken? token = null)
+            CancellationToken token = default(CancellationToken))
         {
             Should.NotBeNull(task, "task");
             Should.NotBeNull(action, "action");
             if (!task.IsCompleted)
-                return task.ContinueWith(action, token.GetValueOrDefault(CancellationToken.None),
+                return task.ContinueWith(action, token,
                     TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
             try
             {
@@ -481,14 +625,12 @@ namespace MugenMvvmToolkit
         ///     Tries to inline task callback method.
         /// </summary>
         public static Task<TResult> TryExecuteSynchronously<T, TResult>([NotNull] this Task<T> task,
-            [NotNull] Func<Task<T>, TResult> action,
-            CancellationToken? token = null)
+            [NotNull] Func<Task<T>, TResult> action, CancellationToken token = default(CancellationToken))
         {
             Should.NotBeNull(task, "task");
             Should.NotBeNull(action, "action");
             if (!task.IsCompleted)
-                return task.ContinueWith(action, token.GetValueOrDefault(CancellationToken.None),
-                    TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
+                return task.ContinueWith(action, token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
             try
             {
                 return FromResult(action(task));
@@ -507,13 +649,12 @@ namespace MugenMvvmToolkit
         ///     Tries to inline task callback method.
         /// </summary>
         public static Task TryExecuteSynchronously([NotNull] this Task task, [NotNull] Action<Task> action,
-            CancellationToken? token = null)
+            CancellationToken token = default(CancellationToken))
         {
             Should.NotBeNull(task, "task");
             Should.NotBeNull(action, "action");
             if (!task.IsCompleted)
-                return task.ContinueWith(action, token.GetValueOrDefault(CancellationToken.None),
-                    TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
+                return task.ContinueWith(action, token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
             try
             {
                 action(task);
@@ -530,19 +671,20 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        /// Uses the <see cref="ITaskExceptionHandler"/> to notify abount an error.
+        ///     Uses the <see cref="ITaskExceptionHandler" /> to notify abount an error.
         /// </summary>
         public static Task WithTaskExceptionHandler([NotNull] this Task task, [NotNull] IViewModel viewModel)
         {
             Should.NotBeNull(task, "task");
             Should.NotBeNull(viewModel, "viewModel");
-            return task.WithTaskExceptionHandler(viewModel, viewModel.GetIocContainer(true));
+            return task.WithTaskExceptionHandler(viewModel, viewModel.GetIocContainer(true, false));
         }
 
         /// <summary>
-        /// Uses the <see cref="ITaskExceptionHandler"/> to notify abount an error.
+        ///     Uses the <see cref="ITaskExceptionHandler" /> to notify abount an error.
         /// </summary>
-        public static Task WithTaskExceptionHandler([NotNull] this Task task, [NotNull] object sender, IIocContainer iocContainer = null)
+        public static Task WithTaskExceptionHandler([NotNull] this Task task, [NotNull] object sender,
+            IIocContainer iocContainer = null)
         {
             Should.NotBeNull(task, "task");
             Should.NotBeNull(sender, "sender");
@@ -584,12 +726,11 @@ namespace MugenMvvmToolkit
 
         private static Task<T> CreateExceptionTask<T>(Exception exception, bool isCanceled)
         {
-            var source = new TaskCompletionSource<T>();
             if (isCanceled)
-                source.SetCanceled();
-            else
-                source.SetException(exception);
-            return source.Task;
+                return Empty.CanceledTask<T>();
+            var tcs = new TaskCompletionSource<T>();
+            tcs.SetException(exception);
+            return tcs.Task;
         }
 
         #endregion
@@ -1099,6 +1240,26 @@ namespace MugenMvvmToolkit
         #region Extensions
 
         /// <summary>
+        ///     Registers the specified validator.
+        /// </summary>
+        public static void Register<T>([NotNull] this IValidatorProvider validatorProvider)
+            where T : IValidator
+        {
+            Should.NotBeNull(validatorProvider, "validatorProvider");
+            validatorProvider.Register(typeof(T));
+        }
+
+        /// <summary>
+        ///     Unregisters the specified validator.
+        /// </summary>
+        public static void Unregister<T>([NotNull] this IValidatorProvider validatorProvider)
+            where T : IValidator
+        {
+            Should.NotBeNull(validatorProvider, "validatorProvider");
+            validatorProvider.Unregister(typeof(T));
+        }
+
+        /// <summary>
         ///     Subscribes an instance to events.
         /// </summary>
         /// <param name="observable">The specified <see cref="IObservable"/></param>
@@ -1420,10 +1581,8 @@ namespace MugenMvvmToolkit
         public static IDictionary<object, object> ToDictionary([CanBeNull] this IDataContext context)
         {
             if (context == null)
-                context = DataContext.Empty;
-            return context
-                .ToList()
-                .ToDictionary(value => (object)value.DataConstant, value => value.Value);
+                return new Dictionary<object, object>();
+            return new DataContextDictionaryWrapper(context);
         }
 
         /// <summary>
@@ -1433,9 +1592,12 @@ namespace MugenMvvmToolkit
         {
             if (dictionary == null)
                 return new DataContext();
-            return new DataContext(dictionary
-                .Where(pair => pair.Key is DataConstant)
-                .ToDictionary(pair => (DataConstant)pair.Key, pair => pair.Value));
+            var wrapper = dictionary as DataContextDictionaryWrapper;
+            if (wrapper == null)
+                return new DataContext(dictionary
+                    .Where(pair => pair.Key is DataConstant)
+                    .ToDictionary(pair => (DataConstant)pair.Key, pair => pair.Value));
+            return wrapper.Context;
         }
 
         /// <summary>
@@ -1473,7 +1635,7 @@ namespace MugenMvvmToolkit
         [Pure]
         public static bool MemberNameEqual<T>(string memberName, [NotNull] Expression<Func<T, object>> getMember)
         {
-            return string.Equals(getMember.GetMemberInfo().Name, memberName, StringComparison.Ordinal);
+            return getMember.GetMemberInfo().Name.Equals(memberName, StringComparison.Ordinal);
         }
 
         /// <summary>
@@ -1785,15 +1947,6 @@ namespace MugenMvvmToolkit
             if (context.IsReadOnly)
                 return new DataContext(context);
             return context;
-        }
-
-        /// <summary>
-        ///     Creates an array from a <see cref="IDataContext" />.
-        /// </summary>
-        public static DataConstantValue[] ToArray([NotNull] this IDataContext context)
-        {
-            Should.NotBeNull(context, "context");
-            return context.ToList().ToArrayEx();
         }
 
         /// <summary>

@@ -38,13 +38,12 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         {
             #region Fields
 
-            private readonly IRelativeSourceExpressionNode _node;
-            private readonly WeakReference _targetReference;
-            private readonly IDisposable _subscriber;
             private readonly bool _isElementSource;
-
-            private WeakReference _value;
+            private readonly IRelativeSourceExpressionNode _node;
+            private readonly IDisposable _subscriber;
+            private readonly WeakReference _targetReference;
             private bool _hasParent;
+            private WeakReference _value;
 
             #endregion
 
@@ -56,7 +55,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 _isElementSource = _node.Type == RelativeSourceExpressionNode.ElementSourceType;
                 _targetReference = ServiceProvider.WeakReferenceFactory(target, true);
                 _value = Empty.WeakReference;
-                var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
+                IBindingMemberInfo rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
                 if (rootMember != null)
                     _subscriber = rootMember.TryObserve(target, this);
                 TryHandle(null, null);
@@ -66,36 +65,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
             #region Implementation of interfaces
 
-            public object Value
-            {
-                get
-                {
-                    var target = _value.Target;
-                    if (_hasParent && target == null)
-                    {
-                        if (_isElementSource)
-                            Tracer.Warn(BindingExceptionManager.ElementSourceNotFoundFormat2, _targetReference.Target, _node.ElementName);
-                        else
-                            Tracer.Warn(BindingExceptionManager.RelativeSourceNotFoundFormat3, _targetReference.Target, _node.Type, _node.Level.ToString());
-                    }
-                    return target ?? BindingConstants.UnsetValue;
-                }
-                private set
-                {
-                    if (Equals(value, _value.Target))
-                        return;
-                    _value = ToolkitExtensions.GetWeakReferenceOrDefault(value, Empty.WeakReference, false);
-                    var handler = ValueChanged;
-                    if (handler != null)
-                        handler(this, EventArgs.Empty);
-                }
-            }
-
-            public bool IsAlive
-            {
-                get { return _targetReference.Target != null; }
-            }
-
             public bool IsWeak
             {
                 get { return true; }
@@ -103,7 +72,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
             public bool TryHandle(object sender, object message)
             {
-                var target = _targetReference.Target;
+                object target = _targetReference.Target;
                 if (target == null)
                 {
                     Value = null;
@@ -112,12 +81,44 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                     return false;
                 }
 
-                var treeManager = BindingServiceProvider.VisualTreeManager;
+                IVisualTreeManager treeManager = BindingServiceProvider.VisualTreeManager;
                 _hasParent = treeManager.FindParent(target) != null;
                 Value = _isElementSource
                     ? treeManager.FindByName(target, _node.ElementName)
                     : treeManager.FindRelativeSource(target, _node.Type, _node.Level);
                 return true;
+            }
+
+            public object Value
+            {
+                get
+                {
+                    object target = _value.Target;
+                    if (_hasParent && target == null)
+                    {
+                        if (_isElementSource)
+                            Tracer.Warn(BindingExceptionManager.ElementSourceNotFoundFormat2, _targetReference.Target,
+                                _node.ElementName);
+                        else
+                            Tracer.Warn(BindingExceptionManager.RelativeSourceNotFoundFormat3, _targetReference.Target,
+                                _node.Type, _node.Level);
+                    }
+                    return target ?? BindingConstants.UnsetValue;
+                }
+                private set
+                {
+                    if (Equals(value, _value.Target))
+                        return;
+                    _value = ToolkitExtensions.GetWeakReferenceOrDefault(value, Empty.WeakReference, false);
+                    EventHandler<ISourceValue, EventArgs> handler = ValueChanged;
+                    if (handler != null)
+                        handler(this, EventArgs.Empty);
+                }
+            }
+
+            public bool IsAlive
+            {
+                get { return _targetReference.Target != null; }
             }
 
             public event EventHandler<ISourceValue, EventArgs> ValueChanged;
@@ -151,12 +152,12 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         #region Properties
 
         /// <summary>
-        /// Gets or sets the additional path.
+        ///     Gets or sets the additional path.
         /// </summary>
         public string Path { get; set; }
 
         /// <summary>
-        /// Gets the relative source node.
+        ///     Gets the relative source node.
         /// </summary>
         public IRelativeSourceExpressionNode RelativeSourceNode
         {
@@ -199,24 +200,25 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// <summary>
         ///     Updates the relative source value.
         /// </summary>
-        public void UpdateSource([NotNull]object target)
+        public static IBindingSource GetBindingSource(IRelativeSourceExpressionNode node, [NotNull] object target,
+            string pathEx)
         {
             if (target == null)
-                throw BindingExceptionManager.InvalidBindingTarget(RelativeSourceNode.Path);
-            var path = RelativeSourceNode.Path ?? String.Empty;
-            if (!String.IsNullOrEmpty(Path))
-                path = BindingExtensions.MergePath(path, Path);
+                throw BindingExceptionManager.InvalidBindingTarget(node.Path);
+            string path = node.Path ?? String.Empty;
+            if (!String.IsNullOrEmpty(pathEx))
+                path = BindingExtensions.MergePath(path, pathEx);
 
-
-            if (RelativeSourceNode.Type != RelativeSourceExpressionNode.SelfType)
+            if (node.Type != RelativeSourceExpressionNode.SelfType)
             {
-                if (RelativeSourceNode.Type == RelativeSourceExpressionNode.MemberSourceType)
+                if (node.Type == RelativeSourceExpressionNode.ContextSourceType)
                     target = BindingServiceProvider.ContextManager.GetBindingContext(target);
                 else
-                    target = new ParentSourceValue(target, RelativeSourceNode);
+                    target = new ParentSourceValue(target, node);
             }
-            IObserver observer = BindingServiceProvider.ObserverProvider.Observe(target, BindingServiceProvider.BindingPathFactory(path), false);
-            _bindingSource = new BindingSource(observer);
+            IObserver observer = BindingServiceProvider.ObserverProvider.Observe(target,
+                BindingServiceProvider.BindingPathFactory(path), false);
+            return new BindingSource(observer);
         }
 
         #endregion
@@ -245,7 +247,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         protected override bool OnAttached()
         {
             OnDetached();
-            UpdateSource(Binding.TargetAccessor.Source.GetSource(true));
+            _bindingSource = GetBindingSource(RelativeSourceNode, Binding.TargetAccessor.Source.GetSource(true), Path);
             return true;
         }
 

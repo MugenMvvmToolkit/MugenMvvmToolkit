@@ -120,7 +120,6 @@ namespace MugenMvvmToolkit.Binding.Models
 
         private static object GetParent(UIView view)
         {
-            //Disposed
             if (!view.IsAlive())
                 return null;
             var controller = view.NextResponder as UIViewController;
@@ -132,8 +131,11 @@ namespace MugenMvvmToolkit.Binding.Models
         private UIView GetSource()
         {
             UIView source = Source;
-            if (source == null)
+            if (!source.IsAlive())
+            {
                 Clear();
+                source = null;
+            }
             return source;
         }
 

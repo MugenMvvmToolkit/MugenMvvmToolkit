@@ -17,14 +17,12 @@
 #endregion
 
 using System.ComponentModel;
-using MugenMvvmToolkit.Annotations;
 
 namespace MugenMvvmToolkit.Interfaces.Views
 {
     /// <summary>
     ///     Represent the base interface for dialog view.
     /// </summary>
-    [BaseView(Priority = 1, ViewTypeName = "System.Windows.Window")]
     public interface IWindowView : IView
     {
         /// <summary>

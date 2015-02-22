@@ -147,9 +147,8 @@ namespace MugenMvvmToolkit
         {
             NotBeNull(type, "type");
             NotBeNull(requiredType, "requiredType");
-            if (requiredType.IsAssignableFrom(type))
-                return;
-            throw new ArgumentException(
+            if (!requiredType.IsAssignableFrom(type))
+                throw new ArgumentException(
                 string.Format("Type '{0}' should be of type '{1}', but is not", type.Name, requiredType.Name), paramName);
         }
 
@@ -227,7 +226,6 @@ namespace MugenMvvmToolkit
         public static void BeValid<T>(T paramValue, string paramName, [NotNull] Func<T, bool> validation)
         {
             NotBeNull(validation, "validation");
-
             BeValid(paramName, validation(paramValue));
         }
 
@@ -250,7 +248,7 @@ namespace MugenMvvmToolkit
         /// <param name="value">Argument value to test.</param>
         /// <param name="propertyName">Name of the parameter being tested. </param>
         [DebuggerStepThrough]
-        public static void PropertyBeNotNull(object value, [CallerMemberName] string propertyName = "")
+        public static void PropertyNotBeNull(object value, [CallerMemberName] string propertyName = "")
         {
             if (value == null)
                 throw new ArgumentNullException(propertyName,
@@ -264,7 +262,7 @@ namespace MugenMvvmToolkit
         /// <param name="value">Argument value to test.</param>
         /// <param name="propertyName">Name of the parameter being tested. </param>
         [DebuggerStepThrough]
-        public static void PropertyBeNotNullOrEmpty(string value, string propertyName)
+        public static void PropertyNotBeNullOrEmpty(string value, string propertyName)
         {
             if (string.IsNullOrEmpty(value))
                 throw new ArgumentNullException(propertyName,

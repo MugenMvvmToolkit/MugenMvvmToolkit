@@ -17,7 +17,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp>14ecbeaa</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>8019c004</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -106,10 +106,9 @@
     <Compile Include="Infrastructure\Serializer.cs" />
     <Compile Include="Infrastructure\StateTransitionManager.cs" />
     <Compile Include="Infrastructure\SynchronousThreadManager.cs" />
-    <Compile Include="Infrastructure\Validation\DynamicDataAnnotationsElementProvider.cs" />
     <Compile Include="Infrastructure\Validation\ManualValidator.cs" />
     <Compile Include="Infrastructure\Validation\ValidatableViewModelValidator.cs" />
-    <Compile Include="Infrastructure\Validation\ValidationElementValidator.cs" />
+    <Compile Include="Infrastructure\Validation\DataAnnotationValidatior.cs" />
     <Compile Include="Infrastructure\Validation\ValidatorBase.cs" />
     <Compile Include="Infrastructure\Validation\ValidatorProvider.cs" />
     <Compile Include="Infrastructure\ViewManager.cs" />
@@ -175,11 +174,6 @@
     <Compile Include="Interfaces\Presenters\IToastPresenter.cs" />
     <Compile Include="Interfaces\Presenters\IViewModelPresenter.cs" />
     <Compile Include="Interfaces\Validation\INotifyDataErrorInfo.cs" />
-    <Compile Include="Interfaces\Validation\IValidatableObject.cs" />
-    <Compile Include="Interfaces\Validation\IValidationContext.cs" />
-    <Compile Include="Interfaces\Validation\IValidationElement.cs" />
-    <Compile Include="Interfaces\Validation\IValidationElementProvider.cs" />
-    <Compile Include="Interfaces\Validation\IValidationResult.cs" />
     <Compile Include="Interfaces\Validation\IValidator.cs" />
     <Compile Include="Interfaces\Validation\IValidatorAggregator.cs" />
     <Compile Include="Interfaces\Validation\IValidatorContext.cs" />
@@ -201,7 +195,6 @@
     <Compile Include="Models\DataContext.cs" />
     <Compile Include="Models\DefaultViewModelSettings.cs" />
     <Compile Include="Models\Delegates.cs" />
-    <Compile Include="Models\DisposableObject.cs" />
     <Compile Include="Empty.cs" />
     <Compile Include="Models\EntityStateEntry.cs" />
     <Compile Include="Models\Enums.cs" />
@@ -224,7 +217,6 @@
     <Compile Include="Models\Ioc\IocParameterType.cs" />
     <Compile Include="Models\Messages\AsyncValidationMessage.cs" />
     <Compile Include="Models\Messages\BeginBusyMessage.cs" />
-    <Compile Include="Models\Messages\DataErrorsChangedMessage.cs" />
     <Compile Include="Models\Messages\EndBusyMessage.cs" />
     <Compile Include="Models\Messages\StateChangedMessage.cs" />
     <Compile Include="Models\ModuleContext.cs" />
@@ -237,8 +229,6 @@
     <Compile Include="Models\RelayCommandBase.cs" />
     <Compile Include="Models\StringConstantBase.cs" />
     <Compile Include="Models\TrackingEntity.cs" />
-    <Compile Include="Models\Validation\ValidationContext.cs" />
-    <Compile Include="Models\Validation\ValidationResult.cs" />
     <Compile Include="Models\Validation\ValidatorContext.cs" />
     <Compile Include="Models\ViewMappingItem.cs" />
     <Compile Include="Modules\WrapperRegistrationModuleBase.cs" />
@@ -282,9 +272,9 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Fody.1.26.4\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.26.4\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Fody.1.27.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.27.1\build\Fody.targets'))" />
   </Target>
-  <Import Project="..\..\packages\Fody.1.26.4\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.26.4\build\Fody.targets')" />
+  <Import Project="..\..\packages\Fody.1.27.1\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.27.1\build\Fody.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -58,7 +58,6 @@ namespace MugenMvvmToolkit.FragmentSupport
         {
             FragmentViewMember = AttachedBindingMember.CreateAutoProperty<View, Fragment>("!$fragment");
             _mvvmFragmentMediatorFactory = MvvmFragmentMediatorFactoryMethod;
-            AutoDisposeFragmentDefault = false;
         }
 
         #endregion
@@ -74,15 +73,10 @@ namespace MugenMvvmToolkit.FragmentSupport
             get { return _mvvmFragmentMediatorFactory; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _mvvmFragmentMediatorFactory = value;
             }
         }
-
-        /// <summary>
-        ///     Gets or sets the default value for the attached property AutoDispose for Activity.
-        /// </summary>
-        public static bool? AutoDisposeFragmentDefault { get; set; }
 
         /// <summary>
         ///     Gets or sets that is responsible for cache view in fragment.

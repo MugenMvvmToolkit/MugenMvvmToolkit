@@ -35,12 +35,12 @@ namespace MugenMvvmToolkit.Test.Collections
         {
             ApplicationSettings.SetDefaultValues();
             //By default
-            var syncronizedNotifiableCollection = new SynchronizedNotifiableCollection<Item>();
-            syncronizedNotifiableCollection.ExecutionMode.ShouldEqual(ExecutionMode.AsynchronousOnUiThread);
+            var collection = new SynchronizedNotifiableCollection<Item>();
+            collection.ExecutionMode.ShouldEqual(ExecutionMode.AsynchronousOnUiThread);
 
             ApplicationSettings.SynchronizedCollectionExecutionMode = ExecutionMode.None;
-            syncronizedNotifiableCollection = new SynchronizedNotifiableCollection<Item>();
-            syncronizedNotifiableCollection.ExecutionMode.ShouldEqual(ExecutionMode.None);
+            collection = new SynchronizedNotifiableCollection<Item>();
+            collection.ExecutionMode.ShouldEqual(ExecutionMode.None);
         }
 
         [TestMethod]

@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
@@ -80,6 +81,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         private readonly IWrapperManager _wrapperManager;
         private readonly IViewMappingProvider _viewMappingProvider;
         private readonly IViewManager _viewManager;
+        private Task _currentTask;
 
         #endregion
 
@@ -181,7 +183,10 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             if (viewMediator == null)
                 return null;
             var operation = new AsyncOperation<bool?>();
-            viewMediator.Show(operation.ToOperationCallback(), context);
+            if (_currentTask == null)
+                _currentTask = viewMediator.ShowAsync(operation.ToOperationCallback(), context);
+            else
+                _currentTask.TryExecuteSynchronously(task => _currentTask = viewMediator.ShowAsync(operation.ToOperationCallback(), context));
             return operation;
         }
 

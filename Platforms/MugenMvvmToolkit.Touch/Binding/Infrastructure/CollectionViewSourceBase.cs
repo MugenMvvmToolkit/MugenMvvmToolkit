@@ -39,7 +39,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private const int InitializedStateMask = 2;
         private static Func<UICollectionView, IDataContext, CollectionViewSourceBase> _factory;
 
-        private readonly UICollectionView _collectionView;
+        private readonly WeakReference _collectionView;
         private readonly IBindingMemberInfo _itemTemplateMember;
 
         private UICollectionViewCell _lastCreatedCell;
@@ -64,13 +64,22 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             string itemTemplate = AttachedMemberConstants.ItemTemplate)
         {
             Should.NotBeNull(collectionView, "collectionView");
-            _collectionView = collectionView;
+            _collectionView = PlatformExtensions.CreateWeakReference(collectionView, true);
             _itemTemplateMember = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(collectionView.GetType(), itemTemplate, false, false);
             var controllerView = collectionView.FindParent<IViewControllerView>();
             if (controllerView != null && !(controllerView is IMvvmNavigationController))
                 controllerView.Mediator.DisposeHandler += ControllerOnDispose;
+
+            UseAnimations = PlatformDataBindingModule
+                .CollectionViewUseAnimationsMember
+                .GetValue(collectionView, null)
+                .GetValueOrDefault(true);
+            ScrollPosition = PlatformDataBindingModule
+                .CollectionViewScrollPositionMember
+                .GetValue(collectionView, null)
+                .GetValueOrDefault(UICollectionViewScrollPosition.Top);
         }
 
         #endregion
@@ -86,43 +95,30 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             get { return _factory; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _factory = value;
             }
         }
 
-        public bool UseAnimations
-        {
-            get
-            {
-                return PlatformDataBindingModule
-                    .CollectionViewUseAnimationsMember
-                    .GetValue(_collectionView, null)
-                    .GetValueOrDefault(true);
-            }
-            set { PlatformDataBindingModule.CollectionViewUseAnimationsMember.SetValue(_collectionView, value); }
-        }
+        public bool UseAnimations { get; set; }
 
-        public UICollectionViewScrollPosition ScrollPosition
-        {
-            get
-            {
-                return PlatformDataBindingModule
-                    .CollectionViewScrollPositionMember
-                    .GetValue(CollectionView, null).GetValueOrDefault(UICollectionViewScrollPosition.Top);
-            }
-            set { PlatformDataBindingModule.CollectionViewScrollPositionMember.SetValue(CollectionView, value); }
-        }
+        public UICollectionViewScrollPosition ScrollPosition { get; set; }
 
         public virtual object SelectedItem
         {
             get { return _selectedItem; }
-            set { SetSelectedItem(value, true); }
+            set
+            {
+                var collectionView = CollectionView;
+                if (collectionView != null)
+                    SetSelectedItem(collectionView, value, true);
+            }
         }
 
+        [CanBeNull]
         protected UICollectionView CollectionView
         {
-            get { return _collectionView; }
+            get { return (UICollectionView)_collectionView.Target; }
         }
 
         #endregion
@@ -131,14 +127,18 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual void ReloadData()
         {
-            _collectionView.ReloadData();
+            var collectionView = CollectionView;
+            if (collectionView != null)
+                collectionView.ReloadData();
         }
 
         public virtual bool UpdateSelectedBindValue(UICollectionViewCell cell, bool selected)
         {
-            if (CollectionView.AllowsMultipleSelection)
+            var collectionView = CollectionView;
+            if (collectionView == null || collectionView.AllowsMultipleSelection)
                 return selected;
-            if (!CollectionView.AllowsSelection)
+
+            if (!collectionView.AllowsSelection)
                 return false;
             if (HasMask(cell, InitializingStateMask))
             {
@@ -151,38 +151,38 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual void OnCellSelectionChanged(UICollectionViewCell cell, bool selected, bool setFromBinding)
         {
-            if (!setFromBinding)
+            var collectionView = CollectionView;
+            if (!setFromBinding || collectionView == null)
                 return;
-            UpdateSelectedItemInternal(ViewManager.GetDataContext(cell), selected);
-            var path = IndexPathForCell(CollectionView, cell);
+            UpdateSelectedItemInternal(collectionView, ViewManager.GetDataContext(cell), selected);
+            var path = IndexPathForCell(collectionView, cell);
             if (path == null)
                 return;
             if (selected)
-                CollectionView.SelectItem(path, false, UICollectionViewScrollPosition.None);
+                collectionView.SelectItem(path, false, UICollectionViewScrollPosition.None);
             else
-                CollectionView.DeselectItem(path, false);
+                collectionView.DeselectItem(path, false);
         }
 
         protected abstract object GetItemAt(NSIndexPath indexPath);
 
-        protected abstract void SetSelectedCellByItem(object selectedItem);
+        protected abstract void SetSelectedCellByItem(UICollectionView collectionView, object selectedItem);
 
         protected virtual void ControllerOnDispose(object sender, EventArgs eventArgs)
         {
             ((IViewControllerView)sender).Mediator.DisposeHandler -= ControllerOnDispose;
-            if (ReferenceEquals(_collectionView.Source, this))
-                _collectionView.Source = null;
+            Dispose();
         }
 
-        protected void ClearSelection()
+        protected void ClearSelection(UICollectionView collectionView)
         {
-            var indexPaths = _collectionView.GetIndexPathsForSelectedItems();
+            var indexPaths = collectionView.GetIndexPathsForSelectedItems();
             if (indexPaths != null)
             {
                 foreach (NSIndexPath indexPath in indexPaths)
-                    _collectionView.DeselectItem(indexPath, UseAnimations);
+                    collectionView.DeselectItem(indexPath, UseAnimations);
             }
-            SetSelectedItem(null, false);
+            SetSelectedItem(collectionView, null, false);
         }
 
         internal static bool HasMask(UICollectionViewCell cell, int mask)
@@ -209,25 +209,25 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return collectionView.IndexPathForCell(cell);
         }
 
-        private void SetSelectedItem(object value, bool sourceUpdate)
+        private void SetSelectedItem(UICollectionView collectionView, object value, bool sourceUpdate)
         {
             if (Equals(_selectedItem, value))
                 return;
             _selectedItem = value;
             if (sourceUpdate)
-                SetSelectedCellByItem(value);
-            PlatformDataBindingModule.CollectionViewSelectedItemChangedEvent.Raise(_collectionView, EventArgs.Empty);
+                SetSelectedCellByItem(collectionView, value);
+            PlatformDataBindingModule.CollectionViewSelectedItemChangedEvent.Raise(collectionView, EventArgs.Empty);
         }
 
-        private void UpdateSelectedItemInternal(object item, bool selected)
+        private void UpdateSelectedItemInternal(UICollectionView collectionView, object item, bool selected)
         {
             if (selected)
             {
-                if (!CollectionView.AllowsMultipleSelection || SelectedItem == null)
-                    SetSelectedItem(item, false);
+                if (!collectionView.AllowsMultipleSelection || SelectedItem == null)
+                    SetSelectedItem(collectionView, item, false);
             }
             else if (Equals(item, SelectedItem))
-                SetSelectedItem(null, false);
+                SetSelectedItem(collectionView, null, false);
         }
 
         #endregion
@@ -257,7 +257,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
 
             if (Equals(item, _selectedItem) && !cell.Selected)
-                CollectionView.SelectItem(indexPath, false, UICollectionViewScrollPosition.None);
+                collectionView.SelectItem(indexPath, false, UICollectionViewScrollPosition.None);
             cell.Tag |= InitializingStateMask;
             BindingServiceProvider.ContextManager.GetBindingContext(cell).Value = item;
             if (!HasMask(cell, InitializedStateMask))
@@ -275,12 +275,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public override void ItemDeselected(UICollectionView collectionView, NSIndexPath indexPath)
         {
-            UpdateSelectedItemInternal(GetItemAt(indexPath), false);
+            UpdateSelectedItemInternal(collectionView, GetItemAt(indexPath), false);
         }
 
         public override void ItemSelected(UICollectionView collectionView, NSIndexPath indexPath)
         {
-            UpdateSelectedItemInternal(GetItemAt(indexPath), true);
+            UpdateSelectedItemInternal(collectionView, GetItemAt(indexPath), true);
         }
 
         public override void ItemHighlighted(UICollectionView collectionView, NSIndexPath indexPath)
@@ -306,21 +306,45 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             return PlatformDataBindingModule
                 .CollectionViewCellShouldDeselectMember
-                .TryGetValue(CellForItem(collectionView, indexPath), true);
+                .TryGetValue(CellForItem(collectionView, indexPath))
+                .GetValueOrDefault(true);
         }
 
         public override bool ShouldHighlightItem(UICollectionView collectionView, NSIndexPath indexPath)
         {
             return PlatformDataBindingModule
                 .CollectionViewCellShouldHighlightMember
-                .TryGetValue(CellForItem(collectionView, indexPath), true);
+                .TryGetValue(CellForItem(collectionView, indexPath))
+                .GetValueOrDefault(true);
         }
 
         public override bool ShouldSelectItem(UICollectionView collectionView, NSIndexPath indexPath)
         {
             return PlatformDataBindingModule
                 .CollectionViewCellShouldSelectMember
-                .TryGetValue(CellForItem(collectionView, indexPath), true);
+                .TryGetValue(CellForItem(collectionView, indexPath))
+                .GetValueOrDefault(true);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _lastCreatedCell = null;
+                _lastCreatedCellPath = null;
+                _selectedItem = null;
+
+                var collectionView = CollectionView;
+                if (collectionView.IsAlive())
+                {
+                    if (ReferenceEquals(collectionView.Source, this))
+                        collectionView.Source = null;
+                    var controllerView = collectionView.FindParent<IViewControllerView>();
+                    if (controllerView != null)
+                        controllerView.Mediator.DisposeHandler -= ControllerOnDispose;
+                }
+            }
+            base.Dispose(disposing);
         }
 
         #endregion

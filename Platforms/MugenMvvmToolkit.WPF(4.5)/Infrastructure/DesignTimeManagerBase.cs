@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.Infrastructure
     /// <summary>
     ///     Represents the base class for the design time manager.
     /// </summary>
-    public class DesignTimeManagerBase : DisposableObject, IDesignTimeManager
+    public class DesignTimeManagerBase : IDesignTimeManager
     {
         #region Fields
 
@@ -162,6 +162,15 @@ namespace MugenMvvmToolkit.Infrastructure
                 context.Post(state => InitializeViewModelInternal(viewModel), null);
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public virtual void Dispose()
+        {
+            if (IocContainer != null)
+                IocContainer.Dispose();
+        }
+
         #endregion
 
         #region Methods
@@ -251,20 +260,6 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 #endif
-        #endregion
-
-        #region Overrides of DisposableObject
-
-        /// <summary>
-        ///     Releases resources held by the object.
-        /// </summary>
-        protected override void OnDispose(bool disposing)
-        {
-            if (disposing && IocContainer != null)
-                IocContainer.Dispose();
-            base.OnDispose(disposing);
-        }
-
         #endregion
     }
 }

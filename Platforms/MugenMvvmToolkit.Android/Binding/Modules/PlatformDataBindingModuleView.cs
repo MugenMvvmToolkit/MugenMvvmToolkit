@@ -22,7 +22,6 @@ using Android.Views;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Modules
 {
@@ -30,7 +29,7 @@ namespace MugenMvvmToolkit.Binding.Modules
     {
         #region Nested types
 
-        private abstract class LayoutObserver : DisposableObject
+        private abstract class LayoutObserver : IDisposable
         {
             #region Fields
 
@@ -61,7 +60,7 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             private void OnGlobalLayoutChanged(object sender, EventArgs eventArgs)
             {
-                if (IsDisposed)
+                if (_viewReference == null)
                     return;
                 var view = GetView();
                 if (view == null)
@@ -74,32 +73,23 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             #endregion
 
-            #region Overrides of DisposableObjectBase
+            #region Implementation of IDisposable
 
-            protected override bool TraceFinalized
+            public void Dispose()
             {
-                get { return false; }
-            }
-
-            protected override void OnDispose(bool disposing)
-            {
-                base.OnDispose(disposing);
-                if (disposing)
+                try
                 {
-                    try
-                    {
-                        var view = (View)_viewReference.Target;
-                        if (view != null && view.ViewTreeObserver.IsAlive)
-                            view.ViewTreeObserver.GlobalLayout -= OnGlobalLayoutChanged;
-                    }
-                    catch (Exception e)
-                    {
-                        Tracer.Warn(e.Flatten());
-                    }
-                    finally
-                    {
-                        _viewReference = null;
-                    }
+                    var view = (View)_viewReference.Target;
+                    if (view != null && view.ViewTreeObserver.IsAlive)
+                        view.ViewTreeObserver.GlobalLayout -= OnGlobalLayoutChanged;
+                }
+                catch (Exception e)
+                {
+                    Tracer.Warn(e.Flatten());
+                }
+                finally
+                {
+                    _viewReference = null;
                 }
             }
 
@@ -151,6 +141,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateMember<Activity, object>(AttachedMemberConstants.FindByNameMethod, ActivityFindByNameMember));
 
             //View            
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<View, bool>("IsActionBar", ToolbarIsActionBarChanged));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.FindByNameMethod, ViewFindByNameMember));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<View, int>(AttachedMemberNames.MenuTemplate, MenuTemplateChanged));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.Parent, GetViewParentValue, null, ObserveViewParent));

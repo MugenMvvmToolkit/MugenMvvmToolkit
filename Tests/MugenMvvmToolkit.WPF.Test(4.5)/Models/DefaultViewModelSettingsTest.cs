@@ -16,7 +16,7 @@ namespace MugenMvvmToolkit.Test.Models
 
             settings.DisposeCommands.ShouldBeTrue();
             settings.DisposeIocContainer.ShouldBeTrue();
-            settings.HandleBusyMessageMode.ShouldEqual(HandleMode.HandleAndNotifySubscribers);
+            settings.HandleBusyMessageMode.ShouldEqual(HandleMode.Handle);
             settings.Metadata.ShouldNotBeNull();
             settings.State.ShouldNotBeNull();
         }

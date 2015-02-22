@@ -221,14 +221,14 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 bool animated;
                 if (!dataContext.TryGetData(NavigationConstants.UseAnimations, out animated))
                     animated = UseAnimations;
-                NavigationController.PushViewController(viewController, animated);
-                ClearNavigationStackIfNeed(viewController, dataContext);
+                if (!ClearNavigationStackIfNeed(viewController, dataContext, animated))
+                    NavigationController.PushViewController(viewController, animated);
             }
             var view = viewController as IViewControllerView;
             if (view == null || view.Mediator.IsAppeared)
                 RaiseNavigated(viewController, NavigationMode.New, parameter);
             else
-                view.Mediator.ViewDidAppearHandler += OnViewDidAppearHandler;
+                view.Mediator.ViewDidAppearHandler += OnViewDidAppearHandlerNew;
             return true;
         }
 
@@ -300,7 +300,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         private bool GoBackInternal()
         {
             Should.BeSupported(CanGoBack, "Go back is not supported in current state.");
-            return NavigationController.PopViewController(true) != null;
+            return NavigationController.PopViewController(false) != null;
         }
 
         private void ShouldPopViewController(object sender, CancelEventArgs args)
@@ -315,7 +315,11 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         private void DidPopViewController(object sender, EventArgs eventArgs)
         {
             var controller = NavigationController.TopViewController;
-            RaiseNavigated(controller, NavigationMode.Back, controller.GetNavigationParameter());
+            var view = controller as IViewControllerView;
+            if (view == null || view.Mediator.IsAppeared)
+                RaiseNavigated(controller, NavigationMode.Back, controller.GetNavigationParameter());
+            else
+                view.Mediator.ViewDidAppearHandler += OnViewDidAppearHandlerBack;
         }
 
         private void RaiseNavigated(object content, NavigationMode mode, object parameter)
@@ -324,20 +328,28 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 RaiseNavigated(new NavigationEventArgs(content, parameter, mode));
         }
 
-        private void ClearNavigationStackIfNeed(UIViewController newItem, IDataContext context)
+        private bool ClearNavigationStackIfNeed(UIViewController newItem, IDataContext context, bool animated)
         {
             if (context == null)
                 context = DataContext.Empty;
             if (context.GetData(NavigationConstants.ClearBackStack) && NavigationController != null)
             {
-                NavigationController.ViewControllers = new[] { newItem };
+                NavigationController.SetViewControllers(new[] { newItem }, animated);
                 context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
+                return true;
             }
+            return false;
         }
 
-        private void OnViewDidAppearHandler(UIViewController sender, ValueEventArgs<bool> args)
+        private void OnViewDidAppearHandlerBack(UIViewController sender, ValueEventArgs<bool> args)
         {
-            ((IViewControllerView)sender).Mediator.ViewDidAppearHandler -= OnViewDidAppearHandler;
+            ((IViewControllerView)sender).Mediator.ViewDidAppearHandler -= OnViewDidAppearHandlerBack;
+            RaiseNavigated(sender, NavigationMode.Back, sender.GetNavigationParameter());
+        }
+
+        private void OnViewDidAppearHandlerNew(UIViewController sender, ValueEventArgs<bool> args)
+        {
+            ((IViewControllerView)sender).Mediator.ViewDidAppearHandler -= OnViewDidAppearHandlerNew;
             RaiseNavigated(sender, NavigationMode.New, sender.GetNavigationParameter());
         }
 

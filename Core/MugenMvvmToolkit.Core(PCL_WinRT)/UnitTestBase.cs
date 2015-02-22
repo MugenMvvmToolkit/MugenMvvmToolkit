@@ -165,7 +165,7 @@ namespace MugenMvvmToolkit
         /// <returns>
         ///     An instance of <see cref="IViewModel" />.
         /// </returns>
-        protected internal IViewModel GetViewModel([NotNull, ViewModelTypeRequired] Type viewModelType,
+        protected internal IViewModel GetViewModel([NotNull] Type viewModelType,
             IViewModel parentViewModel = null, ObservationMode? observationMode = null,
             IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
         {

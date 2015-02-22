@@ -50,6 +50,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         private Guid _id;
         private object _dataContext;
         private bool _isDestroyed;
+        private readonly TTarget _target;
 
         #endregion
 
@@ -70,7 +71,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         protected MediatorBase([NotNull] TTarget target)
         {
             Should.NotBeNull(target, "target");
-            Target = target;
+            _target = target;
         }
 
         #endregion
@@ -85,15 +86,13 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             get { return _dataContext; }
             set
             {
-                if (Target == null)
-                    value = null;
                 if (ReferenceEquals(value, _dataContext))
                     return;
                 var oldValue = _dataContext;
                 _dataContext = value;
                 OnDataContextChanged(oldValue, _dataContext);
                 var handler = DataContextChanged;
-                if (handler != null && Target != null)
+                if (handler != null)
                     handler(Target, EventArgs.Empty);
             }
         }
@@ -109,7 +108,11 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// <summary>
         ///     Gets or sets the current target object.
         /// </summary>
-        protected TTarget Target { get; set; }
+        [NotNull]
+        protected TTarget Target
+        {
+            get { return _target; }
+        }
 
         #endregion
 
@@ -130,7 +133,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public virtual void OnDestroy(Action baseOnDestroy)
         {
             var viewModel = DataContext as IViewModel;
-            if (viewModel != null && !viewModel.IsDisposed)
+            if (viewModel != null && !viewModel.IsDisposed && viewModel.IocContainer != null && !viewModel.IocContainer.IsDisposed)
                 Get<IViewManager>().CleanupViewAsync(viewModel);
             DataContext = null;
             DataContextChanged = null;
@@ -192,7 +195,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 if (!bundle.ContainsKey(IgnoreStateKey))
                     cacheDataContext = RestoreViewModel(vmType, bundle);
             }
-            if (!ReferenceEquals(DataContext, cacheDataContext) && Target != null)
+            if (!ReferenceEquals(DataContext, cacheDataContext))
                 RestoreContext(Target, cacheDataContext);
         }
 
@@ -223,7 +226,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         ///     Restores the view model.
         /// </summary>
         [CanBeNull]
-        protected virtual object RestoreViewModel([NotNull] Type viewModelType, [NotNull] Bundle bundle)
+        protected virtual IViewModel RestoreViewModel([NotNull] Type viewModelType, [NotNull] Bundle bundle)
         {
             var context = new DataContext
             {

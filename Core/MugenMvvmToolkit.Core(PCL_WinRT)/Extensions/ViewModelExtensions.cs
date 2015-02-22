@@ -315,7 +315,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// </returns>
         [Pure]
         public static IViewModel GetViewModel([NotNull] this IViewModelProvider viewModelProvider,
-            [NotNull, ViewModelTypeRequired] Type viewModelType, params DataConstantValue[] parameters)
+            [NotNull] Type viewModelType, params DataConstantValue[] parameters)
         {
             Should.NotBeNull(viewModelProvider, "viewModelProvider");
             Should.NotBeNull(viewModelType, "viewModelType");
@@ -336,8 +336,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// </returns>
         [Pure]
         public static IViewModel GetViewModel([NotNull] this IViewModelProvider viewModelProvider,
-            [NotNull, ViewModelTypeRequired] Type viewModelType,
-            IViewModel parentViewModel = null, ObservationMode? observationMode = null,
+            [NotNull] Type viewModelType, IViewModel parentViewModel = null, ObservationMode? observationMode = null,
             IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
         {
             return GetViewModel(viewModelProvider, viewModelType,

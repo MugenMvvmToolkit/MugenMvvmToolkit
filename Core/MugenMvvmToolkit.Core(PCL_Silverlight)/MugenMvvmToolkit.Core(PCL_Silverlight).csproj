@@ -195,17 +195,14 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\SynchronousThreadManager.cs">
       <Link>Infrastructure\SynchronousThreadManager.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Validation\DynamicDataAnnotationsElementProvider.cs">
-      <Link>Infrastructure\Validation\DynamicDataAnnotationsElementProvider.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Validation\DataAnnotationValidatior.cs">
+      <Link>Infrastructure\Validation\DataAnnotationValidatior.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Validation\ManualValidator.cs">
       <Link>Infrastructure\Validation\ManualValidator.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Validation\ValidatableViewModelValidator.cs">
       <Link>Infrastructure\Validation\ValidatableViewModelValidator.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Validation\ValidationElementValidator.cs">
-      <Link>Infrastructure\Validation\ValidationElementValidator.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Validation\ValidatorBase.cs">
       <Link>Infrastructure\Validation\ValidatorBase.cs</Link>
@@ -408,21 +405,6 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Validation\INotifyDataErrorInfo.cs">
       <Link>Interfaces\Validation\INotifyDataErrorInfo.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Validation\IValidatableObject.cs">
-      <Link>Interfaces\Validation\IValidatableObject.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Validation\IValidationContext.cs">
-      <Link>Interfaces\Validation\IValidationContext.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Validation\IValidationElement.cs">
-      <Link>Interfaces\Validation\IValidationElement.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Validation\IValidationElementProvider.cs">
-      <Link>Interfaces\Validation\IValidationElementProvider.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Validation\IValidationResult.cs">
-      <Link>Interfaces\Validation\IValidationResult.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Validation\IValidator.cs">
       <Link>Interfaces\Validation\IValidator.cs</Link>
     </Compile>
@@ -492,9 +474,6 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\Delegates.cs">
       <Link>Models\Delegates.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\DisposableObject.cs">
-      <Link>Models\DisposableObject.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EntityStateEntry.cs">
       <Link>Models\EntityStateEntry.cs</Link>
     </Compile>
@@ -561,9 +540,6 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\Messages\BeginBusyMessage.cs">
       <Link>Models\Messages\BeginBusyMessage.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\Messages\DataErrorsChangedMessage.cs">
-      <Link>Models\Messages\DataErrorsChangedMessage.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\Messages\EndBusyMessage.cs">
       <Link>Models\Messages\EndBusyMessage.cs</Link>
     </Compile>
@@ -602,12 +578,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\TrackingEntity.cs">
       <Link>Models\TrackingEntity.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\Validation\ValidationContext.cs">
-      <Link>Models\Validation\ValidationContext.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\Validation\ValidationResult.cs">
-      <Link>Models\Validation\ValidationResult.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\Validation\ValidatorContext.cs">
       <Link>Models\Validation\ValidatorContext.cs</Link>
@@ -710,10 +680,10 @@
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Fody.1.26.4\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.26.4\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Fody.1.27.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.27.1\build\Fody.targets'))" />
   </Target>
   <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
-  <Import Project="..\..\packages\Fody.1.26.4\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.26.4\build\Fody.targets')" />
+  <Import Project="..\..\packages\Fody.1.27.1\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.27.1\build\Fody.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

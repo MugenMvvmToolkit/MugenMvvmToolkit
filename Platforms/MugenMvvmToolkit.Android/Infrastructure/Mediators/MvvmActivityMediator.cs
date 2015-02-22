@@ -27,6 +27,7 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Mediators;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -36,8 +37,34 @@ using MugenMvvmToolkit.Views;
 
 namespace MugenMvvmToolkit.Infrastructure.Mediators
 {
-    public class MvvmActivityMediator : MediatorBase<Activity>, IMvvmActivityMediator
+    public class MvvmActivityMediator : MediatorBase<Activity>, IMvvmActivityMediator, IHandler<MvvmActivityMediator.FinishActivityMessage>
     {
+        #region Nested types
+
+        internal sealed class FinishActivityMessage
+        {
+            #region Fields
+
+            public static readonly FinishActivityMessage Instance;
+
+            #endregion
+
+            #region Constructors
+
+            static FinishActivityMessage()
+            {
+                Instance = new FinishActivityMessage();
+            }
+
+            private FinishActivityMessage()
+            {
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         private MenuInflater _menuInflater;
@@ -45,6 +72,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         private Bundle _bundle;
         private bool _isBackNavigation;
         private View _view;
+        private bool _ignoreFinishNavigation;
 
         #endregion
 
@@ -56,6 +84,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public MvvmActivityMediator([NotNull] Activity target)
             : base(target)
         {
+            if (Build.VERSION.SdkInt <= BuildVersionCodes.GingerbreadMr1)
+                ServiceProvider.EventAggregator.Subscribe(this);
         }
 
         #endregion
@@ -102,7 +132,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public virtual void OnCreate(Bundle savedInstanceState, Action<Bundle> baseOnCreate)
         {
             AndroidBootstrapperBase.EnsureInitialized();
-            Tracer.Info("OnCreate activity({0})", Target);
+            if (Tracer.TraceInformation)
+                Tracer.Info("OnCreate activity({0})", Target);
             _bundle = savedInstanceState;
             OnCreate(savedInstanceState);
 
@@ -165,12 +196,15 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         public override void OnDestroy(Action baseOnDestroy)
         {
-            Tracer.Info("OnDestroy activity({0})", Target);
+            if (Tracer.TraceInformation)
+                Tracer.Info("OnDestroy activity({0})", Target);
+            if (Build.VERSION.SdkInt <= BuildVersionCodes.GingerbreadMr1)
+                ServiceProvider.EventAggregator.Unsubscribe(this);
             var handler = Destroyed;
             if (handler != null)
                 handler(Target, EventArgs.Empty);
             _view.RemoveFromParent();
-            _view.ClearBindingsHierarchically(true, true);
+            _view.ClearBindingsRecursively(true, true);
             _view = null;
 
             MenuTemplate.Clear(_menu);
@@ -182,8 +216,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 _menuInflater = null;
             }
             base.OnDestroy(baseOnDestroy);
-            Target.ClearBindings(false, true, PlatformExtensions.AutoDisposeActivityDefault);
-            Target = null;
+            Target.ClearBindings(false, true);
             OptionsItemSelected = null;
             ConfigurationChanged = null;
             PostCreate = null;
@@ -279,7 +312,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         public virtual MenuInflater GetMenuInflater(MenuInflater baseMenuInflater)
         {
-            if (_menuInflater == null && Target != null)
+            if (_menuInflater == null)
                 _menuInflater = PlatformExtensions.MenuInflaterFactory(Target, Models.DataContext.Empty);
             var menuInflater = _menuInflater as IBindableMenuInflater;
             if (menuInflater != null)
@@ -292,9 +325,12 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         public virtual void Finish(Action baseFinish)
         {
-            var navigationService = Get<INavigationService>();
-            if (!navigationService.OnFinishActivity(Target, _isBackNavigation))
-                return;
+            if (!_ignoreFinishNavigation)
+            {
+                var navigationService = Get<INavigationService>();
+                if (!navigationService.OnFinishActivity(Target, _isBackNavigation))
+                    return;
+            }
             ClearContextCache();
             baseFinish();
         }
@@ -330,6 +366,19 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             if (optionsItemSelected == null)
                 return baseOnOptionsItemSelected(item);
             return optionsItemSelected(item) || baseOnOptionsItemSelected(item);
+        }
+
+        void IHandler<FinishActivityMessage>.Handle(object sender, FinishActivityMessage message)
+        {
+            try
+            {
+                _ignoreFinishNavigation = true;
+                Target.Finish();
+            }
+            finally
+            {
+                _ignoreFinishNavigation = false;
+            }
         }
 
         /// <summary>

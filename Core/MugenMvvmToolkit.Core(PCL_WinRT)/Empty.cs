@@ -20,6 +20,7 @@ using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using MugenMvvmToolkit.Annotations;
+using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit
 {
@@ -35,6 +36,8 @@ namespace MugenMvvmToolkit
             #region Fields
 
             public static readonly T[] ArrayInstance;
+            public static readonly Task<T> CanceledTask;
+
 
             #endregion
 
@@ -43,6 +46,9 @@ namespace MugenMvvmToolkit
             static Value()
             {
                 ArrayInstance = new T[0];
+                var tcs = new TaskCompletionSource<T>();
+                tcs.SetCanceled();
+                CanceledTask = tcs.Task;
             }
 
             #endregion
@@ -95,6 +101,7 @@ namespace MugenMvvmToolkit
         internal static readonly PropertyChangedEventArgs IsValidChangedArgs;
         internal static readonly PropertyChangedEventArgs IsBusyChangedArgs;
         internal static readonly PropertyChangedEventArgs BusyMessageChangedArgs;
+        internal static readonly DataErrorsChangedEventArgs EmptyDataErrorsChangedArgs;
 
         #endregion
 
@@ -108,6 +115,7 @@ namespace MugenMvvmToolkit
             TrueTask = ToolkitExtensions.FromResult(true);
             FalseTask = ToolkitExtensions.FromResult(false);
             Task = FalseTask;
+            EmptyDataErrorsChangedArgs = new DataErrorsChangedEventArgs(string.Empty);
             CountChangedArgs = new PropertyChangedEventArgs("Count");
             NotificationCountChangedArgs = new PropertyChangedEventArgs("NotificationCount");
             IndexerPropertyChangedArgs = new PropertyChangedEventArgs("Item[]");
@@ -130,6 +138,14 @@ namespace MugenMvvmToolkit
         public static T[] Array<T>()
         {
             return Value<T>.ArrayInstance;
+        }
+
+        /// <summary>
+        ///     Gets the canceled task.
+        /// </summary>
+        public static Task<T> CanceledTask<T>()
+        {
+            return Value<T>.CanceledTask;
         }
 
         /// <summary>

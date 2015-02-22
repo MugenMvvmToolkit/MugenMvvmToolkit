@@ -259,7 +259,7 @@ namespace MugenMvvmToolkit.Binding.Models
             {
                 var type = DependencyProperty.UnsetValue.GetType();
                 var methodInfo = typeof(DependencyPropertyBindingMember).GetMethodEx("Is", MemberFlags.Static | MemberFlags.Public);
-                if (methodInfo == null)
+                if (methodInfo == null || !type.FullName.Equals("MS.Internal.NamedObject", StringComparison.Ordinal))
                     IsNamedObjectFunc = o => false;
                 else
                     IsNamedObjectFunc = (Func<object, bool>)ServiceProvider.ReflectionManager.TryCreateDelegate(typeof(Func<object, bool>), null, methodInfo.MakeGenericMethod(type));

@@ -222,16 +222,16 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         private static void OnViewCleared(IViewManager viewManager, IViewModel viewModel, object arg3, IDataContext arg4)
         {
-            ClearBindingsHierarchically(arg3 as DependencyObject);
+            ClearBindingsRecursively(arg3 as DependencyObject);
         }
 
-        private static void ClearBindingsHierarchically(DependencyObject item)
+        private static void ClearBindingsRecursively(DependencyObject item)
         {
             if (item == null)
                 return;
             var count = VisualTreeHelper.GetChildrenCount(item);
             for (int i = 0; i < count; i++)
-                ClearBindingsHierarchically(VisualTreeHelper.GetChild(item, i));
+                ClearBindingsRecursively(VisualTreeHelper.GetChild(item, i));
             item.ClearBindings(true, true);
         }
 
@@ -258,32 +258,32 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             IValueConverter conv = new BooleanToVisibilityConverter(Visibility.Visible, Visibility.Collapsed, Visibility.Collapsed);
             resourceResolver
-                .AddConverter("FalseToCollapsed", new ValueConverterWrapper(conv.Convert, conv.ConvertBack), true);
+                .AddConverter("FalseToCollapsed", new ValueConverterWrapper(conv), true);
             conv = new BooleanToVisibilityConverter(Visibility.Collapsed, Visibility.Visible, Visibility.Collapsed);
             resourceResolver
-                .AddConverter("TrueToCollapsed", new ValueConverterWrapper(conv.Convert, conv.ConvertBack), true);
+                .AddConverter("TrueToCollapsed", new ValueConverterWrapper(conv), true);
 
             conv = new NullToVisibilityConverter(Visibility.Collapsed, Visibility.Visible);
             resourceResolver
-                .AddConverter("NullToCollapsed", new ValueConverterWrapper(conv.Convert, conv.ConvertBack), true);
+                .AddConverter("NullToCollapsed", new ValueConverterWrapper(conv), true);
             conv = new NullToVisibilityConverter(Visibility.Visible, Visibility.Collapsed);
             resourceResolver
-                .AddConverter("NotNullToCollapsed", new ValueConverterWrapper(conv.Convert, conv.ConvertBack), true);
+                .AddConverter("NotNullToCollapsed", new ValueConverterWrapper(conv), true);
 
 #if WPF
             conv = new BooleanToVisibilityConverter(Visibility.Visible, Visibility.Hidden, Visibility.Hidden);
             resourceResolver
-                .AddConverter("FalseToHidden", new ValueConverterWrapper(conv.Convert, conv.ConvertBack), true);
+                .AddConverter("FalseToHidden", new ValueConverterWrapper(conv), true);
             conv = new BooleanToVisibilityConverter(Visibility.Hidden, Visibility.Visible, Visibility.Hidden);
             resourceResolver
-                .AddConverter("TrueToHidden", new ValueConverterWrapper(conv.Convert, conv.ConvertBack), true);
+                .AddConverter("TrueToHidden", new ValueConverterWrapper(conv), true);
 
             conv = new NullToVisibilityConverter(Visibility.Hidden, Visibility.Visible);
             resourceResolver
-                .AddConverter("NullToHidden", new ValueConverterWrapper(conv.Convert, conv.ConvertBack), true);
+                .AddConverter("NullToHidden", new ValueConverterWrapper(conv), true);
             conv = new NullToVisibilityConverter(Visibility.Visible, Visibility.Hidden);
             resourceResolver
-                .AddConverter("NotNullToHidden", new ValueConverterWrapper(conv.Convert, conv.ConvertBack), true);
+                .AddConverter("NotNullToHidden", new ValueConverterWrapper(conv), true);
 #endif
             base.OnLoaded(context);
         }
@@ -343,7 +343,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             if (constructor == null || !constructor.IsPublic)
                 return;
             var converter = (IValueConverter)constructor.InvokeEx();
-            BindingServiceProvider.ResourceResolver.AddConverter(new ValueConverterWrapper(converter.Convert, converter.ConvertBack), true);
+            BindingServiceProvider.ResourceResolver.AddConverter(new ValueConverterWrapper(converter), type, true);
             if (Tracer.TraceInformation)
                 Tracer.Info("The {0} converter is registered.", type);
         }

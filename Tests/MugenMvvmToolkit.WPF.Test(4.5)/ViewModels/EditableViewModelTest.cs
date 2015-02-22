@@ -336,10 +336,9 @@ namespace MugenMvvmToolkit.Test.ViewModels
             StateManager.CreateSnapshot = o => new EntitySnapshotMock();
             var viewModel = GetViewModel<TestEditableViewModel>();
 
-            ValidatorProvider.Register(new SpyValidator() { CanValidate = context => context.Instance == entity });
+            ValidatorProvider.Register<SpyValidator>();
             viewModel.InitializeEntity(entity, true);
-            var validator =
-                (SpyValidator)viewModel.GetValidators().Single(validator1 => validator1 != viewModel.Validator);
+            var validator = (SpyValidator)viewModel.GetValidators().Single(v => v.Context.Instance == entity);
             validator.Context.Instance.ShouldEqual(entity);
         }
 

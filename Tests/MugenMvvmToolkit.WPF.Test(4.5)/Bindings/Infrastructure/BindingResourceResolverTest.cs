@@ -116,7 +116,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         [TestMethod]
         public void ResolverShouldResolveRootMember()
         {
-            const string name = "root";
+            string name = BindingServiceProvider.ResourceResolver.RootElementResourceName;
             var visualTreeManagerMock = new VisualTreeManagerMock();
             BindingServiceProvider.VisualTreeManager = visualTreeManagerMock;
             var rootMember = AttachedBindingMember.CreateAutoProperty<object, object>(name);
@@ -139,7 +139,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         [TestMethod]
         public void ResolverShouldRegisterAndResolveDynamicObjectTarget()
         {
-            const string name = "root";
+            string name = BindingServiceProvider.ResourceResolver.RootElementResourceName;
             const string firstValue = "1";
             var visualTreeManagerMock = new VisualTreeManagerMock();
             BindingServiceProvider.VisualTreeManager = visualTreeManagerMock;

@@ -30,18 +30,89 @@ using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Validation;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Models.Messages;
+using MugenMvvmToolkit.Models.Validation;
 
 namespace MugenMvvmToolkit.Infrastructure.Validation
 {
     /// <summary>
     ///     Represents a base class for a validator.
     /// </summary>
-    public abstract class ValidatorBase : DisposableObject, IValidator
+    public abstract class ValidatorBase : IValidator
     {
+        #region Nested types
+
+        private sealed class CancelableClosure
+        {
+            #region Fields
+
+            private ValidatorBase _validator;
+            private readonly bool _validateAll;
+            private readonly string _propertyName;
+            private readonly bool _isAsync;
+            private readonly AsyncValidationMessage _message;
+            private readonly CancellationTokenSource _token;
+
+            #endregion
+
+            #region Constructors
+
+            public CancelableClosure(ValidatorBase validator, bool validateAll, string propertyName, bool isAsync, AsyncValidationMessage message, CancellationTokenSource token)
+            {
+                _validator = validator;
+                _validateAll = validateAll;
+                _propertyName = propertyName;
+                _isAsync = isAsync;
+                _message = message;
+                _token = token;
+            }
+
+            #endregion
+
+            #region Methods
+
+            public void Callback(Task<IDictionary<string, IEnumerable>> task)
+            {
+                var validator = Interlocked.Exchange(ref _validator, null);
+                if (validator == null)
+                    return;
+                bool canceled = false;
+                lock (validator._runningTask)
+                {
+                    CancelableClosure value;
+                    if (validator._runningTask.TryGetValue(_propertyName, out value) && ReferenceEquals(value, this))
+                        validator._runningTask.Remove(_propertyName);
+                    else
+                        canceled = true;
+                }
+                if (canceled)
+                {
+                    validator.OnCanceled(_propertyName, _message);
+                    _token.Cancel();
+                }
+                else
+                {
+                    validator.OnValidated(task, _validateAll, _propertyName, _isAsync, _message);
+                    _token.Dispose();
+                }
+            }
+
+            public void Cancel()
+            {
+                var validator = Interlocked.Exchange(ref _validator, null);
+                if (validator == null)
+                    return;
+                validator.OnCanceled(_propertyName, _message);
+                _token.Cancel();
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         /// <summary>
@@ -53,13 +124,16 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         ///     Gets the result that indicates that validator should not update errors.
         /// </summary>
         protected static readonly Task<IDictionary<string, IEnumerable>> DoNothingResult;
+
         private static readonly IDictionary<string, ICollection<string>> EmptyMappingDictionary;
         private static readonly IDictionary<string, IEnumerable> EmptyValidationDictionary;
+        private static readonly PropertyChangedEventHandler DisposedHandler;
 
-        private readonly Dictionary<string, IList<object>> _internalErrors;
-        private readonly IEventAggregator _eventAggregator;
-        private readonly HashSet<string> _validatingMembers;
-        private int _validationThreadCount;
+        private readonly Dictionary<string, IList<object>> _errors;
+        //The list is used to prevent cyclic validation.
+        private readonly List<string> _validatingMembers;
+
+        private Dictionary<string, CancelableClosure> _runningTask;
         private IValidatorContext _context;
         private PropertyChangedEventHandler _weakPropertyHandler;
 
@@ -67,22 +141,23 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ValidatorBase" /> class.
-        /// </summary>
         static ValidatorBase()
         {
             ValidateOnPropertyChangedDefault = true;
 #if PCL_WINRT
-            EmptyMappingDictionary = new ReadOnlyDictionary<string, ICollection<string>>(new Dictionary<string, ICollection<string>>());
-            EmptyValidationDictionary = new ReadOnlyDictionary<string, IEnumerable>(new Dictionary<string, IEnumerable>());
-            DoNothingResult = FromResult(new ReadOnlyDictionary<string, IEnumerable>(new Dictionary<string, IEnumerable>()));
+            EmptyMappingDictionary =
+                new ReadOnlyDictionary<string, ICollection<string>>(new Dictionary<string, ICollection<string>>());
+            EmptyValidationDictionary =
+                new ReadOnlyDictionary<string, IEnumerable>(new Dictionary<string, IEnumerable>());
+            DoNothingResult =
+                FromResult(new ReadOnlyDictionary<string, IEnumerable>(new Dictionary<string, IEnumerable>()));
 #else
             EmptyMappingDictionary = new Dictionary<string, ICollection<string>>();
             EmptyValidationDictionary = new Dictionary<string, IEnumerable>();
             DoNothingResult = FromResult(new Dictionary<string, IEnumerable>());
 #endif
             EmptyResult = FromResult(null);
+            DisposedHandler = (sender, args) => { };
         }
 
         /// <summary>
@@ -90,9 +165,8 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// </summary>
         protected ValidatorBase()
         {
-            _internalErrors = new Dictionary<string, IList<object>>();
-            _eventAggregator = ServiceProvider.InstanceEventAggregatorFactory(this);
-            _validatingMembers = new HashSet<string>();
+            _errors = new Dictionary<string, IList<object>>(StringComparer.Ordinal);
+            _validatingMembers = new List<string>();
             ValidateOnPropertyChanged = ValidateOnPropertyChangedDefault;
         }
 
@@ -101,19 +175,19 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         #region Implementation of IValidator
 
         /// <summary>
-        ///     Gets a value indicating whether an attempt to add a duplicate validator to the collection will cause an exception to be thrown.
+        ///     Gets a value indicating whether this instance is disposed.
         /// </summary>
-        public virtual bool AllowDuplicate
+        public bool IsDisposed
         {
-            get { return false; }
+            get { return ReferenceEquals(_weakPropertyHandler, DisposedHandler); }
         }
 
         /// <summary>
-        ///     Gets the initialized state of the validator.
+        ///     Gets a value indicating whether this instance is initialized.
         /// </summary>
         public bool IsInitialized
         {
-            get { return _context != null; }
+            get { return Context != null; }
         }
 
         /// <summary>
@@ -126,8 +200,9 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         {
             get
             {
-                EnsureInitialized();
-                lock (_internalErrors)
+                if (Context == null)
+                    return false;
+                lock (_errors)
                     return IsValidInternal();
             }
         }
@@ -146,48 +221,39 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         }
 
         /// <summary>
-        ///     Checks to see whether the validator can validate objects of the specified IValidatorContext.
-        /// </summary>
-        public bool CanValidate(IValidatorContext validatorContext)
-        {
-            Should.NotBeNull(validatorContext, "validatorContext");
-            return !IsDisposed && CanValidateContext(validatorContext) && CanValidateInternal(validatorContext);
-        }
-
-        /// <summary>
         ///     Initializes the current validator using the specified <see cref="IValidatorContext" />.
         /// </summary>
         /// <param name="context">
         ///     The specified <see cref="IValidatorContext" />.
         /// </param>
-        public void Initialize(IValidatorContext context)
+        public bool Initialize(IValidatorContext context)
         {
             EnsureNotDisposed();
             Should.NotBeNull(context, "context");
+            if (!CanValidateContext(context) || !CanValidateInternal(context))
+                return false;
             if (Interlocked.CompareExchange(ref _context, context, null) != null)
                 throw ExceptionManager.ValidatorInitialized(this);
-            if (!CanValidate(context))
-                throw ExceptionManager.InvalidContexValidator(this);
 
             OnInitialized(context);
-
-
             var notifyPropertyChanged = Instance as INotifyPropertyChanged;
-            if (notifyPropertyChanged != null)
+            if (notifyPropertyChanged == null)
+            {
+                var vm = context.ValidationMetadata.GetData(ViewModelConstants.ViewModel);
+                if (vm != null)
+                {
+                    InitializeWeakHandler();
+                    vm.PropertyChanged += _weakPropertyHandler;
+                }
+            }
+            else
             {
                 InitializeWeakHandler();
                 notifyPropertyChanged.PropertyChanged += _weakPropertyHandler;
             }
-            notifyPropertyChanged = context.ValidationMetadata.GetData(ViewModelConstants.ViewModel);
-            if (notifyPropertyChanged != null)
-            {
-                InitializeWeakHandler();
-                notifyPropertyChanged.PropertyChanged += _weakPropertyHandler;
-            }
-            if (_weakPropertyHandler == null)
-                Tracer.Warn(
-                    "The type {0} doesn't implement the INotifyPropertyChanged, validator {1} cannot track errors.",
-                    Instance.GetType(), GetType());
+            if (_weakPropertyHandler == null && ValidateOnPropertyChanged)
+                Tracer.Warn("The type {0} doesn't implement the INotifyPropertyChanged, validator {1} cannot track errors.", Instance.GetType(), GetType());
+            return true;
         }
 
         /// <summary>
@@ -203,7 +269,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         public IList<object> GetErrors(string propertyName)
         {
             EnsureInitialized();
-            lock (_internalErrors)
+            lock (_errors)
                 return GetErrorsInternal(propertyName);
         }
 
@@ -216,7 +282,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         public IDictionary<string, IList<object>> GetErrors()
         {
             EnsureInitialized();
-            lock (_internalErrors)
+            lock (_errors)
                 return GetErrorsInternal();
         }
 
@@ -295,21 +361,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         }
 
         /// <summary>
-        ///     Creates a new validator that is a copy of the current instance.
-        /// </summary>
-        /// <returns>
-        ///     A new validator that is a copy of this instance.
-        /// </returns>
-        public IValidator Clone()
-        {
-            IValidator clone = CloneInternal();
-            var validatorBase = clone as ValidatorBase;
-            if (validatorBase != null)
-                validatorBase.ValidateOnPropertyChanged = ValidateOnPropertyChanged;
-            return clone;
-        }
-
-        /// <summary>
         ///     Gets a value that indicates whether the entity has validation errors.
         /// </summary>
         /// <returns>
@@ -363,22 +414,29 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             }
         }
 #endif
-        /// <summary>
-        ///     Subscribes an instance to events.
-        /// </summary>
-        /// <param name="subscriber">The instance to subscribe for event publication.</param>
-        public bool Subscribe(ISubscriber subscriber)
-        {
-            return SubscribeInternal(subscriber);
-        }
 
         /// <summary>
-        ///     Unsubscribes the instance from all events.
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        /// <param name="subscriber">The instance to unsubscribe.</param>
-        public bool Unsubscribe(ISubscriber subscriber)
+        public void Dispose()
         {
-            return UnsubscribeInternal(subscriber);
+            var oldHandler = Interlocked.Exchange(ref _weakPropertyHandler, DisposedHandler);
+            if (ReferenceEquals(DisposedHandler, oldHandler))
+                return;
+            OnDispose();
+            if (Context != null)
+            {
+                var notifyPropertyChanged = Instance as INotifyPropertyChanged;
+                if (notifyPropertyChanged == null)
+                {
+                    notifyPropertyChanged = Context.ValidationMetadata.GetData(ViewModelConstants.ViewModel);
+                    if (notifyPropertyChanged != null)
+                        notifyPropertyChanged.PropertyChanged -= oldHandler;
+                }
+                else
+                    notifyPropertyChanged.PropertyChanged -= oldHandler;
+            }
+            ErrorsChanged = null;
         }
 
         #endregion
@@ -393,20 +451,20 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <summary>
         ///     Gets the dictionary that contains all errors.
         /// </summary>
-        protected Dictionary<string, IList<object>> InternalErrors
+        protected Dictionary<string, IList<object>> Errors
         {
-            get { return _internalErrors; }
+            get { return _errors; }
         }
 
         /// <summary>
         ///     Gets the object to validate.
         /// </summary>
-        [NotNull]
         protected object Instance
         {
             get
             {
-                EnsureInitialized();
+                if (Context == null)
+                    return null;
                 return Context.Instance;
             }
         }
@@ -444,7 +502,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// </summary>
         protected bool IsValidating
         {
-            get { return _validationThreadCount != 0; }
+            get { return _runningTask != null && _runningTask.Count != 0; }
         }
 
         /// <summary>
@@ -452,48 +510,12 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// </summary>
         protected object Locker
         {
-            get { return _internalErrors; }
-        }
-
-        /// <summary>
-        ///     Gets the local <see cref="IEventAggregator" />.
-        /// </summary>
-        protected IEventAggregator LocalEventAggregator
-        {
-            get { return _eventAggregator; }
+            get { return _errors; }
         }
 
         #endregion
 
         #region Virtual-abstract methods
-
-        /// <summary>
-        ///     Subscribes an instance to events.
-        /// </summary>
-        /// <param name="subscriber">The instance to subscribe for event publication.</param>
-        protected virtual bool SubscribeInternal(ISubscriber subscriber)
-        {
-            return !ReferenceEquals(subscriber.Target, this) && _eventAggregator.Subscribe(subscriber);
-        }
-
-        /// <summary>
-        ///     Unsubscribes the instance from all events.
-        /// </summary>
-        /// <param name="subscriber">The instance to unsubscribe.</param>
-        protected virtual bool UnsubscribeInternal(ISubscriber subscriber)
-        {
-            return _eventAggregator.Unsubscribe(subscriber);
-        }
-
-        /// <summary>
-        ///     Publishes a message.
-        /// </summary>
-        /// <param name="message">The message instance.</param>
-        protected virtual void Publish(object message)
-        {
-            Should.NotBeNull(message, "message");
-            _eventAggregator.Publish(this, message);
-        }
 
         /// <summary>
         ///     Initializes the current validator using the specified <see cref="IValidatorContext" />.
@@ -511,9 +533,10 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <returns>
         ///     The validation errors.
         /// </returns>
+        [NotNull]
         protected virtual IDictionary<string, IList<object>> GetErrorsInternal()
         {
-            return new Dictionary<string, IList<object>>(_internalErrors);
+            return new Dictionary<string, IList<object>>(_errors);
         }
 
         /// <summary>
@@ -529,19 +552,19 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         [NotNull]
         protected virtual IList<object> GetErrorsInternal(string propertyName)
         {
-            if (_internalErrors.Count == 0)
+            if (_errors.Count == 0)
                 return Empty.Array<object>();
 
             if (string.IsNullOrEmpty(propertyName))
             {
                 var objects = new List<object>();
-                foreach (var error in _internalErrors.Values)
+                foreach (var error in _errors.Values)
                     objects.AddRange(error);
                 return objects;
             }
 
             IList<object> list;
-            _internalErrors.TryGetValue(propertyName, out list);
+            _errors.TryGetValue(propertyName, out list);
             return list ?? Empty.Array<object>();
         }
 
@@ -553,7 +576,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// </returns>
         protected virtual bool IsValidInternal()
         {
-            return _internalErrors.Count == 0 && !IsValidating;
+            return _errors.Count == 0 && !IsValidating;
         }
 
         /// <summary>
@@ -571,20 +594,35 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         protected virtual void ClearErrorsInternal()
         {
             string[] keys;
-            lock (_internalErrors)
-                keys = _internalErrors.Keys.ToArrayEx();
+            lock (_errors)
+                keys = _errors.Keys.ToArrayEx();
             for (int index = 0; index < keys.Length; index++)
                 UpdateErrors(keys[index], null, false);
         }
 
         /// <summary>
-        ///     Raises this object's ErrorsChangedChanged event.
+        ///     Publishes a message.
+        /// </summary>
+        /// <param name="message">The message instance.</param>
+        protected virtual void Publish(object message)
+        {
+            if (Context == null)
+                return;
+            var eventPublisher = Context.Instance as IEventPublisher;
+            var viewModel = Context.ValidationMetadata.GetData(ViewModelConstants.ViewModel);
+            if (eventPublisher != null)
+                eventPublisher.Publish(this, message);
+            if (viewModel != null && !ReferenceEquals(eventPublisher, viewModel))
+                viewModel.Publish(this, message);
+        }
+
+        /// <summary>
+        ///     Raises the <see cref="ErrorsChanged"/> event.
         /// </summary>
         /// <param name="propertyName">The property that has new errors.</param>
         /// <param name="isAsyncValidate">Indicates that property was async validation.</param>
         protected virtual void RaiseErrorsChanged(string propertyName, bool isAsyncValidate)
         {
-            Publish(new DataErrorsChangedMessage(propertyName, isAsyncValidate));
             EventHandler<DataErrorsChangedEventArgs> handler = ErrorsChanged;
             if (handler != null)
                 handler(this, new DataErrorsChangedEventArgs(propertyName));
@@ -607,37 +645,25 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         }
 
         /// <summary>
+        ///     Releases resources held by the object.
+        /// </summary>
+        protected virtual void OnDispose()
+        {
+        }
+
+        /// <summary>
         ///     Updates information about errors in the specified property.
         /// </summary>
-        /// <param name="propertyName">The specified property name.</param>
-        /// <returns>
-        ///     The result of validation.
-        /// </returns>
+        /// <returns> The result of validation.</returns>
         [CanBeNull]
-        protected abstract Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(string propertyName);
+        protected abstract Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(string propertyName, CancellationToken token);
 
         /// <summary>
         ///     Updates information about all errors.
         /// </summary>
-        /// <returns>
-        ///     The result of validation.
-        /// </returns>
+        /// <returns>The result of validation.</returns>
         [CanBeNull]
-        protected abstract Task<IDictionary<string, IEnumerable>> ValidateInternalAsync();
-
-        /// <summary>
-        ///     Creates a new validator that is a copy of the current instance.
-        /// </summary>
-        /// <returns>
-        ///     A new validator that is a copy of this instance.
-        /// </returns>
-        protected virtual IValidator CloneInternal()
-        {
-            var iocContainer = ServiceProvider.IocContainer;
-            if (iocContainer == null)
-                return (IValidator)Activator.CreateInstance(GetType());
-            return (IValidator)iocContainer.Get(GetType());
-        }
+        protected abstract Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(CancellationToken token);
 
         #endregion
 
@@ -661,10 +687,11 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <param name="propertyName">The name of the property.</param>
         /// <param name="errors">The collection of errors.</param>
         /// <param name="isAsyncValidate">Indicates that the validation was asynchronous.</param>
-        protected internal void UpdateErrors([NotNull] string propertyName, [CanBeNull] IEnumerable errors, bool isAsyncValidate)
+        protected internal void UpdateErrors([NotNull] string propertyName, [CanBeNull] IEnumerable errors,
+            bool isAsyncValidate)
         {
             ICollection<string> updatedProperties;
-            lock (_internalErrors)
+            lock (_errors)
                 updatedProperties = UpdateErrorsInternal(propertyName, errors);
             foreach (string name in updatedProperties)
                 RaiseErrorsChanged(name, isAsyncValidate);
@@ -694,22 +721,21 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         }
 
         /// <summary>
-        ///     Notifies on errors when any property changed.
-        /// </summary>
-        protected void OnPropertyChangedNotifyDataError(PropertyChangedEventArgs args)
-        {
-            if (args == null || !ValidateOnPropertyChanged || !IsInitialized || IsDisposed)
-                return;
-            ValidateAsync(args.PropertyName).WithTaskExceptionHandler(this, Context.ServiceProvider as IIocContainer);
-        }
-
-        /// <summary>
         ///     Makes sure that the object is initialized.
         /// </summary>
         protected void EnsureInitialized()
         {
-            if (!IsInitialized)
+            if (Context == null)
                 throw ExceptionManager.ValidatorNotInitialized(this);
+        }
+
+        /// <summary>
+        ///     Makes sure that the object is not disposed.
+        /// </summary>
+        protected void EnsureNotDisposed()
+        {
+            if (IsDisposed)
+                throw ExceptionManager.ObjectDisposed(GetType());
         }
 
         private Task Validate(string propertyName)
@@ -719,97 +745,60 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 propertyName = string.Empty;
             lock (_validatingMembers)
             {
-                if (!_validatingMembers.Add(propertyName))
+                if (_validatingMembers.Contains(propertyName))
                     return Empty.Task;
             }
 
             AsyncValidationMessage message = null;
             bool isAsync;
-            Task<IDictionary<string, IEnumerable>> validationTask = null;
+            Task<IDictionary<string, IEnumerable>> validationTask;
+            var cancellationToken = new CancellationTokenSource();
             try
             {
-                validationTask = validateAll ? ValidateInternalAsync() : ValidateInternalAsync(propertyName);
+                validationTask = validateAll
+                    ? ValidateInternalAsync(cancellationToken.Token)
+                    : ValidateInternalAsync(propertyName, cancellationToken.Token);
                 if (validationTask == null)
                     validationTask = EmptyResult;
                 if (ReferenceEquals(validationTask, DoNothingResult))
-                {
-                    validationTask = null;
                     return Empty.Task;
-                }
 
                 isAsync = !validationTask.IsCompleted;
                 if (isAsync)
                 {
+                    lock (_validatingMembers)
+                        _validatingMembers.Add(propertyName);
                     message = new AsyncValidationMessage(Guid.NewGuid(), propertyName, false);
                     Publish(message);
-                    Interlocked.Increment(ref _validationThreadCount);
-                    if (Tracer.TraceInformation)
-                        Tracer.Info("Start asynchronous validation, property name '{0}', validator '{1}'", propertyName, GetType());
+                    TraceAsync(true, propertyName);
                 }
-            }
-            catch
-            {
-                validationTask = null;
-                throw;
             }
             finally
             {
-                if (validationTask == null)
+                if (message != null)
                 {
                     lock (_validatingMembers)
                         _validatingMembers.Remove(propertyName);
                 }
             }
 
-
-            return validationTask.TryExecuteSynchronously(task =>
+            if (validationTask.IsCompleted)
             {
-                Exception exception = null;
-                try
-                {
-                    if (ReferenceEquals(task.Result, DoNothingResult.Result))
-                        return;
-
-                    var properties = new HashSet<string>(StringComparer.Ordinal);
-                    lock (_internalErrors)
-                    {
-                        //Clearing old errors
-                        if (validateAll)
-                        {
-                            var keys = _internalErrors.Keys.ToArrayEx();
-                            for (int index = 0; index < keys.Length; index++)
-                                properties.AddRange(UpdateErrorsInternal(keys[index], null));
-                        }
-                        else
-                            properties.AddRange(UpdateErrorsInternal(propertyName, null));
-
-                        //Updating new errors
-                        var result = task.Result ?? EmptyValidationDictionary;
-                        foreach (var valuePair in result)
-                            properties.AddRange(UpdateErrorsInternal(valuePair.Key, valuePair.Value));
-                    }
-                    foreach (var property in properties)
-                        RaiseErrorsChanged(property, isAsync);
-                }
-                catch (Exception e)
-                {
-                    exception = e;
-                }
-                finally
-                {
-                    lock (_validatingMembers)
-                        _validatingMembers.Remove(propertyName);
-                    if (isAsync)
-                    {
-                        Interlocked.Decrement(ref _validationThreadCount);
-                        if (message != null)
-                            Publish(message.ToEndMessage(exception));
-                        if (Tracer.TraceInformation)
-                            Tracer.Info("Finish asynchronous validation, property name '{0}', validator '{1}'",
-                                propertyName, GetType());
-                    }
-                }
-            });
+                OnValidated(validationTask, validateAll, propertyName, isAsync, message);
+                cancellationToken.Dispose();
+                return Empty.Task;
+            }
+            InitializeRunningTaskDict();
+            var value = new CancelableClosure(this, validateAll, propertyName, isAsync, message, cancellationToken);
+            CancelableClosure oldClosure;
+            lock (_runningTask)
+            {
+                _runningTask.TryGetValue(propertyName, out oldClosure);
+                _runningTask[propertyName] = value;
+            }
+            if (oldClosure != null)
+                oldClosure.Cancel();
+            return validationTask.TryExecuteSynchronously(value.Callback);
         }
 
         /// <summary>
@@ -817,7 +806,8 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// </summary>
         /// <param name="propertyName">The name of the property.</param>
         /// <param name="validatorErrors">The collection of errors.</param>
-        private ICollection<string> UpdateErrorsInternal([NotNull] string propertyName, [CanBeNull] IEnumerable validatorErrors)
+        private ICollection<string> UpdateErrorsInternal([NotNull] string propertyName,
+            [CanBeNull] IEnumerable validatorErrors)
         {
             Should.NotBeNull(propertyName, "propertyName");
             IList<object> errors;
@@ -839,53 +829,115 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             if (mappingProperties == null)
             {
                 if (hasErrors)
-                    _internalErrors[propertyName] = errors;
+                    _errors[propertyName] = errors;
                 else
-                    _internalErrors.Remove(propertyName);
+                    _errors.Remove(propertyName);
                 return new[] { propertyName };
             }
 
             foreach (string property in mappingProperties)
             {
                 if (hasErrors)
-                    _internalErrors[property] = errors;
+                    _errors[property] = errors;
                 else
-                    _internalErrors.Remove(property);
+                    _errors.Remove(property);
             }
             return mappingProperties;
+        }
+
+        private void OnValidated(Task<IDictionary<string, IEnumerable>> task, bool validateAll, string propertyName,
+            bool isAsync, AsyncValidationMessage message)
+        {
+            Exception exception = null;
+            HashSet<string> properties = null;
+            try
+            {
+                if (ReferenceEquals(task.Result, DoNothingResult.Result))
+                    return;
+
+                properties = new HashSet<string>(StringComparer.Ordinal);
+                lock (_errors)
+                {
+                    //Clearing old errors
+                    if (validateAll)
+                    {
+                        var keys = _errors.Keys.ToArrayEx();
+                        for (int index = 0; index < keys.Length; index++)
+                            properties.AddRange(UpdateErrorsInternal(keys[index], null));
+                    }
+                    else
+                        properties.AddRange(UpdateErrorsInternal(propertyName, null));
+
+                    //Updating new errors
+                    var result = task.Result ?? EmptyValidationDictionary;
+                    foreach (var valuePair in result)
+                        properties.AddRange(UpdateErrorsInternal(valuePair.Key, valuePair.Value));
+                }
+                lock (_validatingMembers)
+                {
+                    _validatingMembers.Add(propertyName);
+                    _validatingMembers.AddRange(properties);
+                }
+                foreach (var property in properties)
+                    RaiseErrorsChanged(property, isAsync);
+            }
+            catch (Exception e)
+            {
+                exception = e;
+            }
+            finally
+            {
+                if (isAsync)
+                {
+                    if (message != null)
+                        Publish(message.ToEndMessage(exception, false));
+                    TraceAsync(false, propertyName);
+                }
+                lock (_validatingMembers)
+                {
+                    _validatingMembers.Remove(propertyName);
+                    if (properties != null)
+                        _validatingMembers.RemoveRange(properties);
+                }
+            }
+        }
+
+        private void OnCanceled(string propertyName, AsyncValidationMessage message)
+        {
+            lock (_validatingMembers)
+                _validatingMembers.Add(propertyName);
+            Publish(message.ToEndMessage(null, true));
+            TraceAsync(false, propertyName);
+            lock (_validatingMembers)
+                _validatingMembers.Remove(propertyName);
         }
 
         private void InitializeWeakHandler()
         {
             if (_weakPropertyHandler == null)
-                _weakPropertyHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, (@base, o, arg3) => @base.OnPropertyChangedNotifyDataError(arg3));
+                _weakPropertyHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this,
+                    (@base, o, arg3) => @base.OnInstancePropertyChanged(arg3));
         }
 
-        #endregion
-
-        #region Overrides of DisposableObject
-
-        /// <summary>
-        ///     Releases resources held by the object.
-        /// </summary>
-        protected override void OnDispose(bool disposing)
+        private void InitializeRunningTaskDict()
         {
-            if (disposing)
-            {
-                if (IsInitialized)
-                {
-                    var notifyPropertyChanged = Instance as INotifyPropertyChanged;
-                    if (notifyPropertyChanged != null)
-                        notifyPropertyChanged.PropertyChanged -= _weakPropertyHandler;
-                    notifyPropertyChanged = Context.ValidationMetadata.GetData(ViewModelConstants.ViewModel);
-                    if (notifyPropertyChanged != null)
-                        notifyPropertyChanged.PropertyChanged -= _weakPropertyHandler;
-                    _weakPropertyHandler = null;
-                }
-                ErrorsChanged = null;
-                ServiceProvider.AttachedValueProvider.Clear(this);
-            }
-            base.OnDispose(disposing);
+            if (_runningTask == null)
+                Interlocked.CompareExchange(ref _runningTask,
+                    new Dictionary<string, CancelableClosure>(StringComparer.Ordinal), null);
+        }
+
+        private void OnInstancePropertyChanged(PropertyChangedEventArgs args)
+        {
+            var context = Context;
+            if (ValidateOnPropertyChanged && context != null && !IsDisposed)
+                ValidateAsync(args.PropertyName).WithTaskExceptionHandler(this, context.ServiceProvider as IIocContainer);
+        }
+
+        private void TraceAsync(bool start, string propertyName)
+        {
+            if (Tracer.TraceInformation)
+                Tracer.Info((start ? "Start" : "Finish") + " asynchronous validation, property name '{0}', validator '{1}'",
+                    propertyName, GetType());
         }
 
         #endregion
@@ -901,7 +953,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <summary>
         ///     Gets the object to validate.
         /// </summary>
-        [NotNull]
         protected new T Instance
         {
             get { return (T)base.Instance; }
@@ -921,7 +972,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         protected static bool PropertyNameEqual<TValue>(string memberName, [NotNull] Expression<Func<T, TValue>> getMember)
         {
             Should.NotBeNull(getMember, "getMember");
-            return string.Equals(memberName, getMember.GetMemberInfo().Name, StringComparison.Ordinal);
+            return getMember.GetMemberInfo().Name.Equals(memberName, StringComparison.Ordinal);
         }
 
         /// <summary>

@@ -39,7 +39,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
     {
         #region Fields
 
-        private readonly TContainer _container;
+        private readonly WeakReference _container;
         private readonly List<KeyValuePair<object, TItem>> _items;
         private readonly Action<TContainer, TItem[]> _setItems;
         private readonly IBindingMemberInfo _templateMemberInfo;
@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Should.NotBeNull(setItems, "setItems");
             _isControllerItem = typeof(UIViewController).IsAssignableFrom(typeof(TItem));
             _items = new List<KeyValuePair<object, TItem>>();
-            _container = container;
+            _container = PlatformExtensions.CreateWeakReference(container, true);
             _setItems = setItems;
             _templateMemberInfo = BindingServiceProvider
                 .MemberProvider
@@ -73,13 +73,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         protected override bool IsTargetDisposed
         {
-            get
-            {
-                var nativeObject = _container as INativeObject;
-                if (nativeObject == null)
-                    return false;
-                return !nativeObject.IsAlive();
-            }
+            get { return _container.Target == null; }
         }
 
         protected override void Add(int insertionIndex, int count)
@@ -130,6 +124,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     ClearItem(oldItem);
             }
             UpdateItems();
+        }
+
+        protected override void OnTargetDisposed(object sender, EventArgs e)
+        {
+            base.OnTargetDisposed(sender, e);
+            _items.Clear();
         }
 
         #endregion
@@ -207,15 +207,21 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         private void UpdateItems()
         {
+            var container = (TContainer)_container.Target;
+            if (container == null)
+            {
+                OnTargetDisposed(null, EventArgs.Empty);
+                return;
+            }
             if (_items.Count == 0)
             {
-                _setItems(_container, Empty.Array<TItem>());
+                _setItems(container, Empty.Array<TItem>());
                 return;
             }
             var items = new TItem[_items.Count];
             for (int i = 0; i < _items.Count; i++)
                 items[i] = _items[i].Value;
-            _setItems(_container, items);
+            _setItems(container, items);
         }
 
         #endregion

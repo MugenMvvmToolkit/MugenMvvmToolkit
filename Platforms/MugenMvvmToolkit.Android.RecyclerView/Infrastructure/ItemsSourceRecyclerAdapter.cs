@@ -173,7 +173,7 @@ namespace MugenMvvmToolkit.RecyclerView.Infrastructure
         {
             ((IActivityView)sender).Mediator.Destroyed -= ActivityViewOnDestroyed;
             SetItemsSource(null, false);
-            if (ReferenceEquals(_recyclerView.GetAdapter(), this))
+            if (_recyclerView.IsAlive() && ReferenceEquals(_recyclerView.GetAdapter(), this))
                 _recyclerView.SetAdapter(null);
         }
 

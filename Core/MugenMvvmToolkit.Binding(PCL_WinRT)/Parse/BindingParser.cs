@@ -50,8 +50,6 @@ namespace MugenMvvmToolkit.Binding.Parse
         protected const string FalseLiteral = "false";
         protected const string NullLiteral = "null";
 
-        protected static readonly DataConstant<object> SourceExpressionConstant;
-
         private static readonly Comparison<KeyValuePair<string, Action<IDataContext>[]>> MemberComparison;
         private static readonly Func<IDataContext, IBindingSource>[] EmptyBindingSourceDelegates;
         private static readonly HashSet<string> LiteralConstants;
@@ -91,7 +89,6 @@ namespace MugenMvvmToolkit.Binding.Parse
         static BindingParser()
         {
             MemberComparison = OrderByMemberPriority;
-            SourceExpressionConstant = DataConstant.Create(() => SourceExpressionConstant, true);
             DelimeterTokens = new HashSet<TokenType>
             {
                 TokenType.Comma,
@@ -281,7 +278,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                     object src = sources[i];
                     var dataContext = new DataContext();
                     if (src != null)
-                        dataContext.Add(SourceExpressionConstant, src);
+                        dataContext.Add(BindingBuilderConstants.Source, src);
                     var actions = bindingValues[i].Value;
                     for (int j = 0; j < actions.Length; j++)
                         actions[j].Invoke(dataContext);
@@ -606,7 +603,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                         RelativeSourceExpressionNode.RelativeSourceType, RelativeSourceExpressionNode.ElementSourceType);
                 ValidateToken(TokenType.CloseBrace);
                 NextToken(true);
-                return new RelativeSourceExpressionNode(memberName, false);
+                return RelativeSourceExpressionNode.CreateBindingContextSource(memberName);
             }
             bool isRelativeSource = sourceName == RelativeSourceExpressionNode.RelativeSourceType || RelativeSourceAliases.Contains(sourceName);
             int position = Tokenizer.Position;
@@ -656,12 +653,11 @@ namespace MugenMvvmToolkit.Binding.Parse
             RelativeSourceExpressionNode expression;
             //Self
             if (typeName == RelativeSourceExpressionNode.SelfType)
-                expression = new RelativeSourceExpressionNode(path, true);
+                expression = RelativeSourceExpressionNode.CreateSelfSource(path);
             else if (isRelativeSource)
-                expression = new RelativeSourceExpressionNode(typeName, level, path);
+                expression = RelativeSourceExpressionNode.CreateRelativeSource(typeName, level, path);
             else
-                //Element source
-                expression = new RelativeSourceExpressionNode(typeName, path);
+                expression = RelativeSourceExpressionNode.CreateElementSource(typeName, path);
             return ParsePrimary(expression);
         }
 
@@ -1281,7 +1277,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 if (!useBindingForMember)
                     return context => setSimpleValue(context, memberName);
 
-                node = new RelativeSourceExpressionNode(memberName, false);
+                node = RelativeSourceExpressionNode.CreateBindingContextSource(memberName);
             }
 
             var methodCall = nodes[0] as IMethodCallExpressionNode;
@@ -1305,7 +1301,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
             var method = methodCall.Method;
             var args = methodCall.Arguments.ToArrayEx(ex => ((IConstantExpressionNode)ex).Value);
-            var memberPath = members.Count == 0 ? null : string.Join(".", members);
+            var memberPath = members.Count == 0 ? null : BindingExtensions.MergePath(members);
 
             if (resourceExpression.Dynamic)
                 return context => setComplexValue(context, d => InvokeMethod(d, method, args, memberPath));
@@ -1399,31 +1395,23 @@ namespace MugenMvvmToolkit.Binding.Parse
             if (node.IsRelativeSource)
             {
                 IRelativeSourceExpressionNode r = node.RelativeSourceExpression;
-                return context =>
-                {
-                    var relativeSource = new RelativeSourceBehavior(r);
-                    object target = context.GetData(BindingBuilderConstants.Target, true);
-                    relativeSource.UpdateSource(target);
-                    return relativeSource.BindingSource;
-                };
+                return context => RelativeSourceBehavior.GetBindingSource(r, context.GetData(BindingBuilderConstants.Target, true), null);
             }
-            return context =>
-            {
-                var src = context.GetData(SourceExpressionConstant) ??
-                          BindingServiceProvider.ContextManager.GetBindingContext(
-                              context.GetData(BindingBuilderConstants.Target, true),
-                              context.GetData(BindingBuilderConstants.TargetPath, true).Path);
-                return new BindingSource(BindingServiceProvider.ObserverProvider.Observe(src, path, false));
-            };
+            return context => BindSource(context, path);
         }
 
         private static IBindingSource BindEmptyPathSource(IDataContext context)
         {
-            object src = context.GetData(SourceExpressionConstant) ??
+            return BindSource(context, BindingPath.Empty);
+        }
+
+        private static IBindingSource BindSource(IDataContext context, IBindingPath path)
+        {
+            object src = context.GetData(BindingBuilderConstants.Source) ??
                          BindingServiceProvider.ContextManager.GetBindingContext(
                              context.GetData(BindingBuilderConstants.Target, true),
                              context.GetData(BindingBuilderConstants.TargetPath, true).Path);
-            return new BindingSource(BindingServiceProvider.ObserverProvider.Observe(src, BindingPath.Empty, false));
+            return new BindingSource(BindingServiceProvider.ObserverProvider.Observe(src, path, false));
         }
 
         #endregion

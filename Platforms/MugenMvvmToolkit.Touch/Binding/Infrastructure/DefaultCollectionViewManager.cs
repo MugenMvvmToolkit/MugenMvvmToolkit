@@ -105,7 +105,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 var element = section[index];
                 section.Remove(index);
-                element.ClearBindingsHierarchically(true, true);
+                element.ClearBindingsRecursively(true, true);
+                element.DisposeEx();
                 return;
             }
 
@@ -114,7 +115,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 var element = rootElement[index];
                 rootElement.RemoveAt(index);
-                element.ClearBindingsHierarchically(true, true);
+                element.ClearBindingsRecursively(true, true);
+                element.DisposeEx();
                 return;
             }
 
@@ -146,7 +148,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 var elements = section.OfType<Element>().ToArray();
                 section.Clear();
                 foreach (var element in elements)
-                    element.ClearBindingsHierarchically(true, true);
+                {
+                    element.ClearBindingsRecursively(true, true);
+                    element.DisposeEx();
+                }
                 return;
             }
 
@@ -156,7 +161,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 var elements = rootElement.ToArray();
                 rootElement.Clear();
                 foreach (var element in elements)
-                    element.ClearBindingsHierarchically(true, true);
+                {
+                    element.ClearBindingsRecursively(true, true);
+                    element.DisposeEx();
+                }
                 return;
             }
 
@@ -206,7 +214,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (pair.Key != null)
                 pair.Key.RemoveFromParentViewController();
             if (pair.Value != null)
-                pair.Value.ClearBindingsHierarchically(true, true);
+            {
+                pair.Value.ClearBindingsRecursively(true, true);
+                pair.Value.DisposeEx();
+            }
         }
 
         #endregion

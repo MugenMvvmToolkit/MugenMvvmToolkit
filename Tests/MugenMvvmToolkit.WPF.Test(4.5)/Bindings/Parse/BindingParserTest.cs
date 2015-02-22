@@ -17,6 +17,7 @@ using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Parse;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestModels;
 using Should;
@@ -1824,6 +1825,64 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             context.Add(BindingConstants.CurrentEventArgs, EventArgs.Empty);
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, Empty.Array<object>()).ShouldEqual(EventArgs.Empty);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseExpressionWithBindingSource1()
+        {
+            const string targetPath = "Text";
+            string binding = "Text $" + BindingServiceProvider.ResourceResolver.BindingSourceResourceName;
+            var src = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, new DataContext(BindingBuilderConstants.RawSources.ToValue(new[] { src }))).Single());
+            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+            target.Path.ShouldEqual(targetPath);
+
+            var targetObj = new object();
+            context.Add(BindingBuilderConstants.Target, targetObj);
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+
+            IBindingSource source = sources.Single().Invoke(context);
+            var members = source.GetPathMembers(true);
+            members.LastMember.GetValue(members.PenultimateValue, null).ShouldEqual(src);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseExpressionWithBindingSource2()
+        {
+            const string targetPath = "Text";
+            string binding = "Text $" + BindingServiceProvider.ResourceResolver.BindingSourceResourceName;
+            var src = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+            target.Path.ShouldEqual(targetPath);
+
+            var targetObj = new object();
+            context.Add(BindingBuilderConstants.Target, targetObj);
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+
+            IBindingSource source = sources.Single().Invoke(context);
+            var members = source.GetPathMembers(true);
+            members.LastMember.GetValue(members.PenultimateValue, null).ShouldBeNull();
+
+            BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = src;
+            members.LastMember.GetValue(members.PenultimateValue, null).ShouldEqual(src);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseExpressionWithBindingSource3()
+        {
+            string binding = "Text Text, CommandParameter=$" + BindingServiceProvider.ResourceResolver.BindingSourceResourceName;
+            var src = new object();
+
+            IBindingParser bindingParser = CreateBindingParser();
+            var context = new BindingBuilder(bindingParser.Parse(binding, new DataContext(BindingBuilderConstants.RawSources.ToValue(new[] { src }))).Single());
+            context.GetData(BindingBuilderConstants.CommandParameter)
+                .Invoke(context)
+                .ShouldEqual(src);
         }
 
         private static void BindingSourceShouldBeValidDataContext(object target, IBindingSource bindingSource, string path)

@@ -66,7 +66,20 @@ namespace MugenMvvmToolkit.MonoTouch.Dialog
                 BindingExtensions.AttachedParentMember.SetValue(element, parent);
         }
 
-        public static void ClearBindingsHierarchically([CanBeNull] this Element element, bool clearDataContext, bool clearAttachedValues, bool? disposeAllElement = null)
+        public static void DisposeEx(this Element element)
+        {
+            if (element == null || PlatformExtensions.TryDispose(element))
+                return;
+            var enumerable = element as IEnumerable;
+            if (enumerable != null)
+            {
+                foreach (object item in enumerable)
+                    DisposeEx(item as Element);
+            }
+            element.Dispose();
+        }
+
+        public static void ClearBindingsRecursively([CanBeNull] this Element element, bool clearDataContext, bool clearAttachedValues)
         {
             if (element == null)
                 return;
@@ -74,14 +87,14 @@ namespace MugenMvvmToolkit.MonoTouch.Dialog
             if (enumerable != null)
             {
                 foreach (object item in enumerable)
-                    ClearBindingsHierarchically(item as Element, clearDataContext, clearAttachedValues, disposeAllElement);
+                    ClearBindingsRecursively(item as Element, clearDataContext, clearAttachedValues);
             }
-            element.ClearBindings(clearDataContext, clearAttachedValues, disposeAllElement);
+            element.ClearBindings(clearDataContext, clearAttachedValues);
         }
 
-        public static void ClearBindings([CanBeNull] this Element element, bool clearDataContext, bool clearAttachedValues, bool? disposeItem = null)
+        public static void ClearBindings([CanBeNull] this Element element, bool clearDataContext, bool clearAttachedValues)
         {
-            PlatformExtensions.ClearBindings(element, clearDataContext, clearAttachedValues, disposeItem);
+            BindingExtensions.ClearBindings(element, clearDataContext, clearAttachedValues);
         }
 
         public static object GetDataContext([NotNull] this Element item)
@@ -92,16 +105,6 @@ namespace MugenMvvmToolkit.MonoTouch.Dialog
         public static void SetDataContext([NotNull] this Element item, object value)
         {
             ViewManager.SetDataContext(item, value);
-        }
-
-        public static bool GetAutoDispose([CanBeNull]this Element element)
-        {
-            return PlatformExtensions.GetAutoDispose(element);
-        }
-
-        public static void SetAutoDispose([CanBeNull]this Element element, bool value)
-        {
-            PlatformExtensions.SetAutoDispose(element, value);
         }
 
         #endregion

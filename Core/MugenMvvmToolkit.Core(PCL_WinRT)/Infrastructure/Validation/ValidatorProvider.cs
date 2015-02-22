@@ -18,10 +18,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Validation;
-using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Validation
@@ -29,12 +29,11 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
     /// <summary>
     ///     Represents the factory that allows to create an instance of <see cref="IValidator" />.
     /// </summary>
-    public class ValidatorProvider : DisposableObject, IValidatorProvider
+    public class ValidatorProvider : IValidatorProvider
     {
         #region Fields
 
-        private readonly IDictionary<Type, List<IValidator>> _validatorPrototypes;
-        private IServiceProvider _serviceProvider;
+        private readonly Dictionary<Type, Type> _validators;
 
         #endregion
 
@@ -43,32 +42,22 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValidatorProvider" /> class.
         /// </summary>
-        public ValidatorProvider(bool registerDefaultValidators, [CanBeNull] IServiceProvider serviceProvider)
+        public ValidatorProvider()
+            : this(true)
         {
-            _validatorPrototypes = new Dictionary<Type, List<IValidator>>();
-            _serviceProvider = serviceProvider ?? MugenMvvmToolkit.ServiceProvider.IocContainer;
-            if (!registerDefaultValidators)
-                return;
-            Register<ValidatableViewModelValidator>();
-            Register<ValidationElementValidator>();
         }
 
-        #endregion
-
-        #region Properties
-
         /// <summary>
-        ///     Gets or sets the service provider.
+        ///     Initializes a new instance of the <see cref="ValidatorProvider" /> class.
         /// </summary>
-        public virtual IServiceProvider ServiceProvider
+        public ValidatorProvider(bool registerDefaultValidators)
         {
-            get
+            _validators = new Dictionary<Type, Type>();
+            if (registerDefaultValidators)
             {
-                if (_serviceProvider == null)
-                    return MugenMvvmToolkit.ServiceProvider.IocContainer;
-                return _serviceProvider;
+                Register(typeof(ValidatableViewModelValidator));
+                Register(typeof(DataAnnotationValidatior));
             }
-            set { _serviceProvider = value; }
         }
 
         #endregion
@@ -76,64 +65,42 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         #region Implementation of IValidatorProvider
 
         /// <summary>
-        ///     Registers the specified validator using the type.
-        /// </summary>
-        /// <typeparam name="TValidator">The type of validator.</typeparam>
-        public void Register<TValidator>() where TValidator : IValidator
-        {
-            IValidator validator = ServiceProvider == null
-                ? (IValidator)Activator.CreateInstance(typeof(TValidator))
-                : ServiceProvider.GetService<TValidator>();
-            Register(validator);
-        }
-
-        /// <summary>
         ///     Registers the specified validator.
         /// </summary>
-        /// <param name="validator">The specified validator</param>
-        public void Register(IValidator validator)
+        public void Register(Type validatorType)
         {
-            Should.NotBeNull(validator, "validator");
-            lock (_validatorPrototypes)
-            {
-                Type type = validator.GetType();
-                List<IValidator> validators;
-                _validatorPrototypes.TryGetValue(type, out validators);
-                if (validators != null && validators.Count != 0 && !validator.AllowDuplicate)
-                    throw ExceptionManager.DuplicateValidator(type);
-                if (validators == null)
-                    validators = new List<IValidator>();
-                validators.Add(validator);
-                _validatorPrototypes[type] = validators;
-            }
-        }
-
-        /// <summary>
-        ///     Unregisters the specified validator use type.
-        /// </summary>
-        /// <typeparam name="TValidator">The type of validator.</typeparam>
-        public bool Unregister<TValidator>() where TValidator : IValidator
-        {
-            lock (_validatorPrototypes)
-                return _validatorPrototypes.Remove(typeof(TValidator));
+            Should.BeOfType<IValidator>(validatorType, "validatorType");
+            lock (_validators)
+                _validators[validatorType] = GetSupportedType(validatorType);
         }
 
         /// <summary>
         ///     Determines whether the specified validator is registered
         /// </summary>
-        /// <typeparam name="TValidator">The type of validator.</typeparam>
-        public bool IsRegistered<TValidator>() where TValidator : IValidator
+        public bool IsRegistered(Type validatorType)
         {
-            return IsRegistered(typeof(TValidator));
+            Should.BeOfType<IValidator>(validatorType, "validatorType");
+            lock (_validators)
+                return _validators.ContainsKey(validatorType);
         }
 
         /// <summary>
-        ///     Determines whether the specified validator is registered
+        ///     Unregisters the specified validator.
         /// </summary>
-        public bool IsRegistered(Type type)
+        public bool Unregister(Type validatorType)
         {
-            lock (_validatorPrototypes)
-                return _validatorPrototypes.ContainsKey(type);
+            Should.BeOfType<IValidator>(validatorType, "validatorType");
+            lock (_validators)
+                return _validators.Remove(validatorType);
+        }
+
+        /// <summary>
+        ///     Gets the series of validator types.
+        /// </summary>
+        public IList<Type> GetValidatorTypes()
+        {
+            lock (_validators)
+                return _validators.Keys.ToArrayEx();
         }
 
         /// <summary>
@@ -144,22 +111,19 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         public IList<IValidator> GetValidators(IValidatorContext context)
         {
             Should.NotBeNull(context, "context");
-            lock (_validatorPrototypes)
+            var validators = new List<IValidator>();
+            var instanceType = context.Instance.GetType();
+            lock (_validators)
             {
-                var listResults = new List<IValidator>();
-                foreach (var values in _validatorPrototypes.Values)
+                foreach (var type in _validators)
                 {
-                    for (int index = 0; index < values.Count; index++)
-                    {
-                        var value = values[index];
-                        if (!value.CanValidate(context))
-                            continue;
-                        IValidator validator = value.Clone();
-                        validator.Initialize(context);
-                        listResults.Add(validator);
-                    }
+                    if (!type.Value.IsAssignableFrom(instanceType))
+                        continue;
+                    var validator = GetValidator(type.Key, context);
+                    if (validator != null)
+                        validators.Add(validator);
                 }
-                return listResults;
+                return validators;
             }
         }
 
@@ -176,13 +140,29 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         #region Methods
 
         /// <summary>
+        ///     Creates an instance of specified type for the specified context.
+        /// </summary>
+        [CanBeNull]
+        protected virtual IValidator GetValidator([NotNull] Type validatorType, [NotNull] IValidatorContext context)
+        {
+            IServiceProvider serviceProvider = context.ServiceProvider ?? ServiceProvider.IocContainer;
+            IValidator validator = serviceProvider == null
+                ? (IValidator)Activator.CreateInstance(validatorType)
+                : (IValidator)serviceProvider.GetService(validatorType);
+            if (validator.Initialize(context))
+                return validator;
+            validator.Dispose();
+            return null;
+        }
+
+        /// <summary>
         ///     Creates an instance of <see cref="IValidatorAggregator" />.
         /// </summary>
         [NotNull]
         protected virtual IValidatorAggregator GetValidatorAggregatorInternal()
         {
             ValidatableViewModel viewModel;
-            var iocContainer = ServiceProvider as IIocContainer;
+            IIocContainer iocContainer = ServiceProvider.IocContainer;
             IViewModelProvider viewModelProvider;
             if (iocContainer != null && iocContainer.TryGet(out viewModelProvider))
                 viewModel = viewModelProvider.GetViewModel<ValidatableViewModel>();
@@ -192,28 +172,22 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             return viewModel;
         }
 
-        #endregion
-
-        #region Overrides of DisposableObject
-
-        /// <summary>
-        ///     Releases resources held by the object.
-        /// </summary>
-        protected override void OnDispose(bool disposing)
+        private static Type GetSupportedType(Type validatorType)
         {
-            if (disposing)
+            while (validatorType != null)
             {
-                lock (_validatorPrototypes)
-                {
-                    foreach (var prototype in _validatorPrototypes)
-                    {
-                        for (int index = 0; index < prototype.Value.Count; index++)
-                            prototype.Value[index].Dispose();
-                    }
-                    _validatorPrototypes.Clear();
-                }
+#if PCL_WINRT
+                var typeInfo = validatorType.GetTypeInfo();
+                if (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(ValidatorBase<>))
+                    return typeInfo.GenericTypeArguments[0];
+                validatorType = typeInfo.BaseType;
+#else
+                if (validatorType.IsGenericType && validatorType.GetGenericTypeDefinition() == typeof(ValidatorBase<>))
+                    return validatorType.GetGenericArguments()[0];
+                validatorType = validatorType.BaseType;
+#endif
             }
-            base.OnDispose(disposing);
+            return typeof(object);
         }
 
         #endregion

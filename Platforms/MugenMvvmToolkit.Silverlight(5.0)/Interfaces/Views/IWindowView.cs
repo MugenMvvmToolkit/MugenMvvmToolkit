@@ -18,14 +18,12 @@
 
 using System;
 using System.ComponentModel;
-using MugenMvvmToolkit.Annotations;
 
 namespace MugenMvvmToolkit.Interfaces.Views
 {
     /// <summary>
     ///     Represent the base interface for child windows view.
     /// </summary>
-    [BaseView(ViewTypeName = "System.Windows.Controls.ChildWindow")]
     public interface IWindowView : IView
     {
         /// <summary>

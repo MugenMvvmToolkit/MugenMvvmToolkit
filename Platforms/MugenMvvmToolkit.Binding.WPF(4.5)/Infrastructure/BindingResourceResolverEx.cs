@@ -158,7 +158,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     return valueConverter;
                 var converter = item as IValueConverter;
                 if (converter != null)
-                    return new ValueConverterWrapper(converter.Convert, converter.ConvertBack);
+                    return new ValueConverterWrapper(converter);
             }
             return base.ResolveConverter(name, context, throwOnError);
         }

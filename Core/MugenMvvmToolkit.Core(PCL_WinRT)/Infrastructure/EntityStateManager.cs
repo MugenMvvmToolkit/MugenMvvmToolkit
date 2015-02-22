@@ -94,7 +94,8 @@ namespace MugenMvvmToolkit.Infrastructure
                     if (!Equals(state.Value.PropertyInfo.GetValueEx<object>(entity), state.Value.Value))
                         state.Value.PropertyInfo.SetValueEx(entity, state.Value.Value);
                 }
-                Tracer.Info("The state of entity {0} was restored", entity.GetType());
+                if (Tracer.TraceInformation)
+                    Tracer.Info("The state of entity {0} was restored", entity.GetType());
             }
 
             /// <summary>
@@ -195,7 +196,8 @@ namespace MugenMvvmToolkit.Infrastructure
         public IEntitySnapshot CreateSnapshot(object entity, IDataContext context = null)
         {
             Should.NotBeNull(entity, "entity");
-            Tracer.Info("The state snapshot of entity {0} was created", entity.GetType());
+            if (Tracer.TraceInformation)
+                Tracer.Info("The state snapshot of entity {0} was created", entity.GetType());
             return new EntitySnapshot(entity, GetPropertiesInternal(entity));
         }
 

@@ -33,7 +33,7 @@ namespace MugenMvvmToolkit.Modules
     {
         #region Nested types
 
-        private sealed class WindowViewWrapper : DisposableObject, IWindowView, IViewWrapper
+        private sealed class WindowViewWrapper : IDisposable, IWindowView, IViewWrapper
         {
             #region Fields
 
@@ -114,16 +114,6 @@ namespace MugenMvvmToolkit.Modules
 
             public event EventHandler<object, CancelEventArgs> Closing;
 
-            protected override void OnDispose(bool disposing)
-            {
-                if (disposing)
-                {
-                    if (_token.HasValue)
-                        _closingEvent.RemoveMethod.Invoke(_window, new object[] { _token.Value });
-                }
-                base.OnDispose(disposing);
-            }
-
             #endregion
 
             #region Implementation of IViewWrapper
@@ -131,6 +121,16 @@ namespace MugenMvvmToolkit.Modules
             public object View
             {
                 get { return _window; }
+            }
+
+            #endregion
+
+            #region Implementation of IDisposable
+
+            public void Dispose()
+            {
+                if (_token.HasValue)
+                    _closingEvent.RemoveMethod.Invoke(_window, new object[] { _token.Value });
             }
 
             #endregion

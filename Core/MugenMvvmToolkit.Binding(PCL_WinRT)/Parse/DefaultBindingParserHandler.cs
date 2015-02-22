@@ -40,9 +40,9 @@ namespace MugenMvvmToolkit.Binding.Parse
         internal const string GetEventArgsMethod = "GetEventArgs";
         internal const string GetErrorsMethod = "GetErrors";
         private const string GetEventArgsDynamicMethod = "$GetEventArgs()";
-        private const string Temp = "~~~___~~~";
-        private bool _hasGetErrors;
+
         private readonly List<string> _errorPathNames;
+        private bool _hasGetErrors;
 
         #endregion
 
@@ -141,6 +141,18 @@ namespace MugenMvvmToolkit.Binding.Parse
                                         .Select(expressionNode => expressionNode.Value as string ?? string.Empty);
                 _errorPathNames.AddRange(paths);
                 _hasGetErrors = true;
+
+                //Adding binding source member if the expression does not contain members.
+                if (methodCallExpressionNode.Arguments.Count == 0)
+                {
+                    return new MethodCallExpressionNode(methodCallExpressionNode.Target, methodCallExpressionNode.Method,
+                        new IExpressionNode[]
+                        {
+                            new MemberExpressionNode(ResourceExpressionNode.DynamicInstance,
+                                BindingServiceProvider.ResourceResolver.BindingSourceResourceName)
+                        },
+                        methodCallExpressionNode.TypeArgs);
+                }
             }
             return node;
         }

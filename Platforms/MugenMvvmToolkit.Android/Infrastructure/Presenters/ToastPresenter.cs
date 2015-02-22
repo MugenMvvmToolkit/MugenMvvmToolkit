@@ -252,13 +252,15 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 #endif
         }
 
-        private static void ActivityOnDestroyed(object sender, EventArgs eventArgs)
+#if !XAMARIN_FORMS
+        private static void ActivityOnDestroyed(Activity sender, EventArgs eventArgs)
         {
+            ((IActivityView)sender).Mediator.Destroyed -= ActivityOnDestroyedDelegate;
             var wrapper = ServiceProvider.AttachedValueProvider.GetValue<ToastWrapper>(sender, ToastWrapperMember, false);
             if (wrapper != null)
                 wrapper.Complete();
         }
-
+#endif
         #endregion
     }
 }

@@ -68,7 +68,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #endregion
 
-        #region Methods
+        #region Properties
 
         private static ICollection<string> RelativeSourceAliases
         {
@@ -112,7 +112,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 var relativeExp = nodes[0] as IRelativeSourceExpressionNode;
                 if (relativeExp != null)
                 {
-                    relativeExp.MergePath(string.Join(".", members));
+                    relativeExp.MergePath(BindingExtensions.MergePath(members));
                     return relativeExp;
                 }
 
@@ -121,13 +121,15 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {
                     if (RelativeSourceAliases.Contains(methodCall.Method))
                     {
-                        if ((methodCall.Arguments.Count == 1 || methodCall.Arguments.Count == 2) && methodCall.Arguments[0] is IMemberExpressionNode)
+                        if ((methodCall.Arguments.Count == 1 || methodCall.Arguments.Count == 2) &&
+                            methodCall.Arguments[0] is IMemberExpressionNode)
                         {
                             int level = 1;
                             var relativeType = (IMemberExpressionNode)methodCall.Arguments[0];
                             if (methodCall.Arguments.Count == 2)
                                 level = (int)((IConstantExpressionNode)methodCall.Arguments[1]).Value;
-                            return new RelativeSourceExpressionNode(relativeType.Member, (uint)level, string.Join(".", members));
+                            return RelativeSourceExpressionNode.CreateRelativeSource(relativeType.Member, (uint)level,
+                                BindingExtensions.MergePath(members));
                         }
                     }
 
@@ -136,7 +138,8 @@ namespace MugenMvvmToolkit.Binding.Parse
                         if (methodCall.Arguments.Count == 1 && methodCall.Arguments[0] is IMemberExpressionNode)
                         {
                             var elementSource = (IMemberExpressionNode)methodCall.Arguments[0];
-                            return new RelativeSourceExpressionNode(elementSource.Member, string.Join(".", members));
+                            return RelativeSourceExpressionNode.CreateElementSource(elementSource.Member,
+                                BindingExtensions.MergePath(members));
                         }
                     }
                 }

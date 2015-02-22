@@ -51,6 +51,7 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected BootstrapperBase()
         {
+            ServiceProvider.DesignTimeManager = DesignTimeManagerImpl.Instance;
             if (Current != null)
                 Tracer.Error("The application is already has a bootstrapper " + Current);
         }

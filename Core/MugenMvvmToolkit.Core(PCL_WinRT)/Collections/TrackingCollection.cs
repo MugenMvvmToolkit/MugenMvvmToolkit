@@ -194,7 +194,7 @@ namespace MugenMvvmToolkit.Collections
             get { return StateTransitionManagerInternal; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 StateTransitionManagerInternal = value;
                 OnPropertyChanged(StateTransitionManagerArgs);
             }

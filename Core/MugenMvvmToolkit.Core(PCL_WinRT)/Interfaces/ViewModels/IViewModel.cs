@@ -30,7 +30,7 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
     public interface IViewModel : IDisposableObject, IObservable, ISuspendNotifications, IEventPublisher
     {
         /// <summary>
-        ///     Gets the initialized state of the current view model.
+        ///     Gets a value indicating whether this view model is initialized.
         /// </summary>
         bool IsInitialized { get; }
 

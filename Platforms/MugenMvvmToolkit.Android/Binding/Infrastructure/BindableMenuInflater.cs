@@ -45,6 +45,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Serializer = new XmlSerializer(typeof(MenuTemplate), string.Empty);
         }
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="BindableMenuInflater" /> class.
+        /// </summary>
         public BindableMenuInflater([NotNull] Context context)
             : base(context)
         {
@@ -107,8 +110,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             foreach (var attribute in document.FirstChild.Attributes.OfType<XmlAttribute>())
             {
-                if (string.Equals(attribute.Value, "http://schemas.android.com/apk/res/android",
-                    StringComparison.InvariantCultureIgnoreCase))
+                if ("http://schemas.android.com/apk/res/android".Equals(attribute.Value, StringComparison.InvariantCultureIgnoreCase))
                     return true;
             }
             return false;

@@ -172,7 +172,7 @@ namespace MugenMvvmToolkit.ViewModels
         }
 
         /// <summary>
-        ///     Gets the initialized state of the current view model.
+        ///     Gets a value indicating whether this view model is initialized.
         /// </summary>
         public bool IsInitialized
         {
@@ -457,7 +457,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <returns>
         ///     An instance of <see cref="IViewModel" />.
         /// </returns>
-        protected internal IViewModel GetViewModel([NotNull, ViewModelTypeRequired] Type viewModelType, ObservationMode? observationMode = null,
+        protected internal IViewModel GetViewModel([NotNull] Type viewModelType, ObservationMode? observationMode = null,
             IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
         {
             EnsureNotDisposed();

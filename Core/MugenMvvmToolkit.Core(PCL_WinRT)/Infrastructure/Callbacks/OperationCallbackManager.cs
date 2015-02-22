@@ -60,7 +60,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             /// </summary>
             protected override bool Equals(string x, string y)
             {
-                return string.Equals(x, y, StringComparison.Ordinal);
+                return x.Equals(y, StringComparison.Ordinal);
             }
 
             /// <summary>

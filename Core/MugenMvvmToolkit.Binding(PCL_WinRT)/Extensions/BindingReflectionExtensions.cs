@@ -634,14 +634,14 @@ namespace MugenMvvmToolkit.Binding
             return type.GetTypeInfo().IsInterface;
         }
 
-        private static bool IsValueType(this Type type)
-        {
-            return type.GetTypeInfo().IsValueType;
-        }
-
         private static bool IsGenericType(this Type type)
         {
             return type.GetTypeInfo().IsGenericType;
+        }
+
+        private static bool IsValueType(this Type type)
+        {
+            return type.GetTypeInfo().IsValueType;
         }
 #else
         private static TypeCode GetTypeCode(this Type type)
@@ -657,11 +657,6 @@ namespace MugenMvvmToolkit.Binding
         private static bool IsInterface(this Type type)
         {
             return type.IsInterface;
-        }
-
-        private static bool IsValueType(this Type type)
-        {
-            return type.IsValueType;
         }
 #endif
         #endregion
