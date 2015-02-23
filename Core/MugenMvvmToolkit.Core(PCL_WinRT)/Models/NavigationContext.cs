@@ -33,7 +33,6 @@ namespace MugenMvvmToolkit.Models
         private readonly NavigationMode _navigationMode;
         private readonly object _navigationProvider;
         private readonly NavigationType _type;
-        private readonly IDataContext _parameters;
         private readonly IViewModel _viewModelFrom;
         private readonly IViewModel _viewModelTo;
 
@@ -49,11 +48,12 @@ namespace MugenMvvmToolkit.Models
         {
             Should.NotBeNull(type, "type");
             _type = type;
-            _parameters = parameters;
             _navigationMode = navigationMode;
             _navigationProvider = navigationProvider;
             _viewModelFrom = viewModelFrom;
             _viewModelTo = viewModelTo;
+            if (parameters != null)
+                Merge(parameters);
         }
 
         #endregion
@@ -82,14 +82,6 @@ namespace MugenMvvmToolkit.Models
         public IViewModel ViewModelTo
         {
             get { return _viewModelTo; }
-        }
-
-        /// <summary>
-        ///     Gets the navigation parameters.
-        /// </summary>
-        public IDataContext Parameters
-        {
-            get { return _parameters ?? Empty; }
         }
 
         /// <summary>

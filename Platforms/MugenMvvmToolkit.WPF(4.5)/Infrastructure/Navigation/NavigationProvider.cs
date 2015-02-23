@@ -569,7 +569,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 else
                 {
                     if (NavigationService.Navigate(args, _lastContext))
-                        ClearCacheIfNeed(_lastContext ?? DataContext.Empty, _navigationTargetVm, context.Parameters);
+                        ClearCacheIfNeed(_lastContext ?? DataContext.Empty, _navigationTargetVm, context);
                     else
                         CancelCurrentNavigation(context);
                 }
@@ -681,8 +681,8 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
             var viewModel = GetViewModelForView(args, navigationViewModel, context, vmType);
             if (!ReferenceEquals(context.ViewModelTo, viewModel))
-                context = new NavigationContext(NavigationType.Page, context.NavigationMode, context.ViewModelFrom, viewModel,
-                    context.NavigationProvider, context.Parameters);
+                context = new NavigationContext(NavigationType.Page, context.NavigationMode, context.ViewModelFrom,
+                    viewModel, context.NavigationProvider, context);
             if (viewModel != null && callback != null)
                 RegisterOperationCallback(viewModel, callback, context);
         }

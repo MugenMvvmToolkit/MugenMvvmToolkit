@@ -46,12 +46,6 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
         IViewModel ViewModelTo { get; }
 
         /// <summary>
-        ///     Gets the navigation parameters.
-        /// </summary>
-        [NotNull]
-        IDataContext Parameters { get; }
-
-        /// <summary>
         ///     Gets the navigation type.
         /// </summary>
         NavigationType NavigationType { get; }

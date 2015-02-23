@@ -217,6 +217,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             }
             base.OnDestroy(baseOnDestroy);
             Target.ClearBindings(false, true);
+            Target.Dispose();
             OptionsItemSelected = null;
             ConfigurationChanged = null;
             PostCreate = null;
