@@ -186,7 +186,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         public const string ServiceProviderKey = "_ServiceProviderKey_";
         private const MemberFlags InstancePublicFlags = MemberFlags.Public | MemberFlags.Instance;
-        private const string ValidationContextKey = "``````";
         private const string DataAnnotationsNamespace = "System.ComponentModel.DataAnnotations";
         private const string ValidationContextTypeName = DataAnnotationsNamespace + ".ValidationContext";
         private const string ValidationResultTypeName = DataAnnotationsNamespace + ".ValidationResult";
@@ -573,34 +572,19 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             Action<object, string> displayNameSetter = ServiceProvider.ReflectionManager.GetMemberSetter<string>(displayNameProp);
             Action<object, string> memberNameSetter = ServiceProvider.ReflectionManager.GetMemberSetter<string>(memberNameProp);
             Func<object[], object> activatorDelegate = ServiceProvider.ReflectionManager.GetActivatorDelegate(constructor);
-            return context => ConverterValidationContext(context, type, activatorDelegate, displayNameSetter, memberNameSetter, isThree);
+            return context => ConverterValidationContext(context, activatorDelegate, displayNameSetter, memberNameSetter, isThree);
         }
 
 
-        private static object ConverterValidationContext(ValidationContext context, Type contextType,
+        private static object ConverterValidationContext(ValidationContext context,
             Func<object[], object> activatorDelegate, Action<object, string> displayNameSetter,
             Action<object, string> memberNameSetter, bool isThree)
         {
             if (context.ServiceProvider != null)
                 context.Items[ServiceProviderKey] = context.ServiceProvider;
-            object contextResult;
-            if (context.Items != null)
-            {
-                string key = contextType.FullName + ValidationContextKey;
-                if (!context.Items.TryGetValue(key, out contextResult))
-                {
-                    contextResult = activatorDelegate(isThree
-                        ? new[] { context.ObjectInstance, context.ServiceProvider, context.Items }
-                        : new[] { context.ObjectInstance, context.Items });
-                    context.Items[key] = contextResult;
-                }
-            }
-            else
-            {
-                contextResult = activatorDelegate(isThree
+            var contextResult = activatorDelegate(isThree
                     ? new[] { context.ObjectInstance, context.ServiceProvider, context.Items }
                     : new[] { context.ObjectInstance, context.Items });
-            }
             displayNameSetter(contextResult, context.DisplayName);
             memberNameSetter(contextResult, context.MemberName);
             return contextResult;
