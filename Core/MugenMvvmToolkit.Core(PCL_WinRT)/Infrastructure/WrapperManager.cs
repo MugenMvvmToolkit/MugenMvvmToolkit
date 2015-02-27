@@ -85,6 +85,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Fields
 
+        public static readonly DataConstant<object> ItemToWrapConstant;
         private static readonly Func<Type, IDataContext, bool> TrueCondition;
         private readonly Dictionary<Type, List<WrapperRegistration>> _registrations;
         private readonly IViewModelProvider _viewModelProvider;
@@ -96,6 +97,7 @@ namespace MugenMvvmToolkit.Infrastructure
         static WrapperManager()
         {
             TrueCondition = (model, context) => true;
+            ItemToWrapConstant = DataConstant.Create(() => ItemToWrapConstant, true);
         }
 
         /// <summary>
@@ -272,12 +274,12 @@ namespace MugenMvvmToolkit.Infrastructure
             Should.NotBeNull(wrapperType, "wrapperType");
             if (wrapperType.IsInstanceOfType(item))
                 return item;
-            if (dataContext == null)
-                dataContext = DataContext.Empty;
+            dataContext = dataContext.ToNonReadOnly();
             object wrapper = null;
             List<WrapperRegistration> list;
             if (_registrations.TryGetValue(wrapperType, out list))
             {
+                dataContext.AddOrUpdate(ItemToWrapConstant, item);
                 var type = item.GetType();
                 for (int i = 0; i < list.Count; i++)
                 {
@@ -285,6 +287,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     if (registration.Condition(type, dataContext))
                         wrapper = WrapInternal(item, registration, dataContext);
                 }
+                dataContext.Remove(ItemToWrapConstant);
             }
             if (wrapper == null)
                 wrapper = WrapToDefaultWrapper(item, wrapperType, dataContext);

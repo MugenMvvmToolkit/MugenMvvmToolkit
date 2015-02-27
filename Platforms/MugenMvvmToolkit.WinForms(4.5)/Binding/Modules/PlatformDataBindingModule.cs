@@ -136,7 +136,26 @@ namespace MugenMvvmToolkit.Binding.Modules
                     }, "DataSourceChanged"));
             memberProvider.Register(
                 AttachedBindingMember.CreateMember<DataGridView, object>(AttachedMemberConstants.SelectedItem,
-                    GetSelectedItemDataGridView, SetSelectedItemDataGridView, "CurrentCellChanged"));
+                    GetSelectedItemDataGridView, SetSelectedItemDataGridView, (info, view, arg3) =>
+                    {
+                        arg3 = arg3.ToWeakEventListener();
+                        EventHandler handler = null;
+                        handler = (sender, args) =>
+                        {
+                            var gridView = (DataGridView)sender;
+                            Action<DataGridView, IEventListener, EventHandler> action =
+                                (dataGridView, listener, eventHandler) =>
+                                {
+                                    if (!listener.TryHandle(dataGridView, EventArgs.Empty))
+                                        dataGridView.CurrentCellChanged -= eventHandler;
+                                };
+                            //To prevent this exception 'Operation not valid because it results in a reentrant call to the SetCurrentCellAddressCore function'
+                            gridView.BeginInvoke(action, gridView, arg3, handler);
+                        };
+                        view.CurrentCellChanged += handler;
+                        return WeakActionToken.Create(view, handler,
+                            (gridView, eventHandler) => gridView.CurrentCellChanged -= eventHandler);
+                    }));
         }
 
         #region Control

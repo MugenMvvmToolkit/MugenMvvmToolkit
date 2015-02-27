@@ -151,29 +151,20 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
             private void UnsubscribeCommand()
             {
-                try
-                {
-                    var command = GetReferenceValue() as ICommand;
-                    if (command == null)
-                        return;
-                    if (_canExecuteHandler == null)
-                        return;
-                    command.CanExecuteChanged -= _canExecuteHandler;
+                var command = GetReferenceValue() as ICommand;
+                if (command == null)
+                    return;
+                if (_canExecuteHandler == null)
+                    return;
+                command.CanExecuteChanged -= _canExecuteHandler;
 
-                    var accessor = (BindingSourceAccessor)_sourceReference.Target;
-                    if (accessor == null)
-                        return;
+                var accessor = (BindingSourceAccessor)_sourceReference.Target;
+                if (accessor == null)
+                    return;
 
-                    var cmdSource = accessor.BindingTarget;
-                    if (cmdSource != null)
-                        cmdSource.IsEnabled = true;
-                }
-                catch (Exception e)
-                {
-                    if (!SuppressCanExecuteException)
-                        throw;
-                    Tracer.Error(e.Flatten(true));
-                }
+                var cmdSource = accessor.BindingTarget;
+                if (cmdSource != null)
+                    cmdSource.IsEnabled = true;
             }
 
             private bool UnsubscribeEventHandler()
@@ -456,18 +447,9 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         private void CommandOnCanExecuteChanged([NotNull] ICommand command, IDataContext context)
         {
-            try
-            {
-                var cmdSource = BindingTarget;
-                if (cmdSource != null)
-                    cmdSource.IsEnabled = command.CanExecute(GetCommandParameter(context));
-            }
-            catch (Exception e)
-            {
-                if (!SuppressCanExecuteException)
-                    throw;
-                Tracer.Error(e.Flatten(true));
-            }
+            var cmdSource = BindingTarget;
+            if (cmdSource != null)
+                cmdSource.IsEnabled = command.CanExecute(GetCommandParameter(context));
         }
 
         private void OnEventImpl(object target, object eventArgs, IDataContext context)

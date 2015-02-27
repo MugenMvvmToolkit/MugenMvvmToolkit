@@ -25,6 +25,7 @@ using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using Xamarin.Forms;
@@ -101,7 +102,13 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         public void GoBack()
         {
             if (_rootPage != null)
-                _rootPage.PopAsync(UseAnimations);
+            {
+                bool animated;
+                var viewModel = CurrentContent == null ? null : ViewManager.GetDataContext(CurrentContent) as IViewModel;
+                if (viewModel == null || !viewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out animated))
+                    animated = UseAnimations;
+                _rootPage.PopAsync(animated);
+            }
         }
 
         /// <summary>
@@ -198,7 +205,12 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
             var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
             bool animated;
-            if (!dataContext.TryGetData(NavigationConstants.UseAnimations, out animated))
+            if (dataContext.TryGetData(NavigationConstants.UseAnimations, out animated))
+            {
+                if (viewModel != null)
+                    viewModel.Settings.State.AddOrUpdate(NavigationConstants.UseAnimations, animated);
+            }
+            else
                 animated = UseAnimations;
             Page page;
             if (viewModel == null)

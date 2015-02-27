@@ -52,6 +52,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 .CreateWeakDelegate<ModalViewMediator, CancelEventArgs, EventHandler<Page, CancelEventArgs>>(this,
                     (service, o, arg3) => service.OnBackButtonPressed((Page)o, arg3),
                     (o, handler) => XamarinFormsExtensions.BackButtonPressed -= handler, handler => handler.Handle);
+            UseAnimations = true;
         }
 
         #endregion
@@ -84,7 +85,9 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 .Get<INavigationService>()
                 .CurrentContent;
             bool animated;
-            if (!context.TryGetData(NavigationConstants.UseAnimations, out animated))
+            if (context.TryGetData(NavigationConstants.UseAnimations, out animated))
+                ViewModel.Settings.State.AddOrUpdate(NavigationConstants.UseAnimations, animated);
+            else
                 animated = UseAnimations;
             page.Navigation.PushModalAsync(view.GetUnderlyingView<Page>(), animated);
         }
@@ -116,7 +119,12 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         protected override void CloseView(IModalView view)
         {
             var page = view.GetUnderlyingView<Page>();
-            page.Navigation.PopModalAsync(UseAnimations);
+            bool animated;
+            if (ViewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out animated))
+                ViewModel.Settings.State.Remove(NavigationConstants.UseAnimations);
+            else
+                animated = UseAnimations;
+            page.Navigation.PopModalAsync(animated);
         }
 
         #endregion

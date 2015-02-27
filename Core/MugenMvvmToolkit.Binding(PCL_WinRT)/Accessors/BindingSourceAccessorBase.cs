@@ -179,11 +179,6 @@ namespace MugenMvvmToolkit.Binding.Accessors
             get { return _parameters; }
         }
 
-        /// <summary>
-        ///     Gets or sets the value that allows to suppress the exception in the CanExecute method of <c>ICommand</c> interface.
-        /// </summary>
-        public static bool SuppressCanExecuteException { get; set; }
-
         #endregion
 
         #region Implementation of IBindingSourceAccessor

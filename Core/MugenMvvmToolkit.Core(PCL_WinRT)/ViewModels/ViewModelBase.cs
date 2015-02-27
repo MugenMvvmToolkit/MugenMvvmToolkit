@@ -695,7 +695,7 @@ namespace MugenMvvmToolkit.ViewModels
         }
 
         /// <summary>
-        ///     Occurs after busy operation is occurred.
+        ///     Occurs during the busy operation is started.
         /// </summary>
         /// <param name="id">The specified id.</param>
         /// <param name="message">The specified message.</param>
@@ -704,7 +704,7 @@ namespace MugenMvvmToolkit.ViewModels
         }
 
         /// <summary>
-        ///     Occurs after busy operation is ended.
+        ///     Occurs during the busy operation is completed.
         /// </summary>
         /// <param name="id">The specified id.</param>
         protected virtual void OnEndBusy(Guid id)

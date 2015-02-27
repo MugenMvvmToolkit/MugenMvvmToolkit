@@ -109,7 +109,9 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 .CurrentContent;
             var toShow = view.GetUnderlyingView<UIViewController>();
             bool animated;
-            if (!context.TryGetData(NavigationConstants.UseAnimations, out animated))
+            if (context.TryGetData(NavigationConstants.UseAnimations, out animated))
+                ViewModel.Settings.State.AddOrUpdate(NavigationConstants.UseAnimations, animated);
+            else
                 animated = UseAnimations;
             if (view is IModalNavSupportView)
             {
@@ -145,8 +147,13 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             var controller = view.GetUnderlyingView<UIViewController>();
             UIViewController presentedController = controller.PresentingViewController ??
                                                    controller.PresentedViewController;
+            bool animated;
+            if (ViewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out animated))
+                ViewModel.Settings.State.Remove(NavigationConstants.UseAnimations);
+            else
+                animated = UseAnimations;
             if (presentedController != null)
-                presentedController.DismissViewController(UseAnimations, () =>
+                presentedController.DismissViewController(animated, () =>
                 {
                     OnViewClosed(view, EventArgs.Empty);
                     BindingExtensions.AttachedParentMember.Raise(controller, EventArgs.Empty);

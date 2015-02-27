@@ -40,6 +40,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         private bool _isAppeared;
         private bool _canDispose;
         private bool _isDisposeCalled;
+        private bool _isViewLoaded;
 
         #endregion
 
@@ -147,6 +148,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public virtual void ViewDidLoad(Action baseViewDidLoad)
         {
             baseViewDidLoad();
+            _isViewLoaded = true;
             Raise(ViewDidLoadHandler);
         }
 
@@ -217,31 +219,35 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 return;
             Raise(DisposeHandler);
 
-            viewController.View.ClearBindingsRecursively(true, true);
-            viewController.View.DisposeEx();
-            viewController.EditButtonItem.ClearBindings(true, true);
-            viewController.EditButtonItem.DisposeEx();
-            viewController.ToolbarItems.ClearBindings(true, true);
-            viewController.ToolbarItems.DisposeEx();
-            UINavigationItem navigationItem = viewController.NavigationItem;
-            if (navigationItem != null)
+            if (_isViewLoaded)
             {
-                navigationItem.LeftBarButtonItem.ClearBindings(true, true);
-                navigationItem.LeftBarButtonItem.DisposeEx();
-                navigationItem.LeftBarButtonItems.ClearBindings(true, true);
-                navigationItem.LeftBarButtonItems.DisposeEx();
-                navigationItem.RightBarButtonItem.ClearBindings(true, true);
-                navigationItem.RightBarButtonItem.DisposeEx();
-                navigationItem.RightBarButtonItems.ClearBindings(true, true);
-                navigationItem.RightBarButtonItems.DisposeEx();
-                navigationItem.ClearBindings(true, true);
-                navigationItem.DisposeEx();
-            }
-            var dialogViewController = viewController as DialogViewController;
-            if (dialogViewController != null)
-            {
-                dialogViewController.Root.ClearBindingsRecursively(true, true);
-                dialogViewController.Root.DisposeEx();
+                viewController.View.ClearBindingsRecursively(true, true);
+                viewController.View.DisposeEx();
+                viewController.EditButtonItem.ClearBindings(true, true);
+                viewController.EditButtonItem.DisposeEx();
+                viewController.ToolbarItems.ClearBindings(true, true);
+                viewController.ToolbarItems.DisposeEx();
+                UINavigationItem navigationItem = viewController.NavigationItem;
+                if (navigationItem != null)
+                {
+                    navigationItem.LeftBarButtonItem.ClearBindings(true, true);
+                    navigationItem.LeftBarButtonItem.DisposeEx();
+                    navigationItem.LeftBarButtonItems.ClearBindings(true, true);
+                    navigationItem.LeftBarButtonItems.DisposeEx();
+                    navigationItem.RightBarButtonItem.ClearBindings(true, true);
+                    navigationItem.RightBarButtonItem.DisposeEx();
+                    navigationItem.RightBarButtonItems.ClearBindings(true, true);
+                    navigationItem.RightBarButtonItems.DisposeEx();
+                    navigationItem.ClearBindings(true, true);
+                    navigationItem.DisposeEx();
+                }
+
+                var dialogViewController = viewController as DialogViewController;
+                if (dialogViewController != null)
+                {
+                    dialogViewController.Root.ClearBindingsRecursively(true, true);
+                    dialogViewController.Root.DisposeEx();
+                }
             }
 
             var tabBarController = ViewController as UITabBarController;

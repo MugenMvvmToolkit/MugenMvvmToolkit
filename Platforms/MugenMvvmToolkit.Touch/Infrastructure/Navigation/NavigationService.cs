@@ -219,7 +219,12 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             if (shouldNavigate)
             {
                 bool animated;
-                if (!dataContext.TryGetData(NavigationConstants.UseAnimations, out animated))
+                if (dataContext.TryGetData(NavigationConstants.UseAnimations, out animated))
+                {
+                    if (viewModel != null)
+                        viewModel.Settings.State.AddOrUpdate(NavigationConstants.UseAnimations, animated);
+                }
+                else
                     animated = UseAnimations;
                 if (!ClearNavigationStackIfNeed(viewController, dataContext, animated))
                     NavigationController.PushViewController(viewController, animated);
@@ -300,7 +305,11 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         private bool GoBackInternal()
         {
             Should.BeSupported(CanGoBack, "Go back is not supported in current state.");
-            return NavigationController.PopViewController(false) != null;
+            bool animated;
+            var viewModel = CurrentContent == null ? null : ViewManager.GetDataContext(CurrentContent) as IViewModel;
+            if (viewModel == null || !viewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out animated))
+                animated = UseAnimations;
+            return NavigationController.PopViewController(animated) != null;
         }
 
         private void ShouldPopViewController(object sender, CancelEventArgs args)

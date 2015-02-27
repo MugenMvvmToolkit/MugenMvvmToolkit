@@ -53,7 +53,6 @@ namespace MugenMvvmToolkit.Infrastructure
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = (model, context, arg3) => false;
             ViewManager.DisposeView = true;
             BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
-            BindingSourceAccessorBase.SuppressCanExecuteException = true;
         }
 
         /// <summary>
