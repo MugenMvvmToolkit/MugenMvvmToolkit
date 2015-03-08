@@ -349,9 +349,10 @@ namespace MugenMvvmToolkit.Models
         ///     Delegate to execute when Execute is called on the command. This can be null to just hook up
         ///     a CanExecute delegate.
         /// </param>
-        public static IRelayCommand FromAsyncHandler(Func<Task> executeMethod)
+        /// <param name="allowMultipleExecution">Indicates that command allows multiple execution.</param>
+        public static IRelayCommand FromAsyncHandler(Func<Task> executeMethod, bool? allowMultipleExecution = null)
         {
-            return new RelayCommand(executeMethod, null, true, null);
+            return new RelayCommand(executeMethod, null, allowMultipleExecution.GetValueOrDefault(AllowMultipleExecutionDefault), null);
         }
 
 
@@ -395,9 +396,10 @@ namespace MugenMvvmToolkit.Models
         ///     Delegate to execute when Execute is called on the command. This can be null to just hook up
         ///     a CanExecute delegate.
         /// </param>
-        public static IRelayCommand FromAsyncHandler<TArg>(Func<TArg, Task> executeMethod)
+        /// <param name="allowMultipleExecution">Indicates that command allows multiple execution.</param>
+        public static IRelayCommand FromAsyncHandler<TArg>(Func<TArg, Task> executeMethod, bool? allowMultipleExecution = null)
         {
-            return new RelayCommand<TArg>(executeMethod, null, true, null);
+            return new RelayCommand<TArg>(executeMethod, null, allowMultipleExecution.GetValueOrDefault(AllowMultipleExecutionDefault), null);
         }
 
         /// <summary>
