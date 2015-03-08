@@ -2093,6 +2093,11 @@ namespace MugenMvvmToolkit
             return (handleType & value) == value;
         }
 
+        internal static bool HasFlagEx(this byte b, byte value)
+        {
+            return (b & value) == value;
+        }
+
         private static object AsMethodBindingDelegateObject<T>(
             this Func<IIocContainer, IList<IIocParameter>, T> methodBinding, IIocContainer container,
             IList<IIocParameter> parameters)

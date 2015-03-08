@@ -17,6 +17,8 @@
 #endregion
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
 
@@ -31,7 +33,8 @@ namespace MugenMvvmToolkit.Models
         #region Fields
 
         private Func<TArg, bool> _canExecute;
-        private Action<TArg> _execute;
+        private Delegate _execute;
+        private readonly byte _state;
 
         #endregion
 
@@ -52,8 +55,7 @@ namespace MugenMvvmToolkit.Models
         /// <param name="execute">The specified command action for execute.</param>
         /// <param name="canExecute">The specified command condition.</param>
         /// <param name="notifiers">
-        ///     The specified objects that invokes the <c>RaiseCanExecuteChanged</c> method, when a change
-        ///     occurs.
+        ///     The specified objects that invokes the <c>RaiseCanExecuteChanged</c> method when changes occur.
         /// </param>
         public RelayCommand([NotNull] Action<TArg> execute, Func<TArg, bool> canExecute,
             [NotEmptyParams] params object[] notifiers)
@@ -62,6 +64,27 @@ namespace MugenMvvmToolkit.Models
             Should.NotBeNull(execute, "execute");
             _execute = execute;
             _canExecute = canExecute;
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RelayCommand" /> class.
+        /// </summary>
+        /// <param name="execute">The specified command action for execute.</param>
+        /// <param name="canExecute">The specified command condition.</param>
+        /// <param name="allowMultipleExecution">Indicates that command allows multiple execution.</param>
+        /// <param name="notifiers">
+        ///     The specified objects that invokes the <c>RaiseCanExecuteChanged</c> method when changes occur.
+        /// </param>
+        protected internal RelayCommand([NotNull] Func<TArg, Task> execute, [CanBeNull] Func<TArg, bool> canExecute, bool allowMultipleExecution,
+            [NotEmptyParams] params object[] notifiers)
+            : base(canExecute != null, notifiers)
+        {
+            Should.NotBeNull(execute, "execute");
+            _execute = execute;
+            _canExecute = canExecute;
+            _state |= RelayCommand.TaskDelegateFlag;
+            if (canExecute != null && allowMultipleExecution)
+                _state |= RelayCommand.AllowMultipleExecutionFlag;
         }
 
         #endregion
@@ -81,7 +104,7 @@ namespace MugenMvvmToolkit.Models
         protected override bool CanExecuteInternal(object parameter)
         {
             Func<TArg, bool> canExecute = _canExecute;
-            return canExecute == null || canExecute((TArg)parameter);
+            return canExecute != null && canExecute((TArg)parameter);
         }
 
         /// <summary>
@@ -93,9 +116,29 @@ namespace MugenMvvmToolkit.Models
         /// </param>
         protected override void ExecuteInternal(object parameter)
         {
-            Action<TArg> execute = _execute;
-            if (execute != null)
-                execute((TArg)parameter);
+            var execute = _execute;
+            if (execute == null)
+                return;
+            if (_state == 0)
+            {
+                ((Action<TArg>)_execute).Invoke((TArg)parameter);
+                return;
+            }
+            var allowMultiple = _state.HasFlagEx(RelayCommand.AllowMultipleExecutionFlag);
+            if (!allowMultiple && Interlocked.Exchange(ref _execute, null) == null)
+                return;
+
+            try
+            {
+                var t = ((Func<TArg, Task>)execute).Invoke((TArg)parameter);
+                if (!allowMultiple)
+                    t.TryExecuteSynchronously(task => _execute = execute);
+            }
+            catch
+            {
+                _execute = execute;
+                throw;
+            }
         }
 
         /// <summary>
@@ -117,12 +160,16 @@ namespace MugenMvvmToolkit.Models
     /// </summary>
     public class RelayCommand : RelayCommandBase
     {
+
         #region Fields
 
-        private Action _execute;
-        private Func<bool> _canExecute;
-        private Action<object> _executeObj;
-        private Func<object, bool> _canExecuteObj;
+        private const byte ObjectDelegateFlag = 1 << 0;
+        internal const byte TaskDelegateFlag = 1 << 1;
+        internal const byte AllowMultipleExecutionFlag = 1 << 2;
+
+        private readonly byte _state;
+        private Delegate _execute;
+        private Delegate _canExecute;
 
         #endregion
 
@@ -131,9 +178,9 @@ namespace MugenMvvmToolkit.Models
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelayCommand" /> class.
         /// </summary>
-        /// <param name="executeObj">The specified command action for execute.</param>
-        public RelayCommand([NotNull] Action<object> executeObj)
-            : this(executeObj, null, Empty.Array<object>())
+        /// <param name="execute">The specified command action for execute.</param>
+        public RelayCommand([NotNull] Action<object> execute)
+            : this(execute, null, Empty.Array<object>())
         {
         }
 
@@ -150,19 +197,19 @@ namespace MugenMvvmToolkit.Models
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelayCommand" /> class.
         /// </summary>
-        /// <param name="executeObj">The specified command action for execute.</param>
-        /// <param name="canExecuteObj">The specified command condition.</param>
+        /// <param name="execute">The specified command action for execute.</param>
+        /// <param name="canExecute">The specified command condition.</param>
         /// <param name="notifiers">
-        ///     The specified objects that invokes the <c>RaiseCanExecuteChanged</c> method, when a change
-        ///     occurs.
+        ///     The specified objects that invokes the <c>RaiseCanExecuteChanged</c> method when changes occur.
         /// </param>
-        public RelayCommand([NotNull] Action<object> executeObj, [CanBeNull] Func<object, bool> canExecuteObj,
+        public RelayCommand([NotNull] Action<object> execute, [CanBeNull] Func<object, bool> canExecute,
             [NotEmptyParams] params object[] notifiers)
-            : base(canExecuteObj != null, notifiers)
+            : base(canExecute != null, notifiers)
         {
-            Should.NotBeNull(executeObj, "executeObj");
-            _executeObj = executeObj;
-            _canExecuteObj = canExecuteObj;
+            Should.NotBeNull(execute, "execute");
+            _execute = execute;
+            _canExecute = canExecute;
+            _state |= ObjectDelegateFlag;
         }
 
         /// <summary>
@@ -171,8 +218,7 @@ namespace MugenMvvmToolkit.Models
         /// <param name="execute">The specified command action for execute.</param>
         /// <param name="canExecute">The specified command condition.</param>
         /// <param name="notifiers">
-        ///     The specified objects that invokes the <c>RaiseCanExecuteChanged</c> method, when a change
-        ///     occurs.
+        ///     The specified objects that invokes the <c>RaiseCanExecuteChanged</c> method when changes occur.
         /// </param>
         public RelayCommand([NotNull] Action execute, [CanBeNull] Func<bool> canExecute,
             [NotEmptyParams] params object[] notifiers)
@@ -181,6 +227,26 @@ namespace MugenMvvmToolkit.Models
             Should.NotBeNull(execute, "execute");
             _execute = execute;
             _canExecute = canExecute;
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RelayCommand" /> class.
+        /// </summary>
+        /// <param name="execute">The specified command action for execute.</param>
+        /// <param name="canExecute">The specified command condition.</param>
+        /// <param name="allowMultipleExecution">Indicates that command allows multiple execution.</param>
+        /// <param name="notifiers">
+        ///     The specified objects that invokes the <c>RaiseCanExecuteChanged</c> method when changes occur.
+        /// </param>
+        protected internal RelayCommand([NotNull] Func<Task> execute, [CanBeNull] Func<bool> canExecute, bool allowMultipleExecution, [NotEmptyParams] params object[] notifiers)
+            : base(canExecute != null, notifiers)
+        {
+            Should.NotBeNull(execute, "execute");
+            _execute = execute;
+            _canExecute = canExecute;
+            _state |= TaskDelegateFlag;
+            if (canExecute != null && allowMultipleExecution)
+                _state |= AllowMultipleExecutionFlag;
         }
 
         #endregion
@@ -200,10 +266,11 @@ namespace MugenMvvmToolkit.Models
         protected override bool CanExecuteInternal(object parameter)
         {
             var canExecute = _canExecute;
-            if (canExecute != null)
-                return canExecute();
-            var canExecuteObj = _canExecuteObj;
-            return canExecuteObj == null || canExecuteObj(parameter);
+            if (canExecute == null)
+                return false;
+            if (_state.HasFlagEx(ObjectDelegateFlag))
+                return ((Func<object, bool>)canExecute).Invoke(parameter);
+            return ((Func<bool>)canExecute).Invoke();
         }
 
         /// <summary>
@@ -216,14 +283,29 @@ namespace MugenMvvmToolkit.Models
         protected override void ExecuteInternal(object parameter)
         {
             var execute = _execute;
-            if (execute != null)
-            {
-                execute();
+            if (execute == null)
                 return;
+            if (_state == 0)
+                ((Action)execute).Invoke();
+            else if (_state.HasFlagEx(TaskDelegateFlag))
+            {
+                var allowMultiple = _state.HasFlagEx(AllowMultipleExecutionFlag);
+                if (!allowMultiple && Interlocked.Exchange(ref _execute, null) == null)
+                    return;
+                try
+                {
+                    var t = ((Func<Task>)execute).Invoke();
+                    if (!allowMultiple)
+                        t.TryExecuteSynchronously(task => _execute = execute);
+                }
+                catch
+                {
+                    _execute = execute;
+                    throw;
+                }
             }
-            var executeObj = _executeObj;
-            if (executeObj != null)
-                executeObj(parameter);
+            else
+                ((Action<object>)execute).Invoke(parameter);
         }
 
         /// <summary>
@@ -232,9 +314,7 @@ namespace MugenMvvmToolkit.Models
         protected override void OnDispose()
         {
             _execute = null;
-            _executeObj = null;
             _canExecute = null;
-            _canExecuteObj = null;
             base.OnDispose();
         }
 

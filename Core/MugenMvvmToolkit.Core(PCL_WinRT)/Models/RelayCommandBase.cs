@@ -20,7 +20,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Models
@@ -90,6 +92,11 @@ namespace MugenMvvmToolkit.Models
         #endregion
 
         #region Properties
+
+        /// <summary>
+        ///     Indicates that task-based command allows multiple execution default is false.
+        /// </summary>
+        public static bool AllowMultipleExecutionDefault { get; set; }
 
         /// <summary>
         ///     Gets or sets the value, if <c>true</c> execute asynchronously; otherwise <c>false</c> - synchronously.
@@ -301,6 +308,97 @@ namespace MugenMvvmToolkit.Models
         #endregion
 
         #region Methods
+
+        /// <summary>
+        ///     Factory method to create a new instance of <see cref="IRelayCommand" /> from an awaitable handler method.
+        /// </summary>
+        /// <param name="executeMethod">
+        ///     Delegate to execute when Execute is called on the command. This can be null to just hook up
+        ///     a CanExecute delegate.
+        /// </param>
+        /// <param name="canExecuteMethod">Delegate to execute when CanExecute is called on the command. This can be null.</param>
+        /// <param name="allowMultipleExecution">Indicates that command allows multiple execution.</param>
+        /// <param name="notifiers">
+        ///     The specified objects that invokes the <c>RaiseCanExecuteChanged</c> method when changes occur.
+        /// </param>
+        public static IRelayCommand FromAsyncHandler(Func<Task> executeMethod, Func<bool> canExecuteMethod, bool allowMultipleExecution, [NotEmptyParams] params object[] notifiers)
+        {
+            return new RelayCommand(executeMethod, canExecuteMethod, allowMultipleExecution, notifiers);
+        }
+
+        /// <summary>
+        ///     Factory method to create a new instance of <see cref="IRelayCommand" /> from an awaitable handler method.
+        /// </summary>
+        /// <param name="executeMethod">
+        ///     Delegate to execute when Execute is called on the command. This can be null to just hook up
+        ///     a CanExecute delegate.
+        /// </param>
+        /// <param name="canExecuteMethod">Delegate to execute when CanExecute is called on the command. This can be null.</param>
+        /// <param name="notifiers">
+        ///     The specified objects that invokes the <c>RaiseCanExecuteChanged</c> method when changes occur.
+        /// </param>
+        public static IRelayCommand FromAsyncHandler(Func<Task> executeMethod, Func<bool> canExecuteMethod, [NotEmptyParams] params object[] notifiers)
+        {
+            return new RelayCommand(executeMethod, canExecuteMethod, AllowMultipleExecutionDefault, notifiers);
+        }
+
+        /// <summary>
+        ///     Factory method to create a new instance of <see cref="IRelayCommand" /> from an awaitable handler method.
+        /// </summary>
+        /// <param name="executeMethod">
+        ///     Delegate to execute when Execute is called on the command. This can be null to just hook up
+        ///     a CanExecute delegate.
+        /// </param>
+        public static IRelayCommand FromAsyncHandler(Func<Task> executeMethod)
+        {
+            return new RelayCommand(executeMethod, null, true, null);
+        }
+
+
+        /// <summary>
+        ///     Factory method to create a new instance of <see cref="IRelayCommand" /> from an awaitable handler method.
+        /// </summary>
+        /// <param name="executeMethod">
+        ///     Delegate to execute when Execute is called on the command. This can be null to just hook up
+        ///     a CanExecute delegate.
+        /// </param>
+        /// <param name="canExecuteMethod">Delegate to execute when CanExecute is called on the command. This can be null.</param>
+        /// <param name="allowMultipleExecution">Indicates that command allows multiple execution.</param>
+        /// <param name="notifiers">
+        ///     The specified objects that invokes the <c>RaiseCanExecuteChanged</c> method when changes occur.
+        /// </param>
+        public static IRelayCommand FromAsyncHandler<TArg>(Func<TArg, Task> executeMethod, Func<TArg, bool> canExecuteMethod, bool allowMultipleExecution, [NotEmptyParams] params object[] notifiers)
+        {
+            return new RelayCommand<TArg>(executeMethod, canExecuteMethod, allowMultipleExecution, notifiers);
+        }
+
+        /// <summary>
+        ///     Factory method to create a new instance of <see cref="IRelayCommand" /> from an awaitable handler method.
+        /// </summary>
+        /// <param name="executeMethod">
+        ///     Delegate to execute when Execute is called on the command. This can be null to just hook up
+        ///     a CanExecute delegate.
+        /// </param>
+        /// <param name="canExecuteMethod">Delegate to execute when CanExecute is called on the command. This can be null.</param>
+        /// <param name="notifiers">
+        ///     The specified objects that invokes the <c>RaiseCanExecuteChanged</c> method when changes occur.
+        /// </param>
+        public static IRelayCommand FromAsyncHandler<TArg>(Func<TArg, Task> executeMethod, Func<TArg, bool> canExecuteMethod, [NotEmptyParams] params object[] notifiers)
+        {
+            return new RelayCommand<TArg>(executeMethod, canExecuteMethod, AllowMultipleExecutionDefault, notifiers);
+        }
+
+        /// <summary>
+        ///     Factory method to create a new instance of <see cref="IRelayCommand" /> from an awaitable handler method.
+        /// </summary>
+        /// <param name="executeMethod">
+        ///     Delegate to execute when Execute is called on the command. This can be null to just hook up
+        ///     a CanExecute delegate.
+        /// </param>
+        public static IRelayCommand FromAsyncHandler<TArg>(Func<TArg, Task> executeMethod)
+        {
+            return new RelayCommand<TArg>(executeMethod, null, true, null);
+        }
 
         /// <summary>
         ///     Defines the method that determines whether the command can execute in its current state.

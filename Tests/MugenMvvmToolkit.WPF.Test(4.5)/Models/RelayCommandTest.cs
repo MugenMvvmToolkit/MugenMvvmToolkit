@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MugenMvvmToolkit.Infrastructure;
@@ -357,6 +358,55 @@ namespace MugenMvvmToolkit.Test.Models
             isInvoked.ShouldBeFalse();
             ThreadManager.InvokeAsync.ShouldNotBeNull();
             ThreadManager.InvokeAsync();
+            isInvoked.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public virtual void TaskCmdShouldNotBeExecuteMultipleTimes()
+        {
+            bool isInvoked = false;
+            var tcs = new TaskCompletionSource<object>();
+            var command = RelayCommandBase.FromAsyncHandler(() =>
+            {
+                isInvoked = true;
+                return tcs.Task;
+            }, null, false);
+
+            command.Execute(null);
+            isInvoked.ShouldBeTrue();
+
+            isInvoked = false;
+            command.Execute(null);
+            isInvoked.ShouldBeFalse();
+
+            isInvoked = false;
+            tcs.SetResult(null);
+            command.Execute(null);
+            isInvoked.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public virtual void GenericTaskCmdShouldNotBeExecuteMultipleTimes()
+        {
+            bool isInvoked = false;
+            var tcs = new TaskCompletionSource<object>();
+            var command = RelayCommandBase.FromAsyncHandler<object>(o =>
+            {
+                o.ShouldEqual(tcs);
+                isInvoked = true;
+                return tcs.Task;
+            }, null, false);
+
+            command.Execute(tcs);
+            isInvoked.ShouldBeTrue();
+
+            isInvoked = false;
+            command.Execute(tcs);
+            isInvoked.ShouldBeFalse();
+
+            isInvoked = false;
+            tcs.SetResult(tcs);
+            command.Execute(tcs);
             isInvoked.ShouldBeTrue();
         }
 

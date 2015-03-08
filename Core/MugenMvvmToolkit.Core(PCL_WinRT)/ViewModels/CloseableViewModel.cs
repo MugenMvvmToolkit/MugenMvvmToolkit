@@ -54,7 +54,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         protected CloseableViewModel()
         {
-            _closeCommand = new RelayCommand(ExecuteClose, CanClose, this);
+            _closeCommand = RelayCommandBase.FromAsyncHandler<object>(ExecuteClose, CanClose, false, this);
         }
 
         #endregion
@@ -169,9 +169,9 @@ namespace MugenMvvmToolkit.ViewModels
             return Empty.TrueTask;
         }
 
-        private void ExecuteClose(object o)
+        private Task ExecuteClose(object o)
         {
-            this.TryCloseAsync(o, null).WithTaskExceptionHandler(this);
+            return this.TryCloseAsync(o, null).WithTaskExceptionHandler(this);
         }
 
         #endregion

@@ -150,7 +150,7 @@ namespace MugenMvvmToolkit.ViewModels
             Closed += OnClosed;
             var closeableViewModel = ViewModel as ICloseableViewModel;
             if (closeableViewModel == null)
-                CloseCommand = new RelayCommand(ExecuteClose);
+                CloseCommand = RelayCommandBase.FromAsyncHandler<object>(CloseAsync);
             else
             {
                 var internalClosedEvent = _internalClosedEvent;
@@ -502,11 +502,6 @@ namespace MugenMvvmToolkit.ViewModels
                     args = new PropertyChangedEventArgs(value);
                 OnPropertyChanged(args, ExecutionMode.None);
             }
-        }
-
-        private void ExecuteClose(object o)
-        {
-            CloseAsync(o);
         }
 
         private void OnClosed(object sender, ViewModelClosedEventArgs args)

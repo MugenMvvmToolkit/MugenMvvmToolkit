@@ -112,7 +112,7 @@ namespace MugenMvvmToolkit.Modules
         /// <returns>An instance of <see cref="IReflectionManager" />.</returns>
         protected virtual BindingInfo<IReflectionManager> GetReflectionManager()
         {
-            return BindingInfo<IReflectionManager>.FromType<ExpressionReflectionManager>(DependencyLifecycle.SingleInstance);
+            return BindingInfo<IReflectionManager>.FromMethod((container, list) => ServiceProvider.ReflectionManagerField ?? new ExpressionReflectionManager(), DependencyLifecycle.SingleInstance);
         }
 
         /// <summary>
@@ -203,7 +203,7 @@ namespace MugenMvvmToolkit.Modules
         /// <returns>An instance of <see cref="IEventAggregator" />.</returns>
         protected virtual BindingInfo<IEventAggregator> GetEventAggregator()
         {
-            return BindingInfo<IEventAggregator>.FromType<EventAggregator>(DependencyLifecycle.SingleInstance);
+            return BindingInfo<IEventAggregator>.FromMethod((container, list) => ServiceProvider.EventAggregatorField ?? new EventAggregator(), DependencyLifecycle.SingleInstance);
         }
 
         /// <summary>
@@ -221,7 +221,7 @@ namespace MugenMvvmToolkit.Modules
         /// <returns>An instance of <see cref="IValidatorProvider" />.</returns>
         protected virtual BindingInfo<IValidatorProvider> GetValidatorProvider()
         {
-            return BindingInfo<IValidatorProvider>.FromType<ValidatorProvider>(DependencyLifecycle.SingleInstance);
+            return BindingInfo<IValidatorProvider>.FromMethod((container, list) => ServiceProvider.ValidatorProviderField ?? new ValidatorProvider(), DependencyLifecycle.SingleInstance);
         }
 
         /// <summary>
