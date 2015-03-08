@@ -83,7 +83,7 @@ namespace MugenMvvmToolkit.Models
             _execute = execute;
             _canExecute = canExecute;
             _state |= RelayCommand.TaskDelegateFlag;
-            if (canExecute != null && allowMultipleExecution)
+            if (allowMultipleExecution)
                 _state |= RelayCommand.AllowMultipleExecutionFlag;
         }
 
@@ -245,7 +245,7 @@ namespace MugenMvvmToolkit.Models
             _execute = execute;
             _canExecute = canExecute;
             _state |= TaskDelegateFlag;
-            if (canExecute != null && allowMultipleExecution)
+            if (allowMultipleExecution)
                 _state |= AllowMultipleExecutionFlag;
         }
 
