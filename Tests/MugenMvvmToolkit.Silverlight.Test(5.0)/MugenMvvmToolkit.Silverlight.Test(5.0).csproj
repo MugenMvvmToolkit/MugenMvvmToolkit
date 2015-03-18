@@ -384,6 +384,9 @@
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestModels\BindingSourceModel.cs">
       <Link>TestModels\BindingSourceModel.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestModels\BusyTokenMock.cs">
+      <Link>TestModels\BusyTokenMock.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestModels\DataBindingMock.cs">
       <Link>TestModels\DataBindingMock.cs</Link>
     </Compile>

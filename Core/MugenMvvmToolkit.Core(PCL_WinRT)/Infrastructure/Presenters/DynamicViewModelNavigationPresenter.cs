@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
@@ -110,16 +111,29 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
         /// <param name="context">The specified context.</param>
         /// <param name="parentPresenter">The parent presenter, if any.</param>
-        public IAsyncOperation<bool?> TryShowAsync(IViewModel viewModel, IDataContext context,
+        public INavigationOperation TryShowAsync(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)
         {
             if (!CanShowViewModel(viewModel, context, parentPresenter))
                 return null;
-            var operation = new AsyncOperation<bool?>();
+            var tcs = new TaskCompletionSource<object>();
+            var operation = new NavigationOperation(tcs.Task);
             context = context.ToNonReadOnly();
             context.AddOrUpdate(NavigationConstants.ViewModel, viewModel);
             var provider = viewModel.GetIocContainer(true).Get<INavigationProvider>();
-            provider.CurrentNavigateTask.TryExecuteSynchronously(task => provider.NavigateAsync(operation.ToOperationCallback(), context));
+            provider.CurrentNavigationTask.TryExecuteSynchronously(_ =>
+            {
+                try
+                {
+                    var task = provider.NavigateAsync(operation.ToOperationCallback(), context);
+                    tcs.TrySetFromTask(task);
+                }
+                catch (Exception e)
+                {
+                    tcs.TrySetException(e);
+                    throw;
+                }
+            });
             return operation;
         }
 

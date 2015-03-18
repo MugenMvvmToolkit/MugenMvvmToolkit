@@ -244,7 +244,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// <summary>
         ///     Gets the current navigation task.
         /// </summary>
-        public Task CurrentNavigateTask
+        public Task CurrentNavigationTask
         {
             get
             {
@@ -331,7 +331,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 parameter = vmType.AssemblyQualifiedName;
 
             var tcs = new TaskCompletionSource<object>();
-            CurrentNavigateTask.TryExecuteSynchronously(_ =>
+            CurrentNavigationTask.TryExecuteSynchronously(_ =>
                 ThreadManager.InvokeOnUiThreadAsync(() =>
                 {
                     _navigatedTcs = tcs;

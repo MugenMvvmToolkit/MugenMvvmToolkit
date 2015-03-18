@@ -18,7 +18,6 @@
 
 using System.Threading;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Models.Messages;
 
 namespace MugenMvvmToolkit.Models
 {
@@ -32,7 +31,6 @@ namespace MugenMvvmToolkit.Models
         private object _defaultBusyMessage;
         private IDataContext _metadata;
         private IDataContext _state;
-        private object _validationBusyMessage;
 
         #endregion
 
@@ -52,7 +50,6 @@ namespace MugenMvvmToolkit.Models
         public DefaultViewModelSettings()
         {
             _defaultBusyMessage = string.Empty;
-            _validationBusyMessage = string.Empty;
             DisposeIocContainer = true;
             DisposeCommands = true;
             HandleBusyMessageMode = HandleMode.Handle;
@@ -79,8 +76,7 @@ namespace MugenMvvmToolkit.Models
         public bool DisposeCommands { get; set; }
 
         /// <summary>
-        ///     Gets or sets the value that is responsible for listen busy messages
-        ///     see the <see cref="BeginBusyMessage" /> and the <see cref="EndBusyMessage" />.
+        ///     Gets or sets the value that is responsible for listen busy messages.
         /// </summary>
         public HandleMode HandleBusyMessageMode { get; set; }
 
@@ -94,19 +90,6 @@ namespace MugenMvvmToolkit.Models
             {
                 Should.PropertyNotBeNull(value);
                 _defaultBusyMessage = value;
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets value that will be displayed when the BeginIsBusy method will be invoked without a message.
-        /// </summary>
-        public object ValidationBusyMessage
-        {
-            get { return _validationBusyMessage; }
-            set
-            {
-                Should.PropertyNotBeNull(value);
-                _validationBusyMessage = value;
             }
         }
 
@@ -158,7 +141,6 @@ namespace MugenMvvmToolkit.Models
                 HandleBusyMessageMode = HandleBusyMessageMode,
                 EventExecutionMode = EventExecutionMode,
                 DefaultBusyMessage = DefaultBusyMessage,
-                ValidationBusyMessage = ValidationBusyMessage,
                 BroadcastAllMessages = BroadcastAllMessages
             };
         }

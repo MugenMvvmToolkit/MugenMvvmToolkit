@@ -17,7 +17,7 @@
     <PackageCertificateKeyFile>MugenMvvmToolkit.WinRT.Test(8.0)_TemporaryKey.pfx</PackageCertificateKeyFile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp>e7219753</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>8bc8391d</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -388,6 +388,9 @@
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestModels\BindingSourceModel.cs">
       <Link>TestModels\BindingSourceModel.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestModels\BusyTokenMock.cs">
+      <Link>TestModels\BusyTokenMock.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestModels\DataBindingMock.cs">
       <Link>TestModels\DataBindingMock.cs</Link>
     </Compile>
@@ -559,12 +562,12 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Import Project="..\..\packages\Fody.1.27.1\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.27.1\build\Fody.targets')" />
+  <Import Project="..\..\packages\Fody.1.28.1\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.28.1\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\Fody.1.27.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.27.1\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Fody.1.28.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.28.1\build\Fody.targets'))" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -18,7 +18,6 @@
 
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Models.Messages;
 
 namespace MugenMvvmToolkit.Interfaces.Models
 {
@@ -43,8 +42,7 @@ namespace MugenMvvmToolkit.Interfaces.Models
         bool DisposeCommands { get; set; }
 
         /// <summary>
-        ///     Gets or sets the value that is responsible for listen busy messages
-        ///     see the <see cref="BeginBusyMessage" /> and the <see cref="EndBusyMessage" />.
+        ///     Gets or sets the value that is responsible for listen busy messages.
         /// </summary>
         HandleMode HandleBusyMessageMode { get; set; }
 
@@ -52,11 +50,6 @@ namespace MugenMvvmToolkit.Interfaces.Models
         ///     Gets or sets value that will be displayed when the BeginIsBusy method will be invoked without a message.
         /// </summary>
         object DefaultBusyMessage { get; set; }
-
-        /// <summary>
-        ///     Gets or sets value that will be displayed when the BeginIsBusy method will be invoked without a message.
-        /// </summary>
-        object ValidationBusyMessage { get; set; }
 
         /// <summary>
         ///     Specifies the execution mode for invoke events (<c>ErrorsChanged</c>, <c>SelectedItemChanged</c>, etc).

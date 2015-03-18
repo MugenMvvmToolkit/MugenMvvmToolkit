@@ -16,6 +16,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Interfaces.Navigation;
@@ -106,7 +107,8 @@ namespace MugenMvvmToolkit.ViewModels
             get { return _view; }
             set
             {
-                if (Equals(value, _view)) return;
+                if (ReferenceEquals(value, _view))
+                    return;
                 TView oldValue = _view;
                 _view = value;
                 OnViewChanged(oldValue, value);

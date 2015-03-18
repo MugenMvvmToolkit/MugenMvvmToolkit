@@ -66,6 +66,17 @@ namespace MugenMvvmToolkit.ViewModels
         }
 
         /// <summary>
+        ///     Clears all busy operations.
+        /// </summary>
+        public static void ClearBusy([NotNull] this IViewModel viewModel)
+        {
+            Should.NotBeNull(viewModel, "viewModel");
+            var tokens = viewModel.GetBusyTokens();
+            for (int i = 0; i < tokens.Count; i++)
+                tokens[i].Dispose();
+        }
+
+        /// <summary>
         ///     Invokes a task and wrap it to busy indicator.
         /// </summary>
         /// <param name="task">The specified <see cref="Task" />.</param>
@@ -106,10 +117,10 @@ namespace MugenMvvmToolkit.ViewModels
                     ToolkitExtensions.TryHandleTaskException(task, viewModel, viewModel.GetIocContainer(true));
                 return task;
             }
-            Guid beginBusy = viewModel.BeginBusy(message);
+            var token = viewModel.BeginBusy(message);
             task.TryExecuteSynchronously(t =>
             {
-                viewModel.EndBusy(beginBusy);
+                token.Dispose();
                 if (handleException.Value)
                     ToolkitExtensions.TryHandleTaskException(t, viewModel, viewModel.GetIocContainer(true));
             });
@@ -158,11 +169,10 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
         /// <param name="parameters">The specified parameters.</param>
         /// <returns>The operation result task, this task returns the result of the operation.</returns>
-        public static IAsyncOperation<bool> ShowAsync([NotNull] this IViewModel viewModel,
+        public static INavigationOperation ShowAsync([NotNull] this IViewModel viewModel,
             params DataConstantValue[] parameters)
         {
-            IDataContext context = parameters == null ? null : new DataContext(parameters);
-            return viewModel.ShowAsync(context);
+            return viewModel.ShowAsync(parameters == null ? null : new DataContext(parameters));
         }
 
         /// <summary>
@@ -171,7 +181,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
         /// <param name="context">The specified context.</param>
         /// <returns>The operation result task, this task returns the result of the operation.</returns>
-        public static IAsyncOperation<bool> ShowAsync([NotNull] this IViewModel viewModel, IDataContext context = null)
+        public static INavigationOperation ShowAsync([NotNull] this IViewModel viewModel, IDataContext context = null)
         {
             Should.NotBeNull(viewModel, "viewModel");
             if (context == null)
@@ -179,8 +189,7 @@ namespace MugenMvvmToolkit.ViewModels
             return viewModel
                 .GetIocContainer(true)
                 .Get<IViewModelPresenter>()
-                .ShowAsync(viewModel, context)
-                .ContinueWith(result => result.Result.GetValueOrDefault());
+                .ShowAsync(viewModel, context);
         }
 
         /// <summary>
@@ -190,16 +199,9 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="viewName">The name of view.</param>
         /// <param name="context">The specified context.</param>
         /// <returns>The operation result task, this task returns the result of the operation.</returns>
-        public static IAsyncOperation<bool> ShowAsync([NotNull] this IViewModel viewModel, string viewName,
-            IDataContext context = null)
+        public static INavigationOperation ShowAsync([NotNull] this IViewModel viewModel, string viewName, IDataContext context = null)
         {
-            Should.NotBeNull(viewModel, "viewModel");
-            if (viewName != null)
-            {
-                context = context.ToNonReadOnly();
-                context.AddOrUpdate(NavigationConstants.ViewName, viewName);
-            }
-            return viewModel.ShowAsync(context);
+            return viewModel.ShowAsync(null, viewName, context);
         }
 
         /// <summary>
@@ -210,7 +212,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="viewName">The name of view.</param>
         /// <param name="context">The specified context.</param>
         /// <returns>The operation result task, this task returns the result of the operation.</returns>
-        public static IAsyncOperation<bool> ShowAsync<T>([NotNull] this T viewModel,
+        public static INavigationOperation ShowAsync<T>([NotNull] this T viewModel,
             Action<T, IOperationResult<bool>> completeCallback, string viewName = null, IDataContext context = null)
             where T : IViewModel
         {
@@ -220,8 +222,9 @@ namespace MugenMvvmToolkit.ViewModels
                 context = context.ToNonReadOnly();
                 context.AddOrUpdate(NavigationConstants.ViewName, viewName);
             }
-            IAsyncOperation<bool> operation = viewModel.ShowAsync(context);
-            operation.ContinueWith(completeCallback);
+            var operation = viewModel.ShowAsync(context);
+            if (completeCallback != null)
+                operation.ContinueWith(completeCallback);
             return operation;
         }
 

@@ -25,14 +25,16 @@ using System.Windows;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Builders;
+using MugenMvvmToolkit.Binding.Converters;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Syntax;
 using MugenMvvmToolkit.Binding.Models;
-
 #if XAMARIN_FORMS
+using Xamarin.Forms;
 namespace MugenMvvmToolkit.MarkupExtensions
 #else
+using System.Windows.Data;
 namespace MugenMvvmToolkit.Binding.MarkupExtensions
 #endif
 {
@@ -124,14 +126,17 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
         /// <summary>
         ///     Gets or sets the converter to use.
         /// </summary>
-        public IBindingValueConverter Converter
+        public object Converter
         {
             get { return _converter; }
             set
             {
-                _converter = value;
-                HasValue = true;
+                if (value == null)
+                    _converter = null;
+                else
+                    _converter = value as IBindingValueConverter ?? new ValueConverterWrapper((IValueConverter)value);
                 HasConverter = true;
+                HasValue = true;
             }
         }
 
@@ -374,7 +379,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
             SetMode(syntaxBuilder);
             SetUpdateSourceTrigger(syntaxBuilder);
             if (HasConverter)
-                syntaxBuilder.WithConverter(d => Converter);
+                syntaxBuilder.WithConverter(d => _converter);
             if (HasConverterCulture)
                 syntaxBuilder.WithConverterCulture(d => ConverterCulture);
             if (HasConverterParameter)

@@ -25,7 +25,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
             MultiViewModel viewModel = GetMultiViewModel();
             IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
                 OperationCallbackManager, (model, context, arg3) => true);
-            IAsyncOperation<bool?> task = presenter.TryShowAsync(vm, DataContext.Empty, null);
+            var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
             task.ShouldNotBeNull();
             task.IsCompleted.ShouldBeFalse();
             viewModel.ItemsSource.Contains(vm).ShouldBeTrue();
@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
             MultiViewModel viewModel = GetMultiViewModel();
             IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
                 OperationCallbackManager, (model, context, arg3) => true);
-            IAsyncOperation<bool?> task = presenter.TryShowAsync(vm, DataContext.Empty, null);
+            var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
             task.ShouldNotBeNull();
             task.IsCompleted.ShouldBeFalse();
             viewModel.RemoveViewModelAsync(vm).Result.ShouldBeTrue();
@@ -83,7 +83,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
             MultiViewModel viewModel = GetMultiViewModel();
             IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
                 OperationCallbackManager);
-            IAsyncOperation<bool?> task = presenter.TryShowAsync(vm, DataContext.Empty, null);
+            var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
             task.ShouldNotBeNull();
             task.IsCompleted.ShouldBeFalse();
             viewModel.Clear();
@@ -100,7 +100,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
             MultiViewModel viewModel = GetMultiViewModel();
             IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
                 OperationCallbackManager, (model, context, arg3) => canShow);
-            IAsyncOperation<bool?> task = presenter.TryShowAsync(vm, DataContext.Empty, null);
+            var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
             task.ShouldBeNull();
             viewModel.ItemsSource.Contains(vm).ShouldBeFalse();
 

@@ -19,7 +19,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Models.Messages
 {
@@ -32,8 +31,6 @@ namespace MugenMvvmToolkit.Models.Messages
         #region Fields
 
         private static readonly TaskCompletionSource<object> EmptyTcs;
-        private readonly Guid _id;
-        private readonly bool _isEndOperation;
         private readonly string _propertyName;
         private TaskCompletionSource<object> _tcs;
 
@@ -50,10 +47,8 @@ namespace MugenMvvmToolkit.Models.Messages
         /// <summary>
         ///     Initializes a new instance of the <see cref="AsyncValidationMessage" /> class.
         /// </summary>
-        public AsyncValidationMessage(Guid id, string propertyName, bool isEndOperation)
+        public AsyncValidationMessage(string propertyName)
         {
-            _id = id;
-            _isEndOperation = isEndOperation;
             _propertyName = propertyName;
         }
 
@@ -62,27 +57,11 @@ namespace MugenMvvmToolkit.Models.Messages
         #region Properties
 
         /// <summary>
-        ///     Gets the value that indicates that this operation is final.
-        /// </summary>
-        public bool IsEndOperation
-        {
-            get { return _isEndOperation; }
-        }
-
-        /// <summary>
         ///     Gets the name of property, if any.
         /// </summary>
         public string PropertyName
         {
             get { return _propertyName; }
-        }
-
-        /// <summary>
-        ///     Gets the id of operation.
-        /// </summary>
-        public Guid Id
-        {
-            get { return _id; }
         }
 
         /// <summary>
@@ -103,11 +82,9 @@ namespace MugenMvvmToolkit.Models.Messages
         #region Methods
 
         /// <summary>
-        ///     Converts current message to an instance of <c>AsyncValidationMessage</c>.
+        ///     Sest the current message to completed state.
         /// </summary>
-        /// <returns>An instance of <c>AsyncValidationMessage</c>.</returns>
-        [NotNull]
-        public AsyncValidationMessage ToEndMessage(Exception exception, bool canceled)
+        public void SetCompleted(Exception exception, bool canceled)
         {
             if (_tcs == null)
                 Interlocked.CompareExchange(ref _tcs, exception == null && !canceled ? EmptyTcs : new TaskCompletionSource<object>(), null);
@@ -120,7 +97,6 @@ namespace MugenMvvmToolkit.Models.Messages
                 else
                     _tcs.TrySetException(exception);
             }
-            return new AsyncValidationMessage(Id, PropertyName, true) { _tcs = _tcs };
         }
 
         #endregion

@@ -19,12 +19,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
-using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -41,27 +40,164 @@ namespace MugenMvvmToolkit.ViewModels
     {
         #region Nested types
 
-        private sealed class BusyDict : LightDictionaryBase<Guid, object>
+        private sealed class BusyToken : IBusyToken, IHandler<IBusyToken>
         {
+            #region Fields
+
+            private static readonly List<IHandler<IBusyToken>> CompletedList;
+
+            private readonly WeakReference _ref;
+            private readonly object _message;
+
+            private List<IHandler<IBusyToken>> _listeners;
+            private BusyToken _prev;
+            private BusyToken _next;
+
+            #endregion
+
             #region Constructors
 
-            public BusyDict()
-                : base(false)
+            static BusyToken()
             {
+                CompletedList = new List<IHandler<IBusyToken>>(1);
+            }
+
+            public BusyToken(IHasWeakReference vm, object message)
+            {
+                _message = message;
+                _ref = vm.WeakReference;
+            }
+
+            public BusyToken(IHasWeakReference vm, IBusyToken token)
+                : this(vm, token.Message)
+            {
+                token.Register(this);
             }
 
             #endregion
 
-            #region Overrides of LightDictionaryBase<Guid,object>
+            #region Methods
 
-            protected override bool Equals(Guid x, Guid y)
+            public void Combine(ViewModelBase vm)
             {
-                return x == y;
+                if (IsCompleted)
+                    return;
+                object oldMessage;
+                bool oldBusy;
+                lock (_ref)
+                {
+                    if (IsCompleted)
+                        return;
+                    if (vm._busyTail != null)
+                    {
+                        _prev = vm._busyTail;
+                        vm._busyTail._next = this;
+                    }
+                    oldMessage = vm.BusyMessage;
+                    oldBusy = vm.IsBusy;
+                    vm._busyTail = this;
+                }
+                if (oldMessage != vm.BusyMessage)
+                    vm.OnPropertyChanged(Empty.BusyMessageChangedArgs);
+                if (oldBusy != vm.IsBusy)
+                    vm.OnPropertyChanged(Empty.IsBusyChangedArgs);
             }
 
-            protected override int GetHashCode(Guid key)
+            public IList<IBusyToken> GetTokens(ViewModelBase vm)
             {
-                return key.GetHashCode();
+                IList<IBusyToken> tokens = null;
+                lock (_ref)
+                {
+                    var token = vm._busyTail;
+                    while (token != null)
+                    {
+                        if (tokens == null)
+                            tokens = new List<IBusyToken>();
+                        tokens.Insert(0, token);
+                        token = token._prev;
+                    }
+                }
+                return tokens ?? Empty.Array<IBusyToken>();
+            }
+
+            #endregion
+
+            #region Implementation of IBusyToken
+
+            public bool IsCompleted
+            {
+                get { return ReferenceEquals(CompletedList, _listeners); }
+            }
+
+            public object Message
+            {
+                get { return _message; }
+            }
+
+            public void Register(IHandler<IBusyToken> handler)
+            {
+                if (IsCompleted)
+                {
+                    handler.Handle(this, this);
+                    return;
+                }
+                lock (_ref)
+                {
+                    if (!IsCompleted)
+                    {
+                        if (_listeners == null)
+                            _listeners = new List<IHandler<IBusyToken>>(2);
+                        _listeners.Add(handler);
+                        return;
+                    }
+                }
+                handler.Handle(this, this);
+            }
+
+            public void Dispose()
+            {
+                IHandler<IBusyToken>[] listeners = null;
+                ViewModelBase vm = null;
+                object oldMessage = null;
+                bool oldBusy = false;
+                lock (_ref)
+                {
+                    if (_listeners != null)
+                        listeners = _listeners.ToArray();
+                    if (_prev != null)
+                        _prev._next = _next;
+                    if (_next == null)
+                    {
+                        vm = _ref.Target as ViewModelBase;
+                        if (vm != null)
+                        {
+                            oldMessage = vm.BusyMessage;
+                            oldBusy = vm.IsBusy;
+                            vm._busyTail = _prev;
+                        }
+                    }
+                    else
+                        _next._prev = _prev;
+                    _listeners = CompletedList;
+
+                }
+                if (listeners != null)
+                {
+                    for (int i = 0; i < listeners.Length; i++)
+                        listeners[i].Handle(this, this);
+                }
+                if (vm != null)
+                {
+                    if (oldBusy != vm.IsBusy)
+                        vm.OnPropertyChanged(Empty.IsBusyChangedArgs);
+                    if (oldMessage != vm.BusyMessage)
+                        vm.OnPropertyChanged(Empty.BusyMessageChangedArgs);
+                }
+            }
+
+            public void Handle(object sender, IBusyToken message)
+            {
+                Dispose();
             }
 
             #endregion
@@ -72,20 +208,18 @@ namespace MugenMvvmToolkit.ViewModels
         #region Fields
 
         private static readonly CancellationTokenSource DisposedToken;
-        private const int DisposedState = 2;
+        private const int DisposedState = 3;
+        private const int RestoredState = 2;
         private const int InitializedState = 1;
         private const int DefaultState = 0;
 
         private readonly IViewModelSettings _settings;
 
+        private BusyToken _busyTail;
         private CancellationTokenSource _disposeCancellationToken;
         private IIocContainer _iocContainer;
         private IEventAggregator _localEventAggregator;
-        private BusyDict _busyMessages;
-        private object _busyMessage;
         private int _state;
-        private bool _isBusy;
-        private bool _isRestored;
 
         #endregion
 
@@ -103,7 +237,6 @@ namespace MugenMvvmToolkit.ViewModels
         protected ViewModelBase()
         {
             _settings = ApplicationSettings.ViewModelSettings.Clone();
-
             Tracer.TraceViewModel(AuditAction.Created, this);
             if (IsDesignMode)
                 ServiceProvider.DesignTimeManager.InitializeViewModel(this);
@@ -138,7 +271,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         protected bool IsRestored
         {
-            get { return _isRestored; }
+            get { return _state == RestoredState; }
         }
 
         /// <summary>
@@ -184,13 +317,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         public virtual bool IsBusy
         {
-            get { return _isBusy; }
-            private set
-            {
-                if (_isBusy == value) return;
-                _isBusy = value;
-                OnPropertyChanged(Empty.IsBusyChangedArgs);
-            }
+            get { return _busyTail != null; }
         }
 
         /// <summary>
@@ -198,12 +325,12 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         public virtual object BusyMessage
         {
-            get { return _busyMessage; }
-            private set
+            get
             {
-                if (_busyMessage == value) return;
-                _busyMessage = value;
-                OnPropertyChanged(Empty.BusyMessageChangedArgs);
+                var tail = _busyTail;
+                if (tail == null)
+                    return null;
+                return tail.Message;
             }
         }
 
@@ -258,7 +385,10 @@ namespace MugenMvvmToolkit.ViewModels
                 Tracer.Warn(ExceptionManager.ObjectInitialized("ViewModel", this).Message);
                 return;
             }
-            context.TryGetData(InitializationConstants.IsRestored, out _isRestored);
+            bool restored;
+            context.TryGetData(InitializationConstants.IsRestored, out restored);
+            if (restored)
+                Interlocked.CompareExchange(ref _state, RestoredState, InitializedState);
             IocContainer = context.GetData(InitializationConstants.IocContainer, true);
 
             OnInitializing(context);
@@ -281,36 +411,23 @@ namespace MugenMvvmToolkit.ViewModels
         ///     The specified message for the <see cref="IViewModel.BusyMessage" /> property.
         /// </param>
         /// <returns>Id of the operation.</returns>
-        public Guid BeginBusy(object message = null)
+        public virtual IBusyToken BeginBusy(object message = null)
         {
-            Guid newGuid = Guid.NewGuid();
-            if (message == null)
-                message = Settings.DefaultBusyMessage;
-            AddBusy(newGuid, message, true);
-            return newGuid;
+            var token = new BusyToken(this, message ?? Settings.DefaultBusyMessage);
+            token.Combine(this);
+            Publish(token);
+            return token;
         }
 
         /// <summary>
-        ///     Ends to indicate that the current view model is busy.
+        ///     Gets the collection of busy tokens.
         /// </summary>
-        /// <param name="idBusy">Id of the operation to end.</param>
-        public void EndBusy(Guid idBusy)
+        public virtual IList<IBusyToken> GetBusyTokens()
         {
-            RemoveBusy(idBusy, true);
-        }
-
-        /// <summary>
-        ///     Clears all busy operations.
-        /// </summary>
-        public void ClearBusy()
-        {
-            if (!InitializeBusyDict(false))
-                return;
-            KeyValuePair<Guid, object>[] messages;
-            lock (_busyMessages)
-                messages = _busyMessages.ToArray();
-            for (int index = 0; index < messages.Length; index++)
-                EndBusy(messages[index].Key);
+            var tail = _busyTail;
+            if (tail == null)
+                return Empty.Array<IBusyToken>();
+            return tail.GetTokens(this);
         }
 
         /// <summary>
@@ -324,8 +441,7 @@ namespace MugenMvvmToolkit.ViewModels
                 PublishInternal(sender, message);
             else
             {
-                //NOTE calling all handlers in this view model.
-                HandlerSubscriber.GetOrCreate(this).Handle(sender, message);
+                EventAggregator.Publish(this, sender, message);
                 if (!Settings.BroadcastAllMessages && !(message is IBroadcastMessage))
                     PublishInternal(sender, message);
             }
@@ -341,7 +457,19 @@ namespace MugenMvvmToolkit.ViewModels
                 return false;
             var vm = subscriber.Target as IViewModel;
             if (vm != null)
-                NotifyBeginBusy(vm);
+            {
+                var tokens = GetBusyTokens();
+                if (vm is ViewModelBase)
+                {
+                    for (int i = 0; i < tokens.Count; i++)
+                        ((IHandler<object>)vm).Handle(this, tokens[i]);
+                }
+                else
+                {
+                    for (int i = 0; i < tokens.Count; i++)
+                        vm.Publish(this, tokens[i]);
+                }
+            }
             return true;
         }
 
@@ -351,12 +479,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="subscriber">The instance to unsubscribe.</param>
         public bool Unsubscribe(ISubscriber subscriber)
         {
-            if (!UnsubscribeInternal(subscriber))
-                return false;
-            var vm = subscriber.Target as IViewModel;
-            if (vm != null)
-                NotifyEndBusy(vm);
-            return true;
+            return UnsubscribeInternal(subscriber);
         }
 
         /// <summary>
@@ -501,103 +624,21 @@ namespace MugenMvvmToolkit.ViewModels
 
         internal virtual void HandleInternal(object sender, object message)
         {
-            var beginBusyMessage = message as BeginBusyMessage;
-            if (beginBusyMessage != null)
+            var busyToken = message as IBusyToken;
+            if (busyToken != null)
             {
                 HandleMode messageMode = Settings.HandleBusyMessageMode;
                 if (messageMode.HasFlagEx(HandleMode.Handle))
-                    AddBusy(beginBusyMessage.Id, beginBusyMessage.Message, false);
+                {
+                    var token = new BusyToken(this, busyToken);
+                    token.Combine(this);
+                }
                 if (messageMode.HasFlagEx(HandleMode.NotifySubscribers))
                     PublishInternal(sender, message);
                 return;
             }
-            var endBusyMessage = message as EndBusyMessage;
-            if (endBusyMessage != null)
-            {
-                RemoveBusy(endBusyMessage.Id, false);
-                PublishInternal(sender, message);
-                return;
-            }
             if (Settings.BroadcastAllMessages || message is IBroadcastMessage)
                 PublishInternal(sender, message);
-        }
-
-        private void NotifyBeginBusy(IViewModel viewModel)
-        {
-            if (!InitializeBusyDict(false))
-                return;
-            lock (_busyMessages)
-            {
-                if (_busyMessages.Count == 0)
-                    return;
-                var isVmb = viewModel is ViewModelBase;
-                foreach (var o in _busyMessages)
-                {
-                    var message = new BeginBusyMessage(o.Key, o.Value);
-                    if (isVmb)
-                        ((IHandler<object>)viewModel).Handle(this, message);
-                    else
-                        viewModel.Publish(this, message);
-                }
-            }
-        }
-
-        private void NotifyEndBusy(IViewModel viewModel)
-        {
-            if (!InitializeBusyDict(false))
-                return;
-            lock (_busyMessages)
-            {
-                if (_busyMessages.Count == 0)
-                    return;
-                var isVmb = viewModel is ViewModelBase;
-                foreach (var o in _busyMessages)
-                {
-                    var message = new EndBusyMessage(o.Key);
-                    if (isVmb)
-                        ((IHandler<object>)viewModel).Handle(this, message);
-                    else
-                        viewModel.Publish(this, message);
-                }
-            }
-        }
-
-        private void AddBusy(Guid idBusy, object message, bool notify)
-        {
-            InitializeBusyDict(true);
-            lock (_busyMessages)
-            {
-                if (_busyMessages.ContainsKey(idBusy))
-                    return;
-                _busyMessages.Add(idBusy, message);
-                BusyMessage = message;
-                IsBusy = true;
-            }
-            OnBeginBusy(idBusy, message);
-            if (notify)
-                Publish(new BeginBusyMessage(idBusy, message));
-        }
-
-        private void RemoveBusy(Guid idBusy, bool notify)
-        {
-            if (InitializeBusyDict(false))
-            {
-                lock (_busyMessages)
-                {
-                    if (!_busyMessages.Remove(idBusy))
-                        return;
-                    if (_busyMessages.Count == 0)
-                    {
-                        IsBusy = false;
-                        BusyMessage = null;
-                    }
-                    else
-                        BusyMessage = _busyMessages.FirstOrDefault().Value;
-                }
-                OnEndBusy(idBusy);
-            }
-            if (notify)
-                Publish(new EndBusyMessage(idBusy));
         }
 
         private void DisposeInternal()
@@ -606,7 +647,7 @@ namespace MugenMvvmToolkit.ViewModels
             if (Settings.DisposeCommands)
                 ReflectionExtensions.DisposeCommands(this);
 
-            ClearBusy();
+            this.ClearBusy();
             ClearPropertyChangedSubscribers();
             if (InitializeEventAggregator(false))
             {
@@ -628,24 +669,13 @@ namespace MugenMvvmToolkit.ViewModels
             Tracer.TraceViewModel(AuditAction.Disposed, this);
         }
 
-        private bool InitializeBusyDict(bool required)
-        {
-            if (_busyMessages != null)
-                return true;
-            if (!required)
-                return false;
-            Interlocked.CompareExchange(ref _busyMessages, new BusyDict(), null);
-            return true;
-        }
-
         private bool InitializeEventAggregator(bool required)
         {
             if (_localEventAggregator != null)
                 return true;
             if (!required)
                 return false;
-            Interlocked.CompareExchange(ref _localEventAggregator, ServiceProvider.InstanceEventAggregatorFactory(this),
-                null);
+            Interlocked.CompareExchange(ref _localEventAggregator, ServiceProvider.InstanceEventAggregatorFactory(this), null);
             return true;
         }
 
@@ -692,23 +722,6 @@ namespace MugenMvvmToolkit.ViewModels
         {
             if (InitializeEventAggregator(false))
                 _localEventAggregator.Publish(sender, message);
-        }
-
-        /// <summary>
-        ///     Occurs during the busy operation is started.
-        /// </summary>
-        /// <param name="id">The specified id.</param>
-        /// <param name="message">The specified message.</param>
-        protected virtual void OnBeginBusy(Guid id, object message)
-        {
-        }
-
-        /// <summary>
-        ///     Occurs during the busy operation is completed.
-        /// </summary>
-        /// <param name="id">The specified id.</param>
-        protected virtual void OnEndBusy(Guid id)
-        {
         }
 
         /// <summary>

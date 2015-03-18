@@ -37,7 +37,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
                 EventExecutionMode = EventExecutionMode,
                 DefaultBusyMessage = DefaultBusyMessage,
                 BroadcastAllMessages = BroadcastAllMessages,
-                ValidationBusyMessage = ValidationBusyMessage,
                 WithoutClone = WithoutClone,
                 Metadata = new DataContext(Metadata),
                 State = new DataContext(State),

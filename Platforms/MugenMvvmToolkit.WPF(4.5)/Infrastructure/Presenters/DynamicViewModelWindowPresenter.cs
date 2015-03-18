@@ -176,17 +176,19 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
         /// <param name="context">The specified context.</param>
         /// <param name="parentPresenter">The parent presenter, if any.</param>
-        public IAsyncOperation<bool?> TryShowAsync(IViewModel viewModel, IDataContext context,
+        public INavigationOperation TryShowAsync(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)
         {
             var viewMediator = TryCreateWindowViewMediator(viewModel, context);
             if (viewMediator == null)
                 return null;
-            var operation = new AsyncOperation<bool?>();
+            var tcs = new TaskCompletionSource<object>();
+            var operation = new NavigationOperation(tcs.Task);
+
             if (_currentTask == null)
-                _currentTask = viewMediator.ShowAsync(operation.ToOperationCallback(), context);
+                Show(viewMediator, operation, context, tcs);
             else
-                _currentTask.TryExecuteSynchronously(task => _currentTask = viewMediator.ShowAsync(operation.ToOperationCallback(), context));
+                _currentTask.TryExecuteSynchronously(_ => Show(viewMediator, operation, context, tcs));
             return operation;
         }
 
@@ -228,6 +230,21 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 return new WindowViewMediator(viewModel, ThreadManager, ViewManager, WrapperManager, CallbackManager);
 #endif
             return null;
+        }
+
+        private void Show(IWindowViewMediator viewMediator, INavigationOperation operation, IDataContext context, TaskCompletionSource<object> tcs)
+        {
+            try
+            {
+                var task = viewMediator.ShowAsync(operation.ToOperationCallback(), context);
+                _currentTask = task;
+                tcs.TrySetFromTask(task);
+            }
+            catch (Exception e)
+            {
+                tcs.TrySetException(e);
+                throw;
+            }
         }
 
         private IWindowViewMediator TryCreateWindowViewMediator(IViewModel viewModel, IDataContext context)

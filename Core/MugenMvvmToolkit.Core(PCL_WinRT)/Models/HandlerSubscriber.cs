@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.ViewModels;
 
@@ -31,60 +30,40 @@ namespace MugenMvvmToolkit.Models
     {
         #region Nested types
 
-        [StructLayout(LayoutKind.Auto)]
-        private struct MessageSenderCache
+        private struct HandlerMessageKey
         {
             #region Fields
 
-            public readonly object Message;
-            public readonly object Sender;
+            public readonly Type HandlerType;
+            public readonly Type MessageType;
 
             #endregion
 
             #region Constructors
 
-            public MessageSenderCache(object sender, object message)
+            public HandlerMessageKey(Type handlerType, Type messageType)
             {
-                Sender = sender;
-                Message = message;
+                HandlerType = handlerType;
+                MessageType = messageType;
             }
 
             #endregion
         }
 
-        private sealed class MessageSenderCacheComparer : IEqualityComparer<MessageSenderCache>
+        private sealed class HandlerMessageKeyComparer : IEqualityComparer<HandlerMessageKey>
         {
-            #region Fields
+            #region Methods
 
-            public static readonly MessageSenderCacheComparer Instance;
-
-            #endregion
-
-            #region Constructors
-
-            static MessageSenderCacheComparer()
+            public bool Equals(HandlerMessageKey x, HandlerMessageKey y)
             {
-                Instance = new MessageSenderCacheComparer();
+                return x.HandlerType.Equals(y.HandlerType) && x.MessageType.Equals(y.MessageType);
             }
 
-            private MessageSenderCacheComparer()
-            {
-            }
-
-            #endregion
-
-            #region Implementation of IEqualityComparer<in MessageSenderCache>
-
-            public bool Equals(MessageSenderCache x, MessageSenderCache y)
-            {
-                return ReferenceEquals(x.Sender, y.Sender) && ReferenceEquals(x.Message, y.Message);
-            }
-
-            public int GetHashCode(MessageSenderCache obj)
+            public int GetHashCode(HandlerMessageKey obj)
             {
                 unchecked
                 {
-                    return (RuntimeHelpers.GetHashCode(obj.Sender) * 397) ^ RuntimeHelpers.GetHashCode(obj.Message);
+                    return (obj.HandlerType.GetHashCode() * 397) ^ obj.MessageType.GetHashCode();
                 }
             }
 
@@ -95,20 +74,12 @@ namespace MugenMvvmToolkit.Models
 
         #region Fields
 
-        private const string HandlerInfoPath = "```@HandlerInfo";
-        private static readonly HandlerSubscriber EmptyHandler;
-        private static readonly Func<object, object, HandlerSubscriber> CreateDelegate;
-        private static readonly Dictionary<Type, Dictionary<Type, Func<object, object[], object>>> TypeHandlers;
+        private static readonly Dictionary<Type, Type[]> TypeToHandlerInterfaces;
+        private static readonly Dictionary<HandlerMessageKey, Func<object, object[], object>[]> TypeToHandlers;
 
-        private readonly Dictionary<Type, Func<object, object[], object>[]> _messageToHandlers;
-        private readonly Dictionary<Type, Func<object, object[], object>> _handlers;
-        private readonly HashSet<MessageSenderCache> _handledMessages;
         private readonly int _hashCode;
         private readonly WeakReference _reference;
-
-        private MessageSenderCache _lastMessage;
-        private Type _lastType;
-        private Func<object, object[], object>[] _lastValue;
+        private readonly bool _isViewModelHandler;
 
         #endregion
 
@@ -116,32 +87,15 @@ namespace MugenMvvmToolkit.Models
 
         static HandlerSubscriber()
         {
-            TypeHandlers = new Dictionary<Type, Dictionary<Type, Func<object, object[], object>>>();
-            EmptyHandler = new HandlerSubscriber();
-            CreateDelegate = Create;
+            TypeToHandlerInterfaces = new Dictionary<Type, Type[]>();
+            TypeToHandlers = new Dictionary<HandlerMessageKey, Func<object, object[], object>[]>(new HandlerMessageKeyComparer());
         }
 
-        private HandlerSubscriber()
-        {
-        }
-
-        public HandlerSubscriber(object target, Dictionary<Type, Func<object, object[], object>> handlers)
+        private HandlerSubscriber(object target, bool isViewModelHandler)
         {
             _hashCode = RuntimeHelpers.GetHashCode(target);
             _reference = ToolkitExtensions.GetWeakReference(target);
-            if (handlers.Count != 1 || !(target is ViewModelBase))
-                _handlers = handlers;
-            _messageToHandlers = new Dictionary<Type, Func<object, object[], object>[]>();
-            _handledMessages = new HashSet<MessageSenderCache>(MessageSenderCacheComparer.Instance);
-        }
-
-        #endregion
-
-        #region Properties
-
-        public bool IsEmpty
-        {
-            get { return ReferenceEquals(this, EmptyHandler); }
+            _isViewModelHandler = isViewModelHandler;
         }
 
         #endregion
@@ -168,34 +122,16 @@ namespace MugenMvvmToolkit.Models
             var target = _reference.Target;
             if (target == null)
                 return HandlerResult.Invalid;
-            var messageSenderCache = new MessageSenderCache(sender, message);
-            lock (_handledMessages)
+            if (_isViewModelHandler)
+                ((IHandler<object>)target).Handle(sender, message);
+            else
             {
-                if (MessageSenderCacheComparer.Instance.Equals(_lastMessage, messageSenderCache) ||
-                    !_handledMessages.Add(messageSenderCache))
+                var handlers = GetHandlers(target, message);
+                if (handlers.Length == 0)
                     return HandlerResult.Ignored;
-                _lastMessage = messageSenderCache;
-            }
-            try
-            {
-                if (_handlers == null)
-                    ((IHandler<object>)target).Handle(sender, message);
-                else
-                {
-                    var list = FilterHandlers(message.GetType());
-                    if (list.Length == 0)
-                        return HandlerResult.Ignored;
-                    for (int index = 0; index < list.Length; index++)
-                        list[index].Invoke(target, new[] { sender, message });
-                }
-            }
-            finally
-            {
-                lock (_handledMessages)
-                {
-                    _handledMessages.Remove(messageSenderCache);
-                    _lastMessage = default(MessageSenderCache);
-                }
+                var args = new[] { sender, message };
+                for (int index = 0; index < handlers.Length; index++)
+                    handlers[index].Invoke(target, args);
             }
             return HandlerResult.Handled;
         }
@@ -204,73 +140,57 @@ namespace MugenMvvmToolkit.Models
 
         #region Methods
 
-        public static HandlerSubscriber GetOrCreate(object target)
+        public static HandlerSubscriber Get(object target)
         {
-            return ServiceProvider
-                .AttachedValueProvider
-                .GetOrAdd(target, HandlerInfoPath, CreateDelegate, null);
-        }
-
-        private static HandlerSubscriber Create(object target, object state)
-        {
-            var dictionary = GetHandlers(target);
-            if (dictionary.Count == 0)
-                return EmptyHandler;
-            return new HandlerSubscriber(target, dictionary);
-        }
-
-        private static Dictionary<Type, Func<object, object[], object>> GetHandlers(object handler)
-        {
-            lock (TypeHandlers)
+            var type = target.GetType();
+            Type[] interfaces;
+            lock (TypeToHandlerInterfaces)
             {
-                Type type = handler.GetType();
-                Dictionary<Type, Func<object, object[], object>> value;
-                if (!TypeHandlers.TryGetValue(type, out value))
+                if (!TypeToHandlerInterfaces.TryGetValue(type, out interfaces))
                 {
-                    value = new Dictionary<Type, Func<object, object[], object>>();
-                    Type[] interfaces = type
-                        .GetInterfaces()
+                    interfaces = GetHandlerInterfaces(type);
+                    TypeToHandlerInterfaces[type] = interfaces;
+                }
+            }
+            if (interfaces.Length == 0)
+                return null;
+            return new HandlerSubscriber(target, interfaces.Length == 1 && target is ViewModelBase);
+        }
+
+        private static Func<object, object[], object>[] GetHandlers(object handler, object message)
+        {
+            var key = new HandlerMessageKey(handler.GetType(), message.GetType());
+            lock (TypeToHandlers)
+            {
+                Func<object, object[], object>[] value;
+                if (!TypeToHandlers.TryGetValue(key, out value))
+                {
+                    var items = new List<Func<object, object[], object>>();
+                    var interfaces = GetHandlerInterfaces(key.HandlerType);
+                    for (int index = 0; index < interfaces.Length; index++)
+                    {
+                        Type @interface = interfaces[index];
+                        Type typeMessage = @interface.GetGenericArguments()[0];
+                        MethodInfo method = @interface.GetMethodEx("Handle");
+                        if (typeMessage.IsAssignableFrom(key.MessageType))
+                            items.Add(ServiceProvider.ReflectionManager.GetMethodDelegate(method));
+                    }
+                    value = items.ToArray();
+                    TypeToHandlers[key] = value;
+                }
+                return value;
+            }
+        }
+
+        private static Type[] GetHandlerInterfaces(Type type)
+        {
+            return type.GetInterfaces()
 #if PCL_WINRT
 .Where(x => x.GetTypeInfo().IsGenericType && x.GetGenericTypeDefinition().Equals(typeof(IHandler<>)))
 #else
 .Where(x => x.IsGenericType && x.GetGenericTypeDefinition().Equals(typeof(IHandler<>)))
 #endif
 .ToArray();
-                    for (int index = 0; index < interfaces.Length; index++)
-                    {
-                        Type @interface = interfaces[index];
-                        Type typeMessage = @interface.GetGenericArguments()[0];
-                        MethodInfo method = @interface.GetMethodEx("Handle");
-                        value[typeMessage] = ServiceProvider.ReflectionManager.GetMethodDelegate(method);
-                    }
-                    TypeHandlers[type] = value;
-                }
-                return value;
-            }
-        }
-
-        private Func<object, object[], object>[] FilterHandlers(Type messageType)
-        {
-            lock (_messageToHandlers)
-            {
-                if (_lastType == messageType)
-                    return _lastValue;
-                Func<object, object[], object>[] value;
-                if (!_messageToHandlers.TryGetValue(messageType, out value))
-                {
-                    var listValue = new List<Func<object, object[], object>>();
-                    foreach (var pair in _handlers)
-                    {
-                        if (pair.Key.IsAssignableFrom(messageType))
-                            listValue.Add(pair.Value);
-                    }
-                    value = listValue.ToArrayEx();
-                    _messageToHandlers[messageType] = value;
-                }
-                _lastType = messageType;
-                _lastValue = value;
-                return value;
-            }
         }
 
         #endregion

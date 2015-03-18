@@ -35,7 +35,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         private const int StartedState = 1;
         private readonly List<IAsyncOperationInternal> _continuations;
-        private readonly ManualResetEvent _waitHandle;
+        private ManualResetEvent _waitHandle;
         private IOperationResult<TResult> _result;
         private int _state;
 
@@ -48,8 +48,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         /// </summary>
         public AsyncOperation()
         {
-            _continuations = new List<IAsyncOperationInternal>();
-            _waitHandle = new ManualResetEvent(false);
+            _continuations = new List<IAsyncOperationInternal>(2);
         }
 
         #endregion
@@ -155,8 +154,17 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             }
             finally
             {
+                Interlocked.CompareExchange(ref _waitHandle, Empty.CompletedEvent, null);
                 _waitHandle.Set();
             }
+        }
+
+        private void InitializeHandle()
+        {
+            var value = new ManualResetEvent(false);
+            Interlocked.CompareExchange(ref _waitHandle, value, null);
+            if (!ReferenceEquals(value, _waitHandle))
+                value.Dispose();
         }
 
         #endregion
@@ -213,18 +221,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #endregion
 
-        #region Implementation of IDisposable
-
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            _waitHandle.Dispose();
-        }
-
-        #endregion
-
         #region Implementation of IAsyncOperation
 
         /// <summary>
@@ -251,6 +247,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         /// <summary>
         ///     Gets the operation result.
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         IOperationResult IAsyncOperation.Result
         {
             get { return Result; }
@@ -261,6 +258,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         /// </summary>
         public void Wait()
         {
+            InitializeHandle();
             _waitHandle.WaitOne();
         }
 
@@ -269,6 +267,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         /// </summary>
         public bool Wait(int millisecondsTimeout)
         {
+            InitializeHandle();
             return _waitHandle.WaitOne(millisecondsTimeout);
         }
 

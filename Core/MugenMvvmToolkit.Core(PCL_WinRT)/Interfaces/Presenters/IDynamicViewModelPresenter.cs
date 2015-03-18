@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Interfaces.Presenters
         /// <param name="context">The specified context.</param>
         /// <param name="parentPresenter">The parent presenter, if any.</param>
         [CanBeNull]
-        IAsyncOperation<bool?> TryShowAsync([NotNull] IViewModel viewModel, [NotNull] IDataContext context,
+        INavigationOperation TryShowAsync([NotNull] IViewModel viewModel, [NotNull] IDataContext context,
             [CanBeNull] IViewModelPresenter parentPresenter);
     }
 

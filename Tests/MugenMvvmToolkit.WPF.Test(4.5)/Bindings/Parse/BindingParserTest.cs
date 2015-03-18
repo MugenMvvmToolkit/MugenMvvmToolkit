@@ -732,6 +732,28 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         }
 
         [TestMethod]
+        public void ParserShouldParseMultiExpression9()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "x";
+            const string binding = "Text x/2-10";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+            target.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { 20 }).ShouldEqual(0);
+            expression(context, new object[] { 40 }).ShouldEqual(10);
+
+            var targetObj = new object();
+            context.Add(BindingBuilderConstants.Target, targetObj);
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
+        }
+
+        [TestMethod]
         public void ParserShouldParseMultiExpressionWithCustomMethod()
         {
             const string targetPath = "Text";

@@ -160,7 +160,6 @@ namespace MugenMvvmToolkit.Models
     /// </summary>
     public class RelayCommand : RelayCommandBase
     {
-
         #region Fields
 
         private const byte ObjectDelegateFlag = 1 << 0;

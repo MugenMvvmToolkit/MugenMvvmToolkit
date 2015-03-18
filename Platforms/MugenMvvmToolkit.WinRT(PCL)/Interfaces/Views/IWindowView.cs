@@ -16,6 +16,7 @@
 
 #endregion
 
+using System;
 using System.ComponentModel;
 using MugenMvvmToolkit.Models;
 
@@ -32,6 +33,11 @@ namespace MugenMvvmToolkit.Interfaces.Views
         void Show();
 
         /// <summary>
+        ///     Shows dialog as a window.
+        /// </summary>
+        void ShowDialog();
+
+        /// <summary>
         ///     Closes the dialog.
         /// </summary>
         void Close();
@@ -40,5 +46,10 @@ namespace MugenMvvmToolkit.Interfaces.Views
         ///     Occurred on closing.
         /// </summary>
         event EventHandler<object, CancelEventArgs> Closing;
+
+        /// <summary>
+        ///     Occurred on closed.
+        /// </summary>
+        event EventHandler<object, EventArgs> Closed;
     }
 }

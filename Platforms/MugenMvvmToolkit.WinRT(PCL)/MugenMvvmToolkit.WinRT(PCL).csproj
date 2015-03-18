@@ -17,7 +17,7 @@
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp>54cc6610</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>2baea188</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -65,9 +65,6 @@
     <Compile Include="..\MugenMvvmToolkit.Android\Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs">
       <Link>Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Silverlight%285.0%29\Infrastructure\Mediators\WindowViewMediator.cs">
-      <Link>Infrastructure\Mediators\WindowViewMediator.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\converters\InverseBooleanConverter.cs">
       <Link>Converters\InverseBooleanConverter.cs</Link>
     </Compile>
@@ -111,11 +108,13 @@
       <Link>Modules\InitializationModule.cs</Link>
     </Compile>
     <Compile Include="Infrastructure\ApplicationStateManager.cs" />
+    <Compile Include="Infrastructure\Mediators\WindowViewMediator.cs" />
     <Compile Include="Infrastructure\Navigation\FrameNavigationService.cs" />
     <Compile Include="Infrastructure\Presenters\MessagePresenter.cs" />
     <Compile Include="Infrastructure\ThreadManager.cs" />
     <Compile Include="Infrastructure\WinRTBootstrapperBase.cs" />
     <Compile Include="Interfaces\IApplicationStateManager.cs" />
+    <Compile Include="Interfaces\Views\IPopupView.cs" />
     <Compile Include="Interfaces\Views\IWindowView.cs" />
     <Compile Include="Models\EventArg\NavigatingCancelEventArgsWrapper.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgsWrapper.cs" />
@@ -150,9 +149,9 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Fody.1.27.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.27.1\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Fody.1.28.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.28.1\build\Fody.targets'))" />
   </Target>
-  <Import Project="..\..\packages\Fody.1.27.1\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.27.1\build\Fody.targets')" />
+  <Import Project="..\..\packages\Fody.1.28.1\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.28.1\build\Fody.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

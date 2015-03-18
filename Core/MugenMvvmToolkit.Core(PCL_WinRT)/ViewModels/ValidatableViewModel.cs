@@ -382,13 +382,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="sender">The object that raised the event.</param>
         /// <param name="message">Information about event.</param>
         protected virtual void OnHandleAsyncValidationMessage(object sender, AsyncValidationMessage message)
-        {
-            if (message.IsEndOperation)
-            {
-                ((IHandler<object>)this).Handle(this, new EndBusyMessage(message.Id));
-                return;
-            }
-            ((IHandler<object>)this).Handle(this, new BeginBusyMessage(message.Id, Settings.ValidationBusyMessage));
+        {            
         }
 
         /// <summary>

@@ -364,8 +364,7 @@ namespace MugenMvvmToolkit
         {
             if (o == null)
                 return null;
-            var subscriber = HandlerSubscriber.GetOrCreate(o);
-            return subscriber.IsEmpty ? null : subscriber;
+            return o as ISubscriber ?? HandlerSubscriber.Get(o);
         }
 
         #endregion

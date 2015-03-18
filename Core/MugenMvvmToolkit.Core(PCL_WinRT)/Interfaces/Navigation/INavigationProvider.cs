@@ -48,7 +48,7 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
         ///     Gets the current navigation task.
         /// </summary>
         [NotNull]
-        Task CurrentNavigateTask { get; }
+        Task CurrentNavigationTask { get; }
 
         /// <summary>
         ///     Gets the cache policy, if any.

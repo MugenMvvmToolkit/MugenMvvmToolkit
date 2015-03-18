@@ -768,7 +768,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 {
                     lock (_validatingMembers)
                         _validatingMembers.Add(propertyName);
-                    message = new AsyncValidationMessage(Guid.NewGuid(), propertyName, false);
+                    message = new AsyncValidationMessage(propertyName);
                     Publish(message);
                     TraceAsync(true, propertyName);
                 }
@@ -845,8 +845,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             return mappingProperties;
         }
 
-        private void OnValidated(Task<IDictionary<string, IEnumerable>> task, bool validateAll, string propertyName,
-            bool isAsync, AsyncValidationMessage message)
+        private void OnValidated(Task<IDictionary<string, IEnumerable>> task, bool validateAll, string propertyName, bool isAsync, AsyncValidationMessage message)
         {
             Exception exception = null;
             HashSet<string> properties = null;
@@ -890,7 +889,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 if (isAsync)
                 {
                     if (message != null)
-                        Publish(message.ToEndMessage(exception, false));
+                        message.SetCompleted(exception, false);
                     TraceAsync(false, propertyName);
                 }
                 lock (_validatingMembers)
@@ -906,7 +905,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         {
             lock (_validatingMembers)
                 _validatingMembers.Add(propertyName);
-            Publish(message.ToEndMessage(null, true));
+            message.SetCompleted(null, true);
             TraceAsync(false, propertyName);
             lock (_validatingMembers)
                 _validatingMembers.Remove(propertyName);

@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
@@ -390,7 +391,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
             public void SetValue(TTarget source, TType value, object[] args)
             {
-                if (Equals(Value, value))
+                if (EqualityComparer<TType>.Default.Equals(Value, value))
                     return;
                 var oldValue = Value;
                 Value = value;

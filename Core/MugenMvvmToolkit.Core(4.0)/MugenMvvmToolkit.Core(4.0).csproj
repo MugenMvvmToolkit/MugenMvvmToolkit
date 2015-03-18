@@ -14,7 +14,7 @@
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp>666d3f59</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>b054bb46</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -157,6 +157,9 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\callbacks\DelegateContinuation.cs">
       <Link>Infrastructure\Callbacks\DelegateContinuation.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Callbacks\NavigationOperation.cs">
+      <Link>Infrastructure\Callbacks\NavigationOperation.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\callbacks\OperationCallbackManager.cs">
       <Link>Infrastructure\Callbacks\OperationCallbackManager.cs</Link>
     </Compile>
@@ -262,6 +265,9 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\callbacks\IFunctionContinuation.cs">
       <Link>Interfaces\Callbacks\IFunctionContinuation.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Callbacks\INavigationOperation.cs">
+      <Link>Interfaces\Callbacks\INavigationOperation.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\callbacks\IOperationCallback.cs">
       <Link>Interfaces\Callbacks\IOperationCallback.cs</Link>
     </Compile>
@@ -348,6 +354,9 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\mediators\IWindowViewMediator.cs">
       <Link>Interfaces\Mediators\IWindowViewMediator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\IBusyToken.cs">
+      <Link>Interfaces\Models\IBusyToken.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\IDataContext.cs">
       <Link>Interfaces\Models\IDataContext.cs</Link>
@@ -559,12 +568,6 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\messages\AsyncValidationMessage.cs">
       <Link>Models\Messages\AsyncValidationMessage.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\messages\BeginBusyMessage.cs">
-      <Link>Models\Messages\BeginBusyMessage.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\messages\EndBusyMessage.cs">
-      <Link>Models\Messages\EndBusyMessage.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\messages\StateChangedMessage.cs">
       <Link>Models\Messages\StateChangedMessage.cs</Link>
     </Compile>
@@ -684,7 +687,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Fody.1.27.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.27.1\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Fody.1.28.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.28.1\build\Fody.targets'))" />
   </Target>
   <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
@@ -692,7 +695,7 @@
     <Error Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://go.microsoft.com/fwlink/?LinkID=317568." HelpKeyword="BCLBUILD2002" />
   </Target>
   <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
-  <Import Project="..\..\packages\Fody.1.27.1\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.27.1\build\Fody.targets')" />
+  <Import Project="..\..\packages\Fody.1.28.1\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.28.1\build\Fody.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

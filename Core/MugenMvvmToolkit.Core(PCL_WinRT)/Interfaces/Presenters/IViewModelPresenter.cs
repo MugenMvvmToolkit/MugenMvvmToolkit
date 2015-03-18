@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.Interfaces.Presenters
         /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
         /// <param name="context">The specified context.</param>
         [NotNull]
-        IAsyncOperation<bool?> ShowAsync([NotNull] IViewModel viewModel, [CanBeNull] IDataContext context);
+        INavigationOperation ShowAsync([NotNull] IViewModel viewModel, [CanBeNull] IDataContext context);
 
         /// <summary>
         ///     Tries to restore the presenter state of the specified <see cref="IViewModel" />.

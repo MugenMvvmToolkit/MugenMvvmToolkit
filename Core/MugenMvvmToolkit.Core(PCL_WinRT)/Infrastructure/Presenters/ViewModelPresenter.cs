@@ -177,14 +177,14 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         /// </summary>
         /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
         /// <param name="context">The specified context.</param>
-        public virtual IAsyncOperation<bool?> ShowAsync(IViewModel viewModel, IDataContext context)
+        public virtual INavigationOperation ShowAsync(IViewModel viewModel, IDataContext context)
         {
             Should.NotBeNull(viewModel, "viewModel");
             if (context == null)
                 context = DataContext.Empty;
             for (int i = 0; i < _dynamicPresenters.Count; i++)
             {
-                IAsyncOperation<bool?> operation = _dynamicPresenters[i].TryShowAsync(viewModel, context, this);
+                var operation = _dynamicPresenters[i].TryShowAsync(viewModel, context, this);
                 if (operation != null)
                     return operation;
             }

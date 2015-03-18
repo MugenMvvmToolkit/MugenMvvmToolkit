@@ -210,7 +210,6 @@ namespace MugenMvvmToolkit.Models
             _weakHandler = null;
             _canExecuteChangedInternal = null;
             OnDispose();
-            ServiceProvider.AttachedValueProvider.Clear(this);
         }
 
         /// <summary>

@@ -695,6 +695,45 @@ namespace MugenMvvmToolkit
             return task;
         }
 
+        /// <summary>
+        ///     Set a completion source from the given Task.
+        /// </summary>
+        /// <typeparam name="TResult">result type for completion source.</typeparam>
+        /// <param name="tcs">completion source to set</param>
+        /// <param name="task">Task to get values from.</param>
+        public static void TrySetFromTask<TResult>(this TaskCompletionSource<TResult> tcs, Task task)
+        {
+            Should.NotBeNull(tcs, "tcs");
+            Should.NotBeNull(task, "task");
+            if (task.IsCompleted)
+            {
+                switch (task.Status)
+                {
+                    case TaskStatus.Canceled:
+                        tcs.TrySetCanceled();
+                        break;
+                    case TaskStatus.Created:
+                        break;
+                    case TaskStatus.Faulted:
+                        tcs.TrySetException(task.Exception.InnerExceptions);
+                        break;
+                    case TaskStatus.RanToCompletion:
+                        var t = task as Task<TResult>;
+                        tcs.TrySetResult(t == null ? default(TResult) : t.Result);
+                        break;
+                }
+            }
+            else
+            {
+#if PCL_WINRT
+                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>)o).TrySetFromTask(t), tcs, TaskContinuationOptions.ExecuteSynchronously);
+#else
+                task.ContinueWith(tcs.TrySetFromTask, TaskContinuationOptions.ExecuteSynchronously);
+#endif
+            }
+
+        }
+
         internal static Task WhenAll(Task[] tasks)
         {
             if (tasks == null)

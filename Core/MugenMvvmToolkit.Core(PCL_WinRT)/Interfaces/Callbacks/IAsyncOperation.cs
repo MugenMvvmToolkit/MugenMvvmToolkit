@@ -16,7 +16,6 @@
 
 #endregion
 
-using System;
 using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Interfaces.Callbacks
@@ -24,7 +23,7 @@ namespace MugenMvvmToolkit.Interfaces.Callbacks
     /// <summary>
     ///     Represents the async operation.
     /// </summary>
-    public interface IAsyncOperation : IDisposable
+    public interface IAsyncOperation
     {
         /// <summary>
         ///     Gets whether the operation has completed.

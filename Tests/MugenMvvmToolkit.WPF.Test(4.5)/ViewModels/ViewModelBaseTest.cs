@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Input;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -187,11 +188,11 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
             viewModel.IsBusy.ShouldBeTrue();
             viewModel.BusyMessage.ShouldEqual(secondBusyMessage);
-            viewModel.EndBusy(secondId);
+            secondId.Dispose();
 
             viewModel.IsBusy.ShouldBeTrue();
             viewModel.BusyMessage.ShouldEqual(firstBusyMessage);
-            viewModel.EndBusy(firstId);
+            firstId.Dispose();
 
             viewModel.IsBusy.ShouldBeFalse();
             viewModel.BusyMessage.ShouldBeNull();
@@ -203,8 +204,8 @@ namespace MugenMvvmToolkit.Test.ViewModels
             const string busyMessageString = "busy...";
             var viewModel = GetViewModelBase();
             viewModel.Settings.HandleBusyMessageMode = HandleMode.None;
-            var busyMessage = new BeginBusyMessage(Guid.NewGuid(), busyMessageString);
-            IHandler<BeginBusyMessage> beginBusyHandler = viewModel;
+            var busyMessage = new BusyTokenMock(busyMessageString);
+            IHandler<object> beginBusyHandler = viewModel;
 
             beginBusyHandler.Handle(this, busyMessage);
             viewModel.IsBusy.ShouldBeFalse();
@@ -217,15 +218,14 @@ namespace MugenMvvmToolkit.Test.ViewModels
             const string busyMessageString = "busy...";
             var viewModel = GetViewModelBase();
             viewModel.Settings.HandleBusyMessageMode = HandleMode.Handle;
-            var busyMessage = new BeginBusyMessage(Guid.NewGuid(), busyMessageString);
-            IHandler<BeginBusyMessage> beginBusyHandler = viewModel;
-            IHandler<EndBusyMessage> endBusyHandler = viewModel;
+            var busyMessage = new BusyTokenMock(busyMessageString);
+            IHandler<object> beginBusyHandler = viewModel;
 
             beginBusyHandler.Handle(this, busyMessage);
             viewModel.IsBusy.ShouldBeTrue();
             viewModel.BusyMessage.ShouldEqual(busyMessageString);
 
-            endBusyHandler.Handle(this, busyMessage.ToEndBusyMessage());
+            busyMessage.Dispose();
             viewModel.IsBusy.ShouldBeFalse();
             viewModel.BusyMessage.ShouldBeNull();
         }
@@ -238,9 +238,8 @@ namespace MugenMvvmToolkit.Test.ViewModels
             var childViewModel = viewModel.GetViewModel<TestViewModelBase>(observationMode: ObservationMode.None);
             viewModel.Subscribe(childViewModel);
             viewModel.Settings.HandleBusyMessageMode = HandleMode.HandleAndNotifySubscribers;
-            var busyMessage = new BeginBusyMessage(Guid.NewGuid(), busyMessageString);
-            IHandler<BeginBusyMessage> beginBusyHandler = viewModel;
-            IHandler<EndBusyMessage> endBusyHandler = viewModel;
+            var busyMessage = new BusyTokenMock(busyMessageString);
+            IHandler<object> beginBusyHandler = viewModel;
 
             beginBusyHandler.Handle(this, busyMessage);
             viewModel.IsBusy.ShouldBeTrue();
@@ -248,7 +247,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             childViewModel.IsBusy.ShouldBeTrue();
             childViewModel.BusyMessage.ShouldEqual(busyMessageString);
 
-            endBusyHandler.Handle(this, busyMessage.ToEndBusyMessage());
+            busyMessage.Dispose();
             viewModel.IsBusy.ShouldBeFalse();
             viewModel.BusyMessage.ShouldBeNull();
             childViewModel.IsBusy.ShouldBeFalse();
@@ -270,11 +269,35 @@ namespace MugenMvvmToolkit.Test.ViewModels
             childViewModel.IsBusy.ShouldBeTrue();
             childViewModel.BusyMessage.ShouldEqual(busyMessageString);
 
-            viewModel.EndBusy(beginBusy);
+            beginBusy.Dispose();
             viewModel.IsBusy.ShouldBeFalse();
             viewModel.BusyMessage.ShouldBeNull();
             childViewModel.IsBusy.ShouldBeFalse();
             childViewModel.BusyMessage.ShouldBeNull();
+        }
+
+        [TestMethod]
+        public void GetBusyTokensShouldReturnAllBusyMessages()
+        {
+            const string firstBusyMessage = "busy1...";
+            const string secondBusyMessage = "busy2...";
+
+            ViewModelBase viewModel = GetViewModelBase();
+            viewModel.GetBusyTokens().ShouldBeEmpty();
+
+            viewModel.BeginBusy(firstBusyMessage);
+            viewModel.GetBusyTokens().Single().Message.ShouldEqual(firstBusyMessage);
+
+            viewModel.BeginBusy(secondBusyMessage);
+            var tokens = viewModel.GetBusyTokens();
+            tokens.Count.ShouldEqual(2);
+            tokens[1].Message.ShouldEqual(secondBusyMessage);
+
+            foreach (var token in tokens)
+                token.Dispose();
+            viewModel.GetBusyTokens().ShouldBeEmpty();
+            viewModel.IsBusy.ShouldBeFalse();
+            viewModel.BusyMessage.ShouldBeNull();
         }
 
         [TestMethod]
@@ -339,33 +362,6 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
             testViewModelBase.IsBusy.ShouldBeTrue();
             testViewModelBase.BusyMessage.ShouldEqual(secondBusyMessage);
-        }
-
-        [TestMethod]
-        public void WhenVmRemovedFromListenersItShouldRemoveAllBusyMessageFromVm()
-        {
-            const string firstBusyMessage = "busy1...";
-            const string secondBusyMessage = "busy2...";
-
-            ViewModelBase viewModel = GetViewModelBase();
-            var childViewModel = viewModel.GetViewModel<TestViewModelBase>(observationMode: ObservationMode.None);
-            viewModel.Subscribe(childViewModel);
-
-            viewModel.Settings.HandleBusyMessageMode = HandleMode.HandleAndNotifySubscribers;
-
-            viewModel.BeginBusy(firstBusyMessage);
-            viewModel.BeginBusy(secondBusyMessage);
-
-            viewModel.IsBusy.ShouldBeTrue();
-            viewModel.BusyMessage.ShouldEqual(secondBusyMessage);
-            childViewModel.BusyMessage.ShouldEqual(secondBusyMessage);
-            childViewModel.IsBusy.ShouldBeTrue();
-
-            viewModel.Unsubscribe(childViewModel);
-            viewModel.IsBusy.ShouldBeTrue();
-            viewModel.BusyMessage.ShouldEqual(secondBusyMessage);
-            childViewModel.IsBusy.ShouldBeFalse();
-            childViewModel.BusyMessage.ShouldBeNull();
         }
 
         [TestMethod]

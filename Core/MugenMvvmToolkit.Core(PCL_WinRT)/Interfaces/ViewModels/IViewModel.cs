@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -76,18 +77,14 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
         ///     The specified message for the <see cref="BusyMessage" /> property.
         /// </param>
         /// <returns>Id of the operation.</returns>
-        Guid BeginBusy(object message = null);
+        [NotNull]
+        IBusyToken BeginBusy(object message = null);
 
         /// <summary>
-        ///     Ends to indicate that the current view model is busy.
+        ///     Gets the collection of busy tokens.
         /// </summary>
-        /// <param name="idBusy">Id of the operation to end.</param>
-        void EndBusy(Guid idBusy);
-
-        /// <summary>
-        ///     Clears all busy operations.
-        /// </summary>
-        void ClearBusy();
+        [NotNull]
+        IList<IBusyToken> GetBusyTokens();
 
         /// <summary>
         ///     Occurs when this <see cref="IViewModel" /> is initialized.

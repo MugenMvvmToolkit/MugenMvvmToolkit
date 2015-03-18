@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
@@ -171,11 +172,10 @@ namespace MugenMvvmToolkit.Models
         protected void SetProperty<T>(ref T propertyValue, T newValue, [CallerMemberName] string propName = "",
             ExecutionMode? executionMode = null)
         {
-            if (Equals(propertyValue, newValue)) return;
+            if (EqualityComparer<T>.Default.Equals(propertyValue, newValue))
+                return;
             propertyValue = newValue;
-            if (executionMode == null)
-                executionMode = PropertyChangeExecutionMode;
-            OnPropertyChanged(propName, executionMode.Value);
+            OnPropertyChanged(propName, executionMode.GetValueOrDefault(PropertyChangeExecutionMode));
         }
 
         /// <summary>
@@ -192,11 +192,10 @@ namespace MugenMvvmToolkit.Models
         protected void SetProperty<T>(ref T propertyValue, T newValue, Expression<Func<T>> expression,
             ExecutionMode? executionMode = null)
         {
-            if (Equals(propertyValue, newValue)) return;
+            if (EqualityComparer<T>.Default.Equals(propertyValue, newValue))
+                return;
             propertyValue = newValue;
-            if (executionMode == null)
-                executionMode = PropertyChangeExecutionMode;
-            OnPropertyChanged(expression, executionMode.Value);
+            OnPropertyChanged(expression, executionMode.GetValueOrDefault(PropertyChangeExecutionMode));
         }
 
         /// <summary>
@@ -300,7 +299,7 @@ namespace MugenMvvmToolkit.Models
             get
             {
                 if (_ref == null)
-                    _ref = ServiceProvider.WeakReferenceFactory(this, true);
+                    Interlocked.CompareExchange(ref _ref, ServiceProvider.WeakReferenceFactory(this, true), null);
                 return _ref;
             }
         }

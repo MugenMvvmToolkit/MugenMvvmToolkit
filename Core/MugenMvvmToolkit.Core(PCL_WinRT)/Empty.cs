@@ -18,6 +18,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Models.EventArg;
@@ -36,7 +37,7 @@ namespace MugenMvvmToolkit
             #region Fields
 
             public static readonly T[] ArrayInstance;
-            public static readonly Task<T> CanceledTask;
+            public static readonly Task<T> CanceledTaskField;
 
 
             #endregion
@@ -48,7 +49,7 @@ namespace MugenMvvmToolkit
                 ArrayInstance = new T[0];
                 var tcs = new TaskCompletionSource<T>();
                 tcs.SetCanceled();
-                CanceledTask = tcs.Task;
+                CanceledTaskField = tcs.Task;
             }
 
             #endregion
@@ -91,6 +92,7 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static readonly WeakReference WeakReference;
 
+        internal static readonly ManualResetEvent CompletedEvent;
         internal static readonly PropertyChangedEventArgs CountChangedArgs;
         internal static readonly PropertyChangedEventArgs NotificationCountChangedArgs;
         internal static readonly PropertyChangedEventArgs IndexerPropertyChangedArgs;
@@ -109,6 +111,7 @@ namespace MugenMvvmToolkit
 
         static Empty()
         {
+            CompletedEvent = new ManualResetEvent(true);
             TrueObject = true;
             FalseObject = false;
             WeakReference = new WeakReference(null, false);
@@ -145,7 +148,7 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static Task<T> CanceledTask<T>()
         {
-            return Value<T>.CanceledTask;
+            return Value<T>.CanceledTaskField;
         }
 
         /// <summary>

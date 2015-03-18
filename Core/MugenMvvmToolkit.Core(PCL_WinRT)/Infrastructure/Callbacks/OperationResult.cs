@@ -198,7 +198,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 return CreateCancelResult<TType>(result.Operation, result.Source, result.OperationContext);
             if (result.IsFaulted)
                 return CreateErrorResult<TType>(result.Operation, result.Source, result.Exception, result.OperationContext);
-            return CreateResult(result.Operation, result.Source, (TType)result.Result, result.OperationContext);
+            return CreateResult(result.Operation, result.Source,
+                result.Result == null ? default(TType) : (TType)result.Result, result.OperationContext);
         }
 
         /// <summary>

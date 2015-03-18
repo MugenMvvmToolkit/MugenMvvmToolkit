@@ -126,7 +126,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
         /// <param name="context">The specified context.</param>
         /// <param name="parentPresenter">The parent presenter, if any.</param>
-        public virtual IAsyncOperation<bool?> TryShowAsync(IViewModel viewModel, IDataContext context,
+        public virtual INavigationOperation TryShowAsync(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)
         {
             Should.NotBeNull(viewModel, "viewModel");
@@ -135,8 +135,8 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 return null;
             if (!CanShowViewModel(viewModel, context, parentPresenter))
                 return null;
-            MultiViewModel.AddViewModel(viewModel);
-            var operation = new AsyncOperation<bool?>();
+            MultiViewModel.AddViewModel(viewModel, true);
+            var operation = new NavigationOperation();
             CallbackManager.Register(OperationType.TabNavigation, viewModel, operation.ToOperationCallback(), context);
             return operation;
         }
