@@ -56,20 +56,11 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Initializes a new instance of the <see cref="EditableViewModel{T}" /> class.
         /// </summary>
-        static EditableViewModel()
-        {
-            UpdateChangesOnPropertyChangedDefault = true;
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="EditableViewModel{T}" /> class.
-        /// </summary>
         protected EditableViewModel()
         {
             Func<Type, object> entityFactory = ServiceProvider.DefaultEntityFactory;
             if (entityFactory != null)
                 Entity = (T)entityFactory(typeof(T));
-            UpdateChangesOnPropertyChanged = UpdateChangesOnPropertyChangedDefault;
         }
 
         #endregion
@@ -163,7 +154,7 @@ namespace MugenMvvmToolkit.ViewModels
             Should.PropertyNotBeNull(Entity, "Entity");
             OnChangesApplied(result);
             RaiseChangesApplied(result);
-            OnPropertyChanged(string.Empty);
+            InvalidateProperties();            
             return result;
         }
 
@@ -223,7 +214,7 @@ namespace MugenMvvmToolkit.ViewModels
             Entity = cancel;
             OnChangesCanceled();
             RaiseChangesCanceled(cancel);
-            OnPropertyChanged(string.Empty);
+            InvalidateProperties();
             return cancel;
         }
 
@@ -263,16 +254,6 @@ namespace MugenMvvmToolkit.ViewModels
         #endregion
 
         #region Properties
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether the editor should automatically update changes when an entity property is changed.
-        /// </summary>
-        public static bool UpdateChangesOnPropertyChangedDefault { get; set; }
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether the editor should automatically update changes when an entity property is changed.
-        /// </summary>
-        public bool UpdateChangesOnPropertyChanged { get; set; }
 
         /// <summary>
         ///     Gets the entity state manager.
@@ -451,7 +432,7 @@ namespace MugenMvvmToolkit.ViewModels
                 AddInstance(this);
             ValidateAsync();
             HasChanges = IsNewRecord;
-            OnPropertyChanged(string.Empty);
+            InvalidateProperties();
         }
 
         #endregion
@@ -488,8 +469,7 @@ namespace MugenMvvmToolkit.ViewModels
         internal override void OnPropertyChangedInternal(PropertyChangedEventArgs args)
         {
             base.OnPropertyChangedInternal(args);
-            if (IsEntityInitialized && UpdateChangesOnPropertyChanged &&
-                !IgnoreProperties.Contains(args.PropertyName) && !IsDisposed)
+            if (IsEntityInitialized && !IgnoreProperties.Contains(args.PropertyName) && !IsDisposed)
                 OnPropertyChanged(Empty.HasChangesChangedArgs, ExecutionMode.None);
         }
 

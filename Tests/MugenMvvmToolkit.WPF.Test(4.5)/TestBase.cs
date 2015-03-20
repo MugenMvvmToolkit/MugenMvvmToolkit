@@ -105,12 +105,12 @@ namespace MugenMvvmToolkit.Test
             ShouldThrow<Exception>(action);
         }
 
-        protected static void InitializeViewModel(IViewModel viewModel, IIocContainer iocContainer, IViewModel parentViewModel = null)
+        protected static void InitializeViewModel(IViewModel viewModel, IIocContainer iocContainer, IViewModel parentViewModel = null, IDataContext context = null)
         {
             if (viewModel.IsInitialized)
                 return;
 
-            var dataContext = new DataContext();
+            var dataContext = context.ToNonReadOnly();
             if (parentViewModel != null)
                 dataContext.Add(InitializationConstants.ParentViewModel, parentViewModel);
             if (iocContainer != null)

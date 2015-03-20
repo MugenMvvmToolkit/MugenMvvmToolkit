@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit</id>
-    <version>3.3.0</version>
+    <version>3.4.0</version>
     <title>MugenMvvmToolkit</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -36,25 +36,13 @@
       - Excellent binding performance.
     </description>
     <releaseNotes>
-      - Breaking changes in validation system. 
-      - Remove the interfaces responsible for data annotation validation, now data annotation validation is contained in the DataAnnotationValidatior class.
-      - Changed the parameters of ValidateInternalAsync method for the ValidatorBase class.
-      - Added the ability to cancel the validation for the ValidatorBase class.
-      - Added support for Xamarin.iOS 64 bit (Unified API). Requires Xamarin.iOS 8.6.0.0 or newer. (iOS, Xamarin.Forms)
-      - Added UseAnimations hint for navigation, it allows to animate view during navigation (iOS, Xamarin.Forms).
-      - Added ICollectionViewManager and IContentViewManager for Android platform.
-      - Added support for System.ComponentModel.TypeConverter (Binding).
-      - Added support for params keyword (Binding).
-      - Added support for the $src keyword (Binding).
-      - Added support for attached events for the DataBinding markup extension (WPF).
-      - Added BindingServiceProvider.BindingPathFactory static property that allows to create an instance of IBindingPath for the specified string.
-      - Added GetMemberValue and SetMemberValue extension methods for IBindingMemberProvider.
-      - Updated BindingResourceResolver now it tracks the resources and updates them if they have changed. Analog of dynamic resources for WPF.
+      - Fixed incorrect operator precedence (Binding).
+      - Added the INavigationOperation interface instead of IAsyncOperation<bool?> that contains the NavigationCompletedTask property that allows to wait for the completion of navigation.
+      - Added support for Popup and SettingsFlyout views (WinRT).
+      - Added FromAsyncHandler method to the RelayCommandBase class that allows to create task-based commands.
+      - Added the IBusyToken interface.
+      - Removed the EndBusy method.
       - Optimized memory usage for ViewModelBase.
-      - Improved navigation system.
-      - Removed support for MonoTouch.
-      - Removed the AutoConvertValue property from the IBindingSourceAccessor interface, to disable value converter set BindingServiceProvider.ValueConverter to null.
-      - Reduced memory usage (iOS, Android).
       - Minor changes.
     </releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -77,20 +65,20 @@
       <group targetFramework="portable-net451+win81+wpa81" />
       <group targetFramework="portable-win81+wp81+wpa81" />
       <group targetFramework="portable-net45+sl40+win+wp71">
-        <dependency id="Microsoft.Bcl" />
-        <dependency id="Microsoft.Bcl.Build" />
+        <dependency id="Microsoft.Bcl" version="1.1.10" />
+        <dependency id="Microsoft.Bcl.Build" version="1.0.21" />
       </group>
       <group targetFramework="net40-client">
-        <dependency id="Microsoft.Bcl" />
-        <dependency id="Microsoft.Bcl.Build" />
+        <dependency id="Microsoft.Bcl" version="1.1.10" />
+        <dependency id="Microsoft.Bcl.Build" version="1.0.21" />
       </group>
       <group targetFramework="sl50">
-        <dependency id="Microsoft.Bcl" />
-        <dependency id="Microsoft.Bcl.Build" />
+        <dependency id="Microsoft.Bcl" version="1.1.10" />
+        <dependency id="Microsoft.Bcl.Build" version="1.0.21" />
       </group>
       <group targetFramework="sl4-windowsphone71">
-        <dependency id="Microsoft.Bcl" />
-        <dependency id="Microsoft.Bcl.Build" />
+        <dependency id="Microsoft.Bcl" version="1.1.10" />
+        <dependency id="Microsoft.Bcl.Build" version="1.0.21" />
       </group>
     </dependencies>
   </metadata>

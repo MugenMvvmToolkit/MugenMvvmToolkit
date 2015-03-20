@@ -228,7 +228,8 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// </param>
         public bool Initialize(IValidatorContext context)
         {
-            EnsureNotDisposed();
+            if (IsDisposed)
+                throw ExceptionManager.ObjectDisposed(GetType());
             Should.NotBeNull(context, "context");
             if (!CanValidateContext(context) || !CanValidateInternal(context))
                 return false;
@@ -292,7 +293,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <param name="propertyName">The specified property name.</param>
         public Task ValidateAsync(string propertyName)
         {
-            EnsureNotDisposed();
             EnsureInitialized();
             if (string.IsNullOrEmpty(propertyName))
                 return ValidateAsync();
@@ -331,7 +331,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// </summary>
         public Task ValidateAsync()
         {
-            EnsureNotDisposed();
             EnsureInitialized();
             if (IgnoreProperties.Contains(string.Empty))
                 return Empty.Task;
@@ -729,17 +728,10 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 throw ExceptionManager.ValidatorNotInitialized(this);
         }
 
-        /// <summary>
-        ///     Makes sure that the object is not disposed.
-        /// </summary>
-        protected void EnsureNotDisposed()
-        {
-            if (IsDisposed)
-                throw ExceptionManager.ObjectDisposed(GetType());
-        }
-
         private Task Validate(string propertyName)
         {
+            if (IsDisposed)
+                return Empty.Task;
             var validateAll = string.IsNullOrWhiteSpace(propertyName);
             if (validateAll)
                 propertyName = string.Empty;

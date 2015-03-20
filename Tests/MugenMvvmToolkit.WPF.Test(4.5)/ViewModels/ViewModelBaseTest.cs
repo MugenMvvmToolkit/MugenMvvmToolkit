@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Input;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -442,6 +443,78 @@ namespace MugenMvvmToolkit.Test.ViewModels
             ShouldThrow<ObjectDisposedException>(() => viewModel.GetViewModel<TestViewModelBase>());
             ShouldThrow<ObjectDisposedException>(() => viewModel.GetViewModel(typeof(TestViewModelBase)));
             ShouldThrow<ObjectDisposedException>(() => viewModel.GetViewModel(adapter => new TestViewModelBase()));
+        }
+
+        [TestMethod]
+        public void VmShouldCallDisposedOnce1()
+        {
+            int count = 0;
+            ViewModelBase viewModel = GetViewModelBase();
+            viewModel.IsInitialized.ShouldBeTrue();
+            viewModel.IsDisposed.ShouldBeFalse();
+            viewModel.IsRestored.ShouldBeFalse();
+
+            viewModel.Disposed += (sender, args) => ++count;
+            viewModel.Dispose();
+
+            viewModel.Disposed += (sender, args) => ++count;
+            viewModel.Dispose();
+
+            viewModel.Disposed += (sender, args) => ++count;
+            viewModel.Dispose();
+
+            viewModel.IsDisposed.ShouldBeTrue();
+            viewModel.IsInitialized.ShouldBeTrue();
+            viewModel.IsRestored.ShouldBeFalse();
+            count.ShouldEqual(1);
+        }
+
+        [TestMethod]
+        public void VmShouldCallDisposedOnce2()
+        {
+            int count = 0;
+            ViewModelBase viewModel = new ViewModelBaseWithDisplayName();
+            viewModel.IsInitialized.ShouldBeFalse();
+            viewModel.IsDisposed.ShouldBeFalse();
+            viewModel.IsRestored.ShouldBeFalse();
+
+            viewModel.Disposed += (sender, args) => ++count;
+            viewModel.Dispose();
+
+            viewModel.Disposed += (sender, args) => ++count;
+            viewModel.Dispose();
+
+            viewModel.Disposed += (sender, args) => ++count;
+            viewModel.Dispose();
+
+            viewModel.IsDisposed.ShouldBeTrue();
+            viewModel.IsInitialized.ShouldBeTrue();
+            viewModel.IsRestored.ShouldBeFalse();
+            count.ShouldEqual(1);
+        }
+
+        [TestMethod]
+        public void VmShouldCallDisposedOnce3()
+        {
+            int count = 0;
+            ViewModelBase viewModel = GetViewModelBase(new DataContext(InitializationConstants.IsRestored.ToValue(true)));
+            viewModel.IsDisposed.ShouldBeFalse();
+            viewModel.IsInitialized.ShouldBeTrue();
+            viewModel.IsRestored.ShouldBeTrue();
+
+            viewModel.Disposed += (sender, args) => ++count;
+            viewModel.Dispose();
+
+            viewModel.Disposed += (sender, args) => ++count;
+            viewModel.Dispose();
+
+            viewModel.Disposed += (sender, args) => ++count;
+            viewModel.Dispose();
+
+            viewModel.IsDisposed.ShouldBeTrue();
+            viewModel.IsInitialized.ShouldBeTrue();
+            viewModel.IsRestored.ShouldBeTrue();
+            count.ShouldEqual(1);
         }
 
         [TestMethod]

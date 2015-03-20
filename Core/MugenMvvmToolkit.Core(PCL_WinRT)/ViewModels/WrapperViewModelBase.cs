@@ -173,9 +173,7 @@ namespace MugenMvvmToolkit.ViewModels
             ViewModel.Subscribe(this);
             this.Subscribe(_viewModel);
             OnWrapped(context);
-
-            //Invalidating properties.
-            OnPropertyChanged(string.Empty);
+            InvalidateProperties();
         }
 
         /// <summary>

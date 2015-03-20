@@ -431,6 +431,9 @@ namespace MugenMvvmToolkit.Collections
             get { return Items.Count; }
         }
 
+        /// <summary>
+        ///     Gets the internal collection.
+        /// </summary>
         protected internal IList<T> Items
         {
             get

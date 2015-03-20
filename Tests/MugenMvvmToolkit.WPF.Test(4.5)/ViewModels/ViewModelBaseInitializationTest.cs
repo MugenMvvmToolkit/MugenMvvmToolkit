@@ -210,10 +210,10 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
         #region Methods
 
-        private ViewModelBase GetViewModelBase()
+        private ViewModelBase GetViewModelBase(IDataContext context = null)
         {
             ViewModelBase viewModel = GetViewModelBaseDelegate();
-            InitializeViewModel(viewModel, IocContainer);
+            InitializeViewModel(viewModel, IocContainer, context: context);
             return viewModel;
         }
 

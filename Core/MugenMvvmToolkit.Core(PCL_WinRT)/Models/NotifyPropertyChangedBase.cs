@@ -112,6 +112,15 @@ namespace MugenMvvmToolkit.Models
         #region Methods
 
         /// <summary>
+        ///     Indicates that all properties on the object have changed
+        /// </summary>
+        public void InvalidateProperties(ExecutionMode? executionMode = null)
+        {
+            OnPropertyChanged(Empty.EmptyPropertyChangedArgs,
+                executionMode.GetValueOrDefault(PropertyChangeExecutionMode));
+        }
+
+        /// <summary>
         ///     Calls the event for the specified property.
         /// </summary>
         [NotifyPropertyChangedInvocator("propName")]
@@ -131,7 +140,7 @@ namespace MugenMvvmToolkit.Models
         protected internal void OnPropertyChanged(string propName, ExecutionMode executionMode)
         {
             if (PropertyChanged != null)
-                OnPropertyChanged(new PropertyChangedEventArgs(propName ?? string.Empty), executionMode);
+                OnPropertyChanged(string.IsNullOrEmpty(propName) ? Empty.EmptyPropertyChangedArgs : new PropertyChangedEventArgs(propName), executionMode);
         }
 
         /// <summary>
@@ -258,7 +267,7 @@ namespace MugenMvvmToolkit.Models
             if (IsNotificationsDirty)
             {
                 IsNotificationsDirty = false;
-                OnPropertyChanged(string.Empty);
+                InvalidateProperties();
             }
             OnPropertyChanged(Empty.IsNotificationsSuspendedChangedArgs);
         }

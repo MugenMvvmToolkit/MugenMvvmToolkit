@@ -103,6 +103,7 @@ namespace MugenMvvmToolkit
         internal static readonly PropertyChangedEventArgs IsValidChangedArgs;
         internal static readonly PropertyChangedEventArgs IsBusyChangedArgs;
         internal static readonly PropertyChangedEventArgs BusyMessageChangedArgs;
+        internal static readonly PropertyChangedEventArgs EmptyPropertyChangedArgs;
         internal static readonly DataErrorsChangedEventArgs EmptyDataErrorsChangedArgs;
 
         #endregion
@@ -119,6 +120,7 @@ namespace MugenMvvmToolkit
             FalseTask = ToolkitExtensions.FromResult(false);
             Task = FalseTask;
             EmptyDataErrorsChangedArgs = new DataErrorsChangedEventArgs(string.Empty);
+            EmptyPropertyChangedArgs = new PropertyChangedEventArgs(string.Empty);
             CountChangedArgs = new PropertyChangedEventArgs("Count");
             NotificationCountChangedArgs = new PropertyChangedEventArgs("NotificationCount");
             IndexerPropertyChangedArgs = new PropertyChangedEventArgs("Item[]");

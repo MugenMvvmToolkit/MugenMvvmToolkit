@@ -208,7 +208,9 @@ namespace MugenMvvmToolkit.ViewModels
         #region Fields
 
         private static readonly CancellationTokenSource DisposedToken;
-        private const int DisposedState = 3;
+
+        private const int DisposingRestoredState = DisposingState | RestoredState;
+        private const int DisposingState = 4;
         private const int RestoredState = 2;
         private const int InitializedState = 1;
         private const int DefaultState = 0;
@@ -269,9 +271,9 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Gets a value indicating whether this instance is restored.
         /// </summary>
-        protected bool IsRestored
+        protected internal bool IsRestored
         {
-            get { return _state == RestoredState; }
+            get { return (_state & RestoredState) == RestoredState; }
         }
 
         /// <summary>
@@ -487,7 +489,9 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         public void Dispose()
         {
-            if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
+            if (Interlocked.CompareExchange(ref _state, DisposingState, InitializedState) != InitializedState &&
+                Interlocked.CompareExchange(ref _state, DisposingState, DefaultState) != DefaultState &&
+                Interlocked.CompareExchange(ref _state, DisposingRestoredState, RestoredState) != RestoredState)
                 return;
             try
             {
