@@ -37,7 +37,7 @@
     </description>
     <releaseNotes>
       - Fixed incorrect operator precedence (Binding).
-      - Added the INavigationOperation interface instead of IAsyncOperation<bool?> that contains the NavigationCompletedTask property that allows to wait for the completion of navigation.
+      - Added the INavigationOperation interface instead of IAsyncOperation&lt;bool?&gt; that contains the NavigationCompletedTask property that allows to wait for the completion of navigation.
       - Added support for Popup and SettingsFlyout views (WinRT).
       - Added FromAsyncHandler method to the RelayCommandBase class that allows to create task-based commands.
       - Added the IBusyToken interface.
