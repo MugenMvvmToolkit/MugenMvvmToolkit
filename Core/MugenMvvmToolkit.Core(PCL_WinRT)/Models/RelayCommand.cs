@@ -104,7 +104,7 @@ namespace MugenMvvmToolkit.Models
         protected override bool CanExecuteInternal(object parameter)
         {
             Func<TArg, bool> canExecute = _canExecute;
-            return canExecute != null && canExecute((TArg)parameter);
+            return canExecute != null && _execute != null && canExecute((TArg)parameter);
         }
 
         /// <summary>
@@ -132,7 +132,14 @@ namespace MugenMvvmToolkit.Models
             {
                 var t = ((Func<TArg, Task>)execute).Invoke((TArg)parameter);
                 if (!allowMultiple)
-                    t.TryExecuteSynchronously(task => _execute = execute);
+                {
+                    RaiseCanExecuteChanged();
+                    t.TryExecuteSynchronously(task =>
+                    {
+                        _execute = execute;
+                        RaiseCanExecuteChanged();
+                    });
+                }
             }
             catch
             {
@@ -265,7 +272,7 @@ namespace MugenMvvmToolkit.Models
         protected override bool CanExecuteInternal(object parameter)
         {
             var canExecute = _canExecute;
-            if (canExecute == null)
+            if (canExecute == null || _execute == null)
                 return false;
             if (_state.HasFlagEx(ObjectDelegateFlag))
                 return ((Func<object, bool>)canExecute).Invoke(parameter);
@@ -295,7 +302,14 @@ namespace MugenMvvmToolkit.Models
                 {
                     var t = ((Func<Task>)execute).Invoke();
                     if (!allowMultiple)
-                        t.TryExecuteSynchronously(task => _execute = execute);
+                    {
+                        RaiseCanExecuteChanged();
+                        t.TryExecuteSynchronously(task =>
+                        {
+                            _execute = execute;
+                            RaiseCanExecuteChanged();
+                        });
+                    }
                 }
                 catch
                 {

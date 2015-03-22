@@ -135,6 +135,9 @@
     <Compile Include="..\MugenMvvmToolkit.WinRT%28PCL%29\Infrastructure\ApplicationStateManager.cs">
       <Link>Infrastructure\ApplicationStateManager.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinRT%28PCL%29\Infrastructure\Mediators\WindowViewMediator.cs">
+      <Link>Infrastructure\Mediators\WindowViewMediator.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinRT%28PCL%29\Infrastructure\Navigation\FrameNavigationService.cs">
       <Link>Infrastructure\Navigation\FrameNavigationService.cs</Link>
     </Compile>
@@ -150,11 +153,23 @@
     <Compile Include="..\MugenMvvmToolkit.WinRT%28PCL%29\Interfaces\IApplicationStateManager.cs">
       <Link>Interfaces\IApplicationStateManager.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinRT%28PCL%29\Interfaces\Views\IPopupView.cs">
+      <Link>Interfaces\Views\IPopupView.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinRT%28PCL%29\Interfaces\Views\IWindowView.cs">
+      <Link>Interfaces\Views\IWindowView.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinRT%28PCL%29\Models\EventArg\NavigatingCancelEventArgsWrapper.cs">
       <Link>Models\EventArg\NavigatingCancelEventArgsWrapper.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinRT%28PCL%29\Models\EventArg\NavigationEventArgsWrapper.cs">
       <Link>Models\EventArg\NavigationEventArgsWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinRT%28PCL%29\Models\PopupSettings.cs">
+      <Link>Models\PopupSettings.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinRT%28PCL%29\Modules\PlatformWrapperRegistrationModule.cs">
+      <Link>Modules\PlatformWrapperRegistrationModule.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinRT%28PCL%29\PlatformExtensions.cs">
       <Link>PlatformExtensions.cs</Link>
@@ -176,6 +191,9 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\navigation\NavigationProvider.cs">
       <Link>Infrastructure\Navigation\NavigationProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\DynamicViewModelWindowPresenter.cs">
+      <Link>Infrastructure\Mediators\DynamicViewModelWindowPresenter.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Presenters\ToastPresenter.cs">
       <Link>Infrastructure\Presenters\ToastPresenter.cs</Link>

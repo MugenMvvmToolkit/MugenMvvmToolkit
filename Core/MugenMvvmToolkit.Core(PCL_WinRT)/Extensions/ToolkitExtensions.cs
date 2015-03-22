@@ -343,8 +343,16 @@ namespace MugenMvvmToolkit
             Should.NotBeNull(serviceType, "serviceType");
             if (iocContainer.CanResolve(serviceType))
             {
-                service = iocContainer.Get(serviceType, name, parameters);
-                return true;
+                try
+                {
+                    service = iocContainer.Get(serviceType, name, parameters);
+                    return true;
+                }
+                catch
+                {
+                    service = null;
+                    return false;
+                }
             }
             service = null;
             return false;

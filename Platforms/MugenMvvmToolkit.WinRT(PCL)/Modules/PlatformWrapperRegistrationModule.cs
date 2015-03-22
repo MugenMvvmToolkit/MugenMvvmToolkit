@@ -22,9 +22,11 @@ using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Media.Animation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -41,13 +43,25 @@ namespace MugenMvvmToolkit.Modules
         {
             #region Fields
 
+            private static readonly Action<Popup, Size> UpdatePositionDelegate;
+            private static readonly Action<Popup, Size> UpdateSizeDelegate;
+
             private readonly IPopupView _popupView;
-            private WindowSizeChangedEventHandler _weakSizeListener;
+            private double _flyoutOffset;
             private Popup _popup;
+            private PopupSettings _settings;
+            private TypedEventHandler<InputPane, InputPaneVisibilityEventArgs> _weakInputPaneListener;
+            private WindowSizeChangedEventHandler _weakSizeListener;
 
             #endregion
 
             #region Constructors
+
+            static PopupWrapper()
+            {
+                UpdatePositionDelegate = UpdatePosition;
+                UpdateSizeDelegate = UpdateSize;
+            }
 
             public PopupWrapper(IPopupView popupView)
             {
@@ -64,13 +78,29 @@ namespace MugenMvvmToolkit.Modules
                     _popup.Closed -= PopupOnClosed;
                 if (_weakSizeListener != null)
                     Window.Current.SizeChanged -= _weakSizeListener;
+                if (_weakInputPaneListener != null)
+                {
+                    InputPane pane = InputPane.GetForCurrentView();
+                    if (pane != null)
+                    {
+                        pane.Hiding -= _weakInputPaneListener;
+                        pane.Showing -= _weakInputPaneListener;
+                    }
+                }
                 _popup = null;
                 _weakSizeListener = null;
+                _weakInputPaneListener = null;
+                _settings = null;
+            }
+
+            public object View
+            {
+                get { return _popupView; }
             }
 
             public void Show()
             {
-                var bounds = Window.Current.Bounds;
+                Rect bounds = Window.Current.Bounds;
                 var child = (FrameworkElement)_popupView;
                 _popup = new Popup
                 {
@@ -78,27 +108,47 @@ namespace MugenMvvmToolkit.Modules
                     Height = bounds.Height,
                     Child = child,
                     IsLightDismissEnabled = false,
+                    ChildTransitions =
+                        new TransitionCollection
+                        {
+                            new PopupThemeTransition {FromHorizontalOffset = 0, FromVerticalOffset = 100}
+                        }
                 };
-                if (double.IsNaN(child.Width))
-                    child.Width = bounds.Width;
-                if (double.IsNaN(child.Height))
-                    child.Height = bounds.Height;
-                child.Measure(new Size(bounds.Width, bounds.Height));
-
-                _popup.VerticalOffset = (bounds.Height - child.DesiredSize.Height) / 2;
-                _popup.HorizontalOffset = (bounds.Width - child.DesiredSize.Width) / 2;
-                bool trackSize = true;
-                _popupView.InitializePopup(_popup, ref trackSize);
-                if (trackSize)
+                InputPane inputPane = InputPane.GetForCurrentView();
+                if (inputPane != null)
+                    _flyoutOffset = inputPane.OccludedRect.Height;
+                _settings = new PopupSettings
                 {
-                    _weakSizeListener = ReflectionExtensions
-                        .CreateWeakDelegate<PopupWrapper, WindowSizeChangedEventArgs, WindowSizeChangedEventHandler>(
-                            this, (wrapper, o, arg3) => wrapper.OnWindowSizeChanged(arg3),
-                            (o, handler) => ((Window)o).SizeChanged -= handler, handler => handler.Handle);
-                    Window.Current.SizeChanged += _weakSizeListener;
-                }
+                    UpdatePositionAction = UpdatePositionDelegate,
+                    UpdateSizeAction = UpdateSizeDelegate
+                };
+                _popupView.InitializePopup(_popup, _settings);
+                UpdatePopup(bounds.Width, bounds.Height);
                 _popup.Closed += PopupOnClosed;
-                _popup.IsOpen = true;
+                if (_settings.ShowAction == null)
+                    _popup.IsOpen = true;
+                else
+                    _settings.ShowAction(_popup);
+                _weakSizeListener = ReflectionExtensions
+                    .CreateWeakDelegate<PopupWrapper, WindowSizeChangedEventArgs, WindowSizeChangedEventHandler>(
+                        this, (wrapper, o, arg3) => wrapper.OnWindowSizeChanged(arg3), (o, handler) => ((Window)o).SizeChanged -= handler, handler => handler.Handle);
+                Window.Current.SizeChanged += _weakSizeListener;
+                if (inputPane != null)
+                {
+                    _weakInputPaneListener = ReflectionExtensions
+                        .CreateWeakDelegate<PopupWrapper, InputPaneVisibilityEventArgs,
+                            TypedEventHandler<InputPane, InputPaneVisibilityEventArgs>>(this,
+                                (wrapper, o, arg3) => wrapper.OnInputPaneChanged(arg3),
+                                (o, handler) =>
+                                {
+                                    var pane = (InputPane)o;
+                                    pane.Hiding -= handler;
+                                    pane.Showing -= handler;
+
+                                }, handler => handler.Handle);
+                    inputPane.Showing += _weakInputPaneListener;
+                    inputPane.Hiding += _weakInputPaneListener;
+                }
             }
 
             public void ShowDialog()
@@ -109,7 +159,12 @@ namespace MugenMvvmToolkit.Modules
             public void Close()
             {
                 if (_popup != null)
-                    _popup.IsOpen = false;
+                {
+                    if (_settings == null || _settings.CloseAction == null)
+                        _popup.IsOpen = false;
+                    else
+                        _settings.CloseAction(_popup);
+                }
             }
 
             public event EventHandler<object, CancelEventArgs> Closing
@@ -120,18 +175,34 @@ namespace MugenMvvmToolkit.Modules
 
             public event EventHandler<object, EventArgs> Closed;
 
-            public object View
-            {
-                get { return _popupView; }
-            }
-
             #endregion
 
             #region Methods
 
+            private static void UpdatePosition(Popup popup, Size size)
+            {
+                var child = (FrameworkElement)popup.Child;
+                child.Measure(size);
+                popup.VerticalOffset = (size.Height - child.DesiredSize.Height) / 2;
+                popup.HorizontalOffset = (size.Width - child.DesiredSize.Width) / 2;
+            }
+
+            private static void UpdateSize(Popup popup, Size size)
+            {
+                var child = (FrameworkElement)popup.Child;
+                // ReSharper disable CompareOfFloatsByEqualityOperator
+                if (child.Width == popup.Width || double.IsNaN(child.Width))
+                    child.Width = size.Width;
+                if (child.Height == popup.Height || double.IsNaN(child.Height))
+                    child.Height = size.Height;
+                // ReSharper restore CompareOfFloatsByEqualityOperator
+                popup.Width = size.Width;
+                popup.Height = size.Height;
+            }
+
             private void PopupOnClosed(object sender, object o)
             {
-                var closed = Closed;
+                EventHandler<object, EventArgs> closed = Closed;
                 if (closed != null)
                     closed(this, EventArgs.Empty);
                 Dispose();
@@ -139,26 +210,33 @@ namespace MugenMvvmToolkit.Modules
 
             private void OnWindowSizeChanged(WindowSizeChangedEventArgs args)
             {
-                if (!_popup.IsOpen || _popup.Child == null)
-                    return;
-                var size = args.Size;
-                var child = (FrameworkElement)_popup.Child;
-                // ReSharper disable CompareOfFloatsByEqualityOperator
-                if (child.Width == _popup.Width)
-                    child.Width = size.Width;
-                if (child.Height == _popup.Height)
-                    child.Height = size.Height;
-                // ReSharper restore CompareOfFloatsByEqualityOperator
-                _popup.Width = size.Width;
-                _popup.Height = size.Height;
-                child.Measure(new Size(size.Width, size.Height));
-                _popup.VerticalOffset = (size.Height - child.DesiredSize.Height) / 2;
-                _popup.HorizontalOffset = (size.Width - child.DesiredSize.Width) / 2;
+                if (_popup.IsOpen && _popup.Child != null && _settings != null)
+                    UpdatePopup(args.Size.Width, args.Size.Height);
+            }
+
+            private void OnInputPaneChanged(InputPaneVisibilityEventArgs args)
+            {
+                _flyoutOffset = args.OccludedRect.Height;
+                if (_popup.IsOpen && _popup.Child != null && _settings != null)
+                {
+                    var bounds = Window.Current.Bounds;
+                    UpdatePopup(bounds.Width, bounds.Height);
+                }
+            }
+
+            private void UpdatePopup(double width, double height)
+            {
+                var size = new Size(width, Math.Max(height - _flyoutOffset, 1));
+                if (_settings.UpdateSizeAction != null)
+                    _settings.UpdateSizeAction(_popup, size);
+                if (_settings.UpdatePositionAction != null)
+                    _settings.UpdatePositionAction(_popup, size);
             }
 
             #endregion
         }
 
+#if WINDOWSCOMMON
         private sealed class SettingsFlyoutWrapper : IDisposable, IWindowView, IViewWrapper
         {
             #region Fields
@@ -186,6 +264,11 @@ namespace MugenMvvmToolkit.Modules
                 _flyout.Unloaded -= FlyoutOnUnloaded;
             }
 
+            public object View
+            {
+                get { return _flyout; }
+            }
+
             public void Show()
             {
                 _flyout.Show();
@@ -205,18 +288,13 @@ namespace MugenMvvmToolkit.Modules
 
             public event EventHandler<object, EventArgs> Closed;
 
-            public object View
-            {
-                get { return _flyout; }
-            }
-
             #endregion
 
             #region Methods
 
             private void FlyoutOnUnloaded(object sender, RoutedEventArgs routedEventArgs)
             {
-                var closed = Closed;
+                EventHandler<object, EventArgs> closed = Closed;
                 if (closed != null)
                     closed(this, EventArgs.Empty);
                 Dispose();
@@ -224,7 +302,7 @@ namespace MugenMvvmToolkit.Modules
 
             private void FlyoutOnBackClick(object sender, BackClickEventArgs backClickEventArgs)
             {
-                var closing = Closing;
+                EventHandler<object, CancelEventArgs> closing = Closing;
                 if (closing != null)
                 {
                     var args = new CancelEventArgs();
@@ -349,12 +427,15 @@ namespace MugenMvvmToolkit.Modules
 
             #endregion
         }
+#endif
 
         #endregion
 
         #region Fields
 
+#if WINDOWSCOMMON
         private const string ContentDialogFullName = "Windows.UI.Xaml.Controls.ContentDialog";
+#endif
 
         #endregion
 
@@ -365,11 +446,13 @@ namespace MugenMvvmToolkit.Modules
         /// </summary>
         protected override void RegisterWrappers(WrapperManager wrapperManager)
         {
+#if WINDOWSCOMMON
             wrapperManager.AddWrapper<IWindowView, ContentDialogWrapper>(IsContentDialog,
                 (o, context) => new ContentDialogWrapper((FrameworkElement)o));
             wrapperManager.AddWrapper<IWindowView, SettingsFlyoutWrapper>(
                 (type, context) => typeof(SettingsFlyout).IsAssignableFrom(type),
                 (o, context) => new SettingsFlyoutWrapper((SettingsFlyout)o));
+#endif
             wrapperManager.AddWrapper<IWindowView, PopupWrapper>(
                 (type, context) => typeof(IPopupView).IsAssignableFrom(type),
                 (o, context) => new PopupWrapper((IPopupView)o));
@@ -379,6 +462,7 @@ namespace MugenMvvmToolkit.Modules
 
         #region Methods
 
+#if WINDOWSCOMMON
         private static bool IsContentDialog(Type type, IDataContext context)
         {
             while (typeof(object) != type)
@@ -389,6 +473,7 @@ namespace MugenMvvmToolkit.Modules
             }
             return false;
         }
+#endif
 
         #endregion
     }

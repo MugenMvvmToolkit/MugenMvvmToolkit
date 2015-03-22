@@ -1,4 +1,5 @@
 ﻿using Windows.UI.Xaml.Controls.Primitives;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces.Views
 {
@@ -10,6 +11,6 @@ namespace MugenMvvmToolkit.Interfaces.Views
         /// <summary>
         ///     Initializes the specified popup.
         /// </summary>
-        void InitializePopup(Popup popup, ref bool trackWindowSizeChanged);
+        void InitializePopup(Popup popup, PopupSettings settings);
     }
 }

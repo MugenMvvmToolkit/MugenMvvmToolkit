@@ -116,6 +116,7 @@
     <Compile Include="Interfaces\IApplicationStateManager.cs" />
     <Compile Include="Interfaces\Views\IPopupView.cs" />
     <Compile Include="Interfaces\Views\IWindowView.cs" />
+    <Compile Include="Models\PopupSettings.cs" />
     <Compile Include="Models\EventArg\NavigatingCancelEventArgsWrapper.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgsWrapper.cs" />
     <Compile Include="Modules\PlatformWrapperRegistrationModule.cs" />

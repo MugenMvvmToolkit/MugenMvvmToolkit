@@ -53,7 +53,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             private const int NonSerializableField = 3;
             private const int ViewModelField = 4;
             private const int AnonymousClass = 5;
-            private const int BuilderField = 6;
+            private const int NavigationOperationField = 6;
+            private const int BuilderField = 7;
 
             #endregion
 
@@ -127,6 +128,11 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                         }
                         field.SetValueEx(target, anonClass);
                         break;
+                    case NavigationOperationField:
+                        var operation = new NavigationOperation();
+                        operation.SetResult(OperationResult.Convert<bool>(result));
+                        field.SetValueEx(target, operation);
+                        break;
                     case NonSerializableField:
                         object service;
                         if (State == null)
@@ -134,7 +140,13 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                             var serviceType = Type.GetType(TypeName, true);
                             if (!items.TryGetValue(serviceType, out service))
                             {
-                                service = ServiceProvider.IocContainer.Get(serviceType);
+                                if (field.Name.Contains("CachedAnonymousMethodDelegate"))
+                                    service = GetDefault(field.FieldType);
+                                else if (!ServiceProvider.IocContainer.TryGet(serviceType, out service))
+                                {
+                                    service = GetDefault(field.FieldType);
+                                    TraceError(field, targetType);
+                                }
                                 items[serviceType] = service;
                             }
                         }
@@ -197,6 +209,17 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                         State = viewModel.GetViewModelId()
                     };
                 }
+
+                //NavigationOperation
+                if (value is INavigationOperation)
+                {
+                    return new FieldSnapshot
+                    {
+                        Name = field.Name,
+                        FieldType = NavigationOperationField
+                    };
+                }
+
                 //field is type.
                 if (typeof(Type).IsAssignableFrom(field.FieldType))
                     return new FieldSnapshot
@@ -207,7 +230,20 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                         IsType = true
                     };
 
-                if (field.FieldType.IsSerializable())
+                var saveValueState = SaveValueState;
+                if (saveValueState != null)
+                {
+                    var valueState = saveValueState(value);
+                    if (valueState != null)
+                        return new FieldSnapshot
+                        {
+                            Name = field.Name,
+                            State = valueState,
+                            FieldType = NonSerializableField
+                        };
+                }
+
+                if (field.FieldType.IsSerializable() || value is string)
                     return new FieldSnapshot
                     {
                         State = value,
@@ -233,19 +269,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                         TypeName = type.AssemblyQualifiedName
                     };
                 }
-                var saveValueState = SaveValueState;
-                if (saveValueState != null)
-                {
-                    var valueState = saveValueState(value);
-                    if (valueState != null)
-                        return new FieldSnapshot
-                        {
-                            Name = field.Name,
-                            State = valueState,
-                            FieldType = NonSerializableField
-                        };
-                }
-
                 return new FieldSnapshot
                 {
                     Name = field.Name,
@@ -277,7 +300,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             private void TraceError(FieldInfo field, Type stateMachineType)
             {
                 string fieldSt = field == null ? Name : field.ToString();
-                Tracer.Error("The field {0} cannot be restored on type {1}", fieldSt, stateMachineType);
+                Tracer.Error("The field '{0}' cannot be restored on type '{1}'", fieldSt, stateMachineType);
             }
 
             #endregion
@@ -406,7 +429,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 {
                     if (!FieldSnapshots[index].Restore(type, stateMachine, items, viewModels, AwaiterResultType, result))
                     {
-                        Tracer.Error("The await callback cannot be executed.");
+                        Tracer.Error("The await callback cannot be executed, source " + result.Source);
                         break;
                     }
                 }
@@ -482,7 +505,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             [UsedImplicitly]
             public SerializableAwaiter(IOperationResult result)
             {
-                _result = result;
+                if (result != null)
+                    _result = OperationResult.Convert<TResult>(result);
             }
 
             #endregion

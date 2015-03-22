@@ -59,7 +59,7 @@ namespace MugenMvvmToolkit
 #if NETFX_CORE
             return type.IsDefined(typeof(DataContractAttribute), false) || type.GetTypeInfo().IsPrimitive;
 #else
-            return type.IsDefined(typeof(DataContractAttribute), false) || type.IsPrimitive;
+            return type.IsDefined(typeof (DataContractAttribute), false) || type.IsPrimitive;
 #endif
         }
     }

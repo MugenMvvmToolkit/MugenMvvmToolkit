@@ -25,7 +25,6 @@ namespace MugenMvvmToolkit.Models.Messages
     /// <summary>
     ///     Provides data for the error changed event.
     /// </summary>
-    [Serializable]
     public class AsyncValidationMessage
     {
         #region Fields
@@ -84,7 +83,7 @@ namespace MugenMvvmToolkit.Models.Messages
         /// <summary>
         ///     Sest the current message to completed state.
         /// </summary>
-        public void SetCompleted(Exception exception, bool canceled)
+        protected internal void SetCompleted(Exception exception, bool canceled)
         {
             if (_tcs == null)
                 Interlocked.CompareExchange(ref _tcs, exception == null && !canceled ? EmptyTcs : new TaskCompletionSource<object>(), null);
