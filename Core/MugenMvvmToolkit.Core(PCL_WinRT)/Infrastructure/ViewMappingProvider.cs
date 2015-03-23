@@ -96,6 +96,39 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Methods
 
         /// <summary>
+        ///     Adds the view mapping to internal collection.
+        /// </summary>
+        public void AddMapping(IViewMappingItem mappingItem, bool throwOnError)
+        {
+            List<IViewMappingItem> list;
+            if (!_viewTypeToMapping.TryGetValue(mappingItem.ViewType, out list))
+            {
+                list = new List<IViewMappingItem>();
+                _viewTypeToMapping[mappingItem.ViewType] = list;
+            }
+            list.Add(mappingItem);
+
+            Dictionary<string, IViewMappingItem> value;
+            if (!_viewModelToMapping.TryGetValue(mappingItem.ViewModelType, out value))
+            {
+                value = new Dictionary<string, IViewMappingItem>();
+                _viewModelToMapping[mappingItem.ViewModelType] = value;
+            }
+            IViewMappingItem item;
+            string name = mappingItem.Name ?? string.Empty;
+            if (value.TryGetValue(name, out item))
+            {
+                if (throwOnError)
+                    throw ExceptionManager.DuplicateViewMapping(item.ViewType, item.ViewModelType, item.Name);
+                return;
+            }
+            value[name] = mappingItem;
+            if (Tracer.TraceInformation)
+                Tracer.Info("The view mapping to view model was created: ({0} ---> {1}), name: {2}",
+                    mappingItem.ViewModelType, mappingItem.ViewType, mappingItem.Name);
+        }
+
+        /// <summary>
         /// Initializes view mappings.
         /// </summary>
         protected virtual void InitializeMapping(IEnumerable<Type> types)
@@ -172,11 +205,44 @@ namespace MugenMvvmToolkit.Infrastructure
                     HashSet<Type> list;
                     if (!vmTypes.TryGetValue(vType.Key, out list))
                         continue;
+                    vmTypes.Remove(vType.Key);
                     foreach (Type viewModelType in list)
                     {
                         //NOTE: ignore if view is already has mapping.
                         AddMapping(new ViewMappingItem(viewModelType, originalViewType, null,
                             GetUri(originalViewType, viewModelType, null, UriKind.Relative)), false);
+                    }
+                }
+            }
+
+            //Trying to use base class for view models.
+            foreach (var keyValuePair in vmTypes)
+            {
+                foreach (var vmType in keyValuePair.Value)
+                {
+                    var classes = GetBaseClasses(vmType);
+                    for (int i = 0; i < classes.Count; i++)
+                    {
+                        var baseType = classes[i];
+                        List<string> names;
+                        if (!TryGetNames(baseType, _viewModelPostfix, out names))
+                            continue;
+                        bool added = false;
+
+                        for (int j = 0; j < names.Count; j++)
+                        {
+                            HashSet<Type> viewTypes;
+                            if (!vTypes.TryGetValue(names[j], out viewTypes))
+                                continue;
+
+                            foreach (var viewType in viewTypes)
+                                AddMapping(new ViewMappingItem(vmType, viewType, null,
+                                    GetUri(viewType, vmType, null, UriKind.Relative)), false);
+                            added = true;
+                            break;
+                        }
+                        if (added)
+                            break;
                     }
                 }
             }
@@ -210,39 +276,6 @@ namespace MugenMvvmToolkit.Infrastructure
             string name = assembly.GetAssemblyName().Name;
             string uri = viewType.FullName.Replace(name, string.Empty).Replace(".", "/");
             return new Uri(string.Format("/{0};component{1}.xaml", name, uri), uriKind);
-        }
-
-        /// <summary>
-        /// Adds the view mapping to internal collection.
-        /// </summary>
-        protected void AddMapping(IViewMappingItem mappingItem, bool throwOnError)
-        {
-            List<IViewMappingItem> list;
-            if (!_viewTypeToMapping.TryGetValue(mappingItem.ViewType, out list))
-            {
-                list = new List<IViewMappingItem>();
-                _viewTypeToMapping[mappingItem.ViewType] = list;
-            }
-            list.Add(mappingItem);
-
-            Dictionary<string, IViewMappingItem> value;
-            if (!_viewModelToMapping.TryGetValue(mappingItem.ViewModelType, out value))
-            {
-                value = new Dictionary<string, IViewMappingItem>();
-                _viewModelToMapping[mappingItem.ViewModelType] = value;
-            }
-            IViewMappingItem item;
-            string name = mappingItem.Name ?? string.Empty;
-            if (value.TryGetValue(name, out item))
-            {
-                if (throwOnError)
-                    throw ExceptionManager.DuplicateViewMapping(item.ViewType, item.ViewModelType, item.Name);
-                return;
-            }
-            value[name] = mappingItem;
-            if (Tracer.TraceInformation)
-                Tracer.Info("The view mapping to view model was created: ({0} ---> {1}), name: {2}",
-                    mappingItem.ViewModelType, mappingItem.ViewType, mappingItem.Name);
         }
 
         private static bool TryGetNames(Type type, IList<string> postFixes, out List<string> names)
@@ -293,6 +326,26 @@ namespace MugenMvvmToolkit.Infrastructure
                 _assemblies = null;
                 InitializeMapping(assemblies.SelectMany(assembly => assembly.SafeGetTypes(true)));
             }
+        }
+
+        private static List<Type> GetBaseClasses(Type type)
+        {
+#if PCL_WINRT
+            type = type.GetTypeInfo().BaseType;
+#else
+            type = type.BaseType;
+#endif
+            var types = new List<Type>();
+            while (type != null && typeof(IViewModel).IsAssignableFrom(type))
+            {
+                types.Add(type);
+#if PCL_WINRT
+                type = type.GetTypeInfo().BaseType;
+#else
+                type = type.BaseType;
+#endif
+            }
+            return types;
         }
 
         #endregion

@@ -17,16 +17,26 @@ namespace MugenMvvmToolkit.Test.Infrastructure
     {
     }
 
+    public class ChildMappingViewModel : MappingViewModel
+    {
+    }
 
     public class MappingView
     {
+    }
 
+    public class ChildMappingView
+    {
+    }
+
+    [ViewModel(typeof(ChildMappingViewModel))]
+    public class ChildMappingViewWithAttribute
+    {
     }
 
     [ViewModel(typeof(MappingViewModel))]
     public class MappingViewWithAttribute
     {
-
     }
 
     [ViewModel(typeof(MappingViewModel))]
@@ -80,8 +90,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         [TestMethod]
         public void VmProviderShouldReturnMappingWithoutNameBasedOnNamedConvention()
         {
-            IViewMappingProvider viewMappingProvider = GetViewMappingProvider(typeof(MappingViewModel),
-                typeof(MappingView));
+            IViewMappingProvider viewMappingProvider = GetViewMappingProvider(typeof(MappingViewModel), typeof(MappingView));
             IViewMappingItem viewMap = viewMappingProvider.FindMappingForViewModel(typeof(MappingViewModel), null, true);
             viewMap.Name.ShouldBeNull();
             viewMap.ViewModelType.ShouldEqual(typeof(MappingViewModel));
@@ -164,6 +173,38 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         {
             var provider = GetViewMappingProvider();
             provider.FindMappingForViewModel(typeof(IViewModel), null, false).ShouldBeNull();
+        }
+
+        [TestMethod]
+        public void VmProviderShouldReturnMappingWithoutNameBasedOnNamedConventionInheritedVm1()
+        {
+            IViewMappingProvider viewMappingProvider = GetViewMappingProvider(typeof(MappingViewModel),
+                typeof(ChildMappingViewModel), typeof(MappingView));
+            IViewMappingItem viewMap = viewMappingProvider.FindMappingForViewModel(typeof(ChildMappingViewModel), null, true);
+            viewMap.Name.ShouldBeNull();
+            viewMap.ViewModelType.ShouldEqual(typeof(ChildMappingViewModel));
+            viewMap.ViewType.ShouldEqual(typeof(MappingView));
+        }
+
+        [TestMethod]
+        public void VmProviderShouldReturnMappingWithoutNameBasedOnNamedConventionInheritedVm2()
+        {
+            IViewMappingProvider viewMappingProvider = GetViewMappingProvider(typeof(MappingViewModel), typeof(ChildMappingViewModel), typeof(MappingView), typeof(ChildMappingView));
+            IViewMappingItem viewMap = viewMappingProvider.FindMappingForViewModel(typeof(ChildMappingViewModel), null, true);
+            viewMap.Name.ShouldBeNull();
+            viewMap.ViewModelType.ShouldEqual(typeof(ChildMappingViewModel));
+            viewMap.ViewType.ShouldEqual(typeof(ChildMappingView));
+        }
+
+        [TestMethod]
+        public void VmProviderShouldReturnMappingWithoutNameUsingAttributeInheritedVm()
+        {
+            IViewMappingProvider viewMappingProvider = GetViewMappingProvider(typeof(MappingViewModel), typeof(ChildMappingViewModel),
+                typeof(MappingView), typeof(MappingViewWithAttribute), typeof(ChildMappingViewWithAttribute));
+            IViewMappingItem viewMap = viewMappingProvider.FindMappingForViewModel(typeof(ChildMappingViewModel), null, true);
+            viewMap.Name.ShouldBeNull();
+            viewMap.ViewModelType.ShouldEqual(typeof(ChildMappingViewModel));
+            viewMap.ViewType.ShouldEqual(typeof(ChildMappingViewWithAttribute));
         }
 
         protected virtual IViewMappingProvider GetViewMappingProvider(params Type[] types)

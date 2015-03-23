@@ -20,8 +20,10 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Validation;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Validation
@@ -34,7 +36,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         #region Fields
 
         private readonly Dictionary<Type, Type> _validators;
-
+        
         #endregion
 
         #region Constructors
@@ -145,6 +147,20 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         [CanBeNull]
         protected virtual IValidator GetValidator([NotNull] Type validatorType, [NotNull] IValidatorContext context)
         {
+            if (context.Instance is IValidatableViewModel)
+            {
+                var viewModel = context.ValidationMetadata.GetData(ViewModelConstants.ViewModel);
+                if (typeof(ValidatableViewModelValidator).IsAssignableFrom(validatorType))
+                {
+                    if (ReferenceEquals(context.Instance, viewModel))
+                        return null;
+                }
+                else
+                {
+                    if (!ReferenceEquals(context.Instance, viewModel) && _validators.ContainsKey(typeof(ValidatableViewModelValidator)))
+                        return null;
+                }
+            }
             IServiceProvider serviceProvider = context.ServiceProvider ?? ServiceProvider.IocContainer;
             IValidator validator = serviceProvider == null
                 ? (IValidator)Activator.CreateInstance(validatorType)
