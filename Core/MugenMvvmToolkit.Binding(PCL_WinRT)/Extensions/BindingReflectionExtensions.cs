@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -158,7 +157,7 @@ namespace MugenMvvmToolkit.Binding
         }
 
         [CanBeNull]
-        internal static MethodData FindMethod(this ArgumentData target, string methodName, Type[] typeArgs,
+        internal static IList<MethodData> FindMethod(this ArgumentData target, string methodName, Type[] typeArgs,
             IList<ArgumentData> args, IEnumerable<Type> knownTypes, bool staticAccess)
         {
             var type = target.Type;
@@ -171,11 +170,11 @@ namespace MugenMvvmToolkit.Binding
             }
             if (!staticAccess)
                 methods.AddRange(GetExtensionsMethods(methodName, knownTypes));
-            return FindBestMethod(target, methods, args, typeArgs);
+            return FindBestMethods(target, methods, args, typeArgs);
         }
 
         [CanBeNull]
-        internal static MethodData FindIndexer(this ArgumentData target, IList<ArgumentData> args, bool staticAccess)
+        internal static IList<MethodData> FindIndexer(this ArgumentData target, IList<ArgumentData> args, bool staticAccess)
         {
             var type = target.Type;
             var methods = new List<MethodInfo>();
@@ -188,7 +187,7 @@ namespace MugenMvvmToolkit.Binding
                         methods.Add(m);
                 }
             }
-            return FindBestMethod(target, methods, args, Empty.Array<Type>());
+            return FindBestMethods(target, methods, args, Empty.Array<Type>());
         }
 
         internal static object TryParseEnum(string name, Type type)
@@ -206,11 +205,25 @@ namespace MugenMvvmToolkit.Binding
 
         internal static bool IsCompatibleWith(this Type source, Type target)
         {
-            if (source == target) return true;
-            if (!target.IsValueType()) return target.IsAssignableFrom(source);
+            bool b;
+            return IsCompatibleWith(source, target, out b);
+        }
+
+        internal static bool IsCompatibleWith(this Type source, Type target, out bool boxRequired)
+        {
+            boxRequired = false;
+            if (source == target)
+                return true;
+            if (!target.IsValueType())
+            {
+                boxRequired = source.IsValueType();
+                return target.IsAssignableFrom(source);
+            }
+
             Type st = GetNonNullableType(source);
             Type tt = GetNonNullableType(target);
-            if (st != source && tt.Equals(st)) return false;
+            if (st != source && tt.Equals(st))
+                return false;
             TypeCode sc = st.IsEnum() ? TypeCode.Object : st.GetTypeCode();
             TypeCode tc = tt.IsEnum() ? TypeCode.Object : tt.GetTypeCode();
             switch (sc)
@@ -322,7 +335,8 @@ namespace MugenMvvmToolkit.Binding
                     }
                     break;
                 default:
-                    if (st == tt) return true;
+                    if (st == tt)
+                        return true;
                     break;
             }
             return false;
@@ -343,58 +357,65 @@ namespace MugenMvvmToolkit.Binding
             return actualArgs;
         }
 
-        private static MethodData FindBestMethod(ArgumentData target, IList<MethodInfo> methods, IList<ArgumentData> args, Type[] typeArgs)
+        private static IList<MethodData> FindBestMethods(ArgumentData target, IList<MethodInfo> methods, IList<ArgumentData> arguments, Type[] typeArgs)
         {
+            if (methods.Count == 0)
+                return Empty.Array<MethodData>();
             var candidates = new List<MethodData>();
             for (int index = 0; index < methods.Count; index++)
             {
-                var methodData = TryInferMethod(methods[index], target, args, typeArgs);
-                if (methodData != null)
-                    candidates.Add(methodData);
-                if (methodData != null && IsCompatible(methodData, GetMethodArgs(methodData.IsExtensionMethod, target, args)))
-                    return methodData;
-            }
-            if (args.Any(data => data.IsLambda))
-                return null;
-            MethodData result = null;
-            MethodData resultParams = null;
-            foreach (var candidate in candidates)
-            {
-                var lastIndex = candidate.Parameters.Count - 1;
-                //I think it is enough to choose the method with the highest number of matched arguments for params modifier.
-                if (candidate.Parameters.Count != 0 && candidate.Parameters[lastIndex].IsDefined(typeof(ParamArrayAttribute), true))
+                try
                 {
-                    if (candidate.Parameters.Count > args.Count)
+                    var methodInfo = methods[index];
+                    var args = GetMethodArgs(methodInfo.IsExtensionMethod(), target, arguments);
+                    var methodData = TryInferMethod(methodInfo, args, typeArgs);
+                    if (methodData == null)
                         continue;
-                    bool isCompatible = true;
-                    for (int i = 0; i < lastIndex; i++)
+
+                    var parameters = methodInfo.GetParameters();
+                    var optionalCount = parameters.Count(info => info.HasDefaultValue());
+                    var requiredCount = parameters.Length - optionalCount;
+                    bool hasParams = false;
+                    if (parameters.Length != 0)
                     {
-                        var argumentData = args[i];
-                        if (!IsCompatible(candidate.Parameters[i].ParameterType, argumentData.Node,
-                                argumentData.Expression))
+                        hasParams = parameters[parameters.Length - 1].IsDefined(typeof(ParamArrayAttribute), true);
+                        if (hasParams)
+                            requiredCount -= 1;
+                    }
+                    if (requiredCount > args.Count)
+                        continue;
+                    if (parameters.Length < args.Count && !hasParams)
+                        continue;
+                    var count = parameters.Length > args.Count ? args.Count : parameters.Length;
+                    bool valid = true;
+                    for (int i = 0; i < count; i++)
+                    {
+                        var arg = args[i];
+                        if (!IsCompatible(parameters[i].ParameterType, arg.Node))
                         {
-                            isCompatible = false;
+                            valid = false;
                             break;
                         }
                     }
-                    if (isCompatible &&
-                        (resultParams == null || candidate.Parameters.Count > resultParams.Parameters.Count))
-                        resultParams = candidate;
+                    if (valid)
+                        candidates.Add(methodData);
                 }
-                else if (candidate.Parameters.Count == args.Count)
-                    result = candidate;
+                catch
+                {
+                    ;
+                }
             }
-            return resultParams ?? result;
+            return candidates;
         }
 
-        private static MethodData TryInferMethod(MethodInfo method, ArgumentData target, IList<ArgumentData> args, Type[] typeArgs)
+        private static MethodData TryInferMethod(MethodInfo method, IList<ArgumentData> args, Type[] typeArgs)
         {
             var m = ApplyTypeArgs(method, typeArgs);
             if (m != null)
                 return new MethodData(m);
             if (!method.IsGenericMethod || typeArgs.Length != 0)
                 return null;
-            return TryInferGenericMethod(method, GetMethodArgs(method.IsExtensionMethod(), target, args));
+            return TryInferGenericMethod(method, args);
         }
 
         private static MethodData TryInferGenericMethod(MethodInfo method, IList<ArgumentData> args)
@@ -409,7 +430,7 @@ namespace MugenMvvmToolkit.Binding
                     bool unresolved;
                     var m = TryInferGenericMethod(method, list, out unresolved);
                     if (unresolved)
-                        throw BindingExceptionManager.InvalidBindingMember(genericMethod.DeclaringType, method.Name);
+                        return null;
                     return m;
                 });
             return new MethodData(genericMethod);
@@ -419,8 +440,7 @@ namespace MugenMvvmToolkit.Binding
         {
             hasUnresolved = false;
             var parameters = method.GetParameters();
-            if (args.Count != parameters.Length)
-                return null;
+            var count = parameters.Length > args.Count ? args.Count : parameters.Length;
 
             var genericArguments = method.GetGenericArguments();
             var inferredTypes = new Type[genericArguments.Length];
@@ -428,7 +448,7 @@ namespace MugenMvvmToolkit.Binding
             {
                 var argument = genericArguments[i];
                 Type inferred = null;
-                for (int index = 0; index < parameters.Length; index++)
+                for (int index = 0; index < count; index++)
                 {
                     var parameter = parameters[index];
                     var arg = args[index];
@@ -447,26 +467,6 @@ namespace MugenMvvmToolkit.Binding
                 inferredTypes[i] = inferred ?? argument;
             }
             return method.MakeGenericMethod(inferredTypes);
-        }
-
-        private static bool IsCompatible(this MethodData m, IList<ArgumentData> args)
-        {
-            var parameters = m.Parameters;
-            if (args.Count != parameters.Count)
-            {
-                if (parameters.Count == 0 || args.Count != parameters.Count - 1)
-                    return false;
-                if (!parameters[parameters.Count - 1].IsDefined(typeof(ParamArrayAttribute), true))
-                    return false;
-            }
-
-            for (int index = 0; index < args.Count; ++index)
-            {
-                var data = args[index];
-                if (!IsCompatible(parameters[index].ParameterType, data.Node, data.Expression))
-                    return false;
-            }
-            return true;
         }
 
         private static Type TryInferParameter(Type source, Type argumentType, Type inputType)
@@ -505,32 +505,6 @@ namespace MugenMvvmToolkit.Binding
                 return m.MakeGenericMethod(typeArgs);
             return null;
         }
-
-        private static bool IsCompatible(Type parameterType, IExpressionNode node, Expression expression)
-        {
-            var lambdaExpressionNode = node as ILambdaExpressionNode;
-            if (lambdaExpressionNode == null)
-            {
-                Type source = expression.Type;
-                if (parameterType.IsByRef)
-                    parameterType = parameterType.GetElementType();
-                if (!IsCompatibleWith(source, parameterType))
-                    return false;
-            }
-            else
-            {
-                if (typeof(Expression).IsAssignableFrom(parameterType) && parameterType.IsGenericType())
-                    parameterType = parameterType.GetGenericArguments()[0];
-                if (!typeof(Delegate).IsAssignableFrom(parameterType))
-                    return false;
-
-                var method = parameterType.GetMethodEx("Invoke", MemberFlags.Public | MemberFlags.Instance);
-                if (method == null || method.GetParameters().Length != lambdaExpressionNode.Parameters.Count)
-                    return false;
-            }
-            return true;
-        }
-
 
         internal static Type FindCommonType(Type genericDefinition, Type type)
         {
@@ -613,6 +587,34 @@ namespace MugenMvvmToolkit.Binding
             return list;
         }
 
+        internal static bool HasDefaultValue(this ParameterInfo p)
+        {
+#if PCL_WINRT
+            return p.HasDefaultValue;
+#else
+            return (p.Attributes & ParameterAttributes.HasDefault) == ParameterAttributes.HasDefault ||
+                               (p.Attributes & ParameterAttributes.Optional) == ParameterAttributes.Optional;
+#endif
+
+        }
+
+        private static bool IsCompatible(Type parameterType, IExpressionNode node)
+        {
+            var lambdaExpressionNode = node as ILambdaExpressionNode;
+            if (lambdaExpressionNode == null)
+                return true;
+
+            if (typeof(Expression).IsAssignableFrom(parameterType) && parameterType.IsGenericType())
+                parameterType = parameterType.GetGenericArguments()[0];
+            if (!typeof(Delegate).IsAssignableFrom(parameterType))
+                return false;
+
+            var method = parameterType.GetMethodEx("Invoke", MemberFlags.Public | MemberFlags.Instance);
+            if (method == null || method.GetParameters().Length != lambdaExpressionNode.Parameters.Count)
+                return false;
+            return true;
+        }
+
 #if PCL_WINRT
         private static TypeCode GetTypeCode(this Type type)
         {
@@ -639,7 +641,7 @@ namespace MugenMvvmToolkit.Binding
             return type.GetTypeInfo().IsGenericType;
         }
 
-        private static bool IsValueType(this Type type)
+        internal static bool IsValueType(this Type type)
         {
             return type.GetTypeInfo().IsValueType;
         }

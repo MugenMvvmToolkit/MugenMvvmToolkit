@@ -132,6 +132,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             _counterVisitor = new ExpressionCounterVisitor();
             _binaryOperationTokens = new Dictionary<TokenType, int>
             {
+                {TokenType.QuestionDot, 101},
                 {TokenType.Asterisk, 100},
                 {TokenType.Slash, 100},
                 {TokenType.Percent, 100},

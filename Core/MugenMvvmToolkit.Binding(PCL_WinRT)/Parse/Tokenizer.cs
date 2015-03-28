@@ -333,6 +333,13 @@ namespace MugenMvvmToolkit.Binding.Parse
                             NextChar();
                             t = TokenType.DoubleQuestion;
                         }
+                        else if (CurrentChar == '.')
+                        {
+                            NextChar();
+                            t = TokenType.QuestionDot;
+                        }
+                        else if (CurrentChar == '[')
+                            t = TokenType.QuestionDot;
                         else
                             t = TokenType.Question;
                         break;

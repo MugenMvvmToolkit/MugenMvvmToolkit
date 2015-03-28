@@ -24,7 +24,6 @@ using System.Windows.Resources;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
@@ -40,7 +39,6 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected const string BindingAssemblyName = "MugenMvvmToolkit.Binding.Silverlight";
         private readonly Application _application;
-        private PlatformInfo _platform;
 
         #endregion
 
@@ -50,6 +48,7 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Initializes a new instance of the <see cref="SilverlightBootstrapperBase" /> class.
         /// </summary>
         protected SilverlightBootstrapperBase([NotNull] Application application, bool autoStart = true)
+            : base(PlatformExtensions.GetPlatformInfo())
         {
             Should.NotBeNull(application, "application");
             _application = application;
@@ -61,19 +60,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Overrides of BootstrapperBase
-
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
-        public override PlatformInfo Platform
-        {
-            get
-            {
-                if (_platform == null)
-                    _platform = PlatformExtensions.GetPlatformInfo();
-                return _platform;
-            }
-        }
 
         /// <summary>
         ///     Gets the application assemblies.

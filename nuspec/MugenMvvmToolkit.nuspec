@@ -37,10 +37,14 @@
     </description>
     <releaseNotes>
       - Fixed incorrect operator precedence (Binding).
+      - Changed algorithm of methods resolution (Binding).
+      - Added support for (?.) null conditional operator (Binding).
       - Added the INavigationOperation interface instead of IAsyncOperation&lt;bool?&gt; that contains the NavigationCompletedTask property that allows to wait for the completion of navigation.
       - Added support for Popup and SettingsFlyout views (WinRT).
       - Added FromAsyncHandler method to the RelayCommandBase class that allows to create task-based commands.
       - Added the IBusyToken interface.
+      - Added new flags for the LoadMode enum RuntimeDebug and RuntimeRelease.
+      - Added UserControl class for Android can be used as an alternative to the fragment.
       - Removed the EndBusy method.
       - Optimized memory usage for ViewModelBase.
       - Minor changes.

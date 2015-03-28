@@ -31,7 +31,6 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -87,7 +86,6 @@ namespace MugenMvvmToolkit.Infrastructure
         private const int InitializedStateLocal = 2;
 
         private static int _appStateGlobal;
-        private PlatformInfo _platform;
         private ICollection<Assembly> _assemblies;
 
         #endregion
@@ -105,6 +103,14 @@ namespace MugenMvvmToolkit.Infrastructure
             BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
         }
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="AndroidBootstrapperBase" /> class.
+        /// </summary>
+        protected AndroidBootstrapperBase()
+            : base(PlatformExtensions.GetPlatformInfo())
+        {
+        }
+
         #endregion
 
         #region Properties
@@ -117,19 +123,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Overrides of BootstrapperBase
-
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
-        public override PlatformInfo Platform
-        {
-            get
-            {
-                if (_platform == null)
-                    _platform = PlatformExtensions.GetPlatformInfo();
-                return _platform;
-            }
-        }
 
         /// <summary>
         ///     Initializes the current bootstraper.

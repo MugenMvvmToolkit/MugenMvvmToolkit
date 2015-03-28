@@ -110,7 +110,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             if (expression == null)
                 return null;
             //Updating relative sources.
-            expression = expression.Accept(RelativeSourcePathMergerVisitor.Instance);
+            expression = expression.Accept(RelativeSourcePathMergerVisitor.Instance).Accept(NullConditionalOperatorVisitor.Instance);
             if (!isPrimaryExpression)
                 return null;
             lock (_errorPathNames)

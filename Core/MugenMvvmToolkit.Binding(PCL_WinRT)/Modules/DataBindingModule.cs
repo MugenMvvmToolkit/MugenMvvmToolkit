@@ -84,7 +84,7 @@ namespace MugenMvvmToolkit.Binding.Modules
                 var assemblies = context.Assemblies;
                 for (int i = 0; i < assemblies.Count; i++)
                 {
-                    var types = assemblies[i].SafeGetTypes(context.Mode != LoadMode.Design);
+                    var types = assemblies[i].SafeGetTypes(!context.Mode.IsDesignMode());
                     for (int j = 0; j < types.Count; j++)
                         RegisterType(types[j]);
                 }

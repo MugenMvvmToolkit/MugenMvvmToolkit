@@ -453,6 +453,9 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\Nodes\UnaryExressionNode.cs">
       <Link>Parse\Nodes\UnaryExressionNode.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\NullConditionalOperatorVisitor.cs">
+      <Link>Parse\NullConditionalOperatorVisitor.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\RelativeSourcePathMergerVisitor.cs">
       <Link>Parse\RelativeSourcePathMergerVisitor.cs</Link>
     </Compile>

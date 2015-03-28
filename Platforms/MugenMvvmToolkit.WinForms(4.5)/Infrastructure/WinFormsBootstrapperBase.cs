@@ -23,12 +23,10 @@ using System.Reflection;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Accessors;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -41,7 +39,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         private readonly bool _autoRunApplication;
-        private PlatformInfo _platform;
 
         #endregion
 
@@ -59,6 +56,7 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Initializes a new instance of the <see cref="WinFormsBootstrapperBase" /> class.
         /// </summary>
         protected WinFormsBootstrapperBase(bool autoRunApplication = true)
+            : base(PlatformExtensions.GetPlatformInfo())
         {
             _autoRunApplication = autoRunApplication;
             ShutdownOnMainViewModelClose = autoRunApplication;
@@ -76,19 +74,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Overrides of BootstrapperBase
-
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
-        public override PlatformInfo Platform
-        {
-            get
-            {
-                if (_platform == null)
-                    _platform = PlatformExtensions.GetPlatformInfo();
-                return _platform;
-            }
-        }
 
         /// <summary>
         ///     Gets the application assemblies.

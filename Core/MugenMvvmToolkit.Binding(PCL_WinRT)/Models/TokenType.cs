@@ -166,6 +166,11 @@ namespace MugenMvvmToolkit.Binding.Models
         public static readonly TokenType Question;
 
         /// <summary>
+        ///     Indicates that the token is a '?.'.
+        /// </summary>
+        public static readonly TokenType QuestionDot;
+
+        /// <summary>
         ///     Indicates that the token is a '??'.
         /// </summary>
         public static readonly TokenType DoubleQuestion;
@@ -273,6 +278,7 @@ namespace MugenMvvmToolkit.Binding.Models
             GreaterThanEqual = new TokenType("GreaterThanEqual", ">=");
             GreaterThan = new TokenType("GreaterThan", ">");
             Question = new TokenType("Question", "?");
+            QuestionDot = new TokenType("QuestionDot", "?.");
             DoubleQuestion = new TokenType("DoubleQuestion", "??");
             OpenBracket = new TokenType("OpenBracket", "[");
             CloseBracket = new TokenType("CloseBracket", "]");

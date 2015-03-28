@@ -537,9 +537,19 @@ namespace MugenMvvmToolkit.Models
         Runtime = 4,
 
         /// <summary>
+        ///     Runtime debug mode.
+        /// </summary>
+        RuntimeDebug = Runtime | 8,
+
+        /// <summary>
+        ///     Runtime release mode.
+        /// </summary>
+        RuntimeRelease = Runtime | 16,
+
+        /// <summary>
         ///     All modes.
         /// </summary>
-        All = Design | UnitTest | Runtime
+        All = Design | UnitTest | RuntimeDebug | RuntimeRelease
     }
 
     /// <summary>

@@ -188,6 +188,7 @@
     <Compile Include="Parse\Nodes\RelativeSourceExpressionNode.cs" />
     <Compile Include="Parse\Nodes\ResourceExpressionNode.cs" />
     <Compile Include="Parse\Nodes\UnaryExressionNode.cs" />
+    <Compile Include="Parse\NullConditionalOperatorVisitor.cs" />
     <Compile Include="Parse\RelativeSourcePathMergerVisitor.cs" />
     <Compile Include="Parse\Tokenizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

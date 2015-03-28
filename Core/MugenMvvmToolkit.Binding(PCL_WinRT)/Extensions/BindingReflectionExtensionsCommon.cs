@@ -34,14 +34,14 @@ namespace MugenMvvmToolkit.Binding
 
         private sealed class MultiTypeConverter : TypeConverter
         {
-            #region Fields
+        #region Fields
 
             private readonly TypeConverter _first;
             private readonly TypeConverter _second;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             public MultiTypeConverter(TypeConverter first, TypeConverter second)
             {
@@ -49,9 +49,9 @@ namespace MugenMvvmToolkit.Binding
                 _second = second;
             }
 
-            #endregion
+        #endregion
 
-            #region Overrides of TypeConverter
+        #region Overrides of TypeConverter
 
             public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
             {
@@ -68,7 +68,7 @@ namespace MugenMvvmToolkit.Binding
                 return base.ConvertFrom(context, culture, value);
             }
 
-            #endregion
+        #endregion
         }
 
         #endregion
@@ -157,13 +157,13 @@ namespace MugenMvvmToolkit.Binding
             return IsNullableType(type) ? type.GetGenericArguments()[0] : type;
         }
 
-        private static bool IsNullableType(this Type type)
+        internal static bool IsNullableType(this Type type)
         {
             return type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
 #if !PCL_WINRT
-        private static bool IsValueType(this Type type)
+        internal static bool IsValueType(this Type type)
         {
             return type.IsValueType;
         }

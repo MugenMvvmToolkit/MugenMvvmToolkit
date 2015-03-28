@@ -29,7 +29,6 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
-using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 using UIKit;
 
@@ -43,7 +42,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         private readonly UIWindow _window;
-        private PlatformInfo _platform;
         private INavigationService _navigationService;
 
         #endregion
@@ -65,6 +63,7 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Initializes a new instance of the <see cref="TouchBootstrapperBase" /> class.
         /// </summary>
         protected TouchBootstrapperBase([NotNull] UIWindow window)
+            : base(PlatformExtensions.GetPlatformInfo())
         {
             Should.NotBeNull(window, "window");
             _window = window;
@@ -73,19 +72,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Overrides of BootstrapperBase
-
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
-        public override PlatformInfo Platform
-        {
-            get
-            {
-                if (_platform == null)
-                    _platform = PlatformExtensions.GetPlatformInfo();
-                return _platform;
-            }
-        }
 
         /// <summary>
         ///     Gets the application assemblies.

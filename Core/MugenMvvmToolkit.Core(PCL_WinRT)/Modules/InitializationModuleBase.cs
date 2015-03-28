@@ -59,7 +59,7 @@ namespace MugenMvvmToolkit.Modules
             IAttachedValueProvider attachedValueProvider;
             if (IocContainer.TryGet(out attachedValueProvider))
                 ServiceProvider.AttachedValueProvider = attachedValueProvider;
-            IocContainer.BindToBindingInfo(Mode == LoadMode.Runtime ? GetThreadManager() : GetThreadManagerInternal());
+            IocContainer.BindToBindingInfo(Mode.IsRuntimeMode() ? GetThreadManager() : GetThreadManagerInternal());
             IocContainer.BindToBindingInfo(GetSerializer());
             IocContainer.BindToBindingInfo(GetOperationCallbackManager());
             IocContainer.BindToBindingInfo(GetTaskExceptionHandler());

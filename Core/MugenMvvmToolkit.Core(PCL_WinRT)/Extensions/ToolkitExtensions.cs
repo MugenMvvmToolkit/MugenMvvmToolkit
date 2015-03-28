@@ -1984,6 +1984,51 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
+        ///     Returns <c>true</c> if <see cref="mode"/> has Design flag.
+        /// </summary>
+        [Pure]
+        public static bool IsDesignMode(this LoadMode mode)
+        {
+            return mode.HasFlagEx(LoadMode.Design);
+        }
+
+        /// <summary>
+        ///     Returns <c>true</c> if <see cref="mode"/> has UnitTest flag.
+        /// </summary>
+        [Pure]
+        public static bool IsUnitTestMode(this LoadMode mode)
+        {
+            return mode.HasFlagEx(LoadMode.UnitTest);
+        }
+
+        /// <summary>
+        ///     Returns <c>true</c> if <see cref="mode"/> has Runtime flag.
+        /// </summary>
+        [Pure]
+        public static bool IsRuntimeMode(this LoadMode mode)
+        {
+            return mode.HasFlagEx(LoadMode.Runtime);
+        }
+
+        /// <summary>
+        ///     Returns <c>true</c> if <see cref="mode"/> has RuntimeDebug flag.
+        /// </summary>
+        [Pure]
+        public static bool IsRuntimeDebugMode(this LoadMode mode)
+        {
+            return mode.HasFlagEx(LoadMode.RuntimeDebug);
+        }
+
+        /// <summary>
+        ///     Returns <c>true</c> if <see cref="mode"/> has RuntimeRelease flag.
+        /// </summary>
+        [Pure]
+        public static bool IsRuntimeReleaseMode(this LoadMode mode)
+        {
+            return mode.HasFlagEx(LoadMode.RuntimeRelease);
+        }
+
+        /// <summary>
         /// Converts the data context to non-read only.
         /// </summary>
         [NotNull]

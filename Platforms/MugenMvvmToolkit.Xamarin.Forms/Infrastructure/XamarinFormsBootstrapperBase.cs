@@ -58,9 +58,9 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         protected static readonly DataConstant<bool> WrapToNavigationPageConstant;
-        private readonly IPlatformService _platformService;
+        private static IPlatformService _platformService;
+
         private IViewModel _mainViewModel;
-        private PlatformInfo _platform;
 
         #endregion
 
@@ -86,17 +86,8 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Initializes a new instance of the <see cref="XamarinFormsBootstrapperBase" /> class.
         /// </summary>
         protected XamarinFormsBootstrapperBase()
+            : base(GetPlatformInfo())
         {
-            Assembly assembly = TryLoadAssembly(BindingAssemblyName, null);
-            if (assembly == null)
-                return;
-            TypeInfo serviceType = typeof(IPlatformService).GetTypeInfo();
-            serviceType = assembly.DefinedTypes.FirstOrDefault(serviceType.IsAssignableFrom);
-            if (serviceType != null)
-            {
-                _platformService = (IPlatformService)Activator.CreateInstance(serviceType.AsType());
-                BindingServiceProvider.ValueConverter = _platformService.ValueConverter;
-            }
         }
 
         #endregion
@@ -127,21 +118,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Overrides of BootstrapperBase
-
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
-        public override PlatformInfo Platform
-        {
-            get
-            {
-                if (_platform == null)
-                    _platform = _platformService == null
-                        ? XamarinFormsExtensions.GetPlatformInfo()
-                        : _platformService.GetPlatformInfo();
-                return _platform;
-            }
-        }
 
         /// <summary>
         ///     Gets the application assemblies.
@@ -227,6 +203,23 @@ namespace MugenMvvmToolkit.Infrastructure
         protected virtual INavigationService CreateNavigationService()
         {
             return new NavigationService(IocContainer.Get<IThreadManager>());
+        }
+
+        private static PlatformInfo GetPlatformInfo()
+        {
+            Assembly assembly = TryLoadAssembly(BindingAssemblyName, null);
+            if (assembly == null)
+                return XamarinFormsExtensions.GetPlatformInfo();
+            TypeInfo serviceType = typeof(IPlatformService).GetTypeInfo();
+            serviceType = assembly.DefinedTypes.FirstOrDefault(serviceType.IsAssignableFrom);
+            if (serviceType != null)
+            {
+                _platformService = (IPlatformService)Activator.CreateInstance(serviceType.AsType());
+                BindingServiceProvider.ValueConverter = _platformService.ValueConverter;
+            }
+            return _platformService == null
+                ? XamarinFormsExtensions.GetPlatformInfo()
+                : _platformService.GetPlatformInfo();
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext,

@@ -35,7 +35,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Modules;
 using MugenMvvmToolkit.ViewModels;
 
@@ -52,7 +51,6 @@ namespace MugenMvvmToolkit.Infrastructure
         /// Gets the name of binding assembly.
         /// </summary>
         protected const string BindingAssemblyName = "MugenMvvmToolkit.Binding.WPF";
-        private PlatformInfo _platform;
 
         #endregion
 
@@ -69,6 +67,7 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Initializes a new instance of the <see cref="WpfBootstrapperBase" /> class.
         /// </summary>
         protected WpfBootstrapperBase([NotNull] Application application, bool autoStart = true)
+            : base(PlatformExtensions.GetPlatformInfo())
         {
             Should.NotBeNull(application, "application");
             if (autoStart)
@@ -92,19 +91,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Overrides of BootstrapperBase
-
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
-        public override PlatformInfo Platform
-        {
-            get
-            {
-                if (_platform == null)
-                    _platform = PlatformExtensions.GetPlatformInfo();
-                return _platform;
-            }
-        }
 
         /// <summary>
         ///     Gets the application assemblies.

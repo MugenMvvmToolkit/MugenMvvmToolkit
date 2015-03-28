@@ -31,7 +31,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -48,7 +47,6 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected const string BindingAssemblyName = "MugenMvvmToolkit.Binding.WinRT";
         private readonly PhoneApplicationFrame _rootFrame;
-        private PlatformInfo _platform;
 
         #endregion
 
@@ -67,6 +65,7 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Initializes a new instance of the <see cref="WindowsPhoneBootstrapperBase" /> class.
         /// </summary>
         protected WindowsPhoneBootstrapperBase([NotNull] PhoneApplicationFrame rootFrame)
+            : base(PlatformExtensions.GetPlatformInfo())
         {
             Should.NotBeNull(rootFrame, "rootFrame");
             _rootFrame = rootFrame;
@@ -76,19 +75,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Overrides of BootstrapperBase
-
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
-        public override PlatformInfo Platform
-        {
-            get
-            {
-                if (_platform == null)
-                    _platform = PlatformExtensions.GetPlatformInfo();
-                return _platform;
-            }
-        }
 
         /// <summary>
         ///     Starts the current bootstraper.

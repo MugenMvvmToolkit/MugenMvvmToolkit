@@ -37,6 +37,7 @@ namespace MugenMvvmToolkit.Infrastructure
         private const int InitializedState = 1;
         private static int _state;
 
+        private readonly PlatformInfo _platform;
         private IModuleContext _context;
         private IList<IModule> _loadedModules;
         private IList<Assembly> _assemblies;
@@ -49,11 +50,13 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="BootstrapperBase" /> class.
         /// </summary>
-        protected BootstrapperBase()
+        protected BootstrapperBase(PlatformInfo platform)
         {
             ServiceProvider.DesignTimeManager = DesignTimeManagerImpl.Instance;
             if (Current != null)
                 Tracer.Error("The application is already has a bootstrapper " + Current);
+            LoadMode = LoadMode.Runtime;
+            _platform = platform ?? PlatformInfo.Unknown;
         }
 
         #endregion
@@ -69,7 +72,10 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Gets the current platform.
         /// </summary>
         [NotNull]
-        public abstract PlatformInfo Platform { get; }
+        public virtual PlatformInfo Platform
+        {
+            get { return _platform; }
+        }
 
         /// <summary>
         ///     Gets the initialized state of the current bootstraper.
@@ -95,6 +101,11 @@ namespace MugenMvvmToolkit.Infrastructure
             set { _initializationContext = value; }
         }
 
+        /// <summary>
+        ///     Gets or sets the load mode of current <see cref="BootstrapperBase" />, default is <c>Runtime</c>
+        /// </summary>
+        public LoadMode LoadMode { get; set; }
+
         #endregion
 
         #region Methods
@@ -105,7 +116,12 @@ namespace MugenMvvmToolkit.Infrastructure
         public virtual void Initialize()
         {
             if (Interlocked.Exchange(ref _state, InitializedState) == InitializedState)
+            {
+                var current = Current;
+                if (current != null)
+                    Tracer.Error(ExceptionManager.ObjectInitialized(typeof(BootstrapperBase).Name, Current).Message);
                 return;
+            }
             Current = this;
             IocContainer = CreateIocContainer();
             OnInitialize();
@@ -215,7 +231,7 @@ namespace MugenMvvmToolkit.Infrastructure
         [NotNull]
         protected virtual IModuleContext CreateModuleContext(IIocContainer iocContainer)
         {
-            return new ModuleContext(Platform, LoadMode.Runtime, iocContainer, InitializationContext, GetAssembliesInternal());
+            return new ModuleContext(Platform, LoadMode, iocContainer, InitializationContext, GetAssembliesInternal());
         }
 
         /// <summary>

@@ -84,7 +84,7 @@ namespace MugenMvvmToolkit.Modules
             if (container == null || !container.TryGet(out provider))
             {
                 foreach (Assembly assembly in Context.Assemblies)
-                    foreach (Type type in assembly.SafeGetTypes(Mode != LoadMode.Design))
+                    foreach (Type type in assembly.SafeGetTypes(!Mode.IsDesignMode()))
                         AddTemplate(dictionary, type);
             }
             else

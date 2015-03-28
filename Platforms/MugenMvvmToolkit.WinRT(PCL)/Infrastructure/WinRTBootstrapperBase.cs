@@ -31,7 +31,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -47,7 +46,6 @@ namespace MugenMvvmToolkit.Infrastructure
         private readonly Frame _rootFrame;
         private readonly bool _overrideAssemblies;
         private List<Assembly> _assemblies;
-        private PlatformInfo _platform;
 
         #endregion
 
@@ -63,6 +61,7 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Initializes a new instance of the <see cref="WinRTBootstrapperBase" /> class.
         /// </summary>
         protected WinRTBootstrapperBase([NotNull] Frame rootFrame, bool overrideAssemblies)
+            : base(PlatformExtensions.GetPlatformInfo())
         {
             Should.NotBeNull(rootFrame, "rootFrame");
             _rootFrame = rootFrame;
@@ -72,19 +71,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Overrides of BootstrapperBase
-
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
-        public override PlatformInfo Platform
-        {
-            get
-            {
-                if (_platform == null)
-                    _platform = PlatformExtensions.GetPlatformInfo();
-                return _platform;
-            }
-        }
 
         /// <summary>
         ///     Starts the current bootstraper.

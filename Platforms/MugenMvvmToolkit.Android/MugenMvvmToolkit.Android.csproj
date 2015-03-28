@@ -158,6 +158,7 @@
     <Compile Include="Views\Activities\MvvmListActivity.cs" />
     <Compile Include="Views\Activities\MvvmTabActivity.cs" />
     <Compile Include="Views\OptionsMenu.cs" />
+    <Compile Include="Views\UserControl.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FodyWeavers.xml" />
