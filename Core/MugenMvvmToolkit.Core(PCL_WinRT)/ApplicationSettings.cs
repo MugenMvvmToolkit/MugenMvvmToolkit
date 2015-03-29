@@ -17,10 +17,12 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit
@@ -109,6 +111,18 @@ namespace MugenMvvmToolkit
         /// </summary>
         [CanBeNull]
         public static Action<RelayCommandBase, EventHandler> RemoveCanExecuteChangedEvent { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the delegate that allows to convert non serializable value to serializable.
+        /// </summary>
+        [CanBeNull]
+        public static Func<object, object> SaveValueState { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the delegate that allows to convert from serializable value to original.
+        /// </summary>
+        [CanBeNull]
+        public static Func<object, IDictionary<Type, object>, ICollection<IViewModel>, object> RestoreValueState { get; set; }
 
         /// <summary>
         ///     Specifies the execution mode for <c>SynchronizedNotifiableCollection</c> by default, if not set explicitly.

@@ -118,7 +118,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         private const float NotExactlyEqualWeight = 1f;
         private const float NotExactlyEqualBoxWeight = 1.1f;
-        private const float NotExactlyEqualUnsafeCastWeight = 10f;
+        private const float NotExactlyEqualUnsafeCastWeight = 1000f;
 
         private static readonly MethodInfo ProxyMethod;
         private static readonly MethodInfo BindingMemberGetValueMethod;

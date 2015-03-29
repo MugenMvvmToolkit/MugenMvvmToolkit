@@ -152,8 +152,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                         }
                         else
                         {
-                            var restoreValueState = RestoreValueState;
-                            service = restoreValueState == null ? State : restoreValueState(State);
+                            var restoreValueState = ApplicationSettings.RestoreValueState;
+                            service = restoreValueState == null ? State : restoreValueState(State, items, viewModels);
                         }
                         field.SetValueEx(target, service);
                         break;
@@ -230,7 +230,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                         IsType = true
                     };
 
-                var saveValueState = SaveValueState;
+                var saveValueState = ApplicationSettings.SaveValueState;
                 if (saveValueState != null)
                 {
                     var valueState = saveValueState(value);
@@ -696,22 +696,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             GetDefaultGenericMethod = typeof(SerializableOperationCallbackFactory)
                 .GetMethodEx("GetDefaultGeneric", MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Static);
         }
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        /// Gets or sets the delegate that allows to convert non serializable value to serializable.
-        /// </summary>
-        [CanBeNull]
-        public static Func<object, object> SaveValueState { get; set; }
-
-        /// <summary>
-        /// Gets or sets the delegate that allows to convert from serializable value to original.
-        /// </summary>
-        [CanBeNull]
-        public static Func<object, object> RestoreValueState { get; set; }
 
         #endregion
 

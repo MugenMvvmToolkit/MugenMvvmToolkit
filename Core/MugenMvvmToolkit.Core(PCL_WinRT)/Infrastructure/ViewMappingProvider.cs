@@ -98,7 +98,12 @@ namespace MugenMvvmToolkit.Infrastructure
         /// <summary>
         ///     Adds the view mapping to internal collection.
         /// </summary>
-        public void AddMapping(IViewMappingItem mappingItem, bool throwOnError)
+        public void AddMapping(IViewMappingItem mappingItem)
+        {
+            AddMapping(mappingItem, false, true);
+        }
+
+        private void AddMapping(IViewMappingItem mappingItem, bool throwOnError, bool rewrite = false)
         {
             List<IViewMappingItem> list;
             if (!_viewTypeToMapping.TryGetValue(mappingItem.ViewType, out list))
@@ -120,13 +125,15 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 if (throwOnError)
                     throw ExceptionManager.DuplicateViewMapping(item.ViewType, item.ViewModelType, item.Name);
-                return;
+                if (!rewrite)
+                    return;
             }
             value[name] = mappingItem;
             if (Tracer.TraceInformation)
                 Tracer.Info("The view mapping to view model was created: ({0} ---> {1}), name: {2}",
                     mappingItem.ViewModelType, mappingItem.ViewType, mappingItem.Name);
         }
+
 
         /// <summary>
         /// Initializes view mappings.
