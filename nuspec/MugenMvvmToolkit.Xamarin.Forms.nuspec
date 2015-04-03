@@ -56,7 +56,7 @@
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios xamarin.forms</tags>
     <dependencies>
-      <dependency id="Xamarin.Forms" version="1.4.0.6341" />
+      <dependency id="Xamarin.Forms" version="1.4.1.6349" />
     </dependencies>
   </metadata>
   <files>

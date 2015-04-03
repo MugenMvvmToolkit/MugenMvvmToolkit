@@ -274,6 +274,7 @@ namespace MugenMvvmToolkit
         private static Action<object, object> _setContentViewDelegete;
         private static Func<object, bool> _isFragment;
         private static Func<object, bool> _isActionBar;
+        private static WeakReference _activityRef;
 
         #endregion
 
@@ -290,6 +291,7 @@ namespace MugenMvvmToolkit
             _setContentViewDelegete = ContentViewManagerField.SetContent;
             _isFragment = o => false;
             _isActionBar = _isFragment;
+            _activityRef = Empty.WeakReference;
             WeakReferences = new List<WeakReference>(128);
             NativeWeakReferences = new Dictionary<IntPtr, JavaObjectWeakReference>(109, new IntPtrComparer());
             // ReSharper disable once ObjectCreationAsStatement
@@ -395,6 +397,14 @@ namespace MugenMvvmToolkit
                 Should.PropertyNotBeNull(value);
                 _isActionBar = value;
             }
+        }
+
+        /// <summary>
+        ///     Gets the current top activity.
+        /// </summary>
+        public static Activity CurrentActivity
+        {
+            get { return (Activity)_activityRef.Target; }
         }
 
         #endregion
@@ -694,6 +704,17 @@ namespace MugenMvvmToolkit
             if (view.Id == View.NoId)
                 throw new ArgumentException(string.Format("To use a fragment {0}, you must specify the id for view {1}, for instance: @+id/placeholder", view, content),
                     "view");
+        }
+
+        internal static void UpdateActivity(Activity activity, bool clear)
+        {
+            if (clear)
+            {
+                if (ReferenceEquals(CurrentActivity, activity))
+                    _activityRef = Empty.WeakReference;
+            }
+            else
+                _activityRef = ServiceProvider.WeakReferenceFactory(activity, true);
         }
 
         private static View GetContentInternal(Context ctx, object content, int? templateId)

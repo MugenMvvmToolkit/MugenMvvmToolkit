@@ -2283,6 +2283,27 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             expression(context, new object[] { model }).ShouldEqual(int.MaxValue);
         }
 
+        [TestMethod]
+        public void ParserShouldParseNullConditionalOperator3()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text $Relative(type)?.NestedModel?.IntProperty";
+            IBindingParser bindingParser = CreateBindingParser();
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+            var model = new BindingSourceModel();
+            target.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { model }).ShouldBeNull();
+
+            model.NestedModel = new BindingSourceNestedModel();
+            expression(context, new object[] { model }).ShouldEqual(0);
+
+            model.NestedModel.IntProperty = int.MaxValue;
+            expression(context, new object[] { model }).ShouldEqual(int.MaxValue);
+        }
+
         private static void BindingSourceShouldBeValidDataContext(object target, IBindingSource bindingSource, string path)
         {
             BindingSourceShouldBeValid(bindingSource, path,

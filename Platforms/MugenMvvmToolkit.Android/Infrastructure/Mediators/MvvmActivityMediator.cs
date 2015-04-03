@@ -216,6 +216,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 _menuInflater = null;
             }
             base.OnDestroy(baseOnDestroy);
+            PlatformExtensions.UpdateActivity(Target, true);
             Target.ClearBindings(false, true);
             Target.Dispose();
             OptionsItemSelected = null;
@@ -275,6 +276,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public virtual void OnStart(Action baseOnStart)
         {
             baseOnStart();
+            PlatformExtensions.UpdateActivity(Target, false);
 
             var service = Get<INavigationService>();
             service.OnStartActivity(Target);

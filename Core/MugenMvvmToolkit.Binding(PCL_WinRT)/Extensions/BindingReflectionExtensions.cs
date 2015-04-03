@@ -466,6 +466,21 @@ namespace MugenMvvmToolkit.Binding
                 }
                 inferredTypes[i] = inferred ?? argument;
             }
+            for (int i = 0; i < genericArguments.Length; i++)
+            {
+                var inferredType = inferredTypes[i];
+                var arg = genericArguments[i];
+                if (ReferenceEquals(inferredType, arg))
+                    continue;
+                if (!inferredType.IsCompatible(arg.GetGenericParameterAttributes()))
+                    return null;
+                var constraints = arg.GetGenericParameterConstraints();
+                for (int j = 0; j < constraints.Length; j++)
+                {
+                    if (!constraints[j].IsAssignableFrom(inferredType))
+                        return null;
+                }
+            }
             return method.MakeGenericMethod(inferredTypes);
         }
 
@@ -615,6 +630,20 @@ namespace MugenMvvmToolkit.Binding
             return true;
         }
 
+        private static bool IsCompatible(this Type type, GenericParameterAttributes attributes)
+        {
+            if (attributes.HasFlagEx(GenericParameterAttributes.ReferenceTypeConstraint) && type.IsValueType())
+                return false;
+            if (attributes.HasFlagEx(GenericParameterAttributes.NotNullableValueTypeConstraint) && !type.IsValueType())
+                return false;
+            return true;
+        }
+
+        private static bool HasFlagEx(this GenericParameterAttributes attributes, GenericParameterAttributes flag)
+        {
+            return (attributes & flag) == flag;
+        }
+
 #if PCL_WINRT
         private static TypeCode GetTypeCode(this Type type)
         {
@@ -645,6 +674,16 @@ namespace MugenMvvmToolkit.Binding
         {
             return type.GetTypeInfo().IsValueType;
         }
+
+        private static Type[] GetGenericParameterConstraints(this Type type)
+        {
+            return type.GetTypeInfo().GetGenericParameterConstraints();
+        }
+
+        private static GenericParameterAttributes GetGenericParameterAttributes(this Type type)
+        {
+            return type.GetTypeInfo().GenericParameterAttributes;
+        }
 #else
         private static TypeCode GetTypeCode(this Type type)
         {
@@ -659,6 +698,11 @@ namespace MugenMvvmToolkit.Binding
         private static bool IsInterface(this Type type)
         {
             return type.IsInterface;
+        }
+
+        private static GenericParameterAttributes GetGenericParameterAttributes(this Type type)
+        {
+            return type.GenericParameterAttributes;
         }
 #endif
         #endregion

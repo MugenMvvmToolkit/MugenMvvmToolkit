@@ -17,10 +17,11 @@
 #endregion
 
 using System;
+using Android.App;
 using Android.Content;
 using Android.Runtime;
-using Android.Util;
 using Android.Widget;
+using MugenMvvmToolkit.Interfaces.Navigation;
 
 namespace MugenMvvmToolkit.Views
 {
@@ -31,55 +32,38 @@ namespace MugenMvvmToolkit.Views
         /// <summary>
         ///     Initializes a new instance of the <see cref="UserControl" /> class.
         /// </summary>
+        protected UserControl(int viewId)
+            : base(GetCurrentContext())
+        {
+            var tuple = Context.GetActivity()
+                               .LayoutInflater
+                               .CreateBindableView(viewId);
+            // ReSharper disable once DoNotCallOverridableMethodsInConstructor
+            AddView(tuple.Item1);
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="UserControl" /> class.
+        /// </summary>
         protected UserControl(IntPtr javaReference, JniHandleOwnership transfer)
             : base(javaReference, transfer)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="UserControl" /> class.
-        /// </summary>
-        protected UserControl(Context context)
-            : base(context)
-        {
-            Initialize(context);
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="UserControl" /> class.
-        /// </summary>
-        protected UserControl(Context context, IAttributeSet attrs)
-            : base(context, attrs)
-        {
-            Initialize(context);
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="UserControl" /> class.
-        /// </summary>
-        protected UserControl(Context context, IAttributeSet attrs, int defStyle)
-            : base(context, attrs, defStyle)
-        {
-            Initialize(context);
-        }
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        ///     Gets the layout id of current control.
-        /// </summary>
-        protected abstract int LayoutId { get; }
-
         #endregion
 
         #region Methods
 
-        private void Initialize(Context context)
+        private static Context GetCurrentContext()
         {
-            var tuple = context.GetActivity().LayoutInflater.CreateBindableView(LayoutId);
-            AddView(tuple.Item1);
+            Activity context = PlatformExtensions.CurrentActivity;
+            if (context == null)
+            {
+                INavigationProvider service;
+                if (ServiceProvider.IocContainer.TryGet(out service))
+                    context = service.CurrentContent as Activity;
+            }
+            return context;
         }
 
         #endregion
