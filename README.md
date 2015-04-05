@@ -45,7 +45,7 @@ using (var editorVm = GetViewModel<ProductEditorViewModel>())
 *For WinRT and WP you should install the [MugenMvvmToolkit.Fody](http://www.nuget.org/packages/MugenMvvmToolkit.Fody/) plugin to support async operation restore.*
  - Good design mode support, for xaml platforms supports the creation of design view model with any constructor parameters.
  - Supports bindings on all platforms, all of the native binding features available for WPF platform available on all platforms and even more.
- - Binding supports C# language expressions like Linq, Extension methods, method call, ternary operator (?:), coalescing operator (??), etc.
+ - Binding supports C# language expressions like Linq, Extension methods, method call, ternary operator (?:), coalescing operator (??), null conditional operator (?.) etc.
 `(Text Items.First(x => x == Name).Value), (Text $string.Format('{0} {1}', Prop1, Prop2))`.
  - Supports subscription to any control event.
  `(TextChanged ViewModelMethod($args)), (DoubleClick Command)`.
