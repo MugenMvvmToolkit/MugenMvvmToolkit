@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Modules
         /// <summary>
         ///     Initializes a new instance of the <see cref="WrapperRegistrationModuleBase" /> class.
         /// </summary>
-        protected WrapperRegistrationModuleBase(LoadMode supportedModes, int priority = int.MinValue + 10)
+        protected WrapperRegistrationModuleBase(LoadMode supportedModes, int priority = WrapperRegistrationModulePriority)
             : base(false, supportedModes, priority)
         {
         }

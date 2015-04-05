@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Binding.Parse;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Models;
 
@@ -28,6 +29,15 @@ namespace MugenMvvmToolkit
 {
     internal sealed class PlatformBootstrapperService : XamarinFormsBootstrapperBase.IPlatformService
     {
+        #region Constructors
+
+        static PlatformBootstrapperService()
+        {
+            CompiledExpressionInvoker.SupportCoalesceExpression = false;
+        }
+
+        #endregion
+
         #region Implementation of IPlatformService
 
         public Func<IBindingMemberInfo, Type, object, object> ValueConverter

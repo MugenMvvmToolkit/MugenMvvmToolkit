@@ -161,6 +161,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             InvokeMemberDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx("InvokeMemberDynamic", MemberFlags.Static | MemberFlags.NonPublic);
             ReferenceEqualsMethod = typeof(object).GetMethodEx("ReferenceEquals", MemberFlags.Public | MemberFlags.Static);
             EmptyObjectArrayExpression = Expression.Constant(Empty.Array<object>(), typeof(object[]));
+            SupportCoalesceExpression = true;
             Should.BeSupported(BindingMemberGetValueMethod != null, "BindingMemberGetValueMethod");
             Should.BeSupported(GetMemberValueDynamicMethod != null, "GetMemberValueDynamicMethod");
             Should.BeSupported(GetIndexValueDynamicMethod != null, "GetIndexValueDynamicMethod");
@@ -219,7 +220,9 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {TokenType.DoubleQuestion, (expression, expression1) =>
                 {
                     Convert(ref expression, ref expression1, true);
-                    return Expression.Coalesce(expression, expression1);
+                    if (SupportCoalesceExpression)
+                        return Expression.Coalesce(expression, expression1);
+                    return Expression.Condition(Expression.Equal(expression, Expression.Constant(null, expression.Type)), expression1, expression);
                 }}
             };
         }
@@ -227,6 +230,11 @@ namespace MugenMvvmToolkit.Binding.Parse
         #endregion
 
         #region Properties
+
+        /// <summary>
+        ///     Indicates that the CompiledExpressionInvoker supports coalesce expression.
+        /// </summary>
+        public static bool SupportCoalesceExpression { get; set; }
 
         protected Dictionary<ExpressionNodeType, Func<IExpressionNode, Expression>> NodeToExpressionMapping
         {

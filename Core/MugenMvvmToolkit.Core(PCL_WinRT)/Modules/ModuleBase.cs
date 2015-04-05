@@ -41,6 +41,11 @@ namespace MugenMvvmToolkit.Modules
         /// </summary>
         public const int BindingModulePriority = -1;
 
+        /// <summary>
+        ///     Gets the wrapper registration module priority.
+        /// </summary>
+        public const int WrapperRegistrationModulePriority = -1000;
+
         private readonly bool _iocContainerCanBeNull;
         private readonly object _locker;
         private readonly int _priority;

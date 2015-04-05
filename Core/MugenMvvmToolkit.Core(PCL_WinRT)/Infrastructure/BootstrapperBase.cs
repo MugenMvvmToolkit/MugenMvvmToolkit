@@ -118,7 +118,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (Interlocked.Exchange(ref _state, InitializedState) == InitializedState)
             {
                 var current = Current;
-                if (current != null)
+                if (!ReferenceEquals(current, this))
                     Tracer.Error(ExceptionManager.ObjectInitialized(typeof(BootstrapperBase).Name, Current).Message);
                 return;
             }
