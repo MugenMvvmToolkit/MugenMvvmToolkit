@@ -46,6 +46,9 @@ namespace MugenMvvmToolkit.ActionBarSupport.Views
 {
 #if APPCOMPAT
     [TypeNameAlias("ActionBarCompat")]
+    [Register("mugenmvvmtoolkit.appcompat.views.ActionBarView")]
+#else
+    [Register("mugenmvvmtoolkit.actionbarsupport.views.ActionBarView")]
 #endif
     [TypeNameAlias("ActionBar")]
     public sealed class ActionBarView : View, IManualBindings, IHasActivityDependency

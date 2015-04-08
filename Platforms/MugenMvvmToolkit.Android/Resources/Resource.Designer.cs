@@ -73,14 +73,14 @@ namespace MugenMvvmToolkit
 		public partial class Id
 		{
 			
-			// aapt resource value: 0x7f020002
-			public static int AttachedProperties = 2130837506;
+			// aapt resource value: 0x7f030002
+			public static int AttachedProperties = 2130903042;
 			
-			// aapt resource value: 0x7f020001
-			public static int ListenParentChange = 2130837505;
+			// aapt resource value: 0x7f030001
+			public static int ListenParentChange = 2130903041;
 			
-			// aapt resource value: 0x7f020000
-			public static int OptionsMenu = 2130837504;
+			// aapt resource value: 0x7f030000
+			public static int OptionsMenu = 2130903040;
 			
 			static Id()
 			{
@@ -88,6 +88,22 @@ namespace MugenMvvmToolkit
 			}
 			
 			private Id()
+			{
+			}
+		}
+		
+		public partial class String
+		{
+			
+			// aapt resource value: 0x7f020000
+			public static int Empty = 2130837504;
+			
+			static String()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private String()
 			{
 			}
 		}

@@ -31,6 +31,7 @@ using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Views
 {
+    [Register("mugenmvvmtoolkit.views.OptionsMenu")]
     public sealed class OptionsMenu : FrameLayout, IManualBindings
     {
         #region Fields

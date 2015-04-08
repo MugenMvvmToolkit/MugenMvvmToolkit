@@ -713,6 +713,9 @@ namespace MugenMvvmToolkit.Binding.Parse
                 var firstArg = resultArgs[0];
                 if (firstArg.Type.IsValueType() && !firstArg.Type.IsNullableType())
                     return callExpression;
+                if (result.ReturnType == typeof(void))
+                    return Expression.Condition(GenerateNullReferenceEqualityExpression(firstArg), NullExpression,
+                        Expression.Block(callExpression, NullExpression));
                 return Expression.Condition(GenerateNullReferenceEqualityExpression(firstArg),
                     Expression.Constant(result.ReturnType.GetDefaultValue(), result.ReturnType), callExpression);
             }

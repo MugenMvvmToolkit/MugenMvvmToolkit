@@ -25,6 +25,7 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 
 namespace MugenMvvmToolkit.Views
 {
+    [Register("mugenmvvmtoolkit.views.UserControl")]
     public abstract class UserControl : FrameLayout
     {
         #region Constructors

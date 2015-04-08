@@ -11,8 +11,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MugenMvvmToolkit.FragmentSupport</RootNamespace>
     <AssemblyName>MugenMvvmToolkit.Android.Fragment</AssemblyName>
-    <FileAlignment>512</FileAlignment>
-    <AndroidResgenFile>Resources\Resource.Designer.cs</AndroidResgenFile>
+    <FileAlignment>512</FileAlignment>    
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <AndroidUseLatestPlatformSdk>
     </AndroidUseLatestPlatformSdk>
@@ -68,8 +67,7 @@
     <Compile Include="InternalExtensionsFragment.cs" />
     <Compile Include="Modules\FragmentDataBindingModule.cs" />
     <Compile Include="Modules\FragmentInitializationModule.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Resources\Resource.Designer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />    
     <Compile Include="Views\Fragments\MvvmDialogFragment.cs" />
     <Compile Include="Views\Fragments\MvvmFragment.cs" />
     <Compile Include="Views\Fragments\MvvmListFragment.cs" />
@@ -105,6 +103,7 @@
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -11,8 +11,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MugenMvvmToolkit.ActionBarSupport</RootNamespace>
     <AssemblyName>MugenMvvmToolkit.Android.ActionBar</AssemblyName>
-    <FileAlignment>512</FileAlignment>
-    <AndroidResgenFile>Resources\Resource.Designer.cs</AndroidResgenFile>
+    <FileAlignment>512</FileAlignment>    
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <AndroidUseLatestPlatformSdk>
     </AndroidUseLatestPlatformSdk>
@@ -62,8 +61,7 @@
     <Compile Include="Models\ActionBarTabTemplate.cs" />
     <Compile Include="Models\ActionBarTemplate.cs" />
     <Compile Include="Modules\ActionBarModule.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Resources\Resource.Designer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />    
     <Compile Include="Views\ActionBarView.cs" />
   </ItemGroup>
   <ItemGroup>
