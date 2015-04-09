@@ -714,8 +714,25 @@ namespace MugenMvvmToolkit.Binding.Parse
                 if (firstArg.Type.IsValueType() && !firstArg.Type.IsNullableType())
                     return callExpression;
                 if (result.ReturnType == typeof(void))
+                {
+#if PCL_WINRT || NET4
                     return Expression.Condition(GenerateNullReferenceEqualityExpression(firstArg), NullExpression,
-                        Expression.Block(callExpression, NullExpression));
+                                            Expression.Block(callExpression, NullExpression));
+#else
+                    var methodDelegate = ServiceProvider.ReflectionManager.GetMethodDelegate(result);
+                    var array = Expression.NewArrayInit(typeof(object),
+                        resultArgs.Select(e => ExpressionReflectionManager.ConvertIfNeed(e, typeof(object), false)));
+                    if (methodDelegate.Method.IsStatic)
+                        callExpression = Expression.Call(null, methodDelegate.Method,
+                            Expression.Constant(methodDelegate.Target), NullExpression, array);
+                    else
+                        callExpression = Expression.Call(Expression.Constant(methodDelegate.Target),
+                            methodDelegate.Method, NullExpression, array);
+                    return Expression.Condition(GenerateNullReferenceEqualityExpression(firstArg), NullExpression,
+                        callExpression);
+#endif
+                }
+
                 return Expression.Condition(GenerateNullReferenceEqualityExpression(firstArg),
                     Expression.Constant(result.ReturnType.GetDefaultValue(), result.ReturnType), callExpression);
             }

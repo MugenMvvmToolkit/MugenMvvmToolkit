@@ -2,24 +2,15 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.Android.Fragment</id>
-    <version>3.4.0</version>
+    <version>3.4.1</version>
     <title>MugenMvvmToolkit - Android Fragment Support API17+</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
       This package adds Fragment support for Android with API >= 17 for MugenMvvmToolkit.
     </description>
     <releaseNotes>
-      - Fixed incorrect operator precedence (Binding).
-      - Changed algorithm of methods resolution (Binding).
-      - Added support for (?.) null conditional operator (Binding).
-      - Added the INavigationOperation interface instead of IAsyncOperation&lt;bool?&gt; that contains the NavigationCompletedTask property that allows to wait for the completion of navigation.
-      - Added support for Popup and SettingsFlyout views (WinRT).
-      - Added FromAsyncHandler method to the RelayCommandBase class that allows to create task-based commands.
-      - Added the IBusyToken interface.
-      - Added new flags for the LoadMode enum RuntimeDebug and RuntimeRelease.
-      - Added UserControl class for Android can be used as an alternative to the fragment.
-      - Removed the EndBusy method.
-      - Optimized memory usage for ViewModelBase.
+      - Updated support libraries (Android).
+      - Removed resource generation where it is not needed (Android).
       - Minor changes.
     </releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -28,7 +19,7 @@
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
-      <dependency id="MugenMvvmToolkit" version="[3.4.0, 3.5.0)" />
+      <dependency id="MugenMvvmToolkit" version="[3.4.1, 3.5.0)" />
     </dependencies>
   </metadata>
   <files>

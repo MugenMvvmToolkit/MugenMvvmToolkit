@@ -29,114 +29,6 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
     [TestClass]
     public class BindingParserTest : BindingTestBase
     {
-        #region Nested types
-
-        public static class Ext
-        {
-            #region Properties
-
-            public static MethodInfo LastMethod { get; private set; }
-
-            public static object[] Args { get; private set; }
-
-            #endregion
-
-            #region Methods
-
-            public static void Assert(Expression<Action> expression, params object[] args)
-            {
-                var m = GetMethodInfo(expression);
-                LastMethod.ShouldEqual(m);
-                args.SequenceEqual(Args).ShouldBeTrue();
-            }
-
-            private static void SetMethod(Expression<Action> expression, params object[] args)
-            {
-                LastMethod = GetMethodInfo(expression);
-                var objects = new List<object>();
-                foreach (var o in args)
-                {
-                    var array = o as Array;
-                    if (array == null)
-                        objects.Add(o);
-                    else
-                        objects.AddRange(array.OfType<object>());
-                }
-                Args = objects.ToArray();
-            }
-
-            private static MethodInfo GetMethodInfo(LambdaExpression expression)
-            {
-                var unaryExpression = expression.Body as UnaryExpression;
-                if (unaryExpression != null)
-                {
-                    var memberExpression = unaryExpression.Operand as MethodCallExpression;
-                    if (memberExpression != null)
-                        return memberExpression.Method;
-                }
-                return ((MethodCallExpression)expression.Body).Method;
-            }
-
-            public static void Method(decimal x1, decimal x2)
-            {
-                SetMethod(() => Method(x1, x2), x1, x2);
-            }
-
-            public static void Method(int x1, int x2)
-            {
-                SetMethod(() => Method(x1, x2), x1, x2);
-            }
-
-            public static void Method(object x1, object x2)
-            {
-                SetMethod(() => Method(x1, x2), x1, x2);
-            }
-
-            public static void Method(decimal x1, decimal x2, params object[] items)
-            {
-                SetMethod(() => Method(x1, x2, items), x1, x2, items);
-            }
-
-            public static void Method(int x1, int x2, params object[] items)
-            {
-                SetMethod(() => Method(x1, x2, items), x1, x2, items);
-            }
-
-            public static void Method(object x1, object x2, params object[] items)
-            {
-                SetMethod(() => Method(x1, x2, items), x1, x2, items);
-            }
-
-            public static void Method(object item, decimal x = 0, params object[] items)
-            {
-                SetMethod(() => Method(item, x, items), item, x, items);
-            }
-
-            public static void Method(string item, decimal x = 0)
-            {
-                SetMethod(() => Method(item, x), item, x);
-            }
-
-            public static void Method1(string item, decimal x = 0, string st = "", int v = int.MaxValue, params int[] items)
-            {
-                SetMethod(() => Method1(item, x, st, v, items), item, x, st, v, items);
-            }
-
-            public static void Method2(int x, int y = 1)
-            {
-                SetMethod(() => Method2(x, y), x, y);
-            }
-
-            public static void Method2(int x, params int[] items)
-            {
-                SetMethod(() => Method2(x, items), x, items);
-            }
-
-            #endregion
-        }
-
-        #endregion
-
         #region Methods
 
         [TestMethod]
@@ -2220,6 +2112,24 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         }
 
         [TestMethod]
+        public void MethodResoultionTest5()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text arg1.ExtMethod()";
+            BindingServiceProvider.ResourceResolver.AddType(typeof(Ext));
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+            target.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var args = new object[] { "st" };
+            expression(context, args);
+            Ext.Assert(() => "st".ExtMethod(0M, "", int.MaxValue), new object[] { "st", 0M, "", int.MaxValue });
+        }
+
+        [TestMethod]
         public void ParserShouldParseNullConditionalOperator0()
         {
             const string targetPath = "Text";
@@ -2336,6 +2246,115 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             if (observerProvider != null)
                 BindingServiceProvider.ObserverProvider = observerProvider;
             return new BindingParser();
+        }
+
+        #endregion
+    }
+
+    public static class Ext
+    {
+        #region Properties
+
+        public static MethodInfo LastMethod { get; private set; }
+
+        public static object[] Args { get; private set; }
+
+        #endregion
+
+        #region Methods
+
+        public static void Assert(Expression<Action> expression, params object[] args)
+        {
+            var m = GetMethodInfo(expression);
+            LastMethod.ShouldEqual(m);
+            args.SequenceEqual(Args).ShouldBeTrue();
+        }
+
+        private static void SetMethod(Expression<Action> expression, params object[] args)
+        {
+            LastMethod = GetMethodInfo(expression);
+            var objects = new List<object>();
+            foreach (var o in args)
+            {
+                var array = o as Array;
+                if (array == null)
+                    objects.Add(o);
+                else
+                    objects.AddRange(array.OfType<object>());
+            }
+            Args = objects.ToArray();
+        }
+
+        private static MethodInfo GetMethodInfo(LambdaExpression expression)
+        {
+            var unaryExpression = expression.Body as UnaryExpression;
+            if (unaryExpression != null)
+            {
+                var memberExpression = unaryExpression.Operand as MethodCallExpression;
+                if (memberExpression != null)
+                    return memberExpression.Method;
+            }
+            return ((MethodCallExpression)expression.Body).Method;
+        }
+
+        public static void Method(decimal x1, decimal x2)
+        {
+            SetMethod(() => Method(x1, x2), x1, x2);
+        }
+
+        public static void Method(int x1, int x2)
+        {
+            SetMethod(() => Method(x1, x2), x1, x2);
+        }
+
+        public static void Method(object x1, object x2)
+        {
+            SetMethod(() => Method(x1, x2), x1, x2);
+        }
+
+        public static void Method(decimal x1, decimal x2, params object[] items)
+        {
+            SetMethod(() => Method(x1, x2, items), x1, x2, items);
+        }
+
+        public static void Method(int x1, int x2, params object[] items)
+        {
+            SetMethod(() => Method(x1, x2, items), x1, x2, items);
+        }
+
+        public static void Method(object x1, object x2, params object[] items)
+        {
+            SetMethod(() => Method(x1, x2, items), x1, x2, items);
+        }
+
+        public static void Method(object item, decimal x = 0, params object[] items)
+        {
+            SetMethod(() => Method(item, x, items), item, x, items);
+        }
+
+        public static void Method(string item, decimal x = 0)
+        {
+            SetMethod(() => Method(item, x), item, x);
+        }
+
+        public static void Method1(string item, decimal x = 0, string st = "", int v = int.MaxValue, params int[] items)
+        {
+            SetMethod(() => Method1(item, x, st, v, items), item, x, st, v, items);
+        }
+
+        public static void Method2(int x, int y = 1)
+        {
+            SetMethod(() => Method2(x, y), x, y);
+        }
+
+        public static void Method2(int x, params int[] items)
+        {
+            SetMethod(() => Method2(x, items), x, items);
+        }
+
+        public static void ExtMethod(this string item, decimal x = 0, string st = "", int v = int.MaxValue, params int[] items)
+        {
+            SetMethod(() => ExtMethod(item, x, st, v, items), item, x, st, v, items);
         }
 
         #endregion
