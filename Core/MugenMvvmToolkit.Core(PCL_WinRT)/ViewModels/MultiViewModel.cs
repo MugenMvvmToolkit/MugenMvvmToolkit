@@ -57,10 +57,11 @@ namespace MugenMvvmToolkit.ViewModels
         private static readonly DataConstant<int> SelectedIndex;
 
         private readonly IList<IViewModel> _itemsSource;
-        private IViewModel _selectedItem;
-
         private readonly EventHandler<ICloseableViewModel, ViewModelClosedEventArgs> _weakEventHandler;
         private readonly PropertyChangedEventHandler _propertyChangedWeakEventHandler;
+
+        private bool _clearing;
+        private IViewModel _selectedItem;
 
         #endregion
 
@@ -170,9 +171,21 @@ namespace MugenMvvmToolkit.ViewModels
         public virtual void Clear()
         {
             EnsureNotDisposed();
-            while (ItemsSource.Count != 0)
-                ItemsSource.RemoveAt(0);
-            SelectedItem = null;
+            if (ItemsSource.Count == 0)
+                return;
+            try
+            {
+                _clearing = true;
+                var viewModels = ItemsSource.ToArrayEx();
+                ItemsSource.Clear();
+                SelectedItem = null;
+                OnViewModelsChanged(ItemsSource,
+                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, viewModels, 0));
+            }
+            finally
+            {
+                _clearing = false;
+            }
         }
 
         /// <summary>
@@ -265,7 +278,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         private void OnViewModelsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            Should.BeSupported(e.Action != NotifyCollectionChangedAction.Reset, "The IMultiViewModel.ItemsSource doesn't support Clear method.");
+            Should.BeSupported(_clearing || e.Action != NotifyCollectionChangedAction.Reset, "The MultiViewModel.ItemsSource doesn't support Clear method.");
             if (e.NewItems != null && e.NewItems.Count != 0)
             {
                 for (int index = 0; index < e.NewItems.Count; index++)
@@ -423,17 +436,6 @@ namespace MugenMvvmToolkit.ViewModels
         #endregion
 
         #region Overrides of ViewModelBase
-
-        /// <summary>
-        ///     Occurs after the initialization of the current <see cref="ViewModelBase" />.
-        /// </summary>
-        internal override void OnInitializedInternal()
-        {
-            var notifiableCollection = _itemsSource as SynchronizedNotifiableCollection<IViewModel>;
-            if (notifiableCollection != null)
-                notifiableCollection.ThreadManager = ThreadManager;
-            base.OnInitializedInternal();
-        }
 
         /// <summary>
         ///     Occurs when view model is closing.

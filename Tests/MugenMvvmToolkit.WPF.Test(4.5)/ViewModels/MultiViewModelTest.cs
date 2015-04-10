@@ -79,7 +79,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             viewModel.OnNavigatedFromDelegate = context => ctx = context;
             multiViewModel.RemoveViewModelAsync(viewModel).Result.ShouldBeTrue();
             multiViewModel.ItemsSource.ShouldNotContain(viewModel);
-            ctx.NavigationMode.ShouldEqual(NavigationMode.Back);            
+            ctx.NavigationMode.ShouldEqual(NavigationMode.Back);
         }
 
         [TestMethod]
@@ -150,6 +150,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             multiViewModel.DisposeViewModelOnRemove = true;
             multiViewModel.Clear();
             multiViewModel.ItemsSource.ShouldNotContain(viewModel);
+            multiViewModel.SelectedItem.ShouldBeNull();
             viewModel.IsDisposed.ShouldBeTrue();
         }
 
@@ -165,6 +166,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             multiViewModel.DisposeViewModelOnRemove = false;
             multiViewModel.Clear();
             multiViewModel.ItemsSource.ShouldNotContain(viewModel);
+            multiViewModel.SelectedItem.ShouldBeNull();
             viewModel.IsDisposed.ShouldBeFalse();
         }
 

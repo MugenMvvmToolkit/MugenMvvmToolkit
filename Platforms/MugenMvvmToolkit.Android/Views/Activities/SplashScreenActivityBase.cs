@@ -20,6 +20,7 @@ using System;
 using System.Threading;
 using Android.App;
 using Android.OS;
+using Android.Runtime;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
@@ -43,6 +44,11 @@ namespace MugenMvvmToolkit.Views.Activities
         #endregion
 
         #region Constructors
+
+        protected SplashScreenActivityBase(IntPtr javaReference, JniHandleOwnership transfer)
+            : base(javaReference, transfer)
+        {
+        }
 
         protected SplashScreenActivityBase(int? viewId = null)
         {

@@ -474,16 +474,6 @@ namespace MugenMvvmToolkit.ViewModels
         #region Overrides of ViewModelBase
 
         /// <summary>
-        ///     Occurs after the initialization of the current <see cref="ViewModelBase" />.
-        /// </summary>
-        internal override void OnInitializedInternal()
-        {
-            if (ThreadManager != null)
-                FilterableItemsSource.ThreadManager = ThreadManager;
-            base.OnInitializedInternal();
-        }
-
-        /// <summary>
         ///     Occurs after current view model disposed, use for clear resource and event listeners(Internal only).
         /// </summary>
         internal override void OnDisposeInternal(bool disposing)
