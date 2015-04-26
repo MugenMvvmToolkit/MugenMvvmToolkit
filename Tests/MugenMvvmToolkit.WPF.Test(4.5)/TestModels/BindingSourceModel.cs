@@ -163,6 +163,11 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         #region Methods
 
+        public object GetObjectProperty()
+        {
+            return ObjectProperty;
+        }
+
         public void RaiseEvent(EventArgs args = null)
         {
             EventHandler handler = Event;

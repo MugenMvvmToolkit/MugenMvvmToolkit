@@ -126,16 +126,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         /// <param name="context">The specified context.</param>
         /// <returns>An instance of <see cref="IBindingBuilder" />.</returns>
-        public IBindingBuilder CreateBuilder(IDataContext context)
+        public IBindingBuilder CreateBuilder(IDataContext context = null)
         {
-            Should.NotBeNull(context, "context");
-            if (context.Contains(BindingBuilderConstants.BuildDelegate))
-                return new BindingBuilder(context);
-            if (context.IsReadOnly)
-                context = new DataContext(context);
-            var builder = new BindingBuilder(context);
-            builder.Add(BindingBuilderConstants.BuildDelegate, _buildDelegate);
-            return builder;
+            context = context.ToNonReadOnly();
+            if (!context.Contains(BindingBuilderConstants.BuildDelegate))
+                context.Add(BindingBuilderConstants.BuildDelegate, _buildDelegate);
+            return new BindingBuilder(context);
         }
 
         /// <summary>

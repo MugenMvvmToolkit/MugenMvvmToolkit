@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -384,9 +385,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         protected virtual IBindingMemberInfo GetExplicitBindingMember([NotNull] Type sourceType, [NotNull] string path)
         {
             path = path.Trim();
-            if (typeof(IDynamicObject).IsAssignableFrom(sourceType))
-                return new BindingMemberInfo(path);
-
             int indexerCounts = 0;
             if (path.StartsWith("[") && path.EndsWith("]"))
             {
@@ -426,6 +424,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (field != null)
                     return new BindingMemberInfo(path, field, sourceType);
             }
+
+            if (typeof(IDynamicObject).IsAssignableFrom(sourceType))
+                return new BindingMemberInfo(path, false);
+            if (typeof(ExpandoObject).IsAssignableFrom(sourceType))
+                return new BindingMemberInfo(path, true);
             return null;
         }
 

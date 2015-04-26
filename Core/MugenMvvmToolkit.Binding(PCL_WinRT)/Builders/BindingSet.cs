@@ -24,7 +24,6 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Syntax;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Builders
 {
@@ -122,8 +121,19 @@ namespace MugenMvvmToolkit.Binding.Builders
         ///     Creates a binding builder.
         /// </summary>
         /// <returns>The fluent syntax.</returns>
+        [Obsolete(BindingExceptionManager.ObsoleteExpressionUsage)]
         public IBindingToSyntax<TLocalTarget> Bind<TLocalTarget>([NotNull]TLocalTarget target,
             [NotNull] Expression<Func<TLocalTarget, object>> targetPath) where TLocalTarget : class
+        {
+            return GetBuilder().Bind(target, targetPath);
+        }
+
+        /// <summary>
+        ///     Creates a binding builder.
+        /// </summary>
+        /// <returns>The fluent syntax.</returns>
+        public IBindingToSyntax<TLocalTarget> Bind<TLocalTarget>([NotNull]TLocalTarget target,
+            [NotNull] Func<Expression<Func<TLocalTarget, object>>> targetPath) where TLocalTarget : class
         {
             return GetBuilder().Bind(target, targetPath);
         }
@@ -171,7 +181,7 @@ namespace MugenMvvmToolkit.Binding.Builders
 
         internal IBindingBuilder GetBuilder()
         {
-            return AddBuilder(_bindingProvider.CreateBuilder(new DataContext()));
+            return AddBuilder(_bindingProvider.CreateBuilder());
         }
 
         private static int OrderByTargetPath(IBindingBuilder bindingBuilder)
@@ -229,8 +239,19 @@ namespace MugenMvvmToolkit.Binding.Builders
         ///     Creates a binding builder.
         /// </summary>
         /// <returns>The fluent syntax.</returns>
+        [Obsolete(BindingExceptionManager.ObsoleteExpressionUsage)]
         public new IBindingToSyntax<TLocalTarget, TSource> Bind<TLocalTarget>([NotNull]TLocalTarget target,
             [NotNull] Expression<Func<TLocalTarget, object>> targetPath) where TLocalTarget : class
+        {
+            return GetBuilder().Bind<TLocalTarget, TSource>(target, targetPath);
+        }
+
+        /// <summary>
+        ///     Creates a binding builder.
+        /// </summary>
+        /// <returns>The fluent syntax.</returns>
+        public new IBindingToSyntax<TLocalTarget, TSource> Bind<TLocalTarget>([NotNull]TLocalTarget target,
+            [NotNull] Func<Expression<Func<TLocalTarget, object>>> targetPath) where TLocalTarget : class
         {
             return GetBuilder().Bind<TLocalTarget, TSource>(target, targetPath);
         }
@@ -300,7 +321,17 @@ namespace MugenMvvmToolkit.Binding.Builders
         ///     Creates a binding builder.
         /// </summary>
         /// <returns>The fluent syntax.</returns>
+        [Obsolete(BindingExceptionManager.ObsoleteExpressionUsage)]
         public IBindingToSyntax<TTarget, TSource> Bind([NotNull] Expression<Func<TTarget, object>> targetPath)
+        {
+            return Bind(_target, targetPath);
+        }
+
+        /// <summary>
+        ///     Creates a binding builder.
+        /// </summary>
+        /// <returns>The fluent syntax.</returns>
+        public IBindingToSyntax<TTarget, TSource> Bind([NotNull] Func<Expression<Func<TTarget, object>>> targetPath)
         {
             return Bind(_target, targetPath);
         }

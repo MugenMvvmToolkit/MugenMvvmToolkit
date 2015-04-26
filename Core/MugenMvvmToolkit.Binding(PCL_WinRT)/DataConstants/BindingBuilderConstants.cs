@@ -64,6 +64,8 @@ namespace MugenMvvmToolkit.Binding.DataConstants
 
         public static readonly DataConstant<bool> ToggleEnabledState;
 
+        public static readonly DataConstant NoCache;
+
         #endregion
 
         #region Constructors
@@ -85,6 +87,7 @@ namespace MugenMvvmToolkit.Binding.DataConstants
             ToggleEnabledState = DataConstant.Create(() => ToggleEnabledState);
             Fallback = DataConstant.Create(() => Fallback, true);
             TargetNullValue = DataConstant.Create(() => TargetNullValue, false);
+            NoCache = DataConstant.Create(() => NoCache);
         }
 
         #endregion

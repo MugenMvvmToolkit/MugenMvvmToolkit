@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -78,14 +79,13 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         public MultiViewModel()
         {
-            DisposeViewModelOnRemove = true;
-
             var collection = new SynchronizedNotifiableCollection<IViewModel>();
             _itemsSource = ServiceProvider.TryDecorate(collection);
             collection.AfterCollectionChanged = OnViewModelsChanged;
             _weakEventHandler = ReflectionExtensions.CreateWeakDelegate<MultiViewModel, ViewModelClosedEventArgs, EventHandler<ICloseableViewModel, ViewModelClosedEventArgs>>(this,
                 (model, o, arg3) => model.ItemsSource.Remove(arg3.ViewModel), UnsubscribeAction, handler => handler.Handle);
             _propertyChangedWeakEventHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, (model, o, arg3) => model.OnItemPropertyChanged(o, arg3));
+            DisposeViewModelOnRemove = true;
         }
 
         #endregion
@@ -179,8 +179,7 @@ namespace MugenMvvmToolkit.ViewModels
                 var viewModels = ItemsSource.ToArrayEx();
                 ItemsSource.Clear();
                 SelectedItem = null;
-                OnViewModelsChanged(ItemsSource,
-                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, viewModels, 0));
+                OnViewModelsChanged(null, viewModels, 0);
             }
             finally
             {
@@ -273,17 +272,19 @@ namespace MugenMvvmToolkit.ViewModels
         {
         }
 
-        /// <summary>
-        ///     Occurs when any workspace view model is changed.
-        /// </summary>
         private void OnViewModelsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             Should.BeSupported(_clearing || e.Action != NotifyCollectionChangedAction.Reset, "The MultiViewModel.ItemsSource doesn't support Clear method.");
-            if (e.NewItems != null && e.NewItems.Count != 0)
+            OnViewModelsChanged(e.NewItems, e.OldItems, e.OldStartingIndex);
+        }
+
+        private void OnViewModelsChanged(IList newItems, IList oldItems, int oldStartingIndex)
+        {
+            if (newItems != null && newItems.Count != 0)
             {
-                for (int index = 0; index < e.NewItems.Count; index++)
+                for (int index = 0; index < newItems.Count; index++)
                 {
-                    var viewModel = (IViewModel)e.NewItems[index];
+                    var viewModel = (IViewModel)newItems[index];
                     // ReSharper disable once NotResolvedInText
                     Should.NotBeNull(viewModel, "newItem");
                     var closeableViewModel = viewModel as ICloseableViewModel;
@@ -296,13 +297,13 @@ namespace MugenMvvmToolkit.ViewModels
                 }
             }
 
-            if (e.OldItems != null && e.OldItems.Count != 0)
+            if (oldItems != null && oldItems.Count != 0)
             {
-                for (int index = 0; index < e.OldItems.Count; index++)
+                for (int index = 0; index < oldItems.Count; index++)
                 {
-                    var viewModel = (IViewModel)e.OldItems[index];
+                    var viewModel = (IViewModel)oldItems[index];
                     if (SelectedItem == null || ReferenceEquals(SelectedItem, viewModel))
-                        TryUpdateSelectedValue(e.OldStartingIndex + index);
+                        TryUpdateSelectedValue(oldStartingIndex + index);
 
                     var closeableViewModel = viewModel as ICloseableViewModel;
                     if (closeableViewModel != null)
@@ -391,15 +392,37 @@ namespace MugenMvvmToolkit.ViewModels
             });
         }
 
-        private bool OnClosing()
+        private bool OnClosingInternal(object parameter)
         {
-            while (ItemsSource.Count != 0)
+            var viewModels = ItemsSource.ToList();
+            int count = viewModels.Count;
+            for (int i = 0; i < count; i++)
             {
-                var vm = ItemsSource[0];
-                if (!RemoveViewModelAsync(vm).Result)
-                    return false;
+                var vm = viewModels[i];
+                var closeableViewModel = vm as ICloseableViewModel;
+                if (closeableViewModel != null)
+                    closeableViewModel.Closed -= _weakEventHandler;
+                try
+                {
+                    if (!vm.TryCloseAsync(parameter, null, NavigationType.Tab).Result)
+                    {
+                        viewModels.RemoveRange(i, count - i);
+                        break;
+                    }
+                }
+                finally
+                {
+                    if (closeableViewModel != null)
+                        closeableViewModel.Closed += _weakEventHandler;
+                }
             }
-            return true;
+            if (viewModels.Count == count)
+            {
+                Clear();
+                return true;
+            }
+            ItemsSource.RemoveRange(viewModels);
+            return false;
         }
 
         private void OnItemPropertyChanged(object sender, PropertyChangedEventArgs args)
@@ -447,7 +470,7 @@ namespace MugenMvvmToolkit.ViewModels
         {
             if (ItemsSource.Count == 0)
                 return base.OnClosing(parameter);
-            return Task.Factory.StartNew(function: OnClosing);
+            return Task.Factory.StartNew(function: OnClosingInternal, state: parameter);
         }
 
         /// <summary>

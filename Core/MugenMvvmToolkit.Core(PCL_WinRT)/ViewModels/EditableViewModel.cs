@@ -154,7 +154,7 @@ namespace MugenMvvmToolkit.ViewModels
             Should.PropertyNotBeNull(Entity, "Entity");
             OnChangesApplied(result);
             RaiseChangesApplied(result);
-            InvalidateProperties();            
+            InvalidateProperties();
             return result;
         }
 

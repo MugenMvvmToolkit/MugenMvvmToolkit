@@ -24,12 +24,11 @@ namespace MugenMvvmToolkit.Models
     /// <summary>
     ///     Represents the default view-model settings.
     /// </summary>
-    public class DefaultViewModelSettings : IViewModelSettings
+    public class DefaultViewModelSettings : DataContext, IViewModelSettings
     {
         #region Fields
 
         private object _defaultBusyMessage;
-        private IDataContext _metadata;
         private IDataContext _state;
 
         #endregion
@@ -37,9 +36,8 @@ namespace MugenMvvmToolkit.Models
         #region Constructors
 
         private DefaultViewModelSettings(IDataContext metadata, IDataContext state)
+            : base(metadata ?? Empty)
         {
-            if (_metadata != null)
-                _metadata = new DataContext(metadata);
             if (state != null)
                 _state = new DataContext(state);
         }
@@ -103,13 +101,7 @@ namespace MugenMvvmToolkit.Models
         /// </summary>
         public IDataContext Metadata
         {
-            get
-            {
-                if (_metadata == null)
-                    Interlocked.CompareExchange(ref _metadata, new DataContext(), null);
-                return _metadata;
-            }
-            protected set { _metadata = value; }
+            get { return this; }
         }
 
         /// <summary>
@@ -134,7 +126,7 @@ namespace MugenMvvmToolkit.Models
         /// </returns>
         public virtual IViewModelSettings Clone()
         {
-            return new DefaultViewModelSettings(_metadata, _state)
+            return new DefaultViewModelSettings(this, _state)
             {
                 DisposeCommands = DisposeCommands,
                 DisposeIocContainer = DisposeIocContainer,

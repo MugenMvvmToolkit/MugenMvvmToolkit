@@ -12,7 +12,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         public new IDataContext Metadata
         {
             get { return base.Metadata; }
-            set { base.Metadata = value; }
         }
 
         #endregion
@@ -29,7 +28,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         {
             if (WithoutClone)
                 return this;
-            return new ViewModelSettingsMock
+            var set = new ViewModelSettingsMock
             {
                 DisposeCommands = DisposeCommands,
                 DisposeIocContainer = DisposeIocContainer,
@@ -38,9 +37,10 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
                 DefaultBusyMessage = DefaultBusyMessage,
                 BroadcastAllMessages = BroadcastAllMessages,
                 WithoutClone = WithoutClone,
-                Metadata = new DataContext(Metadata),
                 State = new DataContext(State),
             };
+            set.Merge(Metadata);
+            return set;
         }
 
         #endregion

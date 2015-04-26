@@ -18,7 +18,6 @@
 
 using System.Collections.Generic;
 using System.Threading;
-#if !PCL_Silverlight
 using System;
 using System.Runtime.CompilerServices;
 using MugenMvvmToolkit.Collections;
@@ -44,12 +43,11 @@ namespace MugenMvvmToolkit.Infrastructure
     /// <summary>
     ///     Represents the attached value provider class, that allows to attach a value to an object using path.
     /// </summary>
-#if PCL_WINRT
+#if PCL_WINRT || PCL_Silverlight || PCL_NET4
     public sealed class AttachedValueProviderDefault : AttachedValueProviderBase
 #else
     public sealed class AttachedValueProvider : AttachedValueProviderBase
 #endif
-
     {
         #region Nested types
 
@@ -64,7 +62,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private sealed class IntPtrComparer : IEqualityComparer<IntPtr>
         {
-            #region Implementation of IEqualityComparer<in IntPtr>
+        #region Implementation of IEqualityComparer<in IntPtr>
 
             public bool Equals(IntPtr x, IntPtr y)
             {
@@ -76,7 +74,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 return obj.GetHashCode();
             }
 
-            #endregion
+        #endregion
         }
 
         [Register("NSObjectEx")]
@@ -87,14 +85,14 @@ namespace MugenMvvmToolkit.Infrastructure
         [Register("AttachedValueHolder")]
         private sealed class AttachedValueHolder : NSObjectEx
         {
-            #region Fields
+        #region Fields
 
             internal readonly NativeObjectWeakReference WeakReference;
             private AttachedValueDictionary _dictionary;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             public AttachedValueHolder(NSObject target)
             {
@@ -102,9 +100,9 @@ namespace MugenMvvmToolkit.Infrastructure
                 WeakReference = new NativeObjectWeakReference(target);
             }
 
-            #endregion
+        #endregion
 
-            #region Methods
+        #region Methods
 
             public AttachedValueDictionary GetOrCreateDictionary()
             {
@@ -122,7 +120,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 Dispose();
             }
 
-            #endregion
+        #endregion
         }
 
 #elif ANDROID
@@ -184,7 +182,7 @@ namespace MugenMvvmToolkit.Infrastructure
 #if !WINFORMS && !PCL_WINRT && !PCL_Silverlight && !ANDROID && !TOUCH && !XAMARIN_FORMS
         //NOTE ConditionalWeakTable incorrectly tracks WinRT objects https://connect.microsoft.com/VisualStudio/feedback/details/930200/conditionalweaktable-incorrectly-tracks-winrt-objects
         private static readonly DependencyProperty AttachedValueDictionaryProperty = DependencyProperty.RegisterAttached(
-            "AttachedValueDictionary", typeof(AttachedValueDictionary), typeof(AttachedValueProvider), new PropertyMetadata(default(AttachedValueDictionary)));
+            "AttachedValueDictionary", typeof(AttachedValueDictionary), typeof(AttachedValueProviderBase), new PropertyMetadata(default(AttachedValueDictionary)));
 #elif XAMARIN_FORMS
         private static readonly BindableProperty AttachedValueDictionaryProperty = BindableProperty
             .CreateAttached("AttachedValueDictionary", typeof(AttachedValueDictionary), typeof(AttachedValueProvider),
@@ -388,4 +386,3 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
     }
 }
-#endif

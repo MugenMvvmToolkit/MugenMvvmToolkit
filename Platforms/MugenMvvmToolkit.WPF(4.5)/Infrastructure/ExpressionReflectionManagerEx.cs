@@ -70,7 +70,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     method = TryCreateMethodDelegate(delegateType, method);
                     if (method != null)
                     {
-                        Type type = method.DeclaringType ?? method.ReflectedType;
+                        Type type = method.DeclaringType;
                         DynamicMethod dynamicMethod = CreateDynamicMethod(type, new[] { typeof(object) },
                             typeof(Delegate));
                         ILGenerator ilGenerator = dynamicMethod.GetILGenerator();

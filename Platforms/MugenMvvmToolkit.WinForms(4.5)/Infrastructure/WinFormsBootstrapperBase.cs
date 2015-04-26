@@ -26,6 +26,7 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.ViewModels;
 
@@ -36,20 +37,14 @@ namespace MugenMvvmToolkit.Infrastructure
     /// </summary>
     public abstract class WinFormsBootstrapperBase : BootstrapperBase
     {
-        #region Fields
-
-        private readonly bool _autoRunApplication;
-
-        #endregion
-
         #region Constructors
 
         static WinFormsBootstrapperBase()
         {
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = (model, context, arg3) => false;
-            ViewManager.DisposeView = true;
             BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
+            ViewManager.ViewCleared += OnViewCleared;
         }
 
         /// <summary>
@@ -58,8 +53,8 @@ namespace MugenMvvmToolkit.Infrastructure
         protected WinFormsBootstrapperBase(bool autoRunApplication = true)
             : base(PlatformExtensions.GetPlatformInfo())
         {
-            _autoRunApplication = autoRunApplication;
-            ShutdownOnMainViewModelClose = autoRunApplication;
+            AutoRunApplication = autoRunApplication;
+            ShutdownOnMainViewModelClose = true;
         }
 
         #endregion
@@ -67,7 +62,12 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Properties
 
         /// <summary>
-        /// An application shuts down when either the main view model closes, or Application.Exit() is called.
+        ///     Indicates that bootstrapper should call the Application.Run method after start.
+        /// </summary>
+        public bool AutoRunApplication { get; set; }
+
+        /// <summary>
+        ///     An application shuts down when either the main view model closes, or Application.Exit() is called.
         /// </summary>
         public bool ShutdownOnMainViewModelClose { get; set; }
 
@@ -110,7 +110,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     if (ShutdownOnMainViewModelClose)
                         Application.Exit();
                 }, context: InitializationContext);
-            if (_autoRunApplication)
+            if (AutoRunApplication)
                 Application.Run();
         }
 
@@ -130,6 +130,27 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         [NotNull]
         protected abstract Type GetMainViewModelType();
+
+        private static void OnViewCleared(IViewManager viewManager, IViewModel viewModel, object arg3, IDataContext arg4)
+        {
+            var control = arg3 as Control;
+            if (control != null)
+                ClearBindingsRecursively(control.Controls);
+            var disposable = arg3 as IDisposable;
+            if (disposable != null)
+                disposable.Dispose();
+        }
+
+        private static void ClearBindingsRecursively(Control.ControlCollection collection)
+        {
+            if (collection == null)
+                return;
+            foreach (var item in collection.OfType<Control>())
+            {
+                ClearBindingsRecursively(item.Controls);
+                item.ClearBindings(true, true);
+            }
+        }
 
         #endregion
     }

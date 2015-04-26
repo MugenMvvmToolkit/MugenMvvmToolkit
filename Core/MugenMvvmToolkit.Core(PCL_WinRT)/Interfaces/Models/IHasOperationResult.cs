@@ -16,14 +16,12 @@
 
 #endregion
 
-using System.ComponentModel;
-
 namespace MugenMvvmToolkit.Interfaces.Models
 {
     /// <summary>
     ///     Represents the model that has operation result.
     /// </summary>
-    public interface IHasOperationResult : INotifyPropertyChanged
+    public interface IHasOperationResult
     {
         /// <summary>
         ///     Gets or sets the operation result value.

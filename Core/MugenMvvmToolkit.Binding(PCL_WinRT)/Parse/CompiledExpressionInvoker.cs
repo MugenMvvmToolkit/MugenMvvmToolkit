@@ -216,7 +216,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {TokenType.GreaterThanEqual, (expression, expression1) => GenerateEqualityExpression(expression, expression1, Expression.GreaterThanOrEqual)},
                 {TokenType.LessThan, (expression, expression1) => GenerateEqualityExpression(expression, expression1, Expression.LessThan)},
                 {TokenType.LessThanEqual, (expression, expression1) => GenerateEqualityExpression(expression, expression1, Expression.LessThanOrEqual)},
-                {TokenType.Equal, (expression, expression1) => ExpressionReflectionManager.Assign(expression, ExpressionReflectionManager.ConvertIfNeed(expression1, expression.Type, false))},
+                {TokenType.Equal, (expression, expression1) => Expression.Assign(expression, ExpressionReflectionManager.ConvertIfNeed(expression1, expression.Type, false))},
                 {TokenType.DoubleQuestion, (expression, expression1) =>
                 {
                     Convert(ref expression, ref expression1, true);
@@ -714,24 +714,8 @@ namespace MugenMvvmToolkit.Binding.Parse
                 if (firstArg.Type.IsValueType() && !firstArg.Type.IsNullableType())
                     return callExpression;
                 if (result.ReturnType == typeof(void))
-                {
-#if PCL_WINRT || NET4
                     return Expression.Condition(GenerateNullReferenceEqualityExpression(firstArg), NullExpression,
-                                            Expression.Block(callExpression, NullExpression));
-#else
-                    var methodDelegate = ServiceProvider.ReflectionManager.GetMethodDelegate(result);
-                    var array = Expression.NewArrayInit(typeof(object),
-                        resultArgs.Select(e => ExpressionReflectionManager.ConvertIfNeed(e, typeof(object), false)));
-                    if (methodDelegate.Method.IsStatic)
-                        callExpression = Expression.Call(null, methodDelegate.Method,
-                            Expression.Constant(methodDelegate.Target), NullExpression, array);
-                    else
-                        callExpression = Expression.Call(Expression.Constant(methodDelegate.Target),
-                            methodDelegate.Method, NullExpression, array);
-                    return Expression.Condition(GenerateNullReferenceEqualityExpression(firstArg), NullExpression,
-                        callExpression);
-#endif
-                }
+                        Expression.Block(callExpression, NullExpression));
 
                 return Expression.Condition(GenerateNullReferenceEqualityExpression(firstArg),
                     Expression.Constant(result.ReturnType.GetDefaultValue(), result.ReturnType), callExpression);

@@ -62,7 +62,6 @@
     <Compile Include="Attributes\ModelPropertyAttribute.cs" />
     <Compile Include="Attributes\ViewModelAttribute.cs" />
     <Compile Include="Collections\FilterableNotifiableCollection.cs" />
-    <Compile Include="Collections\HashSetInternal.cs" />
     <Compile Include="Collections\LightDictionaryBase.cs" />
     <Compile Include="Collections\OrderedListInternal.cs" />
     <Compile Include="Collections\OrderedNotifiableCollection.cs" />

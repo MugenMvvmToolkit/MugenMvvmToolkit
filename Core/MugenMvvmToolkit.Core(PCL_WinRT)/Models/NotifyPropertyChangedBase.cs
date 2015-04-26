@@ -171,40 +171,42 @@ namespace MugenMvvmToolkit.Models
         ///     Sets a property with calling property change event.
         /// </summary>
         /// <typeparam name="T">The type of property.</typeparam>
-        /// <param name="propertyValue">The property value.</param>
+        /// <param name="field">The property field.</param>
         /// <param name="newValue">The new property value.</param>
         /// <param name="propName">Specified expression with property.</param>
         /// <param name="executionMode">
         ///     Specifies the execution mode for raise property changed event.
         /// </param>
         [NotifyPropertyChangedInvocator("propName")]
-        protected void SetProperty<T>(ref T propertyValue, T newValue, [CallerMemberName] string propName = "",
+        protected void SetProperty<T>(ref T field, T newValue, [CallerMemberName] string propName = "",
             ExecutionMode? executionMode = null)
         {
-            if (EqualityComparer<T>.Default.Equals(propertyValue, newValue))
-                return;
-            propertyValue = newValue;
-            OnPropertyChanged(propName, executionMode.GetValueOrDefault(PropertyChangeExecutionMode));
+            if (!EqualityComparer<T>.Default.Equals(field, newValue))
+            {
+                field = newValue;
+                OnPropertyChanged(propName, executionMode.GetValueOrDefault(PropertyChangeExecutionMode));
+            }
         }
 
         /// <summary>
         ///     Sets a property with calling property change event.
         /// </summary>
         /// <typeparam name="T">The type of property.</typeparam>
-        /// <param name="propertyValue">The property value.</param>
+        /// <param name="field">The property field.</param>
         /// <param name="newValue">The new property value.</param>
         /// <param name="expression">Specified expression with property.</param>
         /// <param name="executionMode">
         ///     Specifies the execution mode for raise property changed event.
         /// </param>
         [NotifyPropertyChangedInvocator("expression")]
-        protected void SetProperty<T>(ref T propertyValue, T newValue, Expression<Func<T>> expression,
+        protected void SetProperty<T>(ref T field, T newValue, Expression<Func<T>> expression,
             ExecutionMode? executionMode = null)
         {
-            if (EqualityComparer<T>.Default.Equals(propertyValue, newValue))
-                return;
-            propertyValue = newValue;
-            OnPropertyChanged(expression, executionMode.GetValueOrDefault(PropertyChangeExecutionMode));
+            if (!EqualityComparer<T>.Default.Equals(field, newValue))
+            {
+                field = newValue;
+                OnPropertyChanged(expression, executionMode.GetValueOrDefault(PropertyChangeExecutionMode));
+            }
         }
 
         /// <summary>

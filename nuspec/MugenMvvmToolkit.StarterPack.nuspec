@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.StarterPack</id>
-    <version>3.4.1</version>
+    <version>3.5.0</version>
     <title>MugenMvvmToolkit - Starter Pack</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -12,7 +12,7 @@
       - WinForms
       - WPF
       - Silverlight 5
-      - Silverlight for WP7.1, WP8, WP8.1
+      - Silverlight for WP8, WP8.1
       - Xamarin.Android
       - Xamarin.iOS
       - Xamarin.Forms
@@ -42,7 +42,7 @@
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
-      <dependency id="MugenMvvmToolkit" version="3.4.1" />
+      <dependency id="MugenMvvmToolkit" version="3.5.0" />
     </dependencies>
   </metadata>
   <files>
@@ -65,12 +65,6 @@
     <file src="TouchContent\Setup.cs.pp" target="content\Xamarin.iOS10\AppDelegate.cs.pp" />
     <file src="TouchContent\MainView.cs.pp" target="content\Xamarin.iOS10\Views\MainView.cs.pp" />
     <file src="TouchContent\Readme.txt" target="content\Xamarin.iOS10\_MugenMvvmToolkitReadme.txt" />
-
-    <!-- WP 7.1 -->
-    <file src="WinPhoneContent\App.Xaml71.cs.pp" target="content\sl4-windowsphone71\App.Xaml.cs.pp" />
-    <file src="WinPhoneContent\MainView71.xaml.cs.pp" target="content\sl4-windowsphone71\Views\MainView.xaml.cs.pp" />
-    <file src="WinPhoneContent\MainView71.xaml.pp" target="content\sl4-windowsphone71\Views\MainView.xaml.pp" />
-    <file src="WinPhoneContent\Readme.txt" target="content\sl4-windowsphone71\_MugenMvvmToolkitReadme.txt" />
 
     <!-- WP 8.0 -->
     <file src="WinPhoneContent\App.Xaml.cs.pp" target="content\wp8\App.Xaml.cs.pp" />

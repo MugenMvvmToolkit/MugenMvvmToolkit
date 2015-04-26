@@ -7,7 +7,7 @@ namespace MugenMvvmToolkit.Test.TestModels
     {
         #region Fields
 
-        private readonly List<IHandler<IBusyToken>> _handlers;
+        private readonly List<IBusyTokenCallback> _handlers;
 
         #endregion
 
@@ -15,7 +15,7 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         public BusyTokenMock(object message = null)
         {
-            _handlers = new List<IHandler<IBusyToken>>();
+            _handlers = new List<IBusyTokenCallback>();
             Message = message;
         }
 
@@ -27,7 +27,7 @@ namespace MugenMvvmToolkit.Test.TestModels
         {
             IsCompleted = true;
             foreach (var handler in _handlers)
-                handler.Handle(this, this);
+                handler.OnCompleted(this);
             _handlers.Clear();
         }
 
@@ -35,9 +35,9 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         public object Message { get; private set; }
 
-        public void Register(IHandler<IBusyToken> handler)
+        public void Register(IBusyTokenCallback callback)
         {
-            _handlers.Add(handler);
+            _handlers.Add(callback);
         }
 
         #endregion

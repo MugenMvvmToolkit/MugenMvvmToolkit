@@ -73,7 +73,6 @@
     <Compile Include="Models\Enums.cs" />
     <Compile Include="Converters\ValueConverterWrapper.cs" />
     <Compile Include="Modules\PlatformDataBindingModule.cs" />
-    <Compile Include="PlatformDataBindingExtensionsCommon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -22,6 +22,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -317,8 +318,9 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         {
             #region Constructors
 
-            public AwaiterSerializableCallback(Action continuation, IAsyncStateMachine stateMachine, string awaiterResultType)
+            public AwaiterSerializableCallback(Action continuation, IAsyncStateMachine stateMachine, string awaiterResultType, bool isUiThread)
             {
+                IsUiThread = isUiThread;
                 AwaiterResultType = awaiterResultType;
                 Initialize(continuation, stateMachine);
             }
@@ -335,6 +337,9 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             [DataMember(EmitDefaultValue = false)]
             public List<FieldSnapshot> FieldSnapshots { get; set; }
+
+            [DataMember(EmitDefaultValue = false)]
+            public bool IsUiThread { get; set; }
 
             #endregion
 
@@ -382,22 +387,12 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 }
             }
 
-            private static void TraceError(object target)
-            {
-                Tracer.Error("The serializable awaiter cannot get IAsyncStateMachine from target {0}",
-                    target);
-            }
-
-            #endregion
-
-            #region Implementation of ISerializableCallback
-
-            public object Invoke(IOperationResult result)
+            private void InvokeInternal(IOperationResult result)
             {
                 if (StateMachineType == null || FieldSnapshots == null)
                 {
                     Tracer.Error("The await callback cannot be executed.");
-                    return null;
+                    return;
                 }
                 var type = Type.GetType(StateMachineType, true);
                 IAsyncStateMachine stateMachine;
@@ -414,7 +409,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                     if (constructor == null)
                     {
                         Tracer.Error("The await callback cannot be executed.");
-                        return null;
+                        return;
                     }
                     stateMachine = (IAsyncStateMachine)constructor.InvokeEx();
                 }
@@ -433,6 +428,24 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                         break;
                     }
                 }
+            }
+
+            private static void TraceError(object target)
+            {
+                Tracer.Error("The serializable awaiter cannot get IAsyncStateMachine from target {0}",
+                    target);
+            }
+
+            #endregion
+
+            #region Implementation of ISerializableCallback
+
+            public object Invoke(IOperationResult result)
+            {
+                if (IsUiThread)
+                    ServiceProvider.ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, result, (callback, operationResult) => callback.InvokeInternal(operationResult));
+                else
+                    InvokeInternal(result);
                 return null;
             }
 
@@ -447,17 +460,24 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             private readonly IHasStateMachine _hasStateMachine;
             private readonly Type _resultType;
             private ISerializableCallback _serializableCallback;
+            private readonly SynchronizationContext _context;
+            private readonly bool _isUiThread;
 
             #endregion
 
             #region Constructors
 
-            public AwaiterContinuation(Action continuation, IHasStateMachine hasStateMachine, Type resultType)
+            public AwaiterContinuation(Action continuation, IHasStateMachine hasStateMachine, Type resultType, bool continueOnCapturedContext)
             {
                 Should.NotBeNull(continuation, "continuation");
                 _continuation = continuation;
                 _hasStateMachine = hasStateMachine;
                 _resultType = resultType;
+                if (continueOnCapturedContext)
+                {
+                    _context = SynchronizationContext.Current;
+                    _isUiThread = ServiceProvider.ThreadManager.IsUiThread;
+                }
             }
 
             #endregion
@@ -468,13 +488,16 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             {
                 if (_serializableCallback == null)
                     _serializableCallback = new AwaiterSerializableCallback(_continuation, _hasStateMachine.StateMachine,
-                        _resultType.AssemblyQualifiedName);
+                        _resultType.AssemblyQualifiedName, _isUiThread);
                 return _serializableCallback;
             }
 
             public void Invoke(IOperationResult result)
             {
-                _continuation();
+                if (_context == null || ReferenceEquals(SynchronizationContext.Current, _context))
+                    _continuation();
+                else
+                    _context.Post(state => ((Action)state).Invoke(), _continuation);
             }
 
             #endregion
@@ -491,16 +514,12 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             private readonly IOperationResult _result;
             private readonly IAsyncOperation _operation;
+            private readonly bool _continueOnCapturedContext;
             private IAsyncStateMachine _stateMachine;
 
             #endregion
 
             #region Constructors
-
-            public SerializableAwaiter(IAsyncOperation operation)
-            {
-                _operation = operation;
-            }
 
             [UsedImplicitly]
             public SerializableAwaiter(IOperationResult result)
@@ -509,13 +528,19 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                     _result = OperationResult.Convert<TResult>(result);
             }
 
+            public SerializableAwaiter(IAsyncOperation operation, bool continueOnCapturedContext)
+            {
+                _operation = operation;
+                _continueOnCapturedContext = continueOnCapturedContext;
+            }
+
             #endregion
 
             #region Implementation of IAsyncOperationAwaiter
 
             public void OnCompleted(Action continuation)
             {
-                _operation.ContinueWith(new AwaiterContinuation(continuation, this, typeof(TResult)));
+                _operation.ContinueWith(new AwaiterContinuation(continuation, this, typeof(TResult), _continueOnCapturedContext));
             }
 
             public bool IsCompleted
@@ -532,6 +557,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             void IAsyncOperationAwaiter.GetResult()
             {
                 IOperationResult result = _result ?? _operation.Result;
+                // ReSharper disable once UnusedVariable
                 var o = result.Result;
             }
 
@@ -706,8 +732,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         /// </summary>
         public IAsyncOperationAwaiter CreateAwaiter(IAsyncOperation operation, IDataContext context)
         {
-            Should.NotBeNull(operation, "operation");
-            return new SerializableAwaiter<object>(operation);
+            return CreateAwaiterInternal<object>(operation, context);
         }
 
         /// <summary>
@@ -716,8 +741,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         public IAsyncOperationAwaiter<TResult> CreateAwaiter<TResult>(IAsyncOperation<TResult> operation,
             IDataContext context)
         {
-            Should.NotBeNull(operation, "operation");
-            return new SerializableAwaiter<TResult>(operation);
+            return CreateAwaiterInternal<TResult>(operation, context);
         }
 
         /// <summary>
@@ -759,6 +783,18 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Methods
 
+        private static SerializableAwaiter<TResult> CreateAwaiterInternal<TResult>(IAsyncOperation operation, IDataContext context)
+        {
+            Should.NotBeNull(operation, "operation");
+            if (context == null)
+                context = DataContext.Empty;
+            bool continueOnCapturedContext;
+            if (!context.TryGetData(DefaultOperationCallbackFactory.ContinueOnCapturedContextConstant, out continueOnCapturedContext))
+                continueOnCapturedContext = true;
+            return new SerializableAwaiter<TResult>(operation, continueOnCapturedContext);
+        }
+
+
         private static object GetDefault(Type t)
         {
             return GetDefaultGenericMethod.MakeGenericMethod(t).InvokeEx(null, null);
@@ -766,11 +802,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         private static ICollection<IViewModel> CollectViewModels(IOperationResult result)
         {
-#if (WINDOWS_PHONE && V71) || TEST
-            var viewModels = new List<IViewModel>();
-#else
-            var viewModels = new HashSet<IViewModel>();
-#endif
+            var viewModels = new HashSet<IViewModel>(ReferenceEqualityComparer.Instance);
             var context = result.OperationContext as INavigationContext;
             if (context != null)
             {

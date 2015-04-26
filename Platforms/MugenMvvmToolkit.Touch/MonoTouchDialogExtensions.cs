@@ -18,11 +18,9 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using JetBrains.Annotations;
 using MonoTouch.Dialog;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Infrastructure;
 using UIKit;
 
@@ -41,14 +39,6 @@ namespace MugenMvvmToolkit.MonoTouch.Dialog
             var root = element.GetImmediateRootElement();
             if (root != null)
                 root.Reload(element, animation);
-        }
-
-        public static IList<IDataBinding> SetBindings([NotNull] this Element element,
-            string bindingExpression,
-            IList<object> sources = null)
-        {
-            Should.NotBeNull(element, "element");
-            return BindingServiceProvider.BindingProvider.CreateBindingsFromString(element, bindingExpression, sources);
         }
 
         public static void RaiseParentChanged([NotNull] this Element element)
@@ -90,11 +80,6 @@ namespace MugenMvvmToolkit.MonoTouch.Dialog
                     ClearBindingsRecursively(item as Element, clearDataContext, clearAttachedValues);
             }
             element.ClearBindings(clearDataContext, clearAttachedValues);
-        }
-
-        public static void ClearBindings([CanBeNull] this Element element, bool clearDataContext, bool clearAttachedValues)
-        {
-            BindingExtensions.ClearBindings(element, clearDataContext, clearAttachedValues);
         }
 
         public static object GetDataContext([NotNull] this Element item)

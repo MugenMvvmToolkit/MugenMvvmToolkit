@@ -11,7 +11,7 @@
     <RootNamespace>MugenMvvmToolkit.Binding</RootNamespace>
     <AssemblyName>MugenMvvmToolkit.Binding</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Profile104</TargetFrameworkProfile>
+    <TargetFrameworkProfile>Profile158</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
@@ -53,6 +53,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\AttachedMemberConstants.cs">
       <Link>AttachedMemberConstants.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Attributes\BindingSyntaxExtensionsAttribute.cs">
+      <Link>Attributes\BindingSyntaxExtensionsAttribute.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\BindingBehaviorBase.cs">
       <Link>Behaviors\BindingBehaviorBase.cs</Link>
@@ -134,6 +137,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Extensions\BindingReflectionExtensionsCommon.cs">
       <Link>Extensions\BindingReflectionExtensionsCommon.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Extensions\BindingSyntaxEx.cs">
+      <Link>Extensions\BindingSyntaxEx.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\BindingContextManager.cs">
       <Link>Infrastructure\BindingContextManager.cs</Link>
@@ -333,6 +339,9 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Syntax\IBuilderSyntax.cs">
       <Link>Interfaces\Syntax\IBuilderSyntax.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Syntax\IBuilderSyntaxContext.cs">
+      <Link>Interfaces\Syntax\IBuilderSyntaxContext.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\ArgumentData.cs">
       <Link>Models\ArgumentData.cs</Link>
     </Compile>
@@ -416,6 +425,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\ExpressionCounterVisitor.cs">
       <Link>Parse\ExpressionCounterVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\LambdaExpressionToBindingExpressionConverter.cs">
+      <Link>Parse\LambdaExpressionToBindingExpressionConverter.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\Nodes\BinaryExpressionNode.cs">
       <Link>Parse\Nodes\BinaryExpressionNode.cs</Link>

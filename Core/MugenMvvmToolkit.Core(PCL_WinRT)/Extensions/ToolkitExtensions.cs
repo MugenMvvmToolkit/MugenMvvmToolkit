@@ -28,10 +28,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using MugenMvvmToolkit;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Collections;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -1265,6 +1263,22 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
+        ///     Gets an isntance of <see cref="IAsyncOperationAwaiter" />
+        /// </summary>
+        public static IAsyncOperationAwaiter GetAwaiter(this IAsyncOperationAwaiter awaiter)
+        {
+            return awaiter;
+        }
+
+        /// <summary>
+        ///     Gets an isntance of <see cref="IAsyncOperationAwaiter{TResult}" />
+        /// </summary>
+        public static IAsyncOperationAwaiter<TResult> GetAwaiter<TResult>(this IAsyncOperationAwaiter<TResult> awaiter)
+        {
+            return awaiter;
+        }
+
+        /// <summary>
         ///     Creates an instance of <see cref="IAsyncOperationAwaiter" />.
         /// </summary>
         public static IAsyncOperationAwaiter GetAwaiter([NotNull] this IAsyncOperation operation)
@@ -1280,6 +1294,40 @@ namespace MugenMvvmToolkit
         {
             Should.NotBeNull(operation, "operation");
             return ServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, DataContext.Empty);
+        }
+
+        /// <summary>
+        ///     Configures an awaiter used to await this <see cref="IAsyncOperation" />.
+        /// </summary>
+        /// <param name="operation">The specified async operation.</param>
+        /// <param name="continueOnCapturedContext">
+        ///     true to attempt to marshal the continuation back to the original context
+        ///     captured; otherwise, false.
+        /// </param>
+        /// <returns>
+        ///     An object used to await this operation.
+        /// </returns>
+        public static IAsyncOperationAwaiter ConfigureAwait([NotNull] this IAsyncOperation operation, bool continueOnCapturedContext)
+        {
+            Should.NotBeNull(operation, "operation");
+            return ServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, new DataContext(DefaultOperationCallbackFactory.ContinueOnCapturedContextConstant.ToValue(continueOnCapturedContext)));
+        }
+
+        /// <summary>
+        ///     Configures an awaiter used to await this <see cref="IAsyncOperation{TResult}" />.
+        /// </summary>
+        /// <param name="operation">The specified async operation.</param>
+        /// <param name="continueOnCapturedContext">
+        ///     true to attempt to marshal the continuation back to the original context
+        ///     captured; otherwise, false.
+        /// </param>
+        /// <returns>
+        ///     An object used to await this operation.
+        /// </returns>
+        public static IAsyncOperationAwaiter<TResult> ConfigureAwait<TResult>([NotNull] this IAsyncOperation<TResult> operation, bool continueOnCapturedContext)
+        {
+            Should.NotBeNull(operation, "operation");
+            return ServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, new DataContext(DefaultOperationCallbackFactory.ContinueOnCapturedContextConstant.ToValue(continueOnCapturedContext)));
         }
 
         #endregion

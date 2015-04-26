@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         /// <param name="context">The specified context.</param>
         /// <returns>An instance of <see cref="IBindingBuilder" />.</returns>
         [NotNull]
-        IBindingBuilder CreateBuilder([NotNull] IDataContext context);
+        IBindingBuilder CreateBuilder(IDataContext context = null);
 
         /// <summary>
         ///     Creates an instance of <see cref="IDataBinding" />.

@@ -16,6 +16,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces;
@@ -32,10 +33,28 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         public IList<object> Errors;
 
         private bool _updating;
+        private readonly Guid _id;
+
+        #endregion
+
+        #region Constructors
+
+        public NotifyDataErrorsAggregatorBehavior(Guid id)
+        {
+            _id = id;
+        }
 
         #endregion
 
         #region Overrides of ValidatesOnNotifyDataErrorsBehavior
+
+        /// <summary>
+        ///     Gets the id of behavior. Each <see cref="IDataBinding" /> can have only one instance with the same id.
+        /// </summary>
+        public override Guid Id
+        {
+            get { return _id; }
+        }
 
         /// <summary>
         ///     Attaches to the specified binding.
@@ -64,7 +83,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected override IBindingBehavior CloneInternal()
         {
-            return new NotifyDataErrorsAggregatorBehavior();
+            return new NotifyDataErrorsAggregatorBehavior(_id);
         }
 
         /// <summary>

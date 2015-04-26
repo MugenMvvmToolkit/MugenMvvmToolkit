@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.AutofacContainer</id>
-    <version>3.4.1</version>
+    <version>3.5.0</version>
     <title>MugenMvvmToolkit - Autofac</title>
     <authors>Vyacheslav Volkov</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -14,15 +14,6 @@
     <dependencies>
       <group>
         <dependency id="Autofac" version="[3.5.2, 3.6.0)" />
-      </group>
-      <group targetFramework="wp8">
-        <dependency id="Autofac" version="[3.5.2, 3.6.0)" />
-      </group>
-      <group targetFramework="wp81">
-        <dependency id="Autofac" version="[3.5.2, 3.6.0)" />
-      </group>
-      <group targetFramework="sl4-windowsphone71">
-        <dependency id="Autofac" version="2.6.3.862" />
       </group>
       <group targetFramework="Xamarin.iOS" />
     </dependencies>
@@ -52,11 +43,6 @@
     <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.dll" target="lib\wp8\MugenMvvmToolkit.AutofacContainer.dll" />
     <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\wp8\MugenMvvmToolkit.AutofacContainer.pdb" />
     <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.xml" target="lib\wp8\MugenMvvmToolkit.AutofacContainer.xml" />
-
-    <!-- WP 7.1 -->	
-    <file src="..\bin\IocContainers\Autofac\WP7.1\MugenMvvmToolkit.AutofacContainer.dll" target="lib\sl4-windowsphone71\MugenMvvmToolkit.AutofacContainer.dll" />
-    <file src="..\bin\IocContainers\Autofac\WP7.1\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\sl4-windowsphone71\MugenMvvmToolkit.AutofacContainer.pdb" />
-    <file src="..\bin\IocContainers\Autofac\WP7.1\MugenMvvmToolkit.AutofacContainer.xml" target="lib\sl4-windowsphone71\MugenMvvmToolkit.AutofacContainer.xml" />
 
     <!-- Android -->
     <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.dll" target="lib\MonoAndroid10\MugenMvvmToolkit.AutofacContainer.dll" />

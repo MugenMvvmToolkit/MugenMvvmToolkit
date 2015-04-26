@@ -18,8 +18,10 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure.Callbacks
 {
@@ -35,15 +37,17 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             #region Fields
 
             private readonly IAsyncOperation _asyncOperation;
+            private readonly bool _continueOnCapturedContext;
 
             #endregion
 
             #region Constructors
 
-            public AsyncOperationAwaiter(IAsyncOperation asyncOperation)
+            public AsyncOperationAwaiter(IAsyncOperation asyncOperation, bool continueOnCapturedContext)
             {
                 Should.NotBeNull(asyncOperation, "asyncOperation");
                 _asyncOperation = asyncOperation;
+                _continueOnCapturedContext = continueOnCapturedContext;
             }
 
             #endregion
@@ -67,7 +71,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             void INotifyCompletion.OnCompleted(Action continuation)
             {
-                _asyncOperation.ContinueWith(new AwaiterContinuation(continuation));
+                _asyncOperation.ContinueWith(new AwaiterContinuation(continuation, _continueOnCapturedContext));
             }
 
             #endregion
@@ -78,15 +82,18 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             #region Fields
 
             private readonly Action _continuation;
+            private readonly SynchronizationContext _context;
 
             #endregion
 
             #region Constructors
 
-            public AwaiterContinuation(Action continuation)
+            public AwaiterContinuation(Action continuation, bool continueOnCapturedContext)
             {
                 Should.NotBeNull(continuation, "continuation");
                 _continuation = continuation;
+                if (continueOnCapturedContext)
+                    _context = SynchronizationContext.Current;
             }
 
             #endregion
@@ -100,7 +107,10 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             public void Invoke(IOperationResult result)
             {
-                _continuation();
+                if (_context == null || ReferenceEquals(SynchronizationContext.Current, _context))
+                    _continuation();
+                else
+                    _context.Post(state => ((Action)state).Invoke(), _continuation);
             }
 
             #endregion
@@ -110,11 +120,21 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Fields
 
+        /// <summary>
+        ///   true to attempt to marshal the continuation back to the original context captured; otherwise, false.
+        /// </summary>
+        public static readonly DataConstant<bool> ContinueOnCapturedContextConstant;
+
         private static DefaultOperationCallbackFactory _factory;
 
         #endregion
 
         #region Constructors
+
+        static DefaultOperationCallbackFactory()
+        {
+            ContinueOnCapturedContextConstant = DataConstant.Create(() => ContinueOnCapturedContextConstant);
+        }
 
         private DefaultOperationCallbackFactory()
         {
@@ -146,7 +166,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         /// </summary>
         public IAsyncOperationAwaiter CreateAwaiter(IAsyncOperation operation, IDataContext context)
         {
-            return new AsyncOperationAwaiter<object>(operation);
+            return CreateAwaiterInternal<object>(operation, context);
         }
 
         /// <summary>
@@ -154,7 +174,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         /// </summary>
         public IAsyncOperationAwaiter<TResult> CreateAwaiter<TResult>(IAsyncOperation<TResult> operation, IDataContext context)
         {
-            return new AsyncOperationAwaiter<TResult>(operation);
+            return CreateAwaiterInternal<TResult>(operation, context);
         }
 
         /// <summary>
@@ -163,6 +183,21 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         public ISerializableCallback CreateSerializableCallback(Delegate @delegate)
         {
             return null;
+        }
+
+        #endregion
+
+        #region Methods
+
+        private static AsyncOperationAwaiter<TResult> CreateAwaiterInternal<TResult>(IAsyncOperation operation, IDataContext context)
+        {
+            Should.NotBeNull(operation, "operation");
+            if (context == null)
+                context = DataContext.Empty;
+            bool continueOnCapturedContext;
+            if (!context.TryGetData(ContinueOnCapturedContextConstant, out continueOnCapturedContext))
+                continueOnCapturedContext = true;
+            return new AsyncOperationAwaiter<TResult>(operation, continueOnCapturedContext);
         }
 
         #endregion

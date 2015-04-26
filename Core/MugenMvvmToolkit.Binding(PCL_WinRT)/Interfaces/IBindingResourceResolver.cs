@@ -30,7 +30,13 @@ namespace MugenMvvmToolkit.Binding.Interfaces
     public interface IBindingResourceResolver
     {
         /// <summary>
-        ///     Gets or sets the name of binding source resource default is <c>root</c>.
+        ///     Gets or sets the name of self element resource default is <c>self</c>.
+        /// </summary>
+        [NotNull]
+        string SelfResourceName { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the name of root element resource default is <c>root</c>.
         /// </summary>
         [NotNull]
         string RootElementResourceName { get; set; }

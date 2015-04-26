@@ -56,50 +56,32 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Implementation of IBindingPathMembers
 
-            /// <summary>
-            ///     Gets the <see cref="IBindingPath" />.
-            /// </summary>
             public IBindingPath Path
             {
                 get { return _path; }
             }
 
-            /// <summary>
-            ///     Gets the value that indicates that all members are available, if <c>true</c>.
-            /// </summary>
             public bool AllMembersAvailable
             {
                 get { return _reference.Target != null; }
             }
 
-            /// <summary>
-            ///     Gets the available members.
-            /// </summary>
             public IList<IBindingMemberInfo> Members
             {
                 //NOTE it's better each time to create a new array than to keep it in memory, because this property is rarely used.
                 get { return new[] { _lastMember }; }
             }
 
-            /// <summary>
-            ///     Gets the last value, if all members is available; otherwise returns the empty value.
-            /// </summary>
             public IBindingMemberInfo LastMember
             {
                 get { return _lastMember; }
             }
 
-            /// <summary>
-            ///     Gets the source value.
-            /// </summary>
             public object Source
             {
                 get { return _reference.Target; }
             }
 
-            /// <summary>
-            ///     Gets the penultimate value.
-            /// </summary>
             public object PenultimateValue
             {
                 get { return _reference.Target; }
@@ -131,7 +113,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _ignoreAttachedMembers = ignoreAttachedMembers;
             _pathMembers = UnsetBindingPathMembers.Instance;
             _ref = ServiceProvider.WeakReferenceFactory(this, true);
-            Update();
+            Initialize(null);
         }
 
         #endregion

@@ -55,7 +55,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         }
 
         [TestMethod]
-        public void ParserShouldParseSingleExpression()
+        public void ParserShouldParseSingleExpression1()
         {
             const string targetPath = "Text";
             const string sourcePath = "SourceText";
@@ -71,6 +71,25 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var sources = context.GetData(BindingBuilderConstants.Sources);
             IBindingSource source = sources.Single().Invoke(context);
             BindingSourceShouldBeValidDataContext(target, source, sourcePath);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseSingleExpression2()
+        {
+            const string targetPath = "Text";
+            const string sourcePath = "SourceText";
+            const string binding = "Text $context.SourceText";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath targetBPath = context.GetData(BindingBuilderConstants.TargetPath);
+            targetBPath.Path.ShouldEqual(targetPath);
+
+            var target = new object();
+            context.Add(BindingBuilderConstants.Target, target);
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            IBindingSource source = sources.Single().Invoke(context);
+            BindingSourceShouldBeValid(source, AttachedMemberConstants.DataContext + "." + sourcePath, target);
         }
 
         [TestMethod]
@@ -98,6 +117,44 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string targetPath = "Text";
             const string sourcePath = "StringProperty";
             const string binding = "Text {RelativeSource Self}.StringProperty";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+            target.Path.ShouldEqual(targetPath);
+
+            var targetObj = new BindingSourceModel();
+            context.Add(BindingBuilderConstants.Target, targetObj);
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            IBindingSource source = sources.Single().Invoke(context);
+            BindingSourceShouldBeValid(source, sourcePath, targetObj);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseRelativeSourceSelfExpression3()
+        {
+            const string targetPath = "Text";
+            const string sourcePath = "StringProperty";
+            const string binding = "Text $self.StringProperty";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+            target.Path.ShouldEqual(targetPath);
+
+            var targetObj = new BindingSourceModel();
+            context.Add(BindingBuilderConstants.Target, targetObj);
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            IBindingSource source = sources.Single().Invoke(context);
+            BindingSourceShouldBeValid(source, sourcePath, targetObj);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseRelativeSourceSelfExpression4()
+        {
+            const string targetPath = "Text";
+            const string sourcePath = "StringProperty";
+            const string binding = "Text $this.StringProperty";
             IBindingParser bindingParser = CreateBindingParser();
 
             var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
@@ -285,7 +342,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             bool isInvoked = false;
             const string targetPath = "Text";
             const string sourcePath = "StringProperty";
-            const string relativeSourceName = "type";
+            const string sourceName = "type";
             const string binding = "Text {ElementSource type, Path=StringProperty}";
 
             var targetObj = new BindingSourceModel();
@@ -308,7 +365,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
                 FindByName = (o, s) =>
                 {
                     o.ShouldEqual(targetObj);
-                    s.ShouldEqual(relativeSourceName);
+                    s.ShouldEqual(sourceName);
                     isInvoked = true;
                     return relativeObj;
                 },
@@ -339,7 +396,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             bool isInvoked = false;
             const string targetPath = "Text";
             const string sourcePath = "StringProperty";
-            const string relativeSourceName = "type";
+            const string sourceName = "type";
             const string binding = "Text {ElementSource type}.StringProperty";
 
             var targetObj = new BindingSourceModel();
@@ -362,7 +419,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
                 FindByName = (o, s) =>
                 {
                     o.ShouldEqual(targetObj);
-                    s.ShouldEqual(relativeSourceName);
+                    s.ShouldEqual(sourceName);
                     isInvoked = true;
                     return relativeObj;
                 },
@@ -393,7 +450,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             bool isInvoked = false;
             const string targetPath = "Text";
             const string sourcePath = "StringProperty";
-            const string relativeSourceName = "type";
+            const string sourceName = "type";
             const string binding = "Text $Element(type).StringProperty";
 
             var targetObj = new BindingSourceModel();
@@ -416,7 +473,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
                 FindByName = (o, s) =>
                 {
                     o.ShouldEqual(targetObj);
-                    s.ShouldEqual(relativeSourceName);
+                    s.ShouldEqual(sourceName);
                     isInvoked = true;
                     return relativeObj;
                 },
@@ -2214,13 +2271,44 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             expression(context, new object[] { model }).ShouldEqual(int.MaxValue);
         }
 
-        private static void BindingSourceShouldBeValidDataContext(object target, IBindingSource bindingSource, string path)
+        [TestMethod]
+        public void ParserShouldUseSrcKeyword()
+        {
+            const string targetPath1 = "Text1";
+            const string targetPath2 = "DataContext";
+
+            const string binding = "Text1 $src; DataContext $src;";
+            IBindingParser bindingParser = CreateBindingParser();
+            var targetObj = new object();
+            var src1 = new object();
+            var src2 = new object();
+
+            var contexts = bindingParser.Parse(binding,
+                new DataContext(BindingBuilderConstants.RawSources.ToValue(new object[]
+                {
+                    src1,
+                    src2
+                })));
+            for (int i = 0; i < contexts.Count; i++)
+            {
+                var context = contexts[i];
+                IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
+                target.Path.ShouldEqual(i == 1 ? targetPath1 : targetPath2);
+
+                context.Add(BindingBuilderConstants.Target, targetObj);
+                var sources = context.GetData(BindingBuilderConstants.Sources);
+                IBindingSource source = sources.Single().Invoke(context);
+                source.GetSource(true).ShouldEqual(i == 1 ? src1 : src2);
+            }
+        }
+
+        internal static void BindingSourceShouldBeValidDataContext(object target, IBindingSource bindingSource, string path)
         {
             BindingSourceShouldBeValid(bindingSource, path,
                 BindingServiceProvider.ContextManager.GetBindingContext(target).Value);
         }
 
-        private static void BindingSourceShouldBeValid(IBindingSource bindingSource, string path, object source)
+        internal static void BindingSourceShouldBeValid(IBindingSource bindingSource, string path, object source)
         {
             var src = bindingSource.GetSource(true);
             var resourceObject = src as ISourceValue;

@@ -114,21 +114,20 @@ namespace MugenMvvmToolkit.Binding.Accessors
                     ClearValueReference();
                     return;
                 }
-
                 var command = newValue as ICommand;
                 if (command == null)
                 {
-                    var memberValue = newValue as BindingMemberValue;
-                    if (memberValue == null)
+                    if (!(newValue is BindingMemberValue))
                         throw BindingExceptionManager.InvalidEventSourceValue(_currentValue.Member, newValue);
-                    _valueReference = memberValue;
+                    _valueReference = newValue;
                 }
                 else
                 {
                     var reference = _valueReference as WeakReference;
                     if (reference == null || !ReferenceEquals(reference.Target, command))
                         _valueReference = ToolkitExtensions.GetWeakReferenceOrDefault(command, null, true);
-                    if (accessor._toggleEnabledState && accessor.BindingTarget != null && InitializeCanExecuteDelegate(command))
+                    if (accessor._toggleEnabledState && accessor.BindingTarget != null &&
+                        InitializeCanExecuteDelegate(command))
                     {
                         accessor.CommandOnCanExecuteChanged(command, LastContext);
                         command.CanExecuteChanged += _canExecuteHandler;

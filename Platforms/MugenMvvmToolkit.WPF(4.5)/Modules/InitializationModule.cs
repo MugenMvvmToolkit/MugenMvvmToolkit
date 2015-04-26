@@ -37,16 +37,6 @@ namespace MugenMvvmToolkit.Modules
     {
         #region Constructors
 
-        static InitializationModule()
-        {
-            if (ServiceProvider.DesignTimeManager.IsDesignMode)
-#if WINDOWS_PHONE && V71
-                ServiceProvider.AttachedValueProvider = new WeakReferenceAttachedValueProvider();            
-#else
-                ServiceProvider.AttachedValueProvider = new AttachedValueProvider();
-#endif
-        }
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="InitializationModule" /> class.
         /// </summary>
@@ -123,19 +113,17 @@ namespace MugenMvvmToolkit.Modules
             return BindingInfo<IMessagePresenter>.FromType<MessagePresenter>(DependencyLifecycle.SingleInstance);
         }
 
+#if !NET4
         /// <summary>
         ///     Gets the <see cref="IAttachedValueProvider" /> that will be used by default.
         /// </summary>
         /// <returns>An instance of <see cref="IAttachedValueProvider" />.</returns>
         protected override BindingInfo<IAttachedValueProvider> GetAttachedValueProvider()
         {
-#if WINDOWS_PHONE && V71
-            return BindingInfo<IAttachedValueProvider>.FromType<WeakReferenceAttachedValueProvider>(DependencyLifecycle.SingleInstance);
-#else
             return BindingInfo<IAttachedValueProvider>.FromType<AttachedValueProvider>(DependencyLifecycle.SingleInstance);
+        }
 #endif
 
-        }
 
 #if !NETFX_CORE && !WINDOWSCOMMON
         /// <summary>

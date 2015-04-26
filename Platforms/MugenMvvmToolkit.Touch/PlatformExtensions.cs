@@ -174,36 +174,6 @@ namespace MugenMvvmToolkit
                 ParentObserver.GetOrAdd(view).Parent = textField;
         }
 
-        public static IList<IDataBinding> SetBindings(this INativeObject item, string bindingExpression,
-            IList<object> sources = null)
-        {
-            return BindingServiceProvider.BindingProvider.CreateBindingsFromString(item, bindingExpression, sources);
-        }
-
-        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
-            [NotNull] string bindings)
-            where T : INativeObject
-            where TBindingSet : BindingSet
-        {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(bindingSet, "bindingSet");
-            Should.NotBeNull(bindings, "bindings");
-            bindingSet.BindFromExpression(item, bindings);
-            return item;
-        }
-
-        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
-            [NotNull] Action<TBindingSet, T> setBinding)
-            where T : INativeObject
-            where TBindingSet : BindingSet
-        {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(bindingSet, "bindingSet");
-            Should.NotBeNull(setBinding, "setBinding");
-            setBinding(bindingSet, item);
-            return item;
-        }
-
         public static void SetNavigationParameter([NotNull] this UIViewController controller, object value)
         {
             Should.NotBeNull(controller, "controller");
@@ -447,12 +417,12 @@ namespace MugenMvvmToolkit
         }
 
         public static void ClearBindings<T>([CanBeNull]this T[] items, bool clearDataContext, bool clearAttachedValues)
-            where T : INativeObject
+            where T : class, INativeObject
         {
             if (items == null)
                 return;
             for (int i = 0; i < items.Length; i++)
-                ClearBindings(items[i], clearDataContext, clearAttachedValues);
+                items[i].ClearBindings(clearDataContext, clearAttachedValues);
         }
 
         internal static IMvvmViewControllerMediator GetOrCreateMediator(this UIViewController controller, ref IMvvmViewControllerMediator mediator)

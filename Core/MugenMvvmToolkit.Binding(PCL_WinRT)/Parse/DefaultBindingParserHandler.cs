@@ -41,8 +41,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         internal const string GetErrorsMethod = "GetErrors";
         private const string GetEventArgsDynamicMethod = "$GetEventArgs()";
 
-        private readonly List<string> _errorPathNames;
-        private bool _hasGetErrors;
+        private readonly Dictionary<Guid, string[]> _errorPathNames;
 
         #endregion
 
@@ -56,9 +55,6 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {"&gt;", ">"},
                 {"&quot;", "\""},
                 {"&amp;", "&"},
-                {"$self", "{RelativeSource Self}"},
-                {"$this", "{RelativeSource Self}"},
-                {"$context", "{RelativeSource Self, Path=DataContext}"},
                 {"$args", GetEventArgsDynamicMethod},
                 {"$arg", GetEventArgsDynamicMethod}
             };
@@ -69,7 +65,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         /// </summary>
         public DefaultBindingParserHandler()
         {
-            _errorPathNames = new List<string>();
+            _errorPathNames = new Dictionary<Guid, string[]>();
         }
 
         #endregion
@@ -86,6 +82,10 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             foreach (var replaceKeyword in ReplaceKeywords)
                 bindingExpression = bindingExpression.Replace(replaceKeyword.Key, replaceKeyword.Value);
+            bindingExpression = bindingExpression
+                .Replace("$self", "$" + BindingServiceProvider.ResourceResolver.SelfResourceName)
+                .Replace("$this", "$" + BindingServiceProvider.ResourceResolver.SelfResourceName)
+                .Replace("$context", "$" + BindingServiceProvider.ResourceResolver.SelfResourceName + "." + AttachedMemberConstants.DataContext);
         }
 
         /// <summary>
@@ -117,8 +117,8 @@ namespace MugenMvvmToolkit.Binding.Parse
             {
                 if (!HasGetErrorsMethod(expression))
                     return null;
-                var strings = _errorPathNames.Count == 0 ? null : _errorPathNames.ToArrayEx();
-                return dataContext => UpdateBindingContext(dataContext, strings);
+                var pairs = _errorPathNames.ToArrayEx();
+                return dataContext => UpdateBindingContext(dataContext, pairs);
             }
         }
 
@@ -139,20 +139,18 @@ namespace MugenMvvmToolkit.Binding.Parse
                                         .OfType<IConstantExpressionNode>()
                                         .Where(expressionNode => expressionNode.Type == typeof(string))
                                         .Select(expressionNode => expressionNode.Value as string ?? string.Empty);
-                _errorPathNames.AddRange(paths);
-                _hasGetErrors = true;
+                Guid id = Guid.NewGuid();
+                _errorPathNames[id] = paths.ToArray();
+                var idNode = new ConstantExpressionNode(id, typeof(Guid));
 
+                var args = methodCallExpressionNode.Arguments.ToList();
                 //Adding binding source member if the expression does not contain members.
-                if (methodCallExpressionNode.Arguments.Count == 0)
-                {
-                    return new MethodCallExpressionNode(methodCallExpressionNode.Target, methodCallExpressionNode.Method,
-                        new IExpressionNode[]
-                        {
-                            new MemberExpressionNode(ResourceExpressionNode.DynamicInstance,
-                                BindingServiceProvider.ResourceResolver.BindingSourceResourceName)
-                        },
-                        methodCallExpressionNode.TypeArgs);
-                }
+                if (args.Count == 0)
+                    args.Add(new MemberExpressionNode(ResourceExpressionNode.DynamicInstance,
+                        BindingServiceProvider.ResourceResolver.BindingSourceResourceName));
+                args.Insert(0, idNode);
+                return new MethodCallExpressionNode(methodCallExpressionNode.Target, methodCallExpressionNode.Method,
+                    args, methodCallExpressionNode.TypeArgs);
             }
             return node;
         }
@@ -163,18 +161,21 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         private bool HasGetErrorsMethod(IExpressionNode node)
         {
-            _hasGetErrors = false;
             _errorPathNames.Clear();
             node.Accept(this);
-            return _hasGetErrors;
+            return _errorPathNames.Count != 0;
         }
 
-        private static void UpdateBindingContext(IDataContext dataContext, string[] errorPathNames)
+        private static void UpdateBindingContext(IDataContext dataContext, KeyValuePair<Guid, string[]>[] methods)
         {
             var behaviors = dataContext.GetOrAddBehaviors();
             behaviors.Clear();
             behaviors.Add(new OneTimeBindingMode(false));
-            behaviors.Add(new NotifyDataErrorsAggregatorBehavior { ErrorPaths = errorPathNames });
+            for (int i = 0; i < methods.Length; i++)
+            {
+                var pair = methods[i];
+                behaviors.Add(new NotifyDataErrorsAggregatorBehavior(pair.Key) { ErrorPaths = pair.Value });
+            }
         }
 
         #endregion

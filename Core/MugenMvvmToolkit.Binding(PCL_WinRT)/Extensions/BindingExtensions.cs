@@ -18,17 +18,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding.Attributes;
+using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
+using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
+using MugenMvvmToolkit.Binding.Sources;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
@@ -221,8 +228,12 @@ namespace MugenMvvmToolkit.Binding
         public readonly static INotifiableAttachedBindingMemberInfo<object, object> AttachedParentMember;
 
         internal readonly static IEventListener EmptyListener;
+        internal static readonly Func<IDataContext, string, IBindingSource> CreteBindingSourceFromSelfDel;
+        internal static readonly Func<IDataContext, string, IBindingSource> CreteBindingSourceFromContextDel;
+        internal static readonly Func<IDataContext, string, IBindingSource> CreteBindingSourceFromSourceDel;
 
         private static readonly Func<string, string, string> MergePathDelegate;
+        private static readonly Dictionary<Delegate, string> DelegateToPathCache;
 
         #endregion
 
@@ -230,7 +241,11 @@ namespace MugenMvvmToolkit.Binding
 
         static BindingExtensions()
         {
+            CreteBindingSourceFromSelfDel = CreateBindingSourceSelf;
+            CreteBindingSourceFromContextDel = CreateBindingSource;
+            CreteBindingSourceFromSourceDel = (context, s) => CreateBindingSourceExplicit(context, s, null);
             EmptyListener = new WeakEventListener();
+            DelegateToPathCache = new Dictionary<Delegate, string>(ReferenceEqualityComparer.Instance);
             AttachedParentMember = AttachedBindingMember.CreateAutoProperty<object, object>("#" + AttachedMemberConstants.Parent);
             NullValue = new object[] { null };
             MergePathDelegate = MergePath;
@@ -369,51 +384,41 @@ namespace MugenMvvmToolkit.Binding
 
         /// <summary>
         ///     Gets the member names from the specified expression.
-        /// </summary>
-        /// <param name="expression">The specified expression.</param>
-        /// <param name="separator">The specified separator.</param>
-        /// <returns>The member path.</returns>
+        /// </summary>        
         [Pure]
-        public static string GetMemberPath([NotNull] LambdaExpression expression, string separator = ".")
+        public static string GetMemberPath(Func<LambdaExpression> getExpression, string separator = ".")
         {
-            var ret = new StringBuilder();
-            Expression current = expression.Body;
-            while (current.NodeType != ExpressionType.Parameter)
+            Should.NotBeNull(getExpression, "getExpression");
+            if (getExpression.Target != null)
             {
-                // This happens when a value type gets boxed
-                if (current.NodeType == ExpressionType.Convert || current.NodeType == ExpressionType.ConvertChecked)
-                {
-                    var ue = (UnaryExpression)current;
-                    current = ue.Operand;
-                    continue;
-                }
-
-                string memberName;
-                var methodCallExpression = current as MethodCallExpression;
-                if (methodCallExpression != null)
-                {
-                    if (methodCallExpression.Method.Name != "get_Item")
-                        throw BindingExceptionManager.InvalidBindingMemberExpression();
-                    string s = string.Join(",", methodCallExpression.Arguments.Cast<ConstantExpression>().Select(e => e.Value));
-                    memberName = "[" + s + "]";
-                    current = methodCallExpression.Object;
-                }
-                else if (current.NodeType != ExpressionType.MemberAccess)
-                    throw BindingExceptionManager.InvalidBindingMemberExpression();
-                else
-                {
-                    var me = (MemberExpression)current;
-                    memberName = me.Member.Name;
-                    current = me.Expression;
-                }
-
-                if (ret.Length != 0)
-                    ret.Insert(0, separator);
-                ret.Insert(0, memberName);
-                if (current == null)
-                    break;
+                var expression = getExpression();
+                if (Debugger.IsAttached)
+                    Tracer.Warn("The expression '{0}' has closure, it can lead to poor performance", expression);
+                return GetMemberPath(expression, separator);
             }
-            return ret.ToString();
+            lock (DelegateToPathCache)
+            {
+                string value;
+                if (!DelegateToPathCache.TryGetValue(getExpression, out value))
+                {
+                    value = GetMemberPath(getExpression(), separator);
+                    DelegateToPathCache[getExpression] = value;
+                }
+                return value;
+            }
+        }
+
+        /// <summary>
+        ///     Gets the member names from the specified expression.
+        /// </summary>        
+        [Pure]
+        public static string GetMemberPath(LambdaExpression expression, string separator = ".")
+        {
+            Expression lastExpression;
+            string path;
+            if (TryGetMemberPath(expression.Body, separator, true, out lastExpression, out path))
+                return path;
+            return null;
         }
 
         /// <summary>
@@ -562,7 +567,55 @@ namespace MugenMvvmToolkit.Binding
             return TryGetValue(bindingMember: attachedBindingMember, item: item, defaultValue: defaultValue);
         }
 
-        public static void ClearBindings([CanBeNull] object item, bool clearDataContext, bool clearAttachedValues)
+        public static T SetBinding<T>([NotNull] this T item, [NotNull] Action<IBindingBuilder, T> setBinding)
+            where T : class
+        {
+            IDataBinding binding;
+            return SetBinding(item, setBinding, out binding);
+        }
+
+        public static T SetBinding<T>([NotNull]this T item, [NotNull] Action<IBindingBuilder, T> setBinding, out  IDataBinding binding)
+            where T : class
+        {
+            Should.NotBeNull(setBinding, "setBinding");
+            var bindingBuilder = BindingServiceProvider.BindingProvider.CreateBuilder();
+            setBinding(bindingBuilder, item);
+            binding = bindingBuilder.Build();
+            return item;
+        }
+
+        public static IList<IDataBinding> SetBindings([NotNull]this object item, [NotNull]string bindingExpression, IList<object> sources = null)
+        {
+            return BindingServiceProvider.BindingProvider.CreateBindingsFromString(item, bindingExpression, sources);
+        }
+
+        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
+            [NotNull] string bindings)
+            where T : class
+            where TBindingSet : BindingSet
+        {
+            Should.NotBeNull(item, "item");
+            Should.NotBeNull(bindingSet, "bindingSet");
+            Should.NotBeNull(bindings, "bindings");
+            bindingSet.BindFromExpression(item, bindings);
+            return item;
+        }
+
+
+        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
+            [NotNull] Action<TBindingSet, T> setBinding)
+            where T : class
+            where TBindingSet : BindingSet
+        {
+            Should.NotBeNull(item, "item");
+            Should.NotBeNull(bindingSet, "bindingSet");
+            Should.NotBeNull(setBinding, "setBinding");
+            setBinding(bindingSet, item);
+            return item;
+        }
+
+        public static void ClearBindings<T>([CanBeNull]this T item, bool clearDataContext, bool clearAttachedValues)
+            where T : class
         {
             if (item == null)
                 return;
@@ -663,6 +716,119 @@ namespace MugenMvvmToolkit.Binding
             if (getValue == null)
                 return value;
             return getValue(context);
+        }
+
+        [Pure]
+        internal static bool TryGetMemberPath(Expression expression, string separator, bool throwOnError, out Expression lastExpression, out string path)
+        {
+            lastExpression = expression;
+            path = null;
+            if (expression == null)
+                return false;
+            var ret = new StringBuilder();
+            bool error = false;
+            while (lastExpression.NodeType != ExpressionType.Parameter)
+            {
+                if (error)
+                {
+                    if (throwOnError)
+                        throw BindingExceptionManager.InvalidBindingMemberExpression();
+                    path = ret.ToString();
+                    return false;
+                }
+
+                // This happens when a value type gets boxed
+                if (lastExpression.NodeType == ExpressionType.Convert || lastExpression.NodeType == ExpressionType.ConvertChecked)
+                {
+                    var ue = (UnaryExpression)lastExpression;
+                    lastExpression = ue.Operand;
+                    continue;
+                }
+
+                string memberName;
+                var methodCallExpression = lastExpression as MethodCallExpression;
+                if (methodCallExpression != null)
+                {
+                    if (methodCallExpression.Method.IsDefined(typeof(BindingSyntaxMemberAttribute), true))
+                    {
+                        if (methodCallExpression.Arguments.Count == 0)
+                        {
+                            error = true;
+                            continue;
+                        }
+                        lastExpression = methodCallExpression.Arguments[0];
+                        if (methodCallExpression.Arguments.Count > 1)
+                        {
+                            var constantExpression = methodCallExpression.Arguments[1] as ConstantExpression;
+                            if (constantExpression == null)
+                            {
+                                error = true;
+                                continue;
+                            }
+                            memberName = (string)constantExpression.Value;
+                        }
+                        else
+                            memberName = methodCallExpression.Method.Name;
+                    }
+                    else
+                    {
+                        if (methodCallExpression.Method.Name != "get_Item" ||
+                           methodCallExpression.Arguments.Count != methodCallExpression.Arguments.Count(e => e is ConstantExpression))
+                        {
+                            error = true;
+                            continue;
+                        }
+                        string s = string.Join(",", methodCallExpression.Arguments.Cast<ConstantExpression>().Select(e => e.Value));
+                        memberName = "[" + s + "]";
+                        lastExpression = methodCallExpression.Object;
+                    }
+                }
+                else if (lastExpression.NodeType != ExpressionType.MemberAccess)
+                {
+                    error = true;
+                    continue;
+                }
+                else
+                {
+                    var me = (MemberExpression)lastExpression;
+                    memberName = me.Member.Name;
+                    lastExpression = me.Expression;
+                }
+
+                if (ret.Length != 0)
+                    ret.Insert(0, separator);
+                ret.Insert(0, memberName);
+                if (lastExpression == null)
+                    break;
+            }
+            path = ret.ToString();
+            return true;
+        }
+
+        internal static BindingSource CreateBindingSourceExplicit(IDataContext context, string path, object src)
+        {
+            if (src == null)
+                src = context.GetData(BindingBuilderConstants.Source, true);
+            IObserver observer = BindingServiceProvider
+                .ObserverProvider
+                .Observe(src, BindingServiceProvider.BindingPathFactory(path), false);
+            return new BindingSource(observer);
+        }
+
+        internal static BindingSource CreateBindingSource(IDataContext context, string path)
+        {
+            IBindingContext bindingContext = BindingServiceProvider
+                     .ContextManager
+                     .GetBindingContext(context.GetData(BindingBuilderConstants.Target, true),
+                         context.GetData(BindingBuilderConstants.TargetPath, true).Path);
+            IObserver observer = BindingServiceProvider.ObserverProvider.Observe(bindingContext, BindingServiceProvider.BindingPathFactory(path), false);
+            return new BindingSource(observer);
+        }
+
+        internal static BindingSource CreateBindingSourceSelf(IDataContext context, string path)
+        {
+            object target = context.GetData(BindingBuilderConstants.Target, true);
+            return new BindingSource(BindingServiceProvider.ObserverProvider.Observe(target, BindingServiceProvider.BindingPathFactory(path), false));
         }
 
         private static object AsResourceMethodDelegate<TArg1, TResult>(this Func<TArg1, IDataContext, TResult> method, IList<Type> types, IList<object> args, IDataContext context)

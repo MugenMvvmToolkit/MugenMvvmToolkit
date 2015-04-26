@@ -289,7 +289,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                             break;
                     }
                 }
-                if (!fullNameEqual && type.FullName == typeName)
+                if (!fullNameEqual && (type.FullName == typeName || type.AssemblyQualifiedName == typeName))
                 {
                     fullNameEqual = true;
                     if (shortNameEqual)

@@ -29,9 +29,6 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
-#if NET4
-using AttachedValueProviderDefault = MugenMvvmToolkit.Infrastructure.AttachedValueProvider;
-#endif
 
 namespace MugenMvvmToolkit
 {
@@ -150,31 +147,11 @@ namespace MugenMvvmToolkit
         {
             get
             {
-#if PCL_Silverlight
-                if (_attachedValueProvider == null)
-                    throw ExceptionManager.ObjectNotInitialized("AttachedValueProvider", typeof(IAttachedValueProvider));
-#else
                 if (_attachedValueProvider == null)
                     Interlocked.CompareExchange(ref _attachedValueProvider, new AttachedValueProviderDefault(), null);
-#endif
                 return _attachedValueProvider;
             }
             set { _attachedValueProvider = value; }
-        }
-
-        /// <summary>
-        ///     Gets the flag that indicates that the attached value provider is initialized.
-        /// </summary>
-        public static bool HasAttachedValueProvider
-        {
-            get
-            {
-#if PCL_Silverlight
-                return _attachedValueProvider != null;
-#else
-                return true;
-#endif
-            }
         }
 
         /// <summary>

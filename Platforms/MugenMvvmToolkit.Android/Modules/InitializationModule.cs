@@ -37,12 +37,6 @@ namespace MugenMvvmToolkit.Modules
     {
         #region Cosntructors
 
-        static InitializationModule()
-        {
-            if (ServiceProvider.DesignTimeManager.IsDesignMode)
-                ServiceProvider.AttachedValueProvider = new AttachedValueProvider();
-        }
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="InitializationModule" /> class.
         /// </summary>

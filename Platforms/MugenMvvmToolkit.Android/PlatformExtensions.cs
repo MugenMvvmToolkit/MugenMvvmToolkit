@@ -31,11 +31,9 @@ using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Modules;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Mediators;
@@ -483,37 +481,6 @@ namespace MugenMvvmToolkit
             }
         }
 
-        public static IList<IDataBinding> SetBindings(this IJavaObject item, string bindingExpression,
-            IList<object> sources = null)
-        {
-            return BindingServiceProvider.BindingProvider.CreateBindingsFromString(item, bindingExpression, sources);
-        }
-
-        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
-            [NotNull] string bindings)
-            where T : IJavaObject
-            where TBindingSet : BindingSet
-        {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(bindingSet, "bindingSet");
-            Should.NotBeNull(bindings, "bindings");
-            bindingSet.BindFromExpression(item, bindings);
-            return item;
-        }
-
-
-        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
-            [NotNull] Action<TBindingSet, T> setBinding)
-            where T : IJavaObject
-            where TBindingSet : BindingSet
-        {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(bindingSet, "bindingSet");
-            Should.NotBeNull(setBinding, "setBinding");
-            setBinding(bindingSet, item);
-            return item;
-        }
-
         public static void ClearBindingsRecursively([CanBeNull]this View view, bool clearDataContext, bool clearAttachedValues)
         {
             if (view == null)
@@ -525,11 +492,6 @@ namespace MugenMvvmToolkit
                     viewGroup.GetChildAt(i).ClearBindingsRecursively(clearDataContext, clearAttachedValues);
             }
             view.ClearBindings(clearDataContext, clearAttachedValues);
-        }
-
-        public static void ClearBindings([CanBeNull]this IJavaObject javaObject, bool clearDataContext, bool clearAttachedValues)
-        {
-            BindingExtensions.ClearBindings(javaObject, clearDataContext, clearAttachedValues: clearAttachedValues);
         }
 
         public static void NotifyActivityAttached([CanBeNull] Activity activity, [CanBeNull] View view)

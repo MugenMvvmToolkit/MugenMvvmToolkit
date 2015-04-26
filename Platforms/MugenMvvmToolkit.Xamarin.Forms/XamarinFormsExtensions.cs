@@ -20,12 +20,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Builders;
-using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using Xamarin.Forms;
@@ -90,36 +87,6 @@ namespace MugenMvvmToolkit
                 return null;
             return ServiceProvider.AttachedValueProvider.GetValue<object>(controller, NavParamKey, false);
         }
-        public static IList<IDataBinding> SetBindings(this BindableObject item, string bindingExpression,
-                    IList<object> sources = null)
-        {
-            return BindingServiceProvider.BindingProvider.CreateBindingsFromString(item, bindingExpression, sources);
-        }
-
-        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
-            [NotNull] string bindings)
-            where T : BindableObject
-            where TBindingSet : BindingSet
-        {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(bindingSet, "bindingSet");
-            Should.NotBeNull(bindings, "bindings");
-            bindingSet.BindFromExpression(item, bindings);
-            return item;
-        }
-
-
-        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
-            [NotNull] Action<TBindingSet, T> setBinding)
-            where T : BindableObject
-            where TBindingSet : BindingSet
-        {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(bindingSet, "bindingSet");
-            Should.NotBeNull(setBinding, "setBinding");
-            setBinding(bindingSet, item);
-            return item;
-        }
 
         public static void ClearBindingsRecursively([CanBeNull] this BindableObject item, bool clearDataContext, bool clearAttachedValues)
         {
@@ -147,11 +114,6 @@ namespace MugenMvvmToolkit
                 }
             }
             item.ClearBindings(clearDataContext, clearAttachedValues);
-        }
-
-        public static void ClearBindings([CanBeNull] this BindableObject item, bool clearDataContext, bool clearAttachedValues)
-        {
-            BindingExtensions.ClearBindings(item, clearDataContext, clearAttachedValues);
         }
 
         internal static PlatformInfo GetPlatformInfo()

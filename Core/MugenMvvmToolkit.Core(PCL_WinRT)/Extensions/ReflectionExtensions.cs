@@ -394,7 +394,7 @@ namespace MugenMvvmToolkit
 #if PCL_WINRT
                 if (constructor == null || modulesToLoad.Any(type => type != moduleType && type.GetTypeInfo().IsSubclassOf(moduleType)))
 #else
-                if (constructor == null|| modulesToLoad.Any(type => type != moduleType && type.IsSubclassOf(moduleType)))
+                if (constructor == null || modulesToLoad.Any(type => type != moduleType && type.IsSubclassOf(moduleType)))
 #endif
                 {
                     modulesToLoad.Remove(moduleType);
@@ -422,10 +422,8 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static bool IsMicrosoftAssembly(this Assembly assembly)
         {
-#if !PCL_Silverlight
             if (assembly.IsDynamic)
                 return false;
-#endif
             return assembly.HasKnownPublicKey(true);
         }
 
@@ -434,10 +432,8 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static bool IsToolkitAssembly(this Assembly assembly)
         {
-#if !PCL_Silverlight
             if (assembly.IsDynamic)
                 return false;
-#endif
             return !assembly.HasKnownPublicKey(false);
         }
 
@@ -672,32 +668,6 @@ namespace MugenMvvmToolkit
         internal static void SetValue<TValue>(this FieldInfo field, object target, TValue value)
         {
             field.SetValue(target, value);
-        }
-
-        /// <summary>
-        ///     This method is used to reduce closure allocation in generatde methods.
-        /// </summary>
-        internal static object AsFunc(this Action<object[]> action, object target, object[] args)
-        {
-            action(args);
-            return null;
-        }
-
-        /// <summary>
-        ///     This method is used to reduce closure allocation in generatde methods.
-        /// </summary>
-        internal static object AsFunc(this Action<object, object[]> action, object target, object[] args)
-        {
-            action(target, args);
-            return null;
-        }
-
-        /// <summary>
-        ///     This method is used to reduce closure allocation in generatde methods.
-        /// </summary>
-        internal static object AsFunc(this Func<object[], object> func, object target, object[] args)
-        {
-            return func(args);
         }
 
         private static void UnsubscribePropertyChanged(object sender, PropertyChangedEventHandler handler)

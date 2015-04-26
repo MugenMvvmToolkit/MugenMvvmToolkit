@@ -18,7 +18,6 @@
 
 using System;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;

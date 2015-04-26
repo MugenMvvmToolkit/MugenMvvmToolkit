@@ -52,12 +52,6 @@
     <Reference Include="MugenInjection.Core">
       <HintPath>..\..\packages\MugenInjection.3.5.1\lib\net45-full\MugenInjection.Core.dll</HintPath>
     </Reference>
-    <Reference Include="MugenMvvmToolkit.MugenContainer">
-      <HintPath>..\..\bin\IocContainers\Mugen\NET4.0\MugenMvvmToolkit.MugenContainer.dll</HintPath>
-    </Reference>
-    <Reference Include="MugenMvvmToolkit.NinjectContainer">
-      <HintPath>..\..\bin\IocContainers\Ninject\NET4.0\MugenMvvmToolkit.NinjectContainer.dll</HintPath>
-    </Reference>
     <Reference Include="Ninject">
       <HintPath>..\..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
     </Reference>
@@ -91,9 +85,6 @@
     <Compile Include="..\..\Platforms\MugenMvvmToolkit.Android\Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs">
       <Link>TestInfrastructure\SerializableOperationCallbackFactory.cs</Link>
     </Compile>
-    <Compile Include="..\..\Platforms\MugenMvvmToolkit.WinPhone%287.1%29\Infrastructure\WeakReferenceAttachedValueProvider.cs">
-      <Link>TestInfrastructure\WeakReferenceAttachedValueProvider.cs</Link>
-    </Compile>
     <Compile Include="Bindings\Accessors\MultiBindingSourceAccessorTest.cs" />
     <Compile Include="Bindings\Accessors\SingleBindingSourceAccessorTest.cs" />
     <Compile Include="Bindings\Behaviors\BindingBehaviorTestBase.cs" />
@@ -106,6 +97,7 @@
     <Compile Include="Bindings\Behaviors\TwoWayBindingModeTest.cs" />
     <Compile Include="Bindings\Core\BindingContextManagerTest.cs" />
     <Compile Include="Bindings\Core\BindingManagerTest.cs" />
+    <Compile Include="Bindings\Extensions\BindingSyntaxExtensionsTest.cs" />
     <Compile Include="Bindings\Infrastructure\ObserverProviderTest.cs" />
     <Compile Include="Bindings\Infrastructure\WeakEventManagerTest.cs" />
     <Compile Include="Bindings\Models\AttachedBindingMemberTest.cs" />
@@ -126,7 +118,6 @@
     <Compile Include="Infrastructure\ActionTokenTest.cs" />
     <Compile Include="Collections\CollectionTestBase.cs" />
     <Compile Include="Infrastructure\AttachedValueProviderTestBase.cs" />
-    <Compile Include="Infrastructure\AttachedValueProviderWindowsPhoneTest.cs" />
     <Compile Include="Infrastructure\Callbacks\AsyncOperationTest.cs" />
     <Compile Include="Infrastructure\Callbacks\DelegateSerializableCallbackTest.cs" />
     <Compile Include="Infrastructure\Callbacks\SerializableAsyncOperationTest.cs" />
@@ -241,6 +232,14 @@
       <Project>{c66077d8-dbfd-479d-adab-bf569263e914}</Project>
       <Name>MugenMvvmToolkit.AutofacContainer%28PCL%29</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.MugenContainer%28NET4.0%29\MugenMvvmToolkit.MugenContainer%28NET4.0%29.csproj">
+      <Project>{048706a3-6ab2-47b3-9649-ad9d4f2b15bb}</Project>
+      <Name>MugenMvvmToolkit.MugenContainer%28NET4.0%29</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.NinjectContainer%28NET4%29\MugenMvvmToolkit.NinjectContainer%28NET4%29.csproj">
+      <Project>{1eb1a717-7102-4138-8a37-42dfd943e0f9}</Project>
+      <Name>MugenMvvmToolkit.NinjectContainer%28NET4%29</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.Binding.WPF%284.5%29\MugenMvvmToolkit.Binding.WPF%284.5%29.csproj">
       <Project>{215572d5-13a0-46eb-a983-a5433930b361}</Project>
       <Name>MugenMvvmToolkit.Binding.WPF%284.5%29</Name>
@@ -255,6 +254,7 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

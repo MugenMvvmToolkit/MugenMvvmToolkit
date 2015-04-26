@@ -22,7 +22,6 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -64,42 +63,6 @@ namespace MugenMvvmToolkit
         #endregion
 
         #region Methods
-
-        public static IList<IDataBinding> SetBindings(this IComponent item, string bindingExpression,
-             IList<object> sources = null)
-        {
-            return BindingServiceProvider.BindingProvider.CreateBindingsFromString(item, bindingExpression, sources);
-        }
-
-        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
-            [NotNull] string bindings)
-            where T : IComponent
-            where TBindingSet : BindingSet
-        {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(bindingSet, "bindingSet");
-            Should.NotBeNull(bindings, "bindings");
-            bindingSet.BindFromExpression(item, bindings);
-            return item;
-        }
-
-
-        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
-            [NotNull] Action<TBindingSet, T> setBinding)
-            where T : IComponent
-            where TBindingSet : BindingSet
-        {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(bindingSet, "bindingSet");
-            Should.NotBeNull(setBinding, "setBinding");
-            setBinding(bindingSet, item);
-            return item;
-        }
-
-        public static void ClearBindings([CanBeNull] this IComponent component, bool clearDataContext, bool clearAttachedValues)
-        {
-            BindingExtensions.ClearBindings(component, clearDataContext, clearAttachedValues);
-        }
 
         /// <summary>
         ///     Converts a collection to the <see cref="BindingListWrapper{T}" /> collection.

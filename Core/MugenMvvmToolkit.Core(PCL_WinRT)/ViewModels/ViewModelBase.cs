@@ -40,16 +40,16 @@ namespace MugenMvvmToolkit.ViewModels
     {
         #region Nested types
 
-        private sealed class BusyToken : IBusyToken, IHandler<IBusyToken>
+        private sealed class BusyToken : IBusyToken, IBusyTokenCallback
         {
             #region Fields
 
-            private static readonly List<IHandler<IBusyToken>> CompletedList;
+            private static readonly List<IBusyTokenCallback> CompletedList;
 
             private readonly WeakReference _ref;
             private readonly object _message;
 
-            private List<IHandler<IBusyToken>> _listeners;
+            private List<IBusyTokenCallback> _listeners;
             private BusyToken _prev;
             private BusyToken _next;
 
@@ -59,7 +59,7 @@ namespace MugenMvvmToolkit.ViewModels
 
             static BusyToken()
             {
-                CompletedList = new List<IHandler<IBusyToken>>(1);
+                CompletedList = new List<IBusyTokenCallback>(1);
             }
 
             public BusyToken(IHasWeakReference vm, object message)
@@ -78,16 +78,16 @@ namespace MugenMvvmToolkit.ViewModels
 
             #region Methods
 
-            public void Combine(ViewModelBase vm)
+            public bool Combine(ViewModelBase vm)
             {
                 if (IsCompleted)
-                    return;
+                    return false;
                 object oldMessage;
                 bool oldBusy;
                 lock (_ref)
                 {
                     if (IsCompleted)
-                        return;
+                        return false;
                     if (vm._busyTail != null)
                     {
                         _prev = vm._busyTail;
@@ -101,6 +101,7 @@ namespace MugenMvvmToolkit.ViewModels
                     vm.OnPropertyChanged(Empty.BusyMessageChangedArgs);
                 if (oldBusy != vm.IsBusy)
                     vm.OnPropertyChanged(Empty.IsBusyChangedArgs);
+                return true;
             }
 
             public IList<IBusyToken> GetTokens(ViewModelBase vm)
@@ -134,11 +135,11 @@ namespace MugenMvvmToolkit.ViewModels
                 get { return _message; }
             }
 
-            public void Register(IHandler<IBusyToken> handler)
+            public void Register(IBusyTokenCallback callback)
             {
                 if (IsCompleted)
                 {
-                    handler.Handle(this, this);
+                    callback.OnCompleted(this);
                     return;
                 }
                 lock (_ref)
@@ -146,17 +147,17 @@ namespace MugenMvvmToolkit.ViewModels
                     if (!IsCompleted)
                     {
                         if (_listeners == null)
-                            _listeners = new List<IHandler<IBusyToken>>(2);
-                        _listeners.Add(handler);
+                            _listeners = new List<IBusyTokenCallback>(2);
+                        _listeners.Add(callback);
                         return;
                     }
                 }
-                handler.Handle(this, this);
+                callback.OnCompleted(this);
             }
 
             public void Dispose()
             {
-                IHandler<IBusyToken>[] listeners = null;
+                IBusyTokenCallback[] listeners = null;
                 ViewModelBase vm = null;
                 object oldMessage = null;
                 bool oldBusy = false;
@@ -184,7 +185,7 @@ namespace MugenMvvmToolkit.ViewModels
                 if (listeners != null)
                 {
                     for (int i = 0; i < listeners.Length; i++)
-                        listeners[i].Handle(this, this);
+                        listeners[i].OnCompleted(this);
                 }
                 if (vm != null)
                 {
@@ -195,7 +196,7 @@ namespace MugenMvvmToolkit.ViewModels
                 }
             }
 
-            public void Handle(object sender, IBusyToken message)
+            public void OnCompleted(IBusyToken token)
             {
                 Dispose();
             }
@@ -418,6 +419,7 @@ namespace MugenMvvmToolkit.ViewModels
             var token = new BusyToken(this, message ?? Settings.DefaultBusyMessage);
             token.Combine(this);
             Publish(token);
+            OnBeginBusy(token);
             return token;
         }
 
@@ -635,7 +637,8 @@ namespace MugenMvvmToolkit.ViewModels
                 if (messageMode.HasFlagEx(HandleMode.Handle))
                 {
                     var token = new BusyToken(this, busyToken);
-                    token.Combine(this);
+                    if (token.Combine(this))
+                        OnBeginBusy(token);
                 }
                 if (messageMode.HasFlagEx(HandleMode.NotifySubscribers))
                     PublishInternal(sender, message);
@@ -734,6 +737,13 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="sender">The object that raised the event.</param>
         /// <param name="message">Information about event.</param>
         protected virtual void OnHandle(object sender, object message)
+        {
+        }
+
+        /// <summary>
+        ///     This method will be invoked when a busy operation is started.
+        /// </summary>
+        protected virtual void OnBeginBusy(IBusyToken token)
         {
         }
 

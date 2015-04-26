@@ -114,7 +114,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (accessor != null)
                 return accessor;
 
-            var types = DataAnnotationValidatior.GetMetadataTypes(ExpressionReflectionManager.GetDeclaringType(memberInfo));
+            var types = DataAnnotationValidatior.GetMetadataTypes(memberInfo.DeclaringType);
             for (int index = 0; index < types.Length; index++)
             {
                 MemberInfo metaMemberInfo = TryFindMetaMemberInfo(types[index], memberInfo);

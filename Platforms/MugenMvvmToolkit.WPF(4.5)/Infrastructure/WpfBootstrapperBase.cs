@@ -70,8 +70,8 @@ namespace MugenMvvmToolkit.Infrastructure
             : base(PlatformExtensions.GetPlatformInfo())
         {
             Should.NotBeNull(application, "application");
-            if (autoStart)
-                application.Startup += ApplicationOnStartup;
+            application.Startup += ApplicationOnStartup;
+            AutoStart = autoStart;
         }
 
         #endregion
@@ -79,12 +79,17 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Properties
 
         /// <summary>
+        ///     Indicates that bootstrapper should call the Start method when Application.Startup is raised.
+        /// </summary>
+        public bool AutoStart { get; set; }
+
+        /// <summary>
         ///     Indicates that the MainWindow should use only Uri navigation.
         /// </summary>
         protected bool UseUriNavigation { get; set; }
 
         /// <summary>
-        /// An application shuts down when either the main view model closes, or Application.Shutdown() is called.
+        ///     An application shuts down when either the main view model closes, or Application.Shutdown() is called.
         /// </summary>
         public bool ShutdownOnMainViewModelClose { get; set; }
 
@@ -196,7 +201,8 @@ namespace MugenMvvmToolkit.Infrastructure
             var application = sender as Application;
             if (application != null)
                 application.Startup -= ApplicationOnStartup;
-            Start();
+            if (AutoStart)
+                Start();
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)

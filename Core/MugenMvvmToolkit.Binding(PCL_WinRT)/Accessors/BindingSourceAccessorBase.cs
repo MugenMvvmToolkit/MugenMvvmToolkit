@@ -39,7 +39,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
         #region Nested types
 
         /// <summary>
-        /// Represents the bindings parameters.
+        ///     Represents the bindings parameters.
         /// </summary>
         protected sealed class BindingParameters
         {

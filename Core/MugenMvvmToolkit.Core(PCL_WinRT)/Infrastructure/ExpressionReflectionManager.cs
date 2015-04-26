@@ -33,17 +33,6 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Nested types
 
-#if PCL_Silverlight
-        private static class Assigner<T>
-        {
-            // ReSharper disable once UnusedMember.Local
-            public static T Assign(ref T left, T right)
-            {
-                return (left = right);
-            }
-        }
-#endif
-
         /// <summary>
         /// Represents the key cache comparer.
         /// </summary>
@@ -139,6 +128,8 @@ namespace MugenMvvmToolkit.Infrastructure
         private static readonly Dictionary<MethodDelegateCacheKey, Delegate> InvokeMethodCacheDelegate;
         private static Func<Type, Expression, IEnumerable<ParameterExpression>, LambdaExpression> _createLambdaExpressionByType;
         private static Func<Expression, ParameterExpression[], LambdaExpression> _createLambdaExpression;
+        private static readonly ParameterExpression EmptyParameterExpression;
+        private static readonly ConstantExpression NullConstantExpression;
 
         #endregion
 
@@ -154,6 +145,8 @@ namespace MugenMvvmToolkit.Infrastructure
             MemberAccessCache = new Dictionary<MemberInfo, Delegate>();
             MemberSetterCache = new Dictionary<MemberInfo, Delegate>();
             InvokeMethodCacheDelegate = new Dictionary<MethodDelegateCacheKey, Delegate>(MethodDelegateCacheKeyComparer.Instance);
+            EmptyParameterExpression = Expression.Parameter(typeof(object));
+            NullConstantExpression = Expression.Constant(null, typeof(object));
         }
 
         #endregion
@@ -308,7 +301,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     {
                         var thisParam = Expression.Parameter(delegateParams[0].ParameterType, "@this");
                         parameters.Add(thisParam);
-                        expressions.Add(ConvertIfNeed(thisParam, GetDeclaringType(method), false));
+                        expressions.Add(ConvertIfNeed(thisParam, method.DeclaringType, false));
                         delegateParams.RemoveAt(0);
                     }
                     Should.BeValid("delegateType", delegateParams.Count == methodParams.Length);
@@ -360,7 +353,7 @@ namespace MugenMvvmToolkit.Infrastructure
                         accessExp = Expression.MakeMemberAccess(null, member);
                     else
                     {
-                        Type declaringType = GetDeclaringType(member);
+                        Type declaringType = member.DeclaringType;
                         accessExp = Expression.MakeMemberAccess(ConvertIfNeed(target, declaringType, false), member);
                     }
                     value = Expression
@@ -391,7 +384,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 Delegate action;
                 if (!MemberAccessCache.TryGetValue(member, out action) || !(action is Action<object, TType>))
                 {
-                    var declaringType = GetDeclaringType(member);
+                    var declaringType = member.DeclaringType;
                     var fieldInfo = member as FieldInfo;
 #if PCL_WINRT
                     if (declaringType.GetTypeInfo().IsValueType)
@@ -422,7 +415,7 @@ namespace MugenMvvmToolkit.Infrastructure
                         if (propertyInfo != null)
                             setMethod = propertyInfo.GetSetMethod(true);
                         Should.MethodBeSupported(propertyInfo != null && setMethod != null,
-                            "supports only properties(non-readonly) and fields");
+                            "supports only properties (non-readonly) and fields");
                         var valueExpression = ConvertIfNeed(valueParameter, propertyInfo.PropertyType, false);
                         expression =
                             Expression.Call(setMethod.IsStatic ? null : ConvertIfNeed(target, declaringType, false),
@@ -431,7 +424,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     else
                     {
                         expression = Expression.Field(fieldInfo.IsStatic ? null : ConvertIfNeed(target, declaringType, false), fieldInfo);
-                        expression = Assign(expression, ConvertIfNeed(valueParameter, fieldInfo.FieldType, false));
+                        expression = Expression.Assign(expression, ConvertIfNeed(valueParameter, fieldInfo.FieldType, false));
                     }
                     action = Expression
                         .Lambda<Action<object, TType>>(expression, targetParameter, valueParameter)
@@ -445,19 +438,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Methods
-
-        /// <summary>
-        /// Creates the binary expression that represents an assign statement.
-        /// </summary>
-        public static Expression Assign(Expression left, Expression right)
-        {
-#if PCL_Silverlight
-            var assign = typeof(Assigner<>).MakeGenericType(left.Type).GetMethod("Assign");
-            return Expression.Call(null, assign, left, right);
-#else
-            return Expression.Assign(left, right);
-#endif
-        }
 
         /// <summary>
         /// Tries to create method delegate.
@@ -519,28 +499,25 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 callExpression = Expression.Call(null, methodInfo, expressions);
                 if (isVoid)
-                {
                     return Expression
-                        .Lambda<Action<object[]>>(callExpression, parameterExpression)
-                        .Compile()
-                        .AsFunc;
-                }
+                        .Lambda<Func<object, object[], object>>(
+                            Expression.Block(callExpression, NullConstantExpression), EmptyParameterExpression,
+                            parameterExpression)
+                        .Compile();
+
                 callExpression = ConvertIfNeed(callExpression, typeof(object), false);
                 return Expression
-                    .Lambda<Func<object[], object>>(callExpression, parameterExpression)
-                    .Compile()
-                    .AsFunc;
+                    .Lambda<Func<object, object[], object>>(callExpression, EmptyParameterExpression, parameterExpression)
+                    .Compile();
             }
-            Type declaringType = GetDeclaringType(methodInfo);
+            Type declaringType = methodInfo.DeclaringType;
             var targetExp = Expression.Parameter(typeof(object), "target");
             callExpression = Expression.Call(ConvertIfNeed(targetExp, declaringType, false), methodInfo, expressions);
             if (isVoid)
-            {
                 return Expression
-                    .Lambda<Action<object, object[]>>(callExpression, targetExp, parameterExpression)
-                    .Compile()
-                    .AsFunc;
-            }
+                    .Lambda<Func<object, object[], object>>(Expression.Block(callExpression, NullConstantExpression),
+                        targetExp, parameterExpression)
+                    .Compile();
             callExpression = ConvertIfNeed(callExpression, typeof(object), false);
             return Expression
                 .Lambda<Func<object, object[], object>>(callExpression, targetExp, parameterExpression)
@@ -583,15 +560,6 @@ namespace MugenMvvmToolkit.Infrastructure
                 argsExp[i] = paramCastExp;
             }
             return argsExp;
-        }
-
-        internal static Type GetDeclaringType(MemberInfo member)
-        {
-#if PCL_WINRT
-            return member.DeclaringType;
-#else
-            return member.DeclaringType ?? member.ReflectedType;
-#endif
         }
 
         internal static Expression ConvertIfNeed(Expression expression, Type type, bool exactly)

@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Threading;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
@@ -61,6 +60,25 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private sealed class MessageSenderCacheComparer : IEqualityComparer<MessageSenderCache>
         {
+            #region Fields
+
+            public static readonly MessageSenderCacheComparer Instance;
+
+            #endregion
+
+            #region Constructors
+
+            static MessageSenderCacheComparer()
+            {
+                Instance = new MessageSenderCacheComparer();
+            }
+
+            private MessageSenderCacheComparer()
+            {
+            }
+
+            #endregion
+
             #region Implementation of IEqualityComparer<in MessageSenderCache>
 
             public bool Equals(MessageSenderCache x, MessageSenderCache y)
@@ -85,7 +103,11 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Fields
 
-        private static readonly Dictionary<int, HashSet<MessageSenderCache>> HandledMessagesField;
+        private static readonly MessageSenderCache EmptyMessage;
+
+        [ThreadStatic]
+        private static HashSet<MessageSenderCache> _threadHandledMessages;
+
         private readonly List<ISubscriber> _subscribers;
         private readonly bool _trace;
 
@@ -95,7 +117,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         static EventAggregator()
         {
-            HandledMessagesField = new Dictionary<int, HashSet<MessageSenderCache>>();
+            var subscriber = new ActionSubscriber<object>((o, o1) => { });
+            EmptyMessage = new MessageSenderCache(subscriber, subscriber, subscriber, 0);
         }
 
         /// <summary>
@@ -127,32 +150,23 @@ namespace MugenMvvmToolkit.Infrastructure
             get { return _subscribers; }
         }
 
-        private static int ManagedThreadId
-        {
-            get
-            {
-#if PCL_WINRT
-                return Environment.CurrentManagedThreadId;
-#else
-                return Thread.CurrentThread.ManagedThreadId;
-#endif
-            }
-        }
-
         private static HashSet<MessageSenderCache> GetHandledMessages(out bool owner)
         {
-            owner = false;
-            lock (HandledMessagesField)
+            var handledMessages = _threadHandledMessages;
+            if (handledMessages == null)
             {
-                HashSet<MessageSenderCache> instance;
-                if (!HandledMessagesField.TryGetValue(ManagedThreadId, out instance))
-                {
-                    owner = true;
-                    instance = new HashSet<MessageSenderCache>(new MessageSenderCacheComparer());
-                    HandledMessagesField.Add(ManagedThreadId, instance);
-                }
-                return instance;
+                handledMessages = new HashSet<MessageSenderCache>(MessageSenderCacheComparer.Instance);
+                _threadHandledMessages = handledMessages;
             }
+
+            if (handledMessages.Count == 0)
+            {
+                owner = true;
+                handledMessages.Add(EmptyMessage);
+            }
+            else
+                owner = false;
+            return handledMessages;
         }
 
         #endregion
@@ -208,10 +222,7 @@ namespace MugenMvvmToolkit.Infrastructure
             finally
             {
                 if (owner)
-                {
-                    lock (HandledMessagesField)
-                        HandledMessagesField.Remove(ManagedThreadId);
-                }
+                    handledMessages.Clear();
             }
         }
 
@@ -302,10 +313,10 @@ namespace MugenMvvmToolkit.Infrastructure
                 return;
             ISubscriber subscriber = converter(target, context);
             bool owner;
-            HashSet<MessageSenderCache> messages = GetHandledMessages(out owner);
+            HashSet<MessageSenderCache> handledMessages = GetHandledMessages(out owner);
             try
             {
-                if (messages.Add(new MessageSenderCache(sender, message, subscriber, GetHash(sender, message))))
+                if (handledMessages.Add(new MessageSenderCache(sender, message, subscriber, GetHash(sender, message))))
                 {
                     if (subscriber.Handle(sender, message) == HandlerResult.Handled && message is ITracebleMessage)
                         Trace(sender, message, target);
@@ -314,10 +325,7 @@ namespace MugenMvvmToolkit.Infrastructure
             finally
             {
                 if (owner)
-                {
-                    lock (HandledMessagesField)
-                        HandledMessagesField.Remove(ManagedThreadId);
-                }
+                    handledMessages.Clear();
             }
         }
 
@@ -351,7 +359,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             unchecked
             {
-                return ((RuntimeHelpers.GetHashCode(sender)*397) ^ RuntimeHelpers.GetHashCode(message)*397);
+                return ((RuntimeHelpers.GetHashCode(sender) * 397) ^ RuntimeHelpers.GetHashCode(message) * 397);
             }
         }
 

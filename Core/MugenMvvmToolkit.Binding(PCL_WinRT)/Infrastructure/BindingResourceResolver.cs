@@ -21,8 +21,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.DataConstants;
+using MugenMvvmToolkit.Binding.Extensions.Syntax;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -174,6 +174,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private readonly List<WeakReference> _instanceObjects;
         private string _bindingSourceResourceName;
         private string _rootElementResourceName;
+        private string _selfResourceName;
 
         #endregion
 
@@ -186,6 +187,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             BindingSourceResourceName = "src";
             RootElementResourceName = "root";
+            SelfResourceName = "self";
             _behaviors = new Dictionary<string, Func<IDataContext, IList<object>, IBindingBehavior>>();
             _converters = new Dictionary<string, IBindingValueConverter>();
             _dynamicMethods = new Dictionary<string, IBindingResourceMethod>
@@ -247,6 +249,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Should.NotBeNull(resolver, "resolver");
             RootElementResourceName = resolver.RootElementResourceName;
             BindingSourceResourceName = resolver.BindingSourceResourceName;
+            SelfResourceName = resolver.SelfResourceName;
             _behaviors = new Dictionary<string, Func<IDataContext, IList<object>, IBindingBehavior>>(resolver._behaviors);
             _converters = new Dictionary<string, IBindingValueConverter>(resolver._converters);
             _dynamicMethods = new Dictionary<string, IBindingResourceMethod>(resolver._dynamicMethods);
@@ -314,13 +317,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         private static object GetErrorsMethod(IList<Type> types, object[] objects, IDataContext arg3)
         {
-            var binding = arg3.GetData(BindingConstants.Binding);
-            if (binding == null)
-                return Empty.Array<object>();
-            var behavior = binding.Behaviors.OfType<NotifyDataErrorsAggregatorBehavior>().FirstOrDefault();
-            if (behavior == null)
-                return Empty.Array<object>();
-            return behavior.Errors;
+            //The first argument must always be an identifier.
+            return BindingSyntaxEx.GetErrorsImpl((Guid)objects[0], arg3, objects);
         }
 
         /// <summary>
@@ -332,6 +330,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         [CanBeNull]
         protected virtual ISourceValue ResolveObjectInternal([NotNull] object target, string name, IDataContext context)
         {
+            if (SelfResourceName.Equals(name, StringComparison.Ordinal))
+                return new BindingResourceObject(target, true);
             if (RootElementResourceName.Equals(name, StringComparison.Ordinal))
             {
                 var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
@@ -381,7 +381,20 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Implementation of IExpressionMemberResolver
 
         /// <summary>
-        ///     Gets or sets the name of binding source resource default is <c>root</c>.
+        ///     Gets or sets the name of self element resource default is <c>self</c>.
+        /// </summary>
+        public string SelfResourceName
+        {
+            get { return _selfResourceName; }
+            set
+            {
+                Should.PropertyNotBeNull(value);
+                _selfResourceName = value;
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the name of root element resource default is <c>root</c>.
         /// </summary>
         public string RootElementResourceName
         {

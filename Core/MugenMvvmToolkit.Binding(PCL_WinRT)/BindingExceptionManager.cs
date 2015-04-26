@@ -33,6 +33,8 @@ namespace MugenMvvmToolkit.Binding
     {
         #region Fields
 
+        internal const string ObsoleteExpressionUsage = "Performance issue: use the method overload with Func argument (() => vm => vm.Prop) instead of Expression (vm => vm.Prop). The method will be removed in the next version.";
+
         internal const string ElementSourceNotFoundFormat2 =
             "The ElementSource cannot be found, the provider returns the null result for the source type '{0}' target element name '{1}'";
 
@@ -241,6 +243,11 @@ namespace MugenMvvmToolkit.Binding
             return
                 new InvalidOperationException(string.Format(
                     "The source '{0}' does not contain an event with name '{1}'", source, eventName));
+        }
+
+        internal static Exception MethodNotSupportedBindingExpression()
+        {
+            return new NotSupportedException("This method is used exclusively for the construction of binding expression.");
         }
 
         #endregion

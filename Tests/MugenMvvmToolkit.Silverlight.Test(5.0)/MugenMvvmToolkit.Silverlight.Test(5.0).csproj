@@ -150,6 +150,9 @@
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\Bindings\Core\DataBindingTest.cs">
       <Link>Bindings\Core\DataBindingTest.cs</Link>
     </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf.test%284.5%29\bindings\extensions\BindingSyntaxExtensionsTest.cs">
+      <Link>Bindings\Extensions\BindingSyntaxExtensionsTest.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\Bindings\Infrastructure\BindingMemberProviderTest.cs">
       <Link>Bindings\Infrastructure\BindingMemberProviderTest.cs</Link>
     </Compile>

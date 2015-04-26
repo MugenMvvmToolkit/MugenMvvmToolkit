@@ -52,10 +52,19 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             Should.NotBeNull(application, "application");
             _application = application;
-            if (autoStart)
-                application.Startup += ApplicationOnStartup;
+            AutoStart = autoStart;
+            application.Startup += ApplicationOnStartup;
             application.Exit += ApplicationOnExit;
         }
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        ///     Indicates that bootstrapper should call the Start method when Application.Startup is raised.
+        /// </summary>
+        public bool AutoStart { get; set; }
 
         #endregion
 
@@ -113,7 +122,8 @@ namespace MugenMvvmToolkit.Infrastructure
             var application = sender as Application;
             if (application != null)
                 application.Startup -= ApplicationOnStartup;
-            Start();
+            if (AutoStart)
+                Start();
         }
 
         private void ApplicationOnExit(object sender, EventArgs eventArgs)

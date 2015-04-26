@@ -454,6 +454,23 @@ namespace MugenMvvmToolkit.ViewModels
             return iocContainer;
         }
 
+        /// <summary>
+        ///     Calls the event for the specified property.
+        /// </summary>
+        /// <param name="model">The specified model.</param>
+        /// <param name="propName">Specified property name.</param>
+        /// <param name="executionMode">
+        ///     Specifies the execution mode for raise property changed event.
+        /// </param>
+        public static void RaisePropertyChanged([NotNull] NotifyPropertyChangedBase model, string propName, ExecutionMode? executionMode = null)
+        {
+            Should.NotBeNull(model, "model");
+            if (executionMode == null)
+                model.OnPropertyChanged(propName);
+            else
+                model.OnPropertyChanged(propName, executionMode.Value);
+        }
+
         private static DataConstantValue[] MergeParameters(IViewModel parentViewModel,
             IocContainerCreationMode? containerCreationMode, ObservationMode? observationMode, DataConstantValue[] parameters)
         {

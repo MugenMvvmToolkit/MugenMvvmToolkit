@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit</id>
-    <version>3.4.1</version>
+    <version>3.5.0</version>
     <title>MugenMvvmToolkit</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -11,7 +11,7 @@
       - WinForms
       - WPF
       - Silverlight 5
-      - Silverlight for WP7.1, WP8, WP8.1
+      - Silverlight for WP8, WP8.1
       - Xamarin.Android
       - Xamarin.iOS
       - Xamarin.Forms
@@ -59,7 +59,7 @@
       <group targetFramework="portable-net451+win81" />
       <group targetFramework="portable-net451+win81+wpa81" />
       <group targetFramework="portable-win81+wp81+wpa81" />
-      <group targetFramework="portable-net45+sl40+win+wp71">
+      <group targetFramework="portable-net45+sl50+win+wp80">
         <dependency id="Microsoft.Bcl" version="1.1.10" />
         <dependency id="Microsoft.Bcl.Build" version="1.0.21" />
       </group>
@@ -68,10 +68,6 @@
         <dependency id="Microsoft.Bcl.Build" version="1.0.21" />
       </group>
       <group targetFramework="sl50">
-        <dependency id="Microsoft.Bcl" version="1.1.10" />
-        <dependency id="Microsoft.Bcl.Build" version="1.0.21" />
-      </group>
-      <group targetFramework="sl4-windowsphone71">
         <dependency id="Microsoft.Bcl" version="1.1.10" />
         <dependency id="Microsoft.Bcl.Build" version="1.0.21" />
       </group>
@@ -145,14 +141,6 @@
     <file src="..\bin\Platforms\WinPhone\8.0\MugenMvvmToolkit.WinPhone.dll" target="lib\wp8\MugenMvvmToolkit.WinPhone.dll" />
     <file src="..\bin\Platforms\WinPhone\8.0\MugenMvvmToolkit.WinPhone.pdb" target="lib\wp8\MugenMvvmToolkit.WinPhone.pdb" />
     <file src="..\bin\Platforms\WinPhone\8.0\MugenMvvmToolkit.WinPhone.xml" target="lib\wp8\MugenMvvmToolkit.WinPhone.xml" />
-
-    <!-- WP 7.1 -->
-    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.dll" target="lib\sl4-windowsphone71\MugenMvvmToolkit.dll" />
-    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.pdb" target="lib\sl4-windowsphone71\MugenMvvmToolkit.pdb" />
-    <file src="..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.xml" target="lib\sl4-windowsphone71\MugenMvvmToolkit.xml" />
-    <file src="..\bin\Platforms\WinPhone\7.1\MugenMvvmToolkit.WinPhone.dll" target="lib\sl4-windowsphone71\MugenMvvmToolkit.WinPhone.dll" />
-    <file src="..\bin\Platforms\WinPhone\7.1\MugenMvvmToolkit.WinPhone.pdb" target="lib\sl4-windowsphone71\MugenMvvmToolkit.WinPhone.pdb" />
-    <file src="..\bin\Platforms\WinPhone\7.1\MugenMvvmToolkit.WinPhone.xml" target="lib\sl4-windowsphone71\MugenMvvmToolkit.WinPhone.xml" />
 
     <!-- Android -->
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\MonoAndroid10\MugenMvvmToolkit.dll" />

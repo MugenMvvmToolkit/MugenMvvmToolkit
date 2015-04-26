@@ -21,7 +21,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;HASSERIALIZABLE;NONOTIFYDATAERROR;NET4</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;HASSERIALIZABLE;NONOTIFYDATAERROR;NET4;PCL_NET4</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -29,7 +29,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\bin\Core\NET4.0\</OutputPath>
-    <DefineConstants>TRACE;HASSERIALIZABLE;NONOTIFYDATAERROR;NET4</DefineConstants>
+    <DefineConstants>TRACE;HASSERIALIZABLE;NONOTIFYDATAERROR;NET4;PCL_NET4</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\bin\Core\NET4.0\MugenMvvmToolkit.XML</DocumentationFile>
@@ -90,9 +90,6 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\collections\FilterableNotifiableCollection.cs">
       <Link>Collections\FilterableNotifiableCollection.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\collections\HashSetInternal.cs">
-      <Link>Collections\HashSetInternal.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\collections\LightDictionaryBase.cs">
       <Link>Collections\LightDictionaryBase.cs</Link>

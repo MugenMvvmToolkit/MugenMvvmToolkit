@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.Infrastructure
         public virtual ViewResult Create(string name, Context context, IAttributeSet attrs)
         {
             Should.NotBeNullOrWhitespace(name, "name");
-            Type type = TypeCache<View>.Instance.GetTypeByName(name, false, true);
+            Type type = TypeCache<View>.Instance.GetTypeByName(name, true, true);
             return Create(type, context, attrs);
         }
 

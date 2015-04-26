@@ -142,15 +142,6 @@ namespace MugenMvvmToolkit.Modules
             return BindingInfo<ITracer>.FromType<TracerEx>(DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IAttachedValueProvider" /> that will be used by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IAttachedValueProvider" />.</returns>
-        protected override BindingInfo<IAttachedValueProvider> GetAttachedValueProvider()
-        {
-            return BindingInfo<IAttachedValueProvider>.FromType<AttachedValueProvider>(DependencyLifecycle.SingleInstance);
-        }
-
         #endregion
     }
 }

@@ -69,14 +69,13 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         public Bootstrapper([NotNull] Application application, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
             IViewModelSettings viewModelSettings = null, params IModule[] modules)
-            : base(application, true)
+            : base(application)
 #elif WINFORMS
         /// <summary>
         ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
         /// </summary>
         public Bootstrapper([NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
             IViewModelSettings viewModelSettings = null, params IModule[] modules)
-            : base(true)
 #elif WINDOWS_PHONE
         /// <summary>
         ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
@@ -145,11 +144,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (_assemblies == null)
                 return base.GetAssemblies();
-#if WINDOWS_PHONE && V71
-            var assemblies = new List<Assembly>(_assemblies);
-#else
             var assemblies = new HashSet<Assembly>(_assemblies);
-#endif
 #if WINDOWSCOMMON || NETFX_CORE || XAMARIN_FORMS
             assemblies.Add(GetType().GetTypeInfo().Assembly);
             assemblies.Add(typeof(Bootstrapper).GetTypeInfo().Assembly);

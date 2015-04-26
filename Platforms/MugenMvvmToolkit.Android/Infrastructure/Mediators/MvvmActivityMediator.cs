@@ -23,6 +23,7 @@ using Android.Content.Res;
 using Android.OS;
 using Android.Views;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Interfaces;

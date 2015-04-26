@@ -55,6 +55,7 @@
     <Compile Include="Accessors\BindingSourceAccessorBase.cs" />
     <Compile Include="Accessors\MultiBindingSourceAccessor.cs" />
     <Compile Include="AttachedMemberConstants.cs" />
+    <Compile Include="Attributes\BindingSyntaxExtensionsAttribute.cs" />
     <Compile Include="Behaviors\BindingBehaviorBase.cs" />
     <Compile Include="Behaviors\BindingModeBase.cs" />
     <Compile Include="Behaviors\DefaultValueOnExceptionBehavior.cs" />
@@ -79,11 +80,13 @@
     <Compile Include="Converters\InverseBooleanValueConverter.cs" />
     <Compile Include="Converters\ValueConverterBase.cs" />
     <Compile Include="Extensions\BindingReflectionExtensionsCommon.cs" />
+    <Compile Include="Extensions\BindingSyntaxEx.cs" />
     <Compile Include="Infrastructure\BindingContextManager.cs" />
     <Compile Include="Infrastructure\BindingManager.cs" />
     <Compile Include="Infrastructure\BindingProvider.cs" />
     <Compile Include="Infrastructure\DataBinding.cs" />
     <Compile Include="Infrastructure\InvalidDataBinding.cs" />
+    <Compile Include="Interfaces\Syntax\IBuilderSyntaxContext.cs" />
     <Compile Include="Modules\DataBindingModule.cs" />
     <Compile Include="DataConstants\BindingBuilderConstants.cs" />
     <Compile Include="DataConstants\BindingConstants.cs" />
@@ -171,6 +174,7 @@
     <Compile Include="Models\TokenType.cs" />
     <Compile Include="Models\UnsetBindingPathMembers.cs" />
     <Compile Include="Models\WeakEventListenerWrapper.cs" />
+    <Compile Include="Parse\LambdaExpressionToBindingExpressionConverter.cs" />
     <Compile Include="Parse\BindingMemberVisitor.cs" />
     <Compile Include="Parse\BindingParser.cs" />
     <Compile Include="Parse\CompiledExpressionInvoker.cs" />
@@ -219,6 +223,7 @@
       <Link>license.txt</Link>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

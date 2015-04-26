@@ -48,7 +48,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             NavigationService.OnNavigated(new NavigationEventArgsMock(new ViewMock { DataContext = viewModel }, NavigationMode.New));
             NavigationProvider.CurrentViewModel.ShouldEqual(viewModel);
         }
-        
+
         [TestMethod]
         public void ProviderShouldNavigateToViewModelWithViewName()
         {
@@ -208,7 +208,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             var relayCommandMock = new RelayCommandMock();
             var viewModel = GetViewModel<NavigableViewModelMock>();
             viewModel.CloseCommand = relayCommandMock;
-            
+
 
             NavigationService.OnNavigated(new NavigationEventArgsMock(new ViewMock { DataContext = viewModel }, NavigationMode.New));
             viewModel.CloseCommand.ShouldNotEqual(relayCommandMock);

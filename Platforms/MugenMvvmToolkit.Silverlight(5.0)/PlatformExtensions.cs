@@ -39,49 +39,6 @@ namespace MugenMvvmToolkit
     public static class PlatformExtensions
     {
 #if WINDOWS_PHONE
-#if V71
-        //NOTE ConditionalWeakTable not supported on WP 7.8, we should keep references in memory.
-        private static readonly List<WeakReference> WeakReferences;
-
-        private sealed class WeakReferenceCollector
-        {
-            ~WeakReferenceCollector()
-            {
-                if (WeakReferences.Count == 0)
-                    return;
-                try
-                {
-                    lock (WeakReferences)
-                    {
-                        for (int i = 0; i < WeakReferences.Count; i++)
-                        {
-                            if (WeakReferences[i].Target == null)
-                            {
-                                WeakReferences.RemoveAt(i);
-                                i--;
-                            }
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    Tracer.Error(e.Flatten(true));
-                }
-                finally
-                {
-                    GC.ReRegisterForFinalize(this);
-                }
-            }
-        }
-
-        static PlatformExtensions()
-        {
-            WeakReferences = new List<WeakReference>(64);
-            // ReSharper disable once ObjectCreationAsStatement
-            new WeakReferenceCollector();
-        }
-#endif
-
         private const string HandledPath = "#!~handled";
         private const string StatePath = "#!~vmstate";
         private static IApplicationStateManager _applicationStateManager;
@@ -164,15 +121,6 @@ namespace MugenMvvmToolkit
         {
             return type.IsDefined(typeof(DataContractAttribute), false) || type.IsPrimitive;
         }
-#if V71
-        internal static WeakReference CreateWeakReference(object item, bool trackResurrection)
-        {
-            var reference = new WeakReference(item, trackResurrection);
-            lock (WeakReferences)
-                WeakReferences.Add(reference);
-            return reference;
-        }
-#endif
 #endif
 
         internal static PlatformInfo GetPlatformInfo()

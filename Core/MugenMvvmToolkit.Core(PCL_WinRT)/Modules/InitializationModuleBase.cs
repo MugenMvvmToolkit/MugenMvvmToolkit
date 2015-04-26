@@ -103,7 +103,7 @@ namespace MugenMvvmToolkit.Modules
         /// <returns>An instance of <see cref="IAttachedValueProvider" />.</returns>
         protected virtual BindingInfo<IAttachedValueProvider> GetAttachedValueProvider()
         {
-            return BindingInfo<IAttachedValueProvider>.Empty;
+            return BindingInfo<IAttachedValueProvider>.FromType<AttachedValueProviderDefault>(DependencyLifecycle.SingleInstance);
         }
 
         /// <summary>

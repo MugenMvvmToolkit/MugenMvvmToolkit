@@ -42,7 +42,7 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Gets the assembly version.
         /// </summary>
-        public const string AssemblyVersion = "3.4.0.0";
+        public const string AssemblyVersion = "3.5.0.0";
 
         /// <summary>
         ///     Gets the assembly copyright.

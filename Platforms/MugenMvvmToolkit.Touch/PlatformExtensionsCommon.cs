@@ -81,13 +81,7 @@ namespace MugenMvvmToolkit
                 foreach (var subView in subviews)
                     subView.ClearBindingsRecursively(clearDataContext, clearAttachedValues);
             }
-            ClearBindings(view, clearDataContext, clearAttachedValues);
-        }
-
-        public static void ClearBindings([CanBeNull]this INativeObject nativeObject, bool clearDataContext, bool clearAttachedValues)
-        {
-            if (nativeObject.IsAlive())
-                BindingExtensions.ClearBindings(nativeObject, clearDataContext, clearAttachedValues);
+            view.ClearBindings(clearDataContext, clearAttachedValues);
         }
 
         public static void AddOrientationChangeListener([NotNull] IOrientationChangeListener listener)
@@ -252,7 +246,7 @@ namespace MugenMvvmToolkit
                     webView.Delegate = null;
                     webView.WeakDelegate = null;
                 }
-                
+
                 var constraints = view.Constraints;
                 if (constraints != null && constraints.Length > 0 && constraints.All(c => c.Handle != IntPtr.Zero))
                 {

@@ -164,8 +164,8 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
             if (!(target is DependencyObject))
                 return method.Name;
 
-            Type reflectedType = method.ReflectedType;
-            if (reflectedType == null)
+            Type declaringType = method.DeclaringType;
+            if (declaringType == null)
                 return null;
 
             var targetType = target.GetType();
@@ -176,7 +176,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
             if (memberInfo != null)
                 return name;
 
-            var fullName = string.Format("_attached_{0}_{1}", reflectedType.FullName.Replace(".", "_"), name);
+            var fullName = string.Format("_attached_{0}_{1}", declaringType.FullName.Replace(".", "_"), name);
             memberInfo = BindingServiceProvider
                                         .MemberProvider
                                         .GetBindingMember(targetType, fullName, false, false);
@@ -184,7 +184,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
             if (memberInfo != null)
                 return fullName;
 
-            FieldInfo fieldInfo = reflectedType.GetField(name, BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+            FieldInfo fieldInfo = declaringType.GetField(name, BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
             if (fieldInfo == null)
                 return null;
 

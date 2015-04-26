@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Nested types
 
         /// <summary>
-        ///     This is internal class, don't use it, it public only because some platforms have the limitations for reflection.
+        ///     This is internal class, don't use it.
         /// </summary>
         public sealed class WeakListenerInternal : EventListenerList
         {

@@ -166,14 +166,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 list = new List<WrapperRegistration>();
                 _registrations[typeof(TWrapper)] = list;
             }
-#if PCL_Silverlight
-            list.Add(new WrapperRegistration(implementation, condition ?? TrueCondition,
-                wrapperFactory == null
-                    ? null
-                    : new Func<object, IDataContext, object>((o, context) => wrapperFactory(o, context))));
-#else
             list.Add(new WrapperRegistration(implementation, condition ?? TrueCondition, wrapperFactory));
-#endif
         }
 
         /// <summary>

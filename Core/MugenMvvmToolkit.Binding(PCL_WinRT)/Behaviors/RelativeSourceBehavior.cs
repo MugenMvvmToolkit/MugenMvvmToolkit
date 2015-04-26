@@ -25,7 +25,6 @@ using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
-using MugenMvvmToolkit.Binding.Sources;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
@@ -216,9 +215,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 else
                     target = new ParentSourceValue(target, node);
             }
-            IObserver observer = BindingServiceProvider.ObserverProvider.Observe(target,
-                BindingServiceProvider.BindingPathFactory(path), false);
-            return new BindingSource(observer);
+            return BindingExtensions.CreateBindingSourceExplicit(null, path, target);
         }
 
         #endregion

@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -322,26 +323,40 @@ namespace MugenMvvmToolkit.Binding.Models
         /// <summary>
         ///     Initializes a new instance of the <see cref="BindingMemberInfo" /> class.
         /// </summary>
-        public BindingMemberInfo(string path)
+        public BindingMemberInfo(string path, bool expandoObject)
             : this(path, BindingMemberType.Dynamic, typeof(object))
         {
             object[] indexerValues = null;
-            if (path.StartsWith("Item[", StringComparison.Ordinal) || path.StartsWith("[", StringComparison.Ordinal))
-                indexerValues = BindingReflectionExtensions.GetIndexerValues(path, castType: typeof(string));
-            var accessor = new DynamicObjectAccessor(path, indexerValues);
-            if (indexerValues == null)
+            if (expandoObject)
             {
-                _getValueAccessor = accessor.GetValue;
-                _setValueAccessor = accessor.SetValue;
+                _isSingleParameter = true;
+                _getValueAccessorSingle = o =>
+                {
+                    object value;
+                    ((IDictionary<string, object>)o).TryGetValue(path, out value);
+                    return value;
+                };
+                _setValueAccessorSingleAction = (o, v) => ((IDictionary<string, object>)o)[path] = v;
             }
             else
             {
-                _getValueAccessor = accessor.GetValueIndex;
-                _setValueAccessor = accessor.SetValueIndex;
+                if (path.StartsWith("Item[", StringComparison.Ordinal) || path.StartsWith("[", StringComparison.Ordinal))
+                    indexerValues = BindingReflectionExtensions.GetIndexerValues(path, castType: typeof(string));
+                var accessor = new DynamicObjectAccessor(path, indexerValues);
+                if (indexerValues == null)
+                {
+                    _getValueAccessor = accessor.GetValue;
+                    _setValueAccessor = accessor.SetValue;
+                }
+                else
+                {
+                    _getValueAccessor = accessor.GetValueIndex;
+                    _setValueAccessor = accessor.SetValueIndex;
+                }
+                _isDynamic = true;
             }
             _canRead = true;
             _canWrite = true;
-            _isDynamic = true;
         }
 
         #endregion

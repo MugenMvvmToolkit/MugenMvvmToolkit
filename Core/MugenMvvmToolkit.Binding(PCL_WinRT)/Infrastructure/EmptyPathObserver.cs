@@ -31,74 +31,50 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
     {
         #region Nested types
 
-        private sealed class EmptyBindingPathMembers : IBindingPathMembers
+        private sealed class EmptyBindingPathMembers : DefaultListener, IBindingPathMembers
         {
-            #region Fields
-
-            private readonly WeakReference _reference;
-
-            #endregion
-
             #region Constructors
 
-            public EmptyBindingPathMembers(EmptyPathObserver observer)
+            public EmptyBindingPathMembers(WeakReference @ref)
+                : base(@ref)
             {
-                _reference = ServiceProvider.WeakReferenceFactory(observer, true);
             }
 
             #endregion
 
             #region Implementation of IBindingPathMembers
 
-            /// <summary>
-            ///     Gets the <see cref="IBindingPath" />.
-            /// </summary>
             public IBindingPath Path
             {
                 get { return BindingPath.Empty; }
             }
 
-            /// <summary>
-            ///     Gets the value that indicates that all members are available, if <c>true</c>.
-            /// </summary>
             public bool AllMembersAvailable
             {
-                get { return _reference.Target != null; }
+                get { return Ref.Target != null; }
             }
 
-            /// <summary>
-            ///     Gets the available members.
-            /// </summary>
             public IList<IBindingMemberInfo> Members
             {
                 get { return new[] { LastMember }; }
             }
 
-            /// <summary>
-            ///     Gets the last value, if all members is available; otherwise returns the empty value.
-            /// </summary>
             public IBindingMemberInfo LastMember
             {
                 get { return BindingMemberInfo.Empty; }
             }
 
-            /// <summary>
-            ///     Gets the source value.
-            /// </summary>
             public object Source
             {
                 get
                 {
-                    var observer = (ObserverBase)_reference.Target;
+                    var observer = (ObserverBase)Ref.Target;
                     if (observer == null)
                         return null;
                     return observer.GetActualSource();
                 }
             }
 
-            /// <summary>
-            ///     Gets the penultimate value.
-            /// </summary>
             public object PenultimateValue
             {
                 get { return Source; }
@@ -124,7 +100,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             : base(source, path)
         {
             Should.BeSupported(path.IsEmpty, "The EmptyPathObserver supports only empty path members.");
-            _members = new EmptyBindingPathMembers(this);
+            _members = new EmptyBindingPathMembers(ServiceProvider.WeakReferenceFactory(this, true));
+            Initialize((IEventListener)_members);
         }
 
         #endregion

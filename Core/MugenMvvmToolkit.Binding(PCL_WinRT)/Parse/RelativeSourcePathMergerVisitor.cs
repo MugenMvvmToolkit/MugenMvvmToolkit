@@ -35,7 +35,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         /// <summary>
         ///     Gets an instance of <see cref="RelativeSourcePathMergerVisitor" />.
         /// </summary>
-        public static RelativeSourcePathMergerVisitor Instance;
+        public static readonly RelativeSourcePathMergerVisitor Instance;
 
         private static readonly ICollection<string> DefaultElementSourceAliases;
 
