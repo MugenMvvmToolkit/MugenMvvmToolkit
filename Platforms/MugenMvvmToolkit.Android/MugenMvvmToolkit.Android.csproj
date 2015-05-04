@@ -14,8 +14,8 @@
     <FileAlignment>512</FileAlignment>
     <AndroidResgenFile>Resources\Resource.Designer.cs</AndroidResgenFile>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <AndroidUseLatestPlatformSdk />
-    <TargetFrameworkVersion>v2.3</TargetFrameworkVersion>
+    <AndroidUseLatestPlatformSdk>False</AndroidUseLatestPlatformSdk>
+    <TargetFrameworkVersion>v4.0.3</TargetFrameworkVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <NuGetPackageImportStamp>cc7e206e</NuGetPackageImportStamp>
@@ -100,6 +100,8 @@
     </Compile>
     <Compile Include="Attributes\BootstrapperAttribute.cs" />
     <Compile Include="Attributes\TypeNameAliasAttribute.cs" />
+    <Compile Include="Binding\Infrastructure\BindableLayoutInflater.cs" />
+    <Compile Include="Binding\Infrastructure\BindableLayoutInflaterProxy.cs" />
     <Compile Include="Binding\Infrastructure\ResourceDataTemplateSelectorBase.cs" />
     <Compile Include="Binding\Infrastructure\ViewContentViewManager.cs" />
     <Compile Include="Binding\Interfaces\IResourceDataTemplateSelector.cs" />
@@ -131,7 +133,6 @@
     <Compile Include="Infrastructure\ViewFactory.cs" />
     <Compile Include="Binding\Infrastructure\XmlPropertySetter.cs" />
     <Compile Include="Interfaces\Views\IActivityView.cs" />
-    <Compile Include="Binding\Interfaces\IBindableMenuInflater.cs" />
     <Compile Include="Binding\Interfaces\IDataTemplateSelector.cs" />
     <Compile Include="Binding\Interfaces\IManualBindings.cs" />
     <Compile Include="Interfaces\IViewFactory.cs" />

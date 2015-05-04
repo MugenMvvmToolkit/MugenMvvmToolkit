@@ -21,7 +21,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
-using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Infrastructure;
 
 namespace MugenMvvmToolkit.Views
 {
@@ -48,11 +48,11 @@ namespace MugenMvvmToolkit.Views
         /// <summary>
         ///     Initializes a new instance of the <see cref="ListItem" /> class.
         /// </summary>
-        public ListItem(int templateId, LayoutInflater inflater)
+        public ListItem(int templateId, BindableLayoutInflater inflater)
             : base(inflater.Context)
         {
             _templateId = templateId;
-            inflater.CreateBindableView(templateId, this, true);
+            inflater.Inflate(templateId, this, true);
         }
 
         #endregion
@@ -123,12 +123,8 @@ namespace MugenMvvmToolkit.Views
 
         private static void TrySetActivated(View view, bool value)
         {
-            if (Build.VERSION.SdkInt <= BuildVersionCodes.GingerbreadMr1 || !view.IsAlive())
-                return;
-            var type = view.GetType();
-            var member = BindingServiceProvider.MemberProvider.GetBindingMember(type, "Activated", false, false);
-            if (member != null && member.CanWrite)
-                member.SetValue(view, new[] { Empty.BooleanToObject(value) });
+            if (PlatformExtensions.IsApiGreaterThan10 && view.IsAlive())
+                view.Activated = value;
         }
 
         #endregion

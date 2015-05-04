@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using Android.App;
 using Android.Views;
@@ -26,7 +25,6 @@ using Android.Widget;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
-using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Interfaces.Views;
 using Object = Java.Lang.Object;
 
@@ -53,7 +51,7 @@ namespace MugenMvvmToolkit.RecyclerView.Infrastructure
         #region Fields
 
         private readonly DataTemplateProvider _itemTemplateProvider;
-        private readonly LayoutInflater _layoutInflater;
+        private readonly BindableLayoutInflater _layoutInflater;
         private readonly Android.Support.V7.Widget.RecyclerView _recyclerView;
         private readonly NotifyCollectionChangedEventHandler _weakHandler;
         private IEnumerable _itemsSource;
@@ -71,7 +69,7 @@ namespace MugenMvvmToolkit.RecyclerView.Infrastructure
             _recyclerView = recyclerView;
             _itemTemplateProvider = new DataTemplateProvider(_recyclerView, AttachedMemberConstants.ItemTemplate,
                 AttachedMemberConstants.ItemTemplateSelector);
-            _layoutInflater = LayoutInflater.From(_recyclerView.Context);
+            _layoutInflater = _recyclerView.Context.GetBindableLayoutInflater();
             _weakHandler = ReflectionExtensions.MakeWeakCollectionChangedHandler(this,
                 (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));
             var activityView = _recyclerView.Context.GetActivity() as IActivityView;
@@ -88,7 +86,7 @@ namespace MugenMvvmToolkit.RecyclerView.Infrastructure
             get { return _recyclerView; }
         }
 
-        protected LayoutInflater LayoutInflater
+        protected BindableLayoutInflater LayoutInflater
         {
             get { return _layoutInflater; }
         }
@@ -207,8 +205,7 @@ namespace MugenMvvmToolkit.RecyclerView.Infrastructure
         public override Android.Support.V7.Widget.RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent,
             int viewType)
         {
-            Tuple<View, IList<IDataBinding>> view = LayoutInflater.CreateBindableView(viewType, parent, false);
-            return new ViewHolderImpl(view.Item1);
+            return new ViewHolderImpl(LayoutInflater.Inflate(viewType, parent, false));
         }
 
         public override void OnViewRecycled(Object holder)

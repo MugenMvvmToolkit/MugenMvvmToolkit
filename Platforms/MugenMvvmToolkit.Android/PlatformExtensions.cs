@@ -25,6 +25,7 @@ using System.Threading;
 using System.Xml.Linq;
 using Android.App;
 using Android.Content;
+using Android.OS;
 using Android.Runtime;
 using Android.Util;
 using Android.Views;
@@ -34,7 +35,6 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
@@ -133,74 +133,6 @@ namespace MugenMvvmToolkit
             #endregion
         }
 
-        private sealed class BindingFactory : Object, LayoutInflater.IFactory
-        {
-            #region Fields
-
-            private readonly IBindingProvider _bindingProvider;
-            private readonly List<IDataBinding> _bindings;
-            private readonly IViewFactory _viewFactory;
-
-            #endregion
-
-            #region Constructors
-
-            public BindingFactory(IBindingProvider bindingProvider, IViewFactory viewFactory)
-            {
-                _bindingProvider = bindingProvider;
-                _viewFactory = viewFactory;
-                _bindings = new List<IDataBinding>();
-            }
-
-            #endregion
-
-            #region Properties
-
-            public IList<IDataBinding> Bindings
-            {
-                get { return _bindings; }
-            }
-
-            #endregion
-
-            #region Implementation of IFactory
-
-            public View OnCreateView(string name, Context context, IAttributeSet attrs)
-            {
-                if (name == "fragment")
-                    return null;
-                ViewResult viewResult = _viewFactory.Create(name, context, attrs);
-                View view = viewResult.View;
-                IList<string> bindings = viewResult.DataContext.GetData(ViewFactoryConstants.Bindings);
-                if (bindings != null)
-                {
-                    var manualBindings = view as IManualBindings;
-                    if (manualBindings == null)
-                    {
-                        foreach (string binding in bindings)
-                            SetBinding(view, binding);
-                    }
-                    else
-                        _bindings.AddRange(manualBindings.SetBindings(bindings));
-                }
-                var viewCreated = ViewCreated;
-                if (viewCreated == null)
-                    return view;
-                return viewCreated(view, name, context, attrs);
-            }
-
-            #endregion
-
-            #region Methods
-
-            private void SetBinding(object source, string bindingExpression)
-            {
-                _bindings.AddRange(_bindingProvider.CreateBindingsFromString(source, bindingExpression, null));
-            }
-
-            #endregion
-        }
-
         private sealed class WeakReferenceCollector
         {
             ~WeakReferenceCollector()
@@ -262,12 +194,16 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static readonly DataConstant<object> CurrentFragment;
 
+        internal static readonly bool IsApiGreaterThan10;
+        internal static readonly bool IsApiLessThanOrEqualTo10;
+
         //NOTE ConditionalWeakTable invokes finalizer for value, even if the key object is still alive https://bugzilla.xamarin.com/show_bug.cgi?id=21620
         private static readonly List<WeakReference> WeakReferences;
         private static readonly Dictionary<IntPtr, JavaObjectWeakReference> NativeWeakReferences;
         private static readonly ContentViewManager ContentViewManagerField;
         private static Func<Activity, IDataContext, IMvvmActivityMediator> _mvvmActivityMediatorFactory;
-        private static Func<Context, IDataContext, MenuInflater> _menuInflaterFactory;
+        private static Func<Context, IDataContext, BindableMenuInflater> _menuInflaterFactory;
+        private static Func<Context, IDataContext, IViewFactory, LayoutInflater, BindableLayoutInflater> _layoutInflaterFactory;
         private static Func<object, Context, object, int?, IDataTemplateSelector, object> _getContentViewDelegete;
         private static Action<object, object> _setContentViewDelegete;
         private static Func<object, bool> _isFragment;
@@ -280,8 +216,18 @@ namespace MugenMvvmToolkit
 
         static PlatformExtensions()
         {
+            IsApiGreaterThan10 = Build.VERSION.SdkInt > BuildVersionCodes.GingerbreadMr1;
+            IsApiLessThanOrEqualTo10 = !IsApiGreaterThan10;
             CurrentFragment = DataConstant.Create(() => CurrentFragment, false);
             _menuInflaterFactory = (context, dataContext) => new BindableMenuInflater(context);
+            _layoutInflaterFactory = (context, dataContext, factory, inflater) =>
+            {
+                if (factory == null && !ServiceProvider.IocContainer.TryGet(out factory))
+                    factory = new ViewFactory();
+                if (inflater == null)
+                    return new BindableLayoutInflater(factory, context);
+                return new BindableLayoutInflater(factory, inflater);
+            };
             ContentViewManagerField = new ContentViewManager();
             ContentViewManagerField.Add(new ViewContentViewManager());
             _mvvmActivityMediatorFactory = MvvmActivityMediatorFactoryMethod;
@@ -331,13 +277,27 @@ namespace MugenMvvmToolkit
         ///     Gets or sets the factory that creates an instance of <see cref="MenuInflater" />.
         /// </summary>
         [NotNull]
-        public static Func<Context, IDataContext, MenuInflater> MenuInflaterFactory
+        public static Func<Context, IDataContext, BindableMenuInflater> MenuInflaterFactory
         {
             get { return _menuInflaterFactory; }
             set
             {
                 Should.PropertyNotBeNull(value);
                 _menuInflaterFactory = value;
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the factory that creates an instance of <see cref="LayoutInflater" />.
+        /// </summary>
+        [NotNull]
+        public static Func<Context, IDataContext, IViewFactory, LayoutInflater, BindableLayoutInflater> LayoutInflaterFactory
+        {
+            get { return _layoutInflaterFactory; }
+            set
+            {
+                Should.PropertyNotBeNull(value);
+                _layoutInflaterFactory = value;
             }
         }
 
@@ -437,48 +397,38 @@ namespace MugenMvvmToolkit
         public static void Inflate(this MenuInflater menuInflater, int menuRes, IMenu menu, object parent)
         {
             Should.NotBeNull(menuInflater, "menuInflater");
-            var bindableMenuInflater = menuInflater as IBindableMenuInflater;
+            var bindableMenuInflater = menuInflater as BindableMenuInflater;
             if (bindableMenuInflater == null)
                 menuInflater.Inflate(menuRes, menu);
             else
                 bindableMenuInflater.Inflate(menuRes, menu, parent);
         }
 
-        public static Tuple<View, IList<IDataBinding>> CreateBindableView([NotNull] this Activity activity,
-            int layoutResId, IViewFactory viewFactory = null)
+        /// <summary>
+        /// Converts a layout inflater to bindable layout inflater.
+        /// </summary>
+        [NotNull]
+        public static BindableLayoutInflater ToBindableLayoutInflater(this LayoutInflater inflater, Context context = null)
         {
-            Should.NotBeNull(activity, "activity");
-            return CreateBindableView(activity.LayoutInflater, layoutResId, null, false, viewFactory);
+            if (context == null)
+                Should.NotBeNull(inflater, "inflater");
+            var bindableInflater = inflater as BindableLayoutInflater;
+            if (bindableInflater != null)
+                return bindableInflater;
+            return LayoutInflaterFactory(context, DataContext.Empty, null, inflater);
         }
 
-        public static Tuple<View, IList<IDataBinding>> CreateBindableView([NotNull] this Activity activity,
-            int layoutResId, ViewGroup viewGroup, bool attachToRoot, IViewFactory viewFactory = null)
+        /// <summary>
+        ///     Gets a layout inflater from context.
+        /// </summary>
+        [NotNull]
+        public static BindableLayoutInflater GetBindableLayoutInflater([NotNull] this Context context)
         {
-            Should.NotBeNull(activity, "activity");
-            return CreateBindableView(activity.LayoutInflater, layoutResId, viewGroup, attachToRoot,
-                viewFactory);
-        }
-
-        public static Tuple<View, IList<IDataBinding>> CreateBindableView([NotNull] this LayoutInflater layoutInflater,
-            int layoutResId, IViewFactory viewFactory = null)
-        {
-            return CreateBindableView(layoutInflater, layoutResId, null, false, viewFactory);
-        }
-
-        public static Tuple<View, IList<IDataBinding>> CreateBindableView(
-            [NotNull] this LayoutInflater layoutInflater, int layoutResId, ViewGroup viewGroup, bool attachToRoot,
-            IViewFactory viewFactory = null)
-        {
-            Should.NotBeNull(layoutInflater, "layoutInflater");
-            if (viewFactory == null)
-                viewFactory = ServiceProvider.IocContainer.Get<IViewFactory>();
-            using (LayoutInflater inflater = layoutInflater.CloneInContext(layoutInflater.Context))
-            using (var bindingFactory = new BindingFactory(BindingServiceProvider.BindingProvider, viewFactory))
-            {
-                inflater.Factory = bindingFactory;
-                View view = inflater.Inflate(layoutResId, viewGroup, attachToRoot);
-                return Tuple.Create(view, bindingFactory.Bindings);
-            }
+            Should.NotBeNull(context, "context");
+            var activity = context.GetActivity();
+            if (activity == null)
+                return LayoutInflaterFactory(context, DataContext.Empty, null, null);
+            return activity.LayoutInflater.ToBindableLayoutInflater(context);
         }
 
         public static void ClearBindingsRecursively([CanBeNull]this View view, bool clearDataContext, bool clearAttachedValues)
@@ -533,6 +483,32 @@ namespace MugenMvvmToolkit
         public static void SetDataContext([NotNull] this IJavaObject item, object value)
         {
             ViewManager.SetDataContext(item, value);
+        }
+
+        [CanBeNull]
+        public static Activity GetActivity([CanBeNull] this View view)
+        {
+            if (view.IsAlive())
+                return GetActivity(view.Context);
+            return null;
+        }
+
+        [CanBeNull]
+        public static Activity GetActivity([CanBeNull] this Context context)
+        {
+            while (true)
+            {
+                var activity = context as Activity;
+                if (activity == null)
+                {
+                    var wrapper = context as ContextWrapper;
+                    if (wrapper == null)
+                        return null;
+                    context = wrapper.BaseContext;
+                    continue;
+                }
+                return activity;
+            }
         }
 
         internal static void RemoveFromParent([CanBeNull] this View view)
@@ -637,23 +613,6 @@ namespace MugenMvvmToolkit
             return (View)Activator.CreateInstance(type, ctx, set);
         }
 
-        internal static Activity GetActivity(this Context context)
-        {
-            while (true)
-            {
-                var activity = context as Activity;
-                if (activity == null)
-                {
-                    var wrapper = context as ContextWrapper;
-                    if (wrapper == null)
-                        return null;
-                    context = wrapper.BaseContext;
-                    continue;
-                }
-                return activity;
-            }
-        }
-
         internal static string ToStringSafe(this object item, string defaultValue = null)
         {
             if (item == null)
@@ -683,16 +642,13 @@ namespace MugenMvvmToolkit
         {
             if (templateId == null)
                 return null;
-            var newView = LayoutInflater
-                    .From(ctx)
-                    .CreateBindableView(templateId.Value).Item1;
+            var newView = ctx.GetBindableLayoutInflater().Inflate(templateId.Value, null);
             BindingServiceProvider
                 .ContextManager
                 .GetBindingContext(newView)
                 .Value = content;
             return newView;
         }
-
 
         private static object GetContentInternal(object container, Context ctx, object content, IDataTemplateSelector templateSelector)
         {

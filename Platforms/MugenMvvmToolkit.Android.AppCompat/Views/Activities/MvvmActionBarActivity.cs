@@ -29,12 +29,13 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.AppCompat.Views.Activities
 {
+    [Obsolete("Use MvvmAppCompatActivity instead of MvvmActionBarActivity")]
     public abstract class MvvmActionBarActivity : ActionBarActivity, IActivityView
     {
         #region Fields
 
-        private IMvvmActivityMediator _mediator;
         private readonly int? _viewId;
+        private IMvvmActivityMediator _mediator;
 
         #endregion
 
@@ -87,6 +88,11 @@ namespace MugenMvvmToolkit.AppCompat.Views.Activities
         public override MenuInflater MenuInflater
         {
             get { return Mediator.GetMenuInflater(base.MenuInflater); }
+        }
+
+        public override LayoutInflater LayoutInflater
+        {
+            get { return Mediator.GetLayoutInflater(base.LayoutInflater); }
         }
 
         public override void Finish()

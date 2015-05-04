@@ -37,7 +37,6 @@ namespace MugenMvvmToolkit.Binding.Builders
         private static readonly Func<IBindingBuilder, int> OrderByTargetPathDelegate;
 
         private readonly List<IBindingBuilder> _builders;
-        private readonly IBindingProvider _bindingProvider;
 
         #endregion
 
@@ -51,10 +50,9 @@ namespace MugenMvvmToolkit.Binding.Builders
         /// <summary>
         ///     Initializes a new instance of the <see cref="BindingSet" /> class.
         /// </summary>
-        public BindingSet(IBindingProvider bindingProvider = null)
+        public BindingSet()
         {
             _builders = new List<IBindingBuilder>();
-            _bindingProvider = bindingProvider ?? BindingServiceProvider.BindingProvider;
         }
 
         #endregion
@@ -102,7 +100,7 @@ namespace MugenMvvmToolkit.Binding.Builders
         /// <param name="sources">The specified sources, if any.</param>
         public void BindFromExpression([NotNull]object target, [NotNull]string bindingExpression, params object[] sources)
         {
-            var builders = _bindingProvider.CreateBuildersFromString(target, bindingExpression, sources);
+            var builders = BindingServiceProvider.BindingProvider.CreateBuildersFromString(target, bindingExpression, sources);
             for (int index = 0; index < builders.Count; index++)
                 AddBuilder(builders[index]);
         }
@@ -181,7 +179,7 @@ namespace MugenMvvmToolkit.Binding.Builders
 
         internal IBindingBuilder GetBuilder()
         {
-            return AddBuilder(_bindingProvider.CreateBuilder());
+            return AddBuilder(BindingServiceProvider.BindingProvider.CreateBuilder());
         }
 
         private static int OrderByTargetPath(IBindingBuilder bindingBuilder)
@@ -211,18 +209,6 @@ namespace MugenMvvmToolkit.Binding.Builders
     /// </summary>
     public class BindingSet<TSource> : BindingSet
     {
-        #region Constructors
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingSet{TSource}" /> class.
-        /// </summary>
-        public BindingSet(IBindingProvider bindingProvider = null)
-            : base(bindingProvider)
-        {
-        }
-
-        #endregion
-
         #region Methods
 
         /// <summary>
@@ -275,8 +261,7 @@ namespace MugenMvvmToolkit.Binding.Builders
         /// <summary>
         ///     Initializes a new instance of the <see cref="BindingSet{TTarget,TSource}" /> class.
         /// </summary>
-        public BindingSet([CanBeNull]TTarget target, IBindingProvider bindingProvider = null)
-            : base(bindingProvider)
+        public BindingSet([CanBeNull]TTarget target)
         {
             _target = target;
         }

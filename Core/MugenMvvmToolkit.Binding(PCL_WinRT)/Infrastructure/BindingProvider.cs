@@ -164,17 +164,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Should.NotBeNullOrWhitespace(bindingExpression, "bindingExpression");
             try
             {
-                var parserResult = Parser.Parse(bindingExpression, sources.IsNullOrEmpty()
-                    ? DataContext.Empty
-                    : new DataContext(1)
-                    {
-                        {BindingBuilderConstants.RawSources, sources}
-                    });
+                var parserResult = Parser.Parse(bindingExpression, DataContext.Empty, target, sources);
                 var result = new IBindingBuilder[parserResult.Count];
                 for (int index = 0; index < parserResult.Count; index++)
                 {
                     var builder = new BindingBuilder(parserResult[index]);
-                    builder.Add(BindingBuilderConstants.Target, target);
                     builder.Add(BindingBuilderConstants.BuildDelegate, _buildDelegate);
                     result[index] = builder;
                 }
@@ -205,19 +199,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Should.NotBeNullOrWhitespace(bindingExpression, "bindingExpression");
             try
             {
-                IList<IDataContext> parserResult = Parser.Parse(bindingExpression, (sources == null || sources.Count == 0)
-                    ? DataContext.Empty
-                    : new DataContext(1)
-                    {
-                        {BindingBuilderConstants.RawSources, sources}
-                    });
+                IList<IDataContext> parserResult = Parser.Parse(bindingExpression, DataContext.Empty, target, sources);
                 var result = new IDataBinding[parserResult.Count];
                 for (int index = 0; index < parserResult.Count; index++)
-                {
-                    IDataContext dataContext = parserResult[index];
-                    dataContext.Add(BindingBuilderConstants.Target, target);
-                    result[index] = BuildBinding(dataContext);
-                }
+                    result[index] = BuildBinding(parserResult[index]);
                 return result;
             }
             catch (Exception exception)

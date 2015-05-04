@@ -17,23 +17,31 @@
 #endregion
 
 using System;
+using System.Collections;
 using Android.App;
 using Android.Content;
 using Android.Content.Res;
 using Android.OS;
-using Android.Support.V7.App;
-using Android.Views;
-using Android.Support.V4.Widget;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
-using System.Collections;
-using MugenMvvmToolkit.AppCompat.Infrastructure;
+using Android.Runtime;
 using Android.Support.V4.View;
+using Android.Support.V4.Widget;
+using Android.Support.V7.App;
+using Android.Util;
+using Android.Views;
+using JetBrains.Annotations;
+using MugenMvvmToolkit.AppCompat.Infrastructure;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Infrastructure;
+using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
+using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Modules;
+using Object = Java.Lang.Object;
 #if APPCOMPAT
 using Toolbar = Android.Support.V7.Widget.Toolbar;
 #endif
@@ -43,6 +51,84 @@ namespace MugenMvvmToolkit.AppCompat.Modules
     public class AppCompatModule : ModuleBase
     {
         #region Nested types
+
+        private sealed class BindableLayoutInflaterCompat : BindableLayoutInflater, ILayoutInflaterFactory
+        {
+            #region Constructors
+
+            /// <summary>
+            ///     Initializes a new instance of the <see cref="BindableLayoutInflater" /> class.
+            /// </summary>
+            public BindableLayoutInflaterCompat(IViewFactory factory, LayoutInflater original)
+                : base(factory, original)
+            {
+            }
+
+            /// <summary>
+            ///     Initializes a new instance of the <see cref="BindableLayoutInflater" /> class.
+            /// </summary>
+            public BindableLayoutInflaterCompat(IViewFactory factory, Context context)
+                : base(factory, context)
+            {
+            }
+
+            /// <summary>
+            ///     Initializes a new instance of the <see cref="BindableLayoutInflater" /> class.
+            /// </summary>
+            private BindableLayoutInflaterCompat(IntPtr javaReference, JniHandleOwnership transfer)
+                : base(javaReference, transfer)
+            {
+            }
+
+            /// <summary>
+            ///     Initializes a new instance of the <see cref="BindableLayoutInflater" /> class.
+            /// </summary>
+            private BindableLayoutInflaterCompat([NotNull] IViewFactory factory, LayoutInflater original, Context newContext)
+                : base(factory, original, newContext)
+            {
+            }
+
+            #endregion
+
+            #region Implementation of ILayoutInflaterFactory
+
+            public View OnCreateView(View parent, string name, Context context, IAttributeSet attrs)
+            {
+                return OnCreateViewInternal(name, context, attrs);
+            }
+
+            #endregion
+
+            #region Overrides of BindableLayoutInflater
+
+            /// <summary>
+            ///     Create a copy of the existing LayoutInflater object, with the copy
+            ///     pointing to a different Context than the original.
+            /// </summary>
+            public override LayoutInflater CloneInContext(Context newContext)
+            {
+                return new BindableLayoutInflaterCompat(ViewFactory, this, newContext);
+            }
+
+            /// <summary>
+            ///     Initializes the current inflater.
+            /// </summary>
+            protected override void Initialize()
+            {
+                try
+                {
+                    //Trying to set appcompat factory.
+                    LayoutInflaterCompat.SetFactory(this, this);
+                }
+                catch (Exception e)
+                {
+                    base.Initialize();
+                    Tracer.Error(e.Flatten(false));
+                }
+            }
+
+            #endregion
+        }
 
         private sealed class DrawerInitializer : IEventListener
         {
@@ -79,7 +165,7 @@ namespace MugenMvvmToolkit.AppCompat.Modules
 
             public bool TryHandle(object sender, object message)
             {
-                var drawer = FindDrawer(sender as View);
+                DrawerLayout drawer = FindDrawer(sender as View);
                 if (drawer == null)
                     return true;
                 DrawerListenerImpl.GetOrAdd(drawer);
@@ -89,11 +175,11 @@ namespace MugenMvvmToolkit.AppCompat.Modules
             #endregion
         }
 
-        internal sealed class DrawerListenerImpl : Java.Lang.Object, DrawerLayout.IDrawerListener
+        internal sealed class DrawerListenerImpl : Object, DrawerLayout.IDrawerListener
         {
             #region Fields
 
-            private DrawerLayout.IDrawerListener _listener = null;
+            private DrawerLayout.IDrawerListener _listener;
 
             #endregion
 
@@ -191,10 +277,13 @@ namespace MugenMvvmToolkit.AppCompat.Modules
 
         static AppCompatModule()
         {
-            ViewPagerSelectedItemMember = AttachedBindingMember.CreateAutoProperty<ViewPager, object>(AttachedMemberConstants.SelectedItem, ViewPagerSelectedItemChanged);
+            ViewPagerSelectedItemMember =
+                AttachedBindingMember.CreateAutoProperty<ViewPager, object>(AttachedMemberConstants.SelectedItem,
+                    ViewPagerSelectedItemChanged);
             ViewPagerCurrentItemMember = AttachedBindingMember.CreateAutoProperty<ViewPager, int>("CurrentItem",
                 ViewPagerCurrentItemChanged, AdapterViewCurrentItemAttached, (pager, info) => pager.CurrentItem);
-            ViewDrawerIsOpenedMember = AttachedBindingMember.CreateAutoProperty<View, bool>("Drawer.IsOpened", ViewDrawerIsOpenedChanged, getDefaultValue: ViewDrawerIsOpenedGetDefaultValue);
+            ViewDrawerIsOpenedMember = AttachedBindingMember.CreateAutoProperty<View, bool>("Drawer.IsOpened",
+                ViewDrawerIsOpenedChanged, getDefaultValue: ViewDrawerIsOpenedGetDefaultValue);
         }
 
         /// <summary>
@@ -230,12 +319,13 @@ namespace MugenMvvmToolkit.AppCompat.Modules
 
         private static void AdapterViewCurrentItemAttached(ViewPager adapterView, MemberAttachedEventArgs memberAttached)
         {
-            adapterView.PageSelected += (sender, args) => ViewPagerCurrentItemMember.SetValue(adapterView, args.Position);
+            adapterView.PageSelected +=
+                (sender, args) => ViewPagerCurrentItemMember.SetValue(adapterView, args.Position);
         }
 
         private static void ToolbarMenuTemplateChanged(Toolbar toolbar, AttachedMemberChangedEventArgs<int> args)
         {
-            var activity = toolbar.Context.GetActivity();
+            Activity activity = toolbar.Context.GetActivity();
             if (activity != null)
                 activity.MenuInflater.Inflate(args.NewValue, toolbar.Menu, toolbar);
         }
@@ -244,14 +334,14 @@ namespace MugenMvvmToolkit.AppCompat.Modules
         {
             if (!args.NewValue)
                 return;
-            var activity = toolbar.Context.GetActivity() as ActionBarActivity;
+            var activity = toolbar.Context.GetActivity() as AppCompatActivity;
             if (activity != null)
                 activity.SetSupportActionBar(toolbar);
         }
 
         private static void ViewDrawerIsOpenedChanged(View view, AttachedMemberChangedEventArgs<bool> args)
         {
-            var drawer = FindDrawer(view);
+            DrawerLayout drawer = FindDrawer(view);
             if (drawer == null)
                 return;
             if (args.NewValue)
@@ -262,10 +352,10 @@ namespace MugenMvvmToolkit.AppCompat.Modules
 
         private static bool ViewDrawerIsOpenedGetDefaultValue(View view, IBindingMemberInfo bindingMemberInfo)
         {
-            var drawer = FindDrawer(view);
+            DrawerLayout drawer = FindDrawer(view);
             if (drawer == null)
             {
-                var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(view.GetType());
+                IBindingMemberInfo rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(view.GetType());
                 if (rootMember != null)
                     rootMember.TryObserve(view, DrawerInitializer.Instance);
                 return false;
@@ -295,30 +385,45 @@ namespace MugenMvvmToolkit.AppCompat.Modules
         /// </summary>
         protected override bool LoadInternal()
         {
-            var memberProvider = BindingServiceProvider.MemberProvider;
+            PlatformExtensions.LayoutInflaterFactory = (context, dataContext, factory, inflater) =>
+            {
+                if (factory == null && !ServiceProvider.IocContainer.TryGet(out factory))
+                    factory = new ViewFactory();
+                if (inflater == null)
+                    return new BindableLayoutInflaterCompat(factory, context);
+                return new BindableLayoutInflaterCompat(factory, inflater);
+            };
+
+            IBindingMemberProvider memberProvider = BindingServiceProvider.MemberProvider;
 
             //View
             memberProvider.Register(ViewDrawerIsOpenedMember);
 
             //Toolbar
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Toolbar, int>(AttachedMemberNames.MenuTemplate, ToolbarMenuTemplateChanged));
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Toolbar, bool>("IsActionBar", ToolbarIsActionBarChanged));
+            memberProvider.Register(
+                AttachedBindingMember.CreateAutoProperty<Toolbar, int>(AttachedMemberNames.MenuTemplate,
+                    ToolbarMenuTemplateChanged));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Toolbar, bool>("IsActionBar",
+                ToolbarIsActionBarChanged));
 
             //DrawerLayout
-            var actionBarDrawerToggleEnabledMember = AttachedBindingMember.CreateAutoProperty<DrawerLayout, bool>("ActionBarDrawerToggleEnabled",
-                (layout, args) =>
-                {
-                    if (!args.NewValue)
-                        return;
-                    var activity = layout.Context.GetActivity();
-                    if (activity == null)
-                        return;
-                    DrawerListenerImpl
-                        .GetOrAdd(layout)
-                        .SetListener(activity, new ActionBarDrawerToggle(activity, layout, Resource.String.Empty, Resource.String.Empty));
-                });
+            INotifiableAttachedBindingMemberInfo<DrawerLayout, bool> actionBarDrawerToggleEnabledMember =
+                AttachedBindingMember.CreateAutoProperty<DrawerLayout, bool>("ActionBarDrawerToggleEnabled",
+                    (layout, args) =>
+                    {
+                        if (!args.NewValue)
+                            return;
+                        Activity activity = layout.Context.GetActivity();
+                        if (activity == null)
+                            return;
+                        DrawerListenerImpl
+                            .GetOrAdd(layout)
+                            .SetListener(activity,
+                                new ActionBarDrawerToggle(activity, layout, Resource.String.Empty, Resource.String.Empty));
+                    });
             memberProvider.Register(actionBarDrawerToggleEnabledMember);
-            memberProvider.Register(typeof(DrawerLayout), "ActionBarDrawerEnabled", actionBarDrawerToggleEnabledMember, true);
+            memberProvider.Register(typeof(DrawerLayout), "ActionBarDrawerEnabled", actionBarDrawerToggleEnabledMember,
+                true);
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<DrawerLayout, object>("DrawerListener",
                 (layout, args) =>
                 {

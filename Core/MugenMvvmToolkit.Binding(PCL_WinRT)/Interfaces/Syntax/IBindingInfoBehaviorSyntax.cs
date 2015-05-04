@@ -21,7 +21,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Syntax
     /// <summary>
     ///     Used to define a basic binding syntax builder.
     /// </summary>
-    public interface IBindingInfoBehaviorSyntax : IBindingInfoSyntax, IBindingBehaviorSyntax
+    public interface IBindingInfoBehaviorSyntax<in TSource> : IBindingInfoSyntax<TSource>, IBindingBehaviorSyntax<TSource>
     {
     }
 }

@@ -413,7 +413,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
                 .CreateBindingsFromString(targetObject, ToBindingExpression(targetPath))[0];
         }
 
-        private void SetMode(IBindingModeSyntax syntax)
+        private void SetMode(IBindingModeSyntax<object> syntax)
         {
             switch (Mode)
             {
@@ -435,7 +435,7 @@ namespace MugenMvvmToolkit.Binding.MarkupExtensions
             }
         }
 
-        private void SetUpdateSourceTrigger(IBindingBehaviorSyntax syntax)
+        private void SetUpdateSourceTrigger(IBindingBehaviorSyntax<object> syntax)
         {
             switch (UpdateSourceTrigger)
             {

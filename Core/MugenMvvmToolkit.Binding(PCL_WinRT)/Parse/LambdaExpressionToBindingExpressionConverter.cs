@@ -36,14 +36,41 @@ namespace MugenMvvmToolkit.Binding.Parse
     /// </summary>
     public sealed class LambdaExpressionToBindingExpressionConverter : ExpressionVisitor, IBuilderSyntaxContext
     {
+        #region Nested types
+
+        private struct ParameterCacheValue
+        {
+            #region Fields
+
+            public readonly Action<IBindingToSyntax>[] Actions;
+            public readonly Func<IDataContext, object[], object> Expression;
+            public readonly Func<IDataContext, IBindingSource>[] Members;
+
+            #endregion
+
+            #region Constructors
+
+            public ParameterCacheValue(Action<IBindingToSyntax>[] actions,
+                Func<IDataContext, object[], object> expression, Func<IDataContext, IBindingSource>[] members)
+            {
+                Actions = actions;
+                Expression = expression;
+                Members = members;
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         private static readonly ParameterExpression ContextExpression;
         private static readonly Dictionary<Delegate, Action<IBindingToSyntax>[]> Cache;
+        private static readonly Dictionary<Delegate, ParameterCacheValue> CacheParameter;
 
         private List<Action<IBindingToSyntax>> _callbacks;
         private List<KeyValuePair<ParameterExpression, Func<IDataContext, IBindingSource>>> _members;
-        private Func<IDataContext, string, IBindingSource> _getBindingSource;
         private ParameterExpression _sourceExpression;
 
         private Expression _currentExpression;
@@ -57,11 +84,11 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             ContextExpression = Expression.Parameter(typeof(IDataContext), "$context$");
             Cache = new Dictionary<Delegate, Action<IBindingToSyntax>[]>(ReferenceEqualityComparer.Instance);
+            CacheParameter = new Dictionary<Delegate, ParameterCacheValue>(ReferenceEqualityComparer.Instance);
         }
 
-        private LambdaExpressionToBindingExpressionConverter(LambdaExpression expression, Func<IDataContext, string, IBindingSource> getBindingSource)
+        private LambdaExpressionToBindingExpressionConverter(LambdaExpression expression)
         {
-            _getBindingSource = getBindingSource;
             _sourceExpression = expression.Parameters[0];
             _callbacks = new List<Action<IBindingToSyntax>>();
             _members = new List<KeyValuePair<ParameterExpression, Func<IDataContext, IBindingSource>>>(2);
@@ -79,7 +106,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 lastExpression != null)
             {
                 if (lastExpression == _sourceExpression)
-                    return GetOrAddParameterExpression(string.Empty, path, node, _getBindingSource);
+                    return GetOrAddParameterExpression(string.Empty, path, node, BindingExtensions.CreteBindingSourceDel);
                 return TryGetExtensionExpressionOrDefault(lastExpression, node);
             }
             return TryGetExtensionExpressionOrDefault(lastExpression ?? node, node);
@@ -92,43 +119,91 @@ namespace MugenMvvmToolkit.Binding.Parse
         /// <summary>
         ///     Converts a <see cref="LambdaExpression" /> to a binding expression.
         /// </summary>
-        public static IBindingModeInfoBehaviorSyntax Convert(Func<LambdaExpression> getExpression, IBindingToSyntax syntax,
-            Func<IDataContext, string, IBindingSource> getBindingSource)
+        public static void Convert(Func<LambdaExpression> expression, IBindingToSyntax syntax)
         {
-            if (getExpression.Target != null || syntax.Builder.Contains(BindingBuilderConstants.NoCache))
-                return Convert(getExpression(), syntax, getBindingSource);
+            Should.NotBeNull(expression, "expression");
+            if (expression.Target != null || syntax.Builder.Contains(BindingBuilderConstants.NoCache))
+            {
+                var ex = expression();
+                if (expression.Target != null)
+                    ex.TraceClosureWarn();
+                Convert(ex, syntax);
+                return;
+            }
             Action<IBindingToSyntax>[] callbacks;
             lock (Cache)
             {
-                if (!Cache.TryGetValue(getExpression, out callbacks))
+                if (!Cache.TryGetValue(expression, out callbacks))
                 {
-                    callbacks = ApplyInternal(getExpression(), syntax, getBindingSource, false);
-                    Cache[getExpression] = callbacks;
+                    callbacks = ConvertInternal(expression(), syntax, false);
+                    Cache[expression] = callbacks;
                 }
             }
             for (int i = 0; i < callbacks.Length; i++)
                 callbacks[i].Invoke(syntax);
-            if (syntax.Builder.Contains(BindingBuilderConstants.NoCache))
-            {
-                lock (Cache)
-                    Cache.Remove(getExpression);
-            }
-            return syntax.GetOrAddSyntaxBuilder<IBindingModeInfoBehaviorSyntax, object, object>();
         }
 
         /// <summary>
         ///     Converts a <see cref="LambdaExpression" /> to a binding expression.
         /// </summary>
-        public static IBindingModeInfoBehaviorSyntax Convert(LambdaExpression expression, IBindingToSyntax syntax,
-            Func<IDataContext, string, IBindingSource> getBindingSource)
+        public static void Convert(LambdaExpression expression, IBindingToSyntax syntax)
         {
-            var callbacks = ApplyInternal(expression, syntax, getBindingSource, true);
+            Should.NotBeNull(expression, "expression");
+            var callbacks = ConvertInternal(expression, syntax, true);
             for (int i = 0; i < callbacks.Length; i++)
                 callbacks[i].Invoke(syntax);
-            return syntax.GetOrAddSyntaxBuilder<IBindingModeInfoBehaviorSyntax, object, object>();
         }
 
-        private static Action<IBindingToSyntax>[] ApplyInternal(LambdaExpression expression, IBindingToSyntax syntax, Func<IDataContext, string, IBindingSource> getBindingSource, bool ignoreCallback)
+        /// <summary>
+        ///     Converts a <see cref="LambdaExpression" /> to a binding expression.
+        /// </summary>
+        public static Func<IDataContext, object> ConvertParameter(Func<LambdaExpression> expression, IBuilderSyntax syntax)
+        {
+            Should.NotBeNull(expression, "expression");
+            if (expression.Target != null || syntax.Builder.Contains(BindingBuilderConstants.NoCache))
+            {
+                var e = expression();
+                if (expression.Target != null)
+                    e.TraceClosureWarn();
+                var converter = new LambdaExpressionToBindingExpressionConverter(e);
+                return ConvertParameterInternal(syntax, converter.ConvertParamterInternal(e));
+            }
+            ParameterCacheValue value;
+            lock (CacheParameter)
+            {
+                if (!CacheParameter.TryGetValue(expression, out value))
+                {
+                    var e = expression();
+                    var converter = new LambdaExpressionToBindingExpressionConverter(e);
+                    value = converter.ConvertParamterInternal(e);
+                    CacheParameter[expression] = value;
+                }
+            }
+            return ConvertParameterInternal(syntax, value);
+        }
+
+        private static Func<IDataContext, object> ConvertParameterInternal(IBuilderSyntax builder, ParameterCacheValue value)
+        {
+            var actions = value.Actions;
+            for (int i = 0; i < actions.Length; i++)
+                actions[i].Invoke((IBindingToSyntax)builder);
+
+            var func = value.Expression;
+            var members = value.Members;
+            var sources = new IBindingSource[members.Length];
+            for (int i = 0; i < members.Length; i++)
+                sources[i] = members[i].Invoke(builder.Builder);
+            return dataContext =>
+            {
+                var objects = new object[sources.Length + 1];
+                objects[0] = dataContext;
+                for (int i = 0; i < sources.Length; i++)
+                    objects[i + 1] = sources[i].GetCurrentValue();
+                return func(dataContext, objects);
+            };
+        }
+
+        private static Action<IBindingToSyntax>[] ConvertInternal(LambdaExpression expression, IBindingToSyntax syntax, bool ignoreCallback)
         {
             Expression lastExpression;
             string path;
@@ -137,21 +212,49 @@ namespace MugenMvvmToolkit.Binding.Parse
             {
                 if (ignoreCallback)
                 {
-                    syntax.ToSource(context => getBindingSource(context, path));
+                    syntax.ToSource(context => BindingExtensions.CreateBindingSource(context, path, null));
                     return Empty.Array<Action<IBindingToSyntax>>();
                 }
-                return new Action<IBindingToSyntax>[] { s => s.ToSource(context => getBindingSource(context, path)) };
+                return new Action<IBindingToSyntax>[] { s => s.ToSource(context => BindingExtensions.CreateBindingSource(context, path, null)) };
             }
-            var visitor = new LambdaExpressionToBindingExpressionConverter(expression, getBindingSource);
-            visitor.ApplyInternal(expression);
+            var visitor = new LambdaExpressionToBindingExpressionConverter(expression);
+            visitor.ConvertInternal(expression);
             var actions = visitor._callbacks.ToArray();
-            visitor._getBindingSource = null;
             visitor._members = null;
             visitor._sourceExpression = null;
             visitor._currentExpression = null;
             visitor._methodExpression = null;
             visitor._callbacks = null;
             return actions;
+        }
+
+        private void ConvertInternal(LambdaExpression expression)
+        {
+            var multiExpression = Visit(expression.Body);
+            if (_members.Count == 0)
+                AddBuildCallback(syntax => syntax.ToSource(context => BindingExtensions.CreateBindingSource(context, string.Empty, null)));
+            else
+            {
+                for (int i = 0; i < _members.Count; i++)
+                {
+                    var value = _members[i].Value;
+                    AddBuildCallback(syntax => syntax.ToSource(value));
+                }
+            }
+            if (!(multiExpression is ParameterExpression))
+            {
+                var func = Compile<IList<object>>(multiExpression, false);
+                AddBuildCallback(syntax => syntax.Builder.Add(BindingBuilderConstants.MultiExpression, func));
+            }
+        }
+
+        private ParameterCacheValue ConvertParamterInternal(LambdaExpression expression)
+        {
+            var multiExpression = Visit(expression.Body);
+            var func = Compile<object[]>(multiExpression, true);
+            var members = _members.Select(pair => pair.Value).ToArray();
+            var actions = _callbacks.ToArray();
+            return new ParameterCacheValue(actions, func, members);
         }
 
         private Expression TryGetExtensionExpressionOrDefault(Expression lastExpression, Expression current)
@@ -178,47 +281,28 @@ namespace MugenMvvmToolkit.Binding.Parse
             return base.Visit(current);
         }
 
-        private void ApplyInternal(LambdaExpression expression)
+        private Func<IDataContext, TType, object> Compile<TType>(Expression multiExpression, bool withContext)
+            where TType : IList<object>
         {
-            var multiExpression = Visit(expression.Body);
-            if (_members.Count == 0)
-                AddBuildCallback(syntax => syntax.ToSource(context => BindingExtensions.CreateBindingSource(context, string.Empty)));
+            var parameters = new ParameterExpression[_members.Count + 1];
+            parameters[0] = ContextExpression;
+            for (int i = 0; i < _members.Count; i++)
+                parameters[i + 1] = _members[i].Key;
+            var @delegate = ExpressionReflectionManager
+                .CreateLambdaExpression(multiExpression, parameters)
+                .Compile();
+            Func<object[], object> exp;
+            var methodInfo = @delegate.GetType().GetMethodEx("Invoke", MemberFlags.Public | MemberFlags.Instance);
+            if (methodInfo == null)
+                exp = @delegate.DynamicInvoke;
             else
             {
-                for (int i = 0; i < _members.Count; i++)
-                {
-                    var value = _members[i].Value;
-                    AddBuildCallback(syntax => syntax.ToSource(value));
-                }
+                Func<object, object[], object> invokeMethod = ServiceProvider.ReflectionManager.GetMethodDelegate(methodInfo);
+                exp = objects => invokeMethod(@delegate, objects);
             }
-            if (!(multiExpression is ParameterExpression))
-            {
-                var parameters = new ParameterExpression[_members.Count + 1];
-                parameters[0] = ContextExpression;
-                for (int i = 0; i < _members.Count; i++)
-                    parameters[i + 1] = _members[i].Key;
-                var @delegate = ExpressionReflectionManager
-                    .CreateLambdaExpression(multiExpression, parameters)
-                    .Compile();
-                Func<object[], object> exp;
-                var methodInfo = @delegate.GetType().GetMethodEx("Invoke", MemberFlags.Public | MemberFlags.Instance);
-                if (methodInfo == null)
-                    exp = @delegate.DynamicInvoke;
-                else
-                {
-                    var invokeMethod = ServiceProvider.ReflectionManager.GetMethodDelegate(methodInfo);
-                    exp = objects => invokeMethod(@delegate, objects);
-                }
-                AddBuildCallback(syntax => syntax.Builder.Add(BindingBuilderConstants.MultiExpression,
-                    (context, list) =>
-                    {
-                        var args = new object[list.Count + 1];
-                        args[0] = context;
-                        for (int i = 0; i < list.Count; i++)
-                            args[i + 1] = list[i];
-                        return exp.Invoke(args);
-                    }));
-            }
+            if (withContext)
+                return exp.AsBindingExpressionWithContext<TType>;
+            return exp.AsBindingExpression<TType>;
         }
 
         #endregion

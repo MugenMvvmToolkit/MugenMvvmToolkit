@@ -22,19 +22,19 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
 using Android.Content;
+using Android.Runtime;
 using Android.Views;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    public class BindableMenuInflater : MenuInflater, IBindableMenuInflater
+    public class BindableMenuInflater : MenuInflater
     {
         #region Fields
 
-        private readonly Context _context;
         private static readonly XmlSerializer Serializer;
+        private readonly Context _context;
 
         #endregion
 
@@ -42,7 +42,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         static BindableMenuInflater()
         {
-            Serializer = new XmlSerializer(typeof(MenuTemplate), string.Empty);
+            Serializer = new XmlSerializer(typeof (MenuTemplate), string.Empty);
         }
 
         /// <summary>
@@ -53,6 +53,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             Should.NotBeNull(context, "context");
             _context = context;
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="BindableMenuInflater" /> class.
+        /// </summary>
+        protected BindableMenuInflater(IntPtr javaReference, JniHandleOwnership transfer)
+            : base(javaReference, transfer)
+        {
         }
 
         #endregion
@@ -71,12 +79,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <summary>
         ///     Gets or sets underlying menu inflater, if any.
         /// </summary>
-        public MenuInflater MenuInflater { get; set; }
+        public virtual MenuInflater NestedMenuInflater { get; set; }
 
         /// <summary>
         ///     Inflate a menu hierarchy from the specified XML resource.
         /// </summary>
-        public void Inflate(int menuRes, IMenu menu, object parent)
+        public virtual void Inflate(int menuRes, IMenu menu, object parent)
         {
             using (XmlReader reader = _context.Resources.GetLayout(menuRes))
             {
@@ -87,13 +95,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 {
                     using (var stringReader = new StringReader(PlatformExtensions.XmlTagsToUpper(document.InnerXml)))
                     {
-                        var menuWrapper = (MenuTemplate)Serializer.Deserialize(stringReader);
+                        var menuWrapper = (MenuTemplate) Serializer.Deserialize(stringReader);
                         menuWrapper.Apply(menu, _context, parent);
                     }
                 }
                 else
                 {
-                    MenuInflater menuInflater = MenuInflater;
+                    MenuInflater menuInflater = NestedMenuInflater;
                     if (menuInflater == null)
                         base.Inflate(menuRes, menu);
                     else
@@ -108,9 +116,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         private static bool IsDefaultMenu(XmlDocument document)
         {
-            foreach (var attribute in document.FirstChild.Attributes.OfType<XmlAttribute>())
+            foreach (XmlAttribute attribute in document.FirstChild.Attributes.OfType<XmlAttribute>())
             {
-                if ("http://schemas.android.com/apk/res/android".Equals(attribute.Value, StringComparison.InvariantCultureIgnoreCase))
+                if ("http://schemas.android.com/apk/res/android".Equals(attribute.Value,
+                    StringComparison.InvariantCultureIgnoreCase))
                     return true;
             }
             return false;

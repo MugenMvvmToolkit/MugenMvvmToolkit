@@ -38,8 +38,11 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Parse
         /// </summary>
         /// <param name="bindingExpression">The specified binding expression.</param>
         /// <param name="context">The specified context.</param>
+        /// <param name="target">The specified binding target.</param>
+        /// <param name="sources">The specified sources, if any.</param>
         /// <returns>A set of instances of <see cref="IDataContext" />.</returns>
         [NotNull]
-        IList<IDataContext> Parse([NotNull] string bindingExpression, [NotNull] IDataContext context);
+        IList<IDataContext> Parse([NotNull] string bindingExpression, [NotNull] IDataContext context,
+            [NotNull] object target, [CanBeNull] IList<object> sources);
     }
 }

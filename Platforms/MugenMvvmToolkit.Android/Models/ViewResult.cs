@@ -22,7 +22,7 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Models
 {
-    public sealed class ViewResult
+    public struct ViewResult
     {
         #region Fields
 

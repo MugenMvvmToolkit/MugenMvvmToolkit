@@ -118,7 +118,7 @@ namespace MugenMvvmToolkit.ActionBarSupport.Models
                             }
                         }
                         else if (_content is int)
-                            _content = activity.CreateBindableView((int)_content).Item1;
+                            _content = activity.GetBindableLayoutInflater().Inflate((int)_content, null);
                     }
                     else
                         viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);

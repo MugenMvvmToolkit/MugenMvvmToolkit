@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Attributes;
 using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.DataConstants;
@@ -50,7 +51,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
         private const string SourceMethodName = "Source";
         private const string RootMethodName = "Root";
         private const string RelativeMethodName = "Relative";
-        private static readonly MethodInfo GetEventMethod;
+        private static readonly MethodInfo GetEventArgsMethod;
         private static readonly MethodInfo GetErrorsMethod;
         private static readonly MethodInfo ResourceMethodInfo;
         private static readonly MethodInfo ResourceMethodImplMethod;
@@ -61,7 +62,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
 
         static BindingSyntaxEx()
         {
-            GetEventMethod = typeof(BindingSyntaxEx).GetMethodEx("GetEvent",
+            GetEventArgsMethod = typeof(BindingSyntaxEx).GetMethodEx("GetEventArgs",
                 MemberFlags.NonPublic | MemberFlags.Static);
             GetErrorsMethod = typeof(BindingSyntaxEx).GetMethodEx("GetErrorsImpl",
                 MemberFlags.NonPublic | MemberFlags.Static);
@@ -184,6 +185,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
             throw BindingExceptionManager.MethodNotSupportedBindingExpression();
         }
 
+        [UsedImplicitly]
         private static Expression ProvideExpression(IBuilderSyntaxContext context)
         {
             var mExp = context.MethodExpression;
@@ -191,7 +193,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
             if (name == "EventArgs")
             {
                 if (context.IsSameExpression())
-                    return Expression.Convert(Expression.Call(GetEventMethod, context.ContextParameter), mExp.Method.ReturnType);
+                    return Expression.Convert(Expression.Call(GetEventArgsMethod, context.ContextParameter), mExp.Method.ReturnType);
                 return null;
             }
 
@@ -249,7 +251,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
 
             if (name == AttachedMemberConstants.DataContext && mExp.Arguments.Count == 0)
                 return context.GetOrAddParameterExpression(string.Empty, path, context.Expression,
-                    BindingExtensions.CreteBindingSourceFromContextDel);
+                    (dataContext, s) => BindingExtensions.CreateBindingSource(dataContext, s, null, true));
 
             if (name == SelfMethodName || name == RootMethodName || name == ResourceMethodName || name == SourceMethodName)
             {
@@ -266,9 +268,14 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                         resourceName = BindingServiceProvider.ResourceResolver.BindingSourceResourceName;
                         break;
                     default:
-                        var exp = mExp.Arguments[0];
-                        Should.BeOfType<ConstantExpression>(exp, "arg");
-                        resourceName = (string)((ConstantExpression)exp).Value;
+                        var exp = mExp.Arguments[0] as ConstantExpression;
+                        if (exp == null)
+                            resourceName = (string)ExpressionReflectionManager
+                                    .CreateLambdaExpression(mExp.Arguments[0], Empty.Array<ParameterExpression>())
+                                    .Compile()
+                                    .DynamicInvoke(Empty.Array<object>());
+                        else
+                            resourceName = (string)exp.Value;
                         break;
                 }
                 return context.GetOrAddParameterExpression("res:" + resourceName, path, context.Expression,
@@ -277,7 +284,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                         var value = BindingServiceProvider
                             .ResourceResolver
                             .ResolveObject(resourceName, dataContext, true);
-                        return BindingExtensions.CreateBindingSourceExplicit(dataContext, s, value);
+                        return BindingExtensions.CreateBindingSource(dataContext, s, value);
                     });
             }
 
@@ -290,7 +297,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                     : RelativeSourceExpressionNode.CreateElementSource(firstArg.ToString(), null);
                 return context
                     .GetOrAddParameterExpression(name + mExp.Method.ReturnType.FullName, path, context.Expression,
-                        (dataContext, s) => RelativeSourceBehavior.GetBindingSource(node, dataContext.GetData(BindingBuilderConstants.Target), s));
+                        (dataContext, s) => BindingExtensions.CreateBindingSource(node, dataContext.GetData(BindingBuilderConstants.Target), s));
             }
             return null;
         }
@@ -300,7 +307,8 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
             return context.MethodExpression == context.Expression;
         }
 
-        private static object GetEvent(IDataContext context)
+        [UsedImplicitly]
+        private static object GetEventArgs(IDataContext context)
         {
             return context.GetData(BindingConstants.CurrentEventArgs);
         }

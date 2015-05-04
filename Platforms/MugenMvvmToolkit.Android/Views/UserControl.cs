@@ -36,11 +36,7 @@ namespace MugenMvvmToolkit.Views
         protected UserControl(int viewId)
             : base(GetCurrentContext())
         {
-            var tuple = Context.GetActivity()
-                               .LayoutInflater
-                               .CreateBindableView(viewId);
-            // ReSharper disable once DoNotCallOverridableMethodsInConstructor
-            AddView(tuple.Item1);
+            Context.GetBindableLayoutInflater().Inflate(viewId, this, true);
         }
 
         /// <summary>

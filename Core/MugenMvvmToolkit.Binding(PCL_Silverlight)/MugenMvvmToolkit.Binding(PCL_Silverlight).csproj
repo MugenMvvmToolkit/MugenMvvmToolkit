@@ -87,9 +87,6 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\OneWayToSourceBindingMode.cs">
       <Link>Behaviors\OneWayToSourceBindingMode.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\RelativeSourceBehavior.cs">
-      <Link>Behaviors\RelativeSourceBehavior.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\TwoWayBindingMode.cs">
       <Link>Behaviors\TwoWayBindingMode.cs</Link>
     </Compile>

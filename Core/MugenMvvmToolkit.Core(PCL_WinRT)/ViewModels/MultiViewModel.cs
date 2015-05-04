@@ -181,7 +181,7 @@ namespace MugenMvvmToolkit.ViewModels
                 SelectedItem = null;
                 OnViewModelsChanged(null, viewModels, 0);
             }
-            finally
+            catch
             {
                 _clearing = false;
             }
@@ -252,8 +252,6 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Occurs when the <c>SelectedItem</c> property is changed.
         /// </summary>
-        /// <param name="oldValue">The old value.</param>
-        /// <param name="newValue">The new value.</param>
         protected virtual void OnSelectedItemChanged(IViewModel oldValue, IViewModel newValue)
         {
         }
@@ -274,7 +272,10 @@ namespace MugenMvvmToolkit.ViewModels
 
         private void OnViewModelsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            Should.BeSupported(_clearing || e.Action != NotifyCollectionChangedAction.Reset, "The MultiViewModel.ItemsSource doesn't support Clear method.");
+            if (_clearing)
+                _clearing = false;
+            else
+                Should.BeSupported(e.Action != NotifyCollectionChangedAction.Reset, "The MultiViewModel.ItemsSource doesn't support Clear method.");
             OnViewModelsChanged(e.NewItems, e.OldItems, e.OldStartingIndex);
         }
 

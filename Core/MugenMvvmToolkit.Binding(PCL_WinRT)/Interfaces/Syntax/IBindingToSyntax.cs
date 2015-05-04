@@ -28,14 +28,14 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Syntax
     /// <summary>
     ///     Used to define a basic binding syntax builder.
     /// </summary>
-    public interface IBindingToSyntax<TTarget> : IBindingToSyntax
+    public interface IBindingToSyntax<out TTarget> : IBindingToSyntax
     {
     }
 
     /// <summary>
     ///     Used to define a basic binding syntax builder.
     /// </summary>
-    public interface IBindingToSyntax<TTarget, TSource> : IBindingToSyntax<TTarget>
+    public interface IBindingToSyntax<out TTarget, in TSource> : IBindingToSyntax<TTarget>
     {
     }
 }

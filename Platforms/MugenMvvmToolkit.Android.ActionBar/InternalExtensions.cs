@@ -65,12 +65,7 @@ namespace MugenMvvmToolkit.ActionBarSupport
         public static void SetActionView(this IMenuItem menuItem, View view)
         {
             MenuItemCompat.SetActionView(menuItem, view);
-        }
-
-        public static void SetActionView(this IMenuItem menuItem, int resId)
-        {
-            MenuItemCompat.SetActionView(menuItem, resId);
-        }
+        } 
 
         public static void SetActionProvider(this IMenuItem menuItem, ActionProvider actionProvider)
         {
@@ -164,8 +159,8 @@ namespace MugenMvvmToolkit.ActionBarSupport
         {
             var activity = actionBar.ThemedContext.GetActivity();
 #if APPCOMPAT
-            Should.BeOfType<ActionBarActivity>(activity, "Activity");
-            return ((ActionBarActivity)activity).StartSupportActionMode(mode);
+            Should.BeOfType<AppCompatActivity>(activity, "Activity");
+            return ((AppCompatActivity)activity).StartSupportActionMode(mode);
 #else
             Should.NotBeNull(activity, "activity");
             return activity.StartActionMode(mode);
@@ -178,10 +173,10 @@ namespace MugenMvvmToolkit.ActionBarSupport
 #if APPCOMPAT
             if (throwOnError)
             {
-                Should.BeOfType<ActionBarActivity>(activity, "activity");
-                return ((ActionBarActivity)activity).SupportActionBar;
+                Should.BeOfType<AppCompatActivity>(activity, "activity");
+                return ((AppCompatActivity)activity).SupportActionBar;
             }
-            var actionBarActivity = activity as ActionBarActivity;
+            var actionBarActivity = activity as AppCompatActivity;
             if (actionBarActivity == null)
                 return null;
             return actionBarActivity.SupportActionBar;

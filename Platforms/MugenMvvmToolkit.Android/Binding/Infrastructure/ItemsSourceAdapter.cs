@@ -45,7 +45,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private IEnumerable _itemsSource;
         private readonly object _container;
         private readonly NotifyCollectionChangedEventHandler _weakHandler;
-        private readonly LayoutInflater _layoutInflater;
+        private readonly BindableLayoutInflater _layoutInflater;
         private readonly DataTemplateProvider _dropDownTemplateProvider;
         private readonly DataTemplateProvider _itemTemplateProvider;
 
@@ -73,7 +73,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _itemTemplateProvider = new DataTemplateProvider(container, itemTemplateIdName, itemTemplateSelectorName);
             _dropDownTemplateProvider = new DataTemplateProvider(container, dropDownItemTemplateIdName,
                 dropDownItemTemplateSelectorName);
-            _layoutInflater = LayoutInflater.From(context);
+            _layoutInflater = context.GetBindableLayoutInflater();
             if (listenCollectionChanges)
                 _weakHandler = ReflectionExtensions.MakeWeakCollectionChangedHandler(this, (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));
             var activityView = context.GetActivity() as IActivityView;
@@ -104,7 +104,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             get { return _container; }
         }
 
-        protected LayoutInflater LayoutInflater
+        protected BindableLayoutInflater LayoutInflater
         {
             get { return _layoutInflater; }
         }

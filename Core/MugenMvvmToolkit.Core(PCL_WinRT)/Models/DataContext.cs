@@ -161,7 +161,8 @@ namespace MugenMvvmToolkit.Models
         {
             Should.NotBeNull(context, "context");
             Initialize(context.Count);
-            Merge(context);
+            if (context.Count != 0)
+                Merge(context);
         }
 
         #endregion

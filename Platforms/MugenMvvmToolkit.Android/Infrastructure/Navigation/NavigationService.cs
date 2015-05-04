@@ -42,7 +42,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         private const string ParameterSerializer = "viewmodelparameterdata";
         private const string ParameterString = "viewmodelparameter";
         private const string FirstActivityKey = "@%$#first";
-        private const int ClearTask = 32768;
 
         private readonly ISerializer _serializer;
         private Activity _currentActivity;
@@ -303,13 +302,13 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 intent.AddFlags(ActivityFlags.NewTask);
             else if (dataContext.GetData(NavigationConstants.ClearBackStack))
             {
-                if (Build.VERSION.SdkInt <= BuildVersionCodes.GingerbreadMr1)
+                if (PlatformExtensions.IsApiLessThanOrEqualTo10)
                 {
                     intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTop);
                     ServiceProvider.EventAggregator.Publish(this, MvvmActivityMediator.FinishActivityMessage.Instance);
                 }
                 else
-                    intent.AddFlags(ActivityFlags.NewTask | (ActivityFlags)ClearTask);
+                    intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                 dataContext.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
                 isFirstActivity = true;
                 _prevIntent = null;

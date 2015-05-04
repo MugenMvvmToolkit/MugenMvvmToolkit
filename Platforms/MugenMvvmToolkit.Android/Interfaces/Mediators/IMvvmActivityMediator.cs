@@ -116,6 +116,11 @@ namespace MugenMvvmToolkit.Interfaces.Mediators
         MenuInflater GetMenuInflater(MenuInflater baseMenuInflater);
 
         /// <summary>
+        ///     Returns a <c>LayoutInflater</c> with this context.
+        /// </summary>
+        LayoutInflater GetLayoutInflater(LayoutInflater baseLayoutInflater);
+
+        /// <summary>
         ///     Call this when your activity is done and should be closed.
         /// </summary>
         void Finish(Action baseFinish);

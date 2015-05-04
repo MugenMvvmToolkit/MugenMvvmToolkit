@@ -216,7 +216,7 @@ namespace MugenMvvmToolkit.ActionBarSupport.Modules
             }
 
             public void OnDestroyActionMode(ActionMode mode)
-            {                
+            {
                 ActionBarContextActionBarVisibleMember.SetValue(_actionBar, false);
 #if APPCOMPAT
                 Unsubscribe(_actionBar.ThemedContext.GetActivity());
@@ -500,9 +500,8 @@ namespace MugenMvvmToolkit.ActionBarSupport.Modules
                         if (actionBar.CustomView != null)
                             ParentObserver.GetOrAdd(actionBar.CustomView).Parent = null;
                         if (value is int)
-                            actionBar.SetCustomView((int)value);
-                        else
-                            actionBar.CustomView = (View)value;
+                            value = actionBar.ThemedContext.GetBindableLayoutInflater().Inflate((int)value, null);
+                        actionBar.CustomView = (View)value;
                         if (actionBar.CustomView != null)
                             ParentObserver.GetOrAdd(actionBar.CustomView).Parent = actionBar;
                         return true;
@@ -619,9 +618,8 @@ namespace MugenMvvmToolkit.ActionBarSupport.Modules
                         if (tab.CustomView != null)
                             ParentObserver.GetOrAdd(tab.CustomView).Parent = null;
                         if (value is int)
-                            tab.SetCustomView((int)value);
-                        else
-                            tab.SetCustomView((View)value);
+                            value = GetContextFromItem(tab).GetBindableLayoutInflater().Inflate((int)value, null);
+                        tab.SetCustomView((View)value);
                         if (tab.CustomView != null)
                             ParentObserver.GetOrAdd(tab.CustomView).Parent = tab;
                         return true;
@@ -788,20 +786,16 @@ namespace MugenMvvmToolkit.ActionBarSupport.Modules
 
             int viewId;
             if (int.TryParse(content.ToString(), out viewId))
+                content = GetContextFromItem(menuItem).GetBindableLayoutInflater().Inflate(viewId, null);
+
+            actionView = content as View;
+            if (actionView == null)
             {
-                menuItem.SetActionView(viewId);
-                actionView = menuItem.GetActionView();
+                Type viewType = TypeCache<View>.Instance.GetTypeByName(content.ToString(), true, true);
+                actionView = viewType.CreateView(GetContextFromItem(menuItem));
             }
-            else
-            {
-                actionView = content as View;
-                if (actionView == null)
-                {
-                    Type viewType = TypeCache<View>.Instance.GetTypeByName(content.ToString(), false, true);
-                    actionView = viewType.CreateView(GetContextFromMenuItem(menuItem));
-                }
-                menuItem.SetActionView(actionView);
-            }
+            menuItem.SetActionView(actionView);
+
             ParentObserver.GetOrAdd(actionView).Parent = menuItem;
             var bindings = GetActionViewBind(menuItem);
             if (!string.IsNullOrEmpty(bindings))
@@ -827,8 +821,8 @@ namespace MugenMvvmToolkit.ActionBarSupport.Modules
             var actionProvider = content as ActionProvider;
             if (actionProvider == null)
             {
-                Type viewType = TypeCache<ActionProvider>.Instance.GetTypeByName(content.ToString(), false, true);
-                actionProvider = (ActionProvider)Activator.CreateInstance(viewType, GetContextFromMenuItem(menuItem));
+                Type viewType = TypeCache<ActionProvider>.Instance.GetTypeByName(content.ToString(), true, true);
+                actionProvider = (ActionProvider)Activator.CreateInstance(viewType, GetContextFromItem(menuItem));
             }
             //TODO WRAPPER???
             menuItem.SetActionProvider(actionProvider);
@@ -852,9 +846,9 @@ namespace MugenMvvmToolkit.ActionBarSupport.Modules
             return ActionViewExpandedListener.AddExpandListener(menuItem, arg3);
         }
 
-        private static Context GetContextFromMenuItem(IMenuItem menuItem)
+        private static Context GetContextFromItem(object item)
         {
-            var parent = BindingServiceProvider.VisualTreeManager.FindParent(menuItem);
+            var parent = BindingServiceProvider.VisualTreeManager.FindParent(item);
             while (parent != null)
             {
                 var actionBar = parent as ActionBar;

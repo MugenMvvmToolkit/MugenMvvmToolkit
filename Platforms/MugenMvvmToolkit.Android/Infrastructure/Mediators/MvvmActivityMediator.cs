@@ -24,6 +24,7 @@ using Android.OS;
 using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Interfaces;
@@ -68,7 +69,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         #region Fields
 
-        private MenuInflater _menuInflater;
+        private BindableMenuInflater _menuInflater;
+        private BindableLayoutInflater _layoutInflater;
         private IMenu _menu;
         private Bundle _bundle;
         private bool _isBackNavigation;
@@ -85,7 +87,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public MvvmActivityMediator([NotNull] Activity target)
             : base(target)
         {
-            if (Build.VERSION.SdkInt <= BuildVersionCodes.GingerbreadMr1)
+            if (PlatformExtensions.IsApiLessThanOrEqualTo10)
                 ServiceProvider.EventAggregator.Subscribe(this);
         }
 
@@ -199,7 +201,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             if (Tracer.TraceInformation)
                 Tracer.Info("OnDestroy activity({0})", Target);
-            if (Build.VERSION.SdkInt <= BuildVersionCodes.GingerbreadMr1)
+            if (PlatformExtensions.IsApiLessThanOrEqualTo10)
                 ServiceProvider.EventAggregator.Unsubscribe(this);
             var handler = Destroyed;
             if (handler != null)
@@ -215,6 +217,11 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             {
                 _menuInflater.Dispose();
                 _menuInflater = null;
+            }
+            if (_layoutInflater != null)
+            {
+                _layoutInflater.Dispose();
+                _layoutInflater = null;
             }
             base.OnDestroy(baseOnDestroy);
             PlatformExtensions.UpdateActivity(Target, true);
@@ -304,10 +311,10 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// <param name="layoutResId">Resource ID to be inflated.</param>
         public virtual void SetContentView(int layoutResId)
         {
-            _view = Target.CreateBindableView(layoutResId, Get<IViewFactory>()).Item1;
+            _view = Target.LayoutInflater.Inflate(layoutResId, null);
             Target.SetContentView(_view);
             _view = Target.FindViewById(Android.Resource.Id.Content) ?? _view;
-            _view.ListenParentChange();
+            _view.RootView.ListenParentChange();
             PlatformExtensions.NotifyActivityAttached(Target, _view);
         }
 
@@ -318,10 +325,23 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             if (_menuInflater == null)
                 _menuInflater = PlatformExtensions.MenuInflaterFactory(Target, Models.DataContext.Empty);
-            var menuInflater = _menuInflater as IBindableMenuInflater;
-            if (menuInflater != null)
-                menuInflater.MenuInflater = baseMenuInflater;
+            if (_menuInflater != null)
+                _menuInflater.NestedMenuInflater = baseMenuInflater;
             return _menuInflater ?? baseMenuInflater;
+        }
+
+        /// <summary>
+        ///     Returns a <c>LayoutInflater</c> with this context.
+        /// </summary>
+        public LayoutInflater GetLayoutInflater(LayoutInflater baseLayoutInflater)
+        {
+            if (_layoutInflater == null)
+            {
+                _layoutInflater = PlatformExtensions.LayoutInflaterFactory(Target, Models.DataContext.Empty, Get<IViewFactory>(), baseLayoutInflater);
+                if (_layoutInflater != null)
+                    _layoutInflater = new BindableLayoutInflaterProxy(_layoutInflater);
+            }
+            return _layoutInflater ?? baseLayoutInflater;
         }
 
         /// <summary>

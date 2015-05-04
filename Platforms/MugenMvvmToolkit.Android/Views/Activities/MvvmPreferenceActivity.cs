@@ -89,6 +89,11 @@ namespace MugenMvvmToolkit.Views.Activities
             get { return Mediator.GetMenuInflater(base.MenuInflater); }
         }
 
+        public override LayoutInflater LayoutInflater
+        {
+            get { return Mediator.GetLayoutInflater(base.LayoutInflater); }
+        }
+
         public override void Finish()
         {
             Mediator.Finish(base.Finish);

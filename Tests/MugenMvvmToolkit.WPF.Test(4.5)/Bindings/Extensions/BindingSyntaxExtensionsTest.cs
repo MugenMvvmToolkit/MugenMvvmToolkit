@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Builders;
+using MugenMvvmToolkit.Binding.Converters;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Extensions.Syntax;
 using MugenMvvmToolkit.Binding.Interfaces;
@@ -181,7 +182,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         [TestMethod]
         public void BuilderShouldUseBindingMode()
         {
-            var modes = new Dictionary<IBindingBehavior, Action<IBindingModeSyntax>>
+            var modes = new Dictionary<IBindingBehavior, Action<IBindingModeSyntax<object>>>
             {
                 {new TwoWayBindingMode(), syntax => syntax.TwoWay()},
                 {new OneWayBindingMode(), syntax => syntax.OneWay()},
@@ -254,6 +255,14 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         }
 
         [TestMethod]
+        public void BuilderShouldUseConverter3()
+        {
+            var builder = new BindingBuilder();
+            builder.Bind(InverseBooleanValueConverter.Instance, "test").To("test").WithConverter(() => o => BindingSyntaxEx.Self<object>());
+            builder.GetData(BindingBuilderConstants.Converter).Invoke(builder).ShouldEqual(InverseBooleanValueConverter.Instance);
+        }
+
+        [TestMethod]
         public void BuilderShouldUseFallback1()
         {
             var fallback = new object();
@@ -269,6 +278,14 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(new object(), "test").To("test").WithFallback(fallback);
             builder.GetData(BindingBuilderConstants.Fallback).ShouldEqual(fallback);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseFallback3()
+        {
+            var builder = new BindingBuilder();
+            builder.Bind(builder, "test").To("test").WithFallback(() => o => BindingSyntaxEx.Self<object>());
+            builder.GetData(BindingBuilderConstants.Fallback).Invoke(builder).ShouldEqual(builder);
         }
 
         [TestMethod]
@@ -310,6 +327,14 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         }
 
         [TestMethod]
+        public void BuilderShouldUseConverterCulture3()
+        {
+            var builder = new BindingBuilder();
+            builder.Bind(CultureInfo.InvariantCulture, "test").To("test").WithConverterCulture(() => o => BindingSyntaxEx.Self<CultureInfo>());
+            builder.GetData(BindingBuilderConstants.ConverterCulture).Invoke(builder).ShouldEqual(CultureInfo.InvariantCulture);
+        }
+
+        [TestMethod]
         public void BuilderShouldUseCommandParameter1()
         {
             var parameter = new object();
@@ -328,6 +353,14 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         }
 
         [TestMethod]
+        public void BuilderShouldUseCommandParameter3()
+        {
+            var builder = new BindingBuilder();
+            builder.Bind(builder, "test").To("test").WithCommandParameter(() => o => BindingSyntaxEx.Self<object>());
+            builder.GetData(BindingBuilderConstants.CommandParameter).Invoke(builder).ShouldEqual(builder);
+        }
+
+        [TestMethod]
         public void BuilderShouldUseConverterParameter1()
         {
             var parameter = new object();
@@ -343,6 +376,14 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(new object(), "test").To("test").WithConverterParameter(parameter);
             builder.GetData(BindingBuilderConstants.ConverterParameter).ShouldEqual(parameter);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseConverterParameter3()
+        {
+            var builder = new BindingBuilder();
+            builder.Bind(builder, "test").To("test").WithConverterParameter(() => o => BindingSyntaxEx.Self<object>());
+            builder.GetData(BindingBuilderConstants.ConverterParameter).Invoke(builder).ShouldEqual(builder);
         }
 
         [TestMethod]
@@ -967,6 +1008,444 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
 
             var data = builder.GetData(BindingBuilderConstants.MultiExpression);
             data.Invoke(builder, new object[] { ((string)src.ObjectProperty).Length }).ShouldEqual(((string)src.ObjectProperty).Length);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseTargetBindingContextForParameter()
+        {
+            const string targetPath = "Text";
+            const string sourcePath = "IntProperty";
+            var targetObj = new object();
+            var builder = new BindingBuilder();
+            builder.Bind(targetObj, targetPath)
+                   .To(sourcePath)
+                   .WithCommandParameter<BindingSourceModel>(() => o => o.IntProperty);
+            var func = builder.GetData(BindingBuilderConstants.CommandParameter);
+            func(EmptyContext).ShouldEqual(null);
+            var sourceObj = new BindingSourceModel { IntProperty = int.MaxValue };
+            BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = sourceObj;
+            func(EmptyContext).ShouldEqual(sourceObj.IntProperty);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseSourceObjectForParameter()
+        {
+            const string targetPath = "Text";
+            const string sourcePath = "IntProperty";
+            var targetObj = new object();
+            var sourceObj = new BindingSourceModel { IntProperty = int.MaxValue };
+            var builder = new BindingBuilder();
+            builder.Bind(targetObj, targetPath)
+                   .To(sourceObj, sourcePath)
+                   .WithCommandParameter(() => o => o.IntProperty);
+            var func = builder.GetData(BindingBuilderConstants.CommandParameter);
+            func(EmptyContext).ShouldEqual(sourceObj.IntProperty);
+
+            sourceObj.IntProperty = 0;
+            func(EmptyContext).ShouldEqual(sourceObj.IntProperty);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseSelfAsSourceObjectForParameter()
+        {
+            const string targetPath = "Text";
+            const string sourcePath = "IntProperty";
+            var sourceObj = new BindingSourceModel { IntProperty = int.MaxValue };
+            var builder = new BindingBuilder();
+            builder.Bind(sourceObj, targetPath)
+                   .ToSelf(sourcePath)
+                   .WithCommandParameter(() => o => o.IntProperty);
+            var func = builder.GetData(BindingBuilderConstants.CommandParameter);
+            func(EmptyContext).ShouldEqual(sourceObj.IntProperty);
+
+            sourceObj.IntProperty = 0;
+            func(EmptyContext).ShouldEqual(sourceObj.IntProperty);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseLambdaExpressionForParameter1()
+        {
+            var builder = new BindingBuilder();
+            var src = new BindingSourceModel();
+            builder.Bind(new object(), "empty")
+                .To(src, () => model => model.IntProperty)
+                .WithCommandParameter(() => model => model.IntProperty + 100 + model.NestedModel.IntProperty + int.Parse(model.NestedModel["1"]));
+
+            var expression = builder.GetData(BindingBuilderConstants.CommandParameter);
+            src.IntProperty = 10;
+            src.NestedModel = new BindingSourceNestedModel { IntProperty = 10 };
+            src.NestedModel["1"] = "10";
+            expression.Invoke(builder).ShouldEqual(130);
+
+            src.IntProperty = -10;
+            src.NestedModel = new BindingSourceNestedModel { IntProperty = 10 };
+            src.NestedModel["1"] = "-100";
+            expression.Invoke(builder).ShouldEqual(0);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseLambdaExpressionForParameter2()
+        {
+            var src = new BindingSourceModel();
+            var builder = new BindingBuilder();
+            builder.Bind(new object(), "empty")
+                .To(src, () => model => model.StringProperty)
+                .WithCommandParameter(() => model => model.StringProperty.OfType<char>().Count(c => c == '1') + ((BindingSourceModel)model.ObjectProperty).IntProperty);
+
+            var expression = builder.GetData(BindingBuilderConstants.CommandParameter);
+            src.StringProperty = "1";
+            src.ObjectProperty = new BindingSourceModel { IntProperty = 10 };
+            expression.Invoke(builder).ShouldEqual(11);
+
+            src.StringProperty = "";
+            src.ObjectProperty = new BindingSourceModel { IntProperty = 0 };
+            expression.Invoke(builder).ShouldEqual(0);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseEventArgsForParameter1()
+        {
+            var builder = new BindingBuilder();
+            builder.Bind(new object(), "empty").To<BindingSourceModel>(() => model => model.IntProperty)
+                .WithCommandParameter(() => model => BindingSyntaxEx.EventArgs<EventArgs>());
+
+            builder.Add(BindingConstants.CurrentEventArgs, EventArgs.Empty);
+            var expression = builder.GetData(BindingBuilderConstants.CommandParameter);
+            expression(builder).ShouldEqual(EventArgs.Empty);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseEventArgsForParameter2()
+        {
+            var builder = new BindingBuilder();
+            builder.Bind(new object(), "empty").To<BindingSourceModel>(() => m => m.IntProperty)
+                .WithCommandParameter(() => model => BindingSyntaxEx.EventArgs<EventArgs>().GetType().Name);
+
+            builder.Add(BindingConstants.CurrentEventArgs, EventArgs.Empty);
+            var expression = builder.GetData(BindingBuilderConstants.CommandParameter);
+            expression(builder).ShouldEqual(EventArgs.Empty.GetType().Name);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseSelfExpressionForParameter1()
+        {
+            var builder = new BindingBuilder();
+            var sourceModel = new BindingSourceModel();
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => m => m.IntProperty)
+                .WithCommandParameter(() => model => BindingSyntaxEx.Self<BindingSourceModel>());
+            builder.GetData(BindingBuilderConstants.CommandParameter).Invoke(builder).ShouldEqual(sourceModel);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseSelfExpressionForParameter2()
+        {
+            var builder = new BindingBuilder();
+            var sourceModel = new BindingSourceModel { IntProperty = 20 };
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => m => m.IntProperty)
+                .WithCommandParameter(() => model => BindingSyntaxEx.Self<BindingSourceModel>().IntProperty);
+            builder.GetData(BindingBuilderConstants.CommandParameter).Invoke(builder).ShouldEqual(sourceModel.IntProperty);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseResourceForParameter1()
+        {
+            const string key = "key";
+            var builder = new BindingBuilder();
+            var sourceModel = new BindingSourceModel();
+            BindingServiceProvider.ResourceResolver.AddObject(key, sourceModel);
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => m => m.IntProperty)
+                   .WithCommandParameter(() => model => BindingSyntaxEx.Resource<BindingSourceModel>(key));
+            builder.GetData(BindingBuilderConstants.CommandParameter).Invoke(builder).ShouldEqual(sourceModel);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseResourceForParameter2()
+        {
+            const string key = "key";
+            var builder = new BindingBuilder();
+            var sourceModel = new BindingSourceModel();
+            BindingServiceProvider.ResourceResolver.AddObject(key, sourceModel);
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => m => m.IntProperty)
+                   .WithCommandParameter(() => model => BindingSyntaxEx.Resource<BindingSourceModel>(key).IntProperty);
+            builder.GetData(BindingBuilderConstants.CommandParameter).Invoke(builder).ShouldEqual(sourceModel.IntProperty);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseGetErrorsMethodForParameter1()
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                var builder = new BindingBuilder();
+                var sourceModel = new BindingSourceModel();
+                builder.Bind(sourceModel, "empty").To(sourceModel, () => model => model.IntProperty)
+                    .WithCommandParameter(() => model => BindingSyntaxEx.GetErrors());
+
+                var behavior = builder.GetOrAddBehaviors().OfType<NotifyDataErrorsAggregatorBehavior>().Single();
+                behavior.ErrorPaths.IsNullOrEmpty().ShouldBeTrue();
+                builder.AddOrUpdate(BindingConstants.Binding, new DataBindingMock { Behaviors = new[] { behavior } });
+
+                var expression = builder.GetData(BindingBuilderConstants.CommandParameter);
+                behavior.Errors = new List<object> { "test" };
+                expression(builder).ShouldEqual(behavior.Errors);
+            }
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseGetErrorsMethodForParameter2()
+        {
+            var builder = new BindingBuilder();
+            var sourceModel = new BindingSourceModel();
+            builder.Bind(sourceModel, "empty").To(sourceModel, () => model => model.IntProperty)
+                .WithCommandParameter(() => model => BindingSyntaxEx.GetErrors("1", "2"));
+
+            var behavior = builder.GetOrAddBehaviors().OfType<NotifyDataErrorsAggregatorBehavior>().Single();
+            behavior.ErrorPaths.SequenceEqual(new[] { "1", "2" }).ShouldBeTrue();
+            builder.AddOrUpdate(BindingConstants.Binding, new DataBindingMock { Behaviors = new[] { behavior } });
+
+            var expression = builder.GetData(BindingBuilderConstants.CommandParameter);
+            behavior.Errors = new List<object> { "test" };
+            expression(builder).ShouldEqual(behavior.Errors);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseRelativeSourceForParameter1()
+        {
+            var builder = new BindingBuilder();
+            var targetObj = new BindingSourceModel { ObjectProperty = "test" };
+            var relativeObj = new BindingSourceModel();
+            bool isInvoked = false;
+            IEventListener eventListener = null;
+            var memberMock = new BindingMemberInfoMock
+            {
+                TryObserveMember = (o, listener) =>
+                {
+                    eventListener = listener;
+                    return null;
+                }
+            };
+
+            var treeManagerMock = new VisualTreeManagerMock
+            {
+                FindRelativeSource = (o, s, arg3) =>
+                {
+                    o.ShouldEqual(targetObj);
+                    s.ShouldEqual(typeof(BindingSourceModel).AssemblyQualifiedName);
+                    arg3.ShouldEqual(1u);
+                    isInvoked = true;
+                    return relativeObj;
+                },
+                GetRootMember = type => memberMock
+            };
+            BindingServiceProvider.VisualTreeManager = treeManagerMock;
+
+            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => model => model.IntProperty)
+                .WithCommandParameter(() => model => BindingSyntaxEx.Relative<BindingSourceModel>());
+
+            var func = builder.GetData(BindingBuilderConstants.CommandParameter);
+            func(builder).ShouldEqual(relativeObj);
+            isInvoked.ShouldBeTrue();
+
+            isInvoked = false;
+            eventListener.ShouldNotBeNull();
+            eventListener.Handle(this, EventArgs.Empty);
+            isInvoked.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseRelativeSourceForParameter2()
+        {
+            const uint level = 10u;
+            var builder = new BindingBuilder();
+            var targetObj = new BindingSourceModel { ObjectProperty = "test" };
+            var relativeObj = new BindingSourceModel();
+            bool isInvoked = false;
+            IEventListener eventListener = null;
+            var memberMock = new BindingMemberInfoMock
+            {
+                TryObserveMember = (o, listener) =>
+                {
+                    eventListener = listener;
+                    return null;
+                }
+            };
+
+            var treeManagerMock = new VisualTreeManagerMock
+            {
+                FindRelativeSource = (o, s, arg3) =>
+                {
+                    o.ShouldEqual(targetObj);
+                    s.ShouldEqual(typeof(BindingSourceModel).AssemblyQualifiedName);
+                    arg3.ShouldEqual(level);
+                    isInvoked = true;
+                    return relativeObj;
+                },
+                GetRootMember = type => memberMock
+            };
+            BindingServiceProvider.VisualTreeManager = treeManagerMock;
+
+            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => model => model.IntProperty)
+                .WithCommandParameter(() => model => BindingSyntaxEx.Relative<BindingSourceModel>(level).ObjectProperty);
+
+            var func = builder.GetData(BindingBuilderConstants.CommandParameter);
+            func(builder).ShouldEqual(relativeObj.ObjectProperty);
+            isInvoked.ShouldBeTrue();
+
+            isInvoked = false;
+            eventListener.ShouldNotBeNull();
+            eventListener.Handle(this, EventArgs.Empty);
+            isInvoked.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseElementSourceForParameter1()
+        {
+            const string name = "name";
+            var builder = new BindingBuilder();
+            var targetObj = new BindingSourceModel { ObjectProperty = "test" };
+            var element = new BindingSourceModel();
+            bool isInvoked = false;
+            IEventListener eventListener = null;
+            var memberMock = new BindingMemberInfoMock
+            {
+                TryObserveMember = (o, listener) =>
+                {
+                    eventListener = listener;
+                    return null;
+                }
+            };
+
+            var treeManagerMock = new VisualTreeManagerMock
+            {
+                FindByName = (o, s) =>
+                {
+                    o.ShouldEqual(targetObj);
+                    s.ShouldEqual(name);
+                    isInvoked = true;
+                    return element;
+                },
+                GetRootMember = type => memberMock
+            };
+            BindingServiceProvider.VisualTreeManager = treeManagerMock;
+
+            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => model => model.IntProperty)
+                .WithCommandParameter(() => model => BindingSyntaxEx.Element<BindingSourceModel>(name));
+
+            builder.GetData(BindingBuilderConstants.CommandParameter).Invoke(builder).ShouldEqual(element);
+            isInvoked.ShouldBeTrue();
+
+            isInvoked = false;
+            eventListener.ShouldNotBeNull();
+            eventListener.Handle(this, EventArgs.Empty);
+            isInvoked.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseElementSourceForParameter2()
+        {
+            const string name = "name";
+            var builder = new BindingBuilder();
+            var targetObj = new BindingSourceModel { ObjectProperty = "test" };
+            var relativeObj = new BindingSourceModel();
+            bool isInvoked = false;
+            IEventListener eventListener = null;
+            var memberMock = new BindingMemberInfoMock
+            {
+                TryObserveMember = (o, listener) =>
+                {
+                    eventListener = listener;
+                    return null;
+                }
+            };
+
+            var treeManagerMock = new VisualTreeManagerMock
+            {
+                FindByName = (o, s) =>
+                {
+                    o.ShouldEqual(targetObj);
+                    s.ShouldEqual(name);
+                    isInvoked = true;
+                    return relativeObj;
+                },
+                GetRootMember = type => memberMock
+            };
+            BindingServiceProvider.VisualTreeManager = treeManagerMock;
+
+            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => model => model.IntProperty)
+                .WithCommandParameter(() => model => BindingSyntaxEx.Element<BindingSourceModel>(name).ObjectProperty);
+
+            builder.GetData(BindingBuilderConstants.CommandParameter).Invoke(builder).ShouldEqual(relativeObj.ObjectProperty);
+            isInvoked.ShouldBeTrue();
+
+            isInvoked = false;
+            eventListener.ShouldNotBeNull();
+            eventListener.Handle(this, EventArgs.Empty);
+            isInvoked.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseResourceMethodForParameter()
+        {
+            const string key = "key";
+            var builder = new BindingBuilder();
+            var sourceModel = new BindingSourceModel();
+            var result = new BindingSourceModel();
+            BindingServiceProvider.ResourceResolver.AddMethod<string, BindingSourceModel>(key, (s, context) =>
+            {
+                s.ShouldEqual(key);
+                context.ShouldEqual(builder);
+                return result;
+            });
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => model => model.IntProperty)
+                .WithCommandParameter(() => model => BindingSyntaxEx.ResourceMethod<BindingSourceModel>(key, key));
+
+            var expression = builder.GetData(BindingBuilderConstants.CommandParameter);
+            expression(builder).ShouldEqual(result);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseBindingContextExtensionForParameter1()
+        {
+            const string targetPath = "Text";
+            var targetObj = new object();
+            var builder = new BindingBuilder();
+            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => model.IntProperty)
+                .WithCommandParameter(() => model => BindingSyntaxEx.DataContext<BindingSourceModel>().IntProperty);
+
+            var func = builder.GetData(BindingBuilderConstants.CommandParameter);
+            func(builder).ShouldBeNull();
+            var sourceObj = new BindingSourceModel();
+            BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = sourceObj;
+            func(builder).ShouldEqual(sourceObj.IntProperty);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseBindingContextExtensionForParameter2()
+        {
+            const string targetPath = "Text";
+            var targetObj = new object();
+            var builder = new BindingBuilder();
+            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => model.IntProperty)
+                .WithCommandParameter(() => model => BindingSyntaxEx.Self<object>().DataContext<BindingSourceModel>().IntProperty);
+
+            var func = builder.GetData(BindingBuilderConstants.CommandParameter);
+            func(builder).ShouldBeNull();
+            var sourceObj = new BindingSourceModel();
+            BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = sourceObj;
+            func(builder).ShouldEqual(sourceObj.IntProperty);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseDynamicMemberForParameter()
+        {
+            const string targetPath = "Text";
+            var targetObj = new object();
+            var builder = new BindingBuilder();
+            var src = new BindingSourceModel { ObjectProperty = "test" };
+            builder.Bind(targetObj, targetPath).To(src, () => model => model.IntProperty)
+                .WithCommandParameter(() => model => model.Member<string>("ObjectProperty").Member<int>("Length") + 0);
+
+            var func = builder.GetData(BindingBuilderConstants.CommandParameter);
+            func(builder).ShouldEqual(((string)src.ObjectProperty).Length);
         }
 
         #endregion

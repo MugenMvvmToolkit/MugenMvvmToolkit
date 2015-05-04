@@ -220,7 +220,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             //Object
             CollectionViewManagerMember = AttachedBindingMember.CreateAutoProperty<Object, ICollectionViewManager>("CollectionViewManager");
             ContentViewManagerMember = AttachedBindingMember.CreateAutoProperty<Object, IContentViewManager>("ContentViewManager");
-            
+
             //Menu
             MenuItemsSourceMember = AttachedBindingMember.CreateAutoProperty<IMenu, IEnumerable>(AttachedMemberConstants.ItemsSource, MenuItemsSourceChanged);
             IsCheckedMenuItemMember = AttachedBindingMember.CreateNotifiableMember<IMenuItem, bool>("IsChecked",
@@ -262,7 +262,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             //Object
             memberProvider.Register(CollectionViewManagerMember);
             memberProvider.Register(ContentViewManagerMember);
-            
+
             //Dialog
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Dialog, object>("Title",
                 (dialog, args) => dialog.SetTitle(args.NewValue.ToStringSafe())));
@@ -336,7 +336,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             memberProvider.Register("DateTime", selectedDateMember);
 
             //TimePicker
-            var selectedTimeMember = AttachedBindingMember.CreateMember<TimePicker, TimeSpan>("SelectedTime", GetTimePickerValue, SetTimePickerValue, ObserveTimePickerValue);
+            var selectedTimeMember = AttachedBindingMember.CreateMember<TimePicker, TimeSpan>("SelectedTime", GetTimePickerValue, SetTimePickerValue, "TimeChanged");
             memberProvider.Register(selectedTimeMember);
             memberProvider.Register("Value", selectedTimeMember);
 
@@ -508,14 +508,6 @@ namespace MugenMvvmToolkit.Binding.Modules
             int currentHour = timePicker.CurrentHour.IntValue();
             int currentMinute = timePicker.CurrentMinute.IntValue();
             return new TimeSpan(currentHour, currentMinute, 0);
-        }
-
-        private static IDisposable ObserveTimePickerValue(IBindingMemberInfo bindingMemberInfo, TimePicker timePicker,
-            IEventListener arg3)
-        {
-            EventHandler<TimePicker.TimeChangedEventArgs> handler = arg3.ToWeakEventListener().Handle;
-            timePicker.TimeChanged += handler;
-            return WeakActionToken.Create(timePicker, handler, (picker, eventHandler) => picker.TimeChanged -= eventHandler);
         }
 
         #endregion

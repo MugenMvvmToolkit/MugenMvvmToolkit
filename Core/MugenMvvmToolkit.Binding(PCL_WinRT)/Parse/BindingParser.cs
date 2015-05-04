@@ -238,8 +238,11 @@ namespace MugenMvvmToolkit.Binding.Parse
         /// </summary>
         /// <param name="bindingExpression">The specified binding expression.</param>
         /// <param name="context">The specified context.</param>
+        /// <param name="target">The specified binding target.</param>
+        /// <param name="sources">The specified sources, if any.</param>
         /// <returns>A set of instances of <see cref="IDataContext" />.</returns>
-        public IList<IDataContext> Parse(string bindingExpression, IDataContext context)
+        public IList<IDataContext> Parse(string bindingExpression, IDataContext context, object target,
+             IList<object> sources)
         {
             Should.NotBeNullOrWhitespace(bindingExpression, "bindingExpression");
             KeyValuePair<KeyValuePair<string, int>, Action<IDataContext>[]>[] bindingValues;
@@ -249,8 +252,9 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {
                     try
                     {
-                        if (ReferenceEquals(context, DataContext.Empty))
+                        if (ReferenceEquals(context, DataContext.Empty) || context == null)
                             context = _defaultContext;
+                        context.AddOrUpdate(BindingBuilderConstants.Target, target);
                         _context = context;
                         _expression = Handle(bindingExpression, context);
                         _tokenizer = CreateTokenizer(Expression);
@@ -265,22 +269,24 @@ namespace MugenMvvmToolkit.Binding.Parse
                     finally
                     {
                         if (ReferenceEquals(_defaultContext, context))
+                        {
                             _defaultContext.Clear();
+                            context = DataContext.Empty;
+                        }
                         _tokenizer = null;
                         _expression = null;
                         _context = null;
                     }
                 }
             }
-            IList<object> sources = context.GetData(BindingBuilderConstants.RawSources);
             var result = new IDataContext[bindingValues.Length];
-            bool hasSources = sources != null && sources.Count > 0;
-            if (hasSources)
+            if (sources != null && sources.Count > 0)
             {
                 for (int i = 0; i < bindingValues.Length; i++)
                 {
                     var pair = bindingValues[i];
-                    var dataContext = new DataContext();
+                    var dataContext = new DataContext(context);
+                    dataContext.AddOrUpdate(BindingBuilderConstants.Target, target);
                     if (pair.Key.Value < sources.Count)
                     {
                         object src = sources[pair.Key.Value];
@@ -298,7 +304,8 @@ namespace MugenMvvmToolkit.Binding.Parse
                 for (int i = 0; i < bindingValues.Length; i++)
                 {
                     var actions = bindingValues[i].Value;
-                    var dataContext = new DataContext();
+                    var dataContext = new DataContext(context);
+                    dataContext.AddOrUpdate(BindingBuilderConstants.Target, target);
                     for (int j = 0; j < actions.Length; j++)
                         actions[j].Invoke(dataContext);
                     result[i] = dataContext;
@@ -1297,9 +1304,8 @@ namespace MugenMvvmToolkit.Binding.Parse
 
                 return context =>
                 {
-                    var relativeSource = new RelativeSourceBehavior(relativeSrc);
-                    context.GetOrAddBehaviors().Add(relativeSource);
-                    setComplexValue(context, d => relativeSource.Value);
+                    var src = BindingExtensions.CreateBindingSource(relativeSrc, context.GetData(BindingBuilderConstants.Target, true), null);
+                    setComplexValue(context, d => src.GetCurrentValue());
                 };
             }
 
@@ -1403,7 +1409,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             if (node.IsRelativeSource)
             {
                 IRelativeSourceExpressionNode r = node.RelativeSourceExpression;
-                return context => RelativeSourceBehavior.GetBindingSource(r, context.GetData(BindingBuilderConstants.Target, true), null);
+                return context => BindingExtensions.CreateBindingSource(r, context.GetData(BindingBuilderConstants.Target, true), null);
             }
             return context => BindSource(context, path);
         }

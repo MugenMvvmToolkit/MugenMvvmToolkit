@@ -24,8 +24,8 @@ namespace MugenMvvmToolkit.Binding.Builders
     /// <summary>
     ///     Used to define a basic binding syntax builder.
     /// </summary>
-    public sealed class SyntaxBuilder<TTarget, TSource> : IBindingInfoBehaviorSyntax, IBindingModeInfoBehaviorSyntax,
-        IBindingToSyntax<TTarget, TSource>
+    public sealed class SyntaxBuilder<TTarget, TSource> : IBindingModeInfoBehaviorSyntax<TSource>,
+        IBindingToSyntax<TTarget, TSource>, IBindingInfoBehaviorSyntax<TSource>
     {
         #region Fields
 

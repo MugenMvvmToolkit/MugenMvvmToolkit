@@ -164,7 +164,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
             _view.ClearBindingsRecursively(true, true);
             if (viewId.HasValue)
             {
-                _view = inflater.CreateBindableView(viewId.Value, container, false).Item1;
+                _view = inflater.ToBindableLayoutInflater().Inflate(viewId.Value, container, false);
                 FragmentExtensions.FragmentViewMember.SetValue(_view, Target);
                 ViewManager.SetDataContext(_view, DataContext);
                 return _view;
@@ -323,7 +323,7 @@ namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators
             baseOnStart();
             var view = Target.View;
             if (view != null)
-                view.ListenParentChange();
+                view.RootView.ListenParentChange();
         }
 
         /// <summary>

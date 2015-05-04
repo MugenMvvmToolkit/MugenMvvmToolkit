@@ -126,13 +126,13 @@ namespace MugenMvvmToolkit.Infrastructure
 #elif ANDROID
         private sealed class AttachedValueDictionaryJava : Java.Lang.Object
         {
-        #region Fields
+            #region Fields
 
             public readonly AttachedValueDictionary Dictionary;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             public AttachedValueDictionaryJava(IntPtr handle, JniHandleOwnership transfer)
                 : base(handle, transfer)
@@ -146,7 +146,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 Dictionary = new AttachedValueDictionary();
             }
 
-        #endregion
+            #endregion
         }
 #endif
         private class AttachedValueDictionary : LightDictionaryBase<string, object>
@@ -193,7 +193,7 @@ namespace MugenMvvmToolkit.Infrastructure
 #elif ANDROID
         //Prior to Android 4.0, the implementation of View.setTag(int, Object) would store the objects in a static map, where the values were strongly referenced. 
         //This means that if the object contains any references pointing back to the context, the context (which points to pretty much everything else) will leak. 
-        private static readonly bool SetTagSupported = (int)Build.VERSION.SdkInt >= 14;
+        private static readonly bool SetTagSupported = Build.VERSION.SdkInt >= BuildVersionCodes.IceCreamSandwich;
 #endif
         private static readonly ConditionalWeakTable<object, AttachedValueDictionary>.CreateValueCallback
             CreateDictionaryDelegate = o => new AttachedValueDictionary();

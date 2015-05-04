@@ -24,4 +24,11 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Syntax
     public interface IBindingModeSyntax : IBuilderSyntax
     {
     }
+
+    /// <summary>
+    ///     Used to define a basic binding syntax builder.
+    /// </summary>
+    public interface IBindingModeSyntax<in TSource> : IBindingModeSyntax
+    {
+    }
 }

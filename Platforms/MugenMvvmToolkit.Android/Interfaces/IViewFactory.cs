@@ -29,13 +29,11 @@ namespace MugenMvvmToolkit.Interfaces
         /// <summary>
         ///     Creates an instance of <see cref="ViewResult" /> using the view name.
         /// </summary>
-        [NotNull]
         ViewResult Create([NotNull] string name, [NotNull] Context context, [NotNull] IAttributeSet attrs);
 
         /// <summary>
         ///     Creates an instance of <see cref="ViewResult" /> using the view type.
         /// </summary>
-        [NotNull]
         ViewResult Create([NotNull] Type type, [NotNull] Context context, [NotNull] IAttributeSet attrs);
     }
 }
