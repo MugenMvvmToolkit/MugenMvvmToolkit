@@ -14,6 +14,7 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Interfaces.Syntax;
+using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Test.Bindings.Parse;
 using MugenMvvmToolkit.Test.TestInfrastructure;
@@ -1008,6 +1009,23 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
 
             var data = builder.GetData(BindingBuilderConstants.MultiExpression);
             data.Invoke(builder, new object[] { ((string)src.ObjectProperty).Length }).ShouldEqual(((string)src.ObjectProperty).Length);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseDynamicMember6()
+        {
+            const string targetPath = "Text";
+            var sourcePath = new BindingMemberDescriptor<BindingSourceModel, int>("IntProperty");
+            var targetObj = new object();
+            var builder = new BindingBuilder();
+            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => model.Member(sourcePath));
+
+            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IBindingSource source = sources.Single().Invoke(builder);
+            BindingParserTest.BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath.Path);
+            var sourceObj = new BindingSourceModel();
+            BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = sourceObj;
+            BindingParserTest.BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath.Path);
         }
 
         [TestMethod]

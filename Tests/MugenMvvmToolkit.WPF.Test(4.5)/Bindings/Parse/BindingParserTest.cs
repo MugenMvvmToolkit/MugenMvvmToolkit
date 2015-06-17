@@ -1661,7 +1661,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         public void ParserShouldParseExpressionWithDynamicObjectIndexerAccessConstant()
         {
             const string targetPath = "Text";
-            const string sourcePath = "[value]";
+            const string sourcePath = "[\"value\"]";
             const string binding = "Text ['value']";
             var target = new object();
             IBindingParser bindingParser = CreateBindingParser();

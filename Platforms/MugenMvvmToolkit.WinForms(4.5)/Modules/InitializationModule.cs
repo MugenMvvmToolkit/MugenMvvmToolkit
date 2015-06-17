@@ -25,8 +25,11 @@ using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
+using MugenMvvmToolkit.Modules;
+using MugenMvvmToolkit.WinForms.Infrastructure;
+using MugenMvvmToolkit.WinForms.Infrastructure.Presenters;
 
-namespace MugenMvvmToolkit.Modules
+namespace MugenMvvmToolkit.WinForms.Modules
 {
     /// <summary>
     ///     Represents the class that is used to initialize the IOC adapter.
@@ -74,7 +77,9 @@ namespace MugenMvvmToolkit.Modules
         /// <returns>An instance of <see cref="IMessagePresenter" />.</returns>
         protected override BindingInfo<IMessagePresenter> GetMessagePresenter()
         {
-            return BindingInfo<IMessagePresenter>.FromType<MessagePresenter>(DependencyLifecycle.SingleInstance);
+            if (Context.Platform.Platform == PlatformType.WinForms)
+                return BindingInfo<IMessagePresenter>.FromType<MessagePresenter>(DependencyLifecycle.SingleInstance);
+            return BindingInfo<IMessagePresenter>.Empty;
         }
 
         /// <summary>
@@ -83,7 +88,9 @@ namespace MugenMvvmToolkit.Modules
         /// <returns>An instance of <see cref="IToastPresenter" />.</returns>
         protected override BindingInfo<IToastPresenter> GetToastPresenter()
         {
-            return BindingInfo<IToastPresenter>.FromType<ToastPresenter>(DependencyLifecycle.SingleInstance);
+            if (Context.Platform.Platform == PlatformType.WinForms)
+                return BindingInfo<IToastPresenter>.FromType<ToastPresenter>(DependencyLifecycle.SingleInstance);
+            return BindingInfo<IToastPresenter>.Empty;
         }
 
         /// <summary>
@@ -92,6 +99,8 @@ namespace MugenMvvmToolkit.Modules
         /// <returns>An instance of <see cref="IThreadManager" />.</returns>
         protected override BindingInfo<IThreadManager> GetThreadManager()
         {
+            if (Context.Platform.Platform != PlatformType.WinForms)
+                return BindingInfo<IThreadManager>.Empty;
             if (UseSimpleThreadManager)
                 return BindingInfo<IThreadManager>.FromType<SynchronousThreadManager>(DependencyLifecycle.SingleInstance);
             return BindingInfo<IThreadManager>.FromMethod((container, list) =>
@@ -122,15 +131,27 @@ namespace MugenMvvmToolkit.Modules
         /// <returns>An instance of <see cref="IViewModelPresenter" />.</returns>
         protected override BindingInfo<IViewModelPresenter> GetViewModelPresenter()
         {
-            return BindingInfo<IViewModelPresenter>.FromMethod((container, list) =>
+            if (Context.Platform.Platform == PlatformType.WinForms)
+                return BindingInfo<IViewModelPresenter>.FromMethod((container, list) =>
+                {
+                    var presenter = new ViewModelPresenter();
+                    presenter.DynamicPresenters.Add(
+                        new DynamicViewModelWindowPresenter(container.Get<IViewMappingProvider>(),
+                            container.Get<IViewManager>(), container.Get<IWrapperManager>(), container.Get<IThreadManager>(),
+                            container.Get<IOperationCallbackManager>()));
+                    return presenter;
+                }, DependencyLifecycle.SingleInstance);
+            BootstrapperBase.Initialized += (sender, args) =>
             {
-                var presenter = new ViewModelPresenter();
-                presenter.DynamicPresenters.Add(
-                    new DynamicViewModelWindowPresenter(container.Get<IViewMappingProvider>(),
-                        container.Get<IViewManager>(), container.Get<IWrapperManager>(), container.Get<IThreadManager>(),
-                        container.Get<IOperationCallbackManager>()));
-                return presenter;
-            }, DependencyLifecycle.SingleInstance);
+                var container = ServiceProvider.IocContainer;
+                IViewModelPresenter presenter;
+                if (container.TryGet(out presenter))
+                    presenter.DynamicPresenters.Add(
+                            new DynamicViewModelWindowPresenter(container.Get<IViewMappingProvider>(),
+                                container.Get<IViewManager>(), container.Get<IWrapperManager>(), container.Get<IThreadManager>(),
+                                container.Get<IOperationCallbackManager>()));
+            };
+            return BindingInfo<IViewModelPresenter>.Empty;
         }
 
         /// <summary>

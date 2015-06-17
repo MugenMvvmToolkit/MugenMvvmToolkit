@@ -26,7 +26,7 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 
-namespace MugenMvvmToolkit.Interfaces.Mediators
+namespace MugenMvvmToolkit.Android.Interfaces.Mediators
 {
     public interface IMvvmActivityMediator
     {
@@ -60,7 +60,7 @@ namespace MugenMvvmToolkit.Interfaces.Mediators
         /// <summary>
         ///     Called when the activity is starting.
         /// </summary>
-        void OnCreate(Bundle savedInstanceState, [NotNull] Action<Bundle> baseOnCreate);
+        void OnCreate(int? viewId, Bundle savedInstanceState, [NotNull] Action<Bundle> baseOnCreate);
 
         /// <summary>
         ///     Initialize the contents of the Activity's standard options menu.

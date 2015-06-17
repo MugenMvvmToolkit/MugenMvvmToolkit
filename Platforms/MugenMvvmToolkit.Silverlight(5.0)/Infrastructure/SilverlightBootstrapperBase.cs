@@ -22,10 +22,11 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Resources;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.Silverlight.Infrastructure
 {
     /// <summary>
     ///     Represents the base class that is used to start MVVM application.

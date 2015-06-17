@@ -23,31 +23,39 @@ using Android.Content.Res;
 using Android.OS;
 using Android.Views;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding.Infrastructure;
+using MugenMvvmToolkit.Android.Binding.Models;
+using MugenMvvmToolkit.Android.Interfaces;
+using MugenMvvmToolkit.Android.Interfaces.Mediators;
+using MugenMvvmToolkit.Android.Interfaces.Navigation;
+using MugenMvvmToolkit.Android.Views;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Infrastructure;
-using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.ViewModels;
-using MugenMvvmToolkit.Views;
 
-namespace MugenMvvmToolkit.Infrastructure.Mediators
+namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 {
     public class MvvmActivityMediator : MediatorBase<Activity>, IMvvmActivityMediator, IHandler<MvvmActivityMediator.FinishActivityMessage>
     {
         #region Nested types
 
-        internal sealed class FinishActivityMessage
+        public sealed class FinishActivityMessage
         {
             #region Fields
 
+            /// <summary>
+            ///     Gets the empty instance of message.
+            /// </summary>
             public static readonly FinishActivityMessage Instance;
+
+            /// <summary>
+            ///     Gets the current view model to finish, if any.
+            /// </summary>
+            public readonly IViewModel ViewModel;
 
             #endregion
 
@@ -58,9 +66,26 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 Instance = new FinishActivityMessage();
             }
 
+            /// <summary>
+            ///     Initializes a new instance of the <see cref="FinishActivityMessage" /> class.
+            /// </summary>
+            public FinishActivityMessage(IViewModel viewModel)
+            {
+                ViewModel = viewModel;
+            }
+
             private FinishActivityMessage()
             {
             }
+
+            #endregion
+
+            #region Methods
+
+            /// <summary>
+            ///     Gets or sets the value that indicates that activity was closed.
+            /// </summary>
+            public bool Finished { get; set; }
 
             #endregion
         }
@@ -87,8 +112,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public MvvmActivityMediator([NotNull] Activity target)
             : base(target)
         {
-            if (PlatformExtensions.IsApiLessThanOrEqualTo10)
-                ServiceProvider.EventAggregator.Subscribe(this);
+            ServiceProvider.EventAggregator.Subscribe(this);
         }
 
         #endregion
@@ -132,7 +156,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// <summary>
         ///     Called when the activity is starting.
         /// </summary>
-        public virtual void OnCreate(Bundle savedInstanceState, Action<Bundle> baseOnCreate)
+        public virtual void OnCreate(int? viewId, Bundle savedInstanceState, Action<Bundle> baseOnCreate)
         {
             AndroidBootstrapperBase.EnsureInitialized();
             if (Tracer.TraceInformation)
@@ -148,6 +172,9 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             var handler = Created;
             if (handler != null)
                 handler(Target, new ValueEventArgs<Bundle>(savedInstanceState));
+
+            if (viewId.HasValue)
+                Target.SetContentView(viewId.Value);
         }
 
         /// <summary>
@@ -201,8 +228,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             if (Tracer.TraceInformation)
                 Tracer.Info("OnDestroy activity({0})", Target);
-            if (PlatformExtensions.IsApiLessThanOrEqualTo10)
-                ServiceProvider.EventAggregator.Unsubscribe(this);
+            ServiceProvider.EventAggregator.Unsubscribe(this);
             var handler = Destroyed;
             if (handler != null)
                 handler(Target, EventArgs.Empty);
@@ -224,7 +250,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 _layoutInflater = null;
             }
             base.OnDestroy(baseOnDestroy);
-            PlatformExtensions.UpdateActivity(Target, true);
+            PlatformExtensions.SetCurrentActivity(Target, true);
             Target.ClearBindings(false, true);
             Target.Dispose();
             OptionsItemSelected = null;
@@ -284,7 +310,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public virtual void OnStart(Action baseOnStart)
         {
             baseOnStart();
-            PlatformExtensions.UpdateActivity(Target, false);
 
             var service = Get<INavigationService>();
             service.OnStartActivity(Target);
@@ -313,7 +338,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             _view = Target.LayoutInflater.Inflate(layoutResId, null);
             Target.SetContentView(_view);
-            _view = Target.FindViewById(Android.Resource.Id.Content) ?? _view;
+            _view = Target.FindViewById(global::Android.Resource.Id.Content) ?? _view;
             _view.RootView.ListenParentChange();
             PlatformExtensions.NotifyActivityAttached(Target, _view);
         }
@@ -324,7 +349,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public virtual MenuInflater GetMenuInflater(MenuInflater baseMenuInflater)
         {
             if (_menuInflater == null)
-                _menuInflater = PlatformExtensions.MenuInflaterFactory(Target, Models.DataContext.Empty);
+                _menuInflater = PlatformExtensions.MenuInflaterFactory(Target, MugenMvvmToolkit.Models.DataContext.Empty);
             if (_menuInflater != null)
                 _menuInflater.NestedMenuInflater = baseMenuInflater;
             return _menuInflater ?? baseMenuInflater;
@@ -337,7 +362,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             if (_layoutInflater == null)
             {
-                _layoutInflater = PlatformExtensions.LayoutInflaterFactory(Target, Models.DataContext.Empty, Get<IViewFactory>(), baseLayoutInflater);
+                _layoutInflater = PlatformExtensions.LayoutInflaterFactory(Target, MugenMvvmToolkit.Models.DataContext.Empty, Get<IViewFactory>(), baseLayoutInflater);
                 if (_layoutInflater != null)
                     _layoutInflater = new BindableLayoutInflaterProxy(_layoutInflater);
             }
@@ -397,7 +422,16 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             try
             {
                 _ignoreFinishNavigation = true;
-                Target.Finish();
+                if (message.ViewModel == null)
+                {
+                    if (PlatformExtensions.IsApiLessThanOrEqualTo10)
+                        Target.Finish();
+                }
+                else if (ReferenceEquals(DataContext, message.ViewModel))
+                {
+                    Target.Finish();
+                    message.Finished = true;
+                }
             }
             finally
             {

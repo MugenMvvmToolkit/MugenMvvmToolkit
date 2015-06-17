@@ -17,8 +17,10 @@
 #endregion
 
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.EventArg;
 
-namespace MugenMvvmToolkit.Models.EventArg
+namespace MugenMvvmToolkit.Android.Models.EventArg
 {
     /// <summary>
     ///     Provides data for navigation methods and event handlers that cannot cancel the navigation request.

@@ -370,7 +370,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                             }
                         }
                     }
-                    _instanceObjects.Add(ServiceProvider.WeakReferenceFactory(sourceValue, true));
+                    _instanceObjects.Add(ServiceProvider.WeakReferenceFactory(sourceValue));
                 }
             }
             return sourceValue;

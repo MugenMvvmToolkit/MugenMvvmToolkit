@@ -21,10 +21,11 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using Android.Content;
 using Android.Views;
+using MugenMvvmToolkit.Android.Binding.Infrastructure;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
-using MugenMvvmToolkit.Binding.Infrastructure;
 
-namespace MugenMvvmToolkit.Binding.Models
+namespace MugenMvvmToolkit.Android.Binding.Models
 {
     [XmlRoot("MENU", Namespace = "")]
     public sealed class MenuTemplate
@@ -60,10 +61,10 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             PlatformExtensions.ValidateTemplate(ItemsSource, Items);
             var setter = new XmlPropertySetter<MenuTemplate, IMenu>(menu, context, new BindingSet());
-            BindingExtensions.AttachedParentMember.SetValue(menu, parent);
-            setter.SetBinding(template => template.DataContext, DataContext, false);
-            setter.SetBoolProperty(template => template.IsVisible, IsVisible);
-            setter.SetBoolProperty(template => template.IsEnabled, IsEnabled);
+            menu.SetBindingMemberValue(AttachedMembers.Object.Parent, parent);
+            setter.SetBinding(() => template => template.DataContext, DataContext, false);
+            setter.SetBoolProperty(() => template => template.IsVisible, IsVisible);
+            setter.SetBoolProperty(() => template => template.IsEnabled, IsEnabled);
             if (!string.IsNullOrEmpty(Bind))
                 setter.BindingSet.BindFromExpression(menu, Bind);
             if (string.IsNullOrEmpty(ItemsSource))
@@ -76,8 +77,9 @@ namespace MugenMvvmToolkit.Binding.Models
             }
             else
             {
-                MenuItemsSourceGenerator.Set(menu, context, ItemTemplate);
-                setter.SetBinding(template => template.ItemsSource, ItemsSource, true);
+                menu.SetBindingMemberValue(AttachedMembers.Menu.ItemsSourceGenerator,
+                    new MenuItemsSourceGenerator(menu, context, ItemTemplate));
+                setter.SetBinding(() => template => template.ItemsSource, ItemsSource, true);
             }
             setter.Apply();
         }

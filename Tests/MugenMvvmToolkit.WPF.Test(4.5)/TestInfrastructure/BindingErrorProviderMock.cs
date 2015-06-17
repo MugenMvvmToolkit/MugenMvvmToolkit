@@ -9,11 +9,32 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
     {
         #region Properties
 
+        public Func<object, string, IDataContext, IList<object>> GetErrors { get; set; }
+
         public Action<object, string, IList<object>, IDataContext> SetErrors { get; set; }
 
         #endregion
 
         #region Implementation of IBindingErrorProvider
+
+        /// <summary>
+        ///     Gets the validation errors for a specified property or for the entire entity.
+        /// </summary>
+        /// <param name="target">The binding target object.</param>
+        /// <param name="key">
+        ///     The name of the key to retrieve validation errors for; or null or
+        ///     <see cref="F:System.String.Empty" />, to retrieve entity-level errors.
+        /// </param>
+        /// <param name="context">The specified context, if any.</param>
+        /// <returns>
+        ///     The validation errors for the property or entity.
+        /// </returns>
+        IList<object> IBindingErrorProvider.GetErrors(object target, string key, IDataContext context)
+        {
+            if (GetErrors == null)
+                return Empty.Array<object>();
+            return GetErrors(target, key, context);
+        }
 
         /// <summary>
         ///     Sets errors for binding target.

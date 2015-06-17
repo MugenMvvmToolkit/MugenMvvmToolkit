@@ -29,9 +29,8 @@ using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
-using IViewManager = MugenMvvmToolkit.Interfaces.IViewManager;
 
-namespace MugenMvvmToolkit.Infrastructure.Mediators
+namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 {
     public abstract class MediatorBase<TTarget>
         where TTarget : class
@@ -243,7 +242,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             var bytes = bundle.GetByteArray(StateKey);
             if (bytes == null)
-                return Models.DataContext.Empty;
+                return MugenMvvmToolkit.Models.DataContext.Empty;
             bundle.Remove(StateKey);
             using (var ms = new MemoryStream(bytes))
                 return (IDataContext)Get<ISerializer>().Deserialize(ms);
@@ -254,7 +253,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         /// </summary>
         protected virtual void PreserveViewModel([NotNull] IViewModel viewModel, [NotNull] Bundle bundle)
         {
-            var state = Get<IViewModelProvider>().PreserveViewModel(viewModel, Models.DataContext.Empty);
+            var state = Get<IViewModelProvider>().PreserveViewModel(viewModel, MugenMvvmToolkit.Models.DataContext.Empty);
             if (state.Count == 0)
                 bundle.Remove(StateKey);
             else

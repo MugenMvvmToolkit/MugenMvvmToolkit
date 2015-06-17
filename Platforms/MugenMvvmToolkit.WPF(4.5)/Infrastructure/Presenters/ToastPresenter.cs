@@ -16,12 +16,9 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using MugenMvvmToolkit.Interfaces.Presenters;
+#if WINDOWS_PHONE
+using Microsoft.Phone.Controls;
+#endif
 #if NETFX_CORE || WINDOWSCOMMON
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -36,19 +33,38 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Threading;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Effects;
-using System.Windows.Documents;
 #endif
-#if WINDOWS_PHONE
-using Microsoft.Phone.Controls;
-#endif
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Infrastructure.Presenters
+#if WPF
+using System.Windows.Documents;
+using System.Windows.Media.Effects;
+using System.Linq;
+using System.Reflection;
+namespace MugenMvvmToolkit.WPF.Infrastructure.Presenters
+#elif WINDOWS_PHONE && XAMARIN_FORMS
+using System.Windows.Media.Animation;
+
+namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Infrastructure.Presenters
+#elif SILVERLIGHT
+using System.Windows.Documents;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
+namespace MugenMvvmToolkit.Silverlight.Infrastructure.Presenters
+#elif NETFX_CORE || WINDOWSCOMMON
+namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
+#elif WINDOWS_PHONE
+using System.Windows.Media.Animation;
+
+namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
+#endif
 {
     /// <summary>
     ///     Provides functionality to present a timed message.
@@ -86,7 +102,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             {
                 _position = position;
                 _parent = parent;
-                _reference = ServiceProvider.WeakReferenceFactory(popup, true);
+                _reference = ServiceProvider.WeakReferenceFactory(popup);
             }
 
             #endregion
@@ -214,15 +230,12 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         {
 #if WPF
             var placementTarget = Application.Current.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive);
-#endif
-#if SILVERLIGHT
+#elif SILVERLIGHT || WINDOWS_PHONE
             var placementTarget = Application.Current.RootVisual as FrameworkElement;
-#endif
-#if NETFX_CORE || WINDOWSCOMMON
+#elif NETFX_CORE || WINDOWSCOMMON
             var placementTarget = Window.Current;
 #endif
-
-            if (placementTarget == null)
+                        if (placementTarget == null)
                 return;
             var popups = ServiceProvider
                 .AttachedValueProvider

@@ -147,7 +147,7 @@ namespace MugenMvvmToolkit
         /// </returns>
         protected internal T GetViewModel<T>([NotNull] GetViewModelDelegate<T> getViewModelGeneric,
             IViewModel parentViewModel = null, ObservationMode? observationMode = null,
-            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters) where T : IViewModel
+            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters) where T : class, IViewModel
         {
             return ViewModelProvider.GetViewModel(getViewModelGeneric, parentViewModel, observationMode, containerCreationMode,
                 parameters);

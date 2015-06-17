@@ -23,7 +23,13 @@ using System.Windows.Threading;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Infrastructure
+#if WPF
+namespace MugenMvvmToolkit.WPF.Infrastructure
+#elif SILVERLIGHT
+namespace MugenMvvmToolkit.Silverlight.Infrastructure
+#elif WINDOWS_PHONE
+namespace MugenMvvmToolkit.WinPhone.Infrastructure
+#endif
 {
     public class ThreadManager : IThreadManager
     {

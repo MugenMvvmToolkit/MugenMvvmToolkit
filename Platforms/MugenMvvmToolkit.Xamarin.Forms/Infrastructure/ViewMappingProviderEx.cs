@@ -20,10 +20,11 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using Xamarin.Forms;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 {
     /// <summary>
     ///     Represents the implementation of <see cref="IViewMappingProvider" /> to provide view mappings.

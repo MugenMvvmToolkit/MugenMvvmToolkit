@@ -176,7 +176,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _listeners = new List<IDisposable>(path.Parts.Count - 1);
             _ignoreAttachedMembers = ignoreAttachedMembers;
             _members = UnsetBindingPathMembers.Instance;
-            _lastMemberListener = new LastMemberListener(ServiceProvider.WeakReferenceFactory(this, true));
+            _lastMemberListener = new LastMemberListener(ServiceProvider.WeakReferenceFactory(this));
             Initialize(this);
         }
 

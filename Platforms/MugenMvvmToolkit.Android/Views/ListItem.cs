@@ -17,15 +17,14 @@
 #endregion
 
 using System;
-using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
-using MugenMvvmToolkit.Binding.Infrastructure;
+using MugenMvvmToolkit.Android.Binding.Infrastructure;
 
-namespace MugenMvvmToolkit.Views
+namespace MugenMvvmToolkit.Android.Views
 {
-    [Register("mugenmvvmtoolkit.views.ListItem")]
+    [Register("mugenmvvmtoolkit.android.views.ListItem")]
     public class ListItem : FrameLayout, ICheckable
     {
         #region Fields

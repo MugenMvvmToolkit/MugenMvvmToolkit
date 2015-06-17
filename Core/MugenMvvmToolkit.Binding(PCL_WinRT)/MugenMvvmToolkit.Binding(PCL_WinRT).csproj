@@ -55,6 +55,9 @@
     <Compile Include="Accessors\BindingSourceAccessorBase.cs" />
     <Compile Include="Accessors\MultiBindingSourceAccessor.cs" />
     <Compile Include="AttachedMemberConstants.cs" />
+    <Compile Include="Infrastructure\DataTemplateSelectorBase.cs" />
+    <Compile Include="Interfaces\IDataTemplateSelector.cs" />
+    <Compile Include="Models\BindingMemberDescriptor.cs" />
     <Compile Include="Attributes\BindingSyntaxExtensionsAttribute.cs" />
     <Compile Include="Behaviors\BindingBehaviorBase.cs" />
     <Compile Include="Behaviors\BindingModeBase.cs" />
@@ -87,6 +90,7 @@
     <Compile Include="Infrastructure\DataBinding.cs" />
     <Compile Include="Infrastructure\InvalidDataBinding.cs" />
     <Compile Include="Interfaces\Syntax\IBuilderSyntaxContext.cs" />
+    <Compile Include="Models\DefaultAttachedMemberRegistration.cs" />
     <Compile Include="Modules\DataBindingModule.cs" />
     <Compile Include="DataConstants\BindingBuilderConstants.cs" />
     <Compile Include="DataConstants\BindingConstants.cs" />
@@ -155,7 +159,7 @@
     <Compile Include="Models\AttachedBindingMember.cs" />
     <Compile Include="Models\BindingMemberInfo.cs" />
     <Compile Include="Models\BindingMemberType.cs" />
-    <Compile Include="Models\BindingMemberValue.cs" />
+    <Compile Include="Models\BindingActionValue.cs" />
     <Compile Include="Models\BindingPath.cs" />
     <Compile Include="Models\BindingResourceMethod.cs" />
     <Compile Include="Models\BindingResourceObject.cs" />

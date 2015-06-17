@@ -18,8 +18,10 @@
 
 using System.Windows.Navigation;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Models.EventArg;
+using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
-namespace MugenMvvmToolkit.Models.EventArg
+namespace MugenMvvmToolkit.WPF.Models.EventArg
 {
     public sealed class NavigatingCancelEventArgsWrapper : NavigatingCancelEventArgsBase
     {

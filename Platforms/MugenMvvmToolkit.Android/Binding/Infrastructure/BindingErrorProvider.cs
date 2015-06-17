@@ -19,9 +19,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Android.Widget;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
     /// <summary>
     ///     Represents the class that provides a user interface for indicating that a control on a form has an error associated

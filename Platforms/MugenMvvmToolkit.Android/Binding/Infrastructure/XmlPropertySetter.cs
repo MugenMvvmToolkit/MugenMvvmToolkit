@@ -21,9 +21,10 @@ using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using Android.Content;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
     [StructLayout(LayoutKind.Auto)]
     public struct XmlPropertySetter<TWrapper, TTarget>
@@ -65,9 +66,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Methods
 
-        public void SetBoolProperty<TValue>(Expression<Func<TWrapper, TValue>> propertyName, string value)
+        public void SetBoolProperty(Func<Expression<Func<TWrapper, object>>> propertyName, string value)
         {
-            SetBoolProperty(ToolkitExtensions.GetMemberName(propertyName), value);
+            SetBoolProperty(propertyName.GetMemberName(), value);
         }
 
         public void SetBoolProperty(string propertyName, string value)
@@ -75,15 +76,15 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             SetStringProperty(propertyName, value, s => Empty.BooleanToObject(bool.Parse(s)));
         }
 
-        public void SetEnumProperty<TEnum>(Expression<Func<TWrapper, object>> propertyName, string value)
+        public void SetEnumProperty<TEnum>(Func<Expression<Func<TWrapper, object>>> propertyName, string value)
             where TEnum : struct
         {
             SetStringProperty(propertyName, value, s => (TEnum)Enum.Parse(typeof(TEnum), s.Replace("|", ","), true));
         }
 
-        public void SetStringProperty<TValue>(Expression<Func<TWrapper, TValue>> propertyName, string value, Func<string, object> convertAction = null)
+        public void SetStringProperty(Func<Expression<Func<TWrapper, object>>> propertyName, string value, Func<string, object> convertAction = null)
         {
-            SetStringProperty(ToolkitExtensions.GetMemberName(propertyName), value, convertAction);
+            SetStringProperty(propertyName.GetMemberName(), value, convertAction);
         }
 
         public void SetStringProperty(string propertyName, string value, Func<string, object> convertAction = null)
@@ -104,9 +105,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             member.SetValue(_target, new[] { convertAction == null ? objectToSet : convertAction(objectToSet) });
         }
 
-        public void SetProperty<TValue>(Expression<Func<TWrapper, TValue>> propertyName, string value)
+        public void SetProperty(Func<Expression<Func<TWrapper, object>>> propertyName, string value)
         {
-            SetProperty(ToolkitExtensions.GetMemberName(propertyName), value);
+            SetProperty(propertyName.GetMemberName(), value);
         }
 
         public void SetProperty(string propertyName, string value)
@@ -127,9 +128,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             member.SetValue(_target, new[] { objectToSet });
         }
 
-        public void SetBinding<TValue>(Expression<Func<TWrapper, TValue>> propertyName, string value, bool required)
+        public void SetBinding(Func<Expression<Func<TWrapper, object>>> propertyName, string value, bool required)
         {
-            SetBinding(ToolkitExtensions.GetMemberName(propertyName), value, required);
+            SetBinding(propertyName.GetMemberName(), value, required);
         }
 
         public void SetBinding(string propertyName, string value, bool required)

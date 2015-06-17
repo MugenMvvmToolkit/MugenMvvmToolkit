@@ -17,44 +17,73 @@
 #endregion
 
 using System;
-using System.Globalization;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+#if !NETFX_CORE && !WINDOWSCOMMON
+using System.Globalization;
+#endif
 #if NETFX_CORE || WINDOWSCOMMON
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
+
+namespace MugenMvvmToolkit.WinRT.Binding.Converters
 #elif ANDROID
 using Android.App;
 using Android.Graphics;
 using Android.Widget;
 using Android.Content;
+using MugenMvvmToolkit.Interfaces.Models;
 using IValueConverter = MugenMvvmToolkit.Binding.Interfaces.IBindingValueConverter;
+
+namespace MugenMvvmToolkit.Android.Binding.Converters
 #elif WINFORMS
+using MugenMvvmToolkit.Interfaces.Models;
 using System.Drawing;
 using System.Windows.Forms;
 using IValueConverter = MugenMvvmToolkit.Binding.Interfaces.IBindingValueConverter;
+
+namespace MugenMvvmToolkit.WinForms.Binding.Converters
 #elif TOUCH
 using System.Drawing;
+using MugenMvvmToolkit.Interfaces.Models;
 using UIKit;
 using IValueConverter = MugenMvvmToolkit.Binding.Interfaces.IBindingValueConverter;
+
+namespace MugenMvvmToolkit.iOS.Binding.Converters
 #elif XAMARIN_FORMS
+using MugenMvvmToolkit.Interfaces.Models;
 using Xamarin.Forms;
 using IValueConverter = MugenMvvmToolkit.Binding.Interfaces.IBindingValueConverter;
-#else
+
+namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Converters
+#elif WPF
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Data;
 using System.Windows.Controls;
-#endif
 
 // ReSharper disable once CheckNamespace
-namespace MugenMvvmToolkit.Binding.Converters
+namespace MugenMvvmToolkit.WPF.Binding.Converters
+#elif SILVERLIGHT
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Data;
+using System.Windows.Controls;
+
+namespace MugenMvvmToolkit.Silverlight.Binding.Converters
+#elif WINDOWS_PHONE
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Data;
+using System.Windows.Controls;
+
+namespace MugenMvvmToolkit.WinPhone.Binding.Converters
+#endif
 {
     /// <summary>
     ///     Represents the converter that allows to convert a view model to view.
@@ -119,7 +148,7 @@ namespace MugenMvvmToolkit.Binding.Converters
         public object Convert(object value, Type targetType = null, object parameter = null, string language = null)
 #elif ANDROID || WINFORMS || TOUCH || XAMARIN_FORMS
         public object Convert(object value, Type targetType = null, object parameter = null, CultureInfo culture = null, IDataContext context = null)
-#else 
+#else
         public object Convert(object value, Type targetType = null, object parameter = null, CultureInfo culture = null)
 #endif
 

@@ -19,10 +19,11 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Collections
+namespace MugenMvvmToolkit.WinForms.Collections
 {
     [DebuggerDisplay("Count = {SourceCollection.Count}, NotificationCount = {SourceCollection.NotificationCount}")]
     public class BindingListWrapper<T> : BindingList<T>, IBindingList, INotifyCollectionChanging

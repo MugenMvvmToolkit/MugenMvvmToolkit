@@ -81,7 +81,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         /// <param name="parameter">The specified parameter, if any.</param>
         /// <returns>An instance of task with result.</returns>
-        public virtual Task<bool> CloseAsync(object parameter)
+        public virtual Task<bool> CloseAsync(object parameter = null)
         {
             if (parameter == ImmediateCloseParameter)
                 return CloseInternal(parameter);

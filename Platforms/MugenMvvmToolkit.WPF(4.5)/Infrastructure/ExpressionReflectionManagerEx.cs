@@ -21,8 +21,19 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
+using MugenMvvmToolkit.Infrastructure;
 
-namespace MugenMvvmToolkit.Infrastructure
+#if WPF
+namespace MugenMvvmToolkit.WPF.Infrastructure
+#elif ANDROID
+namespace MugenMvvmToolkit.Android.Infrastructure
+#elif WINFORMS
+namespace MugenMvvmToolkit.WinForms.Infrastructure
+#elif SILVERLIGHT
+namespace MugenMvvmToolkit.Silverlight.Infrastructure
+#elif WINDOWS_PHONE
+namespace MugenMvvmToolkit.WinPhone.Infrastructure
+#endif
 {
     /// <summary>
     ///     Represents the reflection access provider that uses the <see cref="Expression" />.
@@ -124,19 +135,15 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (type == null)
                 type = typeof(object);
-#if WPF
+#if SILVERLIGHT
+            return new DynamicMethod("dynamic_" + type.Name + Guid.NewGuid().ToString("N"), outputValue, inputValue);
+#else
 #if NETFX_CORE
             var typeInfo = type.GetTypeInfo();
 #else
             Type typeInfo = type;
 #endif
-            return
-                new DynamicMethod("dynamic_" + type.Name + Guid.NewGuid().ToString("N"), outputValue,
-                    inputValue, typeInfo.Module, true);
-#else
-            return new DynamicMethod("dynamic_" + type.Name + Guid.NewGuid().ToString("N"),
-                outputValue,
-                inputValue);
+            return new DynamicMethod("dynamic_" + type.Name + Guid.NewGuid().ToString("N"), outputValue, inputValue, typeInfo.Module, true);
 #endif
         }
 

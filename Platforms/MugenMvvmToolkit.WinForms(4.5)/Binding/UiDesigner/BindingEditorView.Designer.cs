@@ -1,4 +1,4 @@
-﻿namespace MugenMvvmToolkit.Binding.UiDesigner
+﻿namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
 {
     partial class BindingEditorView
     {
@@ -31,7 +31,7 @@
             this.closeBtn = new System.Windows.Forms.Button();
             this.okBtn = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.bindingEditor = new MugenMvvmToolkit.Binding.UiDesigner.XmlEditor();
+            this.bindingEditor = new XmlEditor();
             this.controlsTreeView = new System.Windows.Forms.TreeView();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();

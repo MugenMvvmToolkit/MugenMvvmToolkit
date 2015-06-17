@@ -17,8 +17,9 @@
 #endregion
 
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Binding.Parse.Nodes;
 
-namespace MugenMvvmToolkit.Binding.Parse.Nodes
+namespace MugenMvvmToolkit.WinForms.Binding.Parse.Nodes
 {
     internal abstract class XmlExpressionNode : ExpressionNode
     {

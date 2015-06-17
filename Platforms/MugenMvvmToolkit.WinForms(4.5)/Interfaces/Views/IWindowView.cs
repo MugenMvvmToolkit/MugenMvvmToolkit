@@ -18,8 +18,9 @@
 
 using System.ComponentModel;
 using System.Windows.Forms;
+using MugenMvvmToolkit.Interfaces.Views;
 
-namespace MugenMvvmToolkit.Interfaces.Views
+namespace MugenMvvmToolkit.WinForms.Interfaces.Views
 {
     /// <summary>
     ///     Represent the base interface for a window view.

@@ -100,7 +100,7 @@ namespace MugenMvvmToolkit.Binding
             return builder.Bind<TTarget, object>(target, targetPath);
         }
 
-        [Obsolete(BindingExceptionManager.ObsoleteExpressionUsage)]
+        [Obsolete(ExceptionManager.ObsoleteExpressionUsage)]
         public static IBindingToSyntax<TTarget, TSource> Bind<TTarget, TSource>([NotNull] this IBindingBuilder builder,
             [NotNull] TTarget target,
             [NotNull] Expression<Func<TTarget, object>> targetPath) where TTarget : class
@@ -108,7 +108,7 @@ namespace MugenMvvmToolkit.Binding
             return builder.Bind<TTarget, TSource>(target, BindingExtensions.GetMemberPath(targetPath));
         }
 
-        [Obsolete(BindingExceptionManager.ObsoleteExpressionUsage)]
+        [Obsolete(ExceptionManager.ObsoleteExpressionUsage)]
         public static IBindingToSyntax<TTarget> Bind<TTarget>([NotNull] this IBindingBuilder builder,
             [NotNull] TTarget target, [NotNull] Expression<Func<TTarget, object>> targetPath) where TTarget : class
         {
@@ -147,6 +147,7 @@ namespace MugenMvvmToolkit.Binding
 
         public static IBindingModeInfoBehaviorSyntax<TTarget> ToSelf<TTarget>([NotNull] this IBindingToSyntax<TTarget> syntax,
             [NotNull] string selfPath)
+            where TTarget : class
         {
             Should.NotBeNull(syntax, "syntax");
             return syntax.To((TTarget)syntax.Builder.GetData(BindingBuilderConstants.Target, true), selfPath);
@@ -179,6 +180,7 @@ namespace MugenMvvmToolkit.Binding
         public static IBindingModeInfoBehaviorSyntax<TSource> To<TTarget, TSource>(
             [NotNull] this IBindingToSyntax<TTarget, TSource> syntax,
             [NotNull] Func<Expression<Func<TSource, object>>> expression)
+            where TTarget : class
         {
             return syntax.ToInternal<TSource>(expression);
         }
@@ -186,43 +188,42 @@ namespace MugenMvvmToolkit.Binding
         public static IBindingModeInfoBehaviorSyntax<TSource> ToAction<TTarget, TSource>(
             [NotNull] this IBindingToSyntax<TTarget, TSource> syntax,
             [NotNull] Func<Expression<Action<TSource>>> expression)
+            where TTarget : class
         {
             return syntax.ToInternal<TSource>(expression);
         }
 
-        public static IBindingModeInfoBehaviorSyntax<TTarget> ToSelf<TTarget>(
-            [NotNull] this IBindingToSyntax<TTarget> syntax,
-            [NotNull] Func<Expression<Func<TTarget, object>>> expression)
+        public static IBindingModeInfoBehaviorSyntax<TTarget> ToSelf<TTarget>([NotNull] this IBindingToSyntax<TTarget> syntax, [NotNull] Func<Expression<Func<TTarget, object>>> expression)
+            where TTarget : class
         {
             Should.NotBeNull(syntax, "syntax");
             return syntax.To((TTarget)syntax.Builder.GetData(BindingBuilderConstants.Target, true), expression);
         }
 
-        [Obsolete(BindingExceptionManager.ObsoleteExpressionUsage)]
+        [Obsolete(ExceptionManager.ObsoleteExpressionUsage)]
         public static IBindingModeInfoBehaviorSyntax<TSource> To<TSource>([NotNull] this IBindingToSyntax syntax,
             TSource source, [NotNull] Expression<Func<TSource, object>> expression)
         {
             return syntax.ToInternal(expression, source);
         }
 
-        [Obsolete(BindingExceptionManager.ObsoleteExpressionUsage)]
+        [Obsolete(ExceptionManager.ObsoleteExpressionUsage)]
         public static IBindingModeInfoBehaviorSyntax<TSource> To<TSource>([NotNull] this IBindingToSyntax syntax,
             [NotNull] Expression<Func<TSource, object>> expression)
         {
             return syntax.ToInternal<TSource>(expression);
         }
 
-        [Obsolete(BindingExceptionManager.ObsoleteExpressionUsage)]
-        public static IBindingModeInfoBehaviorSyntax<TSource> To<TTarget, TSource>(
-            [NotNull] this IBindingToSyntax<TTarget, TSource> syntax,
-            [NotNull] Expression<Func<TSource, object>> expression)
+        [Obsolete(ExceptionManager.ObsoleteExpressionUsage)]
+        public static IBindingModeInfoBehaviorSyntax<TSource> To<TTarget, TSource>([NotNull] this IBindingToSyntax<TTarget, TSource> syntax, [NotNull] Expression<Func<TSource, object>> expression)
+            where TTarget : class
         {
             return syntax.ToInternal<TSource>(expression);
         }
 
-        [Obsolete(BindingExceptionManager.ObsoleteExpressionUsage)]
-        public static IBindingModeInfoBehaviorSyntax<TTarget> ToSelf<TTarget>(
-            [NotNull] this IBindingToSyntax<TTarget> syntax, [NotNull] Expression<Func<TTarget, object>> expression)
+        [Obsolete(ExceptionManager.ObsoleteExpressionUsage)]
+        public static IBindingModeInfoBehaviorSyntax<TTarget> ToSelf<TTarget>([NotNull] this IBindingToSyntax<TTarget> syntax, [NotNull] Expression<Func<TTarget, object>> expression)
+            where TTarget : class
         {
             Should.NotBeNull(syntax, "syntax");
             return syntax.To((TTarget)syntax.Builder.GetData(BindingBuilderConstants.Target, true), expression);
@@ -488,7 +489,8 @@ namespace MugenMvvmToolkit.Binding
             return data;
         }
 
-        internal static TResult GetOrAddSyntaxBuilder<TResult, T1, T2>(this IBuilderSyntax bindingSyntax)
+        private static TResult GetOrAddSyntaxBuilder<TResult, T1, T2>(this IBuilderSyntax bindingSyntax)
+            where T1 : class
             where TResult : IBindingInfoSyntax<T2>
         {
             if (bindingSyntax is TResult)

@@ -18,7 +18,7 @@
 
 using Android.App;
 
-namespace MugenMvvmToolkit.Interfaces.Views
+namespace MugenMvvmToolkit.Android.Interfaces.Views
 {
     public interface IHasActivityDependency
     {

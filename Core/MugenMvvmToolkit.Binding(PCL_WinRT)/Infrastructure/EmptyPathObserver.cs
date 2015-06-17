@@ -100,7 +100,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             : base(source, path)
         {
             Should.BeSupported(path.IsEmpty, "The EmptyPathObserver supports only empty path members.");
-            _members = new EmptyBindingPathMembers(ServiceProvider.WeakReferenceFactory(this, true));
+            _members = new EmptyBindingPathMembers(ServiceProvider.WeakReferenceFactory(this));
             Initialize((IEventListener)_members);
         }
 

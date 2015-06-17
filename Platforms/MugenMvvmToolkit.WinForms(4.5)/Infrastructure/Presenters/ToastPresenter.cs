@@ -22,13 +22,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Controls;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.WinForms.Controls;
 
-namespace MugenMvvmToolkit.Infrastructure.Presenters
+namespace MugenMvvmToolkit.WinForms.Infrastructure.Presenters
 {
     /// <summary>
     ///     Provides functionality to present a timed message.

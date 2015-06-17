@@ -26,27 +26,26 @@ using Android.Runtime;
 using Android.Support.V4.View;
 using Android.Support.V4.Widget;
 using Android.Support.V7.App;
+using Android.Support.V7.Widget;
 using Android.Util;
 using Android.Views;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.AppCompat.Infrastructure;
+using MugenMvvmToolkit.Android.AppCompat.Infrastructure;
+using MugenMvvmToolkit.Android.Binding;
+using MugenMvvmToolkit.Android.Binding.Infrastructure;
+using MugenMvvmToolkit.Android.Infrastructure;
+using MugenMvvmToolkit.Android.Interfaces;
+using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
-using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Modules;
 using Object = Java.Lang.Object;
-#if APPCOMPAT
-using Toolbar = Android.Support.V7.Widget.Toolbar;
-#endif
 
-namespace MugenMvvmToolkit.AppCompat.Modules
+namespace MugenMvvmToolkit.Android.AppCompat.Modules
 {
     public class AppCompatModule : ModuleBase
     {
@@ -236,14 +235,14 @@ namespace MugenMvvmToolkit.AppCompat.Modules
 
             public void OnDrawerClosed(View drawerView)
             {
-                ViewDrawerIsOpenedMember.SetValue(drawerView, false);
+                drawerView.SetBindingMemberValue(AttachedMembersCompat.View.DrawerIsOpened, false);
                 if (_listener != null)
                     _listener.OnDrawerClosed(drawerView);
             }
 
             public void OnDrawerOpened(View drawerView)
             {
-                ViewDrawerIsOpenedMember.SetValue(drawerView, true);
+                drawerView.SetBindingMemberValue(AttachedMembersCompat.View.DrawerIsOpened, true);
                 if (_listener != null)
                     _listener.OnDrawerOpened(drawerView);
             }
@@ -265,26 +264,7 @@ namespace MugenMvvmToolkit.AppCompat.Modules
 
         #endregion
 
-        #region Fields
-
-        private static readonly IAttachedBindingMemberInfo<ViewPager, object> ViewPagerSelectedItemMember;
-        private static readonly IAttachedBindingMemberInfo<ViewPager, int> ViewPagerCurrentItemMember;
-        private static readonly IAttachedBindingMemberInfo<View, bool> ViewDrawerIsOpenedMember;
-
-        #endregion
-
         #region Constructors
-
-        static AppCompatModule()
-        {
-            ViewPagerSelectedItemMember =
-                AttachedBindingMember.CreateAutoProperty<ViewPager, object>(AttachedMemberConstants.SelectedItem,
-                    ViewPagerSelectedItemChanged);
-            ViewPagerCurrentItemMember = AttachedBindingMember.CreateAutoProperty<ViewPager, int>("CurrentItem",
-                ViewPagerCurrentItemChanged, AdapterViewCurrentItemAttached, (pager, info) => pager.CurrentItem);
-            ViewDrawerIsOpenedMember = AttachedBindingMember.CreateAutoProperty<View, bool>("Drawer.IsOpened",
-                ViewDrawerIsOpenedChanged, getDefaultValue: ViewDrawerIsOpenedGetDefaultValue);
-        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="AppCompatModule" /> class.
@@ -305,7 +285,7 @@ namespace MugenMvvmToolkit.AppCompat.Modules
             if (adapter == null)
                 return;
             object item = adapter.GetRawItem(sender.CurrentItem);
-            ViewPagerSelectedItemMember.SetValue(sender, item);
+            sender.SetBindingMemberValue(AttachedMembersCompat.ViewPager.SelectedItem, item);
         }
 
         private static void ViewPagerSelectedItemChanged(ViewPager sender, AttachedMemberChangedEventArgs<object> args)
@@ -314,13 +294,12 @@ namespace MugenMvvmToolkit.AppCompat.Modules
             if (adapter == null)
                 return;
             int position = adapter.GetPosition(args.NewValue);
-            ViewPagerCurrentItemMember.SetValue(sender, position);
+            sender.SetBindingMemberValue(AttachedMembersCompat.ViewPager.CurrentItem, position);
         }
 
         private static void AdapterViewCurrentItemAttached(ViewPager adapterView, MemberAttachedEventArgs memberAttached)
         {
-            adapterView.PageSelected +=
-                (sender, args) => ViewPagerCurrentItemMember.SetValue(adapterView, args.Position);
+            adapterView.PageSelected += (sender, args) => ((ViewPager)sender).SetBindingMemberValue(AttachedMembersCompat.ViewPager.CurrentItem, args.Position);
         }
 
         private static void ToolbarMenuTemplateChanged(Toolbar toolbar, AttachedMemberChangedEventArgs<int> args)
@@ -397,18 +376,19 @@ namespace MugenMvvmToolkit.AppCompat.Modules
             IBindingMemberProvider memberProvider = BindingServiceProvider.MemberProvider;
 
             //View
-            memberProvider.Register(ViewDrawerIsOpenedMember);
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.View.DrawerIsOpened,
+                ViewDrawerIsOpenedChanged, getDefaultValue: ViewDrawerIsOpenedGetDefaultValue));
 
             //Toolbar
             memberProvider.Register(
-                AttachedBindingMember.CreateAutoProperty<Toolbar, int>(AttachedMemberNames.MenuTemplate,
+                AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.Toolbar.MenuTemplate,
                     ToolbarMenuTemplateChanged));
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Toolbar, bool>("IsActionBar",
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.Toolbar.IsActionBar,
                 ToolbarIsActionBarChanged));
 
             //DrawerLayout
             INotifiableAttachedBindingMemberInfo<DrawerLayout, bool> actionBarDrawerToggleEnabledMember =
-                AttachedBindingMember.CreateAutoProperty<DrawerLayout, bool>("ActionBarDrawerToggleEnabled",
+                AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.DrawerLayout.ActionBarDrawerToggleEnabled,
                     (layout, args) =>
                     {
                         if (!args.NewValue)
@@ -418,13 +398,11 @@ namespace MugenMvvmToolkit.AppCompat.Modules
                             return;
                         DrawerListenerImpl
                             .GetOrAdd(layout)
-                            .SetListener(activity,
-                                new ActionBarDrawerToggle(activity, layout, Resource.String.Empty, Resource.String.Empty));
+                            .SetListener(activity, new ActionBarDrawerToggle(activity, layout, Resource.String.Empty, Resource.String.Empty));
                     });
             memberProvider.Register(actionBarDrawerToggleEnabledMember);
-            memberProvider.Register(typeof(DrawerLayout), "ActionBarDrawerEnabled", actionBarDrawerToggleEnabledMember,
-                true);
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<DrawerLayout, object>("DrawerListener",
+            memberProvider.Register(typeof(DrawerLayout), "ActionBarDrawerEnabled", actionBarDrawerToggleEnabledMember, true);
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.DrawerLayout.DrawerListener,
                 (layout, args) =>
                 {
                     var listener = args.NewValue as DrawerLayout.IDrawerListener;
@@ -441,11 +419,12 @@ namespace MugenMvvmToolkit.AppCompat.Modules
 
 
             //ViewPager
-            memberProvider.Register(ViewPagerSelectedItemMember);
-            memberProvider.Register(ViewPagerCurrentItemMember);
-            memberProvider.Register(typeof(ViewPager), "SelectedIndex", ViewPagerCurrentItemMember, true);
-            memberProvider.Register(
-                AttachedBindingMember.CreateAutoProperty<ViewPager, IEnumerable>(AttachedMemberConstants.ItemsSource,
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.ViewPager.SelectedItem, ViewPagerSelectedItemChanged));
+            var itemMember = AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.ViewPager.CurrentItem,
+                ViewPagerCurrentItemChanged, AdapterViewCurrentItemAttached, (pager, info) => pager.CurrentItem);
+            memberProvider.Register(itemMember);
+            memberProvider.Register(typeof(ViewPager), "SelectedIndex", itemMember, true);
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ItemsSource.Override<ViewPager>(),
                     (pager, args) =>
                     {
                         var pagerAdapter = pager.Adapter as ItemsSourcePagerAdapter;

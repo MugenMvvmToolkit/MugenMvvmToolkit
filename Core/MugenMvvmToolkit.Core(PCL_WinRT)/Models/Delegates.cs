@@ -49,7 +49,7 @@ namespace MugenMvvmToolkit.Models
     /// <returns>An instance of <see cref="IViewModel" />.</returns>
     [NotNull]
     public delegate TViewModel GetViewModelDelegate<out TViewModel>([NotNull] IIocContainer iocContainer)
-        where TViewModel : IViewModel;
+        where TViewModel : class, IViewModel;
 
     /// <summary>
     ///     Represents the method that used as a filter

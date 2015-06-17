@@ -20,14 +20,24 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-#if NETFX_CORE || WINDOWSCOMMON
-using Windows.UI.Xaml.Controls;
-#else
+#if WPF
 using System.Windows;
+
+namespace MugenMvvmToolkit.WPF.Infrastructure
+#elif SILVERLIGHT
 using System.Windows.Controls;
+
+namespace MugenMvvmToolkit.Silverlight.Infrastructure
+#elif WINDOWSCOMMON || NETFX_CORE
+using Windows.UI.Xaml.Controls;
+
+namespace MugenMvvmToolkit.WinRT.Infrastructure
+#elif WINDOWS_PHONE
+using System.Windows.Controls;
+
+namespace MugenMvvmToolkit.WinPhone.Infrastructure
 #endif
 
-namespace MugenMvvmToolkit.Infrastructure
 {
     /// <summary>
     ///     Manages states and the logic for transitioning between states for controls.

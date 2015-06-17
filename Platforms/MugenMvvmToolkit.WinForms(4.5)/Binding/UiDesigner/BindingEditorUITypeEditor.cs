@@ -22,7 +22,7 @@ using System.Drawing.Design;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 
-namespace MugenMvvmToolkit.Binding.UiDesigner
+namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
 {
     internal sealed class BindingEditorUITypeEditor : UITypeEditor
     {

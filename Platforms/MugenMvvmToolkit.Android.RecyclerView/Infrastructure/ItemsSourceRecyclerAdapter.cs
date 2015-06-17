@@ -23,18 +23,18 @@ using Android.App;
 using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding.Infrastructure;
+using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Infrastructure;
-using MugenMvvmToolkit.Interfaces.Views;
 using Object = Java.Lang.Object;
 
-namespace MugenMvvmToolkit.RecyclerView.Infrastructure
+namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
 {
-    public class ItemsSourceRecyclerAdapter : Android.Support.V7.Widget.RecyclerView.Adapter
+    public class ItemsSourceRecyclerAdapter : global::Android.Support.V7.Widget.RecyclerView.Adapter
     {
         #region Nested types
 
-        private sealed class ViewHolderImpl : Android.Support.V7.Widget.RecyclerView.ViewHolder
+        private sealed class ViewHolderImpl : global::Android.Support.V7.Widget.RecyclerView.ViewHolder
         {
             #region Constructors
 
@@ -52,8 +52,9 @@ namespace MugenMvvmToolkit.RecyclerView.Infrastructure
 
         private readonly DataTemplateProvider _itemTemplateProvider;
         private readonly BindableLayoutInflater _layoutInflater;
-        private readonly Android.Support.V7.Widget.RecyclerView _recyclerView;
+        private readonly global::Android.Support.V7.Widget.RecyclerView _recyclerView;
         private readonly NotifyCollectionChangedEventHandler _weakHandler;
+        private readonly ReflectionExtensions.IWeakEventHandler<EventArgs> _listener;
         private IEnumerable _itemsSource;
 
         #endregion
@@ -63,7 +64,7 @@ namespace MugenMvvmToolkit.RecyclerView.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="ItemsSourceAdapter" /> class.
         /// </summary>
-        public ItemsSourceRecyclerAdapter([NotNull] Android.Support.V7.Widget.RecyclerView recyclerView)
+        public ItemsSourceRecyclerAdapter([NotNull] global::Android.Support.V7.Widget.RecyclerView recyclerView)
         {
             Should.NotBeNull(recyclerView, "recyclerView");
             _recyclerView = recyclerView;
@@ -74,14 +75,17 @@ namespace MugenMvvmToolkit.RecyclerView.Infrastructure
                 (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));
             var activityView = _recyclerView.Context.GetActivity() as IActivityView;
             if (activityView != null)
-                activityView.Mediator.Destroyed += ActivityViewOnDestroyed;
+            {
+                _listener = ReflectionExtensions.CreateWeakEventHandler<ItemsSourceRecyclerAdapter, EventArgs>(this, (adapter, o, arg3) => adapter.ActivityViewOnDestroyed((Activity)o));
+                activityView.Mediator.Destroyed += _listener.Handle;
+            }
         }
 
         #endregion
 
         #region Properties
 
-        protected Android.Support.V7.Widget.RecyclerView RecyclerView
+        protected global::Android.Support.V7.Widget.RecyclerView RecyclerView
         {
             get { return _recyclerView; }
         }
@@ -167,9 +171,9 @@ namespace MugenMvvmToolkit.RecyclerView.Infrastructure
             }
         }
 
-        private void ActivityViewOnDestroyed(Activity sender, EventArgs args)
+        private void ActivityViewOnDestroyed(Activity sender)
         {
-            ((IActivityView)sender).Mediator.Destroyed -= ActivityViewOnDestroyed;
+            ((IActivityView)sender).Mediator.Destroyed -= _listener.Handle;
             SetItemsSource(null, false);
             if (_recyclerView.IsAlive() && ReferenceEquals(_recyclerView.GetAdapter(), this))
                 _recyclerView.SetAdapter(null);
@@ -189,20 +193,21 @@ namespace MugenMvvmToolkit.RecyclerView.Infrastructure
             }
         }
 
-        public override void OnBindViewHolder(Android.Support.V7.Widget.RecyclerView.ViewHolder holder, int position)
+        public override void OnBindViewHolder(global::Android.Support.V7.Widget.RecyclerView.ViewHolder holder,
+            int position)
         {
             object item = GetRawItem(position);
-            if (holder.ItemViewType == Android.Resource.Layout.SimpleListItem1)
+            if (holder.ItemViewType == global::Android.Resource.Layout.SimpleListItem1)
             {
                 var textView = holder.ItemView as TextView;
                 if (textView != null)
                     textView.Text = item.ToStringSafe("(null)");
                 return;
             }
-            BindingServiceProvider.ContextManager.GetBindingContext(holder.ItemView).Value = item;
+            holder.ItemView.SetDataContext(item);
         }
 
-        public override Android.Support.V7.Widget.RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent,
+        public override global::Android.Support.V7.Widget.RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent,
             int viewType)
         {
             return new ViewHolderImpl(LayoutInflater.Inflate(viewType, parent, false));
@@ -210,15 +215,15 @@ namespace MugenMvvmToolkit.RecyclerView.Infrastructure
 
         public override void OnViewRecycled(Object holder)
         {
-            var viewHolder = holder as Android.Support.V7.Widget.RecyclerView.ViewHolder;
+            var viewHolder = holder as global::Android.Support.V7.Widget.RecyclerView.ViewHolder;
             if (viewHolder != null && viewHolder.ItemView != null)
-                BindingServiceProvider.ContextManager.GetBindingContext(viewHolder.ItemView).Value = null;
+                viewHolder.ItemView.SetDataContext(null);
             base.OnViewRecycled(holder);
         }
 
         public override int GetItemViewType(int position)
         {
-            var item = GetRawItem(position);
+            object item = GetRawItem(position);
             int id;
             if (_itemTemplateProvider.TrySelectResourceTemplate(item, out id))
                 return id;
@@ -229,7 +234,7 @@ namespace MugenMvvmToolkit.RecyclerView.Infrastructure
                     return (int)template;
                 Tracer.Error("The DataTemplate '{0}' is not supported by RecyclerView", template);
             }
-            return _itemTemplateProvider.GetTemplateId().GetValueOrDefault(Android.Resource.Layout.SimpleListItem1);
+            return _itemTemplateProvider.GetTemplateId().GetValueOrDefault(global::Android.Resource.Layout.SimpleListItem1);
         }
 
         #endregion

@@ -26,13 +26,13 @@ using Android.Views;
 using Android.Widget;
 using Java.Lang;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding.Infrastructure;
+using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models.EventArg;
 using Fragment = Android.Support.V4.App.Fragment;
 using FragmentManager = Android.Support.V4.App.FragmentManager;
@@ -40,7 +40,7 @@ using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
 using Object = Java.Lang.Object;
 using String = Java.Lang.String;
 
-namespace MugenMvvmToolkit.AppCompat.Infrastructure
+namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
 {
     public class ItemsSourcePagerAdapter : PagerAdapter
     {
@@ -50,6 +50,7 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
         private readonly DataTemplateProvider _itemTemplateProvider;
         private readonly FragmentManager _fragmentManager;
         private readonly ViewPager _viewPager;
+        private readonly ReflectionExtensions.IWeakEventHandler<EventArgs> _listener;
 
         private IEnumerable _itemsSource;
         private Fragment _currentPrimaryItem;
@@ -75,7 +76,10 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
                 (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));
             var activityView = _viewPager.Context.GetActivity() as IActivityView;
             if (activityView != null)
-                activityView.Mediator.Destroyed += ActivityViewOnDestroyed;
+            {
+                _listener = ReflectionExtensions.CreateWeakEventHandler<ItemsSourcePagerAdapter, EventArgs>(this, (adapter, o, arg3) => adapter.ActivityViewOnDestroyed((Activity)o));
+                activityView.Mediator.Destroyed += _listener.Handle;
+            }
         }
 
         #endregion
@@ -167,9 +171,9 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
                 args.Value.PutInt(ContentPath, index);
         }
 
-        private void ActivityViewOnDestroyed(Activity sender, EventArgs args)
+        private void ActivityViewOnDestroyed(Activity sender)
         {
-            ((IActivityView)sender).Mediator.Destroyed -= ActivityViewOnDestroyed;
+            ((IActivityView)sender).Mediator.Destroyed -= _listener.Handle;
             if (!_viewPager.IsAlive())
                 return;
             if (ReferenceEquals(_viewPager.Adapter, this))
@@ -269,7 +273,7 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
 
         public override void DestroyItem(ViewGroup container, int position, Object @object)
         {
-            var dataContext = ViewManager.GetDataContext(@object);
+            var dataContext = @object.GetDataContext();
             if (position != PositionNone)
                 position = GetPosition(dataContext);
             bool removed = position == PositionNone;
@@ -317,7 +321,7 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
         {
             if (ItemsSource == null)
                 return PositionNone;
-            var dataContext = ViewManager.GetDataContext(@object);
+            var dataContext = @object.GetDataContext();
             return GetPosition(dataContext);
         }
 

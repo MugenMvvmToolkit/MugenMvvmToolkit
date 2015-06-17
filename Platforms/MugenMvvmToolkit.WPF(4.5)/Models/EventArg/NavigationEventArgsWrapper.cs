@@ -17,9 +17,11 @@
 #endregion
 
 using System.Windows.Navigation;
+using MugenMvvmToolkit.Models.EventArg;
 using JetBrains.Annotations;
+using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
-namespace MugenMvvmToolkit.Models.EventArg
+namespace MugenMvvmToolkit.WPF.Models.EventArg
 {
     public sealed class NavigationEventArgsWrapper : NavigationEventArgsBase
     {

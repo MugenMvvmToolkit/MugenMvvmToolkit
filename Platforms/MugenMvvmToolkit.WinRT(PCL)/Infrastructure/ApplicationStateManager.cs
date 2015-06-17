@@ -22,7 +22,6 @@ using System.IO;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
@@ -31,12 +30,17 @@ using MugenMvvmToolkit.Models;
 #if WINDOWS_PHONE
 using System.Windows;
 using System.Windows.Navigation;
+using MugenMvvmToolkit.WinPhone.Interfaces;
+
+namespace MugenMvvmToolkit.WinPhone.Infrastructure
 #else
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Navigation;
-#endif
+using MugenMvvmToolkit.WinRT.Infrastructure.Presenters;
+using MugenMvvmToolkit.WinRT.Interfaces;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.WinRT.Infrastructure
+#endif
 {
     /// <summary>
     ///     Represents the application state manager.

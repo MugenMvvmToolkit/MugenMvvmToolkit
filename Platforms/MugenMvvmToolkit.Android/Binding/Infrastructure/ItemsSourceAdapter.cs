@@ -25,26 +25,27 @@ using Android.Content;
 using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Modules;
+using MugenMvvmToolkit.Android.Binding.Interfaces;
+using MugenMvvmToolkit.Android.Binding.Models;
+using MugenMvvmToolkit.Android.Binding.Modules;
+using MugenMvvmToolkit.Android.Interfaces.Views;
+using MugenMvvmToolkit.Android.Views;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Views;
-using MugenMvvmToolkit.Views;
 using Object = Java.Lang.Object;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
     public class ItemsSourceAdapter : BaseAdapter, IItemsSourceAdapter
     {
         #region Fields
 
-        private const string Key = "#ItemsSourceAdatapter";
         private static Func<object, Context, IDataContext, IItemsSourceAdapter> _factory;
 
         private IEnumerable _itemsSource;
         private readonly object _container;
         private readonly NotifyCollectionChangedEventHandler _weakHandler;
+        private readonly ReflectionExtensions.IWeakEventHandler<EventArgs> _listener;
         private readonly BindableLayoutInflater _layoutInflater;
         private readonly DataTemplateProvider _dropDownTemplateProvider;
         private readonly DataTemplateProvider _itemTemplateProvider;
@@ -64,21 +65,25 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="ItemsSourceAdapter" /> class.
         /// </summary>
-        public ItemsSourceAdapter([NotNull] object container, Context context, bool listenCollectionChanges, string dropDownItemTemplateSelectorName = AttachedMemberNames.DropDownItemTemplateSelector,
-            string itemTemplateSelectorName = AttachedMemberConstants.ItemTemplateSelector, string dropDownItemTemplateIdName = AttachedMemberNames.DropDownItemTemplate,
+        public ItemsSourceAdapter([NotNull] object container, Context context, bool listenCollectionChanges, string dropDownItemTemplateSelectorName = null,
+            string itemTemplateSelectorName = AttachedMemberConstants.ItemTemplateSelector, string dropDownItemTemplateIdName = null,
             string itemTemplateIdName = AttachedMemberConstants.ItemTemplate)
         {
             Should.NotBeNull(container, "container");
             _container = container;
             _itemTemplateProvider = new DataTemplateProvider(container, itemTemplateIdName, itemTemplateSelectorName);
-            _dropDownTemplateProvider = new DataTemplateProvider(container, dropDownItemTemplateIdName,
-                dropDownItemTemplateSelectorName);
+            _dropDownTemplateProvider = new DataTemplateProvider(container,
+                dropDownItemTemplateIdName ?? AttachedMembers.AdapterView.DropDownItemTemplate,
+                dropDownItemTemplateSelectorName ?? AttachedMembers.AdapterView.DropDownItemTemplateSelector);
             _layoutInflater = context.GetBindableLayoutInflater();
             if (listenCollectionChanges)
                 _weakHandler = ReflectionExtensions.MakeWeakCollectionChangedHandler(this, (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));
             var activityView = context.GetActivity() as IActivityView;
             if (activityView != null)
-                activityView.Mediator.Destroyed += ActivityViewOnDestroyed;
+            {
+                _listener = ReflectionExtensions.CreateWeakEventHandler<ItemsSourceAdapter, EventArgs>(this, (adapter, o, arg3) => adapter.ActivityViewOnDestroyed((Activity)o));
+                activityView.Mediator.Destroyed += _listener.Handle;
+            }
         }
 
         #endregion
@@ -181,8 +186,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (ItemsSource == null)
                 return null;
             return CreateView(GetRawItem(position), convertView, parent, _dropDownTemplateProvider, IsSpinner()
-                ? Android.Resource.Layout.SimpleDropDownItem1Line
-                : Android.Resource.Layout.SimpleSpinnerDropDownItem);
+                ? global::Android.Resource.Layout.SimpleDropDownItem1Line
+                : global::Android.Resource.Layout.SimpleSpinnerDropDownItem);
         }
 
         public override Object GetItem(int position)
@@ -200,22 +205,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (ItemsSource == null)
                 return null;
             return CreateView(GetRawItem(position), convertView, parent, _itemTemplateProvider,
-                Android.Resource.Layout.SimpleListItem1);
+                global::Android.Resource.Layout.SimpleListItem1);
         }
 
         #endregion
 
         #region Methods
-
-        public static IItemsSourceAdapter Get(object container)
-        {
-            return ServiceProvider.AttachedValueProvider.GetValue<ItemsSourceAdapter>(container, Key, false);
-        }
-
-        public static void Set(object container, IItemsSourceAdapter adapter)
-        {
-            ServiceProvider.AttachedValueProvider.SetValue(container, Key, adapter);
-        }
 
         protected virtual void SetItemsSource(IEnumerable value, bool notifyDataSet)
         {
@@ -257,9 +252,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                         valueView = template as View;
                         if (valueView != null)
                         {
-                            BindingServiceProvider.ContextManager
-                                                  .GetBindingContext(valueView)
-                                                  .Value = value;
+                            valueView.SetDataContext(value);
                             return valueView;
                         }
                         if (template is int)
@@ -284,7 +277,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             var itemView = convertView as ListItem;
             if (itemView == null || itemView.TemplateId != templateId.Value)
                 convertView = CreateView(value, parent, templateId.Value);
-            BindingServiceProvider.ContextManager.GetBindingContext(convertView).Value = value;
+            convertView.SetDataContext(value);
             return convertView;
         }
 
@@ -304,14 +297,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             var adapterView = Container as AdapterView;
             if (adapterView != null && args.Action != NotifyCollectionChangedAction.Add)
             {
-                var value = PlatformDataBindingModule.AdapterViewSelectedItemMember.GetValue(adapterView, null);
+                var value = adapterView.GetBindingMemberValue(AttachedMembers.AdapterView.SelectedItem);
                 if (value != null && GetPosition(value) < 0)
                 {
                     var index = args.OldStartingIndex;
                     var maxIndex = ItemsSource.Count() - 1;
                     while (index > maxIndex)
                         --index;
-                    PlatformDataBindingModule.AdapterViewSelectedItemMember.SetValue(adapterView, GetRawItem(index));
+                    adapterView.SetBindingMemberValue(AttachedMembers.AdapterView.SelectedItem, GetRawItem(index));
                 }
             }
             NotifyDataSetChanged();
@@ -322,9 +315,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return Container is Spinner || PlatformExtensions.IsActionBar(Container);
         }
 
-        private void ActivityViewOnDestroyed(Activity sender, EventArgs args)
+        private void ActivityViewOnDestroyed(Activity sender)
         {
-            ((IActivityView)sender).Mediator.Destroyed -= ActivityViewOnDestroyed;
+            ((IActivityView)sender).Mediator.Destroyed -= _listener.Handle;
             SetItemsSource(null, false);
             var adapterView = _container as AdapterView;
             if (adapterView.IsAlive() && ReferenceEquals(PlatformDataBindingModule.GetAdapter(adapterView), this))

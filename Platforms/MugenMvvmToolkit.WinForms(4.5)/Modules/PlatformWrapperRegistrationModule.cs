@@ -21,8 +21,10 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Views;
+using MugenMvvmToolkit.Modules;
+using MugenMvvmToolkit.WinForms.Interfaces.Views;
 
-namespace MugenMvvmToolkit.Modules
+namespace MugenMvvmToolkit.WinForms.Modules
 {
     public class PlatformWrapperRegistrationModule : WrapperRegistrationModuleBase
     {

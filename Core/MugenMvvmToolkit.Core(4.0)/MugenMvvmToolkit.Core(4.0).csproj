@@ -526,6 +526,12 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\eventarg\NavigatedEventArgs.cs">
       <Link>Models\EventArg\NavigatedEventArgs.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\NavigatingCancelEventArgsBase.cs">
+      <Link>Models\EventArg\NavigatingCancelEventArgsBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\NavigationEventArgsBase.cs">
+      <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\eventarg\NotifyCollectionChangingEventArgs.cs">
       <Link>Models\EventArg\NotifyCollectionChangingEventArgs.cs</Link>
     </Compile>

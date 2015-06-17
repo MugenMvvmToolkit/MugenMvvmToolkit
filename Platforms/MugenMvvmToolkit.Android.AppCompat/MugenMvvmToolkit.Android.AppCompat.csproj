@@ -9,7 +9,7 @@
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MugenMvvmToolkit.AppCompat</RootNamespace>
+    <RootNamespace>MugenMvvmToolkit.Android.AppCompat</RootNamespace>
     <AssemblyName>MugenMvvmToolkit.Android.AppCompat</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
@@ -52,11 +52,11 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml" />
     <Reference Include="Xamarin.Android.Support.v4, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Xamarin.Android.Support.v4.22.1.1.1\lib\MonoAndroid403\Xamarin.Android.Support.v4.dll</HintPath>
+      <HintPath>..\..\packages\Xamarin.Android.Support.v4.22.2.0.0\lib\MonoAndroid403\Xamarin.Android.Support.v4.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Xamarin.Android.Support.v7.AppCompat, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Xamarin.Android.Support.v7.AppCompat.22.1.1.1\lib\MonoAndroid403\Xamarin.Android.Support.v7.AppCompat.dll</HintPath>
+      <HintPath>..\..\packages\Xamarin.Android.Support.v7.AppCompat.22.2.0.0\lib\MonoAndroid403\Xamarin.Android.Support.v7.AppCompat.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -64,67 +64,67 @@
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.ActionBar\ActionBarExtensions.cs">
+    <Compile Include="..\MugenMvvmToolkit.Android\ActionBarExtensions.cs">
       <Link>ActionBarExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.ActionBar\Infrastructure\ActionBarTabItemsSourceGenerator.cs">
+    <Compile Include="..\MugenMvvmToolkit.Android\Binding\AttachedMembers.cs">
+      <Link>AttachedMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Infrastructure\ActionBarTabItemsSourceGenerator.cs">
       <Link>Infrastructure\ActionBarTabItemsSourceGenerator.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.ActionBar\InternalExtensions.cs">
-      <Link>InternalExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.ActionBar\LinkerInclude.cs">
-      <Link>LinkerInclude.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.ActionBar\Models\ActionBarTabTemplate.cs">
-      <Link>Models\ActionBarTabTemplate.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.ActionBar\Models\ActionBarTemplate.cs">
-      <Link>Models\ActionBarTemplate.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.ActionBar\Modules\ActionBarModule.cs">
-      <Link>Modules\ActionBarModule.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.ActionBar\Views\ActionBarView.cs">
-      <Link>Views\ActionBarView.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.Fragment\FragmentExtensions.cs">
-      <Link>FragmentExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.Fragment\Infrastructure\FragmentContentViewManager.cs">
+    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Infrastructure\FragmentContentViewManager.cs">
       <Link>Infrastructure\FragmentContentViewManager.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.Fragment\Infrastructure\Mediators\MvvmFragmentMediator.cs">
-      <Link>Infrastructure\Mediators\MvvmFragmentMediator.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Models\ActionBarTabTemplate.cs">
+      <Link>Models\ActionBarTabTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.Fragment\Infrastructure\Mediators\WindowViewMediator.cs">
-      <Link>Infrastructure\Mediators\WindowViewMediator.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Models\ActionBarTemplate.cs">
+      <Link>Models\ActionBarTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.Fragment\Interfaces\Mediators\IMvvmFragmentMediator.cs">
-      <Link>Interfaces\Mediators\IMvvmFragmentMediator.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Modules\ActionBarModule.cs">
+      <Link>Modules\ActionBarModule.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.Fragment\Interfaces\Views\IFragmentView.cs">
-      <Link>Interfaces\Views\IFragmentView.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.Fragment\Interfaces\Views\IWindowView.cs">
-      <Link>Interfaces\Views\IWindowView.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.Fragment\InternalExtensionsFragment.cs">
-      <Link>InternalExtensionsFragment.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.Fragment\Modules\FragmentDataBindingModule.cs">
+    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Modules\FragmentDataBindingModule.cs">
       <Link>Modules\FragmentDataBindingModule.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.Fragment\Modules\FragmentInitializationModule.cs">
+    <Compile Include="..\MugenMvvmToolkit.Android\FragmentExtensions.cs">
+      <Link>FragmentExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\Infrastructure\Mediators\MvvmFragmentMediator.cs">
+      <Link>Infrastructure\Mediators\MvvmFragmentMediator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\Infrastructure\Mediators\WindowViewMediator.cs">
+      <Link>Infrastructure\Mediators\WindowViewMediator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\Interfaces\Mediators\IMvvmFragmentMediator.cs">
+      <Link>Interfaces\Mediators\IMvvmFragmentMediator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\Interfaces\Views\IFragmentView.cs">
+      <Link>Interfaces\Views\IFragmentView.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\Interfaces\Views\IWindowView.cs">
+      <Link>Interfaces\Views\IWindowView.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\InternalExtensions.cs">
+      <Link>InternalExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\InternalExtensionsFragment.cs">
+      <Link>InternalExtensionsFragment.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\Modules\FragmentInitializationModule.cs">
       <Link>Modules\FragmentInitializationModule.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.Fragment\Views\Fragments\MvvmDialogFragment.cs">
+    <Compile Include="..\MugenMvvmToolkit.Android\Views\ActionBarView.cs">
+      <Link>Views\ActionBarView.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\Views\Fragments\MvvmDialogFragment.cs">
       <Link>Views\Fragments\MvvmDialogFragment.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.Fragment\Views\Fragments\MvvmFragment.cs">
+    <Compile Include="..\MugenMvvmToolkit.Android\Views\Fragments\MvvmFragment.cs">
       <Link>Views\Fragments\MvvmFragment.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android.Fragment\Views\Fragments\MvvmListFragment.cs">
+    <Compile Include="..\MugenMvvmToolkit.Android\Views\Fragments\MvvmListFragment.cs">
       <Link>Views\Fragments\MvvmListFragment.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\DynamicViewModelWindowPresenter.cs">

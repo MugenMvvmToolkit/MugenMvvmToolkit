@@ -18,7 +18,7 @@
 
 using MugenMvvmToolkit.Binding.Models;
 
-namespace MugenMvvmToolkit.Binding.Parse
+namespace MugenMvvmToolkit.WinForms.Binding.Parse
 {
     internal static class XmlTokens
     {

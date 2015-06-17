@@ -17,8 +17,23 @@
 #endregion
 
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Interfaces.Navigation;
 
-namespace MugenMvvmToolkit.Interfaces.Navigation
+#if WPF
+namespace MugenMvvmToolkit.WPF.Interfaces.Navigation
+#elif ANDROID
+namespace MugenMvvmToolkit.Android.Interfaces.Navigation
+#elif TOUCH
+namespace MugenMvvmToolkit.iOS.Interfaces.Navigation
+#elif XAMARIN_FORMS
+namespace MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation
+#elif SILVERLIGHT
+namespace MugenMvvmToolkit.Silverlight.Interfaces.Navigation
+#elif WINDOWSCOMMON || NETFX_CORE
+namespace MugenMvvmToolkit.WinRT.Interfaces.Navigation
+#elif WINDOWS_PHONE
+namespace MugenMvvmToolkit.WinPhone.Interfaces.Navigation
+#endif
 {
     /// <summary>
     ///     Represent the interface for navigation provider.

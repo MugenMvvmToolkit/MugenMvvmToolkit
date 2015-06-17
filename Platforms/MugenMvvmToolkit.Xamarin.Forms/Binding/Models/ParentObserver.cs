@@ -22,12 +22,12 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using Xamarin.Forms;
 
-namespace MugenMvvmToolkit.Binding.Models
+namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Models
 {
     /// <summary>
     ///     Represents the weak parent observer.
     /// </summary>
-    public sealed class ParentObserver : EventListenerList
+    internal sealed class ParentObserver : EventListenerList
     {
         #region Fields
 
@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
         private ParentObserver(Element view)
         {
-            _view = ServiceProvider.WeakReferenceFactory(view, true);
+            _view = ServiceProvider.WeakReferenceFactory(view);
             _parent = ToolkitExtensions.GetWeakReferenceOrDefault(FindParent(view), Empty.WeakReference, false);
             view.PropertyChanged += OnPropertyChanged;
         }

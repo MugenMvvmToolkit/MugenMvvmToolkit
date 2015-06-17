@@ -23,9 +23,9 @@ using Android.Runtime;
 using Android.Widget;
 using MugenMvvmToolkit.Interfaces.Navigation;
 
-namespace MugenMvvmToolkit.Views
+namespace MugenMvvmToolkit.Android.Views
 {
-    [Register("mugenmvvmtoolkit.views.UserControl")]
+    [Register("mugenmvvmtoolkit.android.views.UserControl")]
     public abstract class UserControl : FrameLayout
     {
         #region Constructors

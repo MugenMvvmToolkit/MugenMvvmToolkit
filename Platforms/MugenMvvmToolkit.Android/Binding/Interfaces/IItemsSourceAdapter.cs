@@ -19,7 +19,7 @@
 using System.Collections;
 using Android.Widget;
 
-namespace MugenMvvmToolkit.Binding.Interfaces
+namespace MugenMvvmToolkit.Android.Binding.Interfaces
 {
     public interface IItemsSourceAdapter : ISpinnerAdapter
     {

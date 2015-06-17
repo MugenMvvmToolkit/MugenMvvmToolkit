@@ -18,7 +18,14 @@
 
 using JetBrains.Annotations;
 
-namespace MugenMvvmToolkit.Binding.Interfaces
+#if WINFORMS
+namespace MugenMvvmToolkit.WinForms.Binding.Interfaces
+#elif ANDROID
+namespace MugenMvvmToolkit.Android.Binding.Interfaces
+#elif TOUCH
+namespace MugenMvvmToolkit.iOS.Binding.Interfaces
+#endif
+
 {
     /// <summary>
     ///     Represents the interface that allows to set content in the specified view.
@@ -36,6 +43,5 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         /// </summary>
         void SetContent([NotNull] object view, [CanBeNull] object content);
 #endif
-
     }
 }

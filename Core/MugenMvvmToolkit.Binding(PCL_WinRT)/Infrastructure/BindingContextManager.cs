@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             #region Fields
 
-            private readonly WeakReference _targetReference;
+            private readonly WeakReference _srcRef;
             private bool _isParentContext;
             private object _dataContext;
 
@@ -48,7 +48,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             public BindingContext(object target)
             {
                 _isParentContext = true;
-                _targetReference = ServiceProvider.WeakReferenceFactory(target, true);
+                _srcRef = ServiceProvider.WeakReferenceFactory(target);
                 var parentMember = BindingServiceProvider.VisualTreeManager.GetParentMember(target.GetType());
                 if (parentMember != null)
                     parentMember.TryObserve(target, this);
@@ -61,7 +61,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public object Source
             {
-                get { return _targetReference.Target; }
+                get { return _srcRef.Target; }
             }
 
             public object Value
@@ -77,7 +77,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 set
                 {
                     bool isUnsetValue = value.IsUnsetValue();
-                    lock (_targetReference)
+                    lock (_srcRef)
                     {
                         if (isUnsetValue)
                         {
@@ -113,7 +113,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 if (!(sender is IBindingContext))
                 {
-                    lock (_targetReference)
+                    lock (_srcRef)
                         UpdateContextInternal();
                 }
                 RaiseValueChanged();
@@ -139,7 +139,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (!_isParentContext)
                     return;
                 ClearOldContext();
-                object target = _targetReference.Target;
+                object target = _srcRef.Target;
                 if (target == null)
                     return;
                 var context = GetParentBindingContext(target);
@@ -147,9 +147,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     _dataContext = null;
                 else
                 {
-                    var source = context.Source;
-                    if (source != null)
-                        WeakEventManager.GetBindingContextListener(source).Add(this);
+                    WeakEventManager.AddBindingContextListener(context, this, false);
                     _dataContext = context;
                 }
             }
@@ -158,11 +156,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 var bindingContext = _dataContext as IBindingContext;
                 if (bindingContext != null)
-                {
-                    var source = bindingContext.Source;
-                    if (source != null)
-                        WeakEventManager.GetBindingContextListener(source).Remove(this);
-                }
+                    WeakEventManager.RemoveBindingContextListener(bindingContext, this);
             }
 
             private void RaiseValueChanged()

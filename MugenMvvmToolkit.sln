@@ -76,17 +76,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WinPhone", "WinPhone", "{88
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WinRT", "WinRT", "{97AD981A-C408-47E2-B151-2139D15BC22F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Binding.WPF(4.5)", "Platforms\MugenMvvmToolkit.Binding.WPF(4.5)\MugenMvvmToolkit.Binding.WPF(4.5).csproj", "{215572D5-13A0-46EB-A983-A5433930B361}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WPF.Binding(4.5)", "Platforms\MugenMvvmToolkit.WPF.Binding(4.5)\MugenMvvmToolkit.WPF.Binding(4.5).csproj", "{215572D5-13A0-46EB-A983-A5433930B361}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Binding.Silverlight(5.0)", "Platforms\MugenMvvmToolkit.Binding.Silverlight(5.0)\MugenMvvmToolkit.Binding.Silverlight(5.0).csproj", "{05FE347F-2CB2-46CE-A2B7-73F6410BF13A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Silverlight.Binding(5.0)", "Platforms\MugenMvvmToolkit.Silverlight.Binding(5.0)\MugenMvvmToolkit.Silverlight.Binding(5.0).csproj", "{05FE347F-2CB2-46CE-A2B7-73F6410BF13A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Android", "Platforms\MugenMvvmToolkit.Android\MugenMvvmToolkit.Android.csproj", "{45239A20-0DD7-43CE-ACAA-86249154ADF5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Binding.WinPhone(8.0)", "Platforms\MugenMvvmToolkit.Binding.WinPhone(8.0)\MugenMvvmToolkit.Binding.WinPhone(8.0).csproj", "{9489F7E3-F3A1-4ABD-B152-369CA1B102C8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinPhone.Binding(8.0)", "Platforms\MugenMvvmToolkit.WinPhone.Binding(8.0)\MugenMvvmToolkit.WinPhone.Binding(8.0).csproj", "{9489F7E3-F3A1-4ABD-B152-369CA1B102C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Binding.WinRT(8.0)", "Platforms\MugenMvvmToolkit.Binding.WinRT(8.0)\MugenMvvmToolkit.Binding.WinRT(8.0).csproj", "{7AD9872B-D026-47F0-ADA9-1EBC321522C8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinRT.Binding(8.0)", "Platforms\MugenMvvmToolkit.WinRT.Binding(8.0)\MugenMvvmToolkit.WinRT.Binding(8.0).csproj", "{7AD9872B-D026-47F0-ADA9-1EBC321522C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Binding.WPF(4.0)", "Platforms\MugenMvvmToolkit.Binding.WPF(4.0)\MugenMvvmToolkit.Binding.WPF(4.0).csproj", "{627042AA-2DA6-4744-982A-E6BA58D9421A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WPF.Binding(4.0)", "Platforms\MugenMvvmToolkit.WPF.Binding(4.0)\MugenMvvmToolkit.WPF.Binding(4.0).csproj", "{627042AA-2DA6-4744-982A-E6BA58D9421A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Core(PCL_WinRT)", "Core\MugenMvvmToolkit.Core(PCL_WinRT)\MugenMvvmToolkit.Core(PCL_WinRT).csproj", "{F4323E9E-1608-429B-83DC-6A3670761850}"
 EndProject
@@ -94,17 +94,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Binding(PC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinRT(PCL)", "Platforms\MugenMvvmToolkit.WinRT(PCL)\MugenMvvmToolkit.WinRT(PCL).csproj", "{9E1FD76F-907F-480C-A0C5-D165E07AA566}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Binding.WinRT(PCL)", "Platforms\MugenMvvmToolkit.Binding.WinRT(PCL)\MugenMvvmToolkit.Binding.WinRT(PCL).csproj", "{916955BD-F025-45FE-9824-EBC709234E36}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinRT.Binding(PCL)", "Platforms\MugenMvvmToolkit.WinRT.Binding(PCL)\MugenMvvmToolkit.WinRT.Binding(PCL).csproj", "{916955BD-F025-45FE-9824-EBC709234E36}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.AutofacContainer(PCL_Silverlight)", "IocContainers\MugenMvvmToolkit.AutofacContainer(PCL_Silverlight)\MugenMvvmToolkit.AutofacContainer(PCL_Silverlight).csproj", "{E70988D8-B0E9-4CC0-B790-2326E2E8192A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinPhone(8.1)", "Platforms\MugenMvvmToolkit.WinPhone(8.1)\MugenMvvmToolkit.WinPhone(8.1).csproj", "{9B02FEE1-51E5-4F58-AC47-2560770EF505}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Binding.WinPhone(8.1)", "Platforms\MugenMvvmToolkit.Binding.WinPhone(8.1)\MugenMvvmToolkit.Binding.WinPhone(8.1).csproj", "{5D794834-E6B9-463A-84C9-5EB9D1EE593F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinPhone.Binding(8.1)", "Platforms\MugenMvvmToolkit.WinPhone.Binding(8.1)\MugenMvvmToolkit.WinPhone.Binding(8.1).csproj", "{5D794834-E6B9-463A-84C9-5EB9D1EE593F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Touch", "Touch", "{944A6742-0E70-42CE-9193-DA2153347FE2}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "iOS", "iOS", "{944A6742-0E70-42CE-9193-DA2153347FE2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Touch", "Platforms\MugenMvvmToolkit.Touch\MugenMvvmToolkit.Touch.csproj", "{AB8F3108-C83F-4169-8DFC-988EC64CCD37}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.iOS", "Platforms\MugenMvvmToolkit.iOS\MugenMvvmToolkit.iOS.csproj", "{AB8F3108-C83F-4169-8DFC-988EC64CCD37}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Xamarin.Forms", "Xamarin.Forms", "{9D4E83A0-560F-46D4-AB0A-19FB4DEC35F5}"
 EndProject
@@ -116,11 +116,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Xamarin.Fo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Xamarin.Forms.WinPhone", "Platforms\MugenMvvmToolkit.Xamarin.Forms.WinPhone\MugenMvvmToolkit.Xamarin.Forms.WinPhone.csproj", "{B3D9BE15-9A4F-453B-BFA6-CB85D00492D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Android.ActionBar", "Platforms\MugenMvvmToolkit.Android.ActionBar\MugenMvvmToolkit.Android.ActionBar.csproj", "{35635C2E-4CE8-4B93-A461-D4E5877F19E8}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Android.AppCompat", "Platforms\MugenMvvmToolkit.Android.AppCompat\MugenMvvmToolkit.Android.AppCompat.csproj", "{9BB09AC6-EFD9-4156-84F0-491F2A9F03E5}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Android.Fragment", "Platforms\MugenMvvmToolkit.Android.Fragment\MugenMvvmToolkit.Android.Fragment.csproj", "{6E10CFAD-A41F-4675-B729-81FC5D4B3760}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Android.RecyclerView", "Platforms\MugenMvvmToolkit.Android.RecyclerView\MugenMvvmToolkit.Android.RecyclerView.csproj", "{4AF9E468-99AC-41E2-92A3-41102B0365DB}"
 EndProject
@@ -605,16 +601,6 @@ Global
 		{B3D9BE15-9A4F-453B-BFA6-CB85D00492D9}.Release|x64.ActiveCfg = Release|Any CPU
 		{B3D9BE15-9A4F-453B-BFA6-CB85D00492D9}.Release|x86.ActiveCfg = Release|x86
 		{B3D9BE15-9A4F-453B-BFA6-CB85D00492D9}.Release|x86.Build.0 = Release|x86
-		{35635C2E-4CE8-4B93-A461-D4E5877F19E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{35635C2E-4CE8-4B93-A461-D4E5877F19E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{35635C2E-4CE8-4B93-A461-D4E5877F19E8}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{35635C2E-4CE8-4B93-A461-D4E5877F19E8}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{35635C2E-4CE8-4B93-A461-D4E5877F19E8}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{35635C2E-4CE8-4B93-A461-D4E5877F19E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{35635C2E-4CE8-4B93-A461-D4E5877F19E8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{35635C2E-4CE8-4B93-A461-D4E5877F19E8}.Release|ARM.ActiveCfg = Release|Any CPU
-		{35635C2E-4CE8-4B93-A461-D4E5877F19E8}.Release|x64.ActiveCfg = Release|Any CPU
-		{35635C2E-4CE8-4B93-A461-D4E5877F19E8}.Release|x86.ActiveCfg = Release|Any CPU
 		{9BB09AC6-EFD9-4156-84F0-491F2A9F03E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9BB09AC6-EFD9-4156-84F0-491F2A9F03E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9BB09AC6-EFD9-4156-84F0-491F2A9F03E5}.Debug|ARM.ActiveCfg = Debug|Any CPU
@@ -625,16 +611,6 @@ Global
 		{9BB09AC6-EFD9-4156-84F0-491F2A9F03E5}.Release|ARM.ActiveCfg = Release|Any CPU
 		{9BB09AC6-EFD9-4156-84F0-491F2A9F03E5}.Release|x64.ActiveCfg = Release|Any CPU
 		{9BB09AC6-EFD9-4156-84F0-491F2A9F03E5}.Release|x86.ActiveCfg = Release|Any CPU
-		{6E10CFAD-A41F-4675-B729-81FC5D4B3760}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6E10CFAD-A41F-4675-B729-81FC5D4B3760}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6E10CFAD-A41F-4675-B729-81FC5D4B3760}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{6E10CFAD-A41F-4675-B729-81FC5D4B3760}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{6E10CFAD-A41F-4675-B729-81FC5D4B3760}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{6E10CFAD-A41F-4675-B729-81FC5D4B3760}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6E10CFAD-A41F-4675-B729-81FC5D4B3760}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6E10CFAD-A41F-4675-B729-81FC5D4B3760}.Release|ARM.ActiveCfg = Release|Any CPU
-		{6E10CFAD-A41F-4675-B729-81FC5D4B3760}.Release|x64.ActiveCfg = Release|Any CPU
-		{6E10CFAD-A41F-4675-B729-81FC5D4B3760}.Release|x86.ActiveCfg = Release|Any CPU
 		{4AF9E468-99AC-41E2-92A3-41102B0365DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4AF9E468-99AC-41E2-92A3-41102B0365DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4AF9E468-99AC-41E2-92A3-41102B0365DB}.Debug|ARM.ActiveCfg = Debug|Any CPU
@@ -699,9 +675,7 @@ Global
 		{C522F7B5-E5F9-479B-B2B0-011B0DAED83B} = {9D4E83A0-560F-46D4-AB0A-19FB4DEC35F5}
 		{BE5057CD-D8BD-4A46-A128-6D249B312001} = {9D4E83A0-560F-46D4-AB0A-19FB4DEC35F5}
 		{B3D9BE15-9A4F-453B-BFA6-CB85D00492D9} = {9D4E83A0-560F-46D4-AB0A-19FB4DEC35F5}
-		{35635C2E-4CE8-4B93-A461-D4E5877F19E8} = {CEF06B1C-77EE-4DC5-9283-87F9C3678892}
 		{9BB09AC6-EFD9-4156-84F0-491F2A9F03E5} = {CEF06B1C-77EE-4DC5-9283-87F9C3678892}
-		{6E10CFAD-A41F-4675-B729-81FC5D4B3760} = {CEF06B1C-77EE-4DC5-9283-87F9C3678892}
 		{4AF9E468-99AC-41E2-92A3-41102B0365DB} = {CEF06B1C-77EE-4DC5-9283-87F9C3678892}
 	EndGlobalSection
 EndGlobal

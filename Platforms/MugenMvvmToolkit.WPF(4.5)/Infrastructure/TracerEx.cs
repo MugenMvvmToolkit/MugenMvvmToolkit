@@ -16,9 +16,14 @@
 
 #endregion
 
-using TraceLevel = MugenMvvmToolkit.Models.TraceLevel;
+using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Infrastructure
+#if WPF
+namespace MugenMvvmToolkit.WPF.Infrastructure
+#elif WINFORMS
+namespace MugenMvvmToolkit.WinForms.Infrastructure
+#endif
+
 {
     public class TracerEx : Tracer
     {

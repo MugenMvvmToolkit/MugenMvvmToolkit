@@ -18,15 +18,21 @@
 
 using System;
 #if NETFX_CORE || WINDOWSCOMMON
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 #else
 using System.Globalization;
 using System.Windows.Data;
 #endif
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvmToolkit.Binding.Converters
+#if WPF
+namespace MugenMvvmToolkit.WPF.Binding.Converters
+#elif SILVERLIGHT
+namespace MugenMvvmToolkit.Silverlight.Binding.Converters
+#elif NETFX_CORE || WINDOWSCOMMON
+namespace MugenMvvmToolkit.WinRT.Binding.Converters
+#elif WINDOWS_PHONE
+namespace MugenMvvmToolkit.WinPhone.Binding.Converters
+#endif
 {
     /// <summary>
     ///     This converter reverses a Boolean value (True == False, False == True).
@@ -63,7 +69,7 @@ namespace MugenMvvmToolkit.Binding.Converters
             var b = (bool?)value;
             if (b == null)
                 return null;
-            return Empty.BooleanToObject(!b.Value);            
+            return Empty.BooleanToObject(!b.Value);
         }
 
 #if NETFX_CORE || WINDOWSCOMMON

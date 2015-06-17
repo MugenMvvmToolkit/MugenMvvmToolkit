@@ -16,7 +16,6 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Interfaces.Navigation;

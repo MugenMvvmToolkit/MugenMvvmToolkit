@@ -23,11 +23,11 @@ using Android.OS;
 using Android.Preferences;
 using Android.Runtime;
 using Android.Views;
-using MugenMvvmToolkit.Interfaces.Mediators;
-using MugenMvvmToolkit.Interfaces.Views;
+using MugenMvvmToolkit.Android.Interfaces.Mediators;
+using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Views.Activities
+namespace MugenMvvmToolkit.Android.Views.Activities
 {
     public abstract class MvvmPreferenceActivity : PreferenceActivity, IActivityView
     {
@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit.Views.Activities
 
         protected MvvmPreferenceActivity(int? viewId)
         {
-            _viewId = viewId;            
+            _viewId = viewId;
         }
 
         #endregion
@@ -126,9 +126,7 @@ namespace MugenMvvmToolkit.Views.Activities
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            Mediator.OnCreate(savedInstanceState, base.OnCreate);
-            if (_viewId.HasValue)
-                SetContentView(_viewId.Value);
+            Mediator.OnCreate(_viewId, savedInstanceState, base.OnCreate);
         }
 
         protected override void OnDestroy()

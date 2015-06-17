@@ -7,7 +7,7 @@
     <ProjectGuid>{170A39D4-059B-4ABF-B377-EED905D87EF4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MugenMvvmToolkit</RootNamespace>
+    <RootNamespace>MugenMvvmToolkit.WPF</RootNamespace>
     <AssemblyName>MugenMvvmToolkit.WPF</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -74,9 +74,7 @@
     <Compile Include="Infrastructure\TracerEx.cs" />
     <Compile Include="Infrastructure\Presenters\MessagePresenter.cs" />
     <Compile Include="MarkupExtensions\ViewModelToViewBinding.cs" />
-    <Compile Include="Models\EventArg\NavigatingCancelEventArgsBase.cs" />
     <Compile Include="Models\EventArg\NavigatingCancelEventArgsWrapper.cs" />
-    <Compile Include="Models\EventArg\NavigationEventArgsBase.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgsWrapper.cs" />
     <Compile Include="PlatformExtensions.cs" />
     <Compile Include="Infrastructure\WpfBootstrapperBase.cs" />

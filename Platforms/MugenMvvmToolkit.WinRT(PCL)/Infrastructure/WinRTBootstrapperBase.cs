@@ -24,16 +24,17 @@ using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Infrastructure.Navigation;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.ViewModels;
+using MugenMvvmToolkit.WinRT.Infrastructure.Navigation;
+using MugenMvvmToolkit.WinRT.Interfaces.Navigation;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.WinRT.Infrastructure
 {
     public abstract class WinRTBootstrapperBase : BootstrapperBase
     {

@@ -9,7 +9,7 @@
     <ProjectTypeGuids>{A1591282-1198-4647-A2B1-27E5FF5F6F3B};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MugenMvvmToolkit</RootNamespace>
+    <RootNamespace>MugenMvvmToolkit.Silverlight</RootNamespace>
     <AssemblyName>MugenMvvmToolkit.Silverlight</AssemblyName>
     <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
@@ -136,12 +136,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\MarkupExtensions\ViewModelToViewBinding.cs">
       <Link>MarkupExtensions\ViewModelToViewBinding.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\models\eventarg\NavigatingCancelEventArgsBase.cs">
-      <Link>Models\EventArg\NavigatingCancelEventArgsBase.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\models\eventarg\NavigationEventArgsBase.cs">
-      <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Modules\InitializationModule.cs">
       <Link>Modules\InitializationModule.cs</Link>

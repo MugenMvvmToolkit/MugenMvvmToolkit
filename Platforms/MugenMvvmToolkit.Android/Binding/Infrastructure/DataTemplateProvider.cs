@@ -17,10 +17,12 @@
 #endregion
 
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding.Interfaces;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
     public sealed class DataTemplateProvider
     {
@@ -66,7 +68,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public bool TrySelectTemplate(object value, out object template)
         {
             template = null;
-            var selector = GetDataTemplateSelector();
+            IDataTemplateSelector selector = GetDataTemplateSelector();
             if (selector == null)
                 return false;
             template = selector.SelectTemplate(value, _container);
@@ -75,12 +77,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public IDataTemplateSelector GetDataTemplateSelector()
         {
-            return _templateSelectorMember.TryGetValue<IDataTemplateSelector>(_container);
+            if (_templateSelectorMember == null)
+                return null;
+            return _templateSelectorMember.GetValue(_container, null) as IDataTemplateSelector;
         }
 
         public int? GetTemplateId()
         {
-            return _templateIdMember.TryGetValue<int?>(_container);
+            if (_templateIdMember == null)
+                return null;
+            return _templateIdMember.GetValue(_container, null) as int?;
         }
 
         #endregion

@@ -19,15 +19,19 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using MugenMvvmToolkit.Binding.Converters;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Binding.Modules;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Xamarin.Forms.Binding.Converters;
+using MugenMvvmToolkit.Xamarin.Forms.Binding.Infrastructure;
+using MugenMvvmToolkit.Xamarin.Forms.Binding.Models;
 using Xamarin.Forms;
 
-namespace MugenMvvmToolkit.Binding.Modules
+namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
 {
     public class PlatformDataBindingModule : DataBindingModule
     {
@@ -37,12 +41,12 @@ namespace MugenMvvmToolkit.Binding.Modules
         {
             //Element
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<Element, object>(AttachedMemberConstants.Parent, GetParentValue, null, ObserveParentMember));
+                .CreateMember<Element, object>(AttachedMemberConstants.ParentExplicit, GetParentValue, null, ObserveParentMember));
             memberProvider.Register(typeof(Element), "BindingContext", BindingMemberProvider.BindingContextMember, true);
 
             //VisualElement
             var visibleMember = memberProvider.GetBindingMember(typeof(VisualElement),
-                ToolkitExtensions.GetMemberName<VisualElement>(element => element.IsVisible), true, false);
+                ToolkitExtensions.GetMemberName<VisualElement>(() => element => element.IsVisible), true, false);
             if (visibleMember != null)
             {
                 memberProvider.Register(typeof(VisualElement), "Visible", visibleMember, true);
@@ -63,7 +67,7 @@ namespace MugenMvvmToolkit.Binding.Modules
                 }, (info, element, arg3) => BindingServiceProvider.WeakEventManager.Subscribe(element, "IsFocused", arg3)));
 
             var enabledMember = memberProvider.GetBindingMember(typeof(VisualElement),
-                ToolkitExtensions.GetMemberName<VisualElement>(element => element.IsEnabled), true, false);
+                ToolkitExtensions.GetMemberName<VisualElement>(() => element => element.IsEnabled), true, false);
             if (enabledMember != null)
                 memberProvider.Register(typeof(VisualElement), AttachedMemberConstants.Enabled, enabledMember, true);
 
@@ -124,7 +128,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         /// <summary>
         ///     Gets the <see cref="IBindingContextManager" /> that will be used by default.
         /// </summary>
-        protected override IBindingContextManager GetBindingContextManager()
+        protected override IBindingContextManager GetBindingContextManager(IModuleContext context)
         {
             return new BindingContextManagerEx();
         }
@@ -132,7 +136,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         /// <summary>
         ///     Gets the <see cref="IBindingResourceResolver" /> that will be used by default.
         /// </summary>
-        protected override IBindingResourceResolver GetBindingResourceResolver()
+        protected override IBindingResourceResolver GetBindingResourceResolver(IModuleContext context)
         {
             var resolver = BindingServiceProvider.ResourceResolver as BindingResourceResolver;
             return resolver == null

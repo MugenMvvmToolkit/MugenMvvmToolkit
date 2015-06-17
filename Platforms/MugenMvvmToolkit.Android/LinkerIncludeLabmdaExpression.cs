@@ -25,7 +25,13 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit
+#if TOUCH
+namespace MugenMvvmToolkit.iOS
+#elif ANDROID
+namespace MugenMvvmToolkit.Android
+#elif XAMARIN_FORMS
+namespace MugenMvvmToolkit.Xamarin.Forms
+#endif
 {
     internal static partial class LinkerInclude
     {

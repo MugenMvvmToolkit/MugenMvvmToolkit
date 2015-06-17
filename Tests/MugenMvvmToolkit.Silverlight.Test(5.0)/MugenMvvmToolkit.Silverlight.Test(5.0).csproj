@@ -513,9 +513,9 @@
       <Project>{c1efe5be-d2b0-4b3f-ae95-fb4eb46eb0fa}</Project>
       <Name>MugenMvvmToolkit.NinjectContainer%28SL5%29</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.Binding.Silverlight%285.0%29\MugenMvvmToolkit.Binding.Silverlight%285.0%29.csproj">
+    <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.Silverlight.Binding%285.0%29\MugenMvvmToolkit.Silverlight.Binding%285.0%29.csproj">
       <Project>{05fe347f-2cb2-46ce-a2b7-73f6410bf13a}</Project>
-      <Name>MugenMvvmToolkit.Binding.Silverlight%285.0%29</Name>
+      <Name>MugenMvvmToolkit.Silverlight.Binding%285.0%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.Silverlight%285.0%29\MugenMvvmToolkit.Silverlight%285.0%29.csproj">
       <Project>{f50a09d0-6c2b-4f08-9a42-67146bfaece9}</Project>

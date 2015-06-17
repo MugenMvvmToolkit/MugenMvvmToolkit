@@ -22,15 +22,16 @@ using Android.Content;
 using Android.Content.Res;
 using Android.Util;
 using Android.Views;
+using MugenMvvmToolkit.Android.Binding;
+using MugenMvvmToolkit.Android.DataConstants;
+using MugenMvvmToolkit.Android.Interfaces;
+using MugenMvvmToolkit.Android.Models;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.Android.Infrastructure
 {
     public class ViewFactory : IViewFactory
     {
@@ -89,7 +90,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 ViewFactoryConstants.ItemTemplateId);
 
             SetAttributeValue(view, context, attrs, Resource.Styleable.ItemsControl,
-                Resource.Styleable.ItemsControl_DropDownItemTemplate, AttachedMemberNames.DropDownItemTemplate,
+                Resource.Styleable.ItemsControl_DropDownItemTemplate, AttachedMembers.AdapterView.DropDownItemTemplate,
                 dataContext,
                 ViewFactoryConstants.DropDownItemTemplateId);
 
@@ -98,12 +99,12 @@ namespace MugenMvvmToolkit.Infrastructure
                 ViewFactoryConstants.ContentTemplateId);
 
             SetAttributeValue(view, context, attrs, Resource.Styleable.Menu,
-                Resource.Styleable.Menu_MenuTemplate, AttachedMemberNames.MenuTemplate, dataContext,
+                Resource.Styleable.Menu_MenuTemplate, AttachedMembers.Toolbar.MenuTemplate, dataContext,
                 ViewFactoryConstants.MenuTemplateId);
 
 
             SetAttributeValue(view, context, attrs, Resource.Styleable.Menu,
-                Resource.Styleable.Menu_PopupMenuTemplate, AttachedMemberNames.PopupMenuTemplate, dataContext,
+                Resource.Styleable.Menu_PopupMenuTemplate, AttachedMembers.View.PopupMenuTemplate, dataContext,
                 ViewFactoryConstants.PopupMenuTemplateId);
 
             strings = ReadStringAttributeValue(context, attrs, Resource.Styleable.Menu,
@@ -114,7 +115,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 dataContext.Add(ViewFactoryConstants.PopupMenuEvent, eventName);
                 IBindingMemberInfo member = BindingServiceProvider
                     .MemberProvider
-                    .GetBindingMember(view.GetType(), AttachedMemberNames.PopupMenuEvent, false, false);
+                    .GetBindingMember(view.GetType(), AttachedMembers.View.PopupMenuEvent, false, false);
                 if (member != null)
                     member.SetValue(view, new object[] { eventName });
             }
@@ -127,7 +128,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 dataContext.Add(ViewFactoryConstants.PlacementTargetPath, path);
                 IBindingMemberInfo member = BindingServiceProvider
                     .MemberProvider
-                    .GetBindingMember(view.GetType(), AttachedMemberNames.PlacementTargetPath, false, false);
+                    .GetBindingMember(view.GetType(), AttachedMembers.View.PopupMenuPlacementTargetPath, false, false);
                 if (member != null)
                     member.SetValue(view, new object[] { path });
             }

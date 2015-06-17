@@ -23,19 +23,21 @@ using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Infrastructure.Navigation;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
+using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation;
+using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation;
+using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Views;
 using Xamarin.Forms;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 {
     /// <summary>
     ///     Represents the base class that is used to start MVVM application.

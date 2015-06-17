@@ -96,7 +96,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             var source = new BindingSourceModel();
             var accessor = new MultiBindingSourceAccessor(new[] { CreateSource(source, BindingSourceModel.EventName) },
                     (context, list) => memberMock, EmptyContext);
-            var memberValue = (BindingMemberValue)accessor.GetValue(memberMock, EmptyContext, true);
+            var memberValue = (BindingActionValue)accessor.GetValue(memberMock, EmptyContext, true);
             memberValue.GetValue(new object[] { null, null }).ShouldEqual(memberMock);
         }
 

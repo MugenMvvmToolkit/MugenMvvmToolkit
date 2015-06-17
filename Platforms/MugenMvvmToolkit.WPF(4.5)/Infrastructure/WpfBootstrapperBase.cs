@@ -25,20 +25,21 @@ using System.Windows.Controls;
 using System.Windows.Navigation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Infrastructure.Mediators;
-using MugenMvvmToolkit.Infrastructure.Navigation;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Modules;
 using MugenMvvmToolkit.ViewModels;
+using MugenMvvmToolkit.WPF.Infrastructure.Mediators;
+using MugenMvvmToolkit.WPF.Infrastructure.Navigation;
+using MugenMvvmToolkit.WPF.Interfaces.Navigation;
+using MugenMvvmToolkit.WPF.Modules;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.WPF.Infrastructure
 {
     /// <summary>
     ///     Represents the base class that is used to start MVVM application.

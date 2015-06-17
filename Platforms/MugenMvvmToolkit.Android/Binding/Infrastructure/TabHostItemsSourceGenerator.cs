@@ -24,18 +24,20 @@ using Android.OS;
 using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding.Interfaces;
+using MugenMvvmToolkit.Android.Interfaces.Views;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models.EventArg;
 using Object = Java.Lang.Object;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
-    internal sealed class TabHostItemsSourceGenerator : ItemsSourceGeneratorBase
+    internal sealed class TabHostItemsSourceGenerator : ItemsSourceGeneratorBase, IItemsSourceGeneratorEx
     {
         #region Nested types
 
@@ -153,7 +155,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             RemoveTabDelegate = RemoveTab;
         }
 
-        private TabHostItemsSourceGenerator([NotNull] TabHost tabHost)
+        internal TabHostItemsSourceGenerator([NotNull] TabHost tabHost)
         {
             Should.NotBeNull(tabHost, "tabHost");
             TabHost = tabHost;
@@ -272,13 +274,20 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #endregion
 
-        #region Methods
+        #region Implementation of IItemsSourceGeneratorEx
 
-        public static IItemsSourceGenerator GetOrAdd(TabHost tabHost)
+        /// <summary>
+        ///     Gets or sets the selected item.
+        /// </summary>
+        public object SelectedItem
         {
-            return ServiceProvider.AttachedValueProvider.GetOrAdd(tabHost, Key,
-                (host, o) => new TabHostItemsSourceGenerator(host), null);
+            get { return TabHost.GetBindingMemberValue(AttachedMembers.TabHost.SelectedItem); }
+            set { SetSelectedItem(value); }
         }
+
+        #endregion
+
+        #region Methods
 
         public void SetSelectedItem(object selectedItem, IDataContext context = null)
         {
@@ -367,7 +376,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _tabToContent[id] = tabInfo;
             SetIndicator(spec, item);
             spec.SetContent(_tabFactory);
-            BindingServiceProvider.ContextManager.GetBindingContext(spec).Value = item;
+            spec.SetDataContext(item);
             return tabInfo;
         }
 

@@ -16,9 +16,11 @@
 
 #endregion
 
+using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Infrastructure
 {
     public class BindingContextManagerEx : BindingContextManager
     {

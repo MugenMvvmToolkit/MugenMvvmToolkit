@@ -25,9 +25,9 @@ using Android.Content;
 using Android.Runtime;
 using Android.Views;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Android.Binding.Models;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
     public class BindableMenuInflater : MenuInflater
     {

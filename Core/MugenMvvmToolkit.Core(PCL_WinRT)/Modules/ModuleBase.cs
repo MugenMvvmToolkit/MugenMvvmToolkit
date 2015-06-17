@@ -124,7 +124,7 @@ namespace MugenMvvmToolkit.Modules
         public bool Load(IModuleContext context)
         {
             Should.NotBeNull(context, "context");
-            if (!_supportedModes.HasFlagEx(context.Mode))
+            if ((_supportedModes & context.Mode) == 0)
                 return false;
             if (!_iocContainerCanBeNull && context.IocContainer == null)
                 return false;
@@ -141,6 +141,7 @@ namespace MugenMvvmToolkit.Modules
                 {
                     _context = null;
                     _iocContainer = null;
+                    _mode = default(LoadMode);
                 }
             }
         }
@@ -151,7 +152,7 @@ namespace MugenMvvmToolkit.Modules
         public void Unload(IModuleContext context)
         {
             Should.NotBeNull(context, "context");
-            if (context.IocContainer == null)
+            if (!_iocContainerCanBeNull && context.IocContainer == null)
                 return;
             lock (_locker)
             {
@@ -166,6 +167,7 @@ namespace MugenMvvmToolkit.Modules
                 {
                     _context = null;
                     _iocContainer = null;
+                    _mode = default(LoadMode);
                 }
             }
         }

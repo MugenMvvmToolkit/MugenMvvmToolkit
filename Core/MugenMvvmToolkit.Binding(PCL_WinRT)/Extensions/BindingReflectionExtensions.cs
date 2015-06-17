@@ -61,6 +61,8 @@ namespace MugenMvvmToolkit.Binding
 
         #region Fields
 
+        internal static readonly string[] CommaSeparator;
+
 #if PCL_WINRT
         private static readonly Dictionary<Type, TypeCode> TypeCodeTable;
 #endif
@@ -73,6 +75,7 @@ namespace MugenMvvmToolkit.Binding
 
         static BindingReflectionExtensions()
         {
+            CommaSeparator = new[] { "," };
 #if PCL_WINRT
             TypeCodeTable = new Dictionary<Type, TypeCode>
             {
@@ -100,11 +103,6 @@ namespace MugenMvvmToolkit.Binding
         #endregion
 
         #region Methods
-
-        public static bool IsOverride(this MethodInfo method, Type baseType)
-        {
-            return method != null && method.DeclaringType != baseType;
-        }
 
         internal static object GetDefaultValue(this Type type)
         {
@@ -562,14 +560,17 @@ namespace MugenMvvmToolkit.Binding
 
         internal static object[] GetIndexerValues(string path, IList<ParameterInfo> parameters = null, Type castType = null)
         {
-            string replace = path.Replace("[", string.Empty).Replace("]", string.Empty);
-            var strings = replace.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
-            var result = new object[strings.Length];
-            for (int i = 0; i < strings.Length; i++)
+            var args = path
+                .RemoveBounds()
+                .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries);
+            var result = new object[args.Length];
+            for (int i = 0; i < args.Length; i++)
             {
-                var s = strings[i];
+                var s = args[i];
                 if (parameters != null)
                     castType = parameters[i].ParameterType;
+                if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
+                    s = s.RemoveBounds();
                 result[i] = s == "null" ? null : BindingServiceProvider.ValueConverter(BindingMemberInfo.Empty, castType, s);
             }
             return result;

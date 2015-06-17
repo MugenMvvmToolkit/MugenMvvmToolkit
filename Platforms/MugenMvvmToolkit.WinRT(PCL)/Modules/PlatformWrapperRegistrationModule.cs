@@ -32,8 +32,11 @@ using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Modules;
+using MugenMvvmToolkit.WinRT.Interfaces.Views;
+using MugenMvvmToolkit.WinRT.Models;
 
-namespace MugenMvvmToolkit.Modules
+namespace MugenMvvmToolkit.WinRT.Modules
 {
     public class PlatformWrapperRegistrationModule : WrapperRegistrationModuleBase
     {

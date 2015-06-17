@@ -2,6 +2,9 @@
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MugenMvvmToolkit.Binding.Converters;
+using MugenMvvmToolkit.Silverlight.Binding.Converters;
+using MugenMvvmToolkit.WinRT.Binding.Converters;
+using MugenMvvmToolkit.WPF.Binding.Converters;
 using Should;
 #if NETFX_CORE
 using Windows.UI.Xaml;

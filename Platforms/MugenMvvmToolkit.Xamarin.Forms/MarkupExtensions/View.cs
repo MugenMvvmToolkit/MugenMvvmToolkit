@@ -23,7 +23,7 @@ using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using Xamarin.Forms;
 
-namespace MugenMvvmToolkit.MarkupExtensions
+namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
 {
     public static class View
     {

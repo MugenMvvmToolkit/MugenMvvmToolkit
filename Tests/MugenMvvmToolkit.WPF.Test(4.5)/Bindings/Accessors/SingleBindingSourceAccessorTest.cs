@@ -119,7 +119,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
         }
 
         [TestMethod]
-        public void GetValueShouldReturnActualValueIndexer()
+        public void GetValueShouldReturnActualValueIndexer1()
         {
             var memberMock = new BindingMemberInfoMock();
             var sourceModel = new BindingSourceModel();
@@ -128,6 +128,16 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             valueAccessor.GetValue(memberMock, EmptyContext, true).ShouldEqual(sourceModel["test"]);
             sourceModel["test"] = propertyName;
             valueAccessor.GetValue(memberMock, EmptyContext, true).ShouldEqual(propertyName);
+        }
+
+        [TestMethod]
+        public void GetValueShouldReturnActualValueIndexer2()
+        {
+            var memberMock = new BindingMemberInfoMock();
+            var sourceModel = new BindingSourceModel();
+            string propertyName = GetMemberPath<BindingSourceModel>(model => model[int.MaxValue]);
+            var valueAccessor = GetAccessor(sourceModel, propertyName, EmptyContext, true);
+            valueAccessor.GetValue(memberMock, EmptyContext, true).ShouldEqual(int.MaxValue);
         }
 
         [TestMethod]
@@ -687,7 +697,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             var srcAccessor = new BindingSourceAccessorMock();
             var sourceModel = new BindingSourceModel();
             string propertyName = GetMemberPath<BindingSourceModel>(model => model.IntProperty);
-            var valueAccessor = GetAccessor(sourceModel, propertyName, EmptyContext, true);            
+            var valueAccessor = GetAccessor(sourceModel, propertyName, EmptyContext, true);
             BindingServiceProvider.ValueConverter = null;
 
             srcAccessor.GetValue = (info, context, arg3) =>
@@ -695,7 +705,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
                 context.ShouldEqual(EmptyContext);
                 return int.MaxValue.ToString();
             };
-            ShouldThrow<InvalidCastException>(() => valueAccessor.SetValue(srcAccessor, EmptyContext, true));            
+            ShouldThrow<InvalidCastException>(() => valueAccessor.SetValue(srcAccessor, EmptyContext, true));
         }
 
 #if !NETFX_CORE
@@ -760,7 +770,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             var memberMock = new BindingMemberInfoMock();
             var source = new BindingSourceModel();
             var accessor = GetAccessor(source, BindingSourceModel.EventName, EmptyContext, true);
-            var memberValue = (BindingMemberValue)accessor.GetValue(memberMock, EmptyContext, true);
+            var memberValue = (BindingActionValue)accessor.GetValue(memberMock, EmptyContext, true);
             memberValue.MemberSource.Target.ShouldEqual(source);
             memberValue.Member.MemberType.ShouldEqual(BindingMemberType.Event);
         }

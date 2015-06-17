@@ -9,7 +9,10 @@ using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Silverlight.Infrastructure;
 using MugenMvvmToolkit.Test.TestInfrastructure;
+using MugenMvvmToolkit.WinRT.Infrastructure;
+using MugenMvvmToolkit.WPF.Infrastructure;
 
 namespace MugenMvvmToolkit.Test
 {

@@ -47,6 +47,7 @@ namespace MugenMvvmToolkit.Binding
         private static readonly List<string> FakeMemberPrefixesField;
         private static readonly ICollection<string> DataContextMemberAliasesField;
         private static Func<string, IBindingPath> _bindingPathFactory;
+        private static Func<Type, string, IBindingMemberInfo> _updateEventFinder;
 
         #endregion
 
@@ -73,8 +74,8 @@ namespace MugenMvvmToolkit.Binding
             };
             SetDefaultValues();
             ServiceProvider.InitializeDesignTimeManager();
-            ViewManager.GetDataContext = o => ContextManager.GetBindingContext(o).Value;
-            ViewManager.SetDataContext = (o, o1) => ContextManager.GetBindingContext(o).Value = o1;
+            ViewManager.GetDataContext = BindingExtensions.GetDataContext;
+            ViewManager.SetDataContext = BindingExtensions.SetDataContext;
         }
 
         #endregion
@@ -115,6 +116,16 @@ namespace MugenMvvmToolkit.Binding
         {
             get { return _valueConverter; }
             set { _valueConverter = value ?? ((member, type, o) => o); }
+        }
+
+        /// <summary>
+        ///     Gets or sets the delegate that allows to find a member update event.
+        /// </summary>
+        [NotNull]
+        public static Func<Type, string, IBindingMemberInfo> UpdateEventFinder
+        {
+            get { return _updateEventFinder; }
+            set { _updateEventFinder = value ?? FindUpdateEvent; }
         }
 
         /// <summary>
@@ -255,6 +266,7 @@ namespace MugenMvvmToolkit.Binding
 
         internal static void SetDefaultValues()
         {
+            _updateEventFinder = FindUpdateEvent;
             _bindingPathFactory = BindingPath.Create;
             _valueConverter = BindingReflectionExtensions.Convert;
             _resourceResolver = new BindingResourceResolver();
@@ -265,6 +277,16 @@ namespace MugenMvvmToolkit.Binding
             _bindingProvider = new BindingProvider();
             _observerProvider = new ObserverProvider();
             _contextManager = new BindingContextManager();
+        }
+
+        private static IBindingMemberInfo FindUpdateEvent(Type type, string memberName)
+        {
+            IBindingMemberInfo member = MemberProvider.GetBindingMember(type, memberName + "Changed", false, false);
+            if (member == null || member.MemberType != BindingMemberType.Event)
+                member = MemberProvider.GetBindingMember(type, memberName + "Change", false, false);
+            if (member == null || member.MemberType != BindingMemberType.Event)
+                return null;
+            return member;
         }
 
         #endregion

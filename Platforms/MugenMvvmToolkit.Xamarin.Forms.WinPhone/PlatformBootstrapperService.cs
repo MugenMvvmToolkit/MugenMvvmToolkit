@@ -19,13 +19,18 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Parse;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Xamarin.Forms.Infrastructure;
 
-namespace MugenMvvmToolkit
+#if WINDOWS_PHONE
+namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone
+#elif TOUCH
+namespace MugenMvvmToolkit.Xamarin.Forms.iOS
+#else
+namespace MugenMvvmToolkit.Xamarin.Forms.Android
+#endif
 {
     internal sealed class PlatformBootstrapperService : XamarinFormsBootstrapperBase.IPlatformService
     {
@@ -48,15 +53,15 @@ namespace MugenMvvmToolkit
         public PlatformInfo GetPlatformInfo()
         {
 #if WINDOWS_PHONE
-            return new PlatformInfo(PlatformType.WinPhone, Environment.OSVersion.Version);
+            return new PlatformInfo(PlatformType.XamarinFormsWinPhone, Environment.OSVersion.Version);
 #elif TOUCH
             Version result;
             Version.TryParse(UIKit.UIDevice.CurrentDevice.SystemVersion, out result);
-            return new PlatformInfo(PlatformType.iOS, result);
+            return new PlatformInfo(PlatformType.XamarinFormsiOS, result);
 #else
             Version result;
-            Version.TryParse(Android.OS.Build.VERSION.Release, out result);
-            return new PlatformInfo(PlatformType.Android, result);
+            Version.TryParse(global::Android.OS.Build.VERSION.Release, out result);
+            return new PlatformInfo(PlatformType.XamarinFormsAndroid, result);
 #endif
 
         }

@@ -22,12 +22,12 @@ using System.Runtime.Serialization;
 using System.Threading;
 using Windows.UI.Xaml.Navigation;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.WinRT.Interfaces;
 using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
-namespace MugenMvvmToolkit
+namespace MugenMvvmToolkit.WinRT
 {
     /// <summary>
     /// Represents the platform specific extensions.

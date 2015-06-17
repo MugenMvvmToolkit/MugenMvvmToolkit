@@ -23,7 +23,7 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Infrastructure.Presenters
+namespace MugenMvvmToolkit.WPF.Infrastructure.Presenters
 {
     /// <summary>
     ///     Represents the base implementation of <see cref="IMessagePresenter" />.

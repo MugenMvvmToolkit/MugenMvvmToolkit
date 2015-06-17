@@ -872,9 +872,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             @event.Member.ShouldBeNull();
             @event.MemberType.ShouldEqual(BindingMemberType.Event);
 
-            @event.GetValue(source, null).ShouldBeType<BindingMemberValue>();
+            @event.GetValue(source, null).ShouldBeType<BindingActionValue>();
             @event.SetValue(source, new object[] { listener });
-            var value = (BindingMemberValue)@event.GetValue(source, null);
+            var value = (BindingActionValue)@event.GetValue(source, null);
             value.Member.ShouldEqual(@event);
             value.MemberSource.Target.ShouldEqual(source);
         }
@@ -893,9 +893,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
             @event.Member.ShouldBeNull();
             @event.MemberType.ShouldEqual(BindingMemberType.Event);
 
-            @event.GetValue(source, null).ShouldBeType<BindingMemberValue>();
+            @event.GetValue(source, null).ShouldBeType<BindingActionValue>();
             @event.SetValue(source, new object[] { listener });
-            var value = (BindingMemberValue)@event.GetValue(source, null);
+            var value = (BindingActionValue)@event.GetValue(source, null);
             value.Member.ShouldEqual(@event);
             value.MemberSource.Target.ShouldEqual(source);
         }

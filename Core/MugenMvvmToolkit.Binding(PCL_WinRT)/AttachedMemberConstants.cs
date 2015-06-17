@@ -49,6 +49,11 @@ namespace MugenMvvmToolkit.Binding
         public const string Parent = "Parent";
 
         /// <summary>
+        ///     Gets the name of explicit parent member.
+        /// </summary>
+        public const string ParentExplicit = "ParentExplicit";
+
+        /// <summary>
         ///     Gets the name of member that will be used by GetRootMember method.
         /// </summary>
         public const string RootElement = "#RootElement";

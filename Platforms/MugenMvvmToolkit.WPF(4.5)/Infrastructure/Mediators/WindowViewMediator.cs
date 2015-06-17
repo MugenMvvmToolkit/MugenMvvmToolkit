@@ -17,18 +17,23 @@
 #endregion
 
 using System.ComponentModel;
-#if WPF
-using System.Windows.Navigation;
-#endif
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
+#if WPF
+using System.Windows.Navigation;
+using MugenMvvmToolkit.WPF.Interfaces.Views;
 
-namespace MugenMvvmToolkit.Infrastructure.Mediators
+namespace MugenMvvmToolkit.WPF.Infrastructure.Mediators
+#elif WINFORMS
+using MugenMvvmToolkit.WinForms.Interfaces.Views;
+
+namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
+#endif
 {
     /// <summary>
     ///     Represents the mediator class for dialog view.
@@ -117,7 +122,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 if (_window == null)
                     return base.ViewModel;
                 if (ThreadManager.IsUiThread)
-                    return Infrastructure.ViewManager.GetDataContext(_window.Content) as IViewModel ?? base.ViewModel;
+                    return MugenMvvmToolkit.Infrastructure.ViewManager.GetDataContext(_window.Content) as IViewModel ?? base.ViewModel;
                 return base.ViewModel;
             }
         }

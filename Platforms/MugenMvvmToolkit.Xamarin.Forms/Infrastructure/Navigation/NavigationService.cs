@@ -21,17 +21,20 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation;
+using MugenMvvmToolkit.Xamarin.Forms.Models.EventArg;
 using Xamarin.Forms;
 using NavigationEventArgs = Xamarin.Forms.NavigationEventArgs;
 
-namespace MugenMvvmToolkit.Infrastructure.Navigation
+namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 {
     public class NavigationService : INavigationService
     {
@@ -58,8 +61,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         #endregion
 
         #region Properties
-
-        public bool IgnoreClearBackStackHint { get; set; }
 
         public bool UseAnimations { get; set; }
 
@@ -104,7 +105,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             if (_rootPage != null)
             {
                 bool animated;
-                var viewModel = CurrentContent == null ? null : ViewManager.GetDataContext(CurrentContent) as IViewModel;
+                var viewModel = CurrentContent == null ? null : CurrentContent.GetDataContext() as IViewModel;
                 if (viewModel == null || !viewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out animated))
                     animated = UseAnimations;
                 _rootPage.PopAsync(animated);
@@ -149,6 +150,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// </summary>
         public object GetParameterFromArgs(EventArgs args)
         {
+            Should.NotBeNull(args, "args");
             var cancelArgs = args as NavigatingCancelEventArgs;
             if (cancelArgs == null)
             {
@@ -165,14 +167,15 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         /// </summary>
         public bool Navigate(NavigatingCancelEventArgsBase args, IDataContext context)
         {
+            Should.NotBeNull(args, "args");
             if (!args.IsCancelable)
                 return false;
-            var eventArgs = ((NavigatingCancelEventArgs)args);
-            if (eventArgs.NavigationMode == NavigationMode.Back)
+            if (args.NavigationMode == NavigationMode.Back)
             {
                 GoBack();
                 return true;
             }
+            var eventArgs = ((NavigatingCancelEventArgs)args);
             // ReSharper disable once AssignNullToNotNullAttribute
             return Navigate(eventArgs.Mapping, eventArgs.Parameter, context);
         }
@@ -220,6 +223,47 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             page.SetNavigationParameter(parameter);
             ClearNavigationStackIfNeed(dataContext, page, _rootPage.PushAsync(page, animated));
             return true;
+        }
+
+        /// <summary>
+        ///     Determines whether the specified command <c>CloseCommand</c> can be execute.
+        /// </summary>
+        public bool CanClose(IViewModel viewModel, IDataContext dataContext)
+        {
+            Should.NotBeNull(viewModel, "viewModel");
+            var navigation = _rootPage.Navigation;
+            if (navigation == null)
+                return false;
+            foreach (var page in navigation.NavigationStack)
+            {
+                if (page.GetDataContext() == viewModel)
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        ///     Tries to close view-model page.
+        /// </summary>
+        public bool TryClose(IViewModel viewModel, IDataContext dataContext)
+        {
+            Should.NotBeNull(viewModel, "viewModel");
+            var navigation = _rootPage.Navigation;
+            if (navigation == null)
+                return false;
+            bool result = false;
+            var pages = navigation.NavigationStack.ToList();
+            for (int i = 0; i < pages.Count; i++)
+            {
+                var toRemove = pages[i];
+                if (toRemove.GetDataContext() == viewModel)
+                {
+                    navigation.RemovePage(toRemove);
+                    result = true;
+                    --i;
+                }
+            }
+            return result;
         }
 
         /// <summary>
@@ -279,7 +323,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         private void ClearNavigationStackIfNeed(IDataContext context, Page page, Task task)
         {
             var navigation = _rootPage.Navigation;
-            if (IgnoreClearBackStackHint || navigation == null || context == null || !context.GetData(NavigationConstants.ClearBackStack))
+            if (navigation == null || context == null || !context.GetData(NavigationConstants.ClearBackStack))
                 return;
             task.TryExecuteSynchronously(t =>
             {

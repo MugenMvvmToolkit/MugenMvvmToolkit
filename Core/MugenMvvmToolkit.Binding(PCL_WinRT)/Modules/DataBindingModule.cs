@@ -25,6 +25,8 @@ using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Binding.Models.EventArg;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
@@ -37,13 +39,116 @@ namespace MugenMvvmToolkit.Binding.Modules
     /// </summary>
     public class DataBindingModule : IModule
     {
+        #region Nested types
+
+        private struct ParentValue
+        {
+            #region Fields
+
+            private readonly object _attachedParent;
+            private readonly IBindingMemberInfo _parentMember;
+
+            #endregion
+
+            #region Constructors
+
+            public ParentValue(object attachedParent, IBindingMemberInfo parentMember)
+            {
+                _attachedParent = attachedParent;
+                _parentMember = parentMember;
+            }
+
+            #endregion
+
+            #region Methods
+
+            public ParentValue UpdateAttachedParent(object attachedParent)
+            {
+                return new ParentValue(attachedParent, _parentMember);
+            }
+
+            public object GetParent(object source)
+            {
+                if (_parentMember == null)
+                    return _attachedParent;
+                return _parentMember.GetValue(source, Empty.Array<object>()) ?? _attachedParent;
+            }
+
+            #endregion
+        }
+
+        private sealed class ExplicitParentListener : IEventListener
+        {
+            #region Fields
+
+            private readonly static ExplicitParentListener Instance;
+
+            #endregion
+
+            #region Constructors
+
+            static ExplicitParentListener()
+            {
+                Instance = new ExplicitParentListener();
+            }
+
+            private ExplicitParentListener()
+            {
+            }
+
+            #endregion
+
+            #region Implementation of IEventListener
+
+            public bool IsAlive
+            {
+                get { return true; }
+            }
+
+            public bool IsWeak
+            {
+                get { return true; }
+            }
+
+            public bool TryHandle(object sender, object message)
+            {
+                AttachedParentMember.Raise(sender, message);
+                return true;
+            }
+
+            #endregion
+
+            #region Methods
+
+            public static bool SetParentValue(object o)
+            {
+                var member = BindingServiceProvider
+                    .MemberProvider
+                    .GetBindingMember(o.GetType(), AttachedMemberConstants.ParentExplicit, false, false) ??
+                             BindingServiceProvider
+                                 .MemberProvider
+                                 .GetBindingMember(o.GetType(), AttachedMemberConstants.Parent, true, false);
+                if (member == null)
+                    return false;
+                AttachedParentMember.SetValue(o, new ParentValue(null, member));
+                member.TryObserve(o, Instance);
+                return true;
+            }
+
+            #endregion
+
+        }
+
+        #endregion
+
         #region Fields
 
         private static bool _isLoaded;
         private const string ErrorProviderErrors = "SetBindingErrors";
-        private static readonly HashSet<Type> ImplicitParentTypes;
+        private static readonly HashSet<Type> ExplicitParentTypes;
         private static readonly bool DebbugerAttached;
         private static readonly IAttachedBindingMemberInfo<object, object> CommandParameterInternal;
+        private static readonly INotifiableAttachedBindingMemberInfo<object, ParentValue> AttachedParentMember;
 
         #endregion
 
@@ -52,8 +157,9 @@ namespace MugenMvvmToolkit.Binding.Modules
         static DataBindingModule()
         {
             DebbugerAttached = Debugger.IsAttached;
-            ImplicitParentTypes = new HashSet<Type>();
+            ExplicitParentTypes = new HashSet<Type>();
             CommandParameterInternal = AttachedBindingMember.CreateAutoProperty<object, object>("~#@cmdparam");
+            AttachedParentMember = AttachedBindingMember.CreateAutoProperty<object, ParentValue>("#" + AttachedMemberConstants.Parent);
         }
 
         #endregion
@@ -77,37 +183,17 @@ namespace MugenMvvmToolkit.Binding.Modules
             if (!CanLoad(context))
                 return false;
 
-            InitilaizeServices();
-
-            if (!_isLoaded || GetType().GetMethodEx("RegisterType", MemberFlags.Instance | MemberFlags.NonPublic).IsOverride(typeof(DataBindingModule)))
+            InitilaizeServices(context);
+            var assemblies = context.Assemblies;
+            for (int i = 0; i < assemblies.Count; i++)
             {
-                var assemblies = context.Assemblies;
-                for (int i = 0; i < assemblies.Count; i++)
-                {
-                    var types = assemblies[i].SafeGetTypes(!context.Mode.IsDesignMode());
-                    for (int j = 0; j < types.Count; j++)
-                        RegisterType(types[j]);
-                }
+                var types = assemblies[i].SafeGetTypes(!context.Mode.IsDesignMode());
+                for (int j = 0; j < types.Count; j++)
+                    RegisterType(types[j]);
             }
-
             if (!_isLoaded)
             {
-                var memberProvider = BindingServiceProvider.MemberProvider;
-                memberProvider
-                    .Register(AttachedBindingMember
-                        .CreateMember<object, object>(AttachedMemberConstants.CommandParameter, GetCommandParameter,
-                            SetCommandParameter, ObserveCommandParameter));
-                memberProvider
-                    .Register(AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.Parent,
-                        GetParent, SetParent, ObserveParent));
-                memberProvider.Register(AttachedBindingMember.CreateAutoProperty<object, IEnumerable<object>>(
-                        AttachedMemberConstants.ErrorsPropertyMember, getDefaultValue: (o, info) => Empty.Array<object>()));
-                memberProvider.Register(AttachedBindingMember.CreateMember<object, bool>("HasErrors", GetHasErrors, null, ObserveHasErrors));
-                memberProvider.Register(AttachedBindingMember.CreateMember<object, object>("Root", GetRootMember, null, ObserveRootMember));
-                var setErrorsMember = AttachedBindingMember.CreateMember<object, IEnumerable<object>>(ErrorProviderErrors, getValue: null,
-                    setValue: SetErrorProviderErrors);
-                memberProvider.Register(setErrorsMember);
-                memberProvider.Register(typeof(object), "BindingErrorProvider.Errors", setErrorsMember, true);
+                RegisterDefaultMembers();
                 _isLoaded = true;
             }
 
@@ -150,10 +236,12 @@ namespace MugenMvvmToolkit.Binding.Modules
         }
 
         /// <summary>
-        ///     Tries to register type.
+        /// Tries to register type.
         /// </summary>
         protected virtual void RegisterType(Type type)
         {
+            if (_isLoaded)
+                return;
             if (!typeof(IBindingValueConverter).IsAssignableFrom(type) || !type.IsPublicNonAbstractClass())
                 return;
             var constructor = type.GetConstructor(Empty.Array<Type>());
@@ -169,7 +257,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         ///     Gets the <see cref="IBindingErrorProvider" /> that will be used by default.
         /// </summary>
         [CanBeNull]
-        protected virtual IBindingErrorProvider GetBindingErrorProvider()
+        protected virtual IBindingErrorProvider GetBindingErrorProvider(IModuleContext context)
         {
             return new BindingErrorProviderBase();
         }
@@ -178,7 +266,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         ///     Gets the <see cref="IBindingProvider" /> that will be used by default.
         /// </summary>
         [CanBeNull]
-        protected virtual IBindingProvider GetBindingProvider()
+        protected virtual IBindingProvider GetBindingProvider(IModuleContext context)
         {
             return null;
         }
@@ -187,7 +275,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         ///     Gets the <see cref="IBindingManager" /> that will be used by default.
         /// </summary>
         [CanBeNull]
-        protected virtual IBindingManager GetBindingManager()
+        protected virtual IBindingManager GetBindingManager(IModuleContext context)
         {
             return null;
         }
@@ -196,7 +284,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         ///     Gets the <see cref="IBindingMemberProvider" /> that will be used by default.
         /// </summary>
         [CanBeNull]
-        protected virtual IBindingMemberProvider GetBindingMemberProvider()
+        protected virtual IBindingMemberProvider GetBindingMemberProvider(IModuleContext context)
         {
             return null;
         }
@@ -205,7 +293,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         ///     Gets the <see cref="IObserverProvider" /> that will be used by default.
         /// </summary>
         [CanBeNull]
-        protected virtual IObserverProvider GetObserverProvider()
+        protected virtual IObserverProvider GetObserverProvider(IModuleContext context)
         {
             return null;
         }
@@ -214,7 +302,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         ///     Gets the <see cref="IBindingContextManager" /> that will be used by default.
         /// </summary>
         [CanBeNull]
-        protected virtual IBindingContextManager GetBindingContextManager()
+        protected virtual IBindingContextManager GetBindingContextManager(IModuleContext context)
         {
             return null;
         }
@@ -223,7 +311,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         ///     Gets the <see cref="IBindingResourceResolver" /> that will be used by default.
         /// </summary>
         [CanBeNull]
-        protected virtual IBindingResourceResolver GetBindingResourceResolver()
+        protected virtual IBindingResourceResolver GetBindingResourceResolver(IModuleContext context)
         {
             return null;
         }
@@ -232,7 +320,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         ///     Gets the <see cref="IVisualTreeManager" /> that will be used by default.
         /// </summary>
         [CanBeNull]
-        protected virtual IVisualTreeManager GetVisualTreeManager()
+        protected virtual IVisualTreeManager GetVisualTreeManager(IModuleContext context)
         {
             return null;
         }
@@ -241,48 +329,134 @@ namespace MugenMvvmToolkit.Binding.Modules
         ///     Gets the <see cref="IWeakEventManager" /> that will be used by default.
         /// </summary>
         [CanBeNull]
-        protected virtual IWeakEventManager GetWeakEventManager()
+        protected virtual IWeakEventManager GetWeakEventManager(IModuleContext context)
         {
             return null;
         }
 
-        private void InitilaizeServices()
+        private void InitilaizeServices(IModuleContext context)
         {
-            var bindingProvider = GetBindingProvider();
+            var bindingProvider = GetBindingProvider(context);
             if (bindingProvider != null)
                 BindingServiceProvider.BindingProvider = bindingProvider;
 
-            var bindingManager = GetBindingManager();
+            var bindingManager = GetBindingManager(context);
             if (bindingManager != null)
                 BindingServiceProvider.BindingManager = bindingManager;
 
-            var memberProvider = GetBindingMemberProvider();
+            var memberProvider = GetBindingMemberProvider(context);
             if (memberProvider != null)
                 BindingServiceProvider.MemberProvider = memberProvider;
 
-            var observerProvider = GetObserverProvider();
+            var observerProvider = GetObserverProvider(context);
             if (observerProvider != null)
                 BindingServiceProvider.ObserverProvider = observerProvider;
 
-            var contextManager = GetBindingContextManager();
+            var contextManager = GetBindingContextManager(context);
             if (contextManager != null)
                 BindingServiceProvider.ContextManager = contextManager;
 
-            var resourceResolver = GetBindingResourceResolver();
+            var resourceResolver = GetBindingResourceResolver(context);
             if (resourceResolver != null)
                 BindingServiceProvider.ResourceResolver = resourceResolver;
 
-            var visualTreeManager = GetVisualTreeManager();
+            var visualTreeManager = GetVisualTreeManager(context);
             if (visualTreeManager != null)
                 BindingServiceProvider.VisualTreeManager = visualTreeManager;
 
-            var weakEventManager = GetWeakEventManager();
+            var weakEventManager = GetWeakEventManager(context);
             if (weakEventManager != null)
                 BindingServiceProvider.WeakEventManager = weakEventManager;
 
-            var errorProvider = GetBindingErrorProvider();
+            var errorProvider = GetBindingErrorProvider(context);
             if (errorProvider != null)
                 BindingServiceProvider.ErrorProvider = errorProvider;
+        }
+
+        private static IDisposable ObserveParent(IBindingMemberInfo bindingMemberInfo, object o, IEventListener arg3)
+        {
+            return AttachedParentMember.TryObserve(o, arg3);
+        }
+
+        private static object SetParent(IBindingMemberInfo bindingMemberInfo, object o, object[] arg3)
+        {
+            var value = AttachedParentMember.GetValue(o, null);
+            return AttachedParentMember.SetValue(o, value.UpdateAttachedParent(arg3[0]));
+        }
+
+        private static object GetParent(IBindingMemberInfo bindingMemberInfo, object o, object[] arg3)
+        {
+            return AttachedParentMember.GetValue(o, arg3).GetParent(o);
+        }
+
+        private static void ParentAttached(object o, MemberAttachedEventArgs args)
+        {
+            if (!ExplicitParentListener.SetParentValue(o) && DebbugerAttached)
+            {
+                lock (ExplicitParentTypes)
+                {
+                    var type = o.GetType();
+                    if (!ExplicitParentTypes.Contains(type))
+                    {
+                        Tracer.Warn(@"Could not find a 'Parent' property on type '{0}', you should register it, without this the data bindings may not work properly. You can ignore this message if you are using the attached parent member.", type);
+                        ExplicitParentTypes.Add(type);
+                    }
+                }
+            }
+        }
+
+        private static IDisposable ObserveRootMember(IBindingMemberInfo member, object o, IEventListener arg3)
+        {
+            var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(o.GetType());
+            if (rootMember == null)
+                return null;
+            return rootMember.TryObserve(o, arg3);
+        }
+
+        private static object GetRootMember(IBindingMemberInfo member, object o, object[] arg3)
+        {
+            var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(o.GetType());
+            if (rootMember == null)
+                return null;
+            return rootMember.GetValue(o, arg3);
+        }
+
+        private static void RegisterDefaultMembers()
+        {
+            ViewManager.GetDataContext = BindingExtensions.GetDataContext;
+            ViewManager.SetDataContext = BindingExtensions.SetDataContext;
+
+            var memberProvider = BindingServiceProvider.MemberProvider;
+
+            var registration = new DefaultAttachedMemberRegistration<object>(CommandParameterInternal, AttachedMemberConstants.CommandParameter);
+            memberProvider.Register(registration.ToAttachedBindingMember<object>());
+            memberProvider.Register(AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.Parent, GetParent, SetParent, ObserveParent, ParentAttached));
+            memberProvider.Register(AttachedBindingMember.CreateMember<object, object>("Root", GetRootMember, null, ObserveRootMember));
+
+            var errorsMember = AttachedBindingMember.CreateNotifiableMember<object, IEnumerable<object>>(AttachedMemberConstants.ErrorsPropertyMember, GetErrors, SetErrors);
+            memberProvider.Register(AttachedBindingMember.CreateMember<object, bool>("HasErrors", GetHasErrors, null, ObserveHasErrors));
+            memberProvider.Register(typeof(object), ErrorProviderErrors, errorsMember, true);
+            memberProvider.Register(typeof(object), "BindingErrorProvider.Errors", errorsMember, true);
+        }
+
+        private static bool SetErrors(IBindingMemberInfo bindingMemberInfo, object o, IEnumerable<object> errors)
+        {
+            var errorProvider = BindingServiceProvider.ErrorProvider;
+            if (errorProvider == null)
+                return false;
+            var errorsList = errors as IList<object>;
+            if (errorsList == null)
+                errorsList = errors == null ? Empty.Array<object>() : errors.ToArray();
+            errorProvider.SetErrors(o, ErrorProviderErrors, errorsList, DataContext.Empty);
+            return true;
+        }
+
+        private static IEnumerable<object> GetErrors(IBindingMemberInfo bindingMemberInfo, object o)
+        {
+            var errorProvider = BindingServiceProvider.ErrorProvider;
+            if (errorProvider == null)
+                return Empty.Array<object>();
+            return errorProvider.GetErrors(o, string.Empty, DataContext.Empty);
         }
 
         private static bool GetHasErrors(IBindingMemberInfo bindingMemberInfo, object o, object[] arg3)
@@ -304,92 +478,6 @@ namespace MugenMvvmToolkit.Binding.Modules
             if (member == null)
                 return null;
             return member.TryObserve(o, arg3);
-        }
-
-        private static IDisposable ObserveCommandParameter(IBindingMemberInfo bindingMemberInfo, object o, IEventListener arg3)
-        {
-            return GetCommandParameterMember(o).TryObserve(o, arg3);
-        }
-
-        private static object SetCommandParameter(IBindingMemberInfo bindingMemberInfo, object o, object[] arg3)
-        {
-            return GetCommandParameterMember(o).SetValue(o, arg3);
-        }
-
-        private static object GetCommandParameter(IBindingMemberInfo bindingMemberInfo, object o, object[] arg3)
-        {
-            return GetCommandParameterMember(o).GetValue(o, arg3);
-        }
-
-        private static IBindingMemberInfo GetCommandParameterMember(object instance)
-        {
-            return BindingServiceProvider
-                 .MemberProvider
-                 .GetBindingMember(instance.GetType(), AttachedMemberConstants.CommandParameter, true, false) ?? CommandParameterInternal;
-        }
-
-        private static IDisposable ObserveParent(IBindingMemberInfo bindingMemberInfo, object o, IEventListener arg3)
-        {
-            return GetParentMember(o).TryObserve(o, arg3);
-        }
-
-        private static object SetParent(IBindingMemberInfo bindingMemberInfo, object o, object[] arg3)
-        {
-            return GetParentMember(o).SetValue(o, arg3);
-        }
-
-        private static object GetParent(IBindingMemberInfo bindingMemberInfo, object o, object[] arg3)
-        {
-            var member = GetParentMember(o);
-            var value = member.GetValue(o, arg3);
-            if (DebbugerAttached && value == null)
-            {
-                lock (ImplicitParentTypes)
-                {
-                    var type = o.GetType();
-                    if (!ImplicitParentTypes.Contains(type))
-                    {
-                        Tracer.Warn(@"Could not find a 'Parent' property on type '{0}', you should register it, without this the data bindings may not work properly. You can ignore this message if you are using the BindingExtensions.AttachedParentMember property.", type);
-                        ImplicitParentTypes.Add(type);
-                    }
-                }
-            }
-            return value;
-        }
-
-        private static void SetErrorProviderErrors(IBindingMemberInfo bindingMemberInfo, object o, IEnumerable<object> errors)
-        {
-            var errorProvider = BindingServiceProvider.ErrorProvider;
-            if (errorProvider == null)
-                return;
-            var errorsList = errors as IList<object>;
-            if (errorsList == null)
-                errorsList = errors == null ? Empty.Array<object>() : errors.ToArray();
-            errorProvider.SetErrors(o, ErrorProviderErrors, errorsList, DataContext.Empty);
-        }
-
-        private static IDisposable ObserveRootMember(IBindingMemberInfo member, object o, IEventListener arg3)
-        {
-            var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(o.GetType());
-            if (rootMember == null)
-                return null;
-            return rootMember.TryObserve(o, arg3);
-        }
-
-        private static object GetRootMember(IBindingMemberInfo member, object o, object[] arg3)
-        {
-            var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(o.GetType());
-            if (rootMember == null)
-                return null;
-            return rootMember.GetValue(o, arg3);
-        }
-
-        private static IBindingMemberInfo GetParentMember(object instance)
-        {
-            return BindingServiceProvider
-                .MemberProvider
-                .GetBindingMember(instance.GetType(), AttachedMemberConstants.Parent, true, false) ??
-                   BindingExtensions.AttachedParentMember;
         }
 
         #endregion

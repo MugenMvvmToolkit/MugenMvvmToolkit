@@ -20,8 +20,10 @@ using System.ComponentModel;
 using System.Windows;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Views;
+using MugenMvvmToolkit.Modules;
+using MugenMvvmToolkit.WPF.Interfaces.Views;
 
-namespace MugenMvvmToolkit.Modules
+namespace MugenMvvmToolkit.WPF.Modules
 {
     public class PlatformWrapperRegistrationModule : WrapperRegistrationModuleBase
     {

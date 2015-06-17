@@ -9,7 +9,7 @@
     <ProjectTypeGuids>{C089C8C0-30E0-4E22-80C0-CE093F111A43};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MugenMvvmToolkit</RootNamespace>
+    <RootNamespace>MugenMvvmToolkit.Xamarin.Forms.WinPhone</RootNamespace>
     <AssemblyName>MugenMvvmToolkit.Xamarin.Forms.WinPhone</AssemblyName>
     <TargetFrameworkIdentifier>WindowsPhone</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v8.0</TargetFrameworkVersion>
@@ -93,14 +93,14 @@
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Models\ValidationBinder.cs">
-      <Link>Models\ValidationBinder.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.silverlight%285.0%29\infrastructure\presenters\MessagePresenter.cs">
       <Link>Infrastructure\Presenters\MessagePresenter.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\ToastPresenter.cs">
       <Link>Infrastructure\Presenters\ToastPresenter.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Models\ValidationBinder.cs">
+      <Link>Models\ValidationBinder.cs</Link>
     </Compile>
     <Compile Include="Binding\Infrastructure\BindingErrorProvider.cs" />
     <Compile Include="Modules\InitializationModuleEx.cs" />

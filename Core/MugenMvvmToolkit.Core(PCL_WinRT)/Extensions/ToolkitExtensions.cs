@@ -266,12 +266,12 @@ namespace MugenMvvmToolkit
         #region Properties
 
         /// <summary>
-        /// Gets or sets the default duration of <see cref="ToastDuration.Short"/>.
+        ///     Gets or sets the default duration of <see cref="ToastDuration.Short" />.
         /// </summary>
         public static float ShortDuration { get; set; }
 
         /// <summary>
-        /// Gets or sets the default duration of <see cref="ToastDuration.Long"/>.
+        ///     Gets or sets the default duration of <see cref="ToastDuration.Long" />.
         /// </summary>
         public static float LongDuration { get; set; }
 
@@ -619,11 +619,11 @@ namespace MugenMvvmToolkit
             }
             catch (OperationCanceledException e)
             {
-                return CreateExceptionTask<bool>(e, true);
+                return CreateExceptionTask<object>(e, true);
             }
             catch (Exception exception)
             {
-                return CreateExceptionTask<bool>(exception, false);
+                return CreateExceptionTask<object>(exception, false);
             }
         }
 
@@ -668,11 +668,11 @@ namespace MugenMvvmToolkit
             }
             catch (OperationCanceledException e)
             {
-                return CreateExceptionTask<bool>(e, true);
+                return CreateExceptionTask<object>(e, true);
             }
             catch (Exception exception)
             {
-                return CreateExceptionTask<bool>(exception, false);
+                return CreateExceptionTask<object>(exception, false);
             }
         }
 
@@ -717,8 +717,6 @@ namespace MugenMvvmToolkit
                 {
                     case TaskStatus.Canceled:
                         tcs.TrySetCanceled();
-                        break;
-                    case TaskStatus.Created:
                         break;
                     case TaskStatus.Faulted:
                         tcs.TrySetException(task.Exception.InnerExceptions);
@@ -938,10 +936,7 @@ namespace MugenMvvmToolkit
             var array = new TResult[count];
             count = 0;
             foreach (T item in collection)
-            {
-                array[count] = selector(item);
-                count++;
-            }
+                array[count++] = selector(item);
             return array;
         }
 
@@ -961,10 +956,7 @@ namespace MugenMvvmToolkit
             var array = new T[count];
             count = 0;
             foreach (T item in collection)
-            {
-                array[count] = item;
-                count++;
-            }
+                array[count++] = item;
             return array;
         }
 
@@ -1060,16 +1052,16 @@ namespace MugenMvvmToolkit
         {
             Should.NotBeNull(collection, "collection");
             Should.NotBeNull(action, "action");
-            var array = collection as IList<T>;
-            if (array != null)
-            {
-                for (int i = 0; i < array.Count; i++)
-                    action(array[i]);
-            }
-            else
+            var list = collection as IList<T>;
+            if (list == null)
             {
                 foreach (T o in collection)
                     action(o);
+            }
+            else
+            {
+                for (int i = 0; i < list.Count; i++)
+                    action(list[i]);
             }
         }
 
@@ -1431,7 +1423,7 @@ namespace MugenMvvmToolkit
         {
             var hasWeak = item as IHasWeakReference;
             if (hasWeak == null)
-                return ServiceProvider.WeakReferenceFactory(item, true);
+                return ServiceProvider.WeakReferenceFactory(item);
             return hasWeak.WeakReference;
         }
 
@@ -1444,7 +1436,7 @@ namespace MugenMvvmToolkit
                 return defaultValue;
             if (checkHasWeakReference)
                 return GetWeakReference(item);
-            return ServiceProvider.WeakReferenceFactory(item, true);
+            return ServiceProvider.WeakReferenceFactory(item);
         }
 
         /// <returns>
@@ -1485,7 +1477,7 @@ namespace MugenMvvmToolkit
         /// <param name="aggregator">The specified validator aggregator.</param>
         /// <param name="propertyExpresssion">The expression for the property</param>
         /// <param name="errors">The collection of errors</param>
-        public static void SetValidatorErrors<T>([NotNull] this IValidatorAggregator aggregator, Expression<Func<T>> propertyExpresssion, params object[] errors)
+        public static void SetValidatorErrors<T>([NotNull] this IValidatorAggregator aggregator, Func<Expression<Func<T, object>>> propertyExpresssion, params object[] errors)
         {
             aggregator.Validator.SetErrors(propertyExpresssion, errors);
         }
@@ -1520,19 +1512,9 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Clears errors for a property.
         /// </summary>
-        public static void ClearErrors<TModel>([NotNull] this IValidator validator, Expression<Func<TModel, object>> propertyExpresssion)
+        public static void ClearErrors<TModel>([NotNull] this IValidator validator, Func<Expression<Func<TModel, object>>> propertyExpresssion)
         {
             validator.ClearErrors(GetMemberName(propertyExpresssion));
-        }
-
-        /// <summary>
-        ///     Clears errors for a property.
-        /// </summary>
-        public static void ClearErrors<TValue>([NotNull] this IValidator validator,
-            [NotNull] Expression<Func<TValue>> propertyExpresssion)
-        {
-            Should.NotBeNull(validator, "validator");
-            validator.ClearErrors(propertyExpresssion.GetMemberInfo().Name);
         }
 
         /// <summary>
@@ -1605,7 +1587,7 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        /// Suspends the current thread for a specified time.
+        ///     Suspends the current thread for a specified time.
         /// </summary>
         public static void Sleep(int millisecondsTimeout)
         {
@@ -1614,7 +1596,7 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        /// Suspends the current thread for a specified time.
+        ///     Suspends the current thread for a specified time.
         /// </summary>
         public static void Sleep(TimeSpan timeout)
         {
@@ -1724,67 +1706,89 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Checks whether the member names are equal.
         /// </summary>
-        /// <param name="memberName">The specified member name.</param>
-        /// <param name="getMember">The expression to get member.</param>
-        /// <returns>If true member names is equal, otherwise false.</returns>
-        [Pure]
-        public static bool MemberNameEqual<T>(string memberName, [NotNull] Expression<Func<T, object>> getMember)
-        {
-            return getMember.GetMemberInfo().Name.Equals(memberName, StringComparison.Ordinal);
-        }
-
-        /// <summary>
-        ///     Checks whether the properties are equal.
-        /// </summary>
         /// <param name="args">The specified property changed args.</param>
         /// <param name="getProperty">The expression to get property.</param>
         /// <returns>If true property is equal, otherwise false.</returns>
         [Pure]
-        public static bool PropertyNameEqual<T>([NotNull] this PropertyChangedEventArgs args, [NotNull] Expression<Func<T, object>> getProperty)
+        public static bool PropertyNameEqual<T>([NotNull] this PropertyChangedEventArgs args, [NotNull] Func<Expression<Func<T, object>>> getProperty)
         {
             Should.NotBeNull(args, "args");
-            return MemberNameEqual(args.PropertyName, getProperty);
+            return MemberNameEqual(args.PropertyName, getProperty.GetMemberName());
         }
 
         /// <summary>
-        ///     Checks whether the properties are equal.
+        ///     Checks whether the member names are equal.
         /// </summary>
         /// <param name="args">The specified property changed args.</param>
         /// <param name="item">The specified model.</param>
         /// <param name="getProperty">The expression to get property.</param>
         /// <returns>If true property is equal, otherwise false.</returns>
         [Pure]
-        public static bool PropertyNameEqual<T, TValue>([NotNull] this PropertyChangedEventArgs args, T item, [NotNull] Expression<Func<T, TValue>> getProperty)
+        public static bool PropertyNameEqual<T>([NotNull] this PropertyChangedEventArgs args, T item, [NotNull] Func<Expression<Func<T, object>>> getProperty)
         {
-            return PropertyNameEqual(args.PropertyName, getProperty.GetMemberInfo().Name);
+            return args.PropertyNameEqual(getProperty);
         }
 
         /// <summary>
-        ///     Checks whether the properties are equal.
+        ///     Checks whether the member names are equal.
         /// </summary>
-        public static bool PropertyNameEqual(string changedProperty, string listenedProperty, bool emptyListenedPropertyResult = false)
+        /// <param name="memberName">The specified member name.</param>
+        /// <param name="getMember">The expression to get member.</param>
+        /// <returns>If true member names is equal, otherwise false.</returns>
+        [Pure]
+        public static bool MemberNameEqual<T>(string memberName, [NotNull] Func<Expression<Func<T, object>>> getMember)
         {
-            if (string.IsNullOrEmpty(changedProperty) ||
-                changedProperty.Equals(listenedProperty, StringComparison.Ordinal))
-                return true;
-            if (string.IsNullOrEmpty(listenedProperty))
-                return emptyListenedPropertyResult;
+            return MemberNameEqual(memberName, getMember.GetMemberName(), false);
+        }
 
-            if (listenedProperty.StartsWith("[", StringComparison.Ordinal) &&
-                (changedProperty == "Item[]" || changedProperty == "Item" + listenedProperty))
+        /// <summary>
+        ///     Checks whether the member names are equal.
+        /// </summary>
+        public static bool MemberNameEqual(string changedMember, string listenedMember, bool emptyListenedMemberResult = false)
+        {
+            if (string.IsNullOrEmpty(changedMember) ||
+                changedMember.Equals(listenedMember, StringComparison.Ordinal))
                 return true;
+            if (string.IsNullOrEmpty(listenedMember))
+                return emptyListenedMemberResult;
+
+            if (listenedMember[0] == '[')
+            {
+                if (changedMember.Equals("Item[]", StringComparison.Ordinal))
+                    return true;
+                if (changedMember.StartsWith("Item[", StringComparison.Ordinal))
+                {
+                    int i = 4, j = 0;
+                    while (i < changedMember.Length)
+                    {
+                        var c1 = changedMember[i];
+                        var c2 = listenedMember[j];
+                        if (c1 == c2)
+                        {
+                            ++i;
+                            ++j;
+                        }
+                        else if (c1 == '"')
+                            ++i;
+                        else if (c2 == '"')
+                            ++j;
+                        else
+                            return false;
+                    }
+                    return j == listenedMember.Length;
+                }
+            }
             return false;
         }
 
         /// <summary>
         ///     Gets member name from the specified expression.
         /// </summary>
-        /// <param name="expression">The specified expression.</param>
         /// <returns>The member name.</returns>
         [Pure]
-        public static string GetMemberName([NotNull] LambdaExpression expression)
+        public static string GetMemberName([NotNull] this Func<LambdaExpression> getLambdaExpression)
         {
-            return expression.GetMemberInfo().Name;
+            return getLambdaExpression.GetMemberInfo().Name;
         }
 
         /// <summary>
@@ -1794,21 +1798,9 @@ namespace MugenMvvmToolkit
         /// <param name="expression">The specified expression.</param>
         /// <returns>The member name.</returns>
         [Pure]
-        public static string GetMemberName<T>([NotNull] Expression<Func<T>> expression)
+        public static string GetMemberName<T>([NotNull] this Func<Expression<Func<T, object>>> expression)
         {
-            return expression.GetMemberInfo().Name;
-        }
-
-        /// <summary>
-        ///     Gets member name from the specified expression.
-        /// </summary>
-        /// <typeparam name="T">The type of model.</typeparam>
-        /// <param name="expression">The specified expression.</param>
-        /// <returns>The member name.</returns>
-        [Pure]
-        public static string GetMemberName<T>([NotNull] Expression<Func<T, object>> expression)
-        {
-            return expression.GetMemberInfo().Name;
+            return GetMemberName(getLambdaExpression: expression);
         }
 
         /// <summary>
@@ -1818,9 +1810,9 @@ namespace MugenMvvmToolkit
         /// <param name="expression">The specified expression.</param>
         /// <returns>The member name.</returns>
         [Pure]
-        public static string GetMemberName<T, TValue>([CanBeNull] T item, [NotNull] Expression<Func<T, TValue>> expression)
+        public static string GetMemberName<T>([CanBeNull] T item, [NotNull] Func<Expression<Func<T, object>>> expression)
         {
-            return GetMemberName(expression);
+            return GetMemberName(getLambdaExpression: expression);
         }
 
         /// <summary>
@@ -1841,12 +1833,12 @@ namespace MugenMvvmToolkit
         ///     Gets a value indicating whether the entity has changes.
         /// </summary>
         [Pure]
-        public static bool HasChanges<T, TValue>(this IEntitySnapshot snapshot, T item, Expression<Func<T, TValue>> propertyExpression)
+        public static bool HasChanges<T>(this IEntitySnapshot snapshot, T item, Func<Expression<Func<T, object>>> memberExpression)
         {
             Should.NotBeNull(snapshot, "snapshot");
             Should.NotBeNull(item, "item");
-            Should.NotBeNull(propertyExpression, "propertyExpression");
-            return snapshot.HasChanges(item, propertyExpression.GetMemberInfo().Name);
+            Should.NotBeNull(memberExpression, "memberExpression");
+            return snapshot.HasChanges(item, memberExpression.GetMemberName());
         }
 
         /// <summary>

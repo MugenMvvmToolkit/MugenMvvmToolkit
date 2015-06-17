@@ -21,47 +21,24 @@ using System.Collections;
 using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Converters;
-using MugenMvvmToolkit.Binding.Infrastructure;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
+using MugenMvvmToolkit.Binding.Modules;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.WinForms.Binding.Converters;
+using MugenMvvmToolkit.WinForms.Binding.Infrastructure;
+using MugenMvvmToolkit.WinForms.Binding.Interfaces;
 
-namespace MugenMvvmToolkit.Binding.Modules
+namespace MugenMvvmToolkit.WinForms.Binding.Modules
 {
     public class PlatformDataBindingModule : DataBindingModule
     {
-        #region Fields
-
-        internal readonly static IAttachedBindingMemberInfo<object, ICollectionViewManager> CollectionViewManagerMember;
-
-        private readonly static IAttachedBindingMemberInfo<object, IContentViewManager> ContentViewManagerMember;
-        private readonly static IAttachedBindingMemberInfo<object, IEnumerable> ItemsSourceMember;
-        private readonly static IAttachedBindingMemberInfo<Control, object> ContentMember;
-        private readonly static IAttachedBindingMemberInfo<Control, IDataTemplateSelector> ContentTemplateMember;
-
-        #endregion
-
-        #region Constructors
-
-        static PlatformDataBindingModule()
-        {
-            //Object
-            ItemsSourceMember = AttachedBindingMember.CreateAutoProperty<object, IEnumerable>(AttachedMemberConstants.ItemsSource, ObjectItemsSourceChanged);
-            CollectionViewManagerMember = AttachedBindingMember.CreateAutoProperty<object, ICollectionViewManager>("CollectionViewManager");
-            ContentViewManagerMember = AttachedBindingMember.CreateAutoProperty<object, IContentViewManager>("ContentViewManager");
-
-            //Control
-            ContentMember = AttachedBindingMember.CreateAutoProperty<Control, object>(AttachedMemberConstants.Content, ContentChanged);
-            ContentTemplateMember = AttachedBindingMember.CreateAutoProperty<Control, IDataTemplateSelector>(AttachedMemberConstants.ContentTemplate, ContentTemplateChanged);
-        }
-
-        #endregion
-
         #region Methods
 
         private static void Register([NotNull] IBindingMemberProvider memberProvider)
@@ -69,29 +46,43 @@ namespace MugenMvvmToolkit.Binding.Modules
             Should.NotBeNull(memberProvider, "memberProvider");
 
             //Object
-            memberProvider.Register(AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.ItemsSource,
-                    GetObjectItemsSource, SetObjectItemsSource, ObserveObjectItemsSource));
+            var itemsSourceMember = AttachedBindingMember.CreateAutoProperty<object, IEnumerable>(AttachedMemberConstants.ItemsSource, ObjectItemsSourceChanged);
+            var defaultMemberRegistration = new DefaultAttachedMemberRegistration<IEnumerable>(itemsSourceMember);
+            memberProvider.Register(defaultMemberRegistration.ToAttachedBindingMember<object>());
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<object, ICollectionViewManager>(AttachedMembers.Control.CollectionViewManager.Path));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<object, IContentViewManager>(AttachedMembers.Control.ContentViewManager.Path));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(ItemsSourceGeneratorBase.MemberDescriptor,
+                (o, args) =>
+                {
+                    IEnumerable itemsSource = null;
+                    if (args.OldValue != null)
+                    {
+                        itemsSource = args.OldValue.ItemsSource;
+                        args.OldValue.SetItemsSource(null);
+                    }
+                    if (args.NewValue != null)
+                        args.NewValue.SetItemsSource(itemsSource);
+                }));
 
-            memberProvider.Register(CollectionViewManagerMember);
-            memberProvider.Register(ContentViewManagerMember);
-            var itemTemplateMember = AttachedBindingMember.CreateAutoProperty<object, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplate);
+            var itemTemplateMember = AttachedBindingMember.CreateAutoProperty<object, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
             memberProvider.Register(itemTemplateMember);
-            memberProvider.Register(typeof(object), AttachedMemberConstants.ItemTemplateSelector, itemTemplateMember, true);
+            memberProvider.Register(typeof(object), AttachedMemberConstants.ItemTemplate, itemTemplateMember, true);
 
             //Control
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<Control, object>(AttachedMemberConstants.FindByNameMethod, FindByNameControlMember));
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<Control, bool>(AttachedMemberConstants.Focused, (info, control) => control.Focused, null, "LostFocus"));
+                .CreateMember<Control, bool>(AttachedMemberConstants.Focused, (info, control) => control.Focused,
+                    (info, control, arg3) =>
+                    {
+                        if (arg3)
+                            control.Focus();
+                    }, "LostFocus"));
 
-            //Registering parent member as attached to avoid use the BindingExtensions.AttachedParentMember property.
-            var parentMember = memberProvider.GetBindingMember(typeof(Control), AttachedMemberConstants.Parent, true, false);
-            if (parentMember != null)
-                memberProvider.Register(typeof(Control), parentMember, true);
-
-            memberProvider.Register(ContentMember);
-            memberProvider.Register(ContentTemplateMember);
-            memberProvider.Register(typeof(Control), AttachedMemberConstants.ContentTemplateSelector, ContentTemplateMember, true);
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.Control.Content, ContentChanged));
+            var contenMember = AttachedBindingMember.CreateAutoProperty(AttachedMembers.Control.ContentTemplateSelector, ContentTemplateChanged);
+            memberProvider.Register(contenMember);
+            memberProvider.Register(typeof(Control), AttachedMemberConstants.ContentTemplate, contenMember, true);
 
             //DateTimePicker
             memberProvider.Register(AttachedBindingMember.CreateMember<DateTimePicker, DateTime>("Value",
@@ -107,35 +98,31 @@ namespace MugenMvvmToolkit.Binding.Modules
                 }, "ValueChanged"));
 
             //ToolStripItem
-            memberProvider.Register(AttachedBindingMember.CreateMember<ToolStripItem, object>(AttachedMemberConstants.Parent,
+            memberProvider.Register(AttachedBindingMember.CreateMember<ToolStripItem, object>(AttachedMemberConstants.ParentExplicit,
                     GetParentToolStripItem, null, ObserveParentMemberToolStripItem));
             memberProvider.Register(AttachedBindingMember.CreateMember<ToolStripItem, object>(AttachedMemberConstants.FindByNameMethod,
                     FindByNameMemberToolStripItem));
 
             //TabControl
-            memberProvider.Register(AttachedBindingMember.CreateMember<TabControl, object>(AttachedMemberConstants.SelectedItem,
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.TabControl.SelectedItem,
                 GetSelectedItemTabControl, SetSelectedItemTabControl, "Selected"));
 
             //ComboBox
-            memberProvider.Register(
-                AttachedBindingMember.CreateMember<ComboBox, object>(AttachedMemberConstants.ItemsSource,
-                    (info, box) => box.DataSource,
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.Control.ItemsSource.Override<ComboBox>(),
+                    (info, box) => box.DataSource as IEnumerable,
                     (info, box, value) => box.DataSource = value, "DataSourceChanged"));
-            memberProvider.Register(
-                AttachedBindingMember.CreateMember<ComboBox, object>(AttachedMemberConstants.SelectedItem,
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.ComboBox.SelectedItem,
                     (info, box) => box.SelectedItem, (info, box, value) => box.SelectedItem = value,
                     "SelectedIndexChanged"));
 
             //DataGridView
-            memberProvider.Register(
-                AttachedBindingMember.CreateMember<DataGridView, object>(AttachedMemberConstants.ItemsSource,
-                    (info, view) => view.DataSource, (info, view, value) =>
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.Control.ItemsSource.Override<DataGridView>(),
+                    (info, view) => view.DataSource as IEnumerable, (info, view, value) =>
                     {
                         view.DataSource = value;
                         view.Refresh();
                     }, "DataSourceChanged"));
-            memberProvider.Register(
-                AttachedBindingMember.CreateMember<DataGridView, object>(AttachedMemberConstants.SelectedItem,
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.DataGridView.SelectedItem,
                     GetSelectedItemDataGridView, SetSelectedItemDataGridView, (info, view, arg3) =>
                     {
                         arg3 = arg3.ToWeakEventListener();
@@ -162,40 +149,35 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         private static void ContentTemplateChanged(Control control, AttachedMemberChangedEventArgs<IDataTemplateSelector> args)
         {
-            UpdateContent(control, ContentMember.GetValue(control, null), args.NewValue);
+            UpdateContent(control, control.GetBindingMemberValue(AttachedMembers.Control.Content), args.NewValue);
         }
 
         private static void ContentChanged(Control control, AttachedMemberChangedEventArgs<object> args)
         {
-            UpdateContent(control, args.NewValue, ContentTemplateMember.GetValue(control, null));
+            UpdateContent(control, args.NewValue, control.GetBindingMemberValue(AttachedMembers.Control.ContentTemplateSelector));
         }
 
         private static void UpdateContent(Control container, object value, IDataTemplateSelector selector)
         {
             if (selector != null)
                 value = selector.SelectTemplateWithContext(value, container);
-            var content = value as Control;
-            if (content == null)
-            {
-                var viewModel = value as IViewModel;
-                if (viewModel != null)
-                    content = ViewModelToViewConverter.Instance.Convert(viewModel) as Control;
-            }
-            if (content == null && value != null)
-            {
-                Tracer.Warn("The content value {0} is not a Control.", value);
-                content = new TextBox
-                {
-                    ReadOnly = true,
-                    Text = value.ToString(),
-                    Multiline = true
-                };
 
-            }
-            IContentViewManager viewManager = ContentViewManagerMember.GetValue(container, null);
+            var viewModel = value as IViewModel;
+            if (viewModel != null)
+                value = ViewModelToViewConverter.Instance.Convert(viewModel);
+
+            var viewManager = container.GetBindingMemberValue(AttachedMembers.Control.ContentViewManager);
             if (viewManager == null)
             {
                 container.Controls.Clear();
+                var content = value as Control;
+                if (content == null && value != null)
+                    content = new TextBox
+                    {
+                        ReadOnly = true,
+                        Text = value.ToString(),
+                        Multiline = true
+                    };
                 if (content != null)
                 {
                     content.Dock = DockStyle.Fill;
@@ -205,7 +187,7 @@ namespace MugenMvvmToolkit.Binding.Modules
                 }
             }
             else
-                viewManager.SetContent(container, content);
+                viewManager.SetContent(container, value);
         }
 
         private static object FindByNameControlMember(IBindingMemberInfo bindingMemberInfo, Control control, object[] arg3)
@@ -220,30 +202,15 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         #region Object
 
-        private static IDisposable ObserveObjectItemsSource(IBindingMemberInfo bindingMemberInfo, object component, IEventListener arg3)
-        {
-            return GetObjectItemsSourceMember(component).TryObserve(component, arg3);
-        }
-
-        private static object SetObjectItemsSource(IBindingMemberInfo bindingMemberInfo, object component, object[] arg3)
-        {
-            return GetObjectItemsSourceMember(component).SetValue(component, arg3);
-        }
-
-        private static object GetObjectItemsSource(IBindingMemberInfo bindingMemberInfo, object component, object[] arg3)
-        {
-            return GetObjectItemsSourceMember(component).GetValue(component, arg3);
-        }
-
         private static void ObjectItemsSourceChanged(object control, AttachedMemberChangedEventArgs<IEnumerable> args)
         {
-            ItemsSourceGenerator.GetOrAdd(control).SetItemsSource(args.NewValue);
-        }
-
-        private static IBindingMemberInfo GetObjectItemsSourceMember(object component)
-        {
-            return BindingServiceProvider.MemberProvider.GetBindingMember(component.GetType(),
-                AttachedMemberConstants.ItemsSource, true, false) ?? ItemsSourceMember;
+            var generator = control.GetBindingMemberValue(ItemsSourceGeneratorBase.MemberDescriptor);
+            if (generator == null)
+            {
+                generator = new ItemsSourceGenerator(control);
+                control.SetBindingMemberValue(ItemsSourceGeneratorBase.MemberDescriptor, generator);
+            }
+            generator.SetItemsSource(args.NewValue);
         }
 
         #endregion
@@ -271,10 +238,10 @@ namespace MugenMvvmToolkit.Binding.Modules
             if (owner != null)
             {
                 owner.ParentChanged += handler;
-                ownerRef = ServiceProvider.WeakReferenceFactory(owner, true);
+                ownerRef = ServiceProvider.WeakReferenceFactory(owner);
             }
             toolStripItem.OwnerChanged += handler;
-            var menuItemRef = ServiceProvider.WeakReferenceFactory(toolStripItem, true);
+            var menuItemRef = ServiceProvider.WeakReferenceFactory(toolStripItem);
             return new ActionToken(() =>
             {
                 if (ownerRef != null)
@@ -337,16 +304,14 @@ namespace MugenMvvmToolkit.Binding.Modules
         {
             if (tabControl.TabCount == 0 || tabControl.SelectedIndex < 0)
                 return null;
-            return BindingServiceProvider
-                .ContextManager
-                .GetBindingContext(tabControl.TabPages[tabControl.SelectedIndex]).Value;
+            return tabControl.TabPages[tabControl.SelectedIndex].GetDataContext();
         }
 
         private static void SetSelectedItemTabControl(IBindingMemberInfo bindingMemberInfo, TabControl tabControl, object item)
         {
             foreach (TabPage tabPage in tabControl.TabPages)
             {
-                if (Equals(BindingServiceProvider.ContextManager.GetBindingContext(tabPage).Value, item))
+                if (Equals(tabPage.GetDataContext(), item))
                 {
                     tabControl.SelectedTab = tabPage;
                     break;
@@ -372,9 +337,11 @@ namespace MugenMvvmToolkit.Binding.Modules
         /// <summary>
         ///     Gets the <see cref="IBindingErrorProvider" /> that will be used by default.
         /// </summary>
-        protected override IBindingErrorProvider GetBindingErrorProvider()
+        protected override IBindingErrorProvider GetBindingErrorProvider(IModuleContext context)
         {
-            return new BindingErrorProvider();
+            if (context.Platform.Platform == PlatformType.WinForms)
+                return new BindingErrorProvider();
+            return null;
         }
 
         #endregion

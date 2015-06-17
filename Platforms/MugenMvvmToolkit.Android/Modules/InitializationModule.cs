@@ -17,9 +17,13 @@
 #endregion
 
 using Android.App;
+using MugenMvvmToolkit.Android.Infrastructure;
+using MugenMvvmToolkit.Android.Infrastructure.Callbacks;
+using MugenMvvmToolkit.Android.Infrastructure.Navigation;
+using MugenMvvmToolkit.Android.Infrastructure.Presenters;
+using MugenMvvmToolkit.Android.Interfaces;
+using MugenMvvmToolkit.Android.Interfaces.Navigation;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Infrastructure.Callbacks;
-using MugenMvvmToolkit.Infrastructure.Navigation;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -27,8 +31,9 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
+using MugenMvvmToolkit.Modules;
 
-namespace MugenMvvmToolkit.Modules
+namespace MugenMvvmToolkit.Android.Modules
 {
     /// <summary>
     ///     Represents the class that is used to initialize the IOC adapter.

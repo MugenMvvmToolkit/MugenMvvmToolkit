@@ -20,10 +20,9 @@ using System;
 using System.Windows;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Modules;
-using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
+using MugenMvvmToolkit.WPF.Modules;
 
-namespace MugenMvvmToolkit
+namespace MugenMvvmToolkit.WPF
 {
     public static class PlatformExtensions
     {

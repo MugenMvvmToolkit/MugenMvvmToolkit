@@ -21,8 +21,7 @@ using System.Collections;
 using System.Windows;
 using Microsoft.Phone.Shell;
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvmToolkit.Controls
+namespace MugenMvvmToolkit.WinPhone.AppBar
 {
     /// <summary>
     ///     An bindable Application Bar button with an icon.

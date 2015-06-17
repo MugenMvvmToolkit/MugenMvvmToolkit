@@ -21,8 +21,10 @@ using System.ComponentModel;
 using System.Windows.Controls;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Views;
+using MugenMvvmToolkit.Modules;
+using MugenMvvmToolkit.Silverlight.Interfaces.Views;
 
-namespace MugenMvvmToolkit.Modules
+namespace MugenMvvmToolkit.Silverlight.Modules
 {
     public class PlatformWrapperRegistrationModule : WrapperRegistrationModuleBase
     {

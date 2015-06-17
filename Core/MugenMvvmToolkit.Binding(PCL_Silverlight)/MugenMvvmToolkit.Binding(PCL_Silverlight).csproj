@@ -159,6 +159,9 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\DataBinding.cs">
       <Link>Infrastructure\DataBinding.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\DataTemplateSelectorBase.cs">
+      <Link>Infrastructure\DataTemplateSelectorBase.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\EmptyPathObserver.cs">
       <Link>Infrastructure\EmptyPathObserver.cs</Link>
     </Compile>
@@ -224,6 +227,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IDataBinding.cs">
       <Link>Interfaces\IDataBinding.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IDataTemplateSelector.cs">
+      <Link>Interfaces\IDataTemplateSelector.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IObserver.cs">
       <Link>Interfaces\IObserver.cs</Link>
@@ -345,14 +351,17 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\AttachedBindingMember.cs">
       <Link>Models\AttachedBindingMember.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\BindingActionValue.cs">
+      <Link>Models\BindingActionValue.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\BindingMemberDescriptor.cs">
+      <Link>Models\BindingMemberDescriptor.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\BindingMemberInfo.cs">
       <Link>Models\BindingMemberInfo.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\BindingMemberType.cs">
       <Link>Models\BindingMemberType.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\BindingMemberValue.cs">
-      <Link>Models\BindingMemberValue.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\BindingPath.cs">
       <Link>Models\BindingPath.cs</Link>
@@ -362,6 +371,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\BindingResourceObject.cs">
       <Link>Models\BindingResourceObject.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\DefaultAttachedMemberRegistration.cs">
+      <Link>Models\DefaultAttachedMemberRegistration.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\Enums.cs">
       <Link>Models\Enums.cs</Link>

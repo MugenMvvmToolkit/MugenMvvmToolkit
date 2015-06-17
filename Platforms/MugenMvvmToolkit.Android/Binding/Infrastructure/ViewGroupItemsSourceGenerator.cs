@@ -19,11 +19,12 @@
 using System.Collections;
 using Android.Views;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Modules;
+using MugenMvvmToolkit.Android.Binding.Interfaces;
+using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
     internal sealed class ViewGroupItemsSourceGenerator : ItemsSourceGeneratorBase
     {
@@ -31,7 +32,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         internal static readonly DataContext Context;
         private readonly IItemsSourceAdapter _adapter;
-        private readonly ICollectionViewManager _collectionViewManager;
+        private readonly IBindingMemberInfo _collectionViewManagerMember;
         private readonly ViewGroup _viewGroup;
 
         #endregion
@@ -43,25 +44,15 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Context = new DataContext();
         }
 
-        private ViewGroupItemsSourceGenerator([NotNull] ViewGroup viewGroup)
+        internal ViewGroupItemsSourceGenerator([NotNull] ViewGroup viewGroup)
         {
             Should.NotBeNull(viewGroup, "viewGroup");
             _viewGroup = viewGroup;
             _adapter = ItemsSourceAdapter.Factory(viewGroup, viewGroup.Context, Context);
-            _collectionViewManager = PlatformDataBindingModule
-                .CollectionViewManagerMember
-                .GetValue(_viewGroup, null);
+            _collectionViewManagerMember = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(viewGroup.GetType(), AttachedMembers.ViewGroup.CollectionViewManager, false, false);
             TryListenActivity(viewGroup.Context);
-        }
-
-        #endregion
-
-        #region Methods
-
-        public static IItemsSourceGenerator GetOrAdd(ViewGroup viewGroup)
-        {
-            return ServiceProvider.AttachedValueProvider.GetOrAdd(viewGroup, Key,
-                (@group, o) => new ViewGroupItemsSourceGenerator(@group), null);
         }
 
         #endregion
@@ -116,38 +107,47 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Methods
 
+        private ICollectionViewManager GetCollectionViewManager()
+        {
+            return _collectionViewManagerMember == null
+                ? null
+                : _collectionViewManagerMember.GetValue(_viewGroup, null) as ICollectionViewManager;
+        }
+
         private void Add(View view, int index)
         {
-            if (_collectionViewManager == null)
+            var collectionViewManager = GetCollectionViewManager();
+            if (collectionViewManager == null)
                 _viewGroup.AddView(view, index);
             else
-                _collectionViewManager.Insert(_viewGroup, index, view);
+                collectionViewManager.Insert(_viewGroup, index, view);
         }
 
         private void RemoveAt(int index)
         {
-            if (_collectionViewManager == null)
+            var collectionViewManager = GetCollectionViewManager();
+            if (collectionViewManager == null)
             {
                 var view = _viewGroup.GetChildAt(index);
                 _viewGroup.RemoveViewAt(index);
                 view.ClearBindingsRecursively(true, true);
             }
             else
-                _collectionViewManager.RemoveAt(_viewGroup, index);
+                collectionViewManager.RemoveAt(_viewGroup, index);
         }
 
         private void Clear()
         {
-            if (_collectionViewManager == null)
+            var collectionViewManager = GetCollectionViewManager();
+            if (collectionViewManager == null)
             {
                 while (_viewGroup.ChildCount != 0)
                     RemoveAt(0);
             }
             else
-                _collectionViewManager.Clear(_viewGroup);
+                collectionViewManager.Clear(_viewGroup);
         }
 
         #endregion
-
     }
 }

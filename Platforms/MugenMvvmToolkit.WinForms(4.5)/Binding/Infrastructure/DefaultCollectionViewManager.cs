@@ -17,9 +17,9 @@
 #endregion
 
 using System.Windows.Forms;
-using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.WinForms.Binding.Interfaces;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
 {
     internal sealed class DefaultCollectionViewManager : ICollectionViewManager
     {

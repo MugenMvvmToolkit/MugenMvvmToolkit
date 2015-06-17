@@ -44,6 +44,7 @@ namespace MugenMvvmToolkit.Binding.Models
         }
 
         private class AttachedBindingMemberInfo<TTarget, TType> : IAttachedBindingMemberInternal, INotifiableAttachedBindingMemberInfo<TTarget, TType>
+            where TTarget : class
         {
             #region Fields
 
@@ -219,6 +220,20 @@ namespace MugenMvvmToolkit.Binding.Models
             }
 
             /// <summary>
+            ///     Tries to raise the member changed event.
+            /// </summary>
+            public bool TryRaise(object target, object message)
+            {
+                if (RaiseAction == null)
+                    return false;
+                var item = target as TTarget;
+                if (item == null)
+                    return false;
+                RaiseAction.Invoke(this, item, message);
+                return true;
+            }
+
+            /// <summary>
             ///     Returns the member value of a specified object.
             /// </summary>
             /// <param name="source">The object whose member value will be returned.</param>
@@ -379,6 +394,7 @@ namespace MugenMvvmToolkit.Binding.Models
         }
 
         private sealed class AttachedProperty<TTarget, TType> : EventListenerList
+            where TTarget : class
         {
             #region Fields
 
@@ -483,7 +499,8 @@ namespace MugenMvvmToolkit.Binding.Models
         /// <summary>
         ///     Creates an attached event member with custom logic.
         /// </summary>
-        public static INotifiableAttachedBindingMemberInfo<TTarget, object> CreateEvent<TTarget>([NotNull] string path, Action<TTarget, MemberAttachedEventArgs> memberAttachedHandler = null)
+        public static INotifiableAttachedBindingMemberInfo<TTarget, object> CreateEvent<TTarget>(BindingMemberDescriptor<TTarget, IEventListener> path, Action<TTarget, MemberAttachedEventArgs> memberAttachedHandler = null)
+            where TTarget : class
         {
             var eventMember = new AttachedBindingMemberInfo<TTarget, object>(path, typeof(Delegate),
                 memberAttachedHandler, null, null, GetBindingMemberValue, (info, target, arg3) =>
@@ -505,8 +522,9 @@ namespace MugenMvvmToolkit.Binding.Models
         /// <summary>
         ///     Creates an attached event member with custom logic.
         /// </summary>
-        public static IAttachedBindingMemberInfo<TTarget, object> CreateEvent<TTarget>([NotNull] string path,
+        public static IAttachedBindingMemberInfo<TTarget, object> CreateEvent<TTarget>(BindingMemberDescriptor<TTarget, IEventListener> path,
             Func<IBindingMemberInfo, TTarget, IEventListener, IDisposable> setValue, Action<TTarget, MemberAttachedEventArgs> memberAttachedHandler = null)
+            where TTarget : class
         {
             return new AttachedBindingMemberInfo<TTarget, object>(path, typeof(Delegate), memberAttachedHandler, null,
                 null, GetBindingMemberValue, (info, o, arg3) => setValue(info, o, (IEventListener)arg3[0]), null, null, BindingMemberType.Event);
@@ -524,9 +542,10 @@ namespace MugenMvvmToolkit.Binding.Models
         /// <summary>
         ///     Creates an attached property member with custom logic.
         /// </summary>
-        public static INotifiableAttachedBindingMemberInfo<TTarget, TType> CreateAutoProperty<TTarget, TType>([NotNull] string path,
+        public static INotifiableAttachedBindingMemberInfo<TTarget, TType> CreateAutoProperty<TTarget, TType>(BindingMemberDescriptor<TTarget, TType> path,
             Action<TTarget, AttachedMemberChangedEventArgs<TType>> memberChangedHandler = null,
             Action<TTarget, MemberAttachedEventArgs> memberAttachedHandler = null, Func<TTarget, IBindingMemberInfo, TType> getDefaultValue = null)
+            where TTarget : class
         {
             return new AttachedBindingMemberInfo<TTarget, TType>(path, typeof(TType), memberAttachedHandler, memberChangedHandler, getDefaultValue, default(TType));
         }
@@ -544,8 +563,9 @@ namespace MugenMvvmToolkit.Binding.Models
         /// <summary>
         ///     Creates an attached property member with custom logic.
         /// </summary>
-        public static INotifiableAttachedBindingMemberInfo<TTarget, TType> CreateAutoProperty<TTarget, TType>([NotNull] string path, TType defaultValue,
+        public static INotifiableAttachedBindingMemberInfo<TTarget, TType> CreateAutoProperty<TTarget, TType>(BindingMemberDescriptor<TTarget, TType> path, TType defaultValue,
             Action<TTarget, AttachedMemberChangedEventArgs<TType>> memberChangedHandler = null, Action<TTarget, MemberAttachedEventArgs> memberAttachedHandler = null)
+            where TTarget : class
         {
             return new AttachedBindingMemberInfo<TTarget, TType>(path, typeof(TType), memberAttachedHandler, memberChangedHandler, null, defaultValue);
         }
@@ -562,9 +582,10 @@ namespace MugenMvvmToolkit.Binding.Models
         /// <summary>
         ///     Creates an attached member with custom logic.
         /// </summary>
-        public static IAttachedBindingMemberInfo<TTarget, TType> CreateMember<TTarget, TType>([NotNull] string path,
+        public static IAttachedBindingMemberInfo<TTarget, TType> CreateMember<TTarget, TType>(BindingMemberDescriptor<TTarget, TType> path,
             [CanBeNull]Func<IBindingMemberInfo, TTarget, TType> getValue, [CanBeNull] Action<IBindingMemberInfo, TTarget, TType> setValue,
             string memberChangeEventName = null, Action<TTarget, MemberAttachedEventArgs> memberAttachedHandler = null, MemberInfo member = null)
+            where TTarget : class
         {
             Func<IBindingMemberInfo, TTarget, IEventListener, IDisposable> observeMember = null;
             if (!string.IsNullOrEmpty(memberChangeEventName))
@@ -585,11 +606,12 @@ namespace MugenMvvmToolkit.Binding.Models
         /// <summary>
         ///     Creates an attached member with custom logic.
         /// </summary>
-        public static IAttachedBindingMemberInfo<TTarget, TType> CreateMember<TTarget, TType>([NotNull] string path,
+        public static IAttachedBindingMemberInfo<TTarget, TType> CreateMember<TTarget, TType>(BindingMemberDescriptor<TTarget, TType> path,
             [CanBeNull]Func<IBindingMemberInfo, TTarget, TType> getValue,
             [CanBeNull]Action<IBindingMemberInfo, TTarget, TType> setValue,
             [CanBeNull]Func<IBindingMemberInfo, TTarget, IEventListener, IDisposable> observeMemberDelegate,
             Action<TTarget, MemberAttachedEventArgs> memberAttachedHandler = null, MemberInfo member = null)
+            where TTarget : class
         {
             return new AttachedBindingMemberInfo<TTarget, TType>(path, typeof(TType), memberAttachedHandler,
                 observeMemberDelegate, null, getValue, null, setValue, member);
@@ -610,10 +632,11 @@ namespace MugenMvvmToolkit.Binding.Models
         /// <summary>
         ///     Creates an attached notifiable member with custom logic.
         /// </summary>
-        public static INotifiableAttachedBindingMemberInfo<TTarget, TType> CreateNotifiableMember<TTarget, TType>([NotNull] string path,
+        public static INotifiableAttachedBindingMemberInfo<TTarget, TType> CreateNotifiableMember<TTarget, TType>(BindingMemberDescriptor<TTarget, TType> path,
             [CanBeNull]Func<IBindingMemberInfo, TTarget, TType> getValue,
             [NotNull]Func<IBindingMemberInfo, TTarget, TType, bool> setValue,
             Action<TTarget, MemberAttachedEventArgs> memberAttachedHandler = null, MemberInfo member = null)
+            where TTarget : class
         {
             var observableProperty = new ObservableProperty<TTarget, TType>(setValue);
             return new AttachedBindingMemberInfo<TTarget, TType>(path, typeof(TType), memberAttachedHandler,
@@ -636,11 +659,12 @@ namespace MugenMvvmToolkit.Binding.Models
         /// <summary>
         ///     Creates an attached member with custom logic.
         /// </summary>
-        public static IAttachedBindingMemberInfo<TTarget, TType> CreateMember<TTarget, TType>([NotNull] string path,
+        public static IAttachedBindingMemberInfo<TTarget, TType> CreateMember<TTarget, TType>(BindingMemberDescriptor<TTarget, TType> path,
             [CanBeNull]Func<IBindingMemberInfo, TTarget, object[], TType> getValueEx,
             [CanBeNull]Func<IBindingMemberInfo, TTarget, object[], object> setValue = null,
             [CanBeNull]Func<IBindingMemberInfo, TTarget, IEventListener, IDisposable> observeMemberDelegate = null,
             Action<TTarget, MemberAttachedEventArgs> memberAttachedHandler = null, MemberInfo member = null, BindingMemberType memberType = null)
+            where TTarget : class
         {
             return new AttachedBindingMemberInfo<TTarget, TType>(path, typeof(TType), memberAttachedHandler,
                 observeMemberDelegate, getValueEx, null, setValue, null, member, memberType);
@@ -670,7 +694,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
         private static object GetBindingMemberValue<TTarget>(IBindingMemberInfo bindingMemberInfo, TTarget target)
         {
-            return new BindingMemberValue(target, bindingMemberInfo);
+            return new BindingActionValue(target, bindingMemberInfo);
         }
 
         private static IDisposable ObserveMemberChangeEvent<TTarget>(IBindingMemberInfo member, TTarget source,

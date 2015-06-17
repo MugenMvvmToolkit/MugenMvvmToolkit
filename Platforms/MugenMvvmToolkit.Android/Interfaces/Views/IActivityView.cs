@@ -19,10 +19,11 @@
 using System;
 using Android.App;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Interfaces.Mediators;
+using MugenMvvmToolkit.Android.Interfaces.Mediators;
+using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Interfaces.Views
+namespace MugenMvvmToolkit.Android.Interfaces.Views
 {
     public interface IActivityView : IView
     {

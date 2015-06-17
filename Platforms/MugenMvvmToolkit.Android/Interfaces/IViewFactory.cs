@@ -20,9 +20,9 @@ using System;
 using Android.Content;
 using Android.Util;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Android.Models;
 
-namespace MugenMvvmToolkit.Interfaces
+namespace MugenMvvmToolkit.Android.Interfaces
 {
     public interface IViewFactory
     {

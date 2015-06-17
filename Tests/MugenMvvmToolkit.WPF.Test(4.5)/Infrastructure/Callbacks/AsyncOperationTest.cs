@@ -9,6 +9,7 @@ using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestModels;
+using MugenMvvmToolkit.WinRT.Infrastructure.Callbacks;
 using Should;
 
 namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks

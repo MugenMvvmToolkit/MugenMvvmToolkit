@@ -24,14 +24,15 @@ using Android.Runtime;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using MugenMvvmToolkit.Android.Binding;
+using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Models;
 
-namespace MugenMvvmToolkit.Views
+namespace MugenMvvmToolkit.Android.Views
 {
-    [Register("mugenmvvmtoolkit.views.OptionsMenu")]
+    [Register("mugenmvvmtoolkit.android.views.OptionsMenu")]
     public sealed class OptionsMenu : FrameLayout, IManualBindings
     {
         #region Fields
@@ -70,7 +71,7 @@ namespace MugenMvvmToolkit.Views
         {
             IBindingMemberInfo bindingMember = BindingServiceProvider
                 .MemberProvider
-                .GetBindingMember(typeof(OptionsMenu), AttachedMemberNames.MenuTemplate, false, true);
+                .GetBindingMember(typeof(OptionsMenu), AttachedMembers.Toolbar.MenuTemplate, false, true);
             var value = (int)bindingMember.GetValue(this, null);
             activity.MenuInflater.Inflate(value, menu, this);
             if (_bindings != null)

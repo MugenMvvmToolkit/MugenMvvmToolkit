@@ -26,10 +26,12 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Collections;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.WinForms.Binding;
+using MugenMvvmToolkit.WinForms.Binding.Models;
+using MugenMvvmToolkit.WinForms.Collections;
 
-namespace MugenMvvmToolkit
+namespace MugenMvvmToolkit.WinForms
 {
     public static partial class PlatformExtensions
     {
@@ -90,25 +92,15 @@ namespace MugenMvvmToolkit
             return root;
         }
 
-        public static object GetDataContext([NotNull] this IComponent item)
-        {
-            return ViewManager.GetDataContext(item);
-        }
-
-        public static void SetDataContext([NotNull] this IComponent item, object value)
-        {
-            ViewManager.SetDataContext(item, value);
-        }
-
         internal static object SelectTemplateWithContext(this IDataTemplateSelector selector,
             [CanBeNull] object item, [NotNull] object container)
         {
             var template = selector.SelectTemplate(item, container);
             if (template != null)
             {
-                BindingServiceProvider.ContextManager.GetBindingContext(template).Value = item;
-                if (!(template is Control) && !(template is ToolStripItem) && BindingExtensions.AttachedParentMember.GetValue(template, null) == null)
-                    BindingExtensions.AttachedParentMember.SetValue(template, container);
+                template.SetDataContext(item);
+                if (!(template is Control) && !(template is ToolStripItem) && template.GetBindingMemberValue(AttachedMembers.Object.Parent) == null)
+                    template.SetBindingMemberValue(AttachedMembers.Object.Parent, container);
             }
             return template;
         }

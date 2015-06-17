@@ -16,37 +16,60 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Threading;
 using System;
 using System.Runtime.CompilerServices;
 using MugenMvvmToolkit.Collections;
+using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Models;
 #if NETFX_CORE || WINDOWSCOMMON
 using Windows.UI.Xaml;
+
+namespace MugenMvvmToolkit.WinRT.Infrastructure
 #elif XAMARIN_FORMS
 using Xamarin.Forms;
+
+namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 #elif TOUCH
+using MugenMvvmToolkit.iOS.Models;
 using Foundation;
 using ObjCRuntime;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using MugenMvvmToolkit.Models;
+using System.Threading;
+
+namespace MugenMvvmToolkit.iOS.Infrastructure
 #elif ANDROID
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
-#else
+
+namespace MugenMvvmToolkit.Android.Infrastructure
+#elif WPF
 using System.Windows;
-#endif
+
+namespace MugenMvvmToolkit.WPF.Infrastructure
+#elif SILVERLIGHT
+using System.Windows;
+
+namespace MugenMvvmToolkit.Silverlight.Infrastructure
+#elif PCL_WINRT || PCL_Silverlight || PCL_NET4
+using System.Threading;
+using System.Windows;
 
 namespace MugenMvvmToolkit.Infrastructure
+#elif WINDOWS_PHONE
+using System.Windows;
+
+namespace MugenMvvmToolkit.WinPhone.Infrastructure
+#endif
 {
     /// <summary>
     ///     Represents the attached value provider class, that allows to attach a value to an object using path.
     /// </summary>
 #if PCL_WINRT || PCL_Silverlight || PCL_NET4
-    public sealed class AttachedValueProviderDefault : AttachedValueProviderBase
+    public class AttachedValueProviderDefault : AttachedValueProviderBase
 #else
-    public sealed class AttachedValueProvider : AttachedValueProviderBase
+    public class AttachedValueProvider : AttachedValueProviderBase
 #endif
     {
         #region Nested types
@@ -149,7 +172,7 @@ namespace MugenMvvmToolkit.Infrastructure
             #endregion
         }
 #endif
-        private class AttachedValueDictionary : LightDictionaryBase<string, object>
+        internal class AttachedValueDictionary : LightDictionaryBase<string, object>
         {
             #region Constructors
 
@@ -205,6 +228,22 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
+#if PCL_WINRT || PCL_Silverlight || PCL_NET4
+        public static LightDictionaryBase<string, object> GetOrAddAttachedValues(NotifyPropertyChangedBase model, bool addNew)
+        {
+            if (addNew && model.AttachedValues == null)
+                Interlocked.CompareExchange(ref model.AttachedValues, new AttachedValueDictionary(), null);
+            return model.AttachedValues;
+        }
+
+        public static void ClearAttachedValues(NotifyPropertyChangedBase model)
+        {
+            var values = model.AttachedValues;
+            if (values != null)
+                values.Clear();
+        }
+#endif
+
 #if TOUCH
         /// <summary>
         ///     https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ObjCRuntimeRef/index.html#//apple_ref/c/func/objc_setAssociatedObject
@@ -239,6 +278,12 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected override bool ClearInternal(object item)
         {
+            var model = item as NotifyPropertyChangedBase;
+            if (model != null)
+            {
+                AttachedValueProviderDefault.ClearAttachedValues(model);
+                return true;
+            }
 #if TOUCH
             var nsObject = item as NSObject;
             if (nsObject != null)
@@ -292,6 +337,9 @@ namespace MugenMvvmToolkit.Infrastructure
         /// </summary>
         protected override LightDictionaryBase<string, object> GetOrAddAttachedDictionary(object item, bool addNew)
         {
+            var model = item as NotifyPropertyChangedBase;
+            if (model != null)
+                return AttachedValueProviderDefault.GetOrAddAttachedValues(model, true);
 #if TOUCH
             var nsObject = item as NSObject;
             if (nsObject != null)

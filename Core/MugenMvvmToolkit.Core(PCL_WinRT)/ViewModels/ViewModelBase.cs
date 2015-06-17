@@ -570,7 +570,7 @@ namespace MugenMvvmToolkit.ViewModels
         ///     An instance of <see cref="IViewModel" />.
         /// </returns>
         protected internal T GetViewModel<T>([NotNull] GetViewModelDelegate<T> getViewModelGeneric, ObservationMode? observationMode = null,
-            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters) where T : IViewModel
+            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters) where T : class, IViewModel
         {
             EnsureNotDisposed();
             return ViewModelProvider.GetViewModel(getViewModelGeneric, this, observationMode, containerCreationMode, parameters);

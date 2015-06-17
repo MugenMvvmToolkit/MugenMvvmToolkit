@@ -18,8 +18,13 @@
 
 using System.Windows.Navigation;
 using JetBrains.Annotations;
-
-namespace MugenMvvmToolkit.Models.EventArg
+using MugenMvvmToolkit.Models.EventArg;
+using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
+#if SILVERLIGHT
+namespace MugenMvvmToolkit.Silverlight.Models.EventArg
+#elif WINDOWS_PHONE
+namespace MugenMvvmToolkit.WinPhone.Models.EventArg
+#endif
 {
     public sealed class NavigatingCancelEventArgsWrapper : NavigatingCancelEventArgsBase
     {

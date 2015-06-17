@@ -24,6 +24,8 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
@@ -31,7 +33,17 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 
+#if ANDROID
+namespace MugenMvvmToolkit.Android.Infrastructure.Callbacks
+#elif TOUCH
+namespace MugenMvvmToolkit.iOS.Infrastructure.Callbacks
+#elif WINDOWSCOMMON || NETFX_CORE
+namespace MugenMvvmToolkit.WinRT.Infrastructure.Callbacks
+#elif WINDOWS_PHONE
+namespace MugenMvvmToolkit.WinPhone.Infrastructure.Callbacks
+#else
 namespace MugenMvvmToolkit.Infrastructure.Callbacks
+#endif
 {
     //NOTE do you want to see some magic? :)
     /// <summary>

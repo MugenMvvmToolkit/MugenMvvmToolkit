@@ -19,7 +19,7 @@
 using System.Collections.Generic;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.DataConstants
+namespace MugenMvvmToolkit.Android.DataConstants
 {
     public static class ViewFactoryConstants
     {
@@ -58,6 +58,5 @@ namespace MugenMvvmToolkit.DataConstants
         }
 
         #endregion
-
     }
 }

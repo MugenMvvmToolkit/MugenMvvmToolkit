@@ -16,12 +16,23 @@
 
 #endregion
 
-using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
+using MugenMvvmToolkit.Xamarin.Forms.Modules;
 
-namespace MugenMvvmToolkit.Modules
+#if ANDROID && XAMARIN_FORMS
+using MugenMvvmToolkit.Xamarin.Forms.Android.Infrastructure.Presenters;
+namespace MugenMvvmToolkit.Xamarin.Forms.Android.Modules
+#elif TOUCH
+using MugenMvvmToolkit.Xamarin.Forms.iOS.Infrastructure.Presenters;
+
+namespace MugenMvvmToolkit.Xamarin.Forms.iOS.Modules
+#elif WINDOWS_PHONE
+using MugenMvvmToolkit.Xamarin.Forms.WinPhone.Infrastructure.Presenters;
+
+namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Modules
+#endif
 {
     /// <summary>
     ///     Represents the class that is used to initialize the IOC adapter.

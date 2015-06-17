@@ -17,24 +17,24 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
+using JetBrains.Annotations;
+using MugenMvvmToolkit.Models;
+using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
+#if SILVERLIGHT
+using System.Windows;
+using MugenMvvmToolkit.Silverlight.Modules;
+
+namespace MugenMvvmToolkit.Silverlight
+#elif WINDOWS_PHONE
 using System.Runtime.Serialization;
 using System.Threading;
-using System.Windows;
 using System.Windows.Navigation;
-using JetBrains.Annotations;
-using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Infrastructure.Navigation;
-using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
-using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.Modules;
-using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
+using MugenMvvmToolkit.WinPhone.Interfaces;
 
-namespace MugenMvvmToolkit
+namespace MugenMvvmToolkit.WinPhone
+#endif
+
 {
     public static class PlatformExtensions
     {

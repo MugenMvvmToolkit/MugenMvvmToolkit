@@ -17,10 +17,10 @@
 #endregion
 
 using System.Collections.Generic;
-using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Parse.Nodes;
+using MugenMvvmToolkit.WinForms.Binding.Models;
+using MugenMvvmToolkit.WinForms.Binding.Parse.Nodes;
 
-namespace MugenMvvmToolkit.Binding.Interfaces
+namespace MugenMvvmToolkit.WinForms.Binding.Interfaces
 {
     internal interface IXmlHandler
     {

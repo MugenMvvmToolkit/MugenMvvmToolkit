@@ -112,7 +112,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Should.BeSupported(path.IsSingle, "The SinglePathObserver supports only single path members.");
             _ignoreAttachedMembers = ignoreAttachedMembers;
             _pathMembers = UnsetBindingPathMembers.Instance;
-            _ref = ServiceProvider.WeakReferenceFactory(this, true);
+            _ref = ServiceProvider.WeakReferenceFactory(this);
             Initialize(null);
         }
 

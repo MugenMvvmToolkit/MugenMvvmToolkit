@@ -5,6 +5,9 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Modules;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Silverlight.Binding.Modules;
+using MugenMvvmToolkit.WinRT.Binding.Modules;
+using MugenMvvmToolkit.WPF.Binding.Modules;
 
 namespace MugenMvvmToolkit.Test
 {

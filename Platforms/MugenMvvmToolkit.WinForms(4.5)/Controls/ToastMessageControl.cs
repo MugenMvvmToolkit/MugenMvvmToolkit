@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 
-namespace MugenMvvmToolkit.Controls
+namespace MugenMvvmToolkit.WinForms.Controls
 {
     public class ToastMessageControl : Control
     {

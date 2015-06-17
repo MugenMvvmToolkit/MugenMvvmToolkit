@@ -19,7 +19,7 @@
 using System.Windows.Input;
 using Microsoft.Phone.Shell;
 
-namespace MugenMvvmToolkit.Interfaces
+namespace MugenMvvmToolkit.WinPhone.Interfaces
 {
     /// <summary>
     ///     An bindable Application Bar button with an icon.

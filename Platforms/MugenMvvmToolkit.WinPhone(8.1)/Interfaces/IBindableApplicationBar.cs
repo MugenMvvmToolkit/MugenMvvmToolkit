@@ -19,9 +19,9 @@
 using System.Collections;
 using System.Windows;
 using Microsoft.Phone.Shell;
-using MugenMvvmToolkit.Controls;
+using MugenMvvmToolkit.WinPhone.AppBar;
 
-namespace MugenMvvmToolkit.Interfaces
+namespace MugenMvvmToolkit.WinPhone.Interfaces
 {
     /// <summary>
     ///     Represents a bindable Application Bar in Windows Phone applications.

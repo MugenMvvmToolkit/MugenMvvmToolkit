@@ -250,7 +250,7 @@ namespace MugenMvvmToolkit.Binding.Models
             _canRead = true;
             _canWrite = true;
             _isSingleParameter = true;
-            _memberEvent = BindingExtensions.TryFindMemberChangeEvent(BindingServiceProvider.MemberProvider, sourceType, field.Name);
+            _memberEvent = BindingServiceProvider.UpdateEventFinder(sourceType, field.Name);
         }
 
         /// <summary>
@@ -283,8 +283,7 @@ namespace MugenMvvmToolkit.Binding.Models
                 _canWrite = true;
             }
             _isSingleParameter = true;
-
-            _memberEvent = BindingExtensions.TryFindMemberChangeEvent(BindingServiceProvider.MemberProvider, sourceType, property.Name);
+            _memberEvent = BindingServiceProvider.UpdateEventFinder(sourceType, property.Name);
         }
 
         /// <summary>
@@ -446,7 +445,7 @@ namespace MugenMvvmToolkit.Binding.Models
         public IDisposable TryObserve(object source, IEventListener listener)
         {
             if (_isDataContext)
-                return WeakEventManager.GetBindingContextListener(source).AddWithUnsubscriber(listener);
+                return WeakEventManager.AddBindingContextListener(BindingServiceProvider.ContextManager.GetBindingContext(source), listener, true);
             if (_memberEvent == null)
             {
                 if (_isDynamic)
@@ -472,7 +471,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
         private object GetBindingMemberValue(object o)
         {
-            return new BindingMemberValue(o, this);
+            return new BindingActionValue(o, this);
         }
 
         private object SetEventValue(object o, object arg)

@@ -18,33 +18,45 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Windows;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 #if WPF
-using Bootstrapper = MugenMvvmToolkit.Infrastructure.WpfBootstrapperBase;
+using System.Windows;
+using Bootstrapper = MugenMvvmToolkit.WPF.Infrastructure.WpfBootstrapperBase;
+
+namespace MugenMvvmToolkit.WPF.Infrastructure
 #elif WINFORMS
-using Bootstrapper = MugenMvvmToolkit.Infrastructure.WinFormsBootstrapperBase;
+using Bootstrapper = MugenMvvmToolkit.WinForms.Infrastructure.WinFormsBootstrapperBase;
+
+namespace MugenMvvmToolkit.WinForms.Infrastructure
 #elif WINDOWS_PHONE
 using Microsoft.Phone.Controls;
-using Bootstrapper = MugenMvvmToolkit.Infrastructure.WindowsPhoneBootstrapperBase;
+using Bootstrapper = MugenMvvmToolkit.WinPhone.Infrastructure.WindowsPhoneBootstrapperBase;
+
+namespace MugenMvvmToolkit.WinPhone.Infrastructure
 #elif SILVERLIGHT
-using Bootstrapper = MugenMvvmToolkit.Infrastructure.SilverlightBootstrapperBase;
+using System.Windows;
+using Bootstrapper = MugenMvvmToolkit.Silverlight.Infrastructure.SilverlightBootstrapperBase;
+
+namespace MugenMvvmToolkit.Silverlight.Infrastructure
 #elif NETFX_CORE || WINDOWSCOMMON
 using Windows.UI.Xaml.Controls;
-using Bootstrapper = MugenMvvmToolkit.Infrastructure.WinRTBootstrapperBase;
+using Bootstrapper = MugenMvvmToolkit.WinRT.Infrastructure.WinRTBootstrapperBase;
+
+namespace MugenMvvmToolkit.WinRT.Infrastructure
 #elif TOUCH
 using UIKit;
-using Bootstrapper = MugenMvvmToolkit.Infrastructure.TouchBootstrapperBase;
-#elif XAMARIN_FORMS
-using Bootstrapper = MugenMvvmToolkit.Infrastructure.XamarinFormsBootstrapperBase;
-#endif
+using Bootstrapper = MugenMvvmToolkit.iOS.Infrastructure.TouchBootstrapperBase;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.iOS.Infrastructure
+#elif XAMARIN_FORMS
+using Bootstrapper = MugenMvvmToolkit.Xamarin.Forms.Infrastructure.XamarinFormsBootstrapperBase;
+
+namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
+#endif
 {
     /// <summary>
     ///     Represents the base class that is used to start MVVM application.

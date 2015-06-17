@@ -20,9 +20,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Attributes;
+using MugenMvvmToolkit.Android.Attributes;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.Android.Infrastructure
 {
     public sealed class TypeCache<TType>
     {

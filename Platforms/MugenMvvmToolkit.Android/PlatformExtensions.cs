@@ -31,23 +31,27 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding.Infrastructure;
+using MugenMvvmToolkit.Android.Binding.Interfaces;
+using MugenMvvmToolkit.Android.Binding.Models;
+using MugenMvvmToolkit.Android.Infrastructure;
+using MugenMvvmToolkit.Android.Infrastructure.Mediators;
+using MugenMvvmToolkit.Android.Interfaces;
+using MugenMvvmToolkit.Android.Interfaces.Mediators;
+using MugenMvvmToolkit.Android.Interfaces.Views;
+using MugenMvvmToolkit.Android.Models;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Infrastructure.Mediators;
-using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
-using ViewManager = MugenMvvmToolkit.Infrastructure.ViewManager;
 using Object = Java.Lang.Object;
 
-namespace MugenMvvmToolkit
+namespace MugenMvvmToolkit.Android
 {
+    // ReSharper disable once PartialTypeWithSinglePart
     public static partial class PlatformExtensions
     {
         #region Nested types
@@ -190,17 +194,21 @@ namespace MugenMvvmToolkit
         #region Fields
 
         /// <summary>
-        ///     Gets the constant that returns current fragment.
+        ///     Gets the fragment constant.
         /// </summary>
-        public static readonly DataConstant<object> CurrentFragment;
+        public static readonly DataConstant<object> FragmentConstant;
 
         internal static readonly bool IsApiGreaterThan10;
         internal static readonly bool IsApiLessThanOrEqualTo10;
+        internal static readonly bool IsApiGreaterThanOrEqualTo21;
+        internal static readonly bool IsApiGreaterThanOrEqualTo14;
+        internal static readonly bool IsApiGreaterThanOrEqualTo17;
 
         //NOTE ConditionalWeakTable invokes finalizer for value, even if the key object is still alive https://bugzilla.xamarin.com/show_bug.cgi?id=21620
         private static readonly List<WeakReference> WeakReferences;
         private static readonly Dictionary<IntPtr, JavaObjectWeakReference> NativeWeakReferences;
         private static readonly ContentViewManager ContentViewManagerField;
+        private static readonly object CurrentActivityLocker;
         private static Func<Activity, IDataContext, IMvvmActivityMediator> _mvvmActivityMediatorFactory;
         private static Func<Context, IDataContext, BindableMenuInflater> _menuInflaterFactory;
         private static Func<Context, IDataContext, IViewFactory, LayoutInflater, BindableLayoutInflater> _layoutInflaterFactory;
@@ -218,7 +226,10 @@ namespace MugenMvvmToolkit
         {
             IsApiGreaterThan10 = Build.VERSION.SdkInt > BuildVersionCodes.GingerbreadMr1;
             IsApiLessThanOrEqualTo10 = !IsApiGreaterThan10;
-            CurrentFragment = DataConstant.Create(() => CurrentFragment, false);
+            IsApiGreaterThanOrEqualTo21 = Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop;
+            IsApiGreaterThanOrEqualTo14 = Build.VERSION.SdkInt >= BuildVersionCodes.IceCreamSandwich;
+            IsApiGreaterThanOrEqualTo17 = Build.VERSION.SdkInt >= BuildVersionCodes.JellyBeanMr1;
+            FragmentConstant = DataConstant.Create(() => FragmentConstant, false);
             _menuInflaterFactory = (context, dataContext) => new BindableMenuInflater(context);
             _layoutInflaterFactory = (context, dataContext, factory, inflater) =>
             {
@@ -238,6 +249,9 @@ namespace MugenMvvmToolkit
             _activityRef = Empty.WeakReference;
             WeakReferences = new List<WeakReference>(128);
             NativeWeakReferences = new Dictionary<IntPtr, JavaObjectWeakReference>(109, new IntPtrComparer());
+            CurrentActivityLocker = new object();
+            FragmentViewMember = AttachedBindingMember.CreateAutoProperty<View, object>("!$fragment");
+            _mvvmFragmentMediatorFactory = MvvmFragmentMediatorFactoryMethod;
             // ReSharper disable once ObjectCreationAsStatement
             new WeakReferenceCollector();
         }
@@ -475,16 +489,6 @@ namespace MugenMvvmToolkit
             ContentViewManagerField.Remove(contentViewManager);
         }
 
-        public static object GetDataContext([NotNull] this IJavaObject item)
-        {
-            return ViewManager.GetDataContext(item);
-        }
-
-        public static void SetDataContext([NotNull] this IJavaObject item, object value)
-        {
-            ViewManager.SetDataContext(item, value);
-        }
-
         [CanBeNull]
         public static Activity GetActivity([CanBeNull] this View view)
         {
@@ -511,6 +515,21 @@ namespace MugenMvvmToolkit
             }
         }
 
+        public static void SetCurrentActivity(Activity activity, bool clear)
+        {
+            lock (CurrentActivityLocker)
+            {
+                var currentActivity = CurrentActivity;
+                if (clear)
+                {
+                    if (ReferenceEquals(currentActivity, activity))
+                        _activityRef = Empty.WeakReference;
+                }
+                else if (!ReferenceEquals(currentActivity, activity))
+                    _activityRef = ServiceProvider.WeakReferenceFactory(activity);
+            }
+        }
+
         internal static void RemoveFromParent([CanBeNull] this View view)
         {
             if (!view.IsAlive())
@@ -530,7 +549,7 @@ namespace MugenMvvmToolkit
         internal static PlatformInfo GetPlatformInfo()
         {
             Version result;
-            Version.TryParse(Android.OS.Build.VERSION.Release, out result);
+            Version.TryParse(Build.VERSION.Release, out result);
             return new PlatformInfo(PlatformType.Android, result);
         }
 
@@ -539,12 +558,12 @@ namespace MugenMvvmToolkit
             return type.IsDefined(typeof(DataContractAttribute), false) || type.IsPrimitive;
         }
 
-        internal static WeakReference CreateWeakReference(object item, bool trackResurrection)
+        internal static WeakReference CreateWeakReference(object item)
         {
             var obj = item as Object;
             if (obj == null)
             {
-                var reference = new WeakReference(item, trackResurrection);
+                var reference = new WeakReference(item, true);
                 lock (WeakReferences)
                     WeakReferences.Add(reference);
                 return reference;
@@ -568,7 +587,7 @@ namespace MugenMvvmToolkit
         internal static object GetOrCreateView(IViewModel vm, bool? alwaysCreateNewView, IDataContext dataContext = null)
         {
             //NOTE: trying to use current fragment, if any.
-            var fragment = vm.Settings.Metadata.GetData(CurrentFragment, false);
+            var fragment = vm.Settings.Metadata.GetData(FragmentConstant, false);
             if (fragment == null)
                 return ViewManager.GetOrCreateView(vm, alwaysCreateNewView, dataContext);
             return fragment;
@@ -613,7 +632,8 @@ namespace MugenMvvmToolkit
             return (View)Activator.CreateInstance(type, ctx, set);
         }
 
-        internal static string ToStringSafe(this object item, string defaultValue = null)
+        internal static string ToStringSafe<T>(this T item, string defaultValue = null)
+            where T : class
         {
             if (item == null)
                 return defaultValue;
@@ -627,26 +647,13 @@ namespace MugenMvvmToolkit
                     "view");
         }
 
-        internal static void UpdateActivity(Activity activity, bool clear)
-        {
-            if (clear)
-            {
-                if (ReferenceEquals(CurrentActivity, activity))
-                    _activityRef = Empty.WeakReference;
-            }
-            else
-                _activityRef = ServiceProvider.WeakReferenceFactory(activity, true);
-        }
-
         private static View GetContentInternal(Context ctx, object content, int? templateId)
         {
             if (templateId == null)
                 return null;
             var newView = ctx.GetBindableLayoutInflater().Inflate(templateId.Value, null);
-            BindingServiceProvider
-                .ContextManager
-                .GetBindingContext(newView)
-                .Value = content;
+            if (content != null)
+                newView.SetDataContext(content);
             return newView;
         }
 
@@ -655,8 +662,8 @@ namespace MugenMvvmToolkit
             object template = templateSelector.SelectTemplate(content, container);
             if (template is int)
                 return GetContentInternal(ctx, content, (int)template);
-            if (template is View || IsFragment(template))
-                BindingServiceProvider.ContextManager.GetBindingContext(template).Value = content;
+            if (content != null && (template is View || IsFragment(template)))
+                template.SetDataContext(content);
             return template;
         }
 

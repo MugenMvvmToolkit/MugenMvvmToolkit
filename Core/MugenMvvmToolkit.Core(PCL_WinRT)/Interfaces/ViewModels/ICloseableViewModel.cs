@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
         /// <param name="parameter">The specified parameter, if any.</param>
         /// <returns>An instance of task with result.</returns>
         [NotNull]
-        Task<bool> CloseAsync([CanBeNull] object parameter);
+        Task<bool> CloseAsync(object parameter = null);
 
         /// <summary>
         ///     Occurs when <see cref="ICloseableViewModel" /> is closing.

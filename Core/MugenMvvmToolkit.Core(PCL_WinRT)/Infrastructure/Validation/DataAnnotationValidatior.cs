@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="ValidationElementValidator.cs">
+// <copyright file="DataAnnotationValidatior.cs">
 // Copyright (c) 2012-2015 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************

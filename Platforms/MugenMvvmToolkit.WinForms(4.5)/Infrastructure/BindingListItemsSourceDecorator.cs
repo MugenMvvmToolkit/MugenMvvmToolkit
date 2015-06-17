@@ -19,8 +19,9 @@
 using System.Collections.Generic;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.WinForms.Collections;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.WinForms.Infrastructure
 {
     /// <summary>
     ///     Represnets the class that allows to wrap items source collection to <see cref="BindingListWrapper{T}" />.

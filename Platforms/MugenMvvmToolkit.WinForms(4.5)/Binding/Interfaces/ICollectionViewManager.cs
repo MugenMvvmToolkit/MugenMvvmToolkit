@@ -18,7 +18,13 @@
 
 using JetBrains.Annotations;
 
-namespace MugenMvvmToolkit.Binding.Interfaces
+#if WINFORMS
+namespace MugenMvvmToolkit.WinForms.Binding.Interfaces
+#elif ANDROID
+namespace MugenMvvmToolkit.Android.Binding.Interfaces
+#elif TOUCH
+namespace MugenMvvmToolkit.iOS.Binding.Interfaces
+#endif
 {
     public interface ICollectionViewManager
     {

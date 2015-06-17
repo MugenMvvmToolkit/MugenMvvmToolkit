@@ -19,7 +19,7 @@
 using Android.Util;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.Android.Infrastructure
 {
     public class TracerEx : Tracer
     {

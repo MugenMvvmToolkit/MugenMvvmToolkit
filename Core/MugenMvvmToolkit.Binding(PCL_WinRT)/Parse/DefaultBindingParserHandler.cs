@@ -115,7 +115,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 return null;
             lock (_errorPathNames)
             {
-                if (!HasGetErrorsMethod(expression))
+                if (!HasGetErrorsMethod(ref expression))
                     return null;
                 var pairs = _errorPathNames.ToArrayEx();
                 return dataContext => UpdateBindingContext(dataContext, pairs);
@@ -159,10 +159,10 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Methods
 
-        private bool HasGetErrorsMethod(IExpressionNode node)
+        private bool HasGetErrorsMethod(ref IExpressionNode node)
         {
             _errorPathNames.Clear();
-            node.Accept(this);
+            node = node.Accept(this);
             return _errorPathNames.Count != 0;
         }
 

@@ -119,7 +119,7 @@ namespace MugenMvvmToolkit.Binding.Builders
         ///     Creates a binding builder.
         /// </summary>
         /// <returns>The fluent syntax.</returns>
-        [Obsolete(BindingExceptionManager.ObsoleteExpressionUsage)]
+        [Obsolete(ExceptionManager.ObsoleteExpressionUsage)]
         public IBindingToSyntax<TLocalTarget> Bind<TLocalTarget>([NotNull]TLocalTarget target,
             [NotNull] Expression<Func<TLocalTarget, object>> targetPath) where TLocalTarget : class
         {
@@ -225,7 +225,7 @@ namespace MugenMvvmToolkit.Binding.Builders
         ///     Creates a binding builder.
         /// </summary>
         /// <returns>The fluent syntax.</returns>
-        [Obsolete(BindingExceptionManager.ObsoleteExpressionUsage)]
+        [Obsolete(ExceptionManager.ObsoleteExpressionUsage)]
         public new IBindingToSyntax<TLocalTarget, TSource> Bind<TLocalTarget>([NotNull]TLocalTarget target,
             [NotNull] Expression<Func<TLocalTarget, object>> targetPath) where TLocalTarget : class
         {
@@ -306,7 +306,7 @@ namespace MugenMvvmToolkit.Binding.Builders
         ///     Creates a binding builder.
         /// </summary>
         /// <returns>The fluent syntax.</returns>
-        [Obsolete(BindingExceptionManager.ObsoleteExpressionUsage)]
+        [Obsolete(ExceptionManager.ObsoleteExpressionUsage)]
         public IBindingToSyntax<TTarget, TSource> Bind([NotNull] Expression<Func<TTarget, object>> targetPath)
         {
             return Bind(_target, targetPath);

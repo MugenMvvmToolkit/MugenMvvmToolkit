@@ -21,9 +21,9 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
-using MugenMvvmToolkit.Binding.Parse.Nodes;
+using MugenMvvmToolkit.WinForms.Binding.Parse.Nodes;
 
-namespace MugenMvvmToolkit.Binding.Parse
+namespace MugenMvvmToolkit.WinForms.Binding.Parse
 {
     internal sealed class XmlVisitor : IExpressionVisitor
     {

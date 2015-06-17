@@ -25,17 +25,21 @@ using Android.Views;
 using Android.Widget;
 using Java.Lang;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding.Infrastructure;
+using MugenMvvmToolkit.Android.Binding.Interfaces;
+using MugenMvvmToolkit.Android.Infrastructure;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Binding.Modules;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using Object = Java.Lang.Object;
 
-namespace MugenMvvmToolkit.Binding.Modules
+namespace MugenMvvmToolkit.Android.Binding.Modules
 {
     public partial class PlatformDataBindingModule : DataBindingModule
     {
@@ -136,7 +140,7 @@ namespace MugenMvvmToolkit.Binding.Modules
                     var underlyingView = GetUnderlyingView(child);
                     if (underlyingView != null)
                         BindingServiceProvider.ContextManager.GetBindingContext(underlyingView).ValueChanged -= BindingContextChangedDelegate;
-                    ContentMember.SetValue(viewGroup, RemoveViewValue);
+                    viewGroup.SetBindingMemberValue(AttachedMembers.ViewGroup.Content, RemoveViewValue);
                 }
                 GlobalViewParentListener.Instance.OnChildViewRemoved(parent, child);
             }
@@ -183,8 +187,13 @@ namespace MugenMvvmToolkit.Binding.Modules
                     return;
                 if (parent == null)
                     parent = GetParent(view);
-                if (parent != null && !Equals(BindingServiceProvider.ContextManager.GetBindingContext(parent).Value, context.Value))
-                    ContentMember.SetValue(parent, new[] { context.Value, AddViewValue });
+                if (parent != null && !Equals(parent.GetDataContext(), context.Value))
+                {
+                    var viewGroup = parent as ViewGroup;
+                    if (viewGroup != null)
+                        viewGroup.SetBindingMemberValue(AttachedMembers.ViewGroup.Content,
+                            new[] { context.Value, AddViewValue });
+                }
             }
 
             #endregion
@@ -193,17 +202,6 @@ namespace MugenMvvmToolkit.Binding.Modules
         #endregion
 
         #region Fields
-
-        internal static readonly INotifiableAttachedBindingMemberInfo<AdapterView, int> AdapterViewSelectedPositionMember;
-        internal readonly static IAttachedBindingMemberInfo<Object, ICollectionViewManager> CollectionViewManagerMember;
-        internal static readonly IAttachedBindingMemberInfo<AdapterView, object> AdapterViewSelectedItemMember;
-
-        private readonly static IAttachedBindingMemberInfo<Object, IContentViewManager> ContentViewManagerMember;
-        private static readonly IAttachedBindingMemberInfo<AdapterView, bool?> ScrollToSelectedItemMember;
-
-        private static readonly IAttachedBindingMemberInfo<ViewGroup, object> ContentMember;
-        private static readonly IAttachedBindingMemberInfo<ViewGroup, int?> ContentTemplateIdMember;
-        private static readonly IAttachedBindingMemberInfo<ViewGroup, IDataTemplateSelector> ContentTemplateSelectorMember;
 
         private static IBindingMemberInfo _rawAdapterMember;
         private static readonly object AddViewValue;
@@ -217,36 +215,6 @@ namespace MugenMvvmToolkit.Binding.Modules
         {
             AddViewValue = new object();
             RemoveViewValue = new object[] { null };
-            //Object
-            CollectionViewManagerMember = AttachedBindingMember.CreateAutoProperty<Object, ICollectionViewManager>("CollectionViewManager");
-            ContentViewManagerMember = AttachedBindingMember.CreateAutoProperty<Object, IContentViewManager>("ContentViewManager");
-
-            //Menu
-            MenuItemsSourceMember = AttachedBindingMember.CreateAutoProperty<IMenu, IEnumerable>(AttachedMemberConstants.ItemsSource, MenuItemsSourceChanged);
-            IsCheckedMenuItemMember = AttachedBindingMember.CreateNotifiableMember<IMenuItem, bool>("IsChecked",
-                (info, item) => item.IsChecked, (info, item, value) =>
-                {
-                    if (value == item.IsChecked)
-                        return false;
-                    item.SetChecked(value);
-                    return true;
-                });
-
-            //ViewGroup
-            ContentMember = AttachedBindingMember
-                .CreateAutoProperty<ViewGroup, object>(AttachedMemberConstants.Content, ContentMemberChanged, ContentMemberAttached);
-            ContentTemplateIdMember = AttachedBindingMember
-                .CreateAutoProperty<ViewGroup, int?>(AttachedMemberConstants.ContentTemplate, ContentTemplateIdChanged);
-            ContentTemplateSelectorMember = AttachedBindingMember
-                .CreateAutoProperty<ViewGroup, IDataTemplateSelector>(AttachedMemberConstants.ContentTemplateSelector, ContentTemplateSelectorChanged);
-
-            //AdapterView
-            AdapterViewSelectedPositionMember =
-                AttachedBindingMember.CreateAutoProperty<AdapterView, int>("SelectedItemPosition",
-                    AdapterViewSelectedItemPositionChanged, AdapterViewSelectedMemberAttached, (view, info) => view.SelectedItemPosition);
-            AdapterViewSelectedItemMember = AttachedBindingMember.CreateAutoProperty<AdapterView, object>(
-                AttachedMemberConstants.SelectedItem, AdapterViewSelectedItemChanged, AdapterViewSelectedMemberAttached);
-            ScrollToSelectedItemMember = AttachedBindingMember.CreateAutoProperty<AdapterView, bool?>("ScrollToSelectedItem");
         }
 
         #endregion
@@ -260,23 +228,31 @@ namespace MugenMvvmToolkit.Binding.Modules
             RegisterViewMembers(memberProvider);
 
             //Object
-            memberProvider.Register(CollectionViewManagerMember);
-            memberProvider.Register(ContentViewManagerMember);
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Object, ICollectionViewManager>(AttachedMembers.ViewGroup.CollectionViewManager.Path));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Object, IContentViewManager>(AttachedMembers.ViewGroup.ContentViewManager.Path));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(ItemsSourceGeneratorBase.MemberDescriptor,
+                (o, args) =>
+                {
+                    IEnumerable itemsSource = null;
+                    if (args.OldValue != null)
+                    {
+                        itemsSource = args.OldValue.ItemsSource;
+                        args.OldValue.SetItemsSource(null);
+                    }
+                    if (args.NewValue != null)
+                        args.NewValue.SetItemsSource(itemsSource);
+                }));
 
             //Dialog
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Dialog, object>("Title",
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.Dialog.Title,
                 (dialog, args) => dialog.SetTitle(args.NewValue.ToStringSafe())));
 
             //Activity
+            //to suppress message about parent
+            memberProvider.Register(AttachedBindingMember.CreateMember<Activity, object>(AttachedMemberConstants.ParentExplicit, (info, activity) => null, null));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Activity, string>("Title",
                 (activity, args) => activity.Title = args.NewValue, getDefaultValue: (activity, info) => activity.Title));
-            //to suppress message about parent property.
-            memberProvider.Register(AttachedBindingMember.CreateMember<Activity, object>(AttachedMemberConstants.Parent, (info, activity) => null, null));
-
-            //CompoundButton
-            memberProvider.Register(AttachedBindingMember
-                .CreateMember<CompoundButton, bool>("Checked", (info, btn) => btn.Checked,
-                    (info, btn, value) => btn.Checked = value, "CheckedChange"));
+            memberProvider.Register(AttachedBindingMember.CreateMember<Activity, object>(AttachedMemberConstants.FindByNameMethod, ActivityFindByNameMember));
 
             //RatingBar
             memberProvider.Register(AttachedBindingMember
@@ -286,62 +262,49 @@ namespace MugenMvvmToolkit.Binding.Modules
             //AdapterView
             _rawAdapterMember = memberProvider.GetBindingMember(typeof(AdapterView), "RawAdapter", false, true);
             memberProvider.Register(AttachedBindingMember
-                .CreateAutoProperty<AdapterView, int?>(AttachedMemberNames.DropDownItemTemplate,
-                    ViewGroupTemplateChanged));
+                .CreateAutoProperty(AttachedMembers.AdapterView.DropDownItemTemplate, ViewGroupTemplateChanged));
             memberProvider.Register(AttachedBindingMember
-                .CreateAutoProperty<AdapterView, int?>(AttachedMemberNames.DropDownItemTemplateSelector,
-                    ViewGroupTemplateChanged));
-            memberProvider.Register(AdapterViewSelectedItemMember);
-            memberProvider.Register(AdapterViewSelectedPositionMember);
-            memberProvider.Register(typeof(AdapterView), "SelectedIndex", AdapterViewSelectedPositionMember, true);
-            memberProvider.Register(ScrollToSelectedItemMember);
+                .CreateAutoProperty(AttachedMembers.AdapterView.DropDownItemTemplateSelector, ViewGroupTemplateChanged));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.AdapterView.SelectedItem, AdapterViewSelectedItemChanged, AdapterViewSelectedMemberAttached));
+            var selectedItemPosMember = AttachedBindingMember.CreateAutoProperty(AttachedMembers.AdapterView.SelectedItemPosition,
+                    AdapterViewSelectedItemPositionChanged, AdapterViewSelectedMemberAttached, (view, info) => view.SelectedItemPosition);
+            memberProvider.Register(selectedItemPosMember);
+            memberProvider.Register(typeof(AdapterView), "SelectedIndex", selectedItemPosMember, true);
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.AdapterView.ScrollToSelectedItem));
 
             //ViewGroup
-            memberProvider.Register(AttachedBindingMember
-                .CreateAutoProperty<ViewGroup, IEnumerable>(AttachedMemberConstants.ItemsSource, ViewGroupItemsSourceChanged));
-            memberProvider.Register(AttachedBindingMember
-                .CreateAutoProperty<ViewGroup, int?>(AttachedMemberConstants.ItemTemplate, ViewGroupTemplateChanged));
-            memberProvider.Register(AttachedBindingMember
-                .CreateAutoProperty<ViewGroup, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector, ViewGroupTemplateChanged));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ItemsSource, ViewGroupItemsSourceChanged));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ItemTemplate, ViewGroupTemplateChanged));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ItemTemplateSelector, ViewGroupTemplateChanged));
 
-            memberProvider.Register(ContentMember);
-            memberProvider.Register(ContentTemplateIdMember);
-            memberProvider.Register(ContentTemplateSelectorMember);
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.Content, ContentMemberChanged, ContentMemberAttached));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ContentTemplate, ContentTemplateIdChanged));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ContentTemplateSelector, ContentTemplateSelectorChanged));
 
             //TabHost
-            memberProvider.Register(
-                AttachedBindingMember.CreateAutoProperty<TabHost, object>(AttachedMemberConstants.SelectedItem,
-                    TabHostSelectedItemChanged));
-            memberProvider.Register(AttachedBindingMember
-                .CreateAutoProperty<TabHost, IEnumerable>(AttachedMemberConstants.ItemsSource, TabHostItemsSourceChanged));
-            memberProvider.Register(AttachedBindingMember
-                .CreateAutoProperty<TabHost, int?>(AttachedMemberConstants.ItemTemplate, TabHostTemplateChanged));
-            memberProvider.Register(AttachedBindingMember
-                .CreateAutoProperty<TabHost, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector,
-                    TabHostTemplateChanged));
-            memberProvider.Register(AttachedBindingMember
-                .CreateAutoProperty<TabHost, int?>(AttachedMemberConstants.ContentTemplate, TabHostTemplateChanged));
-            memberProvider.Register(AttachedBindingMember
-                .CreateAutoProperty<TabHost, IDataTemplateSelector>(AttachedMemberConstants.ContentTemplateSelector,
-                    TabHostTemplateChanged));
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<TabHost.TabSpec, string>("Title",
-                (spec, args) => spec.SetIndicator(args.NewValue)));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.TabHost.SelectedItem, TabHostSelectedItemChanged));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ItemsSource.Override<TabHost>(), TabHostItemsSourceChanged));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ItemTemplate.Override<TabHost>(), TabHostTemplateChanged));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ItemTemplateSelector.Override<TabHost>(), TabHostTemplateChanged));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ContentTemplate.Override<TabHost>(), TabHostTemplateChanged));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ContentTemplateSelector.Override<TabHost>(), TabHostTemplateChanged));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.TabSpec.Title, (spec, args) => spec.SetIndicator(args.NewValue)));
 
 
             //DatePicker
-            var selectedDateMember = AttachedBindingMember.CreateMember<DatePicker, DateTime>("SelectedDate",
+            var selectedDateMember = AttachedBindingMember.CreateMember(AttachedMembers.DatePicker.SelectedDate,
                 (info, picker) => picker.DateTime, (info, picker, value) => picker.DateTime = value,
                 ObserveSelectedDate, SelectedDateMemberAttached);
             memberProvider.Register(selectedDateMember);
             memberProvider.Register("DateTime", selectedDateMember);
 
             //TimePicker
-            var selectedTimeMember = AttachedBindingMember.CreateMember<TimePicker, TimeSpan>("SelectedTime", GetTimePickerValue, SetTimePickerValue, "TimeChanged");
+            var selectedTimeMember = AttachedBindingMember.CreateMember(AttachedMembers.TimePicker.SelectedTime, GetTimePickerValue, SetTimePickerValue, "TimeChanged");
             memberProvider.Register(selectedTimeMember);
             memberProvider.Register("Value", selectedTimeMember);
 
             //ImageView
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<ImageView, object>("ImageSource",
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ImageView.ImageSource,
                 (view, args) =>
                 {
                     if (args.NewValue == null)
@@ -361,7 +324,7 @@ namespace MugenMvvmToolkit.Binding.Modules
                         view.SetImageDrawable(drawable);
                         return;
                     }
-                    var uri = args.NewValue as Android.Net.Uri;
+                    var uri = args.NewValue as global::Android.Net.Uri;
                     if (uri != null)
                     {
                         view.SetImageURI(uri);
@@ -369,6 +332,13 @@ namespace MugenMvvmToolkit.Binding.Modules
                     }
                     view.SetImageResource((int)args.NewValue);
                 }));
+
+            //Toolbar
+            if (PlatformExtensions.IsApiGreaterThanOrEqualTo21)
+            {
+                memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.Toolbar.IsActionBar, ToolbarIsActionBarChanged));
+                memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.Toolbar.MenuTemplate, ToolbarMenuTemplateChanged));
+            }
         }
 
         internal static object GetAdapter(AdapterView item)
@@ -381,58 +351,52 @@ namespace MugenMvvmToolkit.Binding.Modules
             _rawAdapterMember.SetValue(item, new object[] { adapter });
         }
 
-        private static void MenuTemplateChanged(View view, AttachedMemberChangedEventArgs<int> args)
+        private static void ToolbarMenuTemplateChanged(Toolbar view, AttachedMemberChangedEventArgs<int> args)
         {
-            var type = view.GetType();
-            if (!IsToolbar(type))
-                return;
             var activity = view.Context.GetActivity();
-            if (activity == null)
-                return;
-            var menuMember = BindingServiceProvider
-                .MemberProvider
-                .GetBindingMember(type, "Menu", true, true);
-            if (menuMember != null)
-                activity.MenuInflater.Inflate(args.NewValue, (IMenu)menuMember.GetValue(view, null), view);
+            if (activity != null)
+                activity.MenuInflater.Inflate(args.NewValue, view.Menu, view);
         }
 
-        private static void ToolbarIsActionBarChanged(View view, AttachedMemberChangedEventArgs<bool> args)
+        private static void ToolbarIsActionBarChanged(Toolbar view, AttachedMemberChangedEventArgs<bool> args)
         {
-            var type = view.GetType();
-            if (!args.NewValue || !IsToolbar(type))
+            if (!args.NewValue)
                 return;
             var activity = view.Context.GetActivity();
-            if (activity == null)
-                return;
-            var methodInfo = activity.GetType().GetMethodEx("SetActionBar", MemberFlags.Instance | MemberFlags.Public);
-            if (methodInfo != null)
-                methodInfo.SetValueEx(activity, view);
+            if (activity != null)
+                activity.SetActionBar(view);
         }
 
-        private static bool IsToolbar(Type type)
+        private static object ActivityFindByNameMember(IBindingMemberInfo bindingMemberInfo, Activity target, object[] arg3)
         {
-            return type.FullName == "Android.Widget.Toolbar";
+            return ViewFindByNameMember(bindingMemberInfo, target.FindViewById(global::Android.Resource.Id.Content), arg3);
         }
 
         #region TabHost
 
         private static void TabHostSelectedItemChanged(TabHost tabHost, AttachedMemberChangedEventArgs<object> arg)
         {
-            var generator = ItemsSourceGeneratorBase.Get(tabHost) as TabHostItemsSourceGenerator;
+            var generator = tabHost.GetBindingMemberValue(AttachedMembers.ViewGroup.ItemsSourceGenerator) as IItemsSourceGeneratorEx;
             if (generator != null)
-                generator.SetSelectedItem(arg.NewValue);
+                generator.SelectedItem = arg.NewValue;
         }
 
         private static void TabHostTemplateChanged<T>(TabHost tabHost, AttachedMemberChangedEventArgs<T> args)
         {
-            var generator = ItemsSourceGeneratorBase.Get(tabHost);
+            var generator = tabHost.GetBindingMemberValue(AttachedMembers.ViewGroup.ItemsSourceGenerator);
             if (generator != null)
                 generator.Reset();
         }
 
         private static void TabHostItemsSourceChanged(TabHost tabHost, AttachedMemberChangedEventArgs<IEnumerable> arg)
         {
-            TabHostItemsSourceGenerator.GetOrAdd(tabHost).SetItemsSource(arg.NewValue);
+            var generator = tabHost.GetBindingMemberValue(AttachedMembers.ViewGroup.ItemsSourceGenerator);
+            if (generator == null)
+            {
+                generator = new TabHostItemsSourceGenerator(tabHost);
+                tabHost.SetBindingMemberValue(AttachedMembers.ViewGroup.ItemsSourceGenerator, generator);
+            }
+            generator.SetItemsSource(arg.NewValue);
         }
 
         #endregion
@@ -441,18 +405,18 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         private static void AdapterViewSelectedItemPositionChanged(AdapterView sender, AttachedMemberChangedEventArgs<int> args)
         {
-            if (ScrollToSelectedItemMember.GetValue(sender, null).GetValueOrDefault(true))
+            if (sender.GetBindingMemberValue(AttachedMembers.AdapterView.ScrollToSelectedItem).GetValueOrDefault(true))
                 sender.SetSelection(args.NewValue);
             var adapter = GetAdapter(sender) as ItemsSourceAdapter;
             if (adapter != null)
-                AdapterViewSelectedItemMember.SetValue(sender, adapter.GetRawItem(args.NewValue));
+                sender.SetBindingMemberValue(AttachedMembers.AdapterView.SelectedItem, adapter.GetRawItem(args.NewValue));
         }
 
         private static void AdapterViewSelectedItemChanged(AdapterView sender, AttachedMemberChangedEventArgs<object> args)
         {
             var adapter = GetAdapter(sender) as ItemsSourceAdapter;
             if (adapter != null)
-                AdapterViewSelectedPositionMember.SetValue(sender, adapter.GetPosition(args.NewValue));
+                sender.SetBindingMemberValue(AttachedMembers.AdapterView.SelectedItemPosition, adapter.GetPosition(args.NewValue));
         }
 
         private static void AdapterViewSelectedMemberAttached(AdapterView adapterView, MemberAttachedEventArgs arg)
@@ -468,14 +432,14 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         private static void SetSelectedIndexAdapterView(AdapterView adapter, int index)
         {
-            var oldValue = ScrollToSelectedItemMember.GetValue(adapter, null);
+            var oldValue = adapter.GetBindingMemberValue(AttachedMembers.AdapterView.ScrollToSelectedItem);
             if (oldValue != null && !oldValue.Value)
-                AdapterViewSelectedPositionMember.SetValue(adapter, index);
+                adapter.SetBindingMemberValue(AttachedMembers.AdapterView.SelectedItemPosition, index);
             else
             {
-                ScrollToSelectedItemMember.SetValue(adapter, false);
-                AdapterViewSelectedPositionMember.SetValue(adapter, index);
-                ScrollToSelectedItemMember.SetValue(adapter, oldValue);
+                adapter.SetBindingMemberValue(AttachedMembers.AdapterView.ScrollToSelectedItem, false);
+                adapter.SetBindingMemberValue(AttachedMembers.AdapterView.SelectedItemPosition, index);
+                adapter.SetBindingMemberValue(AttachedMembers.AdapterView.ScrollToSelectedItem, oldValue);
             }
         }
 
@@ -519,7 +483,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             var container = sender as AdapterView;
             if (container == null)
             {
-                var sourceGenerator = ViewGroupItemsSourceGenerator.GetOrAdd(sender);
+                var sourceGenerator = sender.GetBindingMemberValue(AttachedMembers.ViewGroup.ItemsSourceGenerator);
                 if (sourceGenerator != null)
                     sourceGenerator.Reset();
                 return;
@@ -534,7 +498,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             var container = sender as AdapterView;
             if (container == null)
             {
-                var sourceGenerator = ViewGroupItemsSourceGenerator.GetOrAdd(sender);
+                var sourceGenerator = sender.GetBindingMemberValue(AttachedMembers.ViewGroup.ItemsSourceGenerator);
                 if (sourceGenerator != null)
                     sourceGenerator.SetItemsSource(args.NewValue);
                 return;
@@ -557,7 +521,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         private static void ContentTemplateSelectorChanged(ViewGroup sender,
             AttachedMemberChangedEventArgs<IDataTemplateSelector> args)
         {
-            UpdateContent(sender, ContentMember.GetValue(sender, null), args.Args);
+            UpdateContent(sender, sender.GetBindingMemberValue(AttachedMembers.ViewGroup.Content), args.Args);
         }
 
         private static void ContentMemberChanged(ViewGroup sender, AttachedMemberChangedEventArgs<object> args)
@@ -567,7 +531,7 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         private static void ContentTemplateIdChanged(ViewGroup sender, AttachedMemberChangedEventArgs<int?> args)
         {
-            UpdateContent(sender, ContentMember.GetValue(sender, null), args.Args);
+            UpdateContent(sender, sender.GetBindingMemberValue(AttachedMembers.ViewGroup.Content), args.Args);
         }
 
         private static void UpdateContent(ViewGroup sender, object newContent, object[] args)
@@ -578,10 +542,10 @@ namespace MugenMvvmToolkit.Binding.Modules
             //NOTE cheking if it's a view group listener.
             if (args != null && args.Length == 2 && args[1] == AddViewValue)
                 return;
-            var templateId = ContentTemplateIdMember.GetValue(sender, null);
-            var templateSelector = ContentTemplateSelectorMember.GetValue(sender, null);
+            var templateId = sender.GetBindingMemberValue(AttachedMembers.ViewGroup.ContentTemplate);
+            var templateSelector = sender.GetBindingMemberValue(AttachedMembers.ViewGroup.ContentTemplateSelector);
             newContent = PlatformExtensions.GetContentView(sender, sender.Context, newContent, templateId, templateSelector);
-            var contentViewManager = ContentViewManagerMember.GetValue(sender, null);
+            var contentViewManager = sender.GetBindingMemberValue(AttachedMembers.ViewGroup.ContentViewManager);
             if (contentViewManager == null)
                 PlatformExtensions.SetContentView(sender, newContent);
             else
@@ -606,7 +570,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         /// <summary>
         ///     Gets the <see cref="IBindingErrorProvider" /> that will be used by default.
         /// </summary>
-        protected override IBindingErrorProvider GetBindingErrorProvider()
+        protected override IBindingErrorProvider GetBindingErrorProvider(IModuleContext context)
         {
             return new BindingErrorProvider();
         }

@@ -17,25 +17,37 @@
 #endregion
 
 using System;
-using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Models.EventArg;
-#if NETFX_CORE || WINDOWSCOMMON
-using Windows.UI.Xaml.Navigation;
-#elif ANDROID
-using Android.App;
-#elif TOUCH
-#elif XAMARIN_FORMS
-using Xamarin.Forms;
-#else
-using System.Windows.Navigation;
-#endif
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.EventArg;
+#if WPF
+using System.Windows.Navigation;
 
-namespace MugenMvvmToolkit.Interfaces.Navigation
+namespace MugenMvvmToolkit.WPF.Interfaces.Navigation
+#elif ANDROID
+using Android.App;
+
+namespace MugenMvvmToolkit.Android.Interfaces.Navigation
+#elif TOUCH
+namespace MugenMvvmToolkit.iOS.Interfaces.Navigation
+#elif XAMARIN_FORMS
+using Xamarin.Forms;
+
+namespace MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation
+#elif SILVERLIGHT
+namespace MugenMvvmToolkit.Silverlight.Interfaces.Navigation
+#elif NETFX_CORE || WINDOWSCOMMON
+namespace MugenMvvmToolkit.WinRT.Interfaces.Navigation
+#elif WINDOWS_PHONE
+using System.Windows.Navigation;
+
+namespace MugenMvvmToolkit.WinPhone.Interfaces.Navigation
+#endif
 {
     /// <summary>
-    ///     Implemented by services that provide <see cref="IViewMappingItem" /> based navigation.
+    ///     Implemented by services that provide view model based navigation.
     /// </summary>
     public interface INavigationService
     {
@@ -124,6 +136,16 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
         ///     <c>true</c> if the content was successfully displayed; otherwise, <c>false</c>.
         /// </returns>
         bool Navigate([NotNull] IViewMappingItem source, [CanBeNull] object parameter, [CanBeNull] IDataContext dataContext);
+
+        /// <summary>
+        ///     Determines whether the specified command <c>CloseCommand</c> can be execute.
+        /// </summary>
+        bool CanClose([NotNull] IViewModel viewModel, [CanBeNull] IDataContext dataContext);
+
+        /// <summary>
+        ///     Tries to close view-model page.
+        /// </summary>
+        bool TryClose([NotNull]IViewModel viewModel, [CanBeNull] IDataContext dataContext);
 
         /// <summary>
         ///     Raised prior to navigation.

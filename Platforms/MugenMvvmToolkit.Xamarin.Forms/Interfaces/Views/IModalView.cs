@@ -16,7 +16,9 @@
 
 #endregion
 
-namespace MugenMvvmToolkit.Interfaces.Views
+using MugenMvvmToolkit.Interfaces.Views;
+
+namespace MugenMvvmToolkit.Xamarin.Forms.Interfaces.Views
 {
     public interface IModalView : IView
     {

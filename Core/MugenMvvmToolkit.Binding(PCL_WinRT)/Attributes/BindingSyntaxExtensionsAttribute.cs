@@ -15,12 +15,15 @@
 // ****************************************************************************
 
 #endregion
+
 using System;
+using System.Reflection;
 
 namespace MugenMvvmToolkit.Binding.Attributes
 {
     /// <summary>
-    ///     Indicates that the class can be used as syntax extension, class should be static and have a method <c>(Expression ProvideExpression(IBuilderSyntaxContext context))</c> method.
+    ///     Indicates that the class can be used as syntax extension, class should be static and have a method
+    ///     <c>(Expression ProvideExpression(IBuilderSyntaxContext context))</c> method.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public sealed class BindingSyntaxExtensionsAttribute : Attribute
@@ -33,5 +36,43 @@ namespace MugenMvvmToolkit.Binding.Attributes
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public sealed class BindingSyntaxMemberAttribute : Attribute
     {
+        #region Fields
+
+        private readonly string _memberName;
+
+        #endregion
+
+        #region Fields
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="BindingSyntaxMemberAttribute" /> class.
+        /// </summary>
+        public BindingSyntaxMemberAttribute(string memberName)
+        {
+            _memberName = memberName;
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="BindingSyntaxMemberAttribute" /> class.
+        /// </summary>
+        public BindingSyntaxMemberAttribute()
+        {
+        }
+
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        ///     Gets the member name.
+        /// </summary>
+        public string GetMemberName(MemberInfo member)
+        {
+            if (string.IsNullOrEmpty(_memberName))
+                return member.Name;
+            return _memberName;
+        }
+
+        #endregion
     }
 }

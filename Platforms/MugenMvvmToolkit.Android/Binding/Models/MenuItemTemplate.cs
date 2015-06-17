@@ -22,11 +22,12 @@ using System.Xml.Serialization;
 using Android.Content;
 using Android.Views;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding.Infrastructure;
+using MugenMvvmToolkit.Android.Binding.Modules;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
-using MugenMvvmToolkit.Binding.Infrastructure;
-using MugenMvvmToolkit.Binding.Modules;
 
-namespace MugenMvvmToolkit.Binding.Models
+namespace MugenMvvmToolkit.Android.Binding.Models
 {
     public sealed class MenuItemTemplate
     {
@@ -151,9 +152,8 @@ namespace MugenMvvmToolkit.Binding.Models
             {
                 ISubMenu subMenu = menu.AddSubMenu(0, id, order, string.Empty);
                 setter = new XmlPropertySetter<MenuItemTemplate, IMenuItem>(subMenu.Item, context, new BindingSet());
-
-                BindingExtensions.AttachedParentMember.SetValue(subMenu, menu);
-                BindingExtensions.AttachedParentMember.SetValue(subMenu.Item, subMenu);
+                subMenu.SetBindingMemberValue(AttachedMembers.Object.Parent, menu);
+                subMenu.Item.SetBindingMemberValue(AttachedMembers.Object.Parent, subMenu);
                 SetDataContext(subMenu, setter.BindingSet, dataContext, useContext);
                 ApplySelf(subMenu.Item, setter);
 
@@ -164,7 +164,8 @@ namespace MugenMvvmToolkit.Binding.Models
                 }
                 else
                 {
-                    MenuItemsSourceGenerator.Set(subMenu, context, ItemTemplate ?? this);
+                    subMenu.SetBindingMemberValue(AttachedMembers.Menu.ItemsSourceGenerator,
+                        new MenuItemsSourceGenerator(subMenu, context, ItemTemplate ?? this));
                     XmlPropertySetter<object, object>.AddBinding(setter.BindingSet, subMenu, AttachedMemberConstants.ItemsSource, ItemsSource, true);
                 }
             }
@@ -172,7 +173,7 @@ namespace MugenMvvmToolkit.Binding.Models
             {
                 var menuItem = menu.Add(0, id, order, string.Empty);
                 setter = new XmlPropertySetter<MenuItemTemplate, IMenuItem>(menuItem, context, new BindingSet());
-                BindingExtensions.AttachedParentMember.SetValue(menuItem, menu);
+                menuItem.SetBindingMemberValue(AttachedMembers.Object.Parent, menu);
                 SetDataContext(menuItem, setter.BindingSet, dataContext, useContext);
                 ApplySelf(menuItem, setter);
             }
@@ -183,34 +184,34 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             if (!string.IsNullOrEmpty(Bind))
                 setter.BindingSet.BindFromExpression(menuItem, Bind);
-            setter.SetStringProperty(template => template.AlphabeticShortcut, AlphabeticShortcut);
-            setter.SetStringProperty(template => template.NumericShortcut, NumericShortcut);
-            setter.SetProperty(template => template.Icon, Icon);
-            setter.SetBoolProperty(template => template.IsCheckable, IsCheckable);
-            setter.SetBoolProperty(template => template.IsChecked, IsChecked);
-            setter.SetBoolProperty(template => template.IsEnabled, IsEnabled);
-            setter.SetBoolProperty(template => template.IsVisible, IsVisible);
-            setter.SetBoolProperty(template => template.IsActionViewExpanded, IsActionViewExpanded);
-            setter.SetStringProperty(template => template.Title, Title);
-            setter.SetStringProperty(template => template.TitleCondensed, TitleCondensed);
-            setter.SetStringProperty(template => template.CommandParameter, CommandParameter);
-            setter.SetBinding(template => template.Click, Click, false);
+            setter.SetStringProperty(() => template => template.AlphabeticShortcut, AlphabeticShortcut);
+            setter.SetStringProperty(() => template => template.NumericShortcut, NumericShortcut);
+            setter.SetProperty(() => template => template.Icon, Icon);
+            setter.SetBoolProperty(() => template => template.IsCheckable, IsCheckable);
+            setter.SetBoolProperty(() => template => template.IsChecked, IsChecked);
+            setter.SetBoolProperty(() => template => template.IsEnabled, IsEnabled);
+            setter.SetBoolProperty(() => template => template.IsVisible, IsVisible);
+            setter.SetBoolProperty(() => template => template.IsActionViewExpanded, IsActionViewExpanded);
+            setter.SetStringProperty(() => template => template.Title, Title);
+            setter.SetStringProperty(() => template => template.TitleCondensed, TitleCondensed);
+            setter.SetStringProperty(() => template => template.CommandParameter, CommandParameter);
+            setter.SetBinding(() => template => template.Click, Click, false);
 
             var initalized = Initalized;
             if (initalized != null)
                 initalized(this, menuItem, setter);
 
-            setter.SetBinding(template => template.ActionViewTemplateSelector, ActionViewTemplateSelector, false);
-            setter.SetBinding(template => template.ActionProviderTemplateSelector, ActionProviderTemplateSelector, false);
-            setter.SetProperty(template => template.ActionView, ActionView);
-            setter.SetStringProperty(template => template.ActionProvider, ActionProvider);
+            setter.SetBinding(() => template => template.ActionViewTemplateSelector, ActionViewTemplateSelector, false);
+            setter.SetBinding(() => template => template.ActionProviderTemplateSelector, ActionProviderTemplateSelector, false);
+            setter.SetProperty(() => template => template.ActionView, ActionView);
+            setter.SetStringProperty(() => template => template.ActionProvider, ActionProvider);
             menuItem.SetOnMenuItemClickListener(new PlatformDataBindingModule.MenuItemOnMenuItemClickListener(menuItem));
         }
 
         private void SetDataContext(object target, BindingSet setter, object dataContext, bool useContext)
         {
             if (useContext)
-                BindingServiceProvider.ContextManager.GetBindingContext(target).Value = dataContext;
+                target.SetDataContext(dataContext);
             else
                 XmlPropertySetter<object, object>.AddBinding(setter, target, AttachedMemberConstants.DataContext, DataContext, false);
         }

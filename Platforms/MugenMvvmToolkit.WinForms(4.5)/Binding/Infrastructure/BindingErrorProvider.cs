@@ -20,9 +20,10 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
 {
     /// <summary>
     ///     Represents the class that provides a user interface for indicating that a control on a form has an error associated

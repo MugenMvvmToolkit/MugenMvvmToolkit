@@ -276,17 +276,17 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Adds a property name to the <see cref="ValidatableViewModel.IgnoreProperties" />.
         /// </summary>
-        protected void AddIgnoreProperty<TValue>(Expression<Func<T, TValue>> getProperty)
+        protected void AddIgnoreProperty(Func<Expression<Func<T, object>>> getProperty)
         {
-            IgnoreProperties.Add(getProperty.GetMemberInfo().Name);
+            IgnoreProperties.Add(getProperty.GetMemberName());
         }
 
         /// <summary>
         ///     Removes a property name to the <see cref="ValidatableViewModel.IgnoreProperties" />.
         /// </summary>
-        protected void RemoveIgnoreProperty<TValue>(Expression<Func<T, TValue>> getProperty)
+        protected void RemoveIgnoreProperty(Func<Expression<Func<T, object>>> getProperty)
         {
-            IgnoreProperties.Remove(getProperty.GetMemberInfo().Name);
+            IgnoreProperties.Remove(getProperty.GetMemberName());
         }
 
         /// <summary>
@@ -403,11 +403,11 @@ namespace MugenMvvmToolkit.ViewModels
         /// <summary>
         ///     Adds a property mapping to the <see cref="ValidatableViewModel.PropertyMappings" /> dictionary.
         /// </summary>
-        protected void AddPropertyMapping<T1, T2>([NotNull] Expression<Func<T1>> viewModelProperty,
-            [NotNull] Expression<Func<T, T2>> modelProperty)
+        protected void AddPropertyMapping<TViewModel>([NotNull] Func<Expression<Func<TViewModel, object>>> viewModelProperty,
+            [NotNull] Func<Expression<Func<T, object>>> modelProperty)
         {
-            var vmProperty = viewModelProperty.GetMemberInfo().Name;
-            var mProperty = modelProperty.GetMemberInfo().Name;
+            var vmProperty = viewModelProperty.GetMemberName();
+            var mProperty = modelProperty.GetMemberName();
             ICollection<string> value;
             if (!PropertyMappings.TryGetValue(vmProperty, out value))
             {

@@ -17,13 +17,14 @@
 #endregion
 
 using System;
-using Android.App;
 using Android.Views;
+using MugenMvvmToolkit.Android.Binding.Models;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 
-namespace MugenMvvmToolkit.Binding.Modules
+namespace MugenMvvmToolkit.Android.Binding.Modules
 {
     public partial class PlatformDataBindingModule
     {
@@ -41,7 +42,7 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             protected LayoutObserver(View view)
             {
-                _viewReference = ServiceProvider.WeakReferenceFactory(view, true);
+                _viewReference = ServiceProvider.WeakReferenceFactory(view);
                 if (view.ViewTreeObserver.IsAlive)
                     view.ViewTreeObserver.GlobalLayout += OnGlobalLayoutChanged;
             }
@@ -137,29 +138,31 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         private static void RegisterViewMembers(IBindingMemberProvider memberProvider)
         {
-            //Activity
-            memberProvider.Register(AttachedBindingMember.CreateMember<Activity, object>(AttachedMemberConstants.FindByNameMethod, ActivityFindByNameMember));
-
             //View            
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<View, bool>("IsActionBar", ToolbarIsActionBarChanged));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.FindByNameMethod, ViewFindByNameMember));
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<View, int>(AttachedMemberNames.MenuTemplate, MenuTemplateChanged));
-            memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.Parent, GetViewParentValue, null, ObserveViewParent));
+            memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.ParentExplicit, GetViewParentValue, null, ObserveViewParent));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, bool>(AttachedMemberConstants.Focused,
-                    (info, view) => view.IsFocused, null, "FocusChange"));
+                    (info, view) => view.IsFocused, (info, view, arg3) =>
+                    {
+                        if (arg3)
+                            view.RequestFocus();
+                        else
+                            view.ClearFocus();
+                    }, "FocusChange"));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, bool>(AttachedMemberConstants.Enabled,
                     (info, view) => view.Enabled, (info, view, value) => view.Enabled = value));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, ViewStates>("Visibility",
                 (info, view) => view.Visibility, (info, view, value) => view.Visibility = value,
                 ObserveViewVisibility));
-            memberProvider.Register(AttachedBindingMember.CreateMember<View, bool>("Visible",
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.View.Visible,
                 (info, view) => view.Visibility == ViewStates.Visible,
                 (info, view, value) => view.Visibility = value ? ViewStates.Visible : ViewStates.Gone,
                 ObserveViewVisibility));
-            memberProvider.Register(AttachedBindingMember.CreateMember<View, bool>("Hidden",
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.View.Hidden,
                 (info, view) => view.Visibility != ViewStates.Visible,
                 (info, view, value) => view.Visibility = value ? ViewStates.Gone : ViewStates.Visible,
                 ObserveViewVisibility));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<View, object>(AttachedMembers.Toolbar.MenuTemplate.Path));
         }
 
         private static IDisposable ObserveViewVisibility(IBindingMemberInfo bindingMemberInfo, View view, IEventListener arg3)
@@ -175,11 +178,6 @@ namespace MugenMvvmToolkit.Binding.Modules
         private static object GetViewParentValue(IBindingMemberInfo arg1, View view)
         {
             return ParentObserver.GetOrAdd(view).Parent;
-        }
-
-        private static object ActivityFindByNameMember(IBindingMemberInfo bindingMemberInfo, Activity target, object[] arg3)
-        {
-            return ViewFindByNameMember(bindingMemberInfo, target.FindViewById(Android.Resource.Id.Content), arg3);
         }
 
         private static object ViewFindByNameMember(IBindingMemberInfo bindingMemberInfo, View target, object[] arg3)

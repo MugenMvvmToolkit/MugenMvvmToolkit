@@ -35,32 +35,22 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <summary>
         ///     Sets errors for a property
         /// </summary>
-        /// <param name="propertyExpresssion">The expression for the property</param>
-        /// <param name="errors">The collection of errors</param>
-        public void SetErrors<TValue>(Expression<Func<TValue>> propertyExpresssion, params object[] errors)
-        {
-            UpdateErrors(propertyExpresssion.GetMemberInfo().Name, errors, false);
-        }
-
-        /// <summary>
-        ///     Sets errors for a property
-        /// </summary>
         /// <typeparam name="TModel">The type of the model.</typeparam>
-        /// <param name="propertyExpresssion">The expression for the property</param>
+        /// <param name="memberExpresssion">The expression for the property</param>
         /// <param name="errors">The collection of errors</param>
-        public void SetErrors<TModel>(Expression<Func<TModel, object>> propertyExpresssion, params object[] errors)
+        public void SetErrors<TModel>(Func<Expression<Func<TModel, object>>> memberExpresssion, params object[] errors)
         {
-            UpdateErrors(ToolkitExtensions.GetMemberName(propertyExpresssion), errors, false);
+            UpdateErrors(memberExpresssion.GetMemberName(), errors, false);
         }
 
         /// <summary>
         ///     Sets errors for a property
         /// </summary>
-        /// <param name="propertyExpresssion">The expression for the property</param>
+        /// <param name="memberExpresssion">The expression for the member</param>
         /// <param name="errors">The collection of errors</param>
-        public void SetErrors<TValue>(Expression<Func<T, TValue>> propertyExpresssion, params object[] errors)
+        public void SetErrors(Func<Expression<Func<T, object>>> memberExpresssion, params object[] errors)
         {
-            UpdateErrors(ToolkitExtensions.GetMemberName(propertyExpresssion), errors, false);
+            UpdateErrors(memberExpresssion.GetMemberName(), errors, false);
         }
 
         /// <summary>

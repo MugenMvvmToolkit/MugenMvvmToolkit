@@ -21,12 +21,12 @@ using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Infrastructure;
 
-namespace MugenMvvmToolkit.Binding.Models
+namespace MugenMvvmToolkit.Android.Binding.Models
 {
     /// <summary>
     ///     Represents the weak parent observer.
     /// </summary>
-    public sealed class ParentObserver : EventListenerList
+    internal sealed class ParentObserver : EventListenerList
     {
         #region Fields
 
@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
         private ParentObserver(View view)
         {
-            _view = ServiceProvider.WeakReferenceFactory(view, true);
+            _view = ServiceProvider.WeakReferenceFactory(view);
             _parent = ToolkitExtensions.GetWeakReferenceOrDefault(GetParent(view), Empty.WeakReference, false);
         }
 
@@ -105,7 +105,7 @@ namespace MugenMvvmToolkit.Binding.Models
             if (view == null)
                 return;
             var parent = GetParent(view);
-            if (_isAttached || view.Id == Android.Resource.Id.Content || ReferenceEquals(parent, _parent.Target))
+            if (_isAttached || view.Id == global::Android.Resource.Id.Content || ReferenceEquals(parent, _parent.Target))
                 return;
             _parent = ToolkitExtensions.GetWeakReferenceOrDefault(parent, Empty.WeakReference, false);
             Raise(view, EventArgs.Empty);
@@ -138,7 +138,7 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             if (!view.IsAlive())
                 return null;
-            if (view.Id == Android.Resource.Id.Content)
+            if (view.Id == global::Android.Resource.Id.Content)
                 return view.Context.GetActivity();
             {
                 object parent = view.Parent;

@@ -19,7 +19,7 @@
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 
-namespace MugenMvvmToolkit.Binding.Parse.Nodes
+namespace MugenMvvmToolkit.WinForms.Binding.Parse.Nodes
 {
     internal class XmlCommentExpressionNode : XmlExpressionNode
     {

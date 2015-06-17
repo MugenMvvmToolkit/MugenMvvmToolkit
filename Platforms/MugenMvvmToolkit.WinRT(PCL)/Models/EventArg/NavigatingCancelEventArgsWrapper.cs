@@ -18,8 +18,10 @@
 
 using Windows.UI.Xaml.Navigation;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Models.EventArg;
+using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
-namespace MugenMvvmToolkit.Models.EventArg
+namespace MugenMvvmToolkit.WinRT.Models.EventArg
 {
     public sealed class NavigatingCancelEventArgsWrapper : NavigatingCancelEventArgsBase
     {
@@ -54,6 +56,9 @@ namespace MugenMvvmToolkit.Models.EventArg
             get { return _args; }
         }
 
+        /// <summary>
+        ///     Gets the current parameter.
+        /// </summary>
         public object Parameter
         {
             get { return _parameter; }

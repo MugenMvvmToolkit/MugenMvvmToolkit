@@ -21,12 +21,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Android.Widget;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using Xamarin.Forms;
 using View = Android.Views.View;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Xamarin.Forms.Android.Binding.Infrastructure
 {
     /// <summary>
     ///     Represents the class that provides a user interface for indicating that a control on a form has an error associated
@@ -44,7 +46,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         static BindingErrorProvider()
         {
-            Forms.ViewInitialized += FormsOnViewInitialized;
+            global::Xamarin.Forms.Forms.ViewInitialized += FormsOnViewInitialized;
         }
 
         #endregion

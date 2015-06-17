@@ -15,7 +15,6 @@
 // ****************************************************************************
 
 #endregion
-
 using System;
 using System.Collections.Generic;
 using Android.Content;
@@ -23,12 +22,13 @@ using Android.Runtime;
 using Android.Util;
 using Android.Views;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Android.Binding.Interfaces;
+using MugenMvvmToolkit.Android.DataConstants;
+using MugenMvvmToolkit.Android.Interfaces;
+using MugenMvvmToolkit.Android.Models;
+using MugenMvvmToolkit.Binding;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
     public class BindableLayoutInflater : LayoutInflater, LayoutInflater.IFactory
     {

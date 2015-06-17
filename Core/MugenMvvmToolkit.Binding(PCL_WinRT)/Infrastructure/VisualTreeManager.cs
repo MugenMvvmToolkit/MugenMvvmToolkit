@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public RootObserver(object target, IEventListener listener)
             {
-                _reference = ServiceProvider.WeakReferenceFactory(target, true);
+                _reference = ServiceProvider.WeakReferenceFactory(target);
                 _listener = listener.ToWeakWrapper();
                 TryHandle(null, null);
             }

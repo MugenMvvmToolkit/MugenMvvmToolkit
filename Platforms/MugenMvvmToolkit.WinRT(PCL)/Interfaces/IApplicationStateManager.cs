@@ -22,11 +22,13 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
 #if WINDOWS_PHONE
 using System.Windows;
+
+namespace MugenMvvmToolkit.WinPhone.Interfaces
 #else
 using Windows.UI.Xaml;
-#endif
 
-namespace MugenMvvmToolkit.Interfaces
+namespace MugenMvvmToolkit.WinRT.Interfaces
+#endif
 {
     /// <summary>
     ///     Represents the application state manager.

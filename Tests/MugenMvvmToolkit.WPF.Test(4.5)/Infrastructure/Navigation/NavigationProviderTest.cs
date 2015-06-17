@@ -7,9 +7,12 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using MugenMvvmToolkit.Silverlight.Infrastructure.Navigation;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestModels;
 using MugenMvvmToolkit.Test.TestViewModels;
+using MugenMvvmToolkit.WinRT.Infrastructure.Navigation;
+using MugenMvvmToolkit.WPF.Infrastructure.Navigation;
 using Should;
 
 namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
@@ -69,7 +72,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             {
                 var s = o as string;
                 s.ShouldNotBeNull();
-                s.ShouldEqual(typeof(NavigableViewModelMock).AssemblyQualifiedName);
+                s.ShouldContain(typeof(NavigableViewModelMock).AssemblyQualifiedName);
 
                 d.ShouldNotBeNull();
                 item.ShouldEqual(PageMapping);
@@ -106,7 +109,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             {
                 var s = o as string;
                 s.ShouldNotBeNull();
-                s.ShouldEqual(typeof(NavigableViewModelMock).AssemblyQualifiedName);
+                s.ShouldContain(typeof(NavigableViewModelMock).AssemblyQualifiedName);
 
                 d.ShouldNotBeNull();
                 item.ShouldEqual(PageMapping);
@@ -192,11 +195,16 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             NavigationService.OnNavigated(new NavigationEventArgsMock(testView, NavigationMode.New));
 
             viewModel.CloseCommand.CanExecute(null).ShouldBeFalse();
-            NavigationService.CanGoBack = true;
+            NavigationService.CanClose = (model, context) => true;
             viewModel.CloseCommand.CanExecute(null).ShouldBeTrue();
 
             bool isInvoked = false;
-            NavigationService.GoBack = () => isInvoked = true;
+            NavigationService.TryClose = (m, c) =>
+            {
+                m.ShouldEqual(viewModel);
+                isInvoked = true;
+                return true;
+            };
             viewModel.CloseCommand.Execute(null);
             isInvoked.ShouldBeTrue();
         }
@@ -213,7 +221,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             NavigationService.OnNavigated(new NavigationEventArgsMock(new ViewMock { DataContext = viewModel }, NavigationMode.New));
             viewModel.CloseCommand.ShouldNotEqual(relayCommandMock);
 
-            NavigationService.OnNavigated(new NavigationEventArgsMock(null, NavigationMode.New));
+            NavigationService.OnNavigated(new NavigationEventArgsMock(null, NavigationMode.Back));
             viewModel.CloseCommand.ShouldEqual(relayCommandMock);
         }
 
@@ -327,20 +335,24 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
         }
 
         [TestMethod]
-        public void ProviderShouldGoBackIfViewModelClosedEvent()
+        public void ProviderShouldCloseViewModelOnClosedEvent()
         {
-            bool isGoBackInvoked = false;
+            bool isInvoked = false;
             ViewPageMappingProvider.FindMappingForView = (type, b) => PageMapping;
             NavigationProvider.CurrentViewModel.ShouldBeNull();
             var viewModel = GetViewModel<NavigableViewModelMock>();
             NavigationService.OnNavigated(new NavigationEventArgsMock(new ViewMock { DataContext = viewModel }, NavigationMode.New));
 
-            NavigationService.CanGoBack = true;
-            NavigationService.GoBack = () => isGoBackInvoked = true;
+            NavigationService.TryClose = (model, context) =>
+            {
+                isInvoked = true;
+                model.ShouldEqual(viewModel);
+                return true;
+            };
 
-            isGoBackInvoked.ShouldBeFalse();
+            isInvoked.ShouldBeFalse();
             viewModel.OnClosed(new ViewModelClosedEventArgs(viewModel, viewModel));
-            isGoBackInvoked.ShouldBeTrue();
+            isInvoked.ShouldBeTrue();
         }
 
         [TestMethod]

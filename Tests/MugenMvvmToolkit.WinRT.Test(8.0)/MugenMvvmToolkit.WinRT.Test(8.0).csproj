@@ -536,9 +536,9 @@
       <Project>{e167271b-5f89-4d89-99b2-f585e232035f}</Project>
       <Name>MugenMvvmToolkit.MugenContainer%28WinRT8.0%29</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.Binding.WinRT%288.0%29\MugenMvvmToolkit.Binding.WinRT%288.0%29.csproj">
+    <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.WinRT.Binding%288.0%29\MugenMvvmToolkit.WinRT.Binding%288.0%29.csproj">
       <Project>{7ad9872b-d026-47f0-ada9-1ebc321522c8}</Project>
-      <Name>MugenMvvmToolkit.Binding.WinRT%288.0%29</Name>
+      <Name>MugenMvvmToolkit.WinRT.Binding%288.0%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.WinRT%288.0%29\MugenMvvmToolkit.WinRT%288.0%29.csproj">
       <Project>{634b471b-9bea-4c91-be1c-2dccd4d01668}</Project>

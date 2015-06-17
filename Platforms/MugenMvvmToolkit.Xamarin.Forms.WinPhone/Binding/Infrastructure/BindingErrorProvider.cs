@@ -22,14 +22,16 @@ using System.Windows;
 using System.Windows.Controls;
 using JetBrains.Annotations;
 using Microsoft.Phone.Controls;
+using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Xamarin.Forms.WinPhone.Binding.Models;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.WinPhone;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Binding.Infrastructure
 {
     /// <summary>
     ///     Represents the class that provides a user interface for indicating that a control on a form has an error associated

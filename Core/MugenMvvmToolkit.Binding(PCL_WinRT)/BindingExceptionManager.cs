@@ -33,8 +33,6 @@ namespace MugenMvvmToolkit.Binding
     {
         #region Fields
 
-        internal const string ObsoleteExpressionUsage = "Performance issue: use the method overload with Func argument (() => vm => vm.Prop) instead of Expression (vm => vm.Prop). The method will be removed in the next version.";
-
         internal const string ElementSourceNotFoundFormat2 =
             "The ElementSource cannot be found, the provider returns the null result for the source type '{0}' target element name '{1}'";
 

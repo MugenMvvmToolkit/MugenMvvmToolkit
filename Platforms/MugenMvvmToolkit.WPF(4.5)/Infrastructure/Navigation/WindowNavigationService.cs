@@ -21,13 +21,16 @@ using System.Linq;
 using System.Windows.Navigation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using MugenMvvmToolkit.WPF.Interfaces.Navigation;
+using MugenMvvmToolkit.WPF.Models.EventArg;
 using NavigationMode = System.Windows.Navigation.NavigationMode;
 
-namespace MugenMvvmToolkit.Infrastructure.Navigation
+namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
 {
     /// <summary>
     ///     A basic implementation of <see cref="INavigationService" /> to adapt the <see cref="NavigationWindow" />.
@@ -183,6 +186,16 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         }
 
         /// <summary>
+        ///     Determines whether the specified command <c>CloseCommand</c> can be execute.
+        /// </summary>
+        public bool CanClose(IViewModel viewModel, IDataContext dataContext)
+        {
+            Should.NotBeNull(viewModel, "viewModel");
+            var content = CurrentContent;
+            return content != null && ViewManager.GetDataContext(content) == viewModel && CanGoBack;
+        }
+
+        /// <summary>
         ///     Navigates using cancel event args.
         /// </summary>
         public bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
@@ -192,6 +205,19 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             if (result)
                 ClearNavigationStackIfNeed(dataContext);
             return result;
+        }
+
+        /// <summary>
+        ///     Tries to close view-model page.
+        /// </summary>
+        public bool TryClose(IViewModel viewModel, IDataContext dataContext)
+        {
+            if (CanClose(viewModel, dataContext))
+            {
+                GoBack();
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -219,7 +245,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
         }
 
-
         private bool NavigateInternal(IViewMappingItem source, object parameter)
         {
             if (_useUrlNavigation)
@@ -235,6 +260,8 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         private bool NavigateInternal(NavigatingCancelEventArgsBase args)
         {
+            if (!args.IsCancelable)
+                return false;
             NavigatingCancelEventArgs originalArgs = ((NavigatingCancelEventArgsWrapper)args).Args;
             if (originalArgs.NavigationMode == NavigationMode.Back)
             {

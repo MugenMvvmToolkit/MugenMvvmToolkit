@@ -7,7 +7,7 @@
     <ProjectGuid>{652625DB-BF03-4898-BD59-22910508502B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MugenMvvmToolkit</RootNamespace>
+    <RootNamespace>MugenMvvmToolkit.WinForms</RootNamespace>
     <AssemblyName>MugenMvvmToolkit.WinForms</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -66,18 +66,6 @@
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Infrastructure\DataTemplateSelectorBase.cs">
-      <Link>Binding\Infrastructure\DataTemplateSelectorBase.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Infrastructure\ItemsSourceGeneratorBase.cs">
-      <Link>Binding\Infrastructure\ItemsSourceGeneratorBase.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Interfaces\IDataTemplateSelector.cs">
-      <Link>Binding\Interfaces\IDataTemplateSelector.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Interfaces\IItemsSourceGenerator.cs">
-      <Link>Binding\Interfaces\IItemsSourceGenerator.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\converters\ViewModelToViewConverter.cs">
       <Link>Converters\ViewModelToViewConverter.cs</Link>
     </Compile>
@@ -99,6 +87,9 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\TracerEx.cs">
       <Link>Infrastructure\TracerEx.cs</Link>
     </Compile>
+    <Compile Include="Binding\AttachedMembers.cs" />
+    <Compile Include="Binding\Infrastructure\ItemsSourceGeneratorBase.cs" />
+    <Compile Include="Binding\Interfaces\IItemsSourceGenerator.cs" />
     <Compile Include="Binding\Models\AutoCompleteItem.cs" />
     <Compile Include="Binding\Parse\Nodes\XmlAttributeExpressionNode.cs" />
     <Compile Include="Binding\Parse\Nodes\XmlCommentExpressionNode.cs" />

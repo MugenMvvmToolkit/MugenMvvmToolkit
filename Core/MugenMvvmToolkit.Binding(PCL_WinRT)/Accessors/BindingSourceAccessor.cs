@@ -45,7 +45,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
             private readonly WeakReference _sourceReference;
             private IDisposable _subscriber;
-            private BindingMemberValue _currentValue;
+            private BindingActionValue _currentValue;
             private object _valueReference;
             private EventHandler _canExecuteHandler;
             public IDataContext LastContext;
@@ -63,7 +63,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
             #region Methods
 
-            public void SetValue(BindingMemberValue currentValue, object newValue)
+            public void SetValue(BindingActionValue currentValue, object newValue)
             {
                 //it's normal here.
                 lock (this)
@@ -117,7 +117,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 var command = newValue as ICommand;
                 if (command == null)
                 {
-                    if (!(newValue is BindingMemberValue))
+                    if (!(newValue is BindingActionValue))
                         throw BindingExceptionManager.InvalidEventSourceValue(_currentValue.Member, newValue);
                     _valueReference = newValue;
                 }
@@ -181,9 +181,9 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 var valueReference = _valueReference;
                 if (valueReference == null)
                     return null;
-                var memberValue = valueReference as BindingMemberValue;
-                if (memberValue != null)
-                    return memberValue;
+                var actionValue = valueReference as BindingActionValue;
+                if (actionValue != null)
+                    return actionValue;
                 var reference = valueReference as WeakReference;
                 if (reference == null)
                     return null;
@@ -394,7 +394,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 return false;
             if (lastMember.MemberType == BindingMemberType.Event)
             {
-                TryRegisterEvent((BindingMemberValue)oldValue, newValue, context);
+                TryRegisterEvent((BindingActionValue)oldValue, newValue, context);
                 RaiseValueChanged(context, penultimateValue, lastMember, oldValue, newValue, args);
             }
             else
@@ -434,14 +434,14 @@ namespace MugenMvvmToolkit.Binding.Accessors
             valueChanged(this, args);
         }
 
-        private void TryRegisterEvent(BindingMemberValue bindingMemberValue, object newValue, IDataContext context)
+        private void TryRegisterEvent(BindingActionValue bindingActionValue, object newValue, IDataContext context)
         {
             if (newValue == null && _closure == null)
                 return;
             if (_closure == null)
-                Interlocked.CompareExchange(ref _closure, new EventClosure(ServiceProvider.WeakReferenceFactory(this, true)), null);
+                Interlocked.CompareExchange(ref _closure, new EventClosure(ServiceProvider.WeakReferenceFactory(this)), null);
             _closure.LastContext = context;
-            _closure.SetValue(bindingMemberValue, newValue);
+            _closure.SetValue(bindingActionValue, newValue);
         }
 
         private void CommandOnCanExecuteChanged([NotNull] ICommand command, IDataContext context)
@@ -463,9 +463,9 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 return;
             }
 
-            var memberValue = target as BindingMemberValue;
-            if (memberValue != null)
-                memberValue.TrySetValue(new[] { GetCommandParameter(context), eventArgs, context }, out target);
+            var actionValue = target as BindingActionValue;
+            if (actionValue != null)
+                actionValue.TrySetValue(new[] { GetCommandParameter(context), eventArgs, context }, out target);
         }
 
         private object GetCommandParameter(IDataContext context)

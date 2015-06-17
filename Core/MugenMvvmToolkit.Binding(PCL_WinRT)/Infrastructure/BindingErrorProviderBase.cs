@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
@@ -79,6 +80,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Fields
 
         public static readonly DataConstant<bool> ClearErrorsConstant;
+        private static readonly BindingMemberDescriptor<object, object> ErrorsDescriptor;
         private const string ErrorsKey = "@#@er";
 
         #endregion
@@ -87,12 +89,39 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         static BindingErrorProviderBase()
         {
+            ErrorsDescriptor = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.ErrorsPropertyMember);
             ClearErrorsConstant = DataConstant.Create(() => ClearErrorsConstant);
         }
 
         #endregion
 
         #region Implementation of IBindingErrorProvider
+
+        /// <summary>
+        ///     Gets the validation errors for a specified property or for the entire entity.
+        /// </summary>
+        /// <param name="target">The binding target object.</param>
+        /// <param name="key">
+        ///     The name of the key to retrieve validation errors for; or null or
+        ///     <see cref="F:System.String.Empty" />, to retrieve entity-level errors.
+        /// </param>
+        /// <param name="context">The specified context, if any.</param>
+        /// <returns>
+        ///     The validation errors for the property or entity.
+        /// </returns>
+        public IList<object> GetErrors(object target, string key, IDataContext context)
+        {
+            Should.NotBeNull(target, "target");
+            var dictionary = GetErrorsDictionary(target);
+            if (dictionary == null)
+                return Empty.Array<object>();
+            if (string.IsNullOrEmpty(key))
+                return dictionary.SelectMany(pair => pair.Value).ToList();
+            IList<object> list;
+            if (dictionary.TryGetValue(key, out list))
+                return list;
+            return Empty.Array<object>();
+        }
 
         /// <summary>
         ///     Sets errors for binding target.
@@ -112,6 +141,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 ServiceProvider.AttachedValueProvider.Clear(target, ErrorsKey);
                 ClearErrors(target, context);
+                target.TryRaiseAttachedEvent(ErrorsDescriptor);
                 return;
             }
 
@@ -126,6 +156,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             else
                 errors = dict.SelectMany(list => list.Value).ToList();
             SetErrors(target, errors, context);
+            target.TryRaiseAttachedEvent(ErrorsDescriptor);
         }
 
         #endregion
@@ -153,11 +184,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <param name="context">The specified context, if any.</param>
         protected virtual void SetErrors([NotNull] object target, [NotNull] IList<object> errors, [NotNull] IDataContext context)
         {
-            var errorsMember = BindingServiceProvider
-                .MemberProvider
-                .GetBindingMember(target.GetType(), AttachedMemberConstants.ErrorsPropertyMember, false, false);
-            if (errorsMember != null && errorsMember.CanWrite)
-                errorsMember.SetValue(target, new object[] { errors });
         }
 
         /// <summary>
@@ -167,7 +193,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <param name="context">The specified context, if any.</param>
         protected virtual void ClearErrors([NotNull] object target, [NotNull] IDataContext context)
         {
-            SetErrors(target, Empty.Array<object>(), context);
         }
 
         #endregion

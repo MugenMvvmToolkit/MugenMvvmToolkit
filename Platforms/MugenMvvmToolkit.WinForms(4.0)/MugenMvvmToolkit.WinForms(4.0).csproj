@@ -7,7 +7,7 @@
     <ProjectGuid>{6CC70590-B95D-4A10-9304-89C3BA27AB32}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MugenMvvmToolkit</RootNamespace>
+    <RootNamespace>MugenMvvmToolkit.WinForms</RootNamespace>
     <AssemblyName>MugenMvvmToolkit.WinForms</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -75,17 +75,8 @@
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Infrastructure\DataTemplateSelectorBase.cs">
-      <Link>Binding\Infrastructure\DataTemplateSelectorBase.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Infrastructure\ItemsSourceGeneratorBase.cs">
-      <Link>Binding\Infrastructure\ItemsSourceGeneratorBase.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Interfaces\IDataTemplateSelector.cs">
-      <Link>Binding\Interfaces\IDataTemplateSelector.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Interfaces\IItemsSourceGenerator.cs">
-      <Link>Binding\Interfaces\IItemsSourceGenerator.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\AttachedMembers.cs">
+      <Link>Binding\AttachedMembers.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Infrastructure\BindingErrorProvider.cs">
       <Link>Binding\Infrastructure\BindingErrorProvider.cs</Link>
@@ -102,11 +93,17 @@
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Infrastructure\ItemsSourceGenerator.cs">
       <Link>Binding\Infrastructure\ItemsSourceGenerator.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Infrastructure\ItemsSourceGeneratorBase.cs">
+      <Link>Binding\Infrastructure\ItemsSourceGeneratorBase.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Interfaces\ICollectionViewManager.cs">
       <Link>Binding\Interfaces\ICollectionViewManager.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Interfaces\IContentViewManager.cs">
       <Link>Binding\Interfaces\IContentViewManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Interfaces\IItemsSourceGenerator.cs">
+      <Link>Binding\Interfaces\IItemsSourceGenerator.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Interfaces\IXmlHandler.cs">
       <Link>Binding\Interfaces\IXmlHandler.cs</Link>

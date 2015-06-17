@@ -25,11 +25,11 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Android.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Views.Activities
+namespace MugenMvvmToolkit.Android.Views.Activities
 {
     public abstract class SplashScreenActivityBase : Activity
     {

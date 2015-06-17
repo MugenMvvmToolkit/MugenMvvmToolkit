@@ -18,8 +18,9 @@
 
 using System;
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Binding.Parse;
 
-namespace MugenMvvmToolkit.Binding.Parse
+namespace MugenMvvmToolkit.WinForms.Binding.Parse
 {
     internal sealed class XmlTokenizer : Tokenizer
     {

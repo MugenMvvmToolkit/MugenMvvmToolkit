@@ -19,9 +19,9 @@
 using System.Collections;
 using Android.Content;
 using Android.Views;
-using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Android.Binding.Models;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
     internal sealed class MenuItemsSourceGenerator : ItemsSourceGeneratorBase
     {
@@ -35,7 +35,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
-        private MenuItemsSourceGenerator(IMenu menu, Context context, MenuItemTemplate itemTemplate)
+        internal MenuItemsSourceGenerator(IMenu menu, Context context, MenuItemTemplate itemTemplate)
         {
             Should.NotBeNull(menu, "menu");
             Should.NotBeNull(itemTemplate, "itemTemplate");
@@ -111,11 +111,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #endregion
 
         #region Methods
-
-        public static void Set(IMenu menu, Context context, MenuItemTemplate itemTemplate)
-        {
-            ServiceProvider.AttachedValueProvider.SetValue(menu, Key, new MenuItemsSourceGenerator(menu, context, itemTemplate));
-        }
 
         private void RemoveItem(int id)
         {

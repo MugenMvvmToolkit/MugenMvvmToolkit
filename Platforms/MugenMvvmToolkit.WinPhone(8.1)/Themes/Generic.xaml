@@ -1,13 +1,13 @@
 ﻿<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="clr-namespace:MugenMvvmToolkit.Controls">
+    xmlns:appBar="clr-namespace:MugenMvvmToolkit.WinPhone.AppBar">
     <Style
-        TargetType="controls:BindableApplicationBar">
+        TargetType="appBar:BindableApplicationBar">
         <Setter Property="ButtonItemTemplate">
             <Setter.Value>
                 <DataTemplate>
-                    <controls:BindableApplicationBarIconButton
+                    <appBar:BindableApplicationBarIconButton
                         Command="{Binding Path=Command}"
                         CommandParameter="{Binding Path=CommandParameter}"
                         IconUri="{Binding Path=IconUri}"
@@ -19,7 +19,7 @@
         <Setter Property="MenuItemTemplate">
             <Setter.Value>
                 <DataTemplate>
-                    <controls:BindableApplicationBarMenuItem
+                    <appBar:BindableApplicationBarMenuItem
                         Command="{Binding Path=Command}"
                         CommandParameter="{Binding Path=CommandParameter}"
                         IsEnabled="{Binding Path=IsEnabled}"

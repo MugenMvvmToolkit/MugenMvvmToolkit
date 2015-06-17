@@ -16,9 +16,19 @@
 
 #endregion
 
-using MugenMvvmToolkit.Binding.Interfaces;
+#if WINFORMS
+using MugenMvvmToolkit.WinForms.Binding.Interfaces;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
+#elif ANDROID
+using MugenMvvmToolkit.Android.Binding.Interfaces;
+
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
+#elif TOUCH
+using MugenMvvmToolkit.iOS.Binding.Interfaces;
+
+namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
+#endif
 {
     public abstract class CollectionViewManagerBase<TView, TViewItem> : ICollectionViewManager
     {
@@ -31,7 +41,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         void ICollectionViewManager.RemoveAt(object view, int index)
         {
-            RemoveAt((TView) view, index);
+            RemoveAt((TView)view, index);
         }
 
         void ICollectionViewManager.Clear(object view)

@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
@@ -278,11 +279,11 @@ namespace MugenMvvmToolkit.ViewModels
         [Pure]
         public static T GetViewModel<T>([NotNull] this IViewModelProvider viewModelProvider,
             [NotNull] GetViewModelDelegate<T> getViewModelGeneric, params DataConstantValue[] parameters)
-            where T : IViewModel
+            where T : class, IViewModel
         {
             Should.NotBeNull(viewModelProvider, "viewModelProvider");
             Should.NotBeNull(getViewModelGeneric, "getViewModelGeneric");
-            return (T)viewModelProvider.GetViewModel(adapter => getViewModelGeneric(adapter), new DataContext(parameters));
+            return (T)viewModelProvider.GetViewModel(getViewModelGeneric, new DataContext(parameters));
         }
 
         /// <summary>
@@ -301,7 +302,7 @@ namespace MugenMvvmToolkit.ViewModels
         public static T GetViewModel<T>([NotNull] this IViewModelProvider viewModelProvider,
             [NotNull] GetViewModelDelegate<T> getViewModelGeneric, IViewModel parentViewModel = null,
             ObservationMode? observationMode = null, IocContainerCreationMode? containerCreationMode = null,
-            params DataConstantValue[] parameters) where T : IViewModel
+            params DataConstantValue[] parameters) where T : class, IViewModel
         {
             return GetViewModel(viewModelProvider, getViewModelGeneric,
                 MergeParameters(parentViewModel, containerCreationMode, observationMode, parameters));
@@ -458,11 +459,42 @@ namespace MugenMvvmToolkit.ViewModels
         ///     Calls the event for the specified property.
         /// </summary>
         /// <param name="model">The specified model.</param>
+        /// <param name="expression">Specified expression with property.</param>               
+        /// <param name="executionMode">
+        ///     Specifies the execution mode for raise property changed event.
+        /// </param>
+        public static void OnPropertyChanged<TModel>(this TModel model, Func<Expression<Func<TModel, object>>> expression, ExecutionMode? executionMode = null)
+            where TModel : NotifyPropertyChangedBase
+        {
+            model.OnPropertyChanged(expression.GetMemberName(), executionMode);
+        }
+
+        /// <summary>
+        ///     Sets a property with calling property change event.
+        /// </summary>
+        /// <param name="model">The specified model.</param>
+        /// <param name="field">The property field.</param>
+        /// <param name="newValue">The new property value.</param>
+        /// <param name="expression">Specified expression with property.</param>
+        /// <param name="executionMode">
+        ///     Specifies the execution mode for raise property changed event.
+        /// </param>
+        public static void SetProperty<TModel, T>([NotNull] this TModel model, ref T field, T newValue, Func<Expression<Func<TModel, T>>> expression, ExecutionMode? executionMode = null)
+            where TModel : NotifyPropertyChangedBase
+        {
+            Should.NotBeNull(model, "model");
+            model.SetProperty(ref field, newValue, expression.GetMemberName(), executionMode);
+        }
+
+        /// <summary>
+        ///     Calls the event for the specified property.
+        /// </summary>
+        /// <param name="model">The specified model.</param>
         /// <param name="propName">Specified property name.</param>
         /// <param name="executionMode">
         ///     Specifies the execution mode for raise property changed event.
         /// </param>
-        public static void RaisePropertyChanged([NotNull] NotifyPropertyChangedBase model, string propName, ExecutionMode? executionMode = null)
+        public static void OnPropertyChanged([NotNull] this NotifyPropertyChangedBase model, string propName, ExecutionMode? executionMode = null)
         {
             Should.NotBeNull(model, "model");
             if (executionMode == null)
@@ -506,24 +538,22 @@ namespace MugenMvvmToolkit.ViewModels
         ///     Updates information about errors in the specified property.
         /// </summary>
         [SuppressTaskBusyHandler]
-        public static Task ValidateAsync<T, TValue>([NotNull] this T validatableViewModel,
-            [NotNull] Expression<Func<T, TValue>> getMember)
+        public static Task ValidateAsync<T>([NotNull] this T validatableViewModel, [NotNull] Func<Expression<Func<T, object>>> getMember)
             where T : IValidatorAggregator
         {
             Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            return validatableViewModel.ValidateAsync(ToolkitExtensions.GetMemberName(getMember));
+            return validatableViewModel.ValidateAsync(getMember.GetMemberName());
         }
 
         /// <summary>
         ///     Disable validation for the specified property.
         /// </summary>
         [SuppressTaskBusyHandler]
-        public static Task DisableValidationAsync<T, TValue>([NotNull] this T validatableViewModel,
-            [NotNull] Expression<Func<T, TValue>> getMember)
+        public static Task DisableValidationAsync<T>([NotNull] this T validatableViewModel, [NotNull] Func<Expression<Func<T, object>>> getMember)
             where T : IValidatorAggregator
         {
             Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            return validatableViewModel.DisableValidationAsync(ToolkitExtensions.GetMemberName(getMember));
+            return validatableViewModel.DisableValidationAsync(getMember.GetMemberName());
         }
 
         /// <summary>
@@ -544,12 +574,11 @@ namespace MugenMvvmToolkit.ViewModels
         ///     Enable validation for the specified property.
         /// </summary>
         [SuppressTaskBusyHandler]
-        public static Task EnableValidationAsync<T, TValue>([NotNull] this T validatableViewModel,
-            [NotNull] Expression<Func<T, TValue>> getMember)
+        public static Task EnableValidationAsync<T>([NotNull] this T validatableViewModel, [NotNull] Func<Expression<Func<T, object>>> getMember)
             where T : IValidatorAggregator
         {
             Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            return validatableViewModel.EnableValidationAsync(ToolkitExtensions.GetMemberName(getMember));
+            return validatableViewModel.EnableValidationAsync(getMember.GetMemberName());
         }
 
         /// <summary>

@@ -108,7 +108,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             if (_subscribers == null)
             {
                 _subscribers = new List<IDisposable>(accessor == null ? 1 : Binding.SourceAccessor.Sources.Count);
-                _selfReference = ServiceProvider.WeakReferenceFactory(this, true);
+                _selfReference = ServiceProvider.WeakReferenceFactory(this);
             }
 
             if (accessor == null)
@@ -297,7 +297,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             {
                 for (int i = 0; i < paths.Length; i++)
                 {
-                    if (ToolkitExtensions.PropertyNameEqual(memberName, paths[i], true))
+                    if (ToolkitExtensions.MemberNameEqual(memberName, paths[i], true))
                         return true;
                 }
             }
@@ -308,14 +308,14 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 path = singleAccessor.Source.Path.Parts.LastOrDefault();
                 if (hasPaths && string.IsNullOrEmpty(path))
                     return false;
-                return ToolkitExtensions.PropertyNameEqual(memberName, path, true);
+                return ToolkitExtensions.MemberNameEqual(memberName, path, true);
             }
             for (int i = 0; i < accessor.Sources.Count; i++)
             {
                 path = accessor.Sources[i].Path.Parts.LastOrDefault();
                 if (hasPaths && string.IsNullOrEmpty(path))
                     continue;
-                if (ToolkitExtensions.PropertyNameEqual(memberName, path, true))
+                if (ToolkitExtensions.MemberNameEqual(memberName, path, true))
                     return true;
             }
             return false;

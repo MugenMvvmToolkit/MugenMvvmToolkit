@@ -99,7 +99,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var propertyName = GetMemberPath<BindingSourceModel>(sourceModel => sourceModel.StringProperty);
             var observer = CreateObserver(model, propertyName, false);
             observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
-            
+
             isInvoked = false;
             model.StringProperty = "test";
             isInvoked.ShouldBeTrue();
@@ -117,7 +117,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var propertyName = GetMemberPath<BindingSourceEventNotifierModel>(sourceModel => sourceModel.ObjectProperty);
             var observer = CreateObserver(model, propertyName, false);
             observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
-            
+
             isInvoked = false;
             model.ObjectProperty = "test";
             model.RaiseObjectPropertyChanged();
@@ -137,7 +137,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
 
             var observer = CreateObserver(model, propertyName, false);
             observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
-            
+
             isInvoked = false;
             model.NestedModel = new BindingSourceNestedModel();
             isInvoked.ShouldBeTrue();
@@ -160,7 +160,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
 
             var observer = CreateObserver(model, propertyName, false);
             observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
-            
+
             isInvoked = false;
             model.NestedModel = new BindingSourceEventNotifierModel();
             model.RaiseNestedModelChanged();
@@ -184,7 +184,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var propertyName = GetMemberPath(model, sourceModel => sourceModel["test"]);
             var observer = CreateObserver(model, propertyName, false);
             observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
-            
+
             isInvoked = false;
             model["test"] = "test";
             isInvoked.ShouldBeFalse();
@@ -207,7 +207,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
 
             var observer = CreateObserver(model, propertyName, false);
             observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
-            
+
             isInvoked = false;
             model.NestedModel = new BindingSourceNestedModel();
             isInvoked.ShouldBeTrue();
@@ -233,7 +233,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var propertyName = GetMemberPath(model, sourceModel => sourceModel["test", 0]);
             var observer = CreateObserver(model, propertyName, false);
             observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
-            
+
             isInvoked = false;
             model["test", 0] = "test";
             isInvoked.ShouldBeFalse();
@@ -256,7 +256,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
 
             var observer = CreateObserver(model, propertyName, false);
             observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
-            
+
             isInvoked = false;
             model.NestedModel = new BindingSourceNestedModel();
             isInvoked.ShouldBeTrue();
@@ -283,7 +283,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
 
             var observer = CreateObserver(model, propertyName, false);
             observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
-            
+
             isInvoked = false;
             model.NestedModel = new BindingSourceNestedModel();
             isInvoked.ShouldBeTrue();
@@ -304,7 +304,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         public void ObserverShouldUpdateInformationWhenContextChanged()
         {
             var model = new BindingSourceModel();
-            var contextMock = new BindingContextMock { Value = model };
+            var contextMock = new BindingContextMock { Value = model, Source = new object() };
             var propertyName = GetMemberPath<BindingSourceModel>(sourceModel => sourceModel.StringProperty);
             var observer = CreateObserver(contextMock, propertyName, false);
             var members = observer.GetPathMembers(true);
@@ -321,7 +321,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         public void ObserverShouldUpdateInformationWhenContextChangedNotValidContext()
         {
             var model = new BindingSourceModel();
-            var contextMock = new BindingContextMock { Value = model };
+            var contextMock = new BindingContextMock { Value = model, Source = new object() };
             var propertyName = GetMemberPath<BindingSourceModel>(sourceModel => sourceModel.StringProperty);
             var observer = CreateObserver(contextMock, propertyName, false);
             var members = observer.GetPathMembers(true);
@@ -342,7 +342,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var propertyName = GetMemberPath<BindingSourceModel>(sourceModel => sourceModel.StringProperty);
             var observer = CreateObserver(model, propertyName, false);
             observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
-            
+
             isInvoked = false;
             model.StringProperty = "test";
             isInvoked.ShouldBeTrue();

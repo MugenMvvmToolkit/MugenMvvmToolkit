@@ -23,7 +23,16 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Infrastructure
+#if WINFORMS
+namespace MugenMvvmToolkit.WinForms.Infrastructure
+#elif ANDROID
+namespace MugenMvvmToolkit.Android.Infrastructure
+#elif TOUCH
+namespace MugenMvvmToolkit.iOS.Infrastructure
+#elif XAMARIN_FORMS
+namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
+#endif
+
 {
     public class ThreadManager : IThreadManager
     {

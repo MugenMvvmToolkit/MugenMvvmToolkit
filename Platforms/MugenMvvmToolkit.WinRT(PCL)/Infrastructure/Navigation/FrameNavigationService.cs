@@ -17,24 +17,48 @@
 #endregion
 
 using System;
+using System.Runtime.Serialization;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using MugenMvvmToolkit.ViewModels;
+using MugenMvvmToolkit.WinRT.Interfaces.Navigation;
+using MugenMvvmToolkit.WinRT.Models.EventArg;
 using NavigationMode = Windows.UI.Xaml.Navigation.NavigationMode;
 
-namespace MugenMvvmToolkit.Infrastructure.Navigation
+namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
 {
     /// <summary>
     ///     A basic implementation of <see cref="INavigationService" /> to adapt the <see cref="Frame" />.
     /// </summary>
     public class FrameNavigationService : INavigationService
     {
+        #region Nested types
+
+#if WINDOWSCOMMON
+        [DataContract(Namespace = ApplicationSettings.DataContractNamespace)]
+        internal sealed class NavigationParameter
+        {
+        #region Properties
+
+            [DataMember]
+            public Guid Id { get; set; }
+
+            [DataMember]
+            public object Parameter { get; set; }
+
+        #endregion
+        }
+#endif
+        #endregion
+
         #region Fields
 
         private readonly Frame _frame;
@@ -53,44 +77,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             _frame = frame;
             _frame.Navigating += OnNavigating;
             _frame.Navigated += OnNavigated;
-        }
-
-        #endregion
-
-        #region Methods
-
-        private void OnNavigated(object sender, NavigationEventArgs args)
-        {
-            _lastParameter = null;
-            var handler = Navigated;
-            if (handler == null)
-                return;
-
-            var dp = args.Content as DependencyObject;
-            if (dp == null)
-                handler(this, new NavigationEventArgsWrapper(args));
-            else
-            {
-                //to indicate that args is handled.
-                args.SetHandled(true);
-                //to restore state before navigate.
-                dp.Dispatcher.RunAsync(CoreDispatcherPriority.Low,
-                    () => handler(this, new NavigationEventArgsWrapper(args)));
-            }
-        }
-
-        private void OnNavigating(object sender, NavigatingCancelEventArgs args)
-        {
-            var handler = Navigating;
-            if (handler != null)
-                handler(this, new NavigatingCancelEventArgsWrapper(args, _lastParameter));
-        }
-
-        private bool Navigate(Type type, object parameter)
-        {
-            if (parameter == null)
-                return _frame.Navigate(type);
-            return _frame.Navigate(type, parameter);
         }
 
         #endregion
@@ -149,9 +135,9 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 var eventArgs = args as NavigationEventArgsWrapper;
                 if (eventArgs == null)
                     return null;
-                return eventArgs.Args.Parameter;
+                return GetParameter(eventArgs.Args.Parameter);
             }
-            return cancelEventArgs.Parameter;
+            return GetParameter(cancelEventArgs.Parameter);
         }
 
         /// <summary>
@@ -185,11 +171,65 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         public bool Navigate(IViewMappingItem source, object parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, "source");
-            _lastParameter = parameter;
-            var result = Navigate(source.ViewType, parameter);
+            if (dataContext == null)
+                dataContext = DataContext.Empty;
+            var result = Navigate(source.ViewType, parameter, dataContext.GetData(NavigationConstants.ViewModel));
             if (result)
                 ClearNavigationStackIfNeed(dataContext);
             return result;
+        }
+
+        /// <summary>
+        ///     Determines whether the specified command <c>CloseCommand</c> can be execute.
+        /// </summary>
+        public bool CanClose(IViewModel viewModel, IDataContext dataContext)
+        {
+            Should.NotBeNull(viewModel, "viewModel");
+            var content = CurrentContent;
+            var canClose = content != null && ViewManager.GetDataContext(content) == viewModel && CanGoBack;
+            if (canClose)
+                return true;
+#if WINDOWSCOMMON
+            var viewModelId = viewModel.GetViewModelId();
+            for (int index = 0; index < _frame.BackStack.Count; index++)
+            {
+                var parameter = _frame.BackStack[index].Parameter as NavigationParameter;
+                if (parameter != null && parameter.Id == viewModelId)
+                    return true;
+            }
+#endif
+            return false;
+        }
+
+        /// <summary>
+        ///     Tries to close view-model page.
+        /// </summary>
+        public bool TryClose(IViewModel viewModel, IDataContext dataContext)
+        {
+            Should.NotBeNull(viewModel, "viewModel");
+            var content = CurrentContent;
+            if (content != null && ViewManager.GetDataContext(content) == viewModel && CanGoBack)
+            {
+                GoBack();
+                return true;
+            }
+#if WINDOWSCOMMON
+            bool closed = false;
+            var viewModelId = viewModel.GetViewModelId();
+            for (int index = 0; index < _frame.BackStack.Count; index++)
+            {
+                var parameter = _frame.BackStack[index].Parameter as NavigationParameter;
+                if (parameter != null && parameter.Id == viewModelId)
+                {
+                    _frame.BackStack.RemoveAt(index);
+                    --index;
+                    closed = true;
+                }
+            }
+            return closed;
+#else
+            return false;
+#endif
         }
 
         /// <summary>
@@ -208,13 +248,15 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         private bool NavigateInternal(NavigatingCancelEventArgsBase args)
         {
+            if (!args.IsCancelable)
+                return false;
             var wrapper = (NavigatingCancelEventArgsWrapper)args;
             if (wrapper.Args.NavigationMode == NavigationMode.Back)
             {
                 _frame.GoBack();
                 return true;
             }
-            return Navigate(wrapper.Args.SourcePageType, wrapper.Parameter);
+            return Navigate(wrapper.Args.SourcePageType, wrapper.Parameter, null);
         }
 
         private void ClearNavigationStackIfNeed(IDataContext context)
@@ -227,6 +269,60 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             _frame.BackStack.Clear();
             context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
 #endif
+        }
+
+        private static object GetParameter(object parameter)
+        {
+#if WINDOWSCOMMON
+            var navigationParameter = parameter as NavigationParameter;
+            if (navigationParameter == null)
+                return parameter;
+            return navigationParameter.Parameter;
+#else
+            return parameter;
+#endif
+        }
+
+        private void OnNavigated(object sender, NavigationEventArgs args)
+        {
+            _lastParameter = null;
+            var handler = Navigated;
+            if (handler == null)
+                return;
+
+            var dp = args.Content as DependencyObject;
+            if (dp == null)
+                handler(this, new NavigationEventArgsWrapper(args));
+            else
+            {
+                //to indicate that args is handled.
+                args.SetHandled(true);
+                //to restore state before navigate.
+                dp.Dispatcher.RunAsync(CoreDispatcherPriority.Low,
+                    () => handler(this, new NavigationEventArgsWrapper(args)));
+            }
+        }
+
+        private void OnNavigating(object sender, NavigatingCancelEventArgs args)
+        {
+            var handler = Navigating;
+            if (handler != null)
+                handler(this, new NavigatingCancelEventArgsWrapper(args, _lastParameter));
+        }
+
+        private bool Navigate(Type type, object parameter, IViewModel viewModel)
+        {
+#if WINDOWSCOMMON
+            if (viewModel != null)
+            {
+                if (!(parameter is NavigationParameter))
+                    parameter = new NavigationParameter { Id = viewModel.GetViewModelId(), Parameter = parameter };
+            }
+#endif
+            _lastParameter = parameter;
+            if (parameter == null)
+                return _frame.Navigate(type);
+            return _frame.Navigate(type, parameter);
         }
 
         #endregion

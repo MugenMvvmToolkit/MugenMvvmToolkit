@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit
         internal static IEventAggregator EventAggregatorField;
 
         private static Func<object, IEventAggregator> _instanceEventAggregatorFactory;
-        private static Func<object, bool, WeakReference> _weakReferenceFactory;
+        private static Func<object, WeakReference> _weakReferenceFactory;
         private static IDesignTimeManager _designTimeManager;
         private static IViewModelProvider _viewModelProvider;
 
@@ -94,7 +94,7 @@ namespace MugenMvvmToolkit
         ///     Gets or sets the factory that creates a instance of <see cref="WeakReference" />.
         /// </summary>
         [NotNull]
-        public static Func<object, bool, WeakReference> WeakReferenceFactory
+        public static Func<object, WeakReference> WeakReferenceFactory
         {
             get { return _weakReferenceFactory; }
             set { _weakReferenceFactory = value ?? CreateWeakReference; }
@@ -307,9 +307,9 @@ namespace MugenMvvmToolkit
                 service = result;
         }
 
-        private static WeakReference CreateWeakReference(object o, bool b)
+        private static WeakReference CreateWeakReference(object o)
         {
-            return new WeakReference(o, b);
+            return new WeakReference(o, true);
         }
 
         private static object DefaultEntityFactoryMethod(Type type)

@@ -134,7 +134,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (source is ISourceValue)
                 _source = source;
             else
-                _source = ServiceProvider.WeakReferenceFactory(source, true);
+                _source = ServiceProvider.WeakReferenceFactory(source);
         }
 
         #endregion
@@ -231,8 +231,18 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         protected void Initialize([CanBeNull] IEventListener sourceListener)
         {
-            if (_source is ISourceValue)
-                _sourceListener = BindingServiceProvider.WeakEventManager.TrySubscribe(_source, ValueChangedEvent, sourceListener ?? new DefaultListener(ToolkitExtensions.GetWeakReference(this)));
+            var ctx = _source as IBindingContext;
+            if (ctx == null)
+            {
+                if (_source is ISourceValue)
+                    _sourceListener = BindingServiceProvider.WeakEventManager.TrySubscribe(_source, ValueChangedEvent,
+                        sourceListener ?? new DefaultListener(ToolkitExtensions.GetWeakReference(this)));
+            }
+            else
+            {
+                _sourceListener = WeakEventManager.AddBindingContextListener(ctx,
+                    sourceListener ?? new DefaultListener(ToolkitExtensions.GetWeakReference(this)), true);
+            }
             Update();
         }
 

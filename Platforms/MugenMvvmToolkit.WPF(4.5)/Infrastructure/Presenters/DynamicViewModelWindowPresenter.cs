@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
+using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Mediators;
@@ -29,29 +30,47 @@ using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
+
 #if APPCOMPAT
-using MugenMvvmToolkit.Infrastructure.Presenters;
-using MugenMvvmToolkit.AppCompat.Infrastructure.Mediators;
-using MugenMvvmToolkit.AppCompat.Interfaces.Views;
-using Fragment = Android.Support.V4.App.Fragment;
-using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
+using MugenMvvmToolkit.Android.AppCompat.Infrastructure.Mediators;
+using MugenMvvmToolkit.Android.AppCompat.Interfaces.Views;
 
-namespace MugenMvvmToolkit.AppCompat.Infrastructure.Presenters
-#elif FRAGMENTSUPPORT
-using MugenMvvmToolkit.Infrastructure.Presenters;
-using MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators;
-using MugenMvvmToolkit.FragmentSupport.Interfaces.Views;
+namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure.Presenters
+#elif ANDROIDCORE
+using MugenMvvmToolkit.Android.Infrastructure.Mediators;
+using MugenMvvmToolkit.Android.Interfaces.Views;
 
-namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Presenters
-#else
-using MugenMvvmToolkit.Infrastructure.Mediators;
-using MugenMvvmToolkit.Interfaces.Views;
-#if XAMARIN_FORMS
-using IWindowView = MugenMvvmToolkit.Interfaces.Views.IModalView;
-using WindowViewMediator = MugenMvvmToolkit.Infrastructure.Mediators.ModalViewMediator;
-#endif
+namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
+#elif XAMARIN_FORMS
+using IWindowView = MugenMvvmToolkit.Xamarin.Forms.Interfaces.Views.IModalView;
+using WindowViewMediator = MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators.ModalViewMediator;
 
-namespace MugenMvvmToolkit.Infrastructure.Presenters
+namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
+#elif TOUCH
+using MugenMvvmToolkit.iOS.Interfaces.Views;
+using MugenMvvmToolkit.iOS.Infrastructure.Mediators;
+
+namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
+#elif WINFORMS
+using MugenMvvmToolkit.WinForms.Interfaces.Views;
+using MugenMvvmToolkit.WinForms.Infrastructure.Mediators;
+
+namespace MugenMvvmToolkit.WinForms.Infrastructure.Presenters
+#elif WPF
+using MugenMvvmToolkit.WPF.Infrastructure.Mediators;
+using MugenMvvmToolkit.WPF.Interfaces.Views;
+
+namespace MugenMvvmToolkit.WPF.Infrastructure.Presenters
+#elif SILVERLIGHT
+using MugenMvvmToolkit.Silverlight.Infrastructure.Mediators;
+using MugenMvvmToolkit.Silverlight.Interfaces.Views;
+
+namespace MugenMvvmToolkit.Silverlight.Infrastructure.Presenters
+#elif NETFX_CORE || WINDOWSCOMMON
+using MugenMvvmToolkit.WinRT.Infrastructure.Mediators;
+using MugenMvvmToolkit.WinRT.Interfaces.Views;
+
+namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
 #endif
 {
     /// <summary>

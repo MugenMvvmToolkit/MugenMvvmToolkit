@@ -23,11 +23,11 @@ using Android.OS;
 using Android.Runtime;
 using Android.Support.V7.App;
 using Android.Views;
-using MugenMvvmToolkit.Interfaces.Mediators;
-using MugenMvvmToolkit.Interfaces.Views;
+using MugenMvvmToolkit.Android.Interfaces.Mediators;
+using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.AppCompat.Views.Activities
+namespace MugenMvvmToolkit.Android.AppCompat.Views.Activities
 {
     public abstract class MvvmAppCompatActivity : AppCompatActivity, IActivityView
     {
@@ -126,9 +126,7 @@ namespace MugenMvvmToolkit.AppCompat.Views.Activities
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            Mediator.OnCreate(savedInstanceState, base.OnCreate);
-            if (_viewId.HasValue)
-                SetContentView(_viewId.Value);
+            Mediator.OnCreate(_viewId, savedInstanceState, base.OnCreate);
         }
 
         protected override void OnDestroy()

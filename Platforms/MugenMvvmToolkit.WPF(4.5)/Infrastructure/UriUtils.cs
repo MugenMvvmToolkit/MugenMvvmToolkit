@@ -20,7 +20,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MugenMvvmToolkit.Infrastructure
+#if WPF
+namespace MugenMvvmToolkit.WPF.Infrastructure
+#elif SILVERLIGHT
+namespace MugenMvvmToolkit.Silverlight.Infrastructure
+#elif WINDOWS_PHONE
+namespace MugenMvvmToolkit.WinPhone.Infrastructure
+#endif
 {
     internal static class UriUtils
     {
@@ -87,7 +93,11 @@ namespace MugenMvvmToolkit.Infrastructure
                 .Aggregate("?", (current, pair) => current + (pair.Key + "=" + Uri.EscapeDataString(pair.Value) + "&"));
             result = result.Remove(result.Length - 1);
             if (uri.IsAbsoluteUri)
+            {
+                if (string.IsNullOrEmpty(uri.Query))
+                    return new Uri(uri.OriginalString + result);
                 return new Uri(uri.OriginalString.Replace(uri.Query, result));
+            }
             int indexOf = uri.OriginalString.IndexOf('?');
             if (indexOf == -1)
                 indexOf = uri.OriginalString.Length;

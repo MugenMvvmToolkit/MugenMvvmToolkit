@@ -16,10 +16,7 @@
 
 #endregion
 
-using System;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Infrastructure.Callbacks;
-using MugenMvvmToolkit.Infrastructure.Navigation;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -27,8 +24,36 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
+using MugenMvvmToolkit.Modules;
+#if WPF
+using MugenMvvmToolkit.WPF.Infrastructure;
+using MugenMvvmToolkit.WPF.Infrastructure.Navigation;
+using MugenMvvmToolkit.WPF.Infrastructure.Presenters;
 
-namespace MugenMvvmToolkit.Modules
+namespace MugenMvvmToolkit.WPF.Modules
+#elif SILVERLIGHT
+using MugenMvvmToolkit.Silverlight.Infrastructure;
+using MugenMvvmToolkit.Silverlight.Infrastructure.Navigation;
+using MugenMvvmToolkit.Silverlight.Infrastructure.Presenters;
+
+namespace MugenMvvmToolkit.Silverlight.Modules
+#elif NETFX_CORE || WINDOWSCOMMON
+using MugenMvvmToolkit.WinRT.Infrastructure;
+using MugenMvvmToolkit.WinRT.Infrastructure.Navigation;
+using MugenMvvmToolkit.WinRT.Infrastructure.Presenters;
+using MugenMvvmToolkit.WinRT.Infrastructure.Callbacks;
+using MugenMvvmToolkit.WinRT.Interfaces;
+
+namespace MugenMvvmToolkit.WinRT.Modules
+#elif WINDOWS_PHONE
+using MugenMvvmToolkit.WinPhone.Infrastructure;
+using MugenMvvmToolkit.WinPhone.Infrastructure.Navigation;
+using MugenMvvmToolkit.WinPhone.Infrastructure.Presenters;
+using MugenMvvmToolkit.WinPhone.Infrastructure.Callbacks;
+using MugenMvvmToolkit.WinPhone.Interfaces;
+
+namespace MugenMvvmToolkit.WinPhone.Modules
+#endif
 {
     /// <summary>
     ///     Represents the class that is used to initialize the IOC adapter.
@@ -110,6 +135,10 @@ namespace MugenMvvmToolkit.Modules
         /// <returns>An instance of <see cref="IMessagePresenter" />.</returns>
         protected override BindingInfo<IMessagePresenter> GetMessagePresenter()
         {
+#if WPF
+            if (Context.Platform.Platform != PlatformType.WPF)
+                return BindingInfo<IMessagePresenter>.Empty;
+#endif
             return BindingInfo<IMessagePresenter>.FromType<MessagePresenter>(DependencyLifecycle.SingleInstance);
         }
 
@@ -162,6 +191,24 @@ namespace MugenMvvmToolkit.Modules
         /// <returns>An instance of <see cref="IViewModelPresenter" />.</returns>
         protected override BindingInfo<IViewModelPresenter> GetViewModelPresenter()
         {
+#if WPF
+            if (Context.Platform.Platform != PlatformType.WPF)
+            {
+                BootstrapperBase.Initialized += (sender, args) =>
+                {
+                    var container = ServiceProvider.IocContainer;
+                    IViewModelPresenter presenter;
+                    if (container.TryGet(out presenter))
+                    {
+                        presenter.DynamicPresenters.Add(new DynamicViewModelNavigationPresenter());
+                        presenter.DynamicPresenters.Add(new DynamicViewModelWindowPresenter(container.Get<IViewMappingProvider>(), container.Get<IViewManager>(),
+                                                container.Get<IWrapperManager>(), container.Get<IThreadManager>(),
+                                                container.Get<IOperationCallbackManager>()));
+                    }
+                };
+                return BindingInfo<IViewModelPresenter>.Empty;
+            }
+#endif
             return BindingInfo<IViewModelPresenter>.FromMethod((container, list) =>
             {
                 var presenter = new ViewModelPresenter();
@@ -194,8 +241,10 @@ namespace MugenMvvmToolkit.Modules
         protected override BindingInfo<IThreadManager> GetThreadManager()
         {
 #if WPF
+            if (Context.Platform.Platform != PlatformType.WPF)
+                return BindingInfo<IThreadManager>.Empty;
             return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(System.Windows.Threading.Dispatcher.CurrentDispatcher), DependencyLifecycle.SingleInstance);
-#elif SILVERLIGHT
+#elif SILVERLIGHT || WINDOWS_PHONE
             return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(System.Windows.Deployment.Current.Dispatcher), DependencyLifecycle.SingleInstance);
 #elif NETFX_CORE || WINDOWSCOMMON
             return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(Windows.UI.Xaml.Window.Current.Dispatcher), DependencyLifecycle.SingleInstance);
@@ -217,6 +266,10 @@ namespace MugenMvvmToolkit.Modules
         /// <returns>An instance of <see cref="IToastPresenter" />.</returns>
         protected override BindingInfo<IToastPresenter> GetToastPresenter()
         {
+#if WPF
+            if (Context.Platform.Platform != PlatformType.WPF)
+                return BindingInfo<IToastPresenter>.Empty;
+#endif
             return BindingInfo<IToastPresenter>.FromType<ToastPresenter>(DependencyLifecycle.SingleInstance);
         }
 

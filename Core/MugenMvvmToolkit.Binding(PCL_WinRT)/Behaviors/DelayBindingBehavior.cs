@@ -206,7 +206,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 Binding.TargetAccessor.ValueChanging += OnValueChanging;
             else
                 Binding.SourceAccessor.ValueChanging += OnValueChanging;
-            _timer = new Timer(CallbackInternalDelegate, ServiceProvider.WeakReferenceFactory(this, true), int.MaxValue, int.MaxValue);
+            _timer = new Timer(CallbackInternalDelegate, ServiceProvider.WeakReferenceFactory(this), int.MaxValue, int.MaxValue);
             return true;
         }
 

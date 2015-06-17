@@ -9,7 +9,7 @@
     <ProjectTypeGuids>{C089C8C0-30E0-4E22-80C0-CE093F111A43};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MugenMvvmToolkit</RootNamespace>
+    <RootNamespace>MugenMvvmToolkit.WinPhone</RootNamespace>
     <AssemblyName>MugenMvvmToolkit.WinPhone</AssemblyName>
     <TargetFrameworkIdentifier>WindowsPhone</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v8.1</TargetFrameworkVersion>
@@ -27,7 +27,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;WINDOWS_PHONE</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -37,7 +37,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\bin\Platforms\WinPhone\8.1\</OutputPath>
-    <DefineConstants>TRACE;SILVERLIGHT;WINDOWS_PHONE;WINDOWS_PHONE8;</DefineConstants>
+    <DefineConstants>TRACE;WINDOWS_PHONE;WINDOWS_PHONE8;</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -158,12 +158,6 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\markupextensions\ViewModelToViewBinding.cs">
       <Link>MarkupExtensions\ViewModelToViewBinding.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\models\eventarg\NavigatingCancelEventArgsBase.cs">
-      <Link>Models\EventArg\NavigatingCancelEventArgsBase.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\models\eventarg\NavigationEventArgsBase.cs">
-      <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Modules\InitializationModule.cs">
       <Link>Modules\InitializationModule.cs</Link>

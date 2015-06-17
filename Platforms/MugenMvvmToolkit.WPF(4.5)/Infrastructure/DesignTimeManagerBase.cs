@@ -17,11 +17,8 @@
 #endregion
 
 using System;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -29,7 +26,25 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.Exceptions;
 
-namespace MugenMvvmToolkit.Infrastructure
+#if WPF
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Windows;
+namespace MugenMvvmToolkit.WPF.Infrastructure
+#elif WINFORMS
+using System.Diagnostics;
+namespace MugenMvvmToolkit.WinForms.Infrastructure
+#elif SILVERLIGHT
+using System.ComponentModel;
+
+namespace MugenMvvmToolkit.Silverlight.Infrastructure
+#elif NETFX_CORE || WINDOWSCOMMON
+namespace MugenMvvmToolkit.WinRT.Infrastructure
+#elif WINDOWS_PHONE
+using System.ComponentModel;
+
+namespace MugenMvvmToolkit.WinPhone.Infrastructure
+#endif
 {
     /// <summary>
     ///     Represents the base class for the design time manager.
@@ -229,9 +244,9 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             try
             {
-#if WINFORMS                
+#if WINFORMS
                 return System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime || IsVsRunning();
-#elif SILVERLIGHT
+#elif SILVERLIGHT || WINDOWS_PHONE
                 return DesignerProperties.IsInDesignTool;
 #elif WPF
                 DependencyProperty prop = DesignerProperties.IsInDesignModeProperty;

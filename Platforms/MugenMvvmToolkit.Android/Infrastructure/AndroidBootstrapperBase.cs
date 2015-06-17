@@ -24,8 +24,9 @@ using System.Threading;
 using Android.App;
 using Android.Views;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Attributes;
+using MugenMvvmToolkit.Android.Attributes;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -33,7 +34,7 @@ using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.ViewModels;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.Android.Infrastructure
 {
     /// <summary>
     ///     Represents the base class that is used to start MVVM application.

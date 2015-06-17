@@ -6,7 +6,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Silverlight.Infrastructure;
 using MugenMvvmToolkit.Test.Collections;
+using MugenMvvmToolkit.WinRT.Infrastructure;
+using MugenMvvmToolkit.WPF.Infrastructure;
 using Should;
 
 namespace MugenMvvmToolkit.Test.Infrastructure

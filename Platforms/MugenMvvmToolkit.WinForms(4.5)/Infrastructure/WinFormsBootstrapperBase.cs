@@ -24,13 +24,14 @@ using System.Windows.Forms;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.ViewModels;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.WinForms.Infrastructure
 {
     /// <summary>
     ///     Represents the base class that is used to start MVVM application.

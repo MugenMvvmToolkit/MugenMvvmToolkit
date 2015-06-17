@@ -18,14 +18,22 @@
 
 using System;
 using System.Reflection;
-using MugenMvvmToolkit.Binding.Converters;
-using MugenMvvmToolkit.Interfaces;
 using System.Windows;
 using System.Windows.Markup;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Modules;
 
-namespace MugenMvvmToolkit.Modules
+#if WPF
+using MugenMvvmToolkit.WPF.Binding.Converters;
+
+namespace MugenMvvmToolkit.WPF.Modules
+#elif SILVERLIGHT
+using MugenMvvmToolkit.Silverlight.Binding.Converters;
+
+namespace MugenMvvmToolkit.Silverlight.Modules
+#endif
 {
     /// <summary>
     /// Represents the module that creates view data templates for view models.

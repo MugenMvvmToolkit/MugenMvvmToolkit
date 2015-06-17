@@ -25,6 +25,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
     ///     Represents the attached binding member info.
     /// </summary>
     public interface IAttachedBindingMemberInfo<in TTarget, TType> : IBindingMemberInfo
+        where TTarget : class
     {
         /// <summary>
         ///     Returns the member value of a specified object.
@@ -57,7 +58,20 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
     /// <summary>
     ///     Represents the notifiable attached binding member info.
     /// </summary>
-    public interface INotifiableAttachedBindingMemberInfo<in TTarget, TType> : IAttachedBindingMemberInfo<TTarget, TType>
+    public interface INotifiableAttachedBindingMemberInfo : IBindingMemberInfo
+    {
+        /// <summary>
+        ///     Tries to raise the member changed event.
+        /// </summary>
+        bool TryRaise(object target, object message);
+    }
+
+    /// <summary>
+    ///     Represents the notifiable attached binding member info.
+    /// </summary>
+    public interface INotifiableAttachedBindingMemberInfo<in TTarget, TType> :
+        IAttachedBindingMemberInfo<TTarget, TType>, INotifiableAttachedBindingMemberInfo
+        where TTarget : class
     {
         /// <summary>
         ///     Raises the member changed event.

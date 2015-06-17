@@ -16,9 +16,10 @@
 
 #endregion
 
+using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
     /// <summary>
     ///     ResourceDataTemplateSelectorBase allows the app writer to provide custom template selection logic.

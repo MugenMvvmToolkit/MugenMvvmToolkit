@@ -17,8 +17,6 @@
 #endregion
 
 using System.Threading;
-using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Infrastructure.Navigation;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -26,8 +24,12 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
+using MugenMvvmToolkit.Modules;
+using MugenMvvmToolkit.Xamarin.Forms.Infrastructure;
+using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation;
+using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters;
 
-namespace MugenMvvmToolkit.Modules
+namespace MugenMvvmToolkit.Xamarin.Forms.Modules
 {
     /// <summary>
     ///     Represents the class that is used to initialize the IOC adapter.

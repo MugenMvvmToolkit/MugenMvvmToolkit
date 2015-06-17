@@ -27,7 +27,6 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Validation;
-using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -127,7 +126,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         /// <param name="propertyExpresssion">The expression for the property</param>
         /// <param name="errors">The collection of errors</param>
-        protected void SetValidatorErrors<T>(Expression<Func<T>> propertyExpresssion, params object[] errors)
+        protected void SetValidatorErrors<TModel>(Func<Expression<Func<TModel, object>>> propertyExpresssion, params object[] errors)
         {
             ToolkitExtensions.SetValidatorErrors(this, propertyExpresssion, errors);
         }
@@ -146,26 +145,26 @@ namespace MugenMvvmToolkit.ViewModels
         ///     Updates information about errors in the specified property.
         /// </summary>
         [SuppressTaskBusyHandler]
-        protected Task ValidateAsync<T>(Expression<Func<T>> getProperty)
+        protected Task ValidateAsync<TModel>(Func<Expression<Func<TModel, object>>> getProperty)
         {
             Should.NotBeNull(getProperty, "getProperty");
-            return ValidateAsync(ToolkitExtensions.GetMemberName(getProperty));
+            return ValidateAsync(getProperty.GetMemberName());
         }
 
         /// <summary>
         ///     Adds a property name to the <see cref="IgnoreProperties" />.
         /// </summary>
-        protected void AddIgnoreProperty<T>(Expression<Func<T>> getProperty)
+        protected void AddIgnoreProperty<TModel>(Func<Expression<Func<TModel, object>>> getProperty)
         {
-            IgnoreProperties.Add(getProperty.GetMemberInfo().Name);
+            IgnoreProperties.Add(getProperty.GetMemberName());
         }
 
         /// <summary>
         ///     Removes a property name to the <see cref="IgnoreProperties" />.
         /// </summary>
-        protected void RemoveIgnoreProperty<T>(Expression<Func<T>> getProperty)
+        protected void RemoveIgnoreProperty<TModel>(Func<Expression<Func<TModel, object>>> getProperty)
         {
-            IgnoreProperties.Remove(getProperty.GetMemberInfo().Name);
+            IgnoreProperties.Remove(getProperty.GetMemberName());
         }
 
         /// <summary>
@@ -382,7 +381,7 @@ namespace MugenMvvmToolkit.ViewModels
         /// <param name="sender">The object that raised the event.</param>
         /// <param name="message">Information about event.</param>
         protected virtual void OnHandleAsyncValidationMessage(object sender, AsyncValidationMessage message)
-        {            
+        {
         }
 
         /// <summary>

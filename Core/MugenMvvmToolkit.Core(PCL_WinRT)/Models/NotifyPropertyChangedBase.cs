@@ -25,6 +25,7 @@ using System.Runtime.Serialization;
 using System.Threading;
 using System.Xml.Serialization;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -41,14 +42,17 @@ namespace MugenMvvmToolkit.Models
 
         private static readonly Action<NotifyPropertyChangedBase, PropertyChangedEventArgs> RaisePropertyChangedDelegate;
 
-        [XmlIgnore, NonSerialized]
+        [XmlIgnore, NonSerialized, IgnoreDataMember]
+        internal LightDictionaryBase<string, object> AttachedValues;
+
+        [XmlIgnore, NonSerialized, IgnoreDataMember]
+        private WeakReference _ref;
+
+        [XmlIgnore, NonSerialized, IgnoreDataMember]
         private bool _isNotificationsDirty;
 
-        [XmlIgnore, NonSerialized]
+        [XmlIgnore, NonSerialized, IgnoreDataMember]
         private int _suspendCount;
-
-        [XmlIgnore, NonSerialized]
-        private WeakReference _ref;
 
         #endregion
 
@@ -74,7 +78,7 @@ namespace MugenMvvmToolkit.Models
         /// <summary>
         ///     Occurs when a property value changes.
         /// </summary>
-        [field: XmlIgnore, NonSerialized]
+        [field: XmlIgnore, NonSerialized, IgnoreDataMember]
         public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion
@@ -148,6 +152,7 @@ namespace MugenMvvmToolkit.Models
         /// </summary>
         /// <param name="expression">Specified expression with property.</param>
         [NotifyPropertyChangedInvocator("expression")]
+        [Obsolete(ExceptionManager.ObsoleteExpressionUsage)]
         protected void OnPropertyChanged<T>(Expression<Func<T>> expression)
         {
             OnPropertyChanged(expression, PropertyChangeExecutionMode);
@@ -161,6 +166,7 @@ namespace MugenMvvmToolkit.Models
         ///     Specifies the execution mode for raise property changed event.
         /// </param>
         [NotifyPropertyChangedInvocator("expression")]
+        [Obsolete(ExceptionManager.ObsoleteExpressionUsage)]
         protected void OnPropertyChanged<T>(Expression<Func<T>> expression, ExecutionMode executionMode)
         {
             Should.NotBeNull(expression, "expression");
@@ -178,7 +184,7 @@ namespace MugenMvvmToolkit.Models
         ///     Specifies the execution mode for raise property changed event.
         /// </param>
         [NotifyPropertyChangedInvocator("propName")]
-        protected void SetProperty<T>(ref T field, T newValue, [CallerMemberName] string propName = "",
+        protected internal void SetProperty<T>(ref T field, T newValue, [CallerMemberName] string propName = "",
             ExecutionMode? executionMode = null)
         {
             if (!EqualityComparer<T>.Default.Equals(field, newValue))
@@ -199,6 +205,7 @@ namespace MugenMvvmToolkit.Models
         ///     Specifies the execution mode for raise property changed event.
         /// </param>
         [NotifyPropertyChangedInvocator("expression")]
+        [Obsolete(ExceptionManager.ObsoleteExpressionUsage)]
         protected void SetProperty<T>(ref T field, T newValue, Expression<Func<T>> expression,
             ExecutionMode? executionMode = null)
         {
@@ -310,7 +317,7 @@ namespace MugenMvvmToolkit.Models
             get
             {
                 if (_ref == null)
-                    Interlocked.CompareExchange(ref _ref, ServiceProvider.WeakReferenceFactory(this, true), null);
+                    Interlocked.CompareExchange(ref _ref, ServiceProvider.WeakReferenceFactory(this), null);
                 return _ref;
             }
         }

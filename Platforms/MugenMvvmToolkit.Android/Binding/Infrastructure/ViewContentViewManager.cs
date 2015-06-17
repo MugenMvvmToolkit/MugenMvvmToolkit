@@ -15,10 +15,11 @@
 // ****************************************************************************
 
 #endregion
-using Android.Views;
-using MugenMvvmToolkit.Binding.Interfaces;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+using Android.Views;
+using MugenMvvmToolkit.Android.Binding.Interfaces;
+
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
     internal class ViewContentViewManager : IContentViewManager
     {

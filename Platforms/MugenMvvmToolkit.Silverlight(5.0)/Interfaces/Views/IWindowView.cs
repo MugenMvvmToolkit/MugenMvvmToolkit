@@ -18,8 +18,9 @@
 
 using System;
 using System.ComponentModel;
+using MugenMvvmToolkit.Interfaces.Views;
 
-namespace MugenMvvmToolkit.Interfaces.Views
+namespace MugenMvvmToolkit.Silverlight.Interfaces.Views
 {
     /// <summary>
     ///     Represent the base interface for child windows view.

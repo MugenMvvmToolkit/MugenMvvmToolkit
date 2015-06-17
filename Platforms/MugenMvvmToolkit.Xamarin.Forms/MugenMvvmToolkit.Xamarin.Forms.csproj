@@ -8,7 +8,7 @@
     <ProjectGuid>{67F9D3A8-F71E-4428-913F-C37AE82CDB24}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MugenMvvmToolkit</RootNamespace>
+    <RootNamespace>MugenMvvmToolkit.Xamarin.Forms</RootNamespace>
     <AssemblyName>MugenMvvmToolkit.Xamarin.Forms</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Profile78</TargetFrameworkProfile>
@@ -52,22 +52,10 @@
     <Compile Include="..\MugenMvvmToolkit.Android\LinkerIncludeLabmdaExpression.cs">
       <Link>LinkerIncludeLabmdaExpression.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Converters\ValueConverterWrapper.cs">
-      <Link>Converters\ValueConverterWrapper.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Infrastructure\BindingResourceResolverEx.cs">
-      <Link>Binding\Infrastructure\BindingResourceResolverEx.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\MarkupExtensions\DataBindingExtensionCommon.cs">
-      <Link>MarkupExtensions\DataBindingExtensionCommon.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding.WPF%284.5%29\Models\Enums.cs">
-      <Link>Models\Enums.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Touch\Models\EventArg\NavigatingCancelEventArgs.cs">
+    <Compile Include="..\MugenMvvmToolkit.iOS\Models\EventArg\NavigatingCancelEventArgs.cs">
       <Link>Models\EventArg\NavigatingCancelEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Touch\Models\EventArg\NavigationEventArgs.cs">
+    <Compile Include="..\MugenMvvmToolkit.iOS\Models\EventArg\NavigationEventArgs.cs">
       <Link>Models\EventArg\NavigationEventArgs.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\ThreadManager.cs">
@@ -91,11 +79,20 @@
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\interfaces\navigation\INavigationService.cs">
       <Link>Interfaces\Navigation\INavigationService.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\models\eventarg\NavigatingCancelEventArgsBase.cs">
-      <Link>Models\EventArg\NavigatingCancelEventArgsBase.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\AttachedMembers.cs">
+      <Link>Binding\AttachedMembers.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\models\eventarg\NavigationEventArgsBase.cs">
-      <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Converters\ValueConverterWrapper.cs">
+      <Link>Converters\ValueConverterWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Infrastructure\BindingResourceResolverEx.cs">
+      <Link>Binding\Infrastructure\BindingResourceResolverEx.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\MarkupExtensions\DataBindingExtensionCommon.cs">
+      <Link>MarkupExtensions\DataBindingExtensionCommon.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Models\Enums.cs">
+      <Link>Models\Enums.cs</Link>
     </Compile>
     <Compile Include="Binding\Infrastructure\BindingContextManagerEx.cs" />
     <Compile Include="Infrastructure\Mediators\ModalViewMediator.cs" />

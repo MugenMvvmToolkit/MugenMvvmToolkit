@@ -23,7 +23,13 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Infrastructure.Presenters
+#if WINDOWS_PHONE && XAMARIN_FORMS
+namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Infrastructure.Presenters
+#elif SILVERLIGHT
+namespace MugenMvvmToolkit.Silverlight.Infrastructure.Presenters
+#elif WINDOWS_PHONE
+namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
+#endif
 {
     /// <summary>
     ///     Represents the base implementation of <see cref="IMessagePresenter" />.

@@ -1,4 +1,4 @@
-﻿namespace MugenMvvmToolkit.Binding.UiDesigner
+﻿namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
 {
     partial class XmlEditor
     {

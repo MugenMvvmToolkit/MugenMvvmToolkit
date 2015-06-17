@@ -19,7 +19,7 @@
 using System;
 using JetBrains.Annotations;
 
-namespace MugenMvvmToolkit.Attributes
+namespace MugenMvvmToolkit.Android.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
     public sealed class TypeNameAliasAttribute : Attribute

@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Views;
+using MugenMvvmToolkit.Silverlight.Interfaces.Views;
+using MugenMvvmToolkit.WPF.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Test.TestModels
 {

@@ -20,7 +20,7 @@ using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
 
-namespace MugenMvvmToolkit.Models
+namespace MugenMvvmToolkit.Android.Models
 {
     public struct ViewResult
     {
@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Models
         {
             Should.NotBeNull(view, "view");
             _view = view;
-            _dataContext = dataContext ?? Models.DataContext.Empty;
+            _dataContext = dataContext ?? MugenMvvmToolkit.Models.DataContext.Empty;
         }
 
         #endregion

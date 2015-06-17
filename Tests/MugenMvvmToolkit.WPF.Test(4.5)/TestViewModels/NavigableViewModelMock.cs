@@ -77,7 +77,7 @@ namespace MugenMvvmToolkit.Test.TestViewModels
         /// </summary>
         /// <param name="parameter">The specified parameter, if any.</param>
         /// <returns>An instance of task with result.</returns>
-        public Task<bool> CloseAsync(object parameter)
+        public Task<bool> CloseAsync(object parameter = null)
         {
             if (CloseDelegate == null)
                 return Empty.TrueTask;

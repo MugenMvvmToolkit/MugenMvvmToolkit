@@ -16,10 +16,11 @@
 
 #endregion
 
-using Android.Content;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.EventArg;
 
-namespace MugenMvvmToolkit.Models.EventArg
+namespace MugenMvvmToolkit.Android.Models.EventArg
 {
     /// <summary>
     ///     Provides event data for the OnNavigatingFrom callback that can be used to cancel a navigation request from
@@ -34,7 +35,6 @@ namespace MugenMvvmToolkit.Models.EventArg
         /// </summary>
         public static readonly NavigatingCancelEventArgs NonCancelableEventArgs;
 
-        private readonly Intent _intent;
         private readonly bool _isCancelable;
         private readonly IViewMappingItem _mapping;
         private readonly NavigationMode _navigationMode;
@@ -59,11 +59,9 @@ namespace MugenMvvmToolkit.Models.EventArg
         ///     Initializes a new instance of the <see cref="NavigatingCancelEventArgs" /> class with the
         ///     <see cref="P:System.ComponentModel.CancelEventArgs.Cancel" /> property set to false.
         /// </summary>
-        public NavigatingCancelEventArgs(Intent intent, NavigationMode navigationMode, object parameter)
+        public NavigatingCancelEventArgs(NavigationMode navigationMode)
         {
-            _intent = intent;
             _navigationMode = navigationMode;
-            _parameter = parameter;
             _isCancelable = true;
         }
 
@@ -82,14 +80,6 @@ namespace MugenMvvmToolkit.Models.EventArg
         #endregion
 
         #region Properties
-
-        /// <summary>
-        ///     Gets the intent to navigate.
-        /// </summary>
-        public Intent Intent
-        {
-            get { return _intent; }
-        }
 
         /// <summary>
         ///     Gets the mapping item to navigate.

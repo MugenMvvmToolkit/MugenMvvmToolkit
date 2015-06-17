@@ -298,7 +298,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (_attachedMembers.ContainsKey(key))
                 {
                     if (rewrite)
-                        Tracer.Warn("The member {0} on type {1} has been overwritten", type, path);
+                        Tracer.Warn("The member {0} on type {1} has been overwritten", path, type);
                     else
                         throw BindingExceptionManager.DuplicateBindingMember(type, path);
                 }
@@ -385,21 +385,18 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         protected virtual IBindingMemberInfo GetExplicitBindingMember([NotNull] Type sourceType, [NotNull] string path)
         {
             path = path.Trim();
-            int indexerCounts = 0;
-            if (path.StartsWith("[") && path.EndsWith("]"))
+            string[] indexerArgs = null;
+            if (path.StartsWith("[", StringComparison.Ordinal) && path.EndsWith("]", StringComparison.Ordinal))
             {
-                indexerCounts = 1;
-                for (int index = 0; index < path.Length; index++)
-                {
-                    if (path[index] == ',')
-                        indexerCounts++;
-                }
+                indexerArgs = path
+                    .RemoveBounds()
+                    .Split(BindingReflectionExtensions.CommaSeparator, StringSplitOptions.RemoveEmptyEntries);
             }
 
             var types = BindingReflectionExtensions.SelfAndBaseTypes(sourceType);
             foreach (var type in types)
             {
-                if (indexerCounts == 0)
+                if (indexerArgs == null)
                 {
                     PropertyInfo property = type.GetPropertyEx(path, PropertyFlags);
                     if (property != null)
@@ -407,13 +404,46 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 }
                 else
                 {
-                    PropertyInfo property = type
-                        .GetPropertiesEx(PropertyFlags)
-                        .FirstOrDefault(info => info.GetIndexParameters().Length == indexerCounts);
-                    if (property != null)
-                        return new BindingMemberInfo(path, property, sourceType);
-
-                    if (type.IsArray && type.GetArrayRank() == indexerCounts)
+                    PropertyInfo candidate = null;
+                    int valueTypeCount = -1;
+                    foreach (var property in type.GetPropertiesEx(PropertyFlags))
+                    {
+                        var indexParameters = property.GetIndexParameters();
+                        if (indexParameters.Length != indexerArgs.Length)
+                            continue;
+                        try
+                        {
+                            int count = 0;
+                            for (int i = 0; i < indexParameters.Length; i++)
+                            {
+                                var arg = indexerArgs[i];
+                                var paramType = indexParameters[i].ParameterType;
+                                if (arg.StartsWith("\"", StringComparison.Ordinal) && arg.EndsWith("\"", StringComparison.Ordinal))
+                                {
+                                    if (paramType != typeof(string))
+                                        break;
+                                }
+                                else
+                                {
+                                    BindingServiceProvider.ValueConverter(Empty, paramType, arg);
+                                    if (paramType.IsValueType())
+                                        count++;
+                                }
+                            }
+                            if (valueTypeCount < count)
+                            {
+                                candidate = property;
+                                valueTypeCount = count;
+                            }
+                        }
+                        catch
+                        {
+                            ;
+                        }
+                    }
+                    if (candidate != null)
+                        return new BindingMemberInfo(path, candidate, sourceType);
+                    if (type.IsArray && type.GetArrayRank() == indexerArgs.Length)
                         return new BindingMemberInfo(path, type);
                 }
                 EventInfo @event = type.GetEventEx(path, EventFlags);

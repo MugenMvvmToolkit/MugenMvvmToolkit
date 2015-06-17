@@ -20,7 +20,7 @@ using System;
 using Android.Support.V4.View;
 using Android.Support.V7.App;
 
-namespace MugenMvvmToolkit.AppCompat.Models
+namespace MugenMvvmToolkit.Android.AppCompat.Models
 {
 
     [Flags]

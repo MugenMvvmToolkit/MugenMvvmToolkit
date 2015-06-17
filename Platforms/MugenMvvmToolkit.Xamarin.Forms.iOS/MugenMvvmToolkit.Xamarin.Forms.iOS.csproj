@@ -8,7 +8,7 @@
     <ProjectGuid>{BE5057CD-D8BD-4A46-A128-6D249B312001}</ProjectGuid>
     <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
-    <RootNamespace>MugenMvvmToolkit</RootNamespace>
+    <RootNamespace>MugenMvvmToolkit.Xamarin.Forms.iOS</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
     <AssemblyName>MugenMvvmToolkit.Xamarin.Forms.iOS</AssemblyName>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
@@ -45,25 +45,25 @@
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Touch\Binding\Infrastructure\BindingErrorProvider.cs">
+    <Compile Include="..\MugenMvvmToolkit.iOS\Binding\Infrastructure\BindingErrorProvider.cs">
       <Link>Binding\Infrastructure\BindingErrorProvider.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Touch\Infrastructure\Presenters\MessagePresenter.cs">
+    <Compile Include="..\MugenMvvmToolkit.iOS\Infrastructure\Presenters\MessagePresenter.cs">
       <Link>Infrastructure\Presenters\MessagePresenter.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Touch\Infrastructure\Presenters\ToastPresenter.cs">
+    <Compile Include="..\MugenMvvmToolkit.iOS\Infrastructure\Presenters\ToastPresenter.cs">
       <Link>Infrastructure\Presenters\ToastPresenter.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Touch\Interfaces\IOrientationChangeListener.cs">
+    <Compile Include="..\MugenMvvmToolkit.iOS\Interfaces\IOrientationChangeListener.cs">
       <Link>Interfaces\IOrientationChangeListener.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Touch\PlatformExtensionsCommon.cs">
+    <Compile Include="..\MugenMvvmToolkit.iOS\PlatformExtensionsCommon.cs">
       <Link>PlatformExtensionsCommon.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Touch\Views\ToastView.cs">
+    <Compile Include="..\MugenMvvmToolkit.iOS\Views\ToastView.cs">
       <Link>Views\ToastView.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Touch\Views\ValidationPopup.cs">
+    <Compile Include="..\MugenMvvmToolkit.iOS\Views\ValidationPopup.cs">
       <Link>Views\ValidationPopup.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.WinPhone\Binding\Modules\PlatformDataBindingModuleEx.cs">

@@ -18,9 +18,9 @@
 
 using System.Collections.Generic;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Parse.Nodes;
+using MugenMvvmToolkit.WinForms.Binding.Parse.Nodes;
 
-namespace MugenMvvmToolkit.Binding.Parse
+namespace MugenMvvmToolkit.WinForms.Binding.Parse
 {
     internal sealed class XmlParser
     {

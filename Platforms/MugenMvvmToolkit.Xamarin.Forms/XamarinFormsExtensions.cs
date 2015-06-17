@@ -27,7 +27,7 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using Xamarin.Forms;
 
-namespace MugenMvvmToolkit
+namespace MugenMvvmToolkit.Xamarin.Forms
 {
     public static class XamarinFormsExtensions
     {

@@ -21,9 +21,8 @@ using System.Windows.Controls;
 using System.Windows.Navigation;
 using JetBrains.Annotations;
 using Microsoft.Phone.Controls;
-using NavigationMode = System.Windows.Navigation.NavigationMode;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.WinPhone.Infrastructure
 {
     /// <summary>
     ///     Represents the frame state manager that allows to save state of page.
@@ -62,7 +61,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     return;
                 var page = target.Content as PhoneApplicationPage;
                 if (page != null)
-                    _previousView = ServiceProvider.WeakReferenceFactory(page, true);
+                    _previousView = ServiceProvider.WeakReferenceFactory(page);
             }
 
             private void FrameOnNavigated(object sender, NavigationEventArgs args)

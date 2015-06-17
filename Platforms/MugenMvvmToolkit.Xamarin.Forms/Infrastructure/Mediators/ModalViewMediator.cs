@@ -19,17 +19,18 @@
 using System.ComponentModel;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
+using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation;
+using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Views;
 using Xamarin.Forms;
 
-namespace MugenMvvmToolkit.Infrastructure.Mediators
+namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators
 {
     public class ModalViewMediator : WindowViewMediatorBase<IModalView>
     {

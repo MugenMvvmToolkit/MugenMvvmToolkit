@@ -39,7 +39,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         private IBindingSource[] _sources;
         private Func<IDataContext, IList<object>, object> _formatExpression;
-        private BindingMemberValue _getSourceMemberValue;
+        private BindingActionValue _getSourceMemberValue;
 
         #endregion
 
@@ -145,7 +145,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             if (targetMember.MemberType == BindingMemberType.Event)
             {
                 if (_getSourceMemberValue == null)
-                    _getSourceMemberValue = new BindingMemberValue(this, BindingMemberInfo.MultiBindingSourceAccessorMember);
+                    _getSourceMemberValue = new BindingActionValue(this, BindingMemberInfo.MultiBindingSourceAccessorMember);
                 return _getSourceMemberValue;
             }
             return base.GetValueInternal(targetMember, context, throwOnError);

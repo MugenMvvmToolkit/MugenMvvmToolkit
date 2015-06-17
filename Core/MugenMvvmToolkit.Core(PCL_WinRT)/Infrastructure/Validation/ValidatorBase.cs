@@ -703,7 +703,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <param name="getMember">The expression to get member.</param>
         /// <returns>If true member names is equal, otherwise false.</returns>
         [Pure]
-        protected static bool PropertyNameEqual<T>(string memberName, Expression<Func<T, object>> getMember)
+        protected static bool MemberNameEqual<T>(string memberName, Func<Expression<Func<T, object>>> getMember)
         {
             return ToolkitExtensions.MemberNameEqual(memberName, getMember);
         }
@@ -714,9 +714,9 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <param name="expression">The specified expression.</param>
         /// <returns>The member name.</returns>
         [Pure]
-        protected static string GetPropertyName<T>(Expression<Func<T, object>> expression)
+        protected static string GetMemberName<T>(Func<Expression<Func<T, object>>> expression)
         {
-            return ToolkitExtensions.GetMemberName(expression);
+            return expression.GetMemberName();
         }
 
         /// <summary>
@@ -960,10 +960,9 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <param name="getMember">The expression to get member.</param>
         /// <returns>If true member names is equal, otherwise false.</returns>
         [Pure]
-        protected static bool PropertyNameEqual<TValue>(string memberName, [NotNull] Expression<Func<T, TValue>> getMember)
+        protected static bool MemberNameEqual(string memberName, [NotNull] Func<Expression<Func<T, object>>> getMember)
         {
-            Should.NotBeNull(getMember, "getMember");
-            return getMember.GetMemberInfo().Name.Equals(memberName, StringComparison.Ordinal);
+            return ToolkitExtensions.MemberNameEqual(memberName, getMember);
         }
 
         /// <summary>
@@ -972,9 +971,9 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         /// <param name="expression">The specified expression.</param>
         /// <returns>The member name.</returns>
         [Pure]
-        protected static string GetPropertyName<TValue>(Expression<Func<T, TValue>> expression)
+        protected static string GetMemberName(Func<Expression<Func<T, object>>> expression)
         {
-            return ToolkitExtensions.GetMemberName(expression);
+            return expression.GetMemberName();
         }
 
         #endregion

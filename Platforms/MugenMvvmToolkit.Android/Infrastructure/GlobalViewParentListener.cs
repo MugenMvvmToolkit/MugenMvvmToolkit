@@ -19,7 +19,7 @@
 using Android.Views;
 using Java.Lang;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.Android.Infrastructure
 {
     public sealed class GlobalViewParentListener : Object, ViewGroup.IOnHierarchyChangeListener
     {

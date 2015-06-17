@@ -25,7 +25,7 @@ using MugenMvvmToolkit.Models.Exceptions;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
-namespace MugenMvvmToolkit.MarkupExtensions
+namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
 {
     /// <summary>
     ///     Provides high-level access to the definition of a binding, which connects the properties of binding target objects.

@@ -23,7 +23,7 @@ using Windows.UI.Core;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.WinRT.Infrastructure
 {
     public class ThreadManager : IThreadManager
     {

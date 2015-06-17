@@ -26,6 +26,7 @@ namespace MugenMvvmToolkit.Binding.Builders
     /// </summary>
     public sealed class SyntaxBuilder<TTarget, TSource> : IBindingModeInfoBehaviorSyntax<TSource>,
         IBindingToSyntax<TTarget, TSource>, IBindingInfoBehaviorSyntax<TSource>
+        where TTarget : class
     {
         #region Fields
 

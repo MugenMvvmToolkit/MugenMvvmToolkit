@@ -18,8 +18,14 @@
 
 using System.Windows.Navigation;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Models.EventArg;
+using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
-namespace MugenMvvmToolkit.Models.EventArg
+#if SILVERLIGHT
+namespace MugenMvvmToolkit.Silverlight.Models.EventArg
+#elif WINDOWS_PHONE
+namespace MugenMvvmToolkit.WinPhone.Models.EventArg
+#endif
 {
     public sealed class NavigationEventArgsWrapper : NavigationEventArgsBase
     {

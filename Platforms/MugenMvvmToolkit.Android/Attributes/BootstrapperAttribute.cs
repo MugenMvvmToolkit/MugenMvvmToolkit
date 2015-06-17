@@ -18,9 +18,9 @@
 
 using System;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Android.Infrastructure;
 
-namespace MugenMvvmToolkit.Attributes
+namespace MugenMvvmToolkit.Android.Attributes
 {
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
     public sealed class BootstrapperAttribute : Attribute

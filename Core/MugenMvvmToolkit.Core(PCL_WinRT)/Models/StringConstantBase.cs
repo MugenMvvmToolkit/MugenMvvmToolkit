@@ -129,12 +129,12 @@ namespace MugenMvvmToolkit.Models
 
         public static bool operator ==(StringConstantBase<TType> left, TType right)
         {
-            return Equals(left, right);
+            return !ReferenceEquals(left, null) && left.Equals(right);
         }
 
         public static bool operator !=(StringConstantBase<TType> left, TType right)
         {
-            return !Equals(left, right);
+            return !ReferenceEquals(left, null) && !left.Equals(right);
         }
 
         #endregion

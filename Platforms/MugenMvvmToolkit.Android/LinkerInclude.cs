@@ -21,7 +21,7 @@ using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
 
-namespace MugenMvvmToolkit
+namespace MugenMvvmToolkit.Android
 {
     [UsedImplicitly]
     internal static partial class LinkerInclude
@@ -80,6 +80,10 @@ namespace MugenMvvmToolkit
             var tp = new TimePicker(null);
             tp.CurrentHour = tp.CurrentHour;
             tp.CurrentMinute = tp.CurrentMinute;
+
+            var searchView = new SearchView(null);
+            searchView.QueryTextChange += (sender, args) => { };
+            searchView.QueryTextChange -= (sender, args) => { };
         }
 
         [UsedImplicitly]

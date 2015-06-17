@@ -20,9 +20,9 @@ using System;
 using System.Xml;
 using Android.Content;
 using Android.Views;
-using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Android.Interfaces;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
     public sealed class BindableLayoutInflaterProxy : BindableLayoutInflater
     {

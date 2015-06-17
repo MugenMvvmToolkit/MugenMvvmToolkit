@@ -19,7 +19,7 @@
 using System;
 using System.Reflection;
 
-namespace MugenMvvmToolkit.Binding.Models
+namespace MugenMvvmToolkit.WinForms.Binding.Models
 {
     internal sealed class AutoCompleteItem
     {

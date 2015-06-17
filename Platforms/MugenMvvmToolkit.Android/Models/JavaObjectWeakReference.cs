@@ -18,7 +18,7 @@
 
 using System;
 
-namespace MugenMvvmToolkit.Models
+namespace MugenMvvmToolkit.Android.Models
 {
     //see https://bugzilla.xamarin.com/show_bug.cgi?id=16343
     internal sealed class JavaObjectWeakReference : WeakReference

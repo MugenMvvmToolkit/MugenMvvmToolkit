@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -30,7 +31,6 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
@@ -68,13 +68,13 @@ namespace MugenMvvmToolkit
             public TDelegate HandlerDelegate;
             private readonly WeakReference _targetReference;
             private readonly Action<TTarget, object, TArg> _invokeAction;
-            private readonly Action<object, TDelegate> _unsubscribeAction;
+            private readonly Delegate _unsubscribeAction;
 
             #endregion
 
             #region Constructors
 
-            public WeakEventHandler(TTarget target, Action<TTarget, object, TArg> invokeAction, Action<object, TDelegate> unsubscribeAction)
+            public WeakEventHandler(TTarget target, Action<TTarget, object, TArg> invokeAction, Delegate unsubscribeAction)
             {
                 Should.NotBeNull(target, "target");
                 Should.NotBeNull(invokeAction, "invokeAction");
@@ -93,7 +93,13 @@ namespace MugenMvvmToolkit
                 if (target == null)
                 {
                     if (_unsubscribeAction != null)
-                        _unsubscribeAction.Invoke(sender, HandlerDelegate);
+                    {
+                        var action = _unsubscribeAction as Action<object, TDelegate>;
+                        if (action == null)
+                            ((Action<object, IWeakEventHandler<TArg>>)_unsubscribeAction).Invoke(sender, this);
+                        else
+                            action.Invoke(sender, HandlerDelegate);
+                    }
                 }
                 else
                     _invokeAction(target, sender, arg);
@@ -118,6 +124,7 @@ namespace MugenMvvmToolkit
         private static readonly Dictionary<MemberInfo, Attribute[]> CachedAttributes;
         private static readonly Dictionary<Type, Func<object, object>> GetDataContextDelegateCache;
         private static readonly Dictionary<Type, Action<object, object>> SetDataContextDelegateCache;
+        private static readonly Dictionary<Delegate, MemberInfo> ExpressionToMemberInfoCache;
 
         private static readonly Func<Assembly, bool> IsToolkitAssemblyDelegate;
         private static readonly HashSet<string> KnownPublicKeys;
@@ -146,6 +153,7 @@ namespace MugenMvvmToolkit
             CachedAttributes = new Dictionary<MemberInfo, Attribute[]>();
             GetDataContextDelegateCache = new Dictionary<Type, Func<object, object>>();
             SetDataContextDelegateCache = new Dictionary<Type, Action<object, object>>();
+            ExpressionToMemberInfoCache = new Dictionary<Delegate, MemberInfo>(ReferenceEqualityComparer.Instance);
             //NOTE: 7cec85d7bea7798e, 31bf3856ad364e35, b03f5f7f11d50a3a, b77a5c561934e089 - NET FRAMEWORK
             //NOTE: 0738eb9f132ed756, 84e04ff9cfb79065 - MONO
             //NOTE: 5803cfa389c90ce7 - Telerik
@@ -157,20 +165,21 @@ namespace MugenMvvmToolkit
             KnownPublicKeys = new HashSet<string>(KnownMSPublicKeys, StringComparer.OrdinalIgnoreCase)
             {
                 "0738eb9f132ed756", "84e04ff9cfb79065", "5803cfa389c90ce7", "17863af14b0044da"
-            };
+            };//TODO CHECK
             KnownAssemblyName = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "FormsViewGroup",
                 "Xamarin.Android.Support.v13",
                 "Xamarin.Android.Support.v4",
+                "Xamarin.Android.Support.v7.RecyclerView",
                 "Xamarin.Forms.Core",
-                "Xamarin.Forms.Platform.Android",
+                "Xamarin.Forms.Platform",
                 "Xamarin.Forms.Xaml",
+                "Xamarin.Forms.Platform.Android",
                 "Xamarin.Forms.Platform.iOS",
-                "Xamarin.Forms.Platform.WP8",
+                "Xamarin.Forms.Platform.WP8"                
             };
             IsToolkitAssemblyDelegate = IsToolkitAssembly;
-
             CachedViewModelProperties = new Dictionary<Type, Dictionary<string, ICollection<string>>>();
             CachedIgnoreAttributes = new Dictionary<Type, string[]>();
             ExcludedProperties = typeof(EditableViewModel<>)
@@ -198,10 +207,11 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Returns a weak-reference version of a delegate.
         /// </summary>
-        public static IWeakEventHandler<TArg> CreateWeakEventHandler<TTarget, TArg>([NotNull] TTarget target, [NotNull]Action<TTarget, object, TArg> invokeAction)
+        public static IWeakEventHandler<TArg> CreateWeakEventHandler<TTarget, TArg>([NotNull] TTarget target, [NotNull]Action<TTarget, object, TArg> invokeAction,
+            Action<object, IWeakEventHandler<TArg>> unsubscribeAction = null)
             where TTarget : class
         {
-            return new WeakEventHandler<TTarget, TArg, object>(target, invokeAction, null);
+            return new WeakEventHandler<TTarget, TArg, object>(target, invokeAction, unsubscribeAction);
         }
 
         /// <summary>
@@ -410,7 +420,7 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        /// Filters assemblies.
+        ///     Filters assemblies.
         /// </summary>
         public static IEnumerable<Assembly> SkipFrameworkAssemblies(this IEnumerable<Assembly> assemblies)
         {
@@ -486,7 +496,7 @@ namespace MugenMvvmToolkit
                 if (!CachedAttributes.TryGetValue(member, out attributes))
                 {
                     attributes = member.GetCustomAttributes(typeof(Attribute), true)
-                        .OfType<Attribute>()
+                        .Cast<Attribute>()
                         .ToArray();
                     CachedAttributes[member] = attributes;
                 }
@@ -494,6 +504,34 @@ namespace MugenMvvmToolkit
             return attributes;
         }
 
+        /// <summary>
+        ///     Gets member info from the specified expression.
+        /// </summary>
+        /// <param name="getExpression">The specified expression.</param>
+        /// <returns>The member info.</returns>        
+        [Pure]
+        public static MemberInfo GetMemberInfo([NotNull] this Func<LambdaExpression> getExpression)
+        {
+            Should.NotBeNull(getExpression, "getExpression");
+            if (getExpression.Target != null)
+            {
+                LambdaExpression expression = getExpression();
+                expression.TraceClosureWarn();
+                return expression.GetMemberInfo();
+            }
+            lock (ExpressionToMemberInfoCache)
+            {
+                MemberInfo info;
+                if (!ExpressionToMemberInfoCache.TryGetValue(getExpression, out info))
+                {
+                    info = getExpression().GetMemberInfo();
+                    ExpressionToMemberInfoCache[getExpression] = info;
+                }
+                return info;
+            }
+        }
+
+        [Obsolete(ExceptionManager.ObsoleteExpressionUsage)]
         internal static MemberInfo GetMemberInfo([NotNull] this LambdaExpression expression)
         {
             Should.NotBeNull(expression, "expression");
@@ -655,7 +693,7 @@ namespace MugenMvvmToolkit
         }
 
         /// <summary>
-        ///     This method is used to reduce closure allocation in generatde methods.
+        ///     This method is used to reduce closure allocation in generated methods.
         /// </summary>
         internal static void SetValue<TValue>(this PropertyInfo property, object target, TValue value)
         {
@@ -668,6 +706,12 @@ namespace MugenMvvmToolkit
         internal static void SetValue<TValue>(this FieldInfo field, object target, TValue value)
         {
             field.SetValue(target, value);
+        }
+
+        internal static void TraceClosureWarn(this Expression expression)
+        {
+            if (Debugger.IsAttached)
+                Tracer.Warn("The expression '{0}' has closure, it can lead to poor performance", expression);
         }
 
         private static void UnsubscribePropertyChanged(object sender, PropertyChangedEventHandler handler)
@@ -701,7 +745,7 @@ namespace MugenMvvmToolkit
             return weakEventHandler.Handle;
         }
 
-        private static NotifyCollectionChangedEventHandler CreateHandler(ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs> weakEventHandler)
+        private static NotifyCollectionChangedEventHandler CreateHandler(IWeakEventHandler<NotifyCollectionChangedEventArgs> weakEventHandler)
         {
             return weakEventHandler.Handle;
         }

@@ -18,8 +18,9 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding.Interfaces;
 
-namespace MugenMvvmToolkit.Binding.Interfaces
+namespace MugenMvvmToolkit.Android.Binding.Interfaces
 {
     public interface IManualBindings
     {

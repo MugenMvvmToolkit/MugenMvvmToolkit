@@ -28,6 +28,21 @@ namespace MugenMvvmToolkit.Binding.Interfaces
     public interface IBindingErrorProvider
     {
         /// <summary>
+        ///     Gets the validation errors for a specified property or for the entire entity.
+        /// </summary>
+        /// <param name="target">The binding target object.</param>
+        /// <param name="key">
+        ///     The name of the key to retrieve validation errors for; or null or
+        ///     <see cref="F:System.String.Empty" />, to retrieve entity-level errors.
+        /// </param>
+        /// <param name="context">The specified context, if any.</param>
+        /// <returns>
+        ///     The validation errors for the property or entity.
+        /// </returns>
+        [NotNull]
+        IList<object> GetErrors([NotNull]object target, string key, [CanBeNull] IDataContext context);
+
+        /// <summary>
         ///     Sets errors for binding target.
         /// </summary>
         /// <param name="target">The binding target object.</param>
@@ -35,6 +50,6 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         /// <param name="errors">The collection of errors</param>
         /// <param name="context">The specified context, if any.</param>
         void SetErrors([NotNull]object target, [NotNull] string senderKey, [NotNull] IList<object> errors,
-            [NotNull] IDataContext context);
+            [CanBeNull] IDataContext context);
     }
 }

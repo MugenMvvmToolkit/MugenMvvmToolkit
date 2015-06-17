@@ -23,8 +23,29 @@ using System.Linq;
 using System.Reflection;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 
-// ReSharper disable once CheckNamespace
+// ReSharper disable CheckNamespace
+#if ANDROID && XAMARIN_FORMS
+namespace MugenMvvmToolkit.Xamarin.Forms.Android
+#elif ANDROID
+namespace MugenMvvmToolkit.Android
+#elif XAMARIN_FORMS && TOUCH
+namespace MugenMvvmToolkit.Xamarin.Forms.iOS
+#elif TOUCH
+namespace MugenMvvmToolkit.iOS
+#elif WINFORMS
+namespace MugenMvvmToolkit.WinForms
+#elif WPF
+namespace MugenMvvmToolkit.WPF.Binding
+#elif WINDOWS_PHONE && XAMARIN_FORMS
+namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone
+#elif SILVERLIGHT
+namespace MugenMvvmToolkit.Silverlight.Binding
+#elif WINDOWS_PHONE
+namespace MugenMvvmToolkit.WinPhone.Binding
+#else
 namespace MugenMvvmToolkit.Binding
+#endif
+// ReSharper restore CheckNamespace
 {
     // ReSharper disable once PartialTypeWithSinglePart
     internal static partial class BindingReflectionExtensions
@@ -34,14 +55,14 @@ namespace MugenMvvmToolkit.Binding
 
         private sealed class MultiTypeConverter : TypeConverter
         {
-        #region Fields
+            #region Fields
 
             private readonly TypeConverter _first;
             private readonly TypeConverter _second;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             public MultiTypeConverter(TypeConverter first, TypeConverter second)
             {
@@ -49,9 +70,9 @@ namespace MugenMvvmToolkit.Binding
                 _second = second;
             }
 
-        #endregion
+            #endregion
 
-        #region Overrides of TypeConverter
+            #region Overrides of TypeConverter
 
             public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
             {
@@ -68,7 +89,7 @@ namespace MugenMvvmToolkit.Binding
                 return base.ConvertFrom(context, culture, value);
             }
 
-        #endregion
+            #endregion
         }
 
         #endregion
@@ -119,7 +140,7 @@ namespace MugenMvvmToolkit.Binding
                 {
                     var memberValue = GetConverter(member);
 #if WINDOWS_PHONE || SILVERLIGHT
-                    value = GetConverter(type);                                        
+                    value = GetConverter(type);
 #else
                     value = TypeDescriptor.GetConverter(type);
 #endif

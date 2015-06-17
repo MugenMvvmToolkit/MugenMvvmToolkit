@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -261,7 +260,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 for (int i = 0; i < listeners.Length; i++)
                 {
                     var pair = listeners[i];
-                    if (ToolkitExtensions.PropertyNameEqual(args.PropertyName, pair.Value, true))
+                    if (ToolkitExtensions.MemberNameEqual(args.PropertyName, pair.Value, true))
                     {
                         if (!pair.Key.EventListener.TryHandle(sender, args))
                             hasDeadRef = true;
@@ -413,8 +412,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Should.NotBeNull(eventInfo, "eventInfo");
             Should.NotBeNull(listener, "listener");
             var listenerInternal = ServiceProvider
-                    .AttachedValueProvider
-                    .GetOrAdd(target, EventPrefix + eventInfo.Name, CreateWeakListenerDelegate, eventInfo);
+                .AttachedValueProvider
+                .GetOrAdd(target, EventPrefix + eventInfo.Name, CreateWeakListenerDelegate, eventInfo);
             if (listenerInternal.IsEmpty)
             {
                 Tracer.Warn("The event '{0}' is not supported by weak event manager", eventInfo);
@@ -441,19 +440,41 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Methods
 
-        internal static WeakListenerInternal GetBindingContextListener([NotNull] object source)
+        internal static IDisposable AddBindingContextListener(IBindingContext ctx, IEventListener listener, bool withUnsubscriber)
         {
+            var l = GetBindingContextListener(ctx);
+            if (l.IsEmpty)
+                return null;
+            if (withUnsubscriber)
+                return l.AddWithUnsubscriber(listener);
+            l.Add(listener);
+            return null;
+        }
+
+        internal static void RemoveBindingContextListener(IBindingContext ctx, IEventListener listener)
+        {
+            var l = GetBindingContextListener(ctx);
+            if (!l.IsEmpty)
+                l.Remove(listener);
+        }
+
+        private static WeakListenerInternal GetBindingContextListener(IBindingContext ctx)
+        {
+            var src = ctx.Source;
+            if (src == null)
+                return WeakListenerInternal.EmptyListener;
             return ServiceProvider
                 .AttachedValueProvider
-                .GetOrAdd(source, BindingContextMember, CreateContextListenerDelegate, null);
+                .GetOrAdd(src, BindingContextMember, CreateContextListenerDelegate, ctx);
         }
 
         private static WeakListenerInternal CreateContextListener(object src, object state)
         {
+            var context = (IBindingContext)state;
             var listenerInternal = new WeakListenerInternal(src, null);
             var handler = new EventHandler<ISourceValue, EventArgs>(listenerInternal.Raise);
             listenerInternal.Handler = handler;
-            BindingServiceProvider.ContextManager.GetBindingContext(src).ValueChanged += handler;
+            context.ValueChanged += handler;
             return listenerInternal;
         }
 

@@ -7,7 +7,7 @@
     <ProjectGuid>{767BA920-CF3A-4894-8382-2DE780D398E3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MugenMvvmToolkit</RootNamespace>
+    <RootNamespace>MugenMvvmToolkit.WPF</RootNamespace>
     <AssemblyName>MugenMvvmToolkit.WPF</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -122,14 +122,8 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\MarkupExtensions\ViewModelToViewBinding.cs">
       <Link>MarkupExtensions\ViewModelToViewBinding.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Models\EventArg\NavigatingCancelEventArgsBase.cs">
-      <Link>Models\EventArg\NavigatingCancelEventArgsBase.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Models\EventArg\NavigatingCancelEventArgsWrapper.cs">
       <Link>Models\EventArg\NavigatingCancelEventArgsWrapper.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Models\EventArg\NavigationEventArgsBase.cs">
-      <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Models\EventArg\NavigationEventArgsWrapper.cs">
       <Link>Models\EventArg\NavigationEventArgsWrapper.cs</Link>

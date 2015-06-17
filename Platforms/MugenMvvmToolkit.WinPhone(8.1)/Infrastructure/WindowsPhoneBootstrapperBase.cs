@@ -24,16 +24,17 @@ using System.Windows.Controls;
 using JetBrains.Annotations;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
-using MugenMvvmToolkit.Infrastructure.Navigation;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.ViewModels;
+using MugenMvvmToolkit.WinPhone.Infrastructure.Navigation;
+using MugenMvvmToolkit.WinPhone.Interfaces.Navigation;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.WinPhone.Infrastructure
 {
     /// <summary>
     ///     Represents the base class that is used to start MVVM application.

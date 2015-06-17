@@ -81,25 +81,25 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             var stateModel = GetModel();
             var snapshot = manager.CreateSnapshot(stateModel);
 
-            snapshot.HasChanges(stateModel, ToolkitExtensions.GetMemberName<EntityStateModel>(model => model.Guid)).ShouldBeFalse();
-            snapshot.HasChanges(stateModel, ToolkitExtensions.GetMemberName<EntityStateModel>(model => model.String)).ShouldBeFalse();
-            snapshot.HasChanges(stateModel, ToolkitExtensions.GetMemberName<EntityStateModel>(model => model.Int)).ShouldBeFalse();
+            snapshot.HasChanges(stateModel, ToolkitExtensions.GetMemberName<EntityStateModel>(() => model => model.Guid)).ShouldBeFalse();
+            snapshot.HasChanges(stateModel, ToolkitExtensions.GetMemberName<EntityStateModel>(() => model => model.String)).ShouldBeFalse();
+            snapshot.HasChanges(stateModel, ToolkitExtensions.GetMemberName<EntityStateModel>(() => model => model.Int)).ShouldBeFalse();
 
             stateModel.Int = int.MaxValue;
             stateModel.String = null;
             stateModel.Guid = Guid.Empty;
 
-            snapshot.HasChanges(stateModel, ToolkitExtensions.GetMemberName<EntityStateModel>(model => model.Guid)).ShouldBeTrue();
-            snapshot.HasChanges(stateModel, ToolkitExtensions.GetMemberName<EntityStateModel>(model => model.String)).ShouldBeTrue();
-            snapshot.HasChanges(stateModel, ToolkitExtensions.GetMemberName<EntityStateModel>(model => model.Int)).ShouldBeTrue();
+            snapshot.HasChanges(stateModel, ToolkitExtensions.GetMemberName<EntityStateModel>(() => model => model.Guid)).ShouldBeTrue();
+            snapshot.HasChanges(stateModel, ToolkitExtensions.GetMemberName<EntityStateModel>(() => model => model.String)).ShouldBeTrue();
+            snapshot.HasChanges(stateModel, ToolkitExtensions.GetMemberName<EntityStateModel>(() => model => model.Int)).ShouldBeTrue();
 
             stateModel.Int = IntValue;
             stateModel.String = StringValue;
             stateModel.Guid = GuidValue;
 
-            snapshot.HasChanges(stateModel, ToolkitExtensions.GetMemberName<EntityStateModel>(model => model.Guid)).ShouldBeFalse();
-            snapshot.HasChanges(stateModel, ToolkitExtensions.GetMemberName<EntityStateModel>(model => model.String)).ShouldBeFalse();
-            snapshot.HasChanges(stateModel, ToolkitExtensions.GetMemberName<EntityStateModel>(model => model.Int)).ShouldBeFalse();
+            snapshot.HasChanges(stateModel, ToolkitExtensions.GetMemberName<EntityStateModel>(() => model => model.Guid)).ShouldBeFalse();
+            snapshot.HasChanges(stateModel, ToolkitExtensions.GetMemberName<EntityStateModel>(() => model => model.String)).ShouldBeFalse();
+            snapshot.HasChanges(stateModel, ToolkitExtensions.GetMemberName<EntityStateModel>(() => model => model.Int)).ShouldBeFalse();
         }
 
         [TestMethod]

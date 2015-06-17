@@ -19,19 +19,29 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Navigation;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using NavigationMode = System.Windows.Navigation.NavigationMode;
+#if SILVERLIGHT
+using MugenMvvmToolkit.Silverlight.Interfaces.Navigation;
+using MugenMvvmToolkit.Silverlight.Models.EventArg;
 
-namespace MugenMvvmToolkit.Infrastructure.Navigation
+namespace MugenMvvmToolkit.Silverlight.Infrastructure.Navigation
+#elif WINDOWS_PHONE
+using System.Linq;
+using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.WinPhone.Interfaces.Navigation;
+using MugenMvvmToolkit.WinPhone.Models.EventArg;
+
+namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
+#endif
 {
     /// <summary>
     ///     Represents the frame navigation service.
@@ -67,7 +77,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         private void OnNavigated(object sender, NavigationEventArgs args)
         {
-            var handler = Navigated;
+            EventHandler<INavigationService, NavigationEventArgsBase> handler = Navigated;
             if (handler == null)
                 return;
 #if WINDOWS_PHONE
@@ -80,7 +90,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         private void OnNavigating(object sender, NavigatingCancelEventArgs args)
         {
-            var handler = Navigating;
+            EventHandler<INavigationService, NavigatingCancelEventArgsBase> handler = Navigating;
             if (handler != null)
                 handler(this, new NavigatingCancelEventArgsWrapper(args));
         }
@@ -155,7 +165,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 #endif
 
         /// <summary>
-        /// Gets a navigation parameter from event args.
+        ///     Gets a navigation parameter from event args.
         /// </summary>
         public object GetParameterFromArgs(EventArgs args)
         {
@@ -175,7 +185,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         public bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
         {
             Should.NotBeNull(args, "args");
-            var result = NavigateInternal(args);
+            bool result = NavigateInternal(args);
             if (result)
                 ClearNavigationStackIfNeed(dataContext);
             return result;
@@ -200,10 +210,33 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         public bool Navigate(IViewMappingItem source, object parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, "source");
-            var result = NavigateInternal(source, parameter);
+            bool result = NavigateInternal(source, parameter);
             if (result)
                 ClearNavigationStackIfNeed(dataContext);
             return result;
+        }
+
+        /// <summary>
+        ///     Determines whether the specified command <c>CloseCommand</c> can be execute.
+        /// </summary>
+        public bool CanClose(IViewModel viewModel, IDataContext dataContext)
+        {
+            Should.NotBeNull(viewModel, "viewModel");
+            var content = CurrentContent;
+            return content != null && ViewManager.GetDataContext(content) == viewModel && CanGoBack;
+        }
+
+        /// <summary>
+        ///     Tries to close view-model page.
+        /// </summary>
+        public bool TryClose(IViewModel viewModel, IDataContext dataContext)
+        {
+            if (CanClose(viewModel, dataContext))
+            {
+                GoBack();
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -222,7 +255,9 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         private bool NavigateInternal(NavigatingCancelEventArgsBase args)
         {
-            var originalArgs = ((NavigatingCancelEventArgsWrapper)args).Args;
+            if (!args.IsCancelable)
+                return false;
+            NavigatingCancelEventArgs originalArgs = ((NavigatingCancelEventArgsWrapper)args).Args;
             if (originalArgs.NavigationMode == NavigationMode.Back)
             {
                 _frame.GoBack();
@@ -237,10 +272,17 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             if (parameter != null)
             {
                 var s = parameter as string;
-                var uriParameter = s == null
-                    ? new KeyValuePair<string, string>(UriParameterSerializer, _serializer.SerializeToBase64String(parameter))
+                KeyValuePair<string, string> uriParameter = s == null
+                    ? new KeyValuePair<string, string>(UriParameterSerializer,
+                        _serializer.SerializeToBase64String(parameter))
                     : new KeyValuePair<string, string>(UriParameterString, s);
-                uri = uri.MergeUri(new[] { uriParameter, new KeyValuePair<string, string>("_timestamp", DateTime.UtcNow.Ticks.ToString(CultureInfo.InvariantCulture)) });
+                uri =
+                    uri.MergeUri(new[]
+                    {
+                        uriParameter,
+                        new KeyValuePair<string, string>("_timestamp",
+                            DateTime.UtcNow.Ticks.ToString(CultureInfo.InvariantCulture))
+                    });
             }
             return _frame.Navigate(uri);
         }
@@ -256,7 +298,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 context = DataContext.Empty;
             if (!context.GetData(NavigationConstants.ClearBackStack))
                 return;
-
             while (navigationService.BackStack.OfType<object>().Any())
                 navigationService.RemoveBackEntry();
             context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);

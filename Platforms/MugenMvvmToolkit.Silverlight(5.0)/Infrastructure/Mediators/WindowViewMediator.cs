@@ -17,13 +17,14 @@
 #endregion
 
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
+using MugenMvvmToolkit.Silverlight.Interfaces.Views;
 
-namespace MugenMvvmToolkit.Infrastructure.Mediators
+namespace MugenMvvmToolkit.Silverlight.Infrastructure.Mediators
 {
     /// <summary>
     ///     Represents the mediator class for child window view.

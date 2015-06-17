@@ -28,12 +28,9 @@ using System.Windows.Markup;
 using System.Windows.Media;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
-using MugenMvvmToolkit.Interfaces;
-using BindingEx = System.Windows.Data.Binding;
+using MugenMvvmToolkit.WinPhone.Interfaces;
 
-// ReSharper disable once CheckNamespace
-
-namespace MugenMvvmToolkit.Controls
+namespace MugenMvvmToolkit.WinPhone.AppBar
 {
     /// <summary>
     ///     Represents a bindable Application Bar in Windows Phone applications.
@@ -397,7 +394,7 @@ namespace MugenMvvmToolkit.Controls
             _page = (PhoneApplicationPage)target;
             _page.ApplicationBar = OriginalApplicationBar;
             if (ReadLocalValue(DataContextProperty) == DependencyProperty.UnsetValue)
-                BindingOperations.SetBinding(this, DataContextProperty, new BindingEx("DataContext") { Source = _page });
+                BindingOperations.SetBinding(this, DataContextProperty, new System.Windows.Data.Binding("DataContext") { Source = _page });
         }
 
         /// <summary>

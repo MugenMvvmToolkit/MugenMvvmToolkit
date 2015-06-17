@@ -240,9 +240,9 @@
       <Project>{1eb1a717-7102-4138-8a37-42dfd943e0f9}</Project>
       <Name>MugenMvvmToolkit.NinjectContainer%28NET4%29</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.Binding.WPF%284.5%29\MugenMvvmToolkit.Binding.WPF%284.5%29.csproj">
+    <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.WPF.Binding%284.5%29\MugenMvvmToolkit.WPF.Binding%284.5%29.csproj">
       <Project>{215572d5-13a0-46eb-a983-a5433930b361}</Project>
-      <Name>MugenMvvmToolkit.Binding.WPF%284.5%29</Name>
+      <Name>MugenMvvmToolkit.WPF.Binding%284.5%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.WPF%284.5%29\MugenMvvmToolkit.WPF%284.5%29.csproj">
       <Project>{170a39d4-059b-4abf-b377-eed905d87ef4}</Project>

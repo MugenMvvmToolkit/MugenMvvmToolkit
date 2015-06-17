@@ -17,8 +17,9 @@
 #endregion
 
 using System.ComponentModel;
+using MugenMvvmToolkit.Interfaces.Views;
 
-namespace MugenMvvmToolkit.Interfaces.Views
+namespace MugenMvvmToolkit.WPF.Interfaces.Views
 {
     /// <summary>
     ///     Represent the base interface for dialog view.

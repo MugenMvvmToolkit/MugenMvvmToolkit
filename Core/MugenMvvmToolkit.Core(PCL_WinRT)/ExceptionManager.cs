@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Linq.Expressions;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit
@@ -24,6 +25,8 @@ namespace MugenMvvmToolkit
     internal static class ExceptionManager
     {
         #region Fields
+
+        internal const string ObsoleteExpressionUsage = "Performance issue: use the method overload with Func argument (() => vm => vm.Prop) instead of Expression (vm => vm.Prop). The method will be removed in the next version.";
 
         internal const string CommandCannotBeExecutedString =
             "The method Execute in RelayCommand cannot be executed because the CanExecute method returns a false value.";
@@ -219,6 +222,13 @@ namespace MugenMvvmToolkit
             return
                 new ArgumentException(string.Format("The presenter '{0}' cannot display the '{1}'.",
                     presenterType, vmType));
+        }
+
+        internal static Exception ExpressionShouldBeStaticValue(Expression expression, Exception exception)
+        {
+            return
+                new InvalidOperationException(
+                    string.Format("The '{0}' expression cannot be compiled in a static value.", expression), exception);
         }
 
         #endregion

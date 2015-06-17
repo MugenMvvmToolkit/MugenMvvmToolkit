@@ -19,20 +19,26 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Android.App;
 using Android.Content;
 using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Infrastructure.Presenters
+#if XAMARIN_FORMS && ANDROID
+namespace MugenMvvmToolkit.Xamarin.Forms.Android.Infrastructure.Presenters
+#elif ANDROID
+using Android.App;
+using MugenMvvmToolkit.Android.Interfaces.Views;
+using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Interfaces.Navigation;
+
+namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
+#endif
+
 {
     /// <summary>
     ///     Provides functionality to present a timed message.
@@ -199,7 +205,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             TaskCompletionSource<object> tcs)
         {
 #if XAMARIN_FORMS
-            var ctx = Xamarin.Forms.Forms.Context;
+            var ctx = global::Xamarin.Forms.Forms.Context;
 #else
             var ctx = _navigationProvider.CurrentContent as Context;
 #endif
@@ -247,7 +253,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 return null;
             var view = PlatformExtensions.GetContentView(ctx, ctx, content, null, null) as View;
             if (view != null)
-                BindingServiceProvider.ContextManager.GetBindingContext(view).Value = content;
+                view.SetDataContext(content);
             return view;
 #endif
         }

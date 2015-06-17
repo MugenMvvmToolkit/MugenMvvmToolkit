@@ -24,11 +24,12 @@ using System.Drawing.Design;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Binding.UiDesigner
+namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
 {
     /// <summary>
     ///     Represents the component that provides a data binding for controls.
@@ -163,7 +164,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             }
             var container = ContainerControl;
             if (container != null && !(component is Control))
-                BindingExtensions.AttachedParentMember.SetValue(component, container);
+                component.SetBindingMemberValue(AttachedMembers.Object.Parent, container);
 
             Dictionary<string, string> bindings;
             if (!_controlBindings.TryGetValue(component, out bindings))
@@ -194,7 +195,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             if (containerControl == null || containerControl.Name == name)
                 return containerControl;
             var field = _containerControlType.GetFieldEx(name, MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Instance);
-            if (field == null) 
+            if (field == null)
                 return BindingServiceProvider.VisualTreeManager.FindByName(containerControl, name);
             return field.GetValueEx<object>(containerControl);
         }

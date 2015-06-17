@@ -17,13 +17,14 @@
 #endregion
 
 using System.Collections;
+using MugenMvvmToolkit.Android.Binding;
+using MugenMvvmToolkit.Android.RecyclerView.Infrastructure;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Modules;
-using MugenMvvmToolkit.RecyclerView.Infrastructure;
 
-namespace MugenMvvmToolkit.RecyclerView.Modules
+namespace MugenMvvmToolkit.Android.RecyclerView.Modules
 {
     public class RecyclerViewDataBindingModule : ModuleBase
     {
@@ -41,7 +42,7 @@ namespace MugenMvvmToolkit.RecyclerView.Modules
 
         #region Methods
 
-        private static void RecyclerViewItemsSourceChanged(Android.Support.V7.Widget.RecyclerView recyclerView,
+        private static void RecyclerViewItemsSourceChanged(global::Android.Support.V7.Widget.RecyclerView recyclerView,
             AttachedMemberChangedEventArgs<IEnumerable> args)
         {
             var adapter = recyclerView.GetAdapter() as ItemsSourceRecyclerAdapter;
@@ -63,8 +64,9 @@ namespace MugenMvvmToolkit.RecyclerView.Modules
         protected override bool LoadInternal()
         {
             BindingServiceProvider.MemberProvider.Register(
-                AttachedBindingMember.CreateAutoProperty<Android.Support.V7.Widget.RecyclerView, IEnumerable>(
-                    AttachedMemberConstants.ItemsSource, RecyclerViewItemsSourceChanged));
+                AttachedBindingMember.CreateAutoProperty(
+                    AttachedMembers.ViewGroup.ItemsSource.Override<global::Android.Support.V7.Widget.RecyclerView>(),
+                    RecyclerViewItemsSourceChanged));
             return true;
         }
 

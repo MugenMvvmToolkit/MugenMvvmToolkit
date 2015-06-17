@@ -16,6 +16,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
@@ -67,6 +68,11 @@ namespace MugenMvvmToolkit.Infrastructure
         ///     Gets or sets the current <see cref="BootstrapperBase" />.
         /// </summary>
         public static BootstrapperBase Current { get; protected set; }
+
+        /// <summary>
+        ///     Occurs when this <see cref="BootstrapperBase" /> is initialized.
+        /// </summary>
+        public static event EventHandler Initialized;
 
         /// <summary>
         ///     Gets the current platform.
@@ -125,6 +131,7 @@ namespace MugenMvvmToolkit.Infrastructure
             Current = this;
             IocContainer = CreateIocContainer();
             OnInitialize();
+            RaiseInitialized(this);
         }
 
         /// <summary>
@@ -263,6 +270,15 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        ///     Raises the <see cref="Initialized" /> event.
+        /// </summary>
+        protected static void RaiseInitialized(BootstrapperBase sender)
+        {
+            var handler = Initialized;
+            if (handler != null) handler(sender, EventArgs.Empty);
         }
 
         private IList<Assembly> GetAssembliesInternal()

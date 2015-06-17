@@ -25,6 +25,7 @@ using MugenMvvmToolkit.Binding.Attributes;
 using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces.Syntax;
+using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -55,6 +56,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
         private static readonly MethodInfo GetErrorsMethod;
         private static readonly MethodInfo ResourceMethodInfo;
         private static readonly MethodInfo ResourceMethodImplMethod;
+        private static readonly object FirstLevelBoxed;
 
         #endregion
 
@@ -70,6 +72,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                 MemberFlags.NonPublic | MemberFlags.Static);
             ResourceMethodInfo = typeof(BindingSyntaxEx).GetMethodEx(ResourceMethodName,
                 MemberFlags.Public | MemberFlags.Static);
+            FirstLevelBoxed = 1u;
         }
 
         #endregion
@@ -90,7 +93,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
         [BindingSyntaxMember]
         public static T DataContext<T>(this object item)
         {
-            return (T)BindingServiceProvider.MemberProvider.GetMemberValue(item, AttachedMemberConstants.DataContext);
+            return (T)item.GetDataContext();
         }
 
         /// <summary>
@@ -166,7 +169,17 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
         [BindingSyntaxMember]
         public static T Member<T>(this object target, string member)
         {
-            return (T)BindingServiceProvider.MemberProvider.GetMemberValue(target, member);
+            return target.GetBindingMemberValue<object, T>(member);
+        }
+
+        /// <summary>
+        ///     Gets a member value by name.
+        /// </summary>
+        [BindingSyntaxMember]
+        public static TValue Member<TSource, TValue>(this TSource target, BindingMemberDescriptor<TSource, TValue> member)
+            where TSource : class
+        {
+            return target.GetBindingMemberValue(member);
         }
 
         /// <summary>
@@ -268,14 +281,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                         resourceName = BindingServiceProvider.ResourceResolver.BindingSourceResourceName;
                         break;
                     default:
-                        var exp = mExp.Arguments[0] as ConstantExpression;
-                        if (exp == null)
-                            resourceName = (string)ExpressionReflectionManager
-                                    .CreateLambdaExpression(mExp.Arguments[0], Empty.Array<ParameterExpression>())
-                                    .Compile()
-                                    .DynamicInvoke(Empty.Array<object>());
-                        else
-                            resourceName = (string)exp.Value;
+                        mExp.Arguments[0].TryGetStaticValue(out resourceName, true);
                         break;
                 }
                 return context.GetOrAddParameterExpression("res:" + resourceName, path, context.Expression,
@@ -290,7 +296,11 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
 
             if (name == RelativeMethodName || name == "Element")
             {
-                var firstArg = mExp.Arguments.Count == 0 ? 1u : ((ConstantExpression)mExp.Arguments[0]).Value;
+                object firstArg;
+                if (mExp.Arguments.Count == 0)
+                    firstArg = FirstLevelBoxed;
+                else
+                    mExp.Arguments[0].TryGetStaticValue(out firstArg, true);
                 var node = name == RelativeMethodName
                     ? RelativeSourceExpressionNode
                         .CreateRelativeSource(mExp.Method.ReturnType.AssemblyQualifiedName, (uint)firstArg, null)

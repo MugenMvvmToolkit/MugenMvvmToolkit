@@ -23,12 +23,16 @@ using Android.Content;
 using Android.OS;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Infrastructure.Presenters
+#if XAMARIN_FORMS && ANDROID
+namespace MugenMvvmToolkit.Xamarin.Forms.Android.Infrastructure.Presenters
+#elif ANDROID
+using MugenMvvmToolkit.Android.Interfaces.Views;
+
+namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
+#endif
 {
     /// <summary>
     ///     Represent the base class for message box.
@@ -37,17 +41,12 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
     {
         #region Fields
 
-#if !XAMARIN_FORMS
-        private readonly INavigationProvider _navigationProvider;
-#endif
         private readonly IThreadManager _threadManager;
-        private const int Lollipop = 21;
 
         #endregion
 
         #region Constructors
 
-#if XAMARIN_FORMS
         /// <summary>
         ///     Initializes a new instance of the <see cref="MessagePresenter" /> class.
         /// </summary>
@@ -56,19 +55,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             Should.NotBeNull(threadManager, "threadManager");
             _threadManager = threadManager;
         }
-#else
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="MessagePresenter" /> class.
-        /// </summary>
-        public MessagePresenter(INavigationProvider navigationProvider, IThreadManager threadManager)
-        {
-            Should.NotBeNull(navigationProvider, "navigationProvider");
-            Should.NotBeNull(threadManager, "threadManager");
-            _navigationProvider = navigationProvider;
-            _threadManager = threadManager;
-        }
-#endif
-
 
         #endregion
 
@@ -120,9 +106,9 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             TaskCompletionSource<MessageResult> tcs)
         {
 #if XAMARIN_FORMS
-            var activity = Xamarin.Forms.Forms.Context;
+            var activity = global::Xamarin.Forms.Forms.Context;
 #else
-            var activity = _navigationProvider.CurrentContent as IActivityView;
+            var activity = PlatformExtensions.CurrentActivity as IActivityView;
 #endif
             Should.BeSupported(activity != null, "The current top activity is null.");
             AlertDialog.Builder builder = new AlertDialog.Builder((Context)activity)
@@ -150,7 +136,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 case MessageButton.YesNoCancel:
                     builder.SetPositiveButton(GetButtonText(MessageResult.Yes),
                         (sender, args) => tcs.TrySetResult(MessageResult.Yes));
-                    if ((int)Build.VERSION.SdkInt >= Lollipop)
+                    if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop)
                     {
                         builder.SetNegativeButton(GetButtonText(MessageResult.No),
                             (sender, args) => tcs.TrySetResult(MessageResult.No));

@@ -23,13 +23,13 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Parse;
-using MugenMvvmToolkit.Binding.Parse.Nodes;
+using MugenMvvmToolkit.WinForms.Binding.Interfaces;
+using MugenMvvmToolkit.WinForms.Binding.Models;
+using MugenMvvmToolkit.WinForms.Binding.Parse;
+using MugenMvvmToolkit.WinForms.Binding.Parse.Nodes;
 using Timer = System.Threading.Timer;
 
-namespace MugenMvvmToolkit.Binding.UiDesigner
+namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
 {
     internal partial class XmlEditor : RichTextBox
     {

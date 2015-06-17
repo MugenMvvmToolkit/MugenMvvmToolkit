@@ -17,8 +17,9 @@
 #endregion
 
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding.Interfaces;
 
-namespace MugenMvvmToolkit.Binding.Interfaces
+namespace MugenMvvmToolkit.Android.Binding.Interfaces
 {
     /// <summary>
     ///     IResourceDataTemplateSelector allows the app writer to provide custom template selection logic.
@@ -26,7 +27,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces
     public interface IResourceDataTemplateSelector : IDataTemplateSelector
     {
         /// <summary>
-        ///     Returns the number of types of templates that will be selected by SelectTemplateMethod.
+        ///     Returns the number of types of templates that will be selected by SelectTemplate method.
         /// </summary>
         int TemplateTypeCount { get; }
 

@@ -18,9 +18,10 @@
 
 using System;
 using System.ComponentModel;
+using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Interfaces.Views
+namespace MugenMvvmToolkit.WinRT.Interfaces.Views
 {
     /// <summary>
     ///     Represent the base interface for dialog view.
