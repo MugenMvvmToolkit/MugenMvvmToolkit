@@ -499,8 +499,12 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             if (container == null)
             {
                 var sourceGenerator = sender.GetBindingMemberValue(AttachedMembers.ViewGroup.ItemsSourceGenerator);
-                if (sourceGenerator != null)
-                    sourceGenerator.SetItemsSource(args.NewValue);
+                if (sourceGenerator == null)
+                {
+                    sourceGenerator = new ViewGroupItemsSourceGenerator(sender);
+                    sender.SetBindingMemberValue(AttachedMembers.ViewGroup.ItemsSourceGenerator, sourceGenerator);
+                }
+                sourceGenerator.SetItemsSource(args.NewValue);
                 return;
             }
             var adapter = GetAdapter(container) as IItemsSourceAdapter;

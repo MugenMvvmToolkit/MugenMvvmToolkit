@@ -1,7 +1,7 @@
 using System;
 using $rootnamespace$;
-using MugenMvvmToolkit.Attributes;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Android.Attributes;
+using MugenMvvmToolkit.Android.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 
 [assembly: Bootstrapper(typeof (Setup))]

@@ -1,4 +1,4 @@
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Xamarin.Forms.Infrastructure;
 using Xamarin.Forms;
 
 namespace $rootnamespace$

@@ -133,6 +133,7 @@ namespace MugenMvvmToolkit.Android.Binding
             public static readonly BindingMemberDescriptor<global::Android.Views.ViewGroup, IContentViewManager> ContentViewManager;
             public static readonly BindingMemberDescriptor<global::Android.Views.ViewGroup, int?> ContentTemplate;
             public static readonly BindingMemberDescriptor<global::Android.Views.ViewGroup, IDataTemplateSelector> ContentTemplateSelector;
+            public static readonly BindingMemberDescriptor<global::Android.Views.ViewGroup, bool> AddToBackStack;
 
             public static readonly BindingMemberDescriptor<global::Android.Views.ViewGroup, IEnumerable> ItemsSource;
             public static readonly BindingMemberDescriptor<global::Android.Views.ViewGroup, IItemsSourceGenerator> ItemsSourceGenerator;
@@ -154,6 +155,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 ContentTemplate = new BindingMemberDescriptor<global::Android.Views.ViewGroup, int?>(AttachedMemberConstants.ContentTemplate);
                 ContentTemplateSelector = new BindingMemberDescriptor<global::Android.Views.ViewGroup, IDataTemplateSelector>(AttachedMemberConstants.ContentTemplateSelector);
                 ContentViewManager = new BindingMemberDescriptor<global::Android.Views.ViewGroup, IContentViewManager>("ContentViewManager");
+                AddToBackStack = new BindingMemberDescriptor<global::Android.Views.ViewGroup, bool>("AddToBackStack");
 
                 ItemsSource = new BindingMemberDescriptor<global::Android.Views.ViewGroup, IEnumerable>(AttachedMemberConstants.ItemsSource);
                 ItemsSourceGenerator = new BindingMemberDescriptor<global::Android.Views.ViewGroup, IItemsSourceGenerator>(ItemsSourceGeneratorBase.MemberDescriptor);

@@ -1,4 +1,7 @@
-﻿using System.Windows.Forms;
+﻿using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Builders;
+using System.Windows.Forms;
+using $rootnamespace$.ViewModels;
 
 namespace $rootnamespace$.Views
 {

@@ -1,6 +1,6 @@
 using System;
 using System.Windows.Forms;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.WinForms.Infrastructure;
 
 namespace $rootnamespace$
 {

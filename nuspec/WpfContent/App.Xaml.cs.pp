@@ -1,5 +1,5 @@
 using System.Windows;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.WPF.Infrastructure;
 
 namespace $rootnamespace$
 {

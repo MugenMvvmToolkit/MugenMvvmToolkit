@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.Xamarin.Forms</id>
-    <version>3.5.0</version>
+    <version>4.0.0</version>
     <title>MugenMvvmToolkit - Xamarin.Forms</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -37,8 +37,23 @@
       - Excellent binding performance.
     </description>
     <releaseNotes>
-      - Updated support libraries (Android).
-      - Removed resource generation where it is not needed (Android).
+      - Changed namespace for platform specific assembly from MugenMvvmToolkit to MugenMvvmToolkit.PlatformName (WPF, WinForms, etc) (Breaking changes).
+      - Merged MugenMvvmToolkit.Android.Fragment and MugenMvvmToolkit.Android.ActionBar projects into MugenMvvmToolkit.Android project (Breaking changes).
+      - Changed System.Linq.Expressions.Expression usage, instead of using the direct creation of expression vm => vm.Property, it is now created using a delegate () => vm => vm.Property (Breaking changes).
+      - Renamed methods from GetPropertyName to GetMemberName (Breaking changes).
+      - Renamed methods from PropertyNameEqual to MemberNameEqual (Breaking changes).
+      - Fixed (ItemsSourceAdapter leaks in Fragments and nested Adapters).
+      - Added the ability to use custom C# expression for binding parameters.
+      - Added the BindableLayoutInflater class (Android).
+      - Added the MvvmAppCompatActivity class (Android).
+      - Added extension methods (GetBindingMemberValue, TryGetBindingMemberValue, SetBindingMemberValue), that unifies the work with attached members.
+      - Added the AttachedMembers class for all platforms that contains platform specific attached members.
+      - Added ability to remove a Page from back stack when a view model is closed (Android, iOS, WinRT, Xamarin.Forms).
+      - Added ability to work with WPF and WinForms in a single project.
+      - Improved performance (Binding).
+      - Improved navigation system.
+      - Updated support libraries to 22.2.0.0 (Android).
+      - A large number of small changes.
       - Minor changes.
     </releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -47,7 +62,7 @@
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios xamarin.forms</tags>
     <dependencies>
-      <dependency id="Xamarin.Forms" version="1.4.1.6349" />
+      <dependency id="Xamarin.Forms" version="1.4.2.6359" />
     </dependencies>
   </metadata>
   <files>

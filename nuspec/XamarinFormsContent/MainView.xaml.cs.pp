@@ -1,4 +1,4 @@
-﻿using MugenMvvmToolkit;
+﻿using MugenMvvmToolkit.Xamarin.Forms;
 using Xamarin.Forms;
 
 namespace $rootnamespace$.Views

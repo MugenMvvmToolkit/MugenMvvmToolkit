@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Android.App;
 using Android.Content;
@@ -25,6 +26,7 @@ using MugenMvvmToolkit.Android.Infrastructure.Mediators;
 using MugenMvvmToolkit.Android.Interfaces.Navigation;
 using MugenMvvmToolkit.Android.Models.EventArg;
 using MugenMvvmToolkit.Android.Views.Activities;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -322,6 +324,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         public virtual bool TryClose(IViewModel viewModel, IDataContext dataContext)
         {
             Should.NotBeNull(viewModel, "viewModel");
+            if (CurrentContent != null && CurrentContent.GetDataContext() == viewModel)
+            {
+                GoBack();
+                //Ignore close just in case there backstack fragments.
+                return false;
+            }
             var message = new MvvmActivityMediator.FinishActivityMessage(viewModel);
             ServiceProvider.EventAggregator.Publish(this, message);
             return message.Finished;

@@ -41,21 +41,8 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 {
     public class FragmentDataBindingModule : ModuleBase
     {
-        #region Fields
-
-#if !APPCOMPAT
-        internal static readonly IAttachedBindingMemberInfo<View, bool> AddToBackStackMember;
-#endif
-        #endregion
-
         #region Constructors
 
-#if !APPCOMPAT
-        static FragmentDataBindingModule()
-        {
-            AddToBackStackMember = AttachedBindingMember.CreateAutoProperty<View, bool>("AddToBackStack");
-        }
-#endif
         /// <summary>
         ///     Initializes a new instance of the <see cref="FragmentDataBindingModule" /> class.
         /// </summary>
@@ -72,7 +59,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         {
 #if !APPCOMPAT
             //View
-            memberProvider.Register(AddToBackStackMember);
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.AddToBackStack));
 #endif
         }
 
@@ -145,6 +132,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         /// </summary>
         protected override bool LoadInternal()
         {
+            RegisterMembers(BindingServiceProvider.MemberProvider);
 #if !APPCOMPAT
             if (!PlatformExtensions.IsApiGreaterThanOrEqualTo17)
                 return false;
@@ -161,7 +149,6 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             TabHostItemsSourceGenerator.RemoveTabDelegate = (generator, info) => OnRemoveTab(removeTabDelegate, generator, info);
             TabHostItemsSourceGenerator.TabChangedDelegate = (generator, o, arg3, arg4, arg5) => OnTabChanged(tabChangedDelegate, generator, o, arg3, arg4, arg5);
 
-            RegisterMembers(BindingServiceProvider.MemberProvider);
             TypeCache<Fragment>.Initialize(null);
             return true;
         }

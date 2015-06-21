@@ -2,7 +2,7 @@ using CoreGraphics;
 using Foundation;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
-using MugenMvvmToolkit.Views;
+using MugenMvvmToolkit.iOS.Views;
 using ObjCRuntime;
 using UIKit;
 

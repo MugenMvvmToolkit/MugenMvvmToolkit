@@ -165,13 +165,15 @@ namespace MugenMvvmToolkit
             KnownPublicKeys = new HashSet<string>(KnownMSPublicKeys, StringComparer.OrdinalIgnoreCase)
             {
                 "0738eb9f132ed756", "84e04ff9cfb79065", "5803cfa389c90ce7", "17863af14b0044da"
-            };//TODO CHECK
+            };
             KnownAssemblyName = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "FormsViewGroup",
                 "Xamarin.Android.Support.v13",
                 "Xamarin.Android.Support.v4",
                 "Xamarin.Android.Support.v7.RecyclerView",
+                "Xamarin.Android.Support.v7.AppCompat",
+                "Xamarin.Android.Support.v7.CardView",
                 "Xamarin.Forms.Core",
                 "Xamarin.Forms.Platform",
                 "Xamarin.Forms.Xaml",

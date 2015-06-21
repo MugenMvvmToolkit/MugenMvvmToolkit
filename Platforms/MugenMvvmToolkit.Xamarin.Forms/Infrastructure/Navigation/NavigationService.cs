@@ -248,6 +248,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
         public bool TryClose(IViewModel viewModel, IDataContext dataContext)
         {
             Should.NotBeNull(viewModel, "viewModel");
+            if (CurrentContent != null && CurrentContent.GetDataContext() == viewModel)
+            {
+                GoBack();
+                return true;
+            }
             var navigation = _rootPage.Navigation;
             if (navigation == null)
                 return false;
@@ -256,9 +261,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             for (int i = 0; i < pages.Count; i++)
             {
                 var toRemove = pages[i];
-                if (toRemove.GetDataContext() == viewModel)
+                if (toRemove.BindingContext == viewModel)
                 {
                     navigation.RemovePage(toRemove);
+                    pages.RemoveAt(i);
                     result = true;
                     --i;
                 }

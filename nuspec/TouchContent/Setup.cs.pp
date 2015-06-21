@@ -1,6 +1,6 @@
 using Foundation;
-using MugenMvvmToolkit;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.iOS;
+using MugenMvvmToolkit.iOS.Infrastructure;
 using UIKit;
 
 namespace $rootnamespace$

@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.StarterPack.Xamarin.Forms</id>
-    <version>3.5.0</version>
+    <version>4.0.0</version>
     <title>MugenMvvmToolkit - Starter Pack Xamarin.Forms</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -42,7 +42,7 @@
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
-      <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="3.5.0" />
+      <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="4.0.0" />
     </dependencies>
   </metadata>
   <files>

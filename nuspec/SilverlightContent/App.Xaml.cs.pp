@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Browser;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Silverlight.Infrastructure;
 
 namespace $rootnamespace$
 {

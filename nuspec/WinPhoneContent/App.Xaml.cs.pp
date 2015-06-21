@@ -7,7 +7,7 @@ using System.Windows.Markup;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.WinPhone.Infrastructure;
 using $rootnamespace$.Resources;
 
 namespace $rootnamespace$

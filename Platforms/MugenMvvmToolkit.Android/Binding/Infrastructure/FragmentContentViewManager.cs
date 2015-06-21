@@ -19,9 +19,10 @@
 using Android.OS;
 using Android.Views;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
+using MugenMvvmToolkit.Binding;
 #if APPCOMPAT
-using MugenMvvmToolkit.Android.Binding.Modules;
 using FragmentManager = Android.Support.V4.App.FragmentManager;
 using Fragment = Android.Support.V4.App.Fragment;
 using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
@@ -29,7 +30,6 @@ using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
 namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
 #else
 using Android.App;
-using MugenMvvmToolkit.Android.Binding.Modules;
 
 namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 #endif
@@ -49,7 +49,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         /// </summary>
         public bool SetContent(object view, object content)
         {
-            var targetView = view as View;
+            var targetView = view as ViewGroup;
             if (targetView == null)
                 return false;
             if (content == null)
@@ -77,9 +77,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             if (manager == null)
                 return false;
             FragmentTransaction transaction = BeginTransaction(manager, targetView, fragment);
-            bool addToBackStack = FragmentDataBindingModule
-                .AddToBackStackMember
-                .GetValue(targetView, null);
+            var addToBackStack = targetView.GetBindingMemberValue(AttachedMembers.ViewGroup.AddToBackStack);
             if (addToBackStack && fragment.Arguments != null)
                 addToBackStack = !fragment.Arguments.GetBoolean(AddedToBackStackKey);
 

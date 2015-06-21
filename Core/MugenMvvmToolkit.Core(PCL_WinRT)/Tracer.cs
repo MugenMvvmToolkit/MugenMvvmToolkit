@@ -212,12 +212,11 @@ namespace MugenMvvmToolkit
                 return;
             var displayName = viewModel as IHasDisplayName;
             if (displayName == null)
-                TraceInternal(traceLevel,
-                    string.Format("{0} ({1}) - {2};", viewModel.GetType(), viewModel.GetHashCode().ToString(CultureInfo.InvariantCulture), auditAction));
+                Trace(traceLevel, "{0} ({1}) - {2};", viewModel.GetType(),
+                    viewModel.GetHashCode().ToString(CultureInfo.InvariantCulture), auditAction);
             else
-                TraceInternal(traceLevel,
-                    string.Format("{0} (Hash - {1}; DisplayName - {2};) - {3}", viewModel.GetType(),
-                        viewModel.GetHashCode().ToString(CultureInfo.InvariantCulture), displayName.DisplayName, auditAction));
+                Trace(traceLevel, "{0} (Hash - {1}; DisplayName - {2};) - {3}", viewModel.GetType(),
+                    viewModel.GetHashCode().ToString(CultureInfo.InvariantCulture), displayName.DisplayName, auditAction);
         }
 
         /// <summary>

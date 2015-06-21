@@ -761,45 +761,53 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             var currentViewModel = CurrentViewModel;
             if (currentViewModel == null)
                 return;
-            _closingViewModel = currentViewModel;
-            args.Cancel = true;
-            var context = CreateContextNavigateFrom(currentViewModel, args);
-            var navigateTask = (_closedFromViewModel || !args.IsCancelable)
-                ? Empty.TrueTask
-                : OnNavigatingFrom(currentViewModel, context);
-            var t = navigateTask.TryExecuteSynchronously(task =>
+            try
             {
-                if (task.IsCanceled || !task.Result)
+                _closingViewModel = currentViewModel;
+                args.Cancel = true;
+                var context = CreateContextNavigateFrom(currentViewModel, args);
+                var navigateTask = (_closedFromViewModel || !args.IsCancelable)
+                    ? Empty.TrueTask
+                    : OnNavigatingFrom(currentViewModel, context);
+                var t = navigateTask.TryExecuteSynchronously(task =>
                 {
-                    CancelCurrentNavigation(context);
-                    return;
-                }
-                if (task.IsFaulted)
-                {
-                    var callback = _currentCallback;
-                    if (callback != null)
+                    if (task.IsCanceled || !task.Result)
                     {
-                        callback.Invoke(OperationResult.CreateErrorResult<bool?>(OperationType.PageNavigation,
-                            currentViewModel, task.Exception, context));
-                        _currentCallback = null;
+                        CancelCurrentNavigation(context);
+                        return;
                     }
-                    return;
-                }
-                ThreadManager.InvokeOnUiThreadAsync(() =>
-                {
-                    try
+                    if (task.IsFaulted)
                     {
-                        _ignoreNavigating = true;
-                        Renavigate(currentViewModel, context, args);
+                        var callback = _currentCallback;
+                        if (callback != null)
+                        {
+                            callback.Invoke(OperationResult.CreateErrorResult<bool?>(OperationType.PageNavigation,
+                                currentViewModel, task.Exception, context));
+                            _currentCallback = null;
+                        }
+                        return;
                     }
-                    finally
+                    ThreadManager.InvokeOnUiThreadAsync(() =>
                     {
-                        _closingViewModel = null;
-                        _ignoreNavigating = false;
-                    }
+                        try
+                        {
+                            _ignoreNavigating = true;
+                            Renavigate(currentViewModel, context, args);
+                        }
+                        finally
+                        {
+                            _closingViewModel = null;
+                            _ignoreNavigating = false;
+                        }
+                    });
                 });
-            });
-            t.WithTaskExceptionHandler(this);
+                t.WithTaskExceptionHandler(this);
+            }
+            catch (Exception)
+            {
+                _closingViewModel = null;
+                throw;
+            }
         }
 
         private void OnNavigated(INavigationContext context)
