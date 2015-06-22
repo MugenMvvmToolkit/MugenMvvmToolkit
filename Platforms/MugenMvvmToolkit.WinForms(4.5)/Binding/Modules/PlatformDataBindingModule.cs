@@ -49,7 +49,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Modules
             var itemsSourceMember = AttachedBindingMember.CreateAutoProperty<object, IEnumerable>(AttachedMemberConstants.ItemsSource, ObjectItemsSourceChanged);
             var defaultMemberRegistration = new DefaultAttachedMemberRegistration<IEnumerable>(itemsSourceMember);
             memberProvider.Register(defaultMemberRegistration.ToAttachedBindingMember<object>());
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<object, ICollectionViewManager>(AttachedMembers.Control.CollectionViewManager.Path));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.Object.CollectionViewManager));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<object, IContentViewManager>(AttachedMembers.Control.ContentViewManager.Path));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(ItemsSourceGeneratorBase.MemberDescriptor,
                 (o, args) =>
@@ -108,7 +108,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Modules
                 GetSelectedItemTabControl, SetSelectedItemTabControl, "Selected"));
 
             //ComboBox
-            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.Control.ItemsSource.Override<ComboBox>(),
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.Object.ItemsSource.Override<ComboBox>(),
                     (info, box) => box.DataSource as IEnumerable,
                     (info, box, value) => box.DataSource = value, "DataSourceChanged"));
             memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.ComboBox.SelectedItem,
@@ -116,7 +116,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Modules
                     "SelectedIndexChanged"));
 
             //DataGridView
-            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.Control.ItemsSource.Override<DataGridView>(),
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.Object.ItemsSource.Override<DataGridView>(),
                     (info, view) => view.DataSource as IEnumerable, (info, view, value) =>
                     {
                         view.DataSource = value;

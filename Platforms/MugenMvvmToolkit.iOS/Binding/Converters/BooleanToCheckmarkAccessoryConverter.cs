@@ -26,6 +26,21 @@ namespace MugenMvvmToolkit.iOS.Binding.Converters
 {
     public class BooleanToCheckmarkAccessoryConverter : ValueConverterBase<bool?, UITableViewCellAccessory>
     {
+        #region Fields
+
+        public static readonly BooleanToCheckmarkAccessoryConverter Instance;
+
+        #endregion
+
+        #region Constructors
+
+        static BooleanToCheckmarkAccessoryConverter()
+        {
+            Instance = new BooleanToCheckmarkAccessoryConverter();
+        }
+
+        #endregion
+
         #region Overrides of ValueConverterBase<bool,UITableViewCellAccessory>
 
         protected override UITableViewCellAccessory Convert(bool? value, Type targetType, object parameter,

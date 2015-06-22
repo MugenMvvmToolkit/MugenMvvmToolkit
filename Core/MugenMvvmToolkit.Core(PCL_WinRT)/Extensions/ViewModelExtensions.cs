@@ -455,54 +455,6 @@ namespace MugenMvvmToolkit.ViewModels
             return iocContainer;
         }
 
-        /// <summary>
-        ///     Calls the event for the specified property.
-        /// </summary>
-        /// <param name="model">The specified model.</param>
-        /// <param name="expression">Specified expression with property.</param>               
-        /// <param name="executionMode">
-        ///     Specifies the execution mode for raise property changed event.
-        /// </param>
-        public static void OnPropertyChanged<TModel>(this TModel model, Func<Expression<Func<TModel, object>>> expression, ExecutionMode? executionMode = null)
-            where TModel : NotifyPropertyChangedBase
-        {
-            model.OnPropertyChanged(expression.GetMemberName(), executionMode);
-        }
-
-        /// <summary>
-        ///     Sets a property with calling property change event.
-        /// </summary>
-        /// <param name="model">The specified model.</param>
-        /// <param name="field">The property field.</param>
-        /// <param name="newValue">The new property value.</param>
-        /// <param name="expression">Specified expression with property.</param>
-        /// <param name="executionMode">
-        ///     Specifies the execution mode for raise property changed event.
-        /// </param>
-        public static void SetProperty<TModel, T>([NotNull] this TModel model, ref T field, T newValue, Func<Expression<Func<TModel, T>>> expression, ExecutionMode? executionMode = null)
-            where TModel : NotifyPropertyChangedBase
-        {
-            Should.NotBeNull(model, "model");
-            model.SetProperty(ref field, newValue, expression.GetMemberName(), executionMode);
-        }
-
-        /// <summary>
-        ///     Calls the event for the specified property.
-        /// </summary>
-        /// <param name="model">The specified model.</param>
-        /// <param name="propName">Specified property name.</param>
-        /// <param name="executionMode">
-        ///     Specifies the execution mode for raise property changed event.
-        /// </param>
-        public static void OnPropertyChanged([NotNull] this NotifyPropertyChangedBase model, string propName, ExecutionMode? executionMode = null)
-        {
-            Should.NotBeNull(model, "model");
-            if (executionMode == null)
-                model.OnPropertyChanged(propName);
-            else
-                model.OnPropertyChanged(propName, executionMode.Value);
-        }
-
         private static DataConstantValue[] MergeParameters(IViewModel parentViewModel,
             IocContainerCreationMode? containerCreationMode, ObservationMode? observationMode, DataConstantValue[] parameters)
         {

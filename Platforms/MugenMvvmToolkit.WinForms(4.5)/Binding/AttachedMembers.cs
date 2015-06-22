@@ -38,6 +38,11 @@ namespace MugenMvvmToolkit.WinForms.Binding
             public static readonly BindingMemberDescriptor<object, object> CommandParameter;
             public static readonly BindingMemberDescriptor<object, IEnumerable<object>> Errors;
 
+            public static readonly BindingMemberDescriptor<object, IEnumerable> ItemsSource;
+            public static readonly BindingMemberDescriptor<object, IItemsSourceGenerator> ItemsSourceGenerator;
+            public static readonly BindingMemberDescriptor<object, IDataTemplateSelector> ItemTemplateSelector;
+            public static readonly BindingMemberDescriptor<object, ICollectionViewManager> CollectionViewManager;
+
             #endregion
 
             #region Constructors
@@ -48,6 +53,11 @@ namespace MugenMvvmToolkit.WinForms.Binding
                 Parent = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.Parent);
                 CommandParameter = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.CommandParameter);
                 Errors = new BindingMemberDescriptor<object, IEnumerable<object>>(AttachedMemberConstants.ErrorsPropertyMember);
+
+                ItemsSource = new BindingMemberDescriptor<object, IEnumerable>(AttachedMemberConstants.ItemsSource);
+                ItemsSourceGenerator = new BindingMemberDescriptor<object, IItemsSourceGenerator>(ItemsSourceGeneratorBase.MemberDescriptor);
+                ItemTemplateSelector = new BindingMemberDescriptor<object, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
+                CollectionViewManager = new BindingMemberDescriptor<object, ICollectionViewManager>("CollectionViewManager");
             }
 
             internal Object()
@@ -65,11 +75,6 @@ namespace MugenMvvmToolkit.WinForms.Binding
             public static readonly BindingMemberDescriptor<System.Windows.Forms.Control, IContentViewManager> ContentViewManager;
             public static readonly BindingMemberDescriptor<System.Windows.Forms.Control, IDataTemplateSelector> ContentTemplateSelector;
 
-            public static readonly BindingMemberDescriptor<System.Windows.Forms.Control, IEnumerable> ItemsSource;
-            public static readonly BindingMemberDescriptor<System.Windows.Forms.Control, IItemsSourceGenerator> ItemsSourceGenerator;
-            public static readonly BindingMemberDescriptor<System.Windows.Forms.Control, IDataTemplateSelector> ItemTemplateSelector;
-            public static readonly BindingMemberDescriptor<System.Windows.Forms.Control, ICollectionViewManager> CollectionViewManager;
-
             #endregion
 
             #region Constructors
@@ -83,11 +88,6 @@ namespace MugenMvvmToolkit.WinForms.Binding
                 Content = new BindingMemberDescriptor<System.Windows.Forms.Control, object>(AttachedMemberConstants.Content);
                 ContentTemplateSelector = new BindingMemberDescriptor<System.Windows.Forms.Control, IDataTemplateSelector>(AttachedMemberConstants.ContentTemplateSelector);
                 ContentViewManager = new BindingMemberDescriptor<System.Windows.Forms.Control, IContentViewManager>("ContentViewManager");
-
-                ItemsSource = new BindingMemberDescriptor<System.Windows.Forms.Control, IEnumerable>(AttachedMemberConstants.ItemsSource);
-                ItemsSourceGenerator = new BindingMemberDescriptor<System.Windows.Forms.Control, IItemsSourceGenerator>(ItemsSourceGeneratorBase.MemberDescriptor);
-                ItemTemplateSelector = new BindingMemberDescriptor<System.Windows.Forms.Control, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
-                CollectionViewManager = new BindingMemberDescriptor<System.Windows.Forms.Control, ICollectionViewManager>("CollectionViewManager");
             }
 
             #endregion
