@@ -434,6 +434,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateMember<object, object>("Root", GetRootMember, null, ObserveRootMember));
 
             var errorsMember = AttachedBindingMember.CreateNotifiableMember<object, IEnumerable<object>>(AttachedMemberConstants.ErrorsPropertyMember, GetErrors, SetErrors);
+            memberProvider.Register(errorsMember, true);
             memberProvider.Register(AttachedBindingMember.CreateMember<object, bool>("HasErrors", GetHasErrors, null, ObserveHasErrors));
             memberProvider.Register(typeof(object), ErrorProviderErrors, errorsMember, true);
             memberProvider.Register(typeof(object), "BindingErrorProvider.Errors", errorsMember, true);

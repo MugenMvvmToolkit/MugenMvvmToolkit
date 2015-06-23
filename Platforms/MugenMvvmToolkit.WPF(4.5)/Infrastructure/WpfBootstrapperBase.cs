@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         /// <summary>
         /// Gets the name of binding assembly.
         /// </summary>
-        protected const string BindingAssemblyName = "MugenMvvmToolkit.Binding.WPF";
+        protected const string BindingAssemblyName = "MugenMvvmToolkit.WPF.Binding";
 
         #endregion
 

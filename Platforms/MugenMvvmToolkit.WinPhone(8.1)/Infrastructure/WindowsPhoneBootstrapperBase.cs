@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         /// <summary>
         /// Gets the name of binding assembly.
         /// </summary>
-        protected const string BindingAssemblyName = "MugenMvvmToolkit.Binding.WinRT";
+        protected const string BindingAssemblyName = "MugenMvvmToolkit.WinPhone.Binding";
         private readonly PhoneApplicationFrame _rootFrame;
 
         #endregion
@@ -75,7 +75,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         #region Overrides of BootstrapperBase
 
         /// <summary>
-        ///     Starts the current bootstraper.
+        ///     Starts the current bootstrapper.
         /// </summary>
         protected override void OnInitialize()
         {

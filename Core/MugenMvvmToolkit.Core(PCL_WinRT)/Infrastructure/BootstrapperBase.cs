@@ -84,7 +84,7 @@ namespace MugenMvvmToolkit.Infrastructure
         }
 
         /// <summary>
-        ///     Gets the initialized state of the current bootstraper.
+        ///     Gets the initialized state of the current bootstrapper.
         /// </summary>
         public bool IsInitialized
         {
@@ -117,7 +117,7 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Methods
 
         /// <summary>
-        ///     Initializes the current bootstraper.
+        ///     Initializes the current bootstrapper.
         /// </summary>
         public virtual void Initialize()
         {
@@ -135,7 +135,7 @@ namespace MugenMvvmToolkit.Infrastructure
         }
 
         /// <summary>
-        ///     Stops the current bootstraper.
+        ///     Stops the current bootstrapper.
         /// </summary>
         public virtual void Stop()
         {
@@ -157,7 +157,7 @@ namespace MugenMvvmToolkit.Infrastructure
         }
 
         /// <summary>
-        ///     Initializes the current bootstraper.
+        ///     Initializes the current bootstrapper.
         /// </summary>
         protected virtual void OnInitialize()
         {
@@ -171,7 +171,7 @@ namespace MugenMvvmToolkit.Infrastructure
         }
 
         /// <summary>
-        ///     Stops the current bootstraper.
+        ///     Stops the current bootstrapper.
         /// </summary>
         protected virtual void OnStop()
         {

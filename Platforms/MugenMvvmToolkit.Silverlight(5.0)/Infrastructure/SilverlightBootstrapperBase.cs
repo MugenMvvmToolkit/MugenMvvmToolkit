@@ -38,7 +38,7 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
         /// <summary>
         /// Gets the name of binding assembly.
         /// </summary>
-        protected const string BindingAssemblyName = "MugenMvvmToolkit.Binding.Silverlight";
+        protected const string BindingAssemblyName = "MugenMvvmToolkit.Silverlight.Binding";
         private readonly Application _application;
 
         #endregion

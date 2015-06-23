@@ -50,9 +50,6 @@ namespace MugenMvvmToolkit.ViewModels
         private bool _isSelected;
         private bool? _operationResult;
 
-        private EventHandler<ICloseableViewModel, ViewModelClosedEventArgs> _internalClosedEvent;
-        private EventHandler<ICloseableViewModel, ViewModelClosingEventArgs> _internalClosingEvent;
-
         #endregion
 
         #region Constructors
@@ -147,28 +144,13 @@ namespace MugenMvvmToolkit.ViewModels
             //to track state
             _viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateManager, ViewModelConstants.StateManager);
             ViewModel.PropertyChanged += ViewModelOnPropertyChanged;
-            Closed += OnClosed;
             var closeableViewModel = ViewModel as ICloseableViewModel;
             if (closeableViewModel == null)
                 CloseCommand = RelayCommandBase.FromAsyncHandler<object>(CloseAsync, false);
             else
             {
-                var internalClosedEvent = _internalClosedEvent;
-                if (internalClosedEvent != null)
-                {
-                    _internalClosedEvent = null;
-                    foreach (var @delegate in internalClosedEvent.GetInvocationList())
-                        closeableViewModel.Closed +=
-                            (EventHandler<ICloseableViewModel, ViewModelClosedEventArgs>)@delegate;
-                }
-                var internalClosingEvent = _internalClosingEvent;
-                if (internalClosingEvent != null)
-                {
-                    _internalClosingEvent = null;
-                    foreach (var @delegate in internalClosingEvent.GetInvocationList())
-                        closeableViewModel.Closing +=
-                            (EventHandler<ICloseableViewModel, ViewModelClosingEventArgs>)@delegate;
-                }
+                closeableViewModel.Closing += ViewModelOnClosing;
+                closeableViewModel.Closed += ViewModelOnClosed;
             }
             ViewModel.Subscribe(this);
             this.Subscribe(_viewModel);
@@ -186,104 +168,21 @@ namespace MugenMvvmToolkit.ViewModels
             var closeableViewModel = ViewModel as ICloseableViewModel;
             if (closeableViewModel != null)
                 return closeableViewModel.CloseAsync(parameter);
-            var closingEvent = _internalClosingEvent;
-            ViewModelClosedEventArgs closedArgs = null;
-            if (closingEvent != null)
-            {
-                var args = new ViewModelClosingEventArgs(this, parameter);
-                closingEvent(this, args);
-                if (args.Cancel)
-                    return Empty.FalseTask;
-                closedArgs = args;
-            }
-            var closedEvent = _internalClosedEvent;
-            if (closedEvent != null)
-                closedEvent(this, closedArgs ?? new ViewModelClosedEventArgs(this, parameter));
+            if (!RaiseClosing(parameter))
+                return Empty.FalseTask;
+            RaiseClosed(parameter);
             return Empty.TrueTask;
         }
 
         /// <summary>
         ///     Occurs when <see cref="ICloseableViewModel" /> is closing.
         /// </summary>
-        public event EventHandler<ICloseableViewModel, ViewModelClosingEventArgs> Closing
-        {
-            add
-            {
-                var closeableViewModel = ViewModel as ICloseableViewModel;
-                if (closeableViewModel == null)
-                {
-                    lock (_locker)
-                    {
-                        closeableViewModel = ViewModel as ICloseableViewModel;
-                        if (closeableViewModel == null)
-                        {
-                            _internalClosingEvent += value;
-                            return;
-                        }
-                    }
-                }
-                closeableViewModel.Closing += value;
-            }
-            remove
-            {
-                var closeableViewModel = ViewModel as ICloseableViewModel;
-                if (closeableViewModel == null)
-                {
-                    lock (_locker)
-                    {
-                        closeableViewModel = ViewModel as ICloseableViewModel;
-                        if (closeableViewModel == null)
-                        {
-                            _internalClosingEvent -= value;
-                            return;
-                        }
-                    }
-                }
-                closeableViewModel.Closing -= value;
-            }
-        }
+        public virtual event EventHandler<ICloseableViewModel, ViewModelClosingEventArgs> Closing;
 
         /// <summary>
         ///     Occurs when <see cref="ICloseableViewModel" /> is closed.
         /// </summary>
-        public event EventHandler<ICloseableViewModel, ViewModelClosedEventArgs> Closed
-        {
-            add
-            {
-                var closeableViewModel = ViewModel as ICloseableViewModel;
-                if (closeableViewModel == null)
-                {
-                    lock (_locker)
-                    {
-                        closeableViewModel = ViewModel as ICloseableViewModel;
-                        if (closeableViewModel == null)
-                        {
-                            _internalClosedEvent += value;
-                            return;
-                        }
-                    }
-                }
-                closeableViewModel.Closed += value;
-            }
-            remove
-            {
-                var closeableViewModel = ViewModel as ICloseableViewModel;
-                if (closeableViewModel == null)
-                {
-                    lock (_locker)
-                    {
-                        closeableViewModel = ViewModel as ICloseableViewModel;
-                        if (closeableViewModel == null)
-                        {
-                            _internalClosedEvent -= value;
-                            return;
-                        }
-                    }
-                }
-                closeableViewModel.Closed -= value;
-            }
-        }
-
+        public virtual event EventHandler<ICloseableViewModel, ViewModelClosedEventArgs> Closed;
 
         /// <summary>
         ///     Gets or sets the display name for the current model.
@@ -489,6 +388,30 @@ namespace MugenMvvmToolkit.ViewModels
         {
         }
 
+        /// <summary>
+        ///     Invokes the Closing event.
+        /// </summary>
+        protected virtual bool RaiseClosing(object parameter)
+        {
+            var handler = Closing;
+            if (handler == null)
+                return true;
+            var args = new ViewModelClosingEventArgs(this, parameter);
+            handler(this, args);
+            return !args.Cancel;
+        }
+
+        /// <summary>
+        ///     Invokes the Closed event.
+        /// </summary>
+        protected virtual void RaiseClosed(object parameter)
+        {
+            var handler = Closed;
+            if (handler != null)
+                handler(this, new ViewModelClosedEventArgs(this, parameter));
+            OnClosed(parameter);
+        }
+
         private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs args)
         {
             string value;
@@ -502,9 +425,14 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        private void OnClosed(object sender, ViewModelClosedEventArgs args)
+        private void ViewModelOnClosing(ICloseableViewModel sender, ViewModelClosingEventArgs args)
         {
-            OnClosed(args.Parameter);
+            args.Cancel = !RaiseClosing(args.Parameter);
+        }
+
+        private void ViewModelOnClosed(ICloseableViewModel sender, ViewModelClosedEventArgs args)
+        {
+            RaiseClosed(args.Parameter);
         }
 
         #endregion
@@ -518,11 +446,16 @@ namespace MugenMvvmToolkit.ViewModels
         {
             if (disposing)
             {
-                Closed -= OnClosed;
-                _internalClosingEvent = null;
-                _internalClosedEvent = null;
+                Closing = null;
+                Closed = null;
                 if (_viewModel != null)
                 {
+                    var closeableViewModel = _viewModel as ICloseableViewModel;
+                    if (closeableViewModel != null)
+                    {
+                        closeableViewModel.Closing -= ViewModelOnClosing;
+                        closeableViewModel.Closed -= ViewModelOnClosed;
+                    }
                     _viewModel.PropertyChanged -= ViewModelOnPropertyChanged;
                     _viewModel = null;
                     OnPropertyChanged("ViewModel");

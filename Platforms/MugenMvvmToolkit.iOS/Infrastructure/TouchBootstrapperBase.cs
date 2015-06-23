@@ -85,7 +85,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         }
 
         /// <summary>
-        ///     Initializes the current bootstraper.
+        ///     Initializes the current bootstrapper.
         /// </summary>
         protected override void OnInitialize()
         {

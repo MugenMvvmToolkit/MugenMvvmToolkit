@@ -43,7 +43,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         /// <summary>
         /// Gets the name of binding assembly.
         /// </summary>
-        protected const string BindingAssemblyName = "MugenMvvmToolkit.Binding.WinRT";
+        protected const string BindingAssemblyName = "MugenMvvmToolkit.WinRT.Binding";
         private readonly Frame _rootFrame;
         private readonly bool _overrideAssemblies;
         private List<Assembly> _assemblies;
@@ -74,7 +74,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         #region Overrides of BootstrapperBase
 
         /// <summary>
-        ///     Starts the current bootstraper.
+        ///     Starts the current bootstrapper.
         /// </summary>
         protected override void OnInitialize()
         {
@@ -113,7 +113,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         }
 
         /// <summary>
-        ///     Initializes the current bootstraper asynchronously.
+        ///     Initializes the current bootstrapper asynchronously.
         /// </summary>
         public async Task InitializeAsync()
         {

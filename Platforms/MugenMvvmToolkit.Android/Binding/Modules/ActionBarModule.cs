@@ -823,7 +823,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 Type viewType = TypeCache<ActionProvider>.Instance.GetTypeByName(content.ToString(), true, true);
                 actionProvider = (ActionProvider)Activator.CreateInstance(viewType, GetContextFromItem(menuItem));
             }
-            //TODO WRAPPER???
+            
             menuItem.SetActionProvider(actionProvider);
             actionProvider.SetBindingMemberValue(AttachedMembers.Object.Parent, menuItem);
             var bindings = GetActionProviderBind(menuItem);

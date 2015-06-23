@@ -126,7 +126,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         #region Overrides of BootstrapperBase
 
         /// <summary>
-        ///     Initializes the current bootstraper.
+        ///     Initializes the current bootstrapper.
         /// </summary>
         public override void Initialize()
         {
@@ -135,7 +135,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         }
 
         /// <summary>
-        ///     Initializes the current bootstraper.
+        ///     Initializes the current bootstrapper.
         /// </summary>
         protected override void OnInitialize()
         {
@@ -190,7 +190,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
                 .FirstOrDefault();
             if (bootstrapperAttribute == null)
                 throw new InvalidOperationException(@"The BootstrapperAttribute was not found. 
-You must specify the type of application bootstraper using BootstrapperAttribute, for example [assembly:Bootstrapper(typeof(MyBootstrapperType))]");
+You must specify the type of application bootstrapper using BootstrapperAttribute, for example [assembly:Bootstrapper(typeof(MyBootstrapperType))]");
             var instance = (BootstrapperBase)Activator.CreateInstance(bootstrapperAttribute.BootstrapperType);
             instance.Initialize();
         }
