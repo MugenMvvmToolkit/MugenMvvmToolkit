@@ -256,7 +256,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
         public static readonly DataConstant<string> OperationIdConstant;
         public static readonly DataConstant<bool> ClearNavigationCache;
 
-        protected static readonly DataConstant<Type> ViewModelType;
+        protected static readonly DataConstant<Type> ViewModelTypeConstant;
         private static readonly DataConstant<string> VmTypeConstant;
         private static readonly string[] IdSeparator = { "~|~" };
 
@@ -288,7 +288,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
         {
             NavigationArgsConstant = DataConstant.Create(() => NavigationArgsConstant, true);
             NavigatingCancelArgsConstant = DataConstant.Create(() => NavigatingCancelArgsConstant, true);
-            ViewModelType = DataConstant.Create(() => ViewModelType, true);
+            ViewModelTypeConstant = DataConstant.Create(() => ViewModelTypeConstant, true);
             VmTypeConstant = DataConstant.Create(() => VmTypeConstant, true);
             ClearNavigationCache = DataConstant.Create(() => ClearNavigationCache);
             OperationIdConstant = DataConstant.Create(() => OperationIdConstant, false);
@@ -663,7 +663,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             return new NavigationContext(NavigationType.Page, args.Mode, viewModelFrom, viewModelTo, this, parameters)
             {
                 {NavigationArgsConstant, args},
-                {ViewModelType, vmType},
+                {ViewModelTypeConstant, vmType},
                 {OperationIdConstant, idOperation}
             };
         }
@@ -850,7 +850,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         private void UpdateNavigationContext(IOperationCallback callback, IViewModel navigationViewModel, NavigationEventArgsBase args, ref INavigationContext context)
         {
-            var vmType = context.GetData(ViewModelType);
+            var vmType = context.GetData(ViewModelTypeConstant);
             if (vmType == null)
                 return;
 
@@ -892,7 +892,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
                     closeableViewModel.CloseCommand = wrapper.NestedCommand;
                 closeableViewModel.Closed -= provider._closeViewModelHandler;
             }
-            if (completeCallback)
+            if (completeCallback && provider.CurrentViewModel != viewModel)
                 provider.CompleteOperationCallback(viewModel, parameter as IDataContext ?? DataContext.Empty);
         }
 

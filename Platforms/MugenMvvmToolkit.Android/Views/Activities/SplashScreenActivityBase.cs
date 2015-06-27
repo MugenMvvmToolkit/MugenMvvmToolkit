@@ -26,6 +26,7 @@ using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Infrastructure;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
@@ -77,6 +78,8 @@ namespace MugenMvvmToolkit.Android.Views.Activities
             if (Interlocked.Exchange(ref _state, StartedState) == DefaultState)
             {
                 Current = this;
+                if (_bootstrapper == null)
+                    _bootstrapper = BootstrapperBase.Current as AndroidBootstrapperBase;
                 if (_bootstrapper == null)
                     ThreadPool.QueueUserWorkItem(StartBootstrapperCallback, this);
                 else
