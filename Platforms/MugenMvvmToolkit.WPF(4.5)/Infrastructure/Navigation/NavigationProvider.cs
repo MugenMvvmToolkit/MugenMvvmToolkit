@@ -882,7 +882,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
                 });
         }
 
-        private static void OnViewModelClosed(IViewModel viewModel, object parameter, NavigationProvider provider, bool completeCallback)
+        private static bool OnViewModelClosed(IViewModel viewModel, object parameter, NavigationProvider provider, bool completeCallback)
         {
             var closeableViewModel = viewModel as ICloseableViewModel;
             if (closeableViewModel != null)
@@ -893,7 +893,11 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
                 closeableViewModel.Closed -= provider._closeViewModelHandler;
             }
             if (completeCallback && provider.CurrentViewModel != viewModel)
+            {
                 provider.CompleteOperationCallback(viewModel, parameter as IDataContext ?? DataContext.Empty);
+                return true;
+            }
+            return false;
         }
 
         private void TryCacheViewModel(INavigationContext context, object view, IViewModel viewModel)
@@ -973,8 +977,8 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             foreach (var viewModelFrom in viewModels.Reverse())
             {
                 var navigationContext = new NavigationContext(NavigationType.Page, NavigationMode.Reset, viewModelFrom, viewModelTo, this, parameters);
-                CompleteOperationCallback(viewModelFrom, navigationContext);
-                viewModelFrom.Dispose();
+                if (!OnViewModelClosed(viewModelFrom, navigationContext, this, true))
+                    CompleteOperationCallback(viewModelFrom, navigationContext);
             }
         }
 
