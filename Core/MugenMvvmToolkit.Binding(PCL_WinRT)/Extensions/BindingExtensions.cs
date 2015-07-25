@@ -28,6 +28,7 @@ using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Interfaces.Sources;
@@ -737,6 +738,24 @@ namespace MugenMvvmToolkit.Binding
         public static Exception DuplicateLambdaParameter(string parameterName)
         {
             return BindingExceptionManager.DuplicateLambdaParameter(parameterName);
+        }
+
+        /// <summary>
+        ///     Gets the value that indicates that all members are available.
+        /// </summary>
+        public static bool IsAllMembersAvailable(this IBindingSourceAccessor accessor)
+        {
+            Should.NotBeNull(accessor, "accessor");
+            var s = accessor as ISingleBindingSourceAccessor;
+            if (s != null)
+                return s.Source.GetPathMembers(false).AllMembersAvailable;
+            var sources = accessor.Sources;
+            for (int i = 0; i < sources.Count; i++)
+            {
+                if (!sources[i].GetPathMembers(false).AllMembersAvailable)
+                    return false;
+            }
+            return true;
         }
 
         /// <summary>

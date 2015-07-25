@@ -24,12 +24,12 @@ namespace MugenMvvmToolkit.Binding.Models
     public enum BindingAction
     {
         /// <summary>
-        ///     The binding is currently update the source.
+        ///     The binding is currently updating the source.
         /// </summary>
         UpdateSource = 1,
 
         /// <summary>
-        ///     The binding is currently update the target.
+        ///     The binding is currently updating the target.
         /// </summary>
         UpdateTarget = 2,
     }

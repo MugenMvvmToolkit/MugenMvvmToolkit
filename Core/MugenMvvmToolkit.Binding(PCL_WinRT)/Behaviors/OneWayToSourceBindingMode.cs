@@ -35,8 +35,8 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         protected override bool OnAttached()
         {
             SubscribeTarget();
-            SubscribeSources(OneTimeSourceHandler);
-            Binding.UpdateSource();
+            if (Binding.SourceAccessor.CanWrite && (!Binding.TargetAccessor.IsAllMembersAvailable() || !Binding.UpdateSource()))
+                SubscribeSources(OneTimeSourceHandler);
             return true;
         }
 
@@ -62,11 +62,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         private void OneTimeSourceHandler(IBindingSource sender, ValueChangedEventArgs args)
         {
-            var members = sender.GetPathMembers(false);
-            if (!members.AllMembersAvailable)
-                return;
-            UnsubscribeSources(OneTimeSourceHandler);
-            Binding.UpdateSource();
+            IDataBinding binding = Binding;
+            if (binding != null && binding.TargetAccessor.IsAllMembersAvailable() && binding.UpdateSource())
+                UnsubscribeSources(OneTimeSourceHandler);
         }
 
         #endregion

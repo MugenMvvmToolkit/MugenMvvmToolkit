@@ -37,4 +37,16 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
         [CanBeNull]
         new object Value { get; set; }
     }
+
+    /// <summary>
+    ///     Represents the binding context holder.
+    /// </summary>
+    public interface IBindingContextHolder
+    {
+        /// <summary>
+        ///     Gets the current binding context.
+        /// </summary>
+        [NotNull]
+        IBindingContext BindingContext { get; }
+    }
 }

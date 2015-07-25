@@ -17,6 +17,8 @@
 #endregion
 
 using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Binding.Interfaces.Sources;
+using MugenMvvmToolkit.Binding.Models.EventArg;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
@@ -34,8 +36,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         protected override bool OnAttached()
         {
             SubscribeSources();
+            if (!Binding.SourceAccessor.IsAllMembersAvailable() || !Binding.UpdateTarget())
+                Binding.TargetAccessor.Source.ValueChanged += OneTimeTargetHandler;
             SubscribeTarget();
-            Binding.UpdateTarget();
             return true;
         }
 
@@ -54,6 +57,17 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         protected override IBindingBehavior CloneInternal()
         {
             return new TwoWayBindingMode();
+        }
+
+        #endregion
+
+        #region Methods
+
+        private void OneTimeTargetHandler(IBindingSource sender, ValueChangedEventArgs args)
+        {
+            IDataBinding binding = Binding;
+            if (binding != null && binding.SourceAccessor.IsAllMembersAvailable() && binding.UpdateTarget())
+                binding.TargetAccessor.Source.ValueChanged -= OneTimeTargetHandler;
         }
 
         #endregion

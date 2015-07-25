@@ -33,7 +33,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
         IBindingPath Path { get; }
 
         /// <summary>
-        ///     Gets the value that indicates that all members are available, if <c>true</c>.
+        ///     Gets the value that indicates that all members are available.
         /// </summary>
         bool AllMembersAvailable { get; }
 

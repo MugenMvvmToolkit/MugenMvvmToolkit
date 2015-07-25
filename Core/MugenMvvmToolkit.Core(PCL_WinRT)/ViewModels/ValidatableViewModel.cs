@@ -499,6 +499,8 @@ namespace MugenMvvmToolkit.ViewModels
         {
             get
             {
+                if (IsDisposed)
+                    return false;
                 lock (_locker)
                     return IsValidInternal();
             }

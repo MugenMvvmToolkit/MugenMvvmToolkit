@@ -69,7 +69,7 @@ namespace MugenMvvmToolkit.Binding.Sources
         /// <summary>
         ///     Gets the path.
         /// </summary>
-        public IBindingPath Path
+        public virtual IBindingPath Path
         {
             get { return _observer.Path; }
         }
@@ -83,7 +83,7 @@ namespace MugenMvvmToolkit.Binding.Sources
         /// <returns>
         ///     If <c>true</c> current source is valid, otherwise <c>false</c>.
         /// </returns>
-        public bool Validate(bool throwOnError)
+        public virtual bool Validate(bool throwOnError)
         {
             return _observer.Validate(throwOnError);
         }
@@ -94,7 +94,7 @@ namespace MugenMvvmToolkit.Binding.Sources
         /// <param name="throwOnError">
         ///     true to throw an exception if the source is not valid; false to return false.
         /// </param>
-        public object GetSource(bool throwOnError)
+        public virtual object GetSource(bool throwOnError)
         {
             return _observer.GetActualSource(throwOnError);
         }
@@ -105,7 +105,7 @@ namespace MugenMvvmToolkit.Binding.Sources
         /// <param name="throwOnError">
         ///     true to throw an exception if the source is not valid.
         /// </param>
-        public IBindingPathMembers GetPathMembers(bool throwOnError)
+        public virtual IBindingPathMembers GetPathMembers(bool throwOnError)
         {
             return _observer.GetPathMembers(throwOnError);
         }
@@ -113,7 +113,7 @@ namespace MugenMvvmToolkit.Binding.Sources
         /// <summary>
         ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
+        public virtual void Dispose()
         {
             _observer.Dispose();
             _observer.Listener = null;

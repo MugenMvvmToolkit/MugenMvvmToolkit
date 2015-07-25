@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -45,7 +46,8 @@ namespace MugenMvvmToolkit.Binding
         private static Func<IBindingMemberInfo, Type, object, object> _valueConverter;
         private static readonly Dictionary<string, int> MemberPriorities;
         private static readonly List<string> FakeMemberPrefixesField;
-        private static readonly ICollection<string> DataContextMemberAliasesField;
+        private static readonly HashSet<string> DataContextMemberAliasesField;
+        private static readonly Dictionary<string, IBindingBehavior> BindingModeToBehaviorField;
         private static Func<string, IBindingPath> _bindingPathFactory;
         private static Func<Type, string, IBindingMemberInfo> _updateEventFinder;
 
@@ -55,6 +57,15 @@ namespace MugenMvvmToolkit.Binding
 
         static BindingServiceProvider()
         {
+            BindingModeToBehaviorField = new Dictionary<string, IBindingBehavior>(StringComparer.OrdinalIgnoreCase)
+            {
+                {"Default", null},
+                {"TwoWay", new TwoWayBindingMode()},
+                {"OneWay", new OneWayBindingMode()},
+                {"OneTime", new OneTimeBindingMode()},
+                {"OneWayToSource", new OneWayToSourceBindingMode()},
+                {"None", NoneBindingMode.Instance}
+            };
             MemberPriorities = new Dictionary<string, int>
             {
                 {AttachedMemberConstants.DataContext, int.MaxValue - 1},
@@ -83,6 +94,14 @@ namespace MugenMvvmToolkit.Binding
         #region Properties
 
         /// <summary>
+        ///     Gets the dictionary that contains mapping from string to mode behavior.
+        /// </summary>
+        public static Dictionary<string, IBindingBehavior> BindingModeToBehavior
+        {
+            get { return BindingModeToBehaviorField; }
+        }
+
+        /// <summary>
         ///     Gets the list that contains the prefixes of fake members.
         /// </summary>
         public static List<string> FakeMemberPrefixes
@@ -94,7 +113,7 @@ namespace MugenMvvmToolkit.Binding
         ///     Gets the dictionary that contains the priority of binding members.
         /// </summary>
         [NotNull]
-        public static IDictionary<string, int> BindingMemberPriorities
+        public static Dictionary<string, int> BindingMemberPriorities
         {
             get { return MemberPriorities; }
         }
@@ -103,7 +122,7 @@ namespace MugenMvvmToolkit.Binding
         ///     Gets the collection of possible data context member aliases.
         /// </summary>
         [NotNull]
-        public static ICollection<string> DataContextMemberAliases
+        public static HashSet<string> DataContextMemberAliases
         {
             get { return DataContextMemberAliasesField; }
         }

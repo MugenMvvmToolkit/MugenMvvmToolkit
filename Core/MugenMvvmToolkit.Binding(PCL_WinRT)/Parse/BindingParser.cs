@@ -60,7 +60,6 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         private readonly Dictionary<string, TokenType> _binaryOperationAliases;
         private readonly Dictionary<TokenType, int> _binaryOperationTokens;
-        private readonly Dictionary<string, IBindingBehavior> _bindingModeToAction;
         private readonly Dictionary<string, Func<BindingParser, IList<Action<IDataContext>>>> _bindingParameterToAction;
 
         private readonly Dictionary<string, KeyValuePair<KeyValuePair<string, int>, Action<IDataContext>[]>[]> _cache;
@@ -156,16 +155,6 @@ namespace MugenMvvmToolkit.Binding.Parse
                 TokenType.Minus,
                 TokenType.Exclamation,
                 TokenType.Tilde
-            };
-
-            _bindingModeToAction = new Dictionary<string, IBindingBehavior>(StringComparer.OrdinalIgnoreCase)
-            {
-                {"Default", null},
-                {"TwoWay", new TwoWayBindingMode()},
-                {"OneWay", new OneWayBindingMode()},
-                {"OneTime", new OneTimeBindingMode()},
-                {"OneWayToSource", new OneWayToSourceBindingMode()},
-                {"None", NoneBindingMode.Instance}
             };
 
             _bindingParameterToAction = new Dictionary<string, Func<BindingParser, IList<Action<IDataContext>>>>(StringComparer.OrdinalIgnoreCase)
@@ -365,11 +354,6 @@ namespace MugenMvvmToolkit.Binding.Parse
         protected Dictionary<string, Func<BindingParser, IList<Action<IDataContext>>>> BindingParameterToAction
         {
             get { return _bindingParameterToAction; }
-        }
-
-        protected Dictionary<string, IBindingBehavior> BindingModeToAction
-        {
-            get { return _bindingModeToAction; }
         }
 
         protected ICollection<TokenType> UnaryOperationTokens
@@ -1205,9 +1189,8 @@ namespace MugenMvvmToolkit.Binding.Parse
             ValidateToken(NextToken(true), TokenType.Identifier);
             string mode = Tokenizer.Value;
             IBindingBehavior behavior;
-            if (!BindingModeToAction.TryGetValue(mode, out behavior))
-                throw BindingExceptionManager.UnknownIdentifierParser(mode, Tokenizer, Expression,
-                    BindingModeToAction.Keys.ToArrayEx());
+            if (!BindingServiceProvider.BindingModeToBehavior.TryGetValue(mode, out behavior))
+                throw BindingExceptionManager.UnknownIdentifierParser(mode, Tokenizer, Expression, BindingServiceProvider.BindingModeToBehavior.Keys.ToArrayEx());
             NextToken(true);
             if (behavior == null)
                 return null;

@@ -63,6 +63,22 @@ namespace MugenMvvmToolkit.Binding.Accessors
         #region Overrides of BindingSourceAccessorBase
 
         /// <summary>
+        ///     Gets a value indicating whether the member can be read.
+        /// </summary>
+        public override bool CanRead
+        {
+            get { return true; }
+        }
+
+        /// <summary>
+        ///     Gets a value indicating whether the property can be written to.
+        /// </summary>
+        public override bool CanWrite
+        {
+            get { return false; }
+        }
+
+        /// <summary>
         ///     Gets the underlying sources.
         /// </summary>
         public override IList<IBindingSource> Sources

@@ -236,31 +236,30 @@ namespace MugenMvvmToolkit.Binding
         public static IBindingInfoBehaviorSyntax<TSource> TwoWay<TSource>(
             [NotNull] this IBindingModeSyntax<TSource> syntax)
         {
-            return syntax.WithBehaviorInternal<TSource>(new TwoWayBindingMode());
+            return syntax.WithBehaviorInternal<TSource>(BindingServiceProvider.BindingModeToBehavior["TwoWay"].Clone());
         }
 
-        public static IBindingInfoBehaviorSyntax<TSource> OneWay<TSource>(
-            [NotNull] this IBindingModeSyntax<TSource> syntax)
+        public static IBindingInfoBehaviorSyntax<TSource> OneWay<TSource>([NotNull] this IBindingModeSyntax<TSource> syntax)
         {
-            return syntax.WithBehaviorInternal<TSource>(new OneWayBindingMode());
+            return syntax.WithBehaviorInternal<TSource>(BindingServiceProvider.BindingModeToBehavior["OneWay"].Clone());
         }
 
         public static IBindingInfoBehaviorSyntax<TSource> OneWayToSource<TSource>(
             [NotNull] this IBindingModeSyntax<TSource> syntax)
         {
-            return syntax.WithBehaviorInternal<TSource>(new OneWayToSourceBindingMode());
+            return syntax.WithBehaviorInternal<TSource>(BindingServiceProvider.BindingModeToBehavior["OneWayToSource"].Clone());
         }
 
         public static IBindingInfoBehaviorSyntax<TSource> OneTime<TSource>(
             [NotNull] this IBindingModeSyntax<TSource> syntax)
         {
-            return syntax.WithBehaviorInternal<TSource>(new OneTimeBindingMode());
+            return syntax.WithBehaviorInternal<TSource>(BindingServiceProvider.BindingModeToBehavior["OneTime"].Clone());
         }
 
         public static IBindingInfoBehaviorSyntax<TSource> NoneMode<TSource>(
             [NotNull] this IBindingModeSyntax<TSource> syntax)
         {
-            return syntax.WithBehaviorInternal<TSource>(NoneBindingMode.Instance);
+            return syntax.WithBehaviorInternal<TSource>(BindingServiceProvider.BindingModeToBehavior["None"].Clone());
         }
 
         #endregion

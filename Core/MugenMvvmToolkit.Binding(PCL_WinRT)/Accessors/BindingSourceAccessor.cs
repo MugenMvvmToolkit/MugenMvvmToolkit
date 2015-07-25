@@ -293,6 +293,22 @@ namespace MugenMvvmToolkit.Binding.Accessors
         }
 
         /// <summary>
+        ///     Gets a value indicating whether the member can be read.
+        /// </summary>
+        public override bool CanRead
+        {
+            get { return true; }
+        }
+
+        /// <summary>
+        ///     Gets a value indicating whether the property can be written to.
+        /// </summary>
+        public override bool CanWrite
+        {
+            get { return true; }
+        }
+
+        /// <summary>
         ///     Gets the underlying sources.
         /// </summary>
         public override IList<IBindingSource> Sources

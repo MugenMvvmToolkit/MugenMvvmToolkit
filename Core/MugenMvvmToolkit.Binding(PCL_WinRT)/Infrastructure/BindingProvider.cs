@@ -122,6 +122,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         }
 
         /// <summary>
+        ///     Occurs when binding starts initialization.
+        /// </summary>
+        public event Action<IBindingProvider, IDataContext> BindingInitializing;
+
+        /// <summary>
+        ///     Occurs when binding ends initialization.
+        /// </summary>
+        public event Action<IBindingProvider, IDataBinding> BindingInitialized;
+
+        /// <summary>
         ///     Creates an instance of <see cref="IBindingBuilder" />.
         /// </summary>
         /// <param name="context">The specified context.</param>
@@ -228,11 +238,19 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             try
             {
+                var handler = BindingInitializing;
+                if (handler != null)
+                    handler(this, context);
+
                 object target;
                 IBindingPath targetPath;
                 IDataBinding binding = CreateBinding(context, out target, out targetPath);
                 if (!binding.IsDisposed)
                     BindingServiceProvider.BindingManager.Register(target, targetPath.Path, binding, context);
+
+                var initialized = BindingInitialized;
+                if (initialized != null)
+                    initialized(this, binding);
                 return binding;
             }
             catch (Exception exception)
@@ -277,7 +295,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             target = context.GetData(BindingBuilderConstants.Target, true);
             targetPath = context.GetData(BindingBuilderConstants.TargetPath, true);
-            IBindingSource bindingSource = new BindingTarget(BindingServiceProvider.ObserverProvider.Observe(target, targetPath, false))
+            var src = context.GetData(BindingBuilderConstants.TargetSource);
+            IBindingSource bindingSource = new BindingTarget(BindingServiceProvider.ObserverProvider.Observe(src ?? target, targetPath, false))
             {
                 CommandParameterDelegate = context.GetData(BindingBuilderConstants.CommandParameter)
             };
@@ -320,6 +339,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 binding.Behaviors.Add(behaviors[index]);
         }
 
+        /// <summary>
+        ///     Decorates the source using <see cref="SourceDecorators" /> property.
+        /// </summary>
+        protected IBindingSource Decorate(IBindingSource source, bool isTarget, IDataContext context)
+        {
+            for (int index = 0; index < _decorators.Count; index++)
+                _decorators[index].Decorate(ref source, isTarget, context);
+            return source;
+        }
+
         private static IDataBinding CreateInvalidaDataBinding(IDataContext dataContext)
         {
             var exception = dataContext.GetData(ExceptionConstant);
@@ -349,13 +378,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     builder.Append(o);
             }
             return builder.ToString();
-        }
-
-        private IBindingSource Decorate(IBindingSource source, bool isTarget, IDataContext context)
-        {
-            for (int index = 0; index < _decorators.Count; index++)
-                _decorators[index].Decorate(ref source, isTarget, context);
-            return source;
         }
 
         #endregion

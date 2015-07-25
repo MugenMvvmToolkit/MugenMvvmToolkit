@@ -254,7 +254,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             var reference = _source as WeakReference;
             if (reference == null)
-                return ((ISourceValue)_source).Value;
+            {
+                var value = ((ISourceValue)_source).Value;
+                var sourceValue = value as ISourceValue;
+                while (sourceValue != null)
+                {
+                    value = sourceValue.Value;
+                    sourceValue = value as ISourceValue;
+                }
+                return value;
+            }
             return reference.Target;
         }
 

@@ -42,6 +42,8 @@ namespace MugenMvvmToolkit.Binding.DataConstants
 
         public static readonly DataConstant<object> Target;
 
+        public static readonly DataConstant<ISourceValue> TargetSource;
+
         public static readonly DataConstant<IBindingPath> TargetPath;
 
         public static readonly DataConstant<IList<Func<IDataContext, IBindingSource>>> Sources;
@@ -76,6 +78,7 @@ namespace MugenMvvmToolkit.Binding.DataConstants
             Source = DataConstant.Create(() => Source, true);
             BuildDelegate = DataConstant.Create(() => BuildDelegate, true);
             Target = DataConstant.Create(() => Target, true);
+            TargetSource = DataConstant.Create(() => TargetSource, true);
             TargetPath = DataConstant.Create(() => TargetPath, true);
             Sources = DataConstant.Create(() => Sources, true);
             MultiExpression = DataConstant.Create(() => MultiExpression, true);

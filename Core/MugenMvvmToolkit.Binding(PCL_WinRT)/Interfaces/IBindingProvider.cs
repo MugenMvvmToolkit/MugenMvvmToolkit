@@ -16,6 +16,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
@@ -45,6 +46,16 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         /// </summary>
         [NotNull]
         IBindingParser Parser { get; set; }
+
+        /// <summary>
+        ///     Occurs when binding starts initialization.
+        /// </summary>
+        event Action<IBindingProvider, IDataContext> BindingInitializing;
+
+        /// <summary>
+        ///     Occurs when binding ends initialization.
+        /// </summary>
+        event Action<IBindingProvider, IDataBinding> BindingInitialized;
 
         /// <summary>
         ///     Creates an instance of <see cref="IBindingBuilder" />.

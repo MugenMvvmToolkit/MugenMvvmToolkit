@@ -19,6 +19,16 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #endregion
 
+        #region Constructors
+
+        public BindingSourceAccessorMock()
+        {
+            CanRead = true;
+            CanWrite = true;
+        }
+
+        #endregion
+
         #region Properties
 
         public Func<IBindingSourceAccessor, IDataContext, bool, bool> SetValue { get; set; }
@@ -28,6 +38,16 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         #endregion
 
         #region Implementation of IBindingSourceAccessor
+
+        /// <summary>
+        ///     Gets a value indicating whether the member can be read.
+        /// </summary>
+        public bool CanRead { get; set; }
+
+        /// <summary>
+        ///     Gets a value indicating whether the property can be written to.
+        /// </summary>
+        public bool CanWrite { get; set; }
 
         /// <summary>
         ///     Gets the underlying sources.

@@ -10,6 +10,11 @@ namespace MugenMvvmToolkit.Test.Bindings.Behaviors
         #region Overrides of BindingModeTestBase<OneTimeBindingMode>
 
         [Ignore]
+        public override void BehaviorCanBeAttachedOnlyOnce()
+        {
+        }
+
+        [Ignore]
         public override void BehaviorCanBeAttachedRepeatedly()
         {
         }
@@ -42,6 +47,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Behaviors
         [Ignore]
         public override void ModeShouldListenSourceChange()
         {
+        }
+
+        [Ignore]
+        public override void ModeShouldDoNothingOnDetach()
+        {
+            base.ModeShouldDoNothingOnDetach();
         }
 
         protected override OneTimeBindingMode CreateBehavior()

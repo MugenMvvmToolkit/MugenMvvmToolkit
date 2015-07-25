@@ -184,6 +184,16 @@ namespace MugenMvvmToolkit.Binding.Accessors
         #region Implementation of IBindingSourceAccessor
 
         /// <summary>
+        ///     Gets a value indicating whether the member can be read.
+        /// </summary>
+        public abstract bool CanRead { get; }
+
+        /// <summary>
+        ///     Gets a value indicating whether the property can be written to.
+        /// </summary>
+        public abstract bool CanWrite { get; }
+
+        /// <summary>
         ///     Gets the underlying sources.
         /// </summary>
         public abstract IList<IBindingSource> Sources { get; }
