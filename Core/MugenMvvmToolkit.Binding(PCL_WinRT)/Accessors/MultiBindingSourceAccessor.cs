@@ -158,7 +158,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
         protected override object GetValueInternal(IBindingMemberInfo targetMember, IDataContext context,
             bool throwOnError)
         {
-            if (targetMember.MemberType == BindingMemberType.Event)
+            if (BindingMemberType.Event.Equals(targetMember.MemberType))
             {
                 if (_getSourceMemberValue == null)
                     _getSourceMemberValue = new BindingActionValue(this, BindingMemberInfo.MultiBindingSourceAccessorMember);

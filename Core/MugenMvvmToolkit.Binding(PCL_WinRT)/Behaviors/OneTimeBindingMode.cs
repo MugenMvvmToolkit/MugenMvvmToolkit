@@ -19,6 +19,7 @@
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models.EventArg;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
@@ -67,7 +68,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         {
             if (!Binding.SourceAccessor.IsAllMembersAvailable() || !Binding.UpdateTarget())
             {
-                SubscribeSources(OneTimeHandler);
+                EventHandler<IBindingSource, ValueChangedEventArgs> handler = OneTimeHandler;
+                SubscribeSources(handler);
+                Binding.TargetAccessor.Source.ValueChanged += handler;
                 return true;
             }
             if (_disposeBinding)
@@ -98,9 +101,12 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         private void OneTimeHandler(IBindingSource sender, ValueChangedEventArgs args)
         {
             IDataBinding binding = Binding;
-            if (binding == null || !binding.SourceAccessor.IsAllMembersAvailable() || !binding.UpdateTarget())
+            if (binding == null || !binding.SourceAccessor.IsAllMembersAvailable() || !binding.TargetAccessor.IsAllMembersAvailable())
                 return;
-            UnsubscribeSources(OneTimeHandler);
+            binding.UpdateTarget();
+            EventHandler<IBindingSource, ValueChangedEventArgs> handler = OneTimeHandler;
+            UnsubscribeSources(handler);
+            Binding.TargetAccessor.Source.ValueChanged -= handler;
             if (_disposeBinding)
                 binding.Dispose();
         }

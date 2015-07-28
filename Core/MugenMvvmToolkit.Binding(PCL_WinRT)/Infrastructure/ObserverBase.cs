@@ -209,7 +209,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         protected virtual IDisposable TryObserveMember(object value, IBindingMemberInfo member, IEventListener eventListener, string propertyName)
         {
-            if (member.MemberType == BindingMemberType.Event)
+            if (BindingMemberType.Event.Equals(member.MemberType))
                 return null;
             var disposable = member.TryObserve(value, eventListener);
             if (disposable != null)

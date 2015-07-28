@@ -63,7 +63,7 @@ namespace MugenMvvmToolkit.Models
         /// </summary>
         public bool IsEmpty
         {
-            get { return DataConstant == null; }
+            get { return ReferenceEquals(DataConstant, null); }
         }
 
         #endregion

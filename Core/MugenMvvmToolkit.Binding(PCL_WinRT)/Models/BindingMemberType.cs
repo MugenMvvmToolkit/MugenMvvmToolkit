@@ -23,7 +23,7 @@ namespace MugenMvvmToolkit.Binding.Models
     /// <summary>
     ///     Represents the type of member
     /// </summary>
-    public class BindingMemberType : StringConstantBase<BindingMemberType>
+    public sealed class BindingMemberType : StringConstantBase<BindingMemberType>
     {
         #region Fields
 

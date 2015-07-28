@@ -377,7 +377,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
         public object GetValue(object source, object[] args)
         {
             object value = ((DependencyObject)source).GetValue(_dependencyProperty);
-            if (value != null && (ReferenceEquals(value, DependencyProperty.UnsetValue) || IsNamedObjectFunc(value)))
+            if (ReferenceEquals(value, DependencyProperty.UnsetValue) || IsNamedObjectFunc(value))
                 return BindingConstants.UnsetValue;
             return value;
         }

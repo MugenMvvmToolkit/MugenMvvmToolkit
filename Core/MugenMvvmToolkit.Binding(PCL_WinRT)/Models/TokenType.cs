@@ -16,7 +16,6 @@
 
 #endregion
 
-using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Models;
 
@@ -25,7 +24,6 @@ namespace MugenMvvmToolkit.Binding.Models
     /// <summary>
     ///     Represents the type of token created by the Tokenizer class.
     /// </summary>
-    [StructLayout(LayoutKind.Auto)]
     public class TokenType : StringConstantBase<TokenType>
     {
         #region Fields

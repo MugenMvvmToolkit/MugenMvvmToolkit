@@ -408,7 +408,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             newValue = BindingServiceProvider.ValueConverter(lastMember, lastMember.Type, newValue);
             if (Equals(oldValue, newValue))
                 return false;
-            if (lastMember.MemberType == BindingMemberType.Event)
+            if (BindingMemberType.Event.Equals(lastMember.MemberType))
             {
                 TryRegisterEvent((BindingActionValue)oldValue, newValue, context);
                 RaiseValueChanged(context, penultimateValue, lastMember, oldValue, newValue, args);

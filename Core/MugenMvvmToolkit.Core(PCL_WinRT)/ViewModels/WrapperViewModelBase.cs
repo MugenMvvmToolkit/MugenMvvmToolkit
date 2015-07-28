@@ -152,7 +152,6 @@ namespace MugenMvvmToolkit.ViewModels
                 closeableViewModel.Closing += ViewModelOnClosing;
                 closeableViewModel.Closed += ViewModelOnClosed;
             }
-            ViewModel.Settings.HandleBusyMessageMode |= HandleMode.NotifySubscribers;
             ViewModel.Subscribe(this);
             this.Subscribe(_viewModel);
             OnWrapped(context);

@@ -39,8 +39,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         protected override bool OnAttached()
         {
             SubscribeSources();
-            if (Binding.TargetAccessor.CanWrite && (!Binding.SourceAccessor.IsAllMembersAvailable() || !Binding.UpdateTarget()))
+            if (!Binding.TargetAccessor.IsAllMembersAvailable())
                 Binding.TargetAccessor.Source.ValueChanged += OneTimeTargetHandler;
+            Binding.UpdateTarget();
             return true;
         }
 
@@ -67,8 +68,11 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         private void OneTimeTargetHandler(IBindingSource sender, ValueChangedEventArgs args)
         {
             IDataBinding binding = Binding;
-            if (binding != null && binding.SourceAccessor.IsAllMembersAvailable() && binding.UpdateTarget())
-                Binding.TargetAccessor.Source.ValueChanged -= OneTimeTargetHandler;
+            if (binding != null && binding.SourceAccessor.IsAllMembersAvailable() && binding.TargetAccessor.IsAllMembersAvailable())
+            {
+                binding.TargetAccessor.Source.ValueChanged -= OneTimeTargetHandler;
+                binding.UpdateTarget();
+            }
         }
 
         #endregion
