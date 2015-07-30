@@ -67,7 +67,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding
                         AttachedMemberConstants.ErrorsPropertyMember);
             }
 
-            internal Object()
+            protected Object()
             {
             }
 
@@ -92,7 +92,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding
                 Hidden = new BindingMemberDescriptor<UIElementEx, bool>("Hidden");
             }
 
-            internal VisualElement()
+            protected VisualElement()
             {
             }
 
@@ -116,7 +116,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding
                 Hidden = new BindingMemberDescriptor<UIElementEx, bool>("Hidden");
             }
 
-            internal UIElement()
+            protected UIElement()
             {
             }
 

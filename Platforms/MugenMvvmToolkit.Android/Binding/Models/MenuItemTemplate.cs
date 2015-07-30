@@ -42,6 +42,9 @@ namespace MugenMvvmToolkit.Android.Binding.Models
         [XmlAttribute("DATACONTEXT")]
         public string DataContext { get; set; }
 
+        [XmlAttribute("GROUP")]
+        public string Group { get; set; }
+
         [XmlAttribute("ALPHABETICSHORTCUT")]
         public string AlphabeticShortcut { get; set; }
 
@@ -148,10 +151,12 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             PlatformExtensions.ValidateTemplate(ItemsSource, Items);
             bool isSubMenu = !string.IsNullOrEmpty(ItemsSource) || (Items != null && Items.Count > 0);
             XmlPropertySetter<MenuItemTemplate, IMenuItem> setter;
+            int groupId;
+            int.TryParse(Group, out groupId);
             if (isSubMenu)
             {
-                ISubMenu subMenu = menu.AddSubMenu(0, id, order, string.Empty);
-                setter = new XmlPropertySetter<MenuItemTemplate, IMenuItem>(subMenu.Item, context, new BindingSet());
+                ISubMenu subMenu = menu.AddSubMenu(groupId, id, order, string.Empty);
+                setter = new XmlPropertySetter<MenuItemTemplate, IMenuItem>(subMenu.Item, context, new BindingSet());                
                 subMenu.SetBindingMemberValue(AttachedMembers.Object.Parent, menu);
                 subMenu.Item.SetBindingMemberValue(AttachedMembers.Object.Parent, subMenu);
                 SetDataContext(subMenu, setter.BindingSet, dataContext, useContext);
@@ -171,7 +176,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             }
             else
             {
-                var menuItem = menu.Add(0, id, order, string.Empty);
+                var menuItem = menu.Add(groupId, id, order, string.Empty);
                 setter = new XmlPropertySetter<MenuItemTemplate, IMenuItem>(menuItem, context, new BindingSet());
                 menuItem.SetBindingMemberValue(AttachedMembers.Object.Parent, menu);
                 SetDataContext(menuItem, setter.BindingSet, dataContext, useContext);

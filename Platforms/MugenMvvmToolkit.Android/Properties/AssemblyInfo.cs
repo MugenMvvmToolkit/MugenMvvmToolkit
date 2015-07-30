@@ -32,3 +32,4 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Android.AppCompat")]
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Android.Fragment")]
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Android.RecyclerView")]
+[assembly: InternalsVisibleTo("MugenMvvmToolkit.Android.Design")]

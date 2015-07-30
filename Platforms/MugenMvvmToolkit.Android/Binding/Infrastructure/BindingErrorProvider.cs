@@ -18,7 +18,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Android.Widget;
+using Java.Lang;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 
@@ -30,6 +31,12 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
     /// </summary>
     public class BindingErrorProvider : BindingErrorProviderBase
     {
+        #region Fields
+
+        public const string ErrorPropertyName = "Error";
+
+        #endregion
+
         #region Overrides of BindingErrorProviderBase
 
         /// <summary>
@@ -40,9 +47,13 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         /// <param name="context">The specified context, if any.</param>
         protected override void SetErrors(object target, IList<object> errors, IDataContext context)
         {
-            var textView = target as TextView;
+            var textView = target as Object;
             if (textView.IsAlive())
-                textView.Error = errors.FirstOrDefault().ToStringSafe();
+            {
+                var member = BindingServiceProvider.MemberProvider.GetBindingMember(target.GetType(), ErrorPropertyName, false, false);
+                if (member != null && member.Type == typeof(string) && member.CanWrite)
+                    member.SetValue(target, new object[] { errors.FirstOrDefault().ToStringSafe() });
+            }
             base.SetErrors(target, errors, context);
         }
 

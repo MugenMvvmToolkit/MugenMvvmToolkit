@@ -24,6 +24,7 @@
       - Added ability to work with WPF and WinForms in a single project.
       - Added BindingInitializing and BindingInitialized events to the IBindingProvider interface that allows to intercept binding creation.
       - Added BindingModeToBehavior property to BindingServiceProvider instead of BindingParser.BindingModeToAction property.
+      - Added support for Android Design Support Library.
       - Updated binding modes to handle some specific cases.
       - Improved performance (Binding).
       - Improved navigation system.

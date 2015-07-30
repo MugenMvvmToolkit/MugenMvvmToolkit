@@ -20,7 +20,6 @@ using System;
 using System.Collections;
 using Android.Graphics.Drawables;
 using Android.Views;
-using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;

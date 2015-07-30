@@ -60,7 +60,7 @@ namespace MugenMvvmToolkit.WinForms.Binding
                 CollectionViewManager = new BindingMemberDescriptor<object, ICollectionViewManager>("CollectionViewManager");
             }
 
-            internal Object()
+            protected Object()
             {
             }
 
@@ -79,7 +79,7 @@ namespace MugenMvvmToolkit.WinForms.Binding
 
             #region Constructors
 
-            internal Control()
+            protected Control()
             {
             }
 
@@ -103,7 +103,7 @@ namespace MugenMvvmToolkit.WinForms.Binding
 
             #region Constructors
 
-            internal TabControl()
+            protected TabControl()
             {
             }
 
@@ -125,7 +125,7 @@ namespace MugenMvvmToolkit.WinForms.Binding
 
             #region Constructors
 
-            internal ComboBox()
+            protected ComboBox()
             {
             }
 
@@ -147,7 +147,7 @@ namespace MugenMvvmToolkit.WinForms.Binding
 
             #region Constructors
 
-            internal DataGridView()
+            protected DataGridView()
             {
             }
 

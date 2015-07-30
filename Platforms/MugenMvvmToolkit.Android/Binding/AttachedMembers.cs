@@ -38,7 +38,7 @@ using Android.Views;
 using ActionBarEx = Android.App.ActionBar;
 using TolbarEx = Android.Widget.Toolbar;
 namespace MugenMvvmToolkit.Android.Binding
-{
+{//TODO PROTECTED
     public static class AttachedMembers
 #endif
     {
@@ -66,7 +66,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 Errors = new BindingMemberDescriptor<object, IEnumerable<object>>(AttachedMemberConstants.ErrorsPropertyMember);
             }
 
-            internal Object()
+            protected Object()
             {
             }
 
@@ -96,7 +96,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 PopupMenuPlacementTargetPath = new BindingMemberDescriptor<global::Android.Views.View, string>("PlacementTargetPath");
             }
 
-            internal View()
+            protected View()
             {
             }
 
@@ -118,7 +118,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 Title = new BindingMemberDescriptor<global::Android.App.Dialog, string>("Title");
             }
 
-            internal Dialog()
+            protected Dialog()
             {
             }
 
@@ -145,7 +145,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
             #region Constructors
 
-            internal ViewGroup()
+            protected ViewGroup()
             {
             }
 
@@ -190,7 +190,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 ScrollToSelectedItem = new BindingMemberDescriptor<global::Android.Widget.AdapterView, bool?>("ScrollToSelectedItem");
             }
 
-            internal AdapterView()
+            protected AdapterView()
             {
             }
 
@@ -207,7 +207,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
             #region Constructors
 
-            internal TabHost()
+            protected TabHost()
             {
             }
 
@@ -229,7 +229,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
             #region Constructors
 
-            internal TabSpec()
+            protected TabSpec()
             {
             }
 
@@ -256,7 +256,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 SelectedDate = new BindingMemberDescriptor<global::Android.Widget.DatePicker, DateTime>("SelectedDate");
             }
 
-            internal DatePicker()
+            protected DatePicker()
             {
             }
 
@@ -278,7 +278,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 SelectedTime = new BindingMemberDescriptor<global::Android.Widget.TimePicker, TimeSpan>("SelectedTime");
             }
 
-            internal TimePicker()
+            protected TimePicker()
             {
             }
 
@@ -300,7 +300,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 ImageSource = new BindingMemberDescriptor<global::Android.Widget.ImageView, object>("ImageSource");
             }
 
-            internal ImageView()
+            protected ImageView()
             {
             }
 
@@ -328,7 +328,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 Visible = new BindingMemberDescriptor<IMenu, bool?>("Visible");
             }
 
-            internal Menu()
+            protected Menu()
             {
             }
 
@@ -370,7 +370,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 Click = new BindingMemberDescriptor<IMenuItem, IEventListener>("Click");
             }
 
-            internal MenuItem()
+            protected MenuItem()
             {
             }
 
@@ -392,7 +392,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 DrawerIsOpened = new BindingMemberDescriptor<global::Android.Views.View, bool>("Drawer.IsOpened");
             }
 
-            internal View()
+            protected View()
             {
             }
 
@@ -416,7 +416,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 CurrentItem = new BindingMemberDescriptor<global::Android.Support.V4.View.ViewPager, int>("CurrentItem");
             }
 
-            internal ViewPager()
+            protected ViewPager()
             {
             }
 
@@ -440,7 +440,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 DrawerListener = new BindingMemberDescriptor<global::Android.Support.V4.Widget.DrawerLayout, object>("DrawerListener");
             }
 
-            internal DrawerLayout()
+            protected DrawerLayout()
             {
             }
 
@@ -484,7 +484,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
             #region Constructors
 
-            internal ActionBar()
+            protected ActionBar()
             {
             }
 
@@ -546,7 +546,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 Icon = new BindingMemberDescriptor<ActionBarEx.Tab, object>("Icon");
             }
 
-            internal ActionBarTab()
+            protected ActionBarTab()
             {
             }
 
@@ -570,7 +570,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 MenuTemplate = new BindingMemberDescriptor<TolbarEx, int>("MenuTemplate");
             }
 
-            internal Toolbar()
+            protected Toolbar()
             {
             }
 

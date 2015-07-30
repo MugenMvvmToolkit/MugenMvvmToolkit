@@ -45,7 +45,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            internal Object()
+            protected Object()
             {
             }
 
@@ -79,7 +79,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            internal UIView()
+            protected UIView()
             {
             }
 
@@ -110,7 +110,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            internal UIControl()
+            protected UIControl()
             {
             }
 
@@ -431,7 +431,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            internal UIViewController()
+            protected UIViewController()
             {
             }
 
@@ -511,7 +511,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            internal Element()
+            protected Element()
             {
             }
 

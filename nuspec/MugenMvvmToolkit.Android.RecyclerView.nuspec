@@ -3,10 +3,10 @@
   <metadata>
     <id>MugenMvvmToolkit.Android.RecyclerView</id>
     <version>4.0.0</version>
-    <title>MugenMvvmToolkit - Adnroid Support Library v7 RecyclerView</title>
+    <title>MugenMvvmToolkit - Android Support Library v7 RecyclerView</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
-      This package adds Adnroid Support Library v7 RecyclerView support for MugenMvvmToolkit.
+      This package adds Android Support Library v7 RecyclerView support for MugenMvvmToolkit.
     </description>
     <releaseNotes>
       - Changed namespace for platform specific assembly from MugenMvvmToolkit to MugenMvvmToolkit.PlatformName (WPF, WinForms, etc) (Breaking changes).
@@ -24,6 +24,7 @@
       - Added ability to work with WPF and WinForms in a single project.
       - Added BindingInitializing and BindingInitialized events to the IBindingProvider interface that allows to intercept binding creation.
       - Added BindingModeToBehavior property to BindingServiceProvider instead of BindingParser.BindingModeToAction property.
+      - Added support for Android Design Support Library.
       - Updated binding modes to handle some specific cases.
       - Improved performance (Binding).
       - Improved navigation system.

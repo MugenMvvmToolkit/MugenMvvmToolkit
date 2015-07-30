@@ -149,7 +149,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         #region Methods
 
-        public void SetSelectedItem(object selectedItem, IDataContext context = null)
+        private void SetSelectedItem(object selectedItem)
         {
             for (int i = 0; i < _actionBar.TabCount; i++)
             {

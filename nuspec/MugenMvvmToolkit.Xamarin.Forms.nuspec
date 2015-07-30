@@ -50,9 +50,13 @@
       - Added the AttachedMembers class for all platforms that contains platform specific attached members.
       - Added ability to remove a Page from back stack when a view model is closed (Android, iOS, WinRT, Xamarin.Forms).
       - Added ability to work with WPF and WinForms in a single project.
+      - Added BindingInitializing and BindingInitialized events to the IBindingProvider interface that allows to intercept binding creation.
+      - Added BindingModeToBehavior property to BindingServiceProvider instead of BindingParser.BindingModeToAction property.
+      - Added support for Android Design Support Library.
+      - Updated binding modes to handle some specific cases.
       - Improved performance (Binding).
       - Improved navigation system.
-      - Updated support libraries to 22.2.0.0 (Android).
+      - Updated support libraries to 22.2.1.0 (Android).
       - A large number of small changes.
       - Minor changes.
     </releaseNotes>
