@@ -7,7 +7,7 @@ The Mugen MVVM Toolkit provides a cross-platform MVVM development framework buil
  - WinForms
  - WPF
  - Silverlight 5
- - Silverlight for WP7.1, WP8, WP8.1
+ - Silverlight for WP8, WP8.1
  - Xamarin.Android
  - Xamarin.iOS
  - Xamarin.Forms
