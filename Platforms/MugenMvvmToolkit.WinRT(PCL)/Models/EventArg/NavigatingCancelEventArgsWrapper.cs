@@ -28,7 +28,7 @@ namespace MugenMvvmToolkit.WinRT.Models.EventArg
         #region Fields
 
         private readonly NavigatingCancelEventArgs _args;
-        private readonly object _parameter;
+        private readonly string _parameter;
 
         #endregion
 
@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.WinRT.Models.EventArg
         /// <summary>
         ///     Initializes a new instance of the <see cref="NavigatingCancelEventArgsWrapper" /> class.
         /// </summary>
-        public NavigatingCancelEventArgsWrapper([NotNull] NavigatingCancelEventArgs args, object parameter)
+        public NavigatingCancelEventArgsWrapper([NotNull] NavigatingCancelEventArgs args, string parameter)
         {
             Should.NotBeNull(args, "args");
             _args = args;
@@ -59,7 +59,7 @@ namespace MugenMvvmToolkit.WinRT.Models.EventArg
         /// <summary>
         ///     Gets the current parameter.
         /// </summary>
-        public object Parameter
+        public string Parameter
         {
             get { return _parameter; }
         }

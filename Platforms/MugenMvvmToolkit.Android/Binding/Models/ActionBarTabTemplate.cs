@@ -71,7 +71,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
                 var fragment = _content as Fragment;
                 if (fragment != null)
                 {
-                    var viewModel = fragment.GetDataContext() as IViewModel;
+                    var viewModel = fragment.DataContext() as IViewModel;
                     if (viewModel != null)
                         viewModel.Settings.Metadata.Remove(ViewModelConstants.StateNotNeeded);
                     var manager = fragment.FragmentManager;
@@ -157,7 +157,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
                 var activity = bar.ThemedContext.GetActivity();
                 SetContent(tab, ft, placeHolder, activity, bar);
                 //Set selected item data context or tab
-                var selectedItem = bar.GetBindingMemberValue(ItemsSourceGeneratorBase.MemberDescriptor) == null ? tab : tab.GetDataContext();
+                var selectedItem = bar.GetBindingMemberValue(ItemsSourceGeneratorBase.MemberDescriptor) == null ? tab : tab.DataContext();
 #if APPCOMPAT
                 bar.SetBindingMemberValue(AttachedMembersCompat.ActionBar.SelectedItem, selectedItem);
 #else

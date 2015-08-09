@@ -273,7 +273,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
 
         public override void DestroyItem(ViewGroup container, int position, Object @object)
         {
-            var dataContext = @object.GetDataContext();
+            var dataContext = @object.DataContext();
             if (position != PositionNone)
                 position = GetPosition(dataContext);
             bool removed = position == PositionNone;
@@ -321,7 +321,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
         {
             if (ItemsSource == null)
                 return PositionNone;
-            var dataContext = @object.GetDataContext();
+            var dataContext = @object.DataContext();
             return GetPosition(dataContext);
         }
 

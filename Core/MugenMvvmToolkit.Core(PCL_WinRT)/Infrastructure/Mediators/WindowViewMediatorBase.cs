@@ -424,8 +424,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         private void RaiseNavigated(IDataContext context, NavigationMode mode)
         {
-            var ctx = new NavigationContext(NavigationType.Window, mode, ViewModel.GetParentViewModel(), ViewModel, this,
-                context.GetData(NavigationConstants.Parameters));
+            var ctx = new NavigationContext(NavigationType.Window, mode, ViewModel.GetParentViewModel(), ViewModel, this);
 
             var navigableViewModel = ctx.ViewModelFrom as INavigableViewModel;
             if (navigableViewModel != null)

@@ -112,7 +112,7 @@ namespace MugenMvvmToolkit.WinPhone.Interfaces.Navigation
         /// Gets a navigation parameter from event args.
         /// </summary>
         [CanBeNull]
-        object GetParameterFromArgs([NotNull]EventArgs args);
+        string GetParameterFromArgs([NotNull]EventArgs args);
 
         /// <summary>
         ///     Navigates using cancel event args.
@@ -135,7 +135,7 @@ namespace MugenMvvmToolkit.WinPhone.Interfaces.Navigation
         /// <returns>
         ///     <c>true</c> if the content was successfully displayed; otherwise, <c>false</c>.
         /// </returns>
-        bool Navigate([NotNull] IViewMappingItem source, [CanBeNull] object parameter, [CanBeNull] IDataContext dataContext);
+        bool Navigate([NotNull] IViewMappingItem source, [CanBeNull] string parameter, [CanBeNull] IDataContext dataContext);
 
         /// <summary>
         ///     Determines whether the specified command <c>CloseCommand</c> can be execute.

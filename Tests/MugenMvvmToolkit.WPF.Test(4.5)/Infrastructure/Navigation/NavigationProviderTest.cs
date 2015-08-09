@@ -123,47 +123,13 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
         }
 
         [TestMethod]
-        public void ProviderShouldNavigateToViewModelWithParameters()
-        {
-            ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
-            bool isInvoked = false;
-            bool isInvokedNavigate = false;
-            var viewModel = GetViewModel<NavigableViewModelMock>();
-            ViewPageMappingProvider.FindMappingForViewModel = (type, s, arg3) =>
-            {
-                viewModel.ShouldBeType(type);
-                s.ShouldBeNull();
-                arg3.ShouldBeTrue();
-                isInvoked = true;
-                return PageMapping;
-            };
-            NavigationService.Navigate = (item, o, d) =>
-            {
-                (o as IDataContext).ShouldNotBeNull();
-                d.ShouldNotBeNull();
-                item.ShouldEqual(PageMapping);
-                isInvokedNavigate = true;
-                return true;
-            };
-
-            var dataContext = new DataContext
-            {
-                {NavigationConstants.ViewModel, viewModel},
-                {NavigationConstants.Parameters, new DataContext()}
-            };
-            NavigationProvider.NavigateAsync(new OperationCallbackMock(), dataContext);
-            isInvoked.ShouldBeTrue();
-            isInvokedNavigate.ShouldBeTrue();
-        }
-
-        [TestMethod]
         public void ProviderShouldNavigateToViewModelAndRegisterCallback()
         {
             ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
             bool isInvoked = false;
             var callbackMock = new OperationCallbackMock();
             var viewModel = GetViewModel<NavigableViewModelMock>();
-            object param = null;
+            string param = null;
             ViewPageMappingProvider.FindMappingForViewModel = (type, s, arg3) => PageMapping;
             NavigationService.Navigate = (item, o, d) =>
             {
@@ -401,7 +367,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             bool isInvoked = false;
             var callbackMock = new OperationCallbackMock();
             var viewModel = GetViewModel<NavigableViewModelMock>();
-            object param = null;
+            string param = null;
             ViewPageMappingProvider.FindMappingForViewModel = (type, s, arg3) => PageMapping;
             NavigationService.Navigate = (item, o, d) =>
             {
@@ -427,7 +393,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             bool isInvoked = false;
             var callbackMock = new OperationCallbackMock();
             var viewModel = GetViewModel<NavigableViewModelMock>();
-            object param = null;
+            string param = null;
             ViewPageMappingProvider.FindMappingForViewModel = (type, s, arg3) => PageMapping;
             NavigationService.Navigate = (item, o, d) =>
             {

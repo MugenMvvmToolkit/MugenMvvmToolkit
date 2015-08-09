@@ -207,7 +207,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             for (int index = 0; index < controllers.Length; index++)
             {
                 var controller = controllers[index];
-                if (controller.GetDataContext() == args.NewValue)
+                if (controller.DataContext() == args.NewValue)
                 {
                     bar.SelectedViewController = controller;
                     return;
@@ -226,7 +226,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             if (args.ViewController == null)
                 tabBarController.SetBindingMemberValue(AttachedMembers.UITabBarController.SelectedItem, BindingExtensions.NullValue);
             else
-                tabBarController.SetBindingMemberValue(AttachedMembers.UITabBarController.SelectedItem, args.ViewController.GetDataContext());
+                tabBarController.SetBindingMemberValue(AttachedMembers.UITabBarController.SelectedItem, args.ViewController.DataContext());
         }
 
         private static IItemsSourceGenerator GetOrAddTabBarItemsSourceGenerator(UITabBarController controller)

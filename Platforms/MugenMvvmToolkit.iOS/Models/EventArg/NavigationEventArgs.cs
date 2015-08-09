@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
 
         private readonly object _content;
         private readonly NavigationMode _navigationMode;
-        private readonly object _parameter;
+        private readonly string _parameter;
 
         #endregion
 
@@ -43,7 +43,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
         /// <summary>
         ///     Initializes a new instance of the <see cref="NavigationEventArgs" /> class.
         /// </summary>
-        public NavigationEventArgs(object content, object parameter, NavigationMode navigationMode)
+        public NavigationEventArgs(object content, string parameter, NavigationMode navigationMode)
         {
             _content = content;
             _navigationMode = navigationMode;
@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
         /// <summary>
         ///     Gets any Parameter object passed to the target page for the navigation.
         /// </summary>
-        public object Parameter
+        public string Parameter
         {
             get { return _parameter; }
         }

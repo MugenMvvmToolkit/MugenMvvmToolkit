@@ -17,7 +17,6 @@
 #endregion
 
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 
@@ -44,7 +43,7 @@ namespace MugenMvvmToolkit.Models
         ///     Initializes a new instance of the <see cref="NavigationContext" /> class.
         /// </summary>
         public NavigationContext([NotNull] NavigationType type, NavigationMode navigationMode, [CanBeNull] IViewModel viewModelFrom, [CanBeNull] IViewModel viewModelTo,
-             [CanBeNull] object navigationProvider, [CanBeNull] IDataContext parameters = null)
+             [CanBeNull] object navigationProvider)
         {
             Should.NotBeNull(type, "type");
             _type = type;
@@ -52,8 +51,6 @@ namespace MugenMvvmToolkit.Models
             _navigationProvider = navigationProvider;
             _viewModelFrom = viewModelFrom;
             _viewModelTo = viewModelTo;
-            if (parameters != null)
-                Merge(parameters);
         }
 
         #endregion

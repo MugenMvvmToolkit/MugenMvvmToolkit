@@ -304,14 +304,14 @@ namespace MugenMvvmToolkit.WinForms.Binding.Modules
         {
             if (tabControl.TabCount == 0 || tabControl.SelectedIndex < 0)
                 return null;
-            return tabControl.TabPages[tabControl.SelectedIndex].GetDataContext();
+            return tabControl.TabPages[tabControl.SelectedIndex].DataContext();
         }
 
         private static void SetSelectedItemTabControl(IBindingMemberInfo bindingMemberInfo, TabControl tabControl, object item)
         {
             foreach (TabPage tabPage in tabControl.TabPages)
             {
-                if (Equals(tabPage.GetDataContext(), item))
+                if (Equals(tabPage.DataContext(), item))
                 {
                     tabControl.SelectedTab = tabPage;
                     break;

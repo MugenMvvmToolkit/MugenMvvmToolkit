@@ -39,17 +39,16 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
         private readonly bool _isCancelable;
         private readonly IViewMappingItem _mapping;
         private readonly NavigationMode _navigationMode;
-        private readonly object _parameter;
+        private readonly string _parameter;
 
         #endregion
 
         #region Constructors
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigatingCancelEventArgs" /> class with the
-        ///     <see cref="P:System.ComponentModel.CancelEventArgs.Cancel" /> property set to false.
+        ///     Initializes a new instance of the <see cref="NavigatingCancelEventArgs" /> class with the <see cref="Cancel" /> property set to false.
         /// </summary>
-        public NavigatingCancelEventArgs(IViewMappingItem mapping, NavigationMode navigationMode, object parameter)
+        public NavigatingCancelEventArgs(IViewMappingItem mapping, NavigationMode navigationMode, string parameter)
         {
             _mapping = mapping;
             _navigationMode = navigationMode;
@@ -73,7 +72,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
         /// <summary>
         ///     Gets any Parameter object passed to the target page for the navigation.
         /// </summary>
-        public object Parameter
+        public string Parameter
         {
             get { return _parameter; }
         }

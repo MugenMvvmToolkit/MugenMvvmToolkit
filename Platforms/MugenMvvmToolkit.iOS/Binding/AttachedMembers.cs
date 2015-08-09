@@ -132,7 +132,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            private UIButton()
+            protected UIButton()
             {
             }
 
@@ -154,7 +154,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            private UIDatePicker()
+            protected UIDatePicker()
             {
             }
 
@@ -176,7 +176,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            private UISwitch()
+            protected UISwitch()
             {
             }
 
@@ -198,7 +198,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            private UITextField()
+            protected UITextField()
             {
             }
 
@@ -220,7 +220,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            private UITextView()
+            protected UITextView()
             {
             }
 
@@ -242,7 +242,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            private UILabel()
+            protected UILabel()
             {
             }
 
@@ -274,7 +274,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            private UITableView()
+            protected UITableView()
             {
             }
 
@@ -315,7 +315,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            private UITableViewCell()
+            protected UITableViewCell()
             {
             }
 
@@ -350,7 +350,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            private UICollectionView()
+            protected UICollectionView()
             {
             }
 
@@ -380,7 +380,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            private UICollectionViewCell()
+            protected UICollectionViewCell()
             {
             }
 
@@ -407,7 +407,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            private UIPickerView()
+            protected UIPickerView()
             {
             }
 
@@ -456,7 +456,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            private UISplitViewController()
+            protected UISplitViewController()
             {
             }
 
@@ -483,7 +483,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            private UITabBarController()
+            protected UITabBarController()
             {
             }
 

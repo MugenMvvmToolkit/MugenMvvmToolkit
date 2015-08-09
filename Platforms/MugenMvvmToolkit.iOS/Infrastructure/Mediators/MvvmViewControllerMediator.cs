@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
             Should.NotBeNull(viewController, "viewController");
             _viewController = ServiceProvider.WeakReferenceFactory(viewController);
             _canDispose = true;
-            var viewModel = viewController.GetDataContext() as IViewModel;
+            var viewModel = viewController.DataContext() as IViewModel;
             if (viewModel == null || !viewModel.Settings.Metadata.Contains(ViewModelConstants.StateNotNeeded))
                 viewController.InititalizeRestorationIdentifier();
         }

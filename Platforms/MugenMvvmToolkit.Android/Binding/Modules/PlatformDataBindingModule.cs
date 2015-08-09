@@ -187,7 +187,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                     return;
                 if (parent == null)
                     parent = GetParent(view);
-                if (parent != null && !Equals(parent.GetDataContext(), context.Value))
+                if (parent != null && !Equals(parent.DataContext(), context.Value))
                 {
                     var viewGroup = parent as ViewGroup;
                     if (viewGroup != null)

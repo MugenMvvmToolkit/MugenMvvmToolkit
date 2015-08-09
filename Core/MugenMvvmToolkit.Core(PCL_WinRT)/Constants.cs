@@ -123,8 +123,6 @@ namespace MugenMvvmToolkit.DataConstants
 
         public static readonly DataConstant<string> ViewName;
 
-        public static readonly DataConstant<IDataContext> Parameters;
-
         public static readonly DataConstant<bool> IsDialog;
 
         public static readonly DataConstant<bool> ClearBackStack;
@@ -142,7 +140,6 @@ namespace MugenMvvmToolkit.DataConstants
             SuppressTabNavigation = DataConstant.Create(() => SuppressTabNavigation);
             ViewModel = DataConstant.Create(() => ViewModel, true);
             ViewName = DataConstant.Create(() => ViewName, false);
-            Parameters = DataConstant.Create(() => Parameters, true);
             IsDialog = DataConstant.Create(() => IsDialog);
             ClearBackStack = DataConstant.Create(() => ClearBackStack);
             UseAnimations = DataConstant.Create(() => UseAnimations);

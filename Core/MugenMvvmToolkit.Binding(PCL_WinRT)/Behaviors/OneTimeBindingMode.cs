@@ -103,10 +103,10 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             IDataBinding binding = Binding;
             if (binding == null || !binding.SourceAccessor.IsAllMembersAvailable() || !binding.TargetAccessor.IsAllMembersAvailable())
                 return;
-            binding.UpdateTarget();
             EventHandler<IBindingSource, ValueChangedEventArgs> handler = OneTimeHandler;
             UnsubscribeSources(handler);
-            Binding.TargetAccessor.Source.ValueChanged -= handler;
+            binding.TargetAccessor.Source.ValueChanged -= handler;
+            binding.UpdateTarget();
             if (_disposeBinding)
                 binding.Dispose();
         }

@@ -31,7 +31,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.iOS.Binding;
 using MugenMvvmToolkit.iOS.Binding.Infrastructure;
 using MugenMvvmToolkit.iOS.Binding.Models;
-using MugenMvvmToolkit.iOS.Binding.Modules;
 using MugenMvvmToolkit.iOS.Infrastructure;
 using MugenMvvmToolkit.iOS.Infrastructure.Mediators;
 using MugenMvvmToolkit.iOS.Interfaces;
@@ -187,7 +186,7 @@ namespace MugenMvvmToolkit.iOS
         {
             if (controller == null)
                 return null;
-            return ServiceProvider.AttachedValueProvider.GetValue<object>(controller, NavParamKey, false);
+            return ServiceProvider.AttachedValueProvider.GetValue<string>(controller, NavParamKey, false);
         }
 
         public static void SetCellBind([NotNull] this UITableView tableView,

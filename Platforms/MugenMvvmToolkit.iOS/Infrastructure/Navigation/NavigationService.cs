@@ -146,7 +146,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
         /// <summary>
         ///     Gets a navigation parameter from event args.
         /// </summary>
-        public virtual object GetParameterFromArgs(EventArgs args)
+        public virtual string GetParameterFromArgs(EventArgs args)
         {
             Should.NotBeNull(args, "args");
             EnsureInitialized();
@@ -193,7 +193,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
         /// <returns>
         ///     <c>true</c> if the content was successfully displayed; otherwise, <c>false</c>.
         /// </returns>
-        public virtual bool Navigate(IViewMappingItem source, object parameter, IDataContext dataContext)
+        public virtual bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, "source");
             EnsureInitialized();
@@ -249,12 +249,14 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
         public virtual bool CanClose(IViewModel viewModel, IDataContext dataContext)
         {
             Should.NotBeNull(viewModel, "viewModel");
+            if (NavigationController == null)
+                return false;
             var controllers = NavigationController.ViewControllers;
             if (controllers == null)
                 return false;
             for (int i = 0; i < controllers.Length; i++)
             {
-                if (controllers[i].GetDataContext() == viewModel)
+                if (controllers[i].DataContext() == viewModel)
                     return true;
             }
             return false;
@@ -274,14 +276,19 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             var controllers = NavigationController.ViewControllers.ToList();
             for (int i = 0; i < controllers.Count; i++)
             {
-                if (controllers[i].GetDataContext() == viewModel)
+                if (controllers[i].DataContext() == viewModel)
                 {
                     controllers.RemoveAt(i);
                     --i;
                 }
             }
             if (NavigationController.ViewControllers.Length != controllers.Count)
+            {
+                var topViewController = NavigationController.TopViewController;
                 NavigationController.SetViewControllers(controllers.ToArray(), animated);
+                if (!ReferenceEquals(NavigationController.TopViewController, topViewController))
+                    DidPopViewController(this, EventArgs.Empty);
+            }
             return true;
         }
 
@@ -345,7 +352,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             var currentContent = CurrentContent;
             if (currentContent == null)
                 return;
-            var dataContext = currentContent.GetDataContext() as IEventPublisher;
+            var dataContext = currentContent.DataContext() as IEventPublisher;
             if (dataContext != null)
                 dataContext.Publish(this, StateChangedMessage.Empty);
         }
@@ -354,7 +361,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
         {
             Should.BeSupported(CanGoBack, "Go back is not supported in current state.");
             bool animated;
-            var viewModel = CurrentContent == null ? null : CurrentContent.GetDataContext() as IViewModel;
+            var viewModel = CurrentContent == null ? null : CurrentContent.DataContext() as IViewModel;
             if (viewModel == null || !viewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out animated))
                 animated = UseAnimations;
             return NavigationController.PopViewController(animated) != null;
@@ -362,10 +369,10 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         private void ShouldPopViewController(object sender, CancelEventArgs args)
         {
-            object parameter = null;
+            string parameter = null;
             var controllers = NavigationController.ViewControllers;
             if (controllers.Length > 1)
-                parameter = controllers[controllers.Length - 2].GetNavigationParameter();
+                parameter = controllers[controllers.Length - 2].GetNavigationParameter() as string;
             args.Cancel = !RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Back, parameter));
         }
 
@@ -374,12 +381,12 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             var controller = NavigationController.TopViewController;
             var view = controller as IViewControllerView;
             if (view == null || view.Mediator.IsAppeared)
-                RaiseNavigated(controller, NavigationMode.Back, controller.GetNavigationParameter());
+                RaiseNavigated(controller, NavigationMode.Back, controller.GetNavigationParameter() as string);
             else
                 view.Mediator.ViewDidAppearHandler += OnViewDidAppearHandlerBack;
         }
 
-        private void RaiseNavigated(object content, NavigationMode mode, object parameter)
+        private void RaiseNavigated(object content, NavigationMode mode, string parameter)
         {
             if (Navigated != null)
                 RaiseNavigated(new NavigationEventArgs(content, parameter, mode));
@@ -401,13 +408,13 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
         private void OnViewDidAppearHandlerBack(UIViewController sender, ValueEventArgs<bool> args)
         {
             ((IViewControllerView)sender).Mediator.ViewDidAppearHandler -= OnViewDidAppearHandlerBack;
-            RaiseNavigated(sender, NavigationMode.Back, sender.GetNavigationParameter());
+            RaiseNavigated(sender, NavigationMode.Back, sender.GetNavigationParameter() as string);
         }
 
         private void OnViewDidAppearHandlerNew(UIViewController sender, ValueEventArgs<bool> args)
         {
             ((IViewControllerView)sender).Mediator.ViewDidAppearHandler -= OnViewDidAppearHandlerNew;
-            RaiseNavigated(sender, NavigationMode.New, sender.GetNavigationParameter());
+            RaiseNavigated(sender, NavigationMode.New, sender.GetNavigationParameter() as string);
         }
 
         #endregion

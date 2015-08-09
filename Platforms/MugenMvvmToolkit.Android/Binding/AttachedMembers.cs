@@ -38,7 +38,7 @@ using Android.Views;
 using ActionBarEx = Android.App.ActionBar;
 using TolbarEx = Android.Widget.Toolbar;
 namespace MugenMvvmToolkit.Android.Binding
-{//TODO PROTECTED
+{
     public static class AttachedMembers
 #endif
     {

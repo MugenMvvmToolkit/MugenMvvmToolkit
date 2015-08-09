@@ -423,7 +423,7 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         private static void RegisterDefaultMembers()
         {
-            ViewManager.GetDataContext = BindingExtensions.GetDataContext;
+            ViewManager.GetDataContext = BindingExtensions.DataContext;
             ViewManager.SetDataContext = BindingExtensions.SetDataContext;
 
             var memberProvider = BindingServiceProvider.MemberProvider;

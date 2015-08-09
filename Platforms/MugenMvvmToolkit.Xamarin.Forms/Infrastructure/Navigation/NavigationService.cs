@@ -105,7 +105,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             if (_rootPage != null)
             {
                 bool animated;
-                var viewModel = CurrentContent == null ? null : CurrentContent.GetDataContext() as IViewModel;
+                var viewModel = CurrentContent == null ? null : CurrentContent.DataContext() as IViewModel;
                 if (viewModel == null || !viewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out animated))
                     animated = UseAnimations;
                 _rootPage.PopAsync(animated);
@@ -141,14 +141,14 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
             var currentPage = CurrentContent as Page;
             _threadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, currentPage,
-                (service, p) => service.RaiseNavigated(p, p.GetNavigationParameter(), NavigationMode.New),
+                (service, p) => service.RaiseNavigated(p, p.GetNavigationParameter() as string, NavigationMode.New),
                 OperationPriority.Low);
         }
 
         /// <summary>
         ///     Gets a navigation parameter from event args.
         /// </summary>
-        public object GetParameterFromArgs(EventArgs args)
+        public string GetParameterFromArgs(EventArgs args)
         {
             Should.NotBeNull(args, "args");
             var cancelArgs = args as NavigatingCancelEventArgs;
@@ -196,7 +196,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
         /// <returns>
         ///     <c>true</c> if the content was successfully displayed; otherwise, <c>false</c>.
         /// </returns>
-        public bool Navigate(IViewMappingItem source, object parameter, IDataContext dataContext)
+        public bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, "source");
             if (_rootPage == null)
@@ -236,7 +236,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                 return false;
             foreach (var page in navigation.NavigationStack)
             {
-                if (page.GetDataContext() == viewModel)
+                if (page.DataContext() == viewModel)
                     return true;
             }
             return false;
@@ -248,7 +248,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
         public bool TryClose(IViewModel viewModel, IDataContext dataContext)
         {
             Should.NotBeNull(viewModel, "viewModel");
-            if (CurrentContent != null && CurrentContent.GetDataContext() == viewModel)
+            if (CurrentContent != null && CurrentContent.DataContext() == viewModel)
             {
                 GoBack();
                 return true;
@@ -289,12 +289,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
         private void OnPopped(object sender, NavigationEventArgs args)
         {
             var page = CurrentContent as Page;
-            RaiseNavigated(CurrentContent, page.GetNavigationParameter(), NavigationMode.Back);
+            RaiseNavigated(CurrentContent, page.GetNavigationParameter() as string, NavigationMode.Back);
         }
 
         private void OnPushed(object sender, NavigationEventArgs args)
         {
-            RaiseNavigated(args.Page, args.Page.GetNavigationParameter(), NavigationMode.New);
+            RaiseNavigated(args.Page, args.Page.GetNavigationParameter() as string, NavigationMode.New);
         }
 
         private bool RaiseNavigating(NavigatingCancelEventArgs args)
@@ -306,7 +306,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             return !args.Cancel;
         }
 
-        private void RaiseNavigated(object page, object parameter, NavigationMode mode)
+        private void RaiseNavigated(object page, string parameter, NavigationMode mode)
         {
             var handler = Navigated;
             if (handler != null)

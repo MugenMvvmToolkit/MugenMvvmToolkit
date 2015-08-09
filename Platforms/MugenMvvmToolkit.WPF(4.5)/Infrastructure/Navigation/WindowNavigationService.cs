@@ -146,7 +146,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
         /// <summary>
         ///     Gets a navigation parameter from event args.
         /// </summary>
-        public object GetParameterFromArgs(EventArgs args)
+        public string GetParameterFromArgs(EventArgs args)
         {
             Should.NotBeNull(args, "args");
             var cancelEventArgs = args as NavigatingCancelEventArgsWrapper;
@@ -155,9 +155,9 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
                 var eventArgs = args as NavigationEventArgsWrapper;
                 if (eventArgs == null)
                     return null;
-                return eventArgs.Args.ExtraData;
+                return eventArgs.Args.ExtraData as string;
             }
-            return cancelEventArgs.Args.ExtraData;
+            return cancelEventArgs.Args.ExtraData as string;
         }
 
         /// <summary>
@@ -176,7 +176,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
         /// <returns>
         ///     <c>true</c> if the content was successfully displayed; otherwise, <c>false</c>.
         /// </returns>
-        public bool Navigate(IViewMappingItem source, object parameter, IDataContext dataContext)
+        public bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, "source");
             var result = NavigateInternal(source, parameter);

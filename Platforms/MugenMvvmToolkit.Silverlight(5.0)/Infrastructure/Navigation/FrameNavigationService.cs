@@ -23,7 +23,6 @@ using System.Windows.Controls;
 using System.Windows.Navigation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -51,8 +50,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
         #region Fields
 
         private readonly Frame _frame;
-        private readonly ISerializer _serializer;
-        private const string UriParameterSerializer = "viewmodelparameterdata";
         private const string UriParameterString = "viewmodelparameter";
 
         #endregion
@@ -62,11 +59,10 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
         /// <summary>
         ///     Initializes a new instance of the <see cref="FrameNavigationService" /> class.
         /// </summary>
-        public FrameNavigationService([NotNull] Frame frame, ISerializer serializer)
+        public FrameNavigationService([NotNull] Frame frame)
         {
             Should.NotBeNull(frame, "frame");
             _frame = frame;
-            _serializer = serializer;
             _frame.Navigating += OnNavigating;
             _frame.Navigated += OnNavigated;
         }
@@ -95,15 +91,12 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
                 handler(this, new NavigatingCancelEventArgsWrapper(args));
         }
 
-        private object GetParameter(Uri uri)
+        private static string GetParameter(Uri uri)
         {
             IDictionary<string, string> parameters = uri.GetUriParameters();
             string value;
-            if (parameters.TryGetValue(UriParameterString, out value))
-                return value;
-            if (!parameters.TryGetValue(UriParameterSerializer, out value))
-                return null;
-            return _serializer.Deserialize<object>(value);
+            parameters.TryGetValue(UriParameterString, out value);
+            return value;
         }
 
         #endregion
@@ -167,7 +160,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
         /// <summary>
         ///     Gets a navigation parameter from event args.
         /// </summary>
-        public object GetParameterFromArgs(EventArgs args)
+        public string GetParameterFromArgs(EventArgs args)
         {
             Should.NotBeNull(args, "args");
             var cancelArgs = args as NavigatingCancelEventArgsWrapper;
@@ -207,7 +200,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
         /// <returns>
         ///     <c>true</c> if the content was successfully displayed; otherwise, <c>false</c>.
         /// </returns>
-        public bool Navigate(IViewMappingItem source, object parameter, IDataContext dataContext)
+        public bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, "source");
             bool result = NavigateInternal(source, parameter);
@@ -266,20 +259,15 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             return _frame.Navigate(originalArgs.Uri);
         }
 
-        private bool NavigateInternal(IViewMappingItem source, object parameter)
+        private bool NavigateInternal(IViewMappingItem source, string parameter)
         {
             Uri uri = source.Uri;
-            if (parameter != null)
+            if (!string.IsNullOrEmpty(parameter))
             {
-                var s = parameter as string;
-                KeyValuePair<string, string> uriParameter = s == null
-                    ? new KeyValuePair<string, string>(UriParameterSerializer,
-                        _serializer.SerializeToBase64String(parameter))
-                    : new KeyValuePair<string, string>(UriParameterString, s);
                 uri =
                     uri.MergeUri(new[]
                     {
-                        uriParameter,
+                        new KeyValuePair<string, string>(UriParameterString, parameter),
                         new KeyValuePair<string, string>("_timestamp",
                             DateTime.UtcNow.Ticks.ToString(CultureInfo.InvariantCulture))
                     });

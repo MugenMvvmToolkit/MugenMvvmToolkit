@@ -650,8 +650,20 @@ namespace MugenMvvmToolkit.Binding
             return eventMember.TryRaise(source, message ?? EventArgs.Empty);
         }
 
-        [BindingSyntaxMember(AttachedMemberConstants.DataContext)]
-        public static object GetDataContext<TSource>(this TSource source)
+        /// <summary>
+        ///     Gets the current data context for the specified item.
+        /// </summary>
+        [BindingSyntaxMember]
+        public static T DataContext<T>(this object item)
+        {
+            return (T)item.DataContext();
+        }
+
+        /// <summary>
+        ///     Gets the current data context for the specified item.
+        /// </summary>
+        [BindingSyntaxMember]
+        public static object DataContext<TSource>(this TSource source)
             where TSource : class
         {
             return BindingServiceProvider.ContextManager.GetBindingContext(source).Value;

@@ -88,15 +88,6 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
         }
 
         /// <summary>
-        ///     Gets the current data context for the specified item.
-        /// </summary>
-        [BindingSyntaxMember]
-        public static T DataContext<T>(this object item)
-        {
-            return (T)item.GetDataContext();
-        }
-
-        /// <summary>
         ///     Gets a relative element by type.
         /// </summary>
         public static T Relative<T>()

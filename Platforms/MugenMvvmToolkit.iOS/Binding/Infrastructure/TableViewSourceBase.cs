@@ -230,7 +230,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                 return false;
             if (HasMask(cell, InitializingStateMask))
             {
-                if (Equals(cell.GetDataContext(), SelectedItem))
+                if (Equals(cell.DataContext(), SelectedItem))
                     return true;
                 return selected && SelectedItem == null;
             }
@@ -243,7 +243,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             if (!setFromBinding || tableView == null)
                 return;
 
-            UpdateSelectedItemInternal(tableView, cell.GetDataContext(), selected);
+            UpdateSelectedItemInternal(tableView, cell.DataContext(), selected);
             var path = IndexPathForCell(tableView, cell);
             if (path == null)
                 return;
@@ -368,9 +368,10 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public override bool CanMoveRow(UITableView tableView, NSIndexPath indexPath)
         {
-            return CellAt(tableView, indexPath)
-                .GetBindingMemberValue(AttachedMembers.UITableViewCell.Moveable)
-                .GetValueOrDefault();
+            bool? value;
+            CellAt(tableView, indexPath)
+                .TryGetBindingMemberValue(AttachedMembers.UITableViewCell.Moveable, out value);
+            return value.GetValueOrDefault();
         }
 
         public override void CommitEditingStyle(UITableView tableView, UITableViewCellEditingStyle editingStyle,
@@ -411,15 +412,18 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public override string TitleForDeleteConfirmation(UITableView tableView, NSIndexPath indexPath)
         {
-            return CellAt(tableView, indexPath)
-                .GetBindingMemberValue(AttachedMembers.UITableViewCell.TitleForDeleteConfirmation) ?? "Delete";
+            string value;
+            CellAt(tableView, indexPath)
+                .TryGetBindingMemberValue(AttachedMembers.UITableViewCell.TitleForDeleteConfirmation, out value);
+            return value ?? "Delete";
         }
 
         public override UITableViewCellEditingStyle EditingStyleForRow(UITableView tableView, NSIndexPath indexPath)
         {
-            return CellAt(tableView, indexPath)
-                .GetBindingMemberValue(AttachedMembers.UITableViewCell.EditingStyle)
-                .GetValueOrDefault(UITableViewCellEditingStyle.None);
+            UITableViewCellEditingStyle? value;
+            CellAt(tableView, indexPath)
+                .TryGetBindingMemberValue(AttachedMembers.UITableViewCell.EditingStyle, out value);
+            return value.GetValueOrDefault(UITableViewCellEditingStyle.None);
         }
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
@@ -479,9 +483,10 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public override bool ShouldHighlightRow(UITableView tableView, NSIndexPath rowIndexPath)
         {
-            return CellAt(tableView, rowIndexPath)
-                .GetBindingMemberValue(AttachedMembers.UITableViewCell.ShouldHighlight)
-                .GetValueOrDefault(true);
+            bool? value;
+            CellAt(tableView, rowIndexPath)
+                .TryGetBindingMemberValue(AttachedMembers.UITableViewCell.ShouldHighlight, out value);
+            return value.GetValueOrDefault(true);
         }
 
         public override void RowSelected(UITableView tableView, NSIndexPath indexPath)

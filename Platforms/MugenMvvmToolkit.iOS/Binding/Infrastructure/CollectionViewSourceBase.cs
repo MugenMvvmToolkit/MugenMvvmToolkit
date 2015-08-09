@@ -141,7 +141,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                 return false;
             if (HasMask(cell, InitializingStateMask))
             {
-                if (Equals(cell.GetDataContext(), SelectedItem))
+                if (Equals(cell.DataContext(), SelectedItem))
                     return true;
                 return selected && SelectedItem == null;
             }
@@ -153,7 +153,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             var collectionView = CollectionView;
             if (!setFromBinding || collectionView == null)
                 return;
-            UpdateSelectedItemInternal(collectionView, cell.GetDataContext(), selected);
+            UpdateSelectedItemInternal(collectionView, cell.DataContext(), selected);
             var path = IndexPathForCell(collectionView, cell);
             if (path == null)
                 return;
@@ -303,23 +303,26 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public override bool ShouldDeselectItem(UICollectionView collectionView, NSIndexPath indexPath)
         {
-            return CellForItem(collectionView, indexPath)
-                .GetBindingMemberValue(AttachedMembers.UICollectionViewCell.ShouldDeselect)
-                .GetValueOrDefault(true);
+            bool? value;
+            CellForItem(collectionView, indexPath)
+                .TryGetBindingMemberValue(AttachedMembers.UICollectionViewCell.ShouldDeselect, out value);
+            return value.GetValueOrDefault(true);
         }
 
         public override bool ShouldHighlightItem(UICollectionView collectionView, NSIndexPath indexPath)
         {
-            return CellForItem(collectionView, indexPath)
-                .GetBindingMemberValue(AttachedMembers.UICollectionViewCell.ShouldHighlight)
-                .GetValueOrDefault(true);
+            bool? value;
+            CellForItem(collectionView, indexPath)
+                .TryGetBindingMemberValue(AttachedMembers.UICollectionViewCell.ShouldHighlight, out value);
+            return value.GetValueOrDefault(true);
         }
 
         public override bool ShouldSelectItem(UICollectionView collectionView, NSIndexPath indexPath)
         {
-            return CellForItem(collectionView, indexPath)
-                .GetBindingMemberValue(AttachedMembers.UICollectionViewCell.ShouldSelect)
-                .GetValueOrDefault(true);
+            bool? value;
+            CellForItem(collectionView, indexPath)
+                .TryGetBindingMemberValue(AttachedMembers.UICollectionViewCell.ShouldSelect, out value);
+            return value.GetValueOrDefault(true);
         }
 
         protected override void Dispose(bool disposing)

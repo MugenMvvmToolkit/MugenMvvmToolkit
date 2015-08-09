@@ -31,7 +31,7 @@ namespace MugenMvvmToolkit.Android.Models.EventArg
 
         private readonly object _content;
         private readonly NavigationMode _navigationMode;
-        private readonly object _parameter;
+        private readonly string _parameter;
 
         #endregion
 
@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Android.Models.EventArg
         /// <summary>
         ///     Initializes a new instance of the <see cref="NavigationEventArgs" /> class.
         /// </summary>
-        public NavigationEventArgs([NotNull] object content, object parameter, NavigationMode navigationMode)
+        public NavigationEventArgs([NotNull] object content, string parameter, NavigationMode navigationMode)
         {
             _content = content;
             _navigationMode = navigationMode;
@@ -54,7 +54,7 @@ namespace MugenMvvmToolkit.Android.Models.EventArg
         /// <summary>
         ///     Gets any Parameter object passed to the target page for the navigation.
         /// </summary>
-        public object Parameter
+        public string Parameter
         {
             get { return _parameter; }
         }

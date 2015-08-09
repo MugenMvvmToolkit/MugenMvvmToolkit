@@ -137,7 +137,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
                 using (Stream stream = _serializer.Serialize(navigationParameter))
                     state.Encode(stream.ToArray(), ParameterStateKey);
             }
-            var viewModel = item.GetDataContext() as IViewModel;
+            var viewModel = item.DataContext() as IViewModel;
             if (viewModel != null)
             {
                 state.Encode(new NSString(viewModel.GetType().AssemblyQualifiedName), VmTypeKey);
@@ -159,7 +159,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             if (vmTypeName == null)
                 return;
 
-            object dataContext = item.GetDataContext();
+            object dataContext = item.DataContext();
             var vmType = Type.GetType(vmTypeName, false);
             if (vmType != null && (dataContext == null || !dataContext.GetType().Equals(vmType)))
             {

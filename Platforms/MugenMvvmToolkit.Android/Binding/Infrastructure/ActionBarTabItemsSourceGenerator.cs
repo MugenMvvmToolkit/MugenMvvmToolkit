@@ -154,7 +154,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             for (int i = 0; i < _actionBar.TabCount; i++)
             {
                 var tab = _actionBar.GetTabAt(i);
-                if (tab.GetDataContext() == selectedItem)
+                if (tab.DataContext() == selectedItem)
                 {
                     if (tab.Position != _actionBar.SelectedNavigationIndex)
                         tab.Select();

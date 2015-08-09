@@ -55,7 +55,8 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected void SubscribeTarget()
         {
-            Binding.TargetAccessor.Source.ValueChanged += TargetOnValueChanged;
+            if (Binding != null)
+                Binding.TargetAccessor.Source.ValueChanged += TargetOnValueChanged;
         }
 
         /// <summary>
@@ -63,7 +64,8 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected void UnsubscribeTarget()
         {
-            Binding.TargetAccessor.Source.ValueChanged -= TargetOnValueChanged;
+            if (Binding != null)
+                Binding.TargetAccessor.Source.ValueChanged -= TargetOnValueChanged;
         }
 
         /// <summary>
@@ -87,7 +89,8 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected void SubscribeSources(EventHandler<IBindingSource, ValueChangedEventArgs> handler)
         {
-            SubscribeInternal(Binding.SourceAccessor, handler, true);
+            if (Binding != null)
+                SubscribeInternal(Binding.SourceAccessor, handler, true);
         }
 
         /// <summary>
@@ -95,7 +98,8 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected void UnsubscribeSources(EventHandler<IBindingSource, ValueChangedEventArgs> handler)
         {
-            SubscribeInternal(Binding.SourceAccessor, handler, false);
+            if (Binding != null)
+                SubscribeInternal(Binding.SourceAccessor, handler, false);
         }
 
         /// <summary>

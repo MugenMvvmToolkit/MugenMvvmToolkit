@@ -212,6 +212,18 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 
         #region Methods
 
+#if !XAMARIN_FORMS
+        private static FrameworkElement FindFirstFrameworkElement(object target)
+        {
+            var currentElement = target as FrameworkElement;
+            while (target != null && currentElement == null)
+            {
+                target = BindingServiceProvider.VisualTreeManager.FindParent(target);
+                currentElement = target as FrameworkElement;
+            }
+            return currentElement;
+        }
+#endif
         /// <summary>
         ///     Tries to find a resource by key.
         /// </summary>
@@ -233,7 +245,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
             return null;
 #else
             var application = Application.Current;
-            var currentElement = target as FrameworkElement;
+            var currentElement = FindFirstFrameworkElement(target);
 #if WPF
             if (currentElement == null)
             {

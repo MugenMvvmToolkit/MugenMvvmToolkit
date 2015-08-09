@@ -148,7 +148,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         [CanBeNull]
         protected virtual INavigationService CreateNavigationService(PhoneApplicationFrame frame)
         {
-            return new FrameNavigationService(frame, IocContainer.Get<ISerializer>());
+            return new FrameNavigationService(frame);
         }
 
         private void OnLaunching(object sender, LaunchingEventArgs args)

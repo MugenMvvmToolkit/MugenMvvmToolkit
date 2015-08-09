@@ -26,11 +26,11 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         public Action GoBack { get; set; }
 
-        public Func<EventArgs, object> GetParameterFromArgs { get; set; }
+        public Func<EventArgs, string> GetParameterFromArgs { get; set; }
 
         public Func<NavigatingCancelEventArgsBase, bool> NavigateArgs { get; set; }
 
-        public Func<IViewMappingItem, object, IDataContext, bool> Navigate { get; set; }
+        public Func<IViewMappingItem, string, IDataContext, bool> Navigate { get; set; }
 
         public Func<IViewModel, IDataContext, bool> TryClose { get; set; }
         public Func<IViewModel, IDataContext, bool> CanClose { get; set; }
@@ -72,7 +72,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         }
 #endif
 
-        object INavigationService.GetParameterFromArgs(EventArgs args)
+        string INavigationService.GetParameterFromArgs(EventArgs args)
         {
             if (GetParameterFromArgs == null)
                 return null;
@@ -86,7 +86,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             return NavigateArgs(args);
         }
 
-        bool INavigationService.Navigate(IViewMappingItem source, object parameter, IDataContext dataContext)
+        bool INavigationService.Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             if (Navigate == null)
                 return false;

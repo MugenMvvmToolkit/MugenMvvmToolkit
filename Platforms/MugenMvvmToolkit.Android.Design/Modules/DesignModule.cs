@@ -126,7 +126,7 @@ namespace MugenMvvmToolkit.Android.Design.Modules
             for (int i = 0; i < tabLayout.TabCount; i++)
             {
                 var tab = tabLayout.GetTabAt(i);
-                if (tab.GetDataContext() == selectedItem)
+                if (tab.DataContext() == selectedItem)
                 {
                     if (tab.Position != tabLayout.SelectedTabPosition)
                         tab.Select();
@@ -140,7 +140,7 @@ namespace MugenMvvmToolkit.Android.Design.Modules
             var p = tabLayout.SelectedTabPosition;
             if (p < 0)
                 return null;
-            return tabLayout.GetTabAt(p).GetDataContext();
+            return tabLayout.GetTabAt(p).DataContext();
         }
 
         private static void TabLayoutItemsSourceChanged(TabLayout view, AttachedMemberChangedEventArgs<IEnumerable> args)

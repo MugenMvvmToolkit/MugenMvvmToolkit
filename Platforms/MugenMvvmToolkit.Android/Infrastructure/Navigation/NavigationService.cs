@@ -17,18 +17,14 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using Android.App;
 using Android.Content;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Infrastructure.Mediators;
 using MugenMvvmToolkit.Android.Interfaces.Navigation;
 using MugenMvvmToolkit.Android.Models.EventArg;
 using MugenMvvmToolkit.Android.Views.Activities;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -40,26 +36,11 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
     {
         #region Fields
 
-        private const string ParameterSerializer = "viewmodelparameterdata";
         private const string ParameterString = "viewmodelparameter";
 
-        private readonly ISerializer _serializer;
         private bool _isBack;
         private bool _isNew;
-        private object _parameter;
-
-        #endregion
-
-        #region Constructors
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigationService" /> class.
-        /// </summary>
-        public NavigationService([NotNull] ISerializer serializer)
-        {
-            Should.NotBeNull(serializer, "serializer");
-            _serializer = serializer;
-        }
+        private string _parameter;
 
         #endregion
 
@@ -82,25 +63,18 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         /// <summary>
         ///     Invokes the <see cref="Navigated" /> event.
         /// </summary>
-        protected virtual void RaiseNavigated(object content, NavigationMode mode, object parameter)
+        protected virtual void RaiseNavigated(object content, NavigationMode mode, string parameter)
         {
             EventHandler<INavigationService, NavigationEventArgsBase> handler = Navigated;
             if (handler != null)
                 handler(this, new NavigationEventArgs(content, parameter, mode));
         }
 
-        private object GetParameterFromIntent(Intent intent)
+        private static string GetParameterFromIntent(Intent intent)
         {
             if (intent == null)
                 return null;
-            string value = intent.GetStringExtra(ParameterString);
-            if (value != null)
-                return value;
-            byte[] bytes = intent.GetByteArrayExtra(ParameterSerializer);
-            if (bytes == null)
-                return null;
-            using (var ms = new MemoryStream(bytes))
-                return _serializer.Deserialize(ms);
+            return intent.GetStringExtra(ParameterString);
         }
 
         /// <summary>
@@ -220,7 +194,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         /// <summary>
         ///     Gets a navigation parameter from event args.
         /// </summary>
-        public virtual object GetParameterFromArgs(EventArgs args)
+        public virtual string GetParameterFromArgs(EventArgs args)
         {
             Should.NotBeNull(args, "args");
             var cancelArgs = args as NavigatingCancelEventArgs;
@@ -269,7 +243,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         /// <returns>
         ///     <c>true</c> if the content was successfully displayed; otherwise, <c>false</c>.
         /// </returns>
-        public virtual bool Navigate(IViewMappingItem source, object parameter, IDataContext dataContext)
+        public virtual bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, "source");
             if (!RaiseNavigating(new NavigatingCancelEventArgs(source, NavigationMode.New, parameter)))
@@ -294,16 +268,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 dataContext.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
             }
             if (parameter != null)
-            {
-                var s = parameter as string;
-                if (s == null)
-                {
-                    using (Stream stream = _serializer.Serialize(parameter))
-                        intent.PutExtra(ParameterSerializer, stream.ToArray());
-                }
-                else
-                    intent.PutExtra(ParameterString, s);
-            }
+                intent.PutExtra(ParameterString, parameter);
             _isNew = true;
             _parameter = parameter;
             StartActivity(context, intent, dataContext);
@@ -324,7 +289,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         public virtual bool TryClose(IViewModel viewModel, IDataContext dataContext)
         {
             Should.NotBeNull(viewModel, "viewModel");
-            if (CurrentContent != null && CurrentContent.GetDataContext() == viewModel)
+            if (CurrentContent != null && CurrentContent.DataContext() == viewModel)
             {
                 GoBack();
                 //Ignore close just in case there backstack fragments.

@@ -688,7 +688,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                         {
                             object ctx = actionBar.SelectedNavigationIndex < 0 ? null : actionBar.SelectedTab;
                             if (ctx != null)
-                                ctx = ctx.GetDataContext();
+                                ctx = ctx.DataContext();
                             args.Member.SetValue(actionBar, new[] { ctx });
                         }
                         else
