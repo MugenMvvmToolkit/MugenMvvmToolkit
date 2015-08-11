@@ -13,12 +13,15 @@ The Mugen MVVM Toolkit provides a cross-platform MVVM development framework buil
  - Xamarin.Forms
  - WinRT XAML framework for Windows 8 Store apps
  
-#Links:
+#Questions & support
+We have a [group on Slack](http://www.mugenmvvmtoolkit.com/) where we can answer your questions.
+
+#Links
  - [Nuget](http://www.nuget.org/packages?q=MugenMvvmToolkit)
  - [Samples](https://github.com/MugenMvvmToolkit/MugenMvvmToolkit.Samples)
  - [MugenMvvmToolkit.Fody plugin repository](https://github.com/MugenMvvmToolkit/MugenMvvmToolkit.Fody)
 
-#Features:
+#Features
 The MVVM framework includes the following features that differs this project from other frameworks:
  - Deep integration with each platform.
  - Supports state preservation and restoration for mobile platforms.
