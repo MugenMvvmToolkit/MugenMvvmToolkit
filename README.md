@@ -14,7 +14,7 @@ The Mugen MVVM Toolkit provides a cross-platform MVVM development framework buil
  - WinRT XAML framework for Windows 8 Store apps
  
 #Questions & support
-We have a [group on Slack](http://www.mugenmvvmtoolkit.com/) where we can answer your questions.
+We have a [group on Slack](http://www.mugenmvvmtoolkit.com/) where we will be glad to answer your questions.
 
 #Links
  - [Nuget](http://www.nuget.org/packages?q=MugenMvvmToolkit)
