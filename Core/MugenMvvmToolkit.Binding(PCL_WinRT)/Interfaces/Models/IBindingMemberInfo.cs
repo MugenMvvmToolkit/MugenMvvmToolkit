@@ -58,9 +58,14 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
         bool CanRead { get; }
 
         /// <summary>
-        ///     Gets a value indicating whether the property can be written to.
+        ///     Gets a value indicating whether the member can be written to.
         /// </summary>
         bool CanWrite { get; }
+
+        /// <summary>
+        ///     Gets a value indicating whether the member can be observed.
+        /// </summary>
+        bool CanObserve { get; }
 
         /// <summary>
         ///     Returns the member value of a specified object.

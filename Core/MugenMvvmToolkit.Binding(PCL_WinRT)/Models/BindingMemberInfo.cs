@@ -140,6 +140,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
         private readonly bool _canRead;
         private readonly bool _canWrite;
+        private readonly bool _canObserve;
         private readonly bool _isDataContext;
         private readonly bool _isDynamic;
         private readonly bool _isSingleParameter;
@@ -152,7 +153,7 @@ namespace MugenMvvmToolkit.Binding.Models
         private readonly BindingMemberType _memberType;
         private readonly string _path;
         private readonly Type _type;
-
+        private readonly IBindingMemberInfo _observableMember;
         private readonly IBindingMemberInfo _memberEvent;
 
         #endregion
@@ -205,6 +206,7 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             if (memberType == BindingMemberType.BindingContext)
             {
+                _canObserve = true;
                 _isDataContext = true;
                 _getValueAccessorSingle = o => BindingServiceProvider.ContextManager.GetBindingContext(o).Value;
                 _setValueAccessorSingle = (o, arg) => BindingServiceProvider.ContextManager.GetBindingContext(o).Value = arg;
@@ -251,6 +253,7 @@ namespace MugenMvvmToolkit.Binding.Models
             _canWrite = true;
             _isSingleParameter = true;
             _memberEvent = BindingServiceProvider.UpdateEventFinder(sourceType, field.Name);
+            _canObserve = _memberEvent != null;
         }
 
         /// <summary>
@@ -284,17 +287,22 @@ namespace MugenMvvmToolkit.Binding.Models
             }
             _isSingleParameter = true;
             _memberEvent = BindingServiceProvider.UpdateEventFinder(sourceType, property.Name);
+            _canObserve = _memberEvent != null;
         }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="BindingMemberInfo" /> class.
         /// </summary>
-        public BindingMemberInfo(string path, EventInfo @event)
-            : this(path, BindingMemberType.Event, @event.EventHandlerType)
+        public BindingMemberInfo(string path, EventInfo @event, IBindingMemberInfo observableMember)
+            : this(path, BindingMemberType.Event, @event == null ? typeof(Delegate) : @event.EventHandlerType)
         {
             _member = @event;
+            _observableMember = observableMember;
             _getValueAccessorSingle = GetBindingMemberValue;
-            _setValueAccessorSingle = SetEventValue;
+            if (@event == null)
+                _setValueAccessorSingle = SetObservableMemberEventValue;
+            else
+                _setValueAccessorSingle = SetEventValue;
             _canRead = true;
             _canWrite = true;
             _isSingleParameter = true;
@@ -312,7 +320,6 @@ namespace MugenMvvmToolkit.Binding.Models
             var arrayAccessor = new ArrayAccessor(indexes);
             _getValueAccessorSingle = arrayAccessor.GetValue;
             _setValueAccessorSingleAction = arrayAccessor.SetValue;
-
             _canRead = true;
             _canWrite = true;
             _isSingleParameter = true;
@@ -352,6 +359,7 @@ namespace MugenMvvmToolkit.Binding.Models
                     _setValueAccessor = accessor.SetValueIndex;
                 }
                 _isDynamic = true;
+                _canObserve = true;
             }
             _canRead = true;
             _canWrite = true;
@@ -407,6 +415,14 @@ namespace MugenMvvmToolkit.Binding.Models
         public bool CanWrite
         {
             get { return _canWrite; }
+        }
+
+        /// <summary>
+        ///     Gets a value indicating whether the member can be observed to.
+        /// </summary>
+        public bool CanObserve
+        {
+            get { return _canObserve; }
         }
 
         /// <summary>
@@ -472,6 +488,14 @@ namespace MugenMvvmToolkit.Binding.Models
         private object GetBindingMemberValue(object o)
         {
             return new BindingActionValue(o, this);
+        }
+
+        private object SetObservableMemberEventValue(object o, object arg)
+        {
+            var listener = arg as IEventListener;
+            if (listener == null)
+                throw BindingExceptionManager.BindingMemberMustBeWriteable(this);
+            return _observableMember.TryObserve(o, listener);
         }
 
         private object SetEventValue(object o, object arg)

@@ -71,6 +71,7 @@ namespace MugenMvvmToolkit.Binding.Models
             private readonly MemberInfo _member;
             private readonly bool _canRead;
             private readonly bool _canWrite;
+            private readonly bool _canObserve;
             private readonly string _id;
             private readonly bool _isAttachedProperty;
 
@@ -133,6 +134,7 @@ namespace MugenMvvmToolkit.Binding.Models
                 _memberType = memberType ?? BindingMemberType.Attached;
                 _canRead = getValue != null || getValueSimple != null;
                 _canWrite = setValue != null || setValueSimple != null;
+                _canObserve = _observeMemberDelegate != null;
                 _id = MemberPrefix + Interlocked.Increment(ref _counter).ToString() + "." + path;
             }
 
@@ -186,6 +188,14 @@ namespace MugenMvvmToolkit.Binding.Models
             public bool CanWrite
             {
                 get { return _canWrite; }
+            }
+
+            /// <summary>
+            ///     Gets a value indicating whether the member can be observed.
+            /// </summary>
+            public bool CanObserve
+            {
+                get { return _canObserve; }
             }
 
             /// <summary>

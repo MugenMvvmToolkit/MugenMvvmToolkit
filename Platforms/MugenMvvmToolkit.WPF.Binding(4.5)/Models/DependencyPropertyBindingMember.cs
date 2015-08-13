@@ -361,11 +361,19 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
         }
 
         /// <summary>
-        ///     Gets a value indicating whether the property can be written to.
+        ///     Gets a value indicating whether the member can be written to.
         /// </summary>
         public bool CanWrite
         {
             get { return _canWrite; }
+        }
+
+        /// <summary>
+        ///     Gets a value indicating whether the member can be observed.
+        /// </summary>
+        public bool CanObserve
+        {
+            get { return true; }
         }
 
         /// <summary>

@@ -586,6 +586,8 @@ namespace MugenMvvmToolkit.Android
 
         internal static object GetOrCreateView(IViewModel vm, bool? alwaysCreateNewView, IDataContext dataContext = null)
         {
+            if (vm == null)
+                return null;
             //NOTE: trying to use current fragment, if any.
             var fragment = vm.Settings.Metadata.GetData(FragmentConstant, false);
             if (fragment == null)

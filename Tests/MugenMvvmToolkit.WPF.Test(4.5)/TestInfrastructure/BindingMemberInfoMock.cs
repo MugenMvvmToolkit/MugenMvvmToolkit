@@ -64,6 +64,11 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         public bool CanWrite { get; set; }
 
         /// <summary>
+        ///     Gets a value indicating whether the member can be observed.
+        /// </summary>
+        public bool CanObserve { get; set; }
+
+        /// <summary>
         ///     Returns the member value of a specified object.
         /// </summary>
         /// <param name="source">The object whose member value will be returned.</param>

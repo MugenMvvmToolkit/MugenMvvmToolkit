@@ -163,10 +163,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         ///     Starts the current bootstrapper.
         /// </summary>
         public virtual void Start()
-        {
-            var mainViewModelType = GetMainViewModelType();
-            Initialize();
-            CreateMainViewModel(mainViewModelType)
+        {            
+            Initialize();			
+            CreateMainViewModel(GetMainViewModelType())
                 .ShowAsync((model, result) => model.Dispose(), null, InitializationContext);
         }
 

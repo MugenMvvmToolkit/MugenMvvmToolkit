@@ -526,6 +526,28 @@ namespace MugenMvvmToolkit.iOS.Binding
             #endregion
         }
 
+        public class UIBarButtonItem : AttachedMembers.Object
+        {
+            #region Fields
+
+            public static readonly BindingMemberDescriptor<UIKit.UIBarButtonItem, IEventListener> ClickEvent;
+
+            #endregion
+
+            #region Constructors
+
+            static UIBarButtonItem()
+            {
+                ClickEvent = new BindingMemberDescriptor<UIKit.UIBarButtonItem, IEventListener>("Clicked");
+            }
+
+            protected UIBarButtonItem()
+            {
+            }
+
+            #endregion
+        }
+
         #endregion
     }
 }
