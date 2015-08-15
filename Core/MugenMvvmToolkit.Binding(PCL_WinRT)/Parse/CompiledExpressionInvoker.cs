@@ -327,7 +327,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 : binding.TargetAccessor.Source.GetPathMembers(false).LastMember.Type;
             var converter = BindingServiceProvider.ResourceResolver.ResolveConverter(methodName, context, true);
             return converter.Convert(items[0], targetType, items.Length > 1 ? items[1] : null,
-                items.Length > 2 ? (CultureInfo)items[2] : CultureInfo.CurrentCulture, context);
+                items.Length > 2 ? (CultureInfo)items[2] : BindingServiceProvider.BindingCultureInfo(), context);
         }
 
         protected virtual Func<object[], object> CreateDelegate()

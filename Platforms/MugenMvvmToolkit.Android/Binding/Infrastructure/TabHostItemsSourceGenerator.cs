@@ -138,6 +138,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         private readonly TabFactory _tabFactory;
         private readonly Dictionary<string, TabInfo> _tabToContent;
         private readonly IBindingMemberInfo _selectedItemMember;
+        private readonly IBindingMemberInfo _collectionViewManagerMember;
         private bool _ingoreTabChanged;
 
         private readonly DataTemplateProvider _itemTemplateProvider;
@@ -169,6 +170,9 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             _selectedItemMember = BindingServiceProvider
                                                  .MemberProvider
                                                  .GetBindingMember(tabHost.GetType(), AttachedMemberConstants.SelectedItem, false, false);
+            _collectionViewManagerMember = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(tabHost.GetType(), AttachedMembers.ViewGroup.CollectionViewManager, false, false);
             TryListenActivity(tabHost.Context);
             TabHost.TabChanged += TabHostOnTabChanged;
         }
@@ -196,23 +200,54 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         protected override void Add(int insertionIndex, int count)
         {
-            if (insertionIndex == TabHost.TabWidget.TabCount)
+            var manager = GetCollectionViewManager();
+            if (manager == null)
             {
-                for (int i = 0; i < count; i++)
-                    TabHost.AddTab(CreateTabSpec(insertionIndex + i));
+                if (insertionIndex == TabHost.TabWidget.TabCount)
+                {
+                    for (int i = 0; i < count; i++)
+                        TabHost.AddTab(CreateTabSpec(insertionIndex + i));
+                }
+                else
+                    Refresh();
             }
             else
-                Refresh();
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    int index = insertionIndex + i;
+                    manager.Insert(TabHost, index, CreateTabSpec(index));
+                }
+
+            }
         }
 
         protected override void Remove(int removalIndex, int count)
         {
-            Refresh();
+            var manager = GetCollectionViewManager();
+            if (manager == null)
+                Refresh();
+            else
+            {
+                for (int i = 0; i < count; i++)
+                    manager.RemoveAt(TabHost, removalIndex + i);
+            }
         }
 
         protected override void Replace(int startIndex, int count)
         {
-            Refresh();
+            var manager = GetCollectionViewManager();
+            if (manager == null)
+                Refresh();
+            else
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    int index = startIndex + i;
+                    manager.RemoveAt(TabHost, index);
+                    manager.Insert(TabHost, index, CreateTabSpec(index));
+                }
+            }
         }
 
         protected override void Refresh()
@@ -223,15 +258,25 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 string oldTag = TabHost.CurrentTabTag;
                 var oldValues = new Dictionary<string, TabInfo>(_tabToContent);
                 var oldIndex = TabHost.CurrentTab;
-                TabHost.CurrentTab = 0;
-                TabHost.ClearAllTabs();
                 _tabToContent.Clear();
+
+                var manager = GetCollectionViewManager();
+                if (manager == null)
+                {
+                    TabHost.CurrentTab = 0;
+                    TabHost.ClearAllTabs();
+                }
+                else
+                    manager.Clear(TabHost);
 
                 int count = ItemsSource.Count();
                 for (int i = 0; i < count; i++)
                 {
                     var tabInfo = TryRecreateTabInfo(i, oldValues);
-                    TabHost.AddTab(tabInfo.TabSpec);
+                    if (manager == null)
+                        TabHost.AddTab(tabInfo.TabSpec);
+                    else
+                        manager.Insert(TabHost, i, tabInfo.TabSpec);
                 }
                 foreach (var oldValue in oldValues)
                     RemoveTabDelegate(this, oldValue.Value);
@@ -457,6 +502,11 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             var view = tab.Content as View;
             if (view != null)
                 view.ClearBindingsRecursively(true, true);
+        }
+
+        private ICollectionViewManager GetCollectionViewManager()
+        {
+            return (ICollectionViewManager)_collectionViewManagerMember.GetValue(TabHost, Empty.Array<object>());
         }
 
         #endregion

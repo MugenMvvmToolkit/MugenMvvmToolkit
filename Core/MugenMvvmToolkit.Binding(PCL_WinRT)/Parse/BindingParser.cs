@@ -1072,7 +1072,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 else if (isEmpty)
                     invoker = CreateExpressionInvoker(expression, members, true);
 
-                IList<Func<IDataContext, IBindingSource>> bindingSource;
+                Func<IDataContext, IBindingSource>[] bindingSource;
                 if (isEmpty)
                     bindingSource = EmptyBindingSourceDelegates;
                 else
@@ -1242,7 +1242,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             ValidateToken(TokenType.Equal);
             NextToken(true);
             var actions = new List<Action<IDataContext>>();
-            IExpressionNode node = Handle(ParsePrimary(), false, Context, actions);
+            IExpressionNode node = Handle(ParseExpression(), false, Context, actions);
             if (node != null)
                 actions.Add(GetBindingValueSetterMain(node, setSimpleValue, setComplexValue, useBindingForMember));
             return actions;
@@ -1259,64 +1259,74 @@ namespace MugenMvvmToolkit.Binding.Parse
                 return context => setSimpleValue(context, value);
             }
 
-            var nodes = new List<IExpressionNode>();
-            var members = new List<string>();
-            string memberName = node.TryGetMemberName(true, true, nodes, members);
-            var resourceExpression = nodes[0] as ResourceExpressionNode;
-
-            if (memberName != null)
+            try
             {
-                if (resourceExpression != null)
+                node = node.Accept(_memberVisitor);
+                if (_memberVisitor.IsMulti)
                 {
-                    if (resourceExpression.Dynamic)
-                        return context => setComplexValue(context, d => GetResourceObject(memberName, d));
-                    return context => setSimpleValue(context, GetResourceObject(memberName, context));
+                    var members = _memberVisitor.Members.ToArrayEx();
+                    var bindingSource = members.Length == 0
+                        ? Empty.Array<Func<IDataContext, IBindingSource>>()
+                        : new Func<IDataContext, IBindingSource>[members.Length];
+                    for (int i = 0; i < members.Length; i++)
+                        bindingSource[i] = GetBindingSourceDelegate(members[i].Value);
+                    var invoker = CreateExpressionInvoker(node, members, members.Length == 0);
+                    return context =>
+                    {
+                        var sources = bindingSource.Length == 0
+                            ? Empty.Array<IBindingSource>()
+                            : new IBindingSource[bindingSource.Length];
+                        for (int i = 0; i < bindingSource.Length; i++)
+                            sources[i] = bindingSource[i].Invoke(context);
+                        setComplexValue(context, dataContext =>
+                        {
+                            object[] args;
+                            if (sources.Length == 0)
+                                args = Empty.Array<object>();
+                            else
+                            {
+                                args = new object[sources.Length];
+                                for (int i = 0; i < sources.Length; i++)
+                                    args[i] = sources[i].GetCurrentValue();
+                            }
+                            try
+                            {
+                                return invoker.Invoke(dataContext, args);
+                            }
+                            catch (Exception e)
+                            {
+                                Tracer.Error(e.Message);
+                                return null;
+                            }
+                        });
+                    };
                 }
-                if (!useBindingForMember)
-                    return context => setSimpleValue(context, memberName);
-
-                node = RelativeSourceExpressionNode.CreateBindingContextSource(memberName);
-            }
-
-            var methodCall = nodes[0] as IMethodCallExpressionNode;
-            if (methodCall == null)
-            {
-                var relativeSrc = node as IRelativeSourceExpressionNode;
-                if (relativeSrc == null)
-                    throw BindingExceptionManager.UnknownIdentifierParser(node.ToString(), Tokenizer, Expression);
-
-                return context =>
+                else
                 {
-                    var src = BindingExtensions.CreateBindingSource(relativeSrc, context.GetData(BindingBuilderConstants.Target, true), null);
-                    setComplexValue(context, d => src.GetCurrentValue());
-                };
+                    if (_memberVisitor.Members.Count == 0)
+                    {
+                        var value = ((IConstantExpressionNode)node).Value;
+                        return context => setSimpleValue(context, value);
+                    }
+                    var memberExp = _memberVisitor.Members[0].Value;
+                    if (!useBindingForMember && !memberExp.IsRelativeSource && !memberExp.IsDynamic)
+                    {
+                        var path = memberExp.Path;
+                        return context => setSimpleValue(context, path);
+                    }
+
+                    var srcFunc = GetBindingSourceDelegate(memberExp);
+                    return context =>
+                    {
+                        var src = srcFunc(context);
+                        setComplexValue(context, dataContext => src.GetCurrentValue());
+                    };
+                }
             }
-
-            resourceExpression = methodCall.Target as ResourceExpressionNode;
-            if (resourceExpression == null || methodCall.Arguments.Any(expressionNode => !(expressionNode is IConstantExpressionNode)))
-                throw BindingExceptionManager.UnknownIdentifierParser(node.ToString(), Tokenizer, Expression);
-
-            var method = methodCall.Method;
-            var args = methodCall.Arguments.ToArrayEx(ex => ((IConstantExpressionNode)ex).Value);
-            var memberPath = members.Count == 0 ? null : BindingExtensions.MergePath(members);
-
-            if (resourceExpression.Dynamic)
-                return context => setComplexValue(context, d => InvokeMethod(d, method, args, memberPath));
-            return context => setSimpleValue(context, InvokeMethod(context, method, args, memberPath));
-        }
-
-        private static object GetResourceObject(string name, IDataContext context)
-        {
-            return BindingServiceProvider.ResourceResolver.ResolveObject(name, context, true).Value;
-        }
-
-        private static object InvokeMethod(IDataContext context, string methodName, object[] args, string memberPath)
-        {
-            var method = BindingServiceProvider.ResourceResolver.ResolveMethod(methodName, context, true);
-            var result = method.Invoke(Empty.Array<Type>(), args, context);
-            if (memberPath == null)
-                return result;
-            return BindingExtensions.GetValueFromPath(result, memberPath);
+            finally
+            {
+                _memberVisitor.Clear();
+            }
         }
 
         private IList<Action<IDataContext>> GetConverterSetter()

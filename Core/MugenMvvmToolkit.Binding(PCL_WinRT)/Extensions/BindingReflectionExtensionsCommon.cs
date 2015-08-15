@@ -21,6 +21,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 
 // ReSharper disable CheckNamespace
@@ -123,7 +124,7 @@ namespace MugenMvvmToolkit.Binding
 #else
             if (value is IConvertible)
 #endif
-                return System.Convert.ChangeType(value, type.GetNonNullableType(), CultureInfo.CurrentCulture);
+                return System.Convert.ChangeType(value, type.GetNonNullableType(), BindingServiceProvider.BindingCultureInfo());
             if (type == typeof(string))
                 return value.ToString();
             return value;

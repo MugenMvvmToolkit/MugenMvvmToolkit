@@ -1616,6 +1616,22 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         }
 
         [TestMethod]
+        public void ParserShouldParseConverterCultureFromStaticResource()
+        {
+            const string binding = "Text Text, ConverterCulture=$$param";
+            var cultureInfo = new CultureInfo("ru-RU");
+            var resolver = new BindingResourceResolver();
+            resolver.AddObject("param", new BindingResourceObject(cultureInfo), true);
+            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
+            BindingServiceProvider.ResourceResolver = resolver;
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext, new object(), null).Single());
+            context.GetData(BindingBuilderConstants.ConverterCulture)
+                .Invoke(EmptyContext)
+                .ShouldEqual(cultureInfo);
+        }
+
+        [TestMethod]
         public void ParserShouldParseExpressionWithDynamicObjectMemberAccess()
         {
             const string targetPath = "Text";

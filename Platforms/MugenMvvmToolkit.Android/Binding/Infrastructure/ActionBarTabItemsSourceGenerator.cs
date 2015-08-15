@@ -18,9 +18,10 @@
 
 using System.Collections;
 using Android.Widget;
+using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
 #if APPCOMPAT
 using MugenMvvmToolkit.Android.AppCompat.Models;
 using MugenMvvmToolkit.Android.AppCompat.Views;
@@ -42,6 +43,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         private readonly ActionBar _actionBar;
         private readonly ActionBarTabTemplate _tabTemplate;
+        private readonly IBindingMemberInfo _collectionViewManagerMember;
 
         #endregion
 
@@ -53,6 +55,9 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             Should.NotBeNull(tabTemplate, "tabTemplate");
             _actionBar = actionBar;
             _tabTemplate = tabTemplate;
+            _collectionViewManagerMember = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(actionBar.GetType(), AttachedMembers.ActionBar.CollectionViewManager, false, false);
             TryListenActivity(_actionBar.ThemedContext);
         }
 
@@ -89,20 +94,28 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         protected override void Add(int insertionIndex, int count)
         {
+            var manager = GetCollectionViewManager();
             for (int i = 0; i < count; i++)
             {
                 int index = insertionIndex + i;
                 var tab = CreateTab(index);
-                _actionBar.AddTab(tab, index, false);
+                if (manager == null)
+                    _actionBar.AddTab(tab, index, false);
+                else
+                    manager.Insert(_actionBar, index, tab);
             }
         }
 
         protected override void Remove(int removalIndex, int count)
         {
+            var manager = GetCollectionViewManager();
             for (int i = 0; i < count; i++)
             {
                 int index = removalIndex + i;
-                Remove(index);
+                if (manager == null)
+                    Remove(index);
+                else
+                    manager.RemoveAt(_actionBar, index);
             }
             if (_actionBar.TabCount == 0)
                 OnEmptyTab();
@@ -110,20 +123,31 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         protected override void Replace(int startIndex, int count)
         {
+            var manager = GetCollectionViewManager();
             for (int i = 0; i < count; i++)
             {
                 int index = startIndex + i;
-                Remove(index);
+                if (manager == null)
+                    Remove(index);
+                else
+                    manager.RemoveAt(_actionBar, index);
                 var tab = CreateTab(index);
-                _actionBar.AddTab(tab, index, false);
+                if (manager == null)
+                    _actionBar.AddTab(tab, index, false);
+                else
+                    manager.Insert(_actionBar, index, tab);
             }
         }
 
         protected override void Refresh()
         {
+            var manager = GetCollectionViewManager();
             for (int i = 0; i < _actionBar.TabCount; i++)
                 ActionBarTabTemplate.ClearTab(_actionBar, _actionBar.GetTabAt(i), true);
-            _actionBar.RemoveAllTabs();
+            if (manager == null)
+                _actionBar.RemoveAllTabs();
+            else
+                manager.Clear(_actionBar);
 
             IEnumerable itemsSource = ItemsSource;
             if (itemsSource == null)
@@ -139,7 +163,10 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             {
                 var item = GetItem(index);
                 var tab = CreateTab(item);
-                _actionBar.AddTab(tab, index, ReferenceEquals(selectedItem, item));
+                if (manager == null)
+                    _actionBar.AddTab(tab, index, ReferenceEquals(selectedItem, item));
+                else
+                    manager.Insert(_actionBar, index, tab);
             }
             if (count == 0)
                 OnEmptyTab();
@@ -197,6 +224,11 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         private ActionBar.Tab CreateTab(object item)
         {
             return _tabTemplate.CreateTab(_actionBar, item);
+        }
+
+        private ICollectionViewManager GetCollectionViewManager()
+        {
+            return (ICollectionViewManager)_collectionViewManagerMember.GetValue(_actionBar, Empty.Array<object>());
         }
 
         #endregion

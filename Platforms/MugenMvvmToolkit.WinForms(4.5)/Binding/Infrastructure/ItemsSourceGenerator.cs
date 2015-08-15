@@ -20,7 +20,6 @@ using System;
 using System.Collections;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -37,7 +36,6 @@ using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.WinForms.Binding.Converters;
 using MugenMvvmToolkit.WinForms.Binding.Interfaces;
-using MugenMvvmToolkit.WinForms.Binding.Modules;
 
 namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
 #endif
@@ -61,20 +59,23 @@ namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
         internal ItemsSourceGenerator([NotNull] object view)
         {
             Should.NotBeNull(view, "view");
-#if WINFORMS
-            ListenDisposeEvent(view as IComponent);
-            _isTabControl = view is TabControl;
-#elif TOUCH
-            TryListenController(view as INativeObject);
-#endif
-            _view = ServiceProvider.WeakReferenceFactory(view);
             var type = view.GetType();
+            _view = ServiceProvider.WeakReferenceFactory(view);
             _itemTemplateMember = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(type, AttachedMemberConstants.ItemTemplate, false, false);
+#if WINFORMS
             _collectionViewManagerMember = BindingServiceProvider
                 .MemberProvider
-                .GetBindingMember(type, "CollectionViewManager", false, false);
+                .GetBindingMember(type, AttachedMembers.Object.CollectionViewManager, false, false);
+            ListenDisposeEvent(view as IComponent);
+            _isTabControl = view is TabControl;
+#elif TOUCH
+            _collectionViewManagerMember = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(type, AttachedMembers.UIView.CollectionViewManager, false, false);
+            TryListenController(view as INativeObject);
+#endif
         }
 
         #endregion

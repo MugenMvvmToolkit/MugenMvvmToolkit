@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Infrastructure;
@@ -50,6 +51,7 @@ namespace MugenMvvmToolkit.Binding
         private static readonly Dictionary<string, IBindingBehavior> BindingModeToBehaviorField;
         private static Func<string, IBindingPath> _bindingPathFactory;
         private static Func<Type, string, IBindingMemberInfo> _updateEventFinder;
+        private static Func<CultureInfo> _bindingCultureInfo;
 
         #endregion
 
@@ -279,12 +281,22 @@ namespace MugenMvvmToolkit.Binding
         [CanBeNull]
         public static IBindingErrorProvider ErrorProvider { get; set; }
 
+        /// <summary>
+        ///     Gets or sets the binding <see cref="CultureInfo" /> default is CultureInfo.CurrentCulture.
+        /// </summary>
+        public static Func<CultureInfo> BindingCultureInfo
+        {
+            get { return _bindingCultureInfo; }
+            set { _bindingCultureInfo = value ?? (() => CultureInfo.CurrentCulture); }
+        }
+
         #endregion
 
         #region Methods
 
         internal static void SetDefaultValues()
         {
+            BindingCultureInfo = null;
             _updateEventFinder = FindUpdateEvent;
             _bindingPathFactory = BindingPath.Create;
             _valueConverter = BindingReflectionExtensions.Convert;
