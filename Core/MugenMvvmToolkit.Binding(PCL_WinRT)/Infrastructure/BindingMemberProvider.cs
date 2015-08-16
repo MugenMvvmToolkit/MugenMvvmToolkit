@@ -163,6 +163,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public BindingMemberProvider([NotNull] BindingMemberProvider provider)
         {
             Should.NotBeNull(provider, "provider");
+            _currentPaths = new HashSet<string>(StringComparer.Ordinal);
             _attachedMembers = provider._attachedMembers;
             _tempMembersCache = provider._tempMembersCache;
             _explicitMembersCache = provider._explicitMembersCache;
@@ -240,45 +241,39 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             try
             {
                 Monitor.Enter(_tempMembersCache, ref lockTaken);
+                //To prevent cyclic dependency
+                if (!_currentPaths.Add(path))
+                    return null;
                 if (!_tempMembersCache.TryGetValue(key, out bindingMember))
                 {
-                    //To prevent cyclic dependency
-                    if (!_currentPaths.Add(path))
-                        return null;
-                    try
+                    if (!ignoreAttachedMembers)
+                        bindingMember = GetAttachedBindingMember(ref key);
+                    if (bindingMember == null)
                     {
-                        if (!ignoreAttachedMembers)
-                            bindingMember = GetAttachedBindingMember(ref key);
-                        if (bindingMember == null)
+                        if (!_explicitMembersCache.TryGetValue(key, out bindingMember))
                         {
-                            if (!_explicitMembersCache.TryGetValue(key, out bindingMember))
-                            {
-                                bindingMember = GetExplicitBindingMember(sourceType, path);
-                                _explicitMembersCache[key] = bindingMember;
-                            }
+                            bindingMember = GetExplicitBindingMember(sourceType, path);
+                            _explicitMembersCache[key] = bindingMember;
                         }
+                    }
 
-                        if (bindingMember == null)
+                    if (bindingMember == null)
+                    {
+                        foreach (var prefix in BindingServiceProvider.FakeMemberPrefixes)
                         {
-                            foreach (var prefix in BindingServiceProvider.FakeMemberPrefixes)
+                            if (path.StartsWith(prefix, StringComparison.Ordinal))
                             {
-                                if (path.StartsWith(prefix, StringComparison.Ordinal))
-                                {
-                                    bindingMember = BindingMemberInfo.EmptyHasSetter;
-                                    break;
-                                }
+                                bindingMember = BindingMemberInfo.EmptyHasSetter;
+                                break;
                             }
                         }
-                        _tempMembersCache[key] = bindingMember;
                     }
-                    finally
-                    {
-                        _currentPaths.Remove(path);
-                    }
+                    _tempMembersCache[key] = bindingMember;
                 }
             }
             finally
             {
+                _currentPaths.Remove(path);
                 if (lockTaken)
                     Monitor.Exit(_tempMembersCache);
             }

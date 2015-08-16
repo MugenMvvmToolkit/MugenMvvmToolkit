@@ -21,6 +21,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
+using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -69,7 +70,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms
                 return baseOnBackButtonPressed != null && baseOnBackButtonPressed();
             var args = new CancelEventArgs(false);
             handler(page, args);
-            return args.Cancel;
+            if (args.Cancel)
+                return true;
+            return baseOnBackButtonPressed != null && baseOnBackButtonPressed();
         }
 
         public static void SetNavigationParameter([NotNull] this Page controller, object value)
@@ -114,6 +117,20 @@ namespace MugenMvvmToolkit.Xamarin.Forms
                 }
             }
             item.ClearBindings(clearDataContext, clearAttachedValues);
+        }
+
+        internal static bool IsSerializable(this Type type)
+        {
+            var typeInfo = type.GetTypeInfo();
+            return typeInfo.IsDefined(typeof(DataContractAttribute), false) || typeInfo.IsPrimitive;
+        }
+
+
+        internal static bool IsAssignableFrom([NotNull] this Type typeFrom, [NotNull] Type typeTo)
+        {
+            Should.NotBeNull(typeFrom, "typeFrom");
+            Should.NotBeNull(typeTo, "typeTo");
+            return typeFrom.GetTypeInfo().IsAssignableFrom(typeTo.GetTypeInfo());
         }
 
         internal static PlatformInfo GetPlatformInfo()

@@ -920,7 +920,7 @@ namespace MugenMvvmToolkit
         }
 
         [CanBeNull]
-        internal static ConstructorInfo GetConstructor([NotNull] this Type type, Type[] types)
+        public static ConstructorInfo GetConstructor([NotNull] this Type type, Type[] types)
         {
             Should.NotBeNull(type, "type");
             foreach (ConstructorInfo constructor in type.GetTypeInfo().DeclaredConstructors)

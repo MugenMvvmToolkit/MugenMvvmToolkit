@@ -41,6 +41,8 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Callbacks
 namespace MugenMvvmToolkit.WinRT.Infrastructure.Callbacks
 #elif WINDOWS_PHONE
 namespace MugenMvvmToolkit.WinPhone.Infrastructure.Callbacks
+#elif XAMARIN_FORMS
+namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Callbacks
 #else
 namespace MugenMvvmToolkit.Infrastructure.Callbacks
 #endif
@@ -408,7 +410,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 }
                 var type = Type.GetType(StateMachineType, true);
                 IAsyncStateMachine stateMachine;
-#if NETFX_CORE || WINDOWSCOMMON
+#if NETFX_CORE || WINDOWSCOMMON || XAMARIN_FORMS
                 if (type.GetTypeInfo().IsValueType)
 #else
                 if (type.IsValueType)

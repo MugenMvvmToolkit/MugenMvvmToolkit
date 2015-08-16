@@ -58,6 +58,8 @@ using System.Windows.Documents;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
 namespace MugenMvvmToolkit.Silverlight.Infrastructure.Presenters
+#elif XAMARIN_FORMS && WINDOWSCOMMON
+namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Infrastructure.Presenters
 #elif NETFX_CORE || WINDOWSCOMMON
 namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
 #elif WINDOWS_PHONE

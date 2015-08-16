@@ -26,6 +26,7 @@ using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.Modules;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure;
+using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters;
 
@@ -62,6 +63,15 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Modules
         #endregion
 
         #region Overrides of InitializationModuleBase
+
+        /// <summary>
+        ///     Gets the <see cref="IOperationCallbackFactory" /> that will be used in the current application by default.
+        /// </summary>
+        /// <returns>An instance of <see cref="IOperationCallbackFactory" />.</returns>
+        protected override BindingInfo<IOperationCallbackFactory> GetOperationCallbackFactory()
+        {
+            return BindingInfo<IOperationCallbackFactory>.FromType<SerializableOperationCallbackFactory>(DependencyLifecycle.SingleInstance);
+        }
 
         /// <summary>
         ///     Gets the <see cref="IViewModelPresenter" /> that will be used in the current application by default.

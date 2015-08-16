@@ -224,11 +224,19 @@ namespace MugenMvvmToolkit.Infrastructure
 
         internal static IList<Assembly> GetAssemblies(bool ignoreLoaded)
         {
-            var currentDomain = GetCurrentDomain(null);
-            var assemblies = GetAssembliesDelegate(currentDomain);
-            if (assemblies == null)
-                return Empty.Array<Assembly>();
+            IEnumerable<Assembly> assemblies;
+            try
+            {
+                var currentDomain = GetCurrentDomain(null);
+                assemblies = GetAssembliesDelegate(currentDomain);
+                if (assemblies == null)
+                    return Empty.Array<Assembly>();
 
+            }
+            catch
+            {
+                return Empty.Array<Assembly>();
+            }
             Dictionary<string, List<Assembly>> dictionary = null;
             foreach (Assembly assembly in assemblies)
             {

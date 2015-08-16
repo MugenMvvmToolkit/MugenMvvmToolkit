@@ -32,6 +32,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.iOS.Modules
 using MugenMvvmToolkit.Xamarin.Forms.WinPhone.Infrastructure.Presenters;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Modules
+#elif WINDOWSCOMMON
+using MugenMvvmToolkit.Xamarin.Forms.WinRT.Infrastructure.Presenters;
+
+namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
 #endif
 {
     /// <summary>

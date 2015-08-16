@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Parse;
 using MugenMvvmToolkit.Models;
@@ -28,8 +29,14 @@ using MugenMvvmToolkit.Xamarin.Forms.Infrastructure;
 namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone
 #elif TOUCH
 namespace MugenMvvmToolkit.Xamarin.Forms.iOS
-#else
+#elif ANDROID
 namespace MugenMvvmToolkit.Xamarin.Forms.Android
+#elif WINDOWSCOMMON
+using System.IO;
+using Windows.ApplicationModel;
+using Windows.Storage;
+
+namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
 #endif
 {
     internal sealed class PlatformBootstrapperService : XamarinFormsBootstrapperBase.IPlatformService
@@ -43,11 +50,39 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Android
 
         #endregion
 
+        #region Methods
+
+#if WINDOWSCOMMON
+        private async System.Threading.Tasks.Task<List<Assembly>> GetAssemblyListAsync()
+        {
+            var folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
+            List<Assembly> assemblies = new List<Assembly>();
+            foreach (Windows.Storage.StorageFile file in await folder.GetFilesAsync().AsTask().ConfigureAwait(false))
+            {
+                if (file.FileType == ".dll" || file.FileType == ".exe")
+                {
+                    AssemblyName name = new AssemblyName { Name = Path.GetFileNameWithoutExtension(file.Name) };
+                    Assembly asm = Assembly.Load(name);
+                    assemblies.Add(asm);
+                }
+            }
+            return assemblies;
+        }
+#endif
+        #endregion
+
         #region Implementation of IPlatformService
 
         public Func<IBindingMemberInfo, Type, object, object> ValueConverter
         {
-            get { return BindingReflectionExtensions.Convert; }
+            get
+            {
+#if WINDOWSCOMMON
+                return BindingServiceProvider.ValueConverter;
+#else
+                return BindingReflectionExtensions.Convert;
+#endif
+            }
         }
 
         public PlatformInfo GetPlatformInfo()
@@ -58,10 +93,16 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Android
             Version result;
             Version.TryParse(UIKit.UIDevice.CurrentDevice.SystemVersion, out result);
             return new PlatformInfo(PlatformType.XamarinFormsiOS, result);
-#else
+#elif ANDROID
             Version result;
             Version.TryParse(global::Android.OS.Build.VERSION.Release, out result);
             return new PlatformInfo(PlatformType.XamarinFormsAndroid, result);
+#elif WINDOWSCOMMON
+            //NOTE: not a good solution but I do not know of another.
+            var type = Type.GetType("Windows.Phone.ApplicationModel.ApplicationProfile, Windows, ContentType=WindowsRuntime", false);
+            if (type == null)
+                return new PlatformInfo(PlatformType.WinRT, new Version(8, 1));
+            return new PlatformInfo(PlatformType.WinPhone, new Version(8, 1));
 #endif
 
         }
@@ -87,6 +128,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Android
                 }
             }
             return listAssembly;
+#elif WINDOWSCOMMON
+            return GetAssemblyListAsync().Result;
 #else
             return new HashSet<Assembly>(AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies());
 #endif

@@ -23,7 +23,13 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
 
+#if XAMARIN_FORMS
+using System;
+namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Infrastructure.Presenters
+#else
 namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
+#endif
+
 {
     /// <summary>
     ///     Represents the base implementation of <see cref="IMessagePresenter" />.
@@ -112,7 +118,12 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
                     break;
                 case MessageButton.AbortRetryIgnore:
                     if (ApplicationSettings.Platform.Platform == PlatformType.WinPhone)
+#if XAMARIN_FORMS
+                        throw new ArgumentOutOfRangeException("button");
+#else
                         throw ExceptionManager.EnumOutOfRange("button", button);
+#endif
+
                     messageDialog.Commands.Add(CreateUiCommand(MessageResult.Abort, tcs));
                     messageDialog.Commands.Add(CreateUiCommand(MessageResult.Retry, tcs));
                     messageDialog.Commands.Add(CreateUiCommand(MessageResult.Ignore, tcs));

@@ -292,6 +292,11 @@ namespace MugenMvvmToolkit
             var dummy = DesignTimeManager;
         }
 
+        public static void SetDefaultDesignTimeManager()
+        {
+            ServiceProvider.DesignTimeManager = DesignTimeManagerImpl.Instance;
+        }
+
         internal static IList<T> TryDecorate<T>(IList<T> itemsSource)
         {
             var decorator = ItemsSourceDecorator;

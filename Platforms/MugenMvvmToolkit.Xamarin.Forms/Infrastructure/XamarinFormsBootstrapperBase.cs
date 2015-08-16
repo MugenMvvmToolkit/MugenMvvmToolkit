@@ -60,6 +60,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         #region Fields
 
         protected static readonly DataConstant<bool> WrapToNavigationPageConstant;
+        private const string WinRTAssemblyName = "MugenMvvmToolkit.Xamarin.Forms.WinRT";
         private static IPlatformService _platformService;
 
         private IViewModel _mainViewModel;
@@ -73,6 +74,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         /// </summary>
         static XamarinFormsBootstrapperBase()
         {
+            ServiceProvider.SetDefaultDesignTimeManager();
             WrapToNavigationPageConstant = DataConstant.Create(() => WrapToNavigationPageConstant);
             if (Device.OS != TargetPlatform.WinPhone)
                 LinkerInclude.Initialize();
@@ -112,6 +114,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         {
             get
             {
+                if (Device.OS == TargetPlatform.Windows)
+                    return WinRTAssemblyName;
                 return Device.OnPlatform("MugenMvvmToolkit.Xamarin.Forms.iOS", "MugenMvvmToolkit.Xamarin.Forms.Android",
                     "MugenMvvmToolkit.Xamarin.Forms.WinPhone");
             }
@@ -211,7 +215,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         {
             Assembly assembly = TryLoadAssembly(BindingAssemblyName, null);
             if (assembly == null)
-                return XamarinFormsExtensions.GetPlatformInfo();
+            {
+                if (Device.OS == TargetPlatform.WinPhone)
+                    assembly = TryLoadAssembly(WinRTAssemblyName, null);
+                if (assembly == null)
+                    return XamarinFormsExtensions.GetPlatformInfo();
+            }
             TypeInfo serviceType = typeof(IPlatformService).GetTypeInfo();
             serviceType = assembly.DefinedTypes.FirstOrDefault(serviceType.IsAssignableFrom);
             if (serviceType != null)

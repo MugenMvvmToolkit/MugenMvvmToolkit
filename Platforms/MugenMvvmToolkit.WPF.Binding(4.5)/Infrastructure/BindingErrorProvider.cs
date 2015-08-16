@@ -31,8 +31,12 @@ using MugenMvvmToolkit.Silverlight.Binding.Models;
 using MugenMvvmToolkit.Silverlight.MarkupExtensions;
 
 namespace MugenMvvmToolkit.Silverlight.Binding.Infrastructure
+#elif XAMARIN_FORMS && WINDOWSCOMMON
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+
+namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Binding.Infrastructure
 #elif WINDOWSCOMMON || NETFX_CORE
-using MugenMvvmToolkit.WinRT.MarkupExtensions;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 

@@ -29,6 +29,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.iOS.Binding.Modules
 #elif WINDOWS_PHONE
 using MugenMvvmToolkit.Xamarin.Forms.WinPhone.Binding.Infrastructure;
 namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Binding.Modules
+#elif WINDOWSCOMMON
+using MugenMvvmToolkit.Xamarin.Forms.WinRT.Binding.Infrastructure;
+namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Binding.Modules
 #endif
 {
     public class PlatformDataBindingModuleEx : PlatformDataBindingModule

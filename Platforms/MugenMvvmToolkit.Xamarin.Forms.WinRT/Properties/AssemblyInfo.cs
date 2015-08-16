@@ -18,16 +18,14 @@
 
 using System.Reflection;
 using System.Resources;
-using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("MugenMvvmToolkit.Xamarin.Forms")]
+[assembly: AssemblyTitle("MugenMvvmToolkit.Xamarin.Forms.WinRT")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("MugenMvvmToolkit.Xamarin.Forms")]
+[assembly: AssemblyProduct("MugenMvvmToolkit.Xamarin.Forms.WinRT")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: NeutralResourcesLanguage("en")]
-[assembly: InternalsVisibleTo("MugenMvvmToolkit.Xamarin.Forms.WinPhone")]
-[assembly: InternalsVisibleTo("MugenMvvmToolkit.Xamarin.Forms.Android")]
-[assembly: InternalsVisibleTo("MugenMvvmToolkit.Xamarin.Forms.iOS")]
-[assembly: InternalsVisibleTo("MugenMvvmToolkit.Xamarin.Forms.WinRT")]
+[assembly: ComVisible(false)]
+[assembly: Guid("b3d9be15-9a4f-453b-bfa6-cb85d00492d9")]
+[assembly: NeutralResourcesLanguage("en-US")]
