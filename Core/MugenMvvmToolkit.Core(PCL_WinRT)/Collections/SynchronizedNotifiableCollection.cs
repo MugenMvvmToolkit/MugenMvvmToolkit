@@ -104,9 +104,20 @@ namespace MugenMvvmToolkit.Collections
                 }
             }
 
-            public ICollection<List<NotifyCollectionChangedEventArgs>> Events
+            public Dictionary<NotifyCollectionChangedAction, List<NotifyCollectionChangedEventArgs>>.ValueCollection Events
             {
                 get { return _events.Values; }
+            }
+
+            private int Count
+            {
+                get
+                {
+                    int count = 0;
+                    foreach (var @event in _events)
+                        count += @event.Value.Count;
+                    return count;
+                }
             }
 
             #endregion
@@ -120,7 +131,7 @@ namespace MugenMvvmToolkit.Collections
             {
                 if (_hasResetEvent)
                     return;
-                if (_events.Count >= _collection.BatchSize)
+                if (Count >= _collection.BatchSize)
                     args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
                 bool shouldIgnore = false;
                 switch (args.Action)

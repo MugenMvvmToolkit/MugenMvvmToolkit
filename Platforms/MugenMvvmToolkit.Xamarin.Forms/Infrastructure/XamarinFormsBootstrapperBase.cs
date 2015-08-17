@@ -82,8 +82,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
             ViewManager.ViewCleared += OnViewCleared;
             ViewManager.ClearDataContext = true;
-            BindingServiceProvider.DataContextMemberAliases.Add("BindingContext");
-            BindingServiceProvider.BindingMemberPriorities["BindingContext"] = int.MaxValue - 1;
+            var contextName = ToolkitExtensions.GetMemberName<BindableObject>(() => e => e.BindingContext);
+            BindingServiceProvider.DataContextMemberAliases.Add(contextName);
+            BindingServiceProvider.BindingMemberPriorities[contextName] = int.MaxValue - 1;
         }
 
         /// <summary>
@@ -147,9 +148,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             if (Current != null && !ReferenceEquals(Current, this))
                 return Current.Start(wrapToNavigationPage);
 
-            InitializationContext = InitializationContext.ToNonReadOnly();
+            InitializationContext = new DataContext(InitializationContext);
             InitializationContext.AddOrUpdate(WrapToNavigationPageConstant, wrapToNavigationPage);
-            if (_mainViewModel == null)
+            if (_mainViewModel == null || _mainViewModel.IsDisposed)
             {
                 Initialize();
                 Type viewModelType = GetMainViewModelType();
@@ -182,7 +183,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         {
             return IocContainer
                 .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, InitializationContext);
+                .GetViewModel(viewModelType, new DataContext(InitializationContext));
         }
 
         /// <summary>

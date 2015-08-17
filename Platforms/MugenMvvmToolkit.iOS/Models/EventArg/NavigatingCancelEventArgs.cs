@@ -36,6 +36,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
     {
         #region Fields
 
+#if !TOUCH
+        private readonly bool _isBackButton;
+#endif
         private readonly bool _isCancelable;
         private readonly IViewMappingItem _mapping;
         private readonly NavigationMode _navigationMode;
@@ -45,6 +48,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
 
         #region Constructors
 
+#if TOUCH
         /// <summary>
         ///     Initializes a new instance of the <see cref="NavigatingCancelEventArgs" /> class with the <see cref="Cancel" /> property set to false.
         /// </summary>
@@ -55,6 +59,20 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
             _parameter = parameter;
             _isCancelable = true;
         }
+#else
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="NavigatingCancelEventArgs" /> class with the <see cref="Cancel" /> property set to false.
+        /// </summary>
+        public NavigatingCancelEventArgs(IViewMappingItem mapping, NavigationMode navigationMode, string parameter, bool isCancelable, bool isBackButton)
+        {
+            _mapping = mapping;
+            _navigationMode = navigationMode;
+            _parameter = parameter;
+            _isCancelable = isCancelable;
+            _isBackButton = isBackButton;
+        }
+#endif
+
 
         #endregion
 
@@ -77,6 +95,13 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
             get { return _parameter; }
         }
 
+#if !TOUCH
+        public bool IsBackButtonNavigation
+        {
+            get { return _isBackButton; }
+        }
+
+#endif
         #endregion
 
         #region Overrides of NavigatingCancelEventArgsBase

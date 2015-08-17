@@ -19,7 +19,6 @@
 using System;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Navigation;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 
 namespace MugenMvvmToolkit.Models.EventArg
 {
@@ -28,7 +27,6 @@ namespace MugenMvvmToolkit.Models.EventArg
         #region Fields
 
         private readonly INavigationContext _context;
-        private readonly IViewModel _viewModel;
 
         #endregion
 
@@ -37,12 +35,10 @@ namespace MugenMvvmToolkit.Models.EventArg
         /// <summary>
         ///     Initializes the <see cref="NavigatedEventArgs" />.
         /// </summary>
-        public NavigatedEventArgs([NotNull]INavigationContext context, [NotNull] IViewModel viewModel)
+        public NavigatedEventArgs([NotNull]INavigationContext context)
         {
             Should.NotBeNull(context, "context");
-            Should.NotBeNull(viewModel, "viewModel");
             _context = context;
-            _viewModel = viewModel;
         }
 
         #endregion
@@ -56,15 +52,6 @@ namespace MugenMvvmToolkit.Models.EventArg
         public INavigationContext Context
         {
             get { return _context; }
-        }
-
-        /// <summary>
-        ///     Gets the navigated <see cref="IViewModel" />.
-        /// </summary>
-        [NotNull]
-        public IViewModel ViewModel
-        {
-            get { return _viewModel; }
         }
 
         #endregion

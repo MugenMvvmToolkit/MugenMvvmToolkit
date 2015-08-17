@@ -32,6 +32,7 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Android.Infrastructure
@@ -166,7 +167,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         {            
             Initialize();			
             CreateMainViewModel(GetMainViewModelType())
-                .ShowAsync((model, result) => model.Dispose(), null, InitializationContext);
+                .ShowAsync((model, result) => model.Dispose(), null, new DataContext(InitializationContext));
         }
 
         /// <summary>
@@ -210,7 +211,7 @@ You must specify the type of application bootstrapper using BootstrapperAttribut
         {
             return IocContainer
                 .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, InitializationContext);
+                .GetViewModel(viewModelType, new DataContext(InitializationContext));
         }
 
         /// <summary>

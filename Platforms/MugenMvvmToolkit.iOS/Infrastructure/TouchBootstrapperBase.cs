@@ -31,6 +31,7 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.iOS.Infrastructure.Navigation;
 using MugenMvvmToolkit.iOS.Interfaces.Navigation;
 using MugenMvvmToolkit.iOS.Interfaces.Views;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 using UIKit;
 
@@ -107,7 +108,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             Initialize();
             Type mainViewModelType = GetMainViewModelType();
             IViewModel viewModel = CreateMainViewModel(mainViewModelType);
-            viewModel.ShowAsync((model, result) => model.Dispose(), null, InitializationContext);
+            viewModel.ShowAsync((model, result) => model.Dispose(), null, new DataContext(InitializationContext));
         }
 
         /// <summary>
@@ -118,7 +119,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         {
             return IocContainer
                 .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, InitializationContext);
+                .GetViewModel(viewModelType, new DataContext(InitializationContext));
         }
 
         /// <summary>

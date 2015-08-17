@@ -25,6 +25,7 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Silverlight.Infrastructure
 {
@@ -98,7 +99,7 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
         {
             Initialize();
             var viewModelType = GetMainViewModelType();
-            _application.RootVisual = (UIElement)ViewManager.GetOrCreateView(CreateMainViewModel(viewModelType), false, InitializationContext);
+            _application.RootVisual = (UIElement)ViewManager.GetOrCreateView(CreateMainViewModel(viewModelType), false, new DataContext(InitializationContext));
         }
 
         /// <summary>
@@ -109,7 +110,7 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
         {
             return IocContainer
                 .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, InitializationContext);
+                .GetViewModel(viewModelType, new DataContext(InitializationContext));
         }
 
         /// <summary>

@@ -29,6 +29,7 @@ using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.WinForms.Infrastructure
@@ -99,7 +100,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
         /// </summary>
         public virtual void Start()
         {
-            InitializationContext = InitializationContext.ToNonReadOnly();
+            InitializationContext = new DataContext(InitializationContext);
             if (!InitializationContext.Contains(NavigationConstants.IsDialog))
                 InitializationContext.Add(NavigationConstants.IsDialog, false);
             Initialize();
@@ -110,7 +111,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
                     model.Dispose();
                     if (ShutdownOnMainViewModelClose)
                         Application.Exit();
-                }, context: InitializationContext);
+                }, context: new DataContext(InitializationContext));
             if (AutoRunApplication)
                 Application.Run();
         }
@@ -123,7 +124,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
         {
             return IocContainer
                 .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, InitializationContext);
+                .GetViewModel(viewModelType, new DataContext(InitializationContext));
         }
 
         /// <summary>

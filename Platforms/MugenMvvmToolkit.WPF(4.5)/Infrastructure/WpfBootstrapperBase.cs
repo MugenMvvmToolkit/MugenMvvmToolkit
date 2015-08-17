@@ -33,6 +33,7 @@ using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 using MugenMvvmToolkit.WPF.Infrastructure.Mediators;
 using MugenMvvmToolkit.WPF.Infrastructure.Navigation;
@@ -122,7 +123,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         /// </summary>
         public virtual void Start()
         {
-            InitializationContext = InitializationContext.ToNonReadOnly();
+            InitializationContext = new DataContext(InitializationContext);
             if (!InitializationContext.Contains(NavigationConstants.IsDialog))
                 InitializationContext.Add(NavigationConstants.IsDialog, false);
             Initialize();
@@ -149,13 +150,13 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
                         app.Dispatcher.BeginInvoke(action);
                     }
                 }
-            }, context: InitializationContext);
+            }, context: new DataContext(InitializationContext));
             if (rootWindow != null)
             {
                 IWindowViewMediator mediator = new WindowViewMediator(rootWindow, vm, IocContainer.Get<IThreadManager>(),
                     IocContainer.Get<IViewManager>(), IocContainer.Get<IWrapperManager>(),
                     IocContainer.Get<IOperationCallbackManager>());
-                mediator.UpdateView(new PlatformWrapperRegistrationModule.WindowViewWrapper(rootWindow), true, InitializationContext);
+                mediator.UpdateView(new PlatformWrapperRegistrationModule.WindowViewWrapper(rootWindow), true, new DataContext(InitializationContext));
                 rootWindow.Show();
             }
         }
@@ -168,7 +169,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         {
             return IocContainer
                 .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, InitializationContext);
+                .GetViewModel(viewModelType, new DataContext(InitializationContext));
         }
 
         /// <summary>

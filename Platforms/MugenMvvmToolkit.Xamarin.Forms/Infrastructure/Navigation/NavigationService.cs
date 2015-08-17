@@ -64,6 +64,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         public bool UseAnimations { get; set; }
 
+        public Func<Page, bool> SendBackButtonPressed { get; set; }
+
         #endregion
 
         #region Implementation of INavigationService
@@ -170,12 +172,14 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             Should.NotBeNull(args, "args");
             if (!args.IsCancelable)
                 return false;
-            if (args.NavigationMode == NavigationMode.Back)
+            var eventArgs = ((NavigatingCancelEventArgs)args);
+            if (eventArgs.IsBackButtonNavigation && SendBackButtonPressed != null)
+                return SendBackButtonPressed(CurrentContent as Page);
+            if (eventArgs.NavigationMode == NavigationMode.Back)
             {
                 GoBack();
                 return true;
             }
-            var eventArgs = ((NavigatingCancelEventArgs)args);
             // ReSharper disable once AssignNullToNotNullAttribute
             return Navigate(eventArgs.Mapping, eventArgs.Parameter, context);
         }
@@ -201,7 +205,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             Should.NotBeNull(source, "source");
             if (_rootPage == null)
                 return false;
-            if (!RaiseNavigating(new NavigatingCancelEventArgs(source, NavigationMode.New, parameter)))
+            if (!RaiseNavigating(new NavigatingCancelEventArgs(source, NavigationMode.New, parameter, true, false)))
                 return false;
             if (dataContext == null)
                 dataContext = DataContext.Empty;
@@ -317,8 +321,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
         {
             if (CurrentContent != page)
                 return;
-            var eventArgs = new NavigatingCancelEventArgs(null, NavigationMode.Back, null);
+            var eventArgs = new NavigatingCancelEventArgs(null, NavigationMode.Back, null, SendBackButtonPressed != null, true);
             RaiseNavigating(eventArgs);
+            if (SendBackButtonPressed == null)
+                eventArgs.Cancel = false;
             args.Cancel = eventArgs.Cancel;
 
             if (!args.Cancel && _rootPage.Navigation.NavigationStack.Count == 1 &&

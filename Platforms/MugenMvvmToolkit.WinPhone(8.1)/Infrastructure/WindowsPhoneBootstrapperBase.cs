@@ -30,6 +30,7 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 using MugenMvvmToolkit.WinPhone.Infrastructure.Navigation;
 using MugenMvvmToolkit.WinPhone.Interfaces.Navigation;
@@ -122,7 +123,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         public virtual void Start()
         {
             Initialize();
-            CreateMainViewModel(GetMainViewModelType()).ShowAsync((model, result) => model.Dispose(), context: InitializationContext);
+            CreateMainViewModel(GetMainViewModelType()).ShowAsync((model, result) => model.Dispose(), context: new DataContext(InitializationContext));
         }
 
         /// <summary>
@@ -133,7 +134,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         {
             return IocContainer
                 .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, InitializationContext);
+                .GetViewModel(viewModelType, new DataContext(InitializationContext));
         }
 
         /// <summary>

@@ -689,11 +689,11 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
         /// <summary>
         ///     Invokes the <see cref="Navigated" /> event.
         /// </summary>
-        protected virtual void RaiseNavigated(INavigationContext ctx, IViewModel vm)
+        protected virtual void RaiseNavigated(INavigationContext ctx)
         {
             var handler = Navigated;
             if (handler != null)
-                handler(this, new NavigatedEventArgs(ctx, vm));
+                handler(this, new NavigatedEventArgs(ctx));
         }
 
         protected void RegisterOperationCallback([NotNull]IViewModel viewModel, [NotNull] IOperationCallback callback, [NotNull]INavigationContext context)
@@ -822,10 +822,8 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             }
 
             if (vmTo != null)
-            {
                 OnNavigatedTo(vmTo, context);
-                RaiseNavigated(context, vmTo);
-            }
+            RaiseNavigated(context);
             if (vmFrom != null && TryCompleteOperationCallback(vmFrom, context))
                 OnViewModelClosed(vmFrom, context, this, false);
             if (Tracer.TraceInformation)
