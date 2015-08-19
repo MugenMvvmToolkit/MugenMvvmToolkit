@@ -71,7 +71,25 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         {
             Should.NotBeNull(window, "window");
             _window = window;
+            WrapToNavigationController = true;
         }
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        ///     Gets the current app window.
+        /// </summary>
+        protected UIWindow Window
+        {
+            get { return _window; }
+        }
+
+        /// <summary>
+        ///     Indicates that bootstrapper should wraps the main controller to the navigation controller, default is <c>true</c>.
+        /// </summary>
+        public bool WrapToNavigationController { get; set; }
 
         #endregion
 
@@ -106,9 +124,11 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         public virtual void Start()
         {
             Initialize();
-            Type mainViewModelType = GetMainViewModelType();
-            IViewModel viewModel = CreateMainViewModel(mainViewModelType);
-            viewModel.ShowAsync((model, result) => model.Dispose(), null, new DataContext(InitializationContext));
+            IViewModel viewModel = CreateMainViewModel(GetMainViewModelType());
+            if (WrapToNavigationController)
+                viewModel.ShowAsync((model, result) => model.Dispose(), null, new DataContext(InitializationContext));
+            else
+                _window.RootViewController = (UIViewController)ViewManager.GetOrCreateView(viewModel, null, new DataContext(InitializationContext));
         }
 
         /// <summary>

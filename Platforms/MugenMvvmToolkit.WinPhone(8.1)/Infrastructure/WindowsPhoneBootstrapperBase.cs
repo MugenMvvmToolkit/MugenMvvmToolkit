@@ -73,6 +73,18 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #endregion
 
+        #region Properties
+
+        /// <summary>
+        ///     Gets the root frame.
+        /// </summary>
+        protected PhoneApplicationFrame RootFrame
+        {
+            get { return _rootFrame; }
+        }
+
+        #endregion
+
         #region Overrides of BootstrapperBase
 
         /// <summary>

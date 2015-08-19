@@ -612,6 +612,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 (info, homeButton, arg3) => homeButton.AddWithUnsubscriber(arg3)));
 
             //SearchView
+            BindingBuilderExtensions.RegisterDefaultBindingMember<SearchView>(() => v => v.Query);
             var queryMember = AttachedBindingMember.CreateMember<SearchView, string>("Query",
                 (info, searchView) => searchView.Query,
                 (info, searchView, value) => searchView.SetQuery(value, false), "QueryTextChange");
@@ -823,7 +824,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 Type viewType = TypeCache<ActionProvider>.Instance.GetTypeByName(content.ToString(), true, true);
                 actionProvider = (ActionProvider)Activator.CreateInstance(viewType, GetContextFromItem(menuItem));
             }
-            
+
             menuItem.SetActionProvider(actionProvider);
             actionProvider.SetBindingMemberValue(AttachedMembers.Object.Parent, menuItem);
             var bindings = GetActionProviderBind(menuItem);

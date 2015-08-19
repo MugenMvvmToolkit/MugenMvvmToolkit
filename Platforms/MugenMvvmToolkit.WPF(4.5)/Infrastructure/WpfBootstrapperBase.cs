@@ -88,7 +88,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         /// <summary>
         ///     Indicates that the MainWindow should use only Uri navigation.
         /// </summary>
-        protected bool UseUriNavigation { get; set; }
+        public bool UseUriNavigation { get; set; }
 
         /// <summary>
         ///     An application shuts down when either the main view model closes, or Application.Shutdown() is called.

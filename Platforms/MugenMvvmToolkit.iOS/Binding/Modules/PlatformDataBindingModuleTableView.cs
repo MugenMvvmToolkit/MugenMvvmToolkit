@@ -52,6 +52,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UITableView.CellBind] = 2;
 
             //UITableView
+            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIView.ItemsSource.Override<UITableView>());
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableView.ReadOnly));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableView.CellBind));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableView.AddAnimation));
@@ -69,6 +70,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             memberProvider.Register(typeof(UITableView), AttachedMemberConstants.ItemTemplate, itemTemplateMember, true);
 
             //UITableViewCell
+            BindingBuilderExtensions.RegisterDefaultBindingMember<UITableViewCell>(() => c => c.TextLabel.Text);
             var member = AttachedBindingMember.CreateEvent(AttachedMembers.UITableViewCell.AccessoryButtonTappedEvent);
             memberProvider.Register(member);
             memberProvider.Register("Click", member);

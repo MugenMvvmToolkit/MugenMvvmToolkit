@@ -68,6 +68,14 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
         /// </summary>
         public bool AutoStart { get; set; }
 
+        /// <summary>
+        ///     Gets the current application.
+        /// </summary>
+        protected Application Application
+        {
+            get { return _application; }
+        }
+
         #endregion
 
         #region Overrides of BootstrapperBase

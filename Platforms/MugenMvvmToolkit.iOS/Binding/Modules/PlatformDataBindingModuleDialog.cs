@@ -33,6 +33,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
 
         private static void RegisterDialogMembers(IBindingMemberProvider memberProvider)
         {
+            BindingBuilderExtensions.RegisterDefaultBindingMember<Element>(() => e => e.Caption);
             memberProvider.Register(AttachedBindingMember.CreateMember<Element, string>("Caption",
                 (info, element) => element.Caption,
                 (info, element, arg3) =>
@@ -40,6 +41,16 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
                     element.Caption = arg3;
                     element.Reload();
                 }));
+            memberProvider.Register(AttachedBindingMember.CreateMember<Element, object>(AttachedMemberConstants.ParentExplicit,
+                (info, element) => element.Parent, null));
+
+            BindingBuilderExtensions.RegisterDefaultBindingMember<EntryElement>(() => e => e.Value);
+            IBindingMemberInfo member = memberProvider.GetBindingMember(typeof(EntryElement), "Changed", true, false);
+            if (member != null)
+                memberProvider.Register(AttachedBindingMember.CreateEvent<EntryElement>("ValueChanged",
+                    (info, element, arg3) => member.TryObserve(element, arg3)));
+
+            BindingBuilderExtensions.RegisterDefaultBindingMember<StringElement>(() => e => e.Value);
             memberProvider.Register(AttachedBindingMember.CreateMember<StringElement, string>("Value",
                 (info, element) => element.Value,
                 (info, element, arg3) =>
@@ -47,15 +58,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
                     element.Value = arg3;
                     element.Reload();
                 }));
-
-            memberProvider.Register(AttachedBindingMember.CreateMember<Element, object>(AttachedMemberConstants.ParentExplicit,
-                (info, element) => element.Parent, null));
-
-            IBindingMemberInfo member = memberProvider.GetBindingMember(typeof(EntryElement), "Changed", true, false);
-            if (member != null)
-                memberProvider.Register(AttachedBindingMember.CreateEvent<EntryElement>("ValueChanged",
-                    (info, element, arg3) => member.TryObserve(element, arg3)));
-
             memberProvider.Register(AttachedBindingMember.CreateEvent<StringElement>("Tapped",
                 (info, element, arg3) =>
                 {

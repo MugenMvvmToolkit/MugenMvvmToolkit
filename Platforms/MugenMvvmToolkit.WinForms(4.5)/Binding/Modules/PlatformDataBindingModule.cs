@@ -45,6 +45,12 @@ namespace MugenMvvmToolkit.WinForms.Binding.Modules
         {
             Should.NotBeNull(memberProvider, "memberProvider");
 
+            BindingBuilderExtensions.RegisterDefaultBindingMember<Button>("Click");
+            BindingBuilderExtensions.RegisterDefaultBindingMember<TextBox>(() => v => v.Text);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<Label>(() => v => v.Text);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<CheckBox>(() => v => v.Checked);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<ProgressBar>(() => v => v.Value);
+            
             //Object
             var itemsSourceMember = AttachedBindingMember.CreateAutoProperty<object, IEnumerable>(AttachedMemberConstants.ItemsSource, ObjectItemsSourceChanged);
             var defaultMemberRegistration = new DefaultAttachedMemberRegistration<IEnumerable>(itemsSourceMember);
@@ -85,6 +91,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Modules
             memberProvider.Register(typeof(Control), AttachedMemberConstants.ContentTemplate, contenMember, true);
 
             //DateTimePicker
+            BindingBuilderExtensions.RegisterDefaultBindingMember<DateTimePicker>(() => v => v.Value);
             memberProvider.Register(AttachedBindingMember.CreateMember<DateTimePicker, DateTime>("Value",
                 (info, picker) => picker.Value,
                 (info, picker, value) =>
@@ -98,16 +105,19 @@ namespace MugenMvvmToolkit.WinForms.Binding.Modules
                 }, "ValueChanged"));
 
             //ToolStripItem
+            BindingBuilderExtensions.RegisterDefaultBindingMember<ToolStripItem>("Click");
             memberProvider.Register(AttachedBindingMember.CreateMember<ToolStripItem, object>(AttachedMemberConstants.ParentExplicit,
                     GetParentToolStripItem, null, ObserveParentMemberToolStripItem));
             memberProvider.Register(AttachedBindingMember.CreateMember<ToolStripItem, object>(AttachedMemberConstants.FindByNameMethod,
                     FindByNameMemberToolStripItem));
 
             //TabControl
+            BindingBuilderExtensions.RegisterDefaultBindingMember<ComboBox>(AttachedMembers.Object.ItemsSource.Override<TabControl>());
             memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.TabControl.SelectedItem,
                 GetSelectedItemTabControl, SetSelectedItemTabControl, "Selected"));
 
             //ComboBox
+            BindingBuilderExtensions.RegisterDefaultBindingMember<ComboBox>(AttachedMembers.Object.ItemsSource.Override<ComboBox>());
             memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.Object.ItemsSource.Override<ComboBox>(),
                     (info, box) => box.DataSource as IEnumerable,
                     (info, box, value) => box.DataSource = value, "DataSourceChanged"));
@@ -116,6 +126,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Modules
                     "SelectedIndexChanged"));
 
             //DataGridView
+            BindingBuilderExtensions.RegisterDefaultBindingMember<ComboBox>(AttachedMembers.Object.ItemsSource.Override<DataGridView>());
             memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.Object.ItemsSource.Override<DataGridView>(),
                     (info, view) => view.DataSource as IEnumerable, (info, view, value) =>
                     {

@@ -94,6 +94,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             memberProvider.Register("IsVisible", menuVisibleMember);
 
             //IMenuItem
+            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.MenuItem.Click);
             memberProvider.Register(AttachedBindingMember.CreateNotifiableMember(AttachedMembers.MenuItem.IsChecked,
                 (info, item) => item.IsChecked, (info, item, value) =>
                 {

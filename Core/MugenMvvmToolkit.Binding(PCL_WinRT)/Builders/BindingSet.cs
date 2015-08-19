@@ -109,6 +109,15 @@ namespace MugenMvvmToolkit.Binding.Builders
         ///     Creates a binding builder.
         /// </summary>
         /// <returns>The fluent syntax.</returns>
+        public IBindingToSyntax<TLocalTarget> Bind<TLocalTarget>([NotNull]TLocalTarget target) where TLocalTarget : class
+        {
+            return GetBuilder().Bind(target);
+        }
+
+        /// <summary>
+        ///     Creates a binding builder.
+        /// </summary>
+        /// <returns>The fluent syntax.</returns>
         public IBindingToSyntax<TLocalTarget> Bind<TLocalTarget>([NotNull]TLocalTarget target,
             [NotNull] string targetPath) where TLocalTarget : class
         {
@@ -215,6 +224,15 @@ namespace MugenMvvmToolkit.Binding.Builders
         ///     Creates a binding builder.
         /// </summary>
         /// <returns>The fluent syntax.</returns>
+        public new IBindingToSyntax<TLocalTarget, TSource> Bind<TLocalTarget>([NotNull]TLocalTarget target) where TLocalTarget : class
+        {
+            return GetBuilder().Bind<TLocalTarget, TSource>(target);
+        }
+
+        /// <summary>
+        ///     Creates a binding builder.
+        /// </summary>
+        /// <returns>The fluent syntax.</returns>
         public new IBindingToSyntax<TLocalTarget, TSource> Bind<TLocalTarget>([NotNull]TLocalTarget target,
             [NotNull] string targetPath) where TLocalTarget : class
         {
@@ -291,6 +309,15 @@ namespace MugenMvvmToolkit.Binding.Builders
         public void BindFromExpression([NotNull]string bindingExpression)
         {
             BindFromExpression(_target, bindingExpression);
+        }
+
+        /// <summary>
+        ///     Creates a binding builder.
+        /// </summary>
+        /// <returns>The fluent syntax.</returns>
+        public IBindingToSyntax<TTarget, TSource> Bind()
+        {
+            return Bind(_target);
         }
 
         /// <summary>

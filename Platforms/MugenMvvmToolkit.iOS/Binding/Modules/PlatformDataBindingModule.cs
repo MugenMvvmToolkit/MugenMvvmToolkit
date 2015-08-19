@@ -68,6 +68,10 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             RegisterTableViewMembers(memberProvider);
             RegisterCollectionViewMembers(memberProvider);
             RegisterDialogMembers(memberProvider);
+            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIBarButtonItem.ClickEvent);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<UISearchBar>(() => t => t.Text);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<UISlider>(() => t => t.Value);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<UIProgressView>(() => t => t.Progress);
 
             //Object
             var itemsSourceMember = AttachedBindingMember.CreateAutoProperty<object, IEnumerable>(AttachedMemberConstants.ItemsSource, ObjectItemsSourceChanged);
@@ -102,16 +106,25 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             memberProvider.Register(typeof(UIView), AttachedMemberConstants.ContentTemplate, member, true);
             memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UIView.Visible, (info, view) => !view.Hidden, (info, view, arg3) => view.Hidden = !arg3));
 
+            //UISegmentedControl
+            BindingBuilderExtensions.RegisterDefaultBindingMember<UISegmentedControl>(() => t => t.SelectedSegment);
+            memberProvider.Register(AttachedBindingMember.CreateMember<UISegmentedControl, int>("SelectedSegment",
+                (info, control) => (int)control.SelectedSegment,
+                (info, control, arg3) => control.SelectedSegment = arg3, "ValueChanged"));
+
             //UIButton
+            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIControl.ClickEvent.Override<UIButton>());
             memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UIButton.Title,
                 (info, button) => button.CurrentTitle,
                 (info, button, arg3) => button.SetTitle(arg3, UIControlState.Normal)));
 
             //UIDatePicker
+            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIDatePicker.Date);
             memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UIDatePicker.Date,
                 (info, picker) => NSDateToDateTime(picker.Date), (info, picker, arg3) => picker.Date = DateTimeToNSDate(arg3), "ValueChanged"));
 
             //UISwitch
+            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UISwitch.On);
             memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UISwitch.On,
                 (info, picker) => picker.On, (info, picker, arg3) => picker.On = arg3, "ValueChanged"));
 
@@ -121,14 +134,17 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
                 memberProvider.Register(typeof(UIControl), "Click", clickMember, true);
 
             //UITextField
+            BindingBuilderExtensions.RegisterDefaultBindingMember<UITextField>(() => t => t.Text);
             NSNotificationCenter.DefaultCenter.AddObserver(UITextField.TextFieldTextDidChangeNotification, TextDidChangeNotification);
             memberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UITextField.TextChangedEvent, SetTextFieldTextChanged));
 
             //UITextView
+            BindingBuilderExtensions.RegisterDefaultBindingMember<UITextView>(() => t => t.Text);
             NSNotificationCenter.DefaultCenter.AddObserver(UITextView.TextDidChangeNotification, TextDidChangeNotification);
             memberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UITextView.TextChangedEvent, SetTextFieldTextChanged));
 
             //UILabel
+            BindingBuilderExtensions.RegisterDefaultBindingMember<UILabel>(() => t => t.Text);
             memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UILabel.TextSizeToFit,
                 (info, label) => label.Text,
                 (info, label, arg3) =>
@@ -151,16 +167,16 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
                     (info, controller) => controller.ParentViewController ?? controller.PresentingViewController, null));
 
             //UITabBarController
+            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UITabBarController.ItemsSource);
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITabBarController.SelectedItem, TabBarSelectedItemChanged, TabBarSelectedItemAttached));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITabBarController.ItemsSource, TabBarItemsSourceChanged));
 
-            //UISplitViewController
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UISplitViewController.ItemsSource, SplitViewControllerItemsSourceChanged));
-
             //UIToolbar
+            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIView.ItemsSource.Override<UIToolbar>());
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIView.ItemsSource.Override<UIToolbar>(), ToolbarItemsSourceChanged));
 
             //UIPickerView
+            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIView.ItemsSource.Override<UIPickerView>());
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIView.ItemsSource.Override<UIPickerView>(), PickerViewItemsSourceChanged));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIPickerView.DisplayMemberPath, PickerViewDisplayMemberPathChangedChanged));
             memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UIPickerView.SelectedItem,
@@ -397,16 +413,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             }
             else
                 viewManager.SetContent(container, value);
-        }
-
-        private static void SplitViewControllerItemsSourceChanged(UISplitViewController viewController, AttachedMemberChangedEventArgs<IEnumerable> args)
-        {
-            var itemsSource = (IItemsSourceGenerator)ServiceProvider
-                .AttachedValueProvider
-                .GetOrAdd(viewController, "@!spliitems", (controller, o) => new ArrayItemsSourceGenerator<UISplitViewController, UIViewController>(controller,
-                            AttachedMemberConstants.ItemTemplate,
-                            (splitViewController, controllers) => splitViewController.ViewControllers = controllers), null);
-            itemsSource.SetItemsSource(args.NewValue);
         }
 
         private static DateTime NSDateToDateTime(NSDate date)

@@ -27,6 +27,7 @@ using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Interfaces.Syntax;
+using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Parse;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
@@ -43,6 +44,7 @@ namespace MugenMvvmToolkit.Binding
         #region Fields
 
         private static readonly DataConstant<object> SyntaxBuilderConstant;
+        private static readonly BindingMemberDescriptor<object, string> DefautBindingMemberDescriptor;
 
         #endregion
 
@@ -51,6 +53,7 @@ namespace MugenMvvmToolkit.Binding
         static BindingBuilderExtensions()
         {
             SyntaxBuilderConstant = DataConstant.Create(() => SyntaxBuilderConstant, true);
+            DefautBindingMemberDescriptor = new BindingMemberDescriptor<object, string>("DefautBindingMember");
         }
 
         #endregion
@@ -58,6 +61,11 @@ namespace MugenMvvmToolkit.Binding
         #region Methods
 
         #region Bind
+
+        public static IBindingToSyntax<TTarget> Bind<TTarget>([NotNull]this TTarget targetGeneric) where TTarget : class
+        {
+            return targetGeneric.Bind(targetGeneric.GetBindingMemberValue(DefautBindingMemberDescriptor));
+        }
 
         public static IBindingToSyntax<TTarget> Bind<TTarget>([NotNull]this TTarget targetGeneric, [NotNull] string targetPath) where TTarget : class
         {
@@ -69,6 +77,11 @@ namespace MugenMvvmToolkit.Binding
             return BindingServiceProvider.BindingProvider.CreateBuilder().Bind(targetGeneric, targetPath);
         }
 
+        public static IBindingToSyntax<TTarget, TSource> Bind<TTarget, TSource>([NotNull] this IBindingBuilder builder, [NotNull] TTarget targetGeneric) where TTarget : class
+        {
+            return builder.Bind<TTarget, TSource>(targetGeneric, targetGeneric.GetBindingMemberValue(DefautBindingMemberDescriptor));
+        }
+
         public static IBindingToSyntax<TTarget, TSource> Bind<TTarget, TSource>([NotNull] this IBindingBuilder builder,
             [NotNull] TTarget targetGeneric, [NotNull] string targetPath) where TTarget : class
         {
@@ -78,6 +91,11 @@ namespace MugenMvvmToolkit.Binding
             builder.Add(BindingBuilderConstants.Target, targetGeneric);
             builder.Add(BindingBuilderConstants.TargetPath, BindingServiceProvider.BindingPathFactory(targetPath));
             return new SyntaxBuilder<TTarget, TSource>(builder);
+        }
+
+        public static IBindingToSyntax<TTarget> Bind<TTarget>([NotNull] this IBindingBuilder builder, [NotNull] TTarget targetGeneric) where TTarget : class
+        {
+            return builder.Bind<TTarget, object>(targetGeneric);
         }
 
         public static IBindingToSyntax<TTarget> Bind<TTarget>([NotNull] this IBindingBuilder builder,
@@ -470,6 +488,25 @@ namespace MugenMvvmToolkit.Binding
         {
             Should.NotBeNull(syntax, "syntax");
             return syntax.Builder.Build();
+        }
+
+        public static void RegisterDefaultBindingMember<TType>([NotNull] string member)
+            where TType : class
+        {
+            Should.NotBeNull(member, "member");
+            BindingServiceProvider.MemberProvider.Register(AttachedBindingMember.CreateMember(DefautBindingMemberDescriptor.Override<TType>(), (info, type) => member, null));
+        }
+
+        public static void RegisterDefaultBindingMember<TType>([NotNull] Func<Expression<Func<TType, object>>> getMember)
+            where TType : class
+        {
+            RegisterDefaultBindingMember<TType>(getMember.GetMemberName());
+        }
+
+        public static void RegisterDefaultBindingMember<TType, TValue>(BindingMemberDescriptor<TType, TValue> member)
+            where TType : class
+        {
+            RegisterDefaultBindingMember<TType>(member.Path);
         }
 
         #endregion

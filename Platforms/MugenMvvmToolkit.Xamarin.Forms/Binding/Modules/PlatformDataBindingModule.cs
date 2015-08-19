@@ -39,6 +39,13 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
 
         private static void Register(IBindingMemberProvider memberProvider)
         {
+            BindingBuilderExtensions.RegisterDefaultBindingMember<Entry>(() => t => t.Text);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<Label>(() => t => t.Text);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<Button>("Clicked");
+            BindingBuilderExtensions.RegisterDefaultBindingMember<ToolbarItem>("Clicked");
+            BindingBuilderExtensions.RegisterDefaultBindingMember<ListView>(() => c => c.ItemsSource);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<ProgressBar>(() => c => c.Progress);
+
             //Element
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<Element, object>(AttachedMemberConstants.ParentExplicit, GetParentValue, null, ObserveParentMember));

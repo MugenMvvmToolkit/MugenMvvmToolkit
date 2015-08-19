@@ -43,6 +43,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UICollectionView.ScrollPosition] = 2;
 
             //UICollectionView
+            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIView.ItemsSource.Override<UICollectionView>());
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UICollectionView.UseAnimations));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UICollectionView.ScrollPosition));
             memberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UICollectionView.SelectedItemChangedEvent));

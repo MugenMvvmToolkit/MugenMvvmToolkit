@@ -226,6 +226,12 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             Should.NotBeNull(memberProvider, "memberProvider");
             RegisterMenuMembers(memberProvider);
             RegisterViewMembers(memberProvider);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<Button>("Click");
+            BindingBuilderExtensions.RegisterDefaultBindingMember<TextView>(() => v => v.Text);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<EditText>(() => v => v.Text);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<CheckBox>(() => v => v.Checked);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<CompoundButton>(() => v => v.Checked);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<SeekBar>(() => v => v.Progress);
 
             //Object
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Object, ICollectionViewManager>(AttachedMembers.ViewGroup.CollectionViewManager.Path));
@@ -255,6 +261,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateMember<Activity, object>(AttachedMemberConstants.FindByNameMethod, ActivityFindByNameMember));
 
             //RatingBar
+            BindingBuilderExtensions.RegisterDefaultBindingMember<RatingBar>(() => r => r.Rating);
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<RatingBar, float>("Rating", (info, btn) => btn.Rating,
                     (info, btn, value) => btn.Rating = value, "RatingBarChange"));
@@ -273,10 +280,12 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.AdapterView.ScrollToSelectedItem));
 
             //ViewGroup
+            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.ViewGroup.ItemsSource);
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ItemsSource, ViewGroupItemsSourceChanged));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ItemTemplate, ViewGroupTemplateChanged));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ItemTemplateSelector, ViewGroupTemplateChanged));
 
+            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.ViewGroup.Content.Override<FrameLayout>());
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.Content, ContentMemberChanged, ContentMemberAttached));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ContentTemplate, ContentTemplateIdChanged));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ContentTemplateSelector, ContentTemplateSelectorChanged));
@@ -292,6 +301,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
 
             //DatePicker
+            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.DatePicker.SelectedDate);
             var selectedDateMember = AttachedBindingMember.CreateMember(AttachedMembers.DatePicker.SelectedDate,
                 (info, picker) => picker.DateTime, (info, picker, value) => picker.DateTime = value,
                 ObserveSelectedDate, SelectedDateMemberAttached);
@@ -299,11 +309,13 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             memberProvider.Register("DateTime", selectedDateMember);
 
             //TimePicker
+            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.TimePicker.SelectedTime);
             var selectedTimeMember = AttachedBindingMember.CreateMember(AttachedMembers.TimePicker.SelectedTime, GetTimePickerValue, SetTimePickerValue, "TimeChanged");
             memberProvider.Register(selectedTimeMember);
             memberProvider.Register("Value", selectedTimeMember);
 
             //ImageView
+            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.ImageView.ImageSource);
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ImageView.ImageSource,
                 (view, args) =>
                 {

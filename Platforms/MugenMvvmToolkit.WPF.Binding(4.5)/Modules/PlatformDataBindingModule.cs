@@ -108,6 +108,12 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
         private static void Register(IBindingMemberProvider memberProvider)
         {
             Should.NotBeNull(memberProvider, "memberProvider");
+            BindingBuilderExtensions.RegisterDefaultBindingMember<TextBlock>(() => t => t.Text);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<TextBox>(() => t => t.Text);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<Button>("Click");
+            BindingBuilderExtensions.RegisterDefaultBindingMember<ComboBox>(() => c => c.ItemsSource);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<ListBox>(() => c => c.ItemsSource);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<ProgressBar>(() => c => c.Value);
 
             //UIElement
             memberProvider.Register(AttachedBindingMember.CreateMember<UIElement, bool>("Visible",
@@ -140,7 +146,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
                     (info, control, value) => control.IsEnabled = value, "IsEnabledChanged"));
 #endif
 
-            //TextBox            
+            //TextBox                        
 #if WINDOWSCOMMON || NETFX_CORE
             memberProvider.Register(AttachedBindingMember.CreateMember<TextBox, string>("Text",
                 (info, box) => box.Text,

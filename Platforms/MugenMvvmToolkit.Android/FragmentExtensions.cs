@@ -90,7 +90,7 @@ namespace MugenMvvmToolkit.Android
 
         #region Methods
 
-        internal static FragmentManager GetFragmentManager(this View view)
+        public static FragmentManager GetFragmentManager(this View view)
         {
             var treeView = view;
             while (treeView != null)

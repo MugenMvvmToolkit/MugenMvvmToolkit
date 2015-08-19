@@ -72,6 +72,18 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
 
         #endregion
 
+        #region Properties
+
+        /// <summary>
+        ///     Gets the root frame.
+        /// </summary>
+        protected Frame RootFrame
+        {
+            get { return _rootFrame; }
+        }
+
+        #endregion
+
         #region Overrides of BootstrapperBase
 
         /// <summary>
