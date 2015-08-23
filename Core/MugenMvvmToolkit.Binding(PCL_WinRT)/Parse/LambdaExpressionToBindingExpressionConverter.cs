@@ -122,10 +122,11 @@ namespace MugenMvvmToolkit.Binding.Parse
         public static void Convert(Func<LambdaExpression> expression, IBindingToSyntax syntax)
         {
             Should.NotBeNull(expression, "expression");
-            if (expression.Target != null || syntax.Builder.Contains(BindingBuilderConstants.NoCache))
+            var hasClosure = expression.HasClosure();
+            if (hasClosure || syntax.Builder.Contains(BindingBuilderConstants.NoCache))
             {
                 var ex = expression();
-                if (expression.Target != null)
+                if (hasClosure)
                     ex.TraceClosureWarn();
                 Convert(ex, syntax);
                 return;
@@ -160,10 +161,11 @@ namespace MugenMvvmToolkit.Binding.Parse
         public static Func<IDataContext, object> ConvertParameter(Func<LambdaExpression> expression, IBuilderSyntax syntax)
         {
             Should.NotBeNull(expression, "expression");
-            if (expression.Target != null || syntax.Builder.Contains(BindingBuilderConstants.NoCache))
+            var hasClosure = expression.HasClosure();
+            if (hasClosure || syntax.Builder.Contains(BindingBuilderConstants.NoCache))
             {
                 var e = expression();
-                if (expression.Target != null)
+                if (hasClosure)
                     e.TraceClosureWarn();
                 var converter = new LambdaExpressionToBindingExpressionConverter(e);
                 return ConvertParameterInternal(syntax, converter.ConvertParamterInternal(e));

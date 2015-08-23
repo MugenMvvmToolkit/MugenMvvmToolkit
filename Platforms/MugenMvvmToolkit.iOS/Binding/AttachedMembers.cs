@@ -127,6 +127,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             #region Fields
 
             public static readonly BindingMemberDescriptor<UIKit.UIButton, string> Title;
+            public static readonly BindingMemberDescriptor<UIKit.UIButton, UIControlState> State;
 
             #endregion
 
@@ -139,6 +140,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             static UIButton()
             {
                 Title = new BindingMemberDescriptor<UIKit.UIButton, string>("Title");
+                State = new BindingMemberDescriptor<UIKit.UIButton, UIControlState>("State");
             }
 
             #endregion
@@ -424,6 +426,7 @@ namespace MugenMvvmToolkit.iOS.Binding
         {
             #region Fields
 
+            public static readonly BindingMemberDescriptor<UIKit.UIViewController, IItemsSourceGenerator> ToolbarItemsSourceGenerator;
             public static readonly BindingMemberDescriptor<UIKit.UIViewController, IDataTemplateSelector> ToolbarItemTemplateSelector;
             public static readonly BindingMemberDescriptor<UIKit.UIViewController, IEnumerable> ToolbarItemsSource;
 
@@ -437,34 +440,9 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             static UIViewController()
             {
+                ToolbarItemsSourceGenerator = new BindingMemberDescriptor<UIKit.UIViewController, IItemsSourceGenerator>("Toolbar" + ItemsSourceGeneratorBase.MemberDescriptor);
                 ToolbarItemTemplateSelector = new BindingMemberDescriptor<UIKit.UIViewController, IDataTemplateSelector>("ToolbarItemTemplateSelector");
                 ToolbarItemsSource = new BindingMemberDescriptor<UIKit.UIViewController, IEnumerable>("ToolbarItemsSource");
-            }
-
-            #endregion
-        }
-
-        public class UISplitViewController : UIViewController
-        {
-            #region Fields
-
-            public static readonly BindingMemberDescriptor<UIKit.UISplitViewController, IEnumerable> ItemsSource;
-            public static readonly BindingMemberDescriptor<UIKit.UISplitViewController, IDataTemplateSelector> ItemTemplateSelector;
-            public static readonly BindingMemberDescriptor<UIKit.UISplitViewController, ICollectionViewManager> CollectionViewManager;
-
-            #endregion
-
-            #region Constructors
-
-            protected UISplitViewController()
-            {
-            }
-
-            static UISplitViewController()
-            {
-                ItemsSource = new BindingMemberDescriptor<UIKit.UISplitViewController, IEnumerable>(AttachedMemberConstants.ItemsSource);
-                ItemTemplateSelector = new BindingMemberDescriptor<UIKit.UISplitViewController, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
-                CollectionViewManager = new BindingMemberDescriptor<UIKit.UISplitViewController, ICollectionViewManager>(UIView.CollectionViewManager);
             }
 
             #endregion
@@ -477,6 +455,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             public static readonly BindingMemberDescriptor<UIKit.UITabBarController, object> SelectedItem;
             public static readonly BindingMemberDescriptor<UIKit.UITabBarController, IEnumerable> ItemsSource;
             public static readonly BindingMemberDescriptor<UIKit.UITabBarController, IDataTemplateSelector> ItemTemplateSelector;
+            public static readonly BindingMemberDescriptor<UIKit.UITabBarController, IItemsSourceGenerator> ItemsSourceGenerator;
             public static readonly BindingMemberDescriptor<UIKit.UITabBarController, ICollectionViewManager> CollectionViewManager;
 
             #endregion
@@ -489,6 +468,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             static UITabBarController()
             {
+                ItemsSourceGenerator = new BindingMemberDescriptor<UIKit.UITabBarController, IItemsSourceGenerator>(ItemsSourceGeneratorBase.MemberDescriptor);
                 SelectedItem = new BindingMemberDescriptor<UIKit.UITabBarController, object>(AttachedMemberConstants.SelectedItem);
                 ItemsSource = new BindingMemberDescriptor<UIKit.UITabBarController, IEnumerable>(AttachedMemberConstants.ItemsSource);
                 ItemTemplateSelector = new BindingMemberDescriptor<UIKit.UITabBarController, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
@@ -521,6 +501,28 @@ namespace MugenMvvmToolkit.iOS.Binding
                 ItemsSourceGenerator = new BindingMemberDescriptor<global::MonoTouch.Dialog.Element, IItemsSourceGenerator>(UIView.ItemsSourceGenerator);
                 ItemTemplateSelector = new BindingMemberDescriptor<global::MonoTouch.Dialog.Element, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
                 CollectionViewManager = new BindingMemberDescriptor<global::MonoTouch.Dialog.Element, ICollectionViewManager>(UIView.CollectionViewManager);
+            }
+
+            #endregion
+        }
+
+        public class StringElement : Element
+        {
+            #region Fields
+
+            public static readonly BindingMemberDescriptor<global::MonoTouch.Dialog.StringElement, IEventListener> TappedEvent;
+
+            #endregion
+
+            #region Constructors
+
+            static StringElement()
+            {
+                TappedEvent = new BindingMemberDescriptor<global::MonoTouch.Dialog.StringElement, IEventListener>("Tapped");
+            }
+
+            protected StringElement()
+            {
             }
 
             #endregion

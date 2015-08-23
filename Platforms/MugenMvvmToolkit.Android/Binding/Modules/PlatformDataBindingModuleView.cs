@@ -140,7 +140,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         {
             //View            
             memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.FindByNameMethod, ViewFindByNameMember));
-            memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.ParentExplicit, GetViewParentValue, null, ObserveViewParent));
+            memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.ParentExplicit, GetViewParentValue, SetViewParentValue, ObserveViewParent));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, bool>(AttachedMemberConstants.Focused,
                     (info, view) => view.IsFocused, (info, view, arg3) =>
                     {
@@ -178,6 +178,11 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         private static object GetViewParentValue(IBindingMemberInfo arg1, View view)
         {
             return ParentObserver.GetOrAdd(view).Parent;
+        }
+
+        private static void SetViewParentValue(IBindingMemberInfo bindingMemberInfo, View view, object arg3)
+        {
+            ParentObserver.GetOrAdd(view).Parent = arg3;
         }
 
         private static object ViewFindByNameMember(IBindingMemberInfo bindingMemberInfo, View target, object[] arg3)

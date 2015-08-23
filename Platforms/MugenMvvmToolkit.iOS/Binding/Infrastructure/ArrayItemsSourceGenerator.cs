@@ -39,7 +39,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
     {
         #region Fields
 
-        private readonly WeakReference _container;
+        private readonly WeakReference _containerRef;
         private readonly List<KeyValuePair<object, TItem>> _items;
         private readonly Action<TContainer, TItem[]> _setItems;
         private readonly IBindingMemberInfo _templateMemberInfo;
@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             Should.NotBeNull(setItems, "setItems");
             _isControllerItem = typeof(UIViewController).IsAssignableFrom(typeof(TItem));
             _items = new List<KeyValuePair<object, TItem>>();
-            _container = PlatformExtensions.CreateWeakReference(container);
+            _containerRef = PlatformExtensions.CreateWeakReference(container);
             _setItems = setItems;
             _templateMemberInfo = BindingServiceProvider
                 .MemberProvider
@@ -73,7 +73,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         protected override bool IsTargetDisposed
         {
-            get { return _container.Target == null; }
+            get { return _containerRef.Target == null; }
         }
 
         protected override void Add(int insertionIndex, int count)
@@ -175,12 +175,14 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         private object GetItemFromTemplate(object item)
         {
-            if (_templateMemberInfo == null)
+            var target = _containerRef.Target;
+            if (_templateMemberInfo == null || target == null)
                 return GetDefaultTemplate(item);
-            var selector = (IDataTemplateSelector)_templateMemberInfo.GetValue(_container, null);
+
+            var selector = (IDataTemplateSelector)_templateMemberInfo.GetValue(target, null);
             if (selector == null)
                 return GetDefaultTemplate(item);
-            return selector.SelectTemplateWithContext(item, _container);
+            return selector.SelectTemplateWithContext(item, target);
         }
 
         private static object GetDefaultTemplate(object item)
@@ -207,7 +209,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         private void UpdateItems()
         {
-            var container = (TContainer)_container.Target;
+            var container = (TContainer)_containerRef.Target;
             if (container == null)
             {
                 OnTargetDisposed(null, EventArgs.Empty);

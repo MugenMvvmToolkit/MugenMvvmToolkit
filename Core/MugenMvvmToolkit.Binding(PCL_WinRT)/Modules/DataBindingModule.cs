@@ -62,8 +62,11 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             #region Methods
 
-            public ParentValue UpdateAttachedParent(object attachedParent)
+            public ParentValue UpdateAttachedParent(object source, object attachedParent, object[] args)
             {
+                if (_parentMember != null && _parentMember.CanWrite &&
+                    (attachedParent == null || _parentMember.Type.IsInstanceOfType(attachedParent)))
+                    _parentMember.SetValue(source, args);
                 return new ParentValue(attachedParent, _parentMember);
             }
 
@@ -381,7 +384,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         private static object SetParent(IBindingMemberInfo bindingMemberInfo, object o, object[] arg3)
         {
             var value = AttachedParentMember.GetValue(o, null);
-            return AttachedParentMember.SetValue(o, value.UpdateAttachedParent(arg3[0]));
+            return AttachedParentMember.SetValue(o, value.UpdateAttachedParent(o, arg3[0], arg3));
         }
 
         private static object GetParent(IBindingMemberInfo bindingMemberInfo, object o, object[] arg3)

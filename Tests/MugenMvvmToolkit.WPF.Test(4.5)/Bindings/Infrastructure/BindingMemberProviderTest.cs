@@ -269,6 +269,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         [TestMethod]
         public void ProviderShouldReturnFakeMember1()
         {
+            BindingServiceProvider.FakeMemberPrefixes.Add("Fake");
             const string path = "FakeTest";
             var provider = CreateMemberProvider();
             var member = provider.GetBindingMember(typeof(object), path, false, false);

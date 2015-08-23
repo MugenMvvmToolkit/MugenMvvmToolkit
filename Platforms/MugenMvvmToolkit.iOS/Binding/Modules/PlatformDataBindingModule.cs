@@ -19,7 +19,6 @@
 using System;
 using System.Collections;
 using System.Linq;
-using CoreGraphics;
 using Foundation;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
@@ -43,9 +42,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
         #region Fields
 
         private static readonly EventHandler<UITabBarSelectionEventArgs> SelecectedControllerChangedHandler;
-
-        private const string TabBarItemsSourceKey = "~~@!tabitems";
-        private const string ToolbarItemsSourceKey = "~~@!toolbaritems";
         private const string TextChangedEvent = "~@txtchang";
         private const string ContentControllerPath = "#$!contentctr";
 
@@ -98,7 +94,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
 
             //UIView
             memberProvider.Register(AttachedBindingMember.CreateMember<UIView, object>(AttachedMemberConstants.ParentExplicit,
-                (info, view) => ParentObserver.GetOrAdd(view).Parent, null, (info, view, arg3) => ParentObserver.GetOrAdd(view).AddWithUnsubscriber(arg3)));
+                (info, view) => ParentObserver.GetOrAdd(view).Parent, (info, view, arg3) => ParentObserver.GetOrAdd(view).Parent = arg3, (info, view, arg3) => ParentObserver.GetOrAdd(view).AddWithUnsubscriber(arg3)));
             memberProvider.Register(AttachedBindingMember.CreateMember<UIView, object>(AttachedMemberConstants.FindByNameMethod, FindViewByName));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIView.Content, ContentChanged));
             var member = AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIView.ContentTemplateSelector, ContentTemplateChanged);
@@ -116,7 +112,10 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIControl.ClickEvent.Override<UIButton>());
             memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UIButton.Title,
                 (info, button) => button.CurrentTitle,
-                (info, button, arg3) => button.SetTitle(arg3, UIControlState.Normal)));
+                (info, button, arg3) => button.SetTitle(arg3, button.State)));
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UIButton.State,
+                (info, button) => button.State,
+                (info, button, arg3) => button.SetTitle(button.CurrentTitle, arg3)));
 
             //UIDatePicker
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIDatePicker.Date);
@@ -247,35 +246,45 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
 
         private static IItemsSourceGenerator GetOrAddTabBarItemsSourceGenerator(UITabBarController controller)
         {
-            return ServiceProvider
-                .AttachedValueProvider
-                .GetOrAdd(controller, TabBarItemsSourceKey, (barController, o) => new ArrayItemsSourceGenerator<UITabBarController, UIViewController>(barController,
-                            AttachedMemberConstants.ItemTemplate, (tabBarController, controllers) =>
+            var generator = controller.GetBindingMemberValue(AttachedMembers.UITabBarController.ItemsSourceGenerator);
+            if (generator == null)
+            {
+                generator = new ArrayItemsSourceGenerator<UITabBarController, UIViewController>(controller,
+                    AttachedMemberConstants.ItemTemplate, (tabBarController, controllers) =>
+                    {
+                        tabBarController.SetViewControllers(controllers, true);
+                        var viewController = tabBarController.SelectedViewController;
+                        if (viewController != null)
+                        {
+                            if (controllers.Length == 0 || !controllers.Contains(viewController))
                             {
-                                tabBarController.SetViewControllers(controllers, true);
-                                var viewController = tabBarController.SelectedViewController;
-                                if (viewController != null)
-                                {
-                                    if (controllers.Length == 0 || !controllers.Contains(viewController))
-                                    {
-                                        viewController.RemoveFromParentViewController();
-                                        if (viewController.View != null)
-                                            viewController.View.RemoveFromSuperviewEx();
-                                        if (controllers.Length == 0)
-                                            tabBarController.SetBindingMemberValue(AttachedMembers.UITabBarController.SelectedItem, BindingExtensions.NullValue);
-                                        else
-                                            tabBarController.SelectedViewController = controllers.Last();
-                                    }
-                                }
-                            }), null);
+                                viewController.RemoveFromParentViewController();
+                                if (viewController.View != null)
+                                    viewController.View.RemoveFromSuperviewEx();
+                                if (controllers.Length == 0)
+                                    tabBarController.SetBindingMemberValue(
+                                        AttachedMembers.UITabBarController.SelectedItem, BindingExtensions.NullValue);
+                                else
+                                    tabBarController.SelectedViewController = controllers.Last();
+                            }
+                        }
+                    });
+                controller.SetBindingMemberValue(AttachedMembers.UITabBarController.ItemsSourceGenerator, generator);
+            }
+            return generator;
         }
 
         private static IItemsSourceGenerator GetOrAddToolBarItemsSourceGenerator(UIViewController controller)
         {
-            return ServiceProvider
-                .AttachedValueProvider
-                .GetOrAdd(controller, ToolbarItemsSourceKey, (viewController, o) => new ArrayItemsSourceGenerator<UIViewController, UIBarButtonItem>(viewController,
-                            AttachedMembers.UIViewController.ToolbarItemTemplateSelector, (tabBarController, items) => tabBarController.SetToolbarItemsEx(items, true)), null);
+            var generator = controller.GetBindingMemberValue(AttachedMembers.UIViewController.ToolbarItemsSourceGenerator);
+            if (generator == null)
+            {
+                generator = new ArrayItemsSourceGenerator<UIViewController, UIBarButtonItem>(controller,
+                    AttachedMembers.UIViewController.ToolbarItemTemplateSelector,
+                    (tabBarController, items) => tabBarController.SetToolbarItemsEx(items, true));
+                controller.SetBindingMemberValue(AttachedMembers.UIViewController.ToolbarItemsSourceGenerator, generator);
+            }
+            return generator;
         }
 
         private static IItemsSourceGenerator GetOrAddToolBarItemsSourceGenerator(UIToolbar toolbar)

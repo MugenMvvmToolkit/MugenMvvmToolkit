@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.WinForms</id>
-    <version>4.0.0</version>
+    <version>4.1.0</version>
     <title>MugenMvvmToolkit - WinForms</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -37,27 +37,14 @@
       - Excellent binding performance.
     </description>
     <releaseNotes>
-      - Changed namespace for platform specific assembly from MugenMvvmToolkit to MugenMvvmToolkit.PlatformName (WPF, WinForms, etc) (Breaking changes).
-      - Merged MugenMvvmToolkit.Android.Fragment and MugenMvvmToolkit.Android.ActionBar projects into MugenMvvmToolkit.Android project (Breaking changes).
-      - Changed System.Linq.Expressions.Expression usage, instead of using the direct creation of expression vm => vm.Property, it is now created using a delegate () => vm => vm.Property (Breaking changes).
-      - Renamed methods from GetPropertyName to GetMemberName (Breaking changes).
-      - Renamed methods from PropertyNameEqual to MemberNameEqual (Breaking changes).
-      - Fixed (ItemsSourceAdapter leaks in Fragments and nested Adapters).
-      - Added the ability to use custom C# expression for binding parameters.
-      - Added the BindableLayoutInflater class (Android).
-      - Added the MvvmAppCompatActivity class (Android).
-      - Added extension methods (GetBindingMemberValue, TryGetBindingMemberValue, SetBindingMemberValue), that unifies the work with attached members.
-      - Added the AttachedMembers class for all platforms that contains platform specific attached members.
-      - Added ability to remove a Page from back stack when a view model is closed (Android, iOS, WinRT, Xamarin.Forms).
-      - Added ability to work with WPF and WinForms in a single project.
-      - Added BindingInitializing and BindingInitialized events to the IBindingProvider interface that allows to intercept binding creation.
-      - Added BindingModeToBehavior property to BindingServiceProvider instead of BindingParser.BindingModeToAction property.
-      - Added support for Android Design Support Library.
-      - Updated binding modes to handle some specific cases.
-      - Improved performance (Binding).
-      - Improved navigation system.
-      - Updated support libraries to 22.2.1.0 (Android).
-      - A large number of small changes.
+      - Added support for WinRT platform (Xamarin.Forms).
+      - Added the ability to add default binding member for any type (BindingBuilderExtensions.RegisterDefaultBindingMember). This allows to write Bind() without a path, in this case the default member will be used.
+      - Added the ability to subscribe to any member change if the member supports change notification. For example if member name is Checked the name of the event will be CheckedChanged.
+      - Added the ability to write complex expression in binding parameters.
+      - Added the BindingServiceProvider.BindingCultureInfo property.
+      - Added the BindingSyntaxEx.Resource method that allows to use static resource path.
+      - Updated caching algorithm for lambda.
+      - Improved navigation system (Xamarin.Forms).
       - Minor changes.
     </releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -66,7 +53,7 @@
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
-      <dependency id="MugenMvvmToolkit" version="[4.0.0, 4.1.0)" />
+      <dependency id="MugenMvvmToolkit" version="[4.1.0, 4.2.0)" />
     </dependencies>
   </metadata>
   <files>

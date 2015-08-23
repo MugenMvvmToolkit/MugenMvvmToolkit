@@ -71,7 +71,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Models
                 if (!_isAttached)
                 {
                     _isAttached = true;
-                    var element = Source;
+                    var element = GetSource();
                     if (element != null)
                         element.PropertyChanged -= OnPropertyChanged;
                 }

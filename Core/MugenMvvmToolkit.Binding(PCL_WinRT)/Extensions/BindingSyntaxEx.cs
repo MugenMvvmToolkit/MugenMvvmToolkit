@@ -70,8 +70,9 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                 MemberFlags.NonPublic | MemberFlags.Static);
             ResourceMethodImplMethod = typeof(BindingSyntaxEx).GetMethodEx("ResourceMethodImpl",
                 MemberFlags.NonPublic | MemberFlags.Static);
-            ResourceMethodInfo = typeof(BindingSyntaxEx).GetMethodEx(ResourceMethodName,
-                MemberFlags.Public | MemberFlags.Static);
+            ResourceMethodInfo = typeof(BindingSyntaxEx)
+                .GetMethodsEx(MemberFlags.Public | MemberFlags.Static)
+                .First(info => info.Name == ResourceMethodName && info.GetParameters().Length == 1);
             FirstLevelBoxed = 1u;
         }
 
@@ -144,6 +145,20 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                 .ResourceResolver
                 .ResolveObject(name, MugenMvvmToolkit.Models.DataContext.Empty, true)
                 .Value;
+        }
+
+        /// <summary>
+        ///     Gets a resource object by name.
+        /// </summary>
+        public static T Resource<T>(string name, Expression<Func<T>> member)
+        {
+            var value = BindingServiceProvider
+                .ResourceResolver
+                .ResolveObject(name, MugenMvvmToolkit.Models.DataContext.Empty, true)
+                .Value;
+#pragma warning disable 618
+            return (T)BindingExtensions.GetValueFromPath(value, member.GetMemberInfo().Name);
+#pragma warning restore 618
         }
 
         /// <summary>
@@ -270,6 +285,18 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                         break;
                     case SourceMethodName:
                         resourceName = BindingServiceProvider.ResourceResolver.BindingSourceResourceName;
+                        break;
+                    case ResourceMethodName:
+                        mExp.Arguments[0].TryGetStaticValue(out resourceName, true);
+                        if (mExp.Arguments.Count == 2)
+                        {
+#pragma warning disable 618
+                            LambdaExpression lambda = mExp.Arguments[1] as LambdaExpression;
+                            if (lambda == null)
+                                lambda = (LambdaExpression)((UnaryExpression)mExp.Arguments[1]).Operand;
+                            path = BindingExtensions.MergePath(lambda.GetMemberInfo().Name, path);
+#pragma warning restore 618
+                        }
                         break;
                     default:
                         mExp.Arguments[0].TryGetStaticValue(out resourceName, true);

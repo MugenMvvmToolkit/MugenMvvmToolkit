@@ -134,7 +134,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Models
             if (!source.IsAlive())
             {
                 Clear();
-                source = null;
+                return null;
             }
             return source;
         }
@@ -142,14 +142,9 @@ namespace MugenMvvmToolkit.iOS.Binding.Models
         private void Raise(out UIView view)
         {
             view = GetSource();
-            if (!view.IsAlive())
-            {
-                view = null;
+            if (_isAttached || view == null)
                 return;
-            }
 
-            if (_isAttached)
-                return;
             object parent = GetParent(view);
             if (ReferenceEquals(parent, _parent.Target))
                 return;

@@ -48,7 +48,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
 
             //Element
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<Element, object>(AttachedMemberConstants.ParentExplicit, GetParentValue, null, ObserveParentMember));
+                .CreateMember<Element, object>(AttachedMemberConstants.ParentExplicit, GetParentValue, SetParentValue, ObserveParentMember));
             memberProvider.Register(typeof(Element), "BindingContext", BindingMemberProvider.BindingContextMember, true);
 
             //VisualElement
@@ -93,6 +93,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
         private static object GetParentValue(IBindingMemberInfo bindingMemberInfo, Element target)
         {
             return ParentObserver.GetOrAdd(target).Parent;
+        }
+
+        private static void SetParentValue(IBindingMemberInfo bindingMemberInfo, Element element, object arg3)
+        {
+            ParentObserver.GetOrAdd(element).Parent = arg3;
         }
 
         private static IDisposable ObserveParentMember(IBindingMemberInfo bindingMemberInfo, Element o, IEventListener arg3)

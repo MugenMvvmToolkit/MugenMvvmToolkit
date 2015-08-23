@@ -26,6 +26,13 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
     [TestClass]
     public class BindingSyntaxExtensionsTest : BindingTestBase
     {
+        #region Fields
+
+        public static readonly int IntProperty;
+        public static readonly BindingSourceNestedModel NestedModel;
+
+        #endregion
+
         #region Methods
 
         [TestMethod]
@@ -543,6 +550,40 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             source.GetSource(true).ShouldEqual(sourceModel);
             var pathMembers = source.GetPathMembers(true);
             pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, null).ShouldEqual(sourceModel.ObjectProperty);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseResource3()
+        {
+            const string key = "key";
+            var builder = new BindingBuilder();
+            var sourceModel = new BindingSourceModel { IntProperty = int.MinValue };
+            BindingServiceProvider.ResourceResolver.AddObject(key, sourceModel);
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => model => BindingSyntaxEx.Resource(key, () => IntProperty));
+
+            var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
+            builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
+            source.Path.Path.ShouldEqual(GetMemberPath(sourceModel, model => model.IntProperty));
+            source.GetSource(true).ShouldEqual(sourceModel);
+            var pathMembers = source.GetPathMembers(true);
+            pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, null).ShouldEqual(sourceModel.IntProperty);
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseResource4()
+        {
+            const string key = "key";
+            var builder = new BindingBuilder();
+            var sourceModel = new BindingSourceModel { NestedModel = new BindingSourceNestedModel { IntProperty = int.MinValue } };
+            BindingServiceProvider.ResourceResolver.AddObject(key, sourceModel);
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => model => BindingSyntaxEx.Resource(key, () => NestedModel).IntProperty);
+
+            var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
+            builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
+            source.Path.Path.ShouldEqual(GetMemberPath(sourceModel, model => model.NestedModel.IntProperty));
+            source.GetSource(true).ShouldEqual(sourceModel);
+            var pathMembers = source.GetPathMembers(true);
+            pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, null).ShouldEqual(sourceModel.NestedModel.IntProperty);
         }
 
         [TestMethod]

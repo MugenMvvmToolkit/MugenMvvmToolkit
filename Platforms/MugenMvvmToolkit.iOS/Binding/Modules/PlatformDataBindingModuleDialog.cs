@@ -58,7 +58,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
                     element.Value = arg3;
                     element.Reload();
                 }));
-            memberProvider.Register(AttachedBindingMember.CreateEvent<StringElement>("Tapped",
+            memberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.StringElement.TappedEvent,
                 (info, element, arg3) =>
                 {
                     var weakWrapper = arg3.ToWeakWrapper();

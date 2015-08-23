@@ -80,12 +80,22 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
         ///     Gets or sets the parent of current element.
         /// </summary>
         [CanBeNull]
-        public DependencyObject Parent
+        public object Parent
         {
             get { return _parent.Target as DependencyObject; }
             set
             {
-                _isAttached = true;
+                if (!_isAttached)
+                {
+                    _isAttached = true;
+                    var view = GetSource();
+                    if (view != null)
+                    {
+                        RoutedEventHandler handler = OnChanged;
+                        view.Loaded += handler;
+                        view.Unloaded += handler;
+                    }
+                }
                 SetParent(value);
             }
         }
@@ -113,7 +123,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
                 SetParent(FindParent(source));
         }
 
-        private void SetParent(DependencyObject value)
+        private void SetParent(object value)
         {
             var source = GetSource();
             if (source == null)

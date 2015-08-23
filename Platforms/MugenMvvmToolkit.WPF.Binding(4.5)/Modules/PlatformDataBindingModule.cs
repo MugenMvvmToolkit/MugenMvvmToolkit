@@ -125,7 +125,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
 
             //FrameworkElement            
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<FrameworkElement, object>(AttachedMemberConstants.ParentExplicit, GetParentValue, null, ObserveParentMember));
+                .CreateMember<FrameworkElement, object>(AttachedMemberConstants.ParentExplicit, GetParentValue, SetParentValue, ObserveParentMember));
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, object>(AttachedMemberConstants.FindByNameMethod, FindByNameMemberImpl));
 #if SILVERLIGHT || NETFX_CORE || WINDOWSCOMMON || WINDOWS_PHONE
@@ -198,9 +198,14 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
             return frameworkElement.FindName(name) ?? FindChild(root, name);
         }
 
-        private static DependencyObject GetParentValue(IBindingMemberInfo bindingMemberInfo, FrameworkElement target)
+        private static object GetParentValue(IBindingMemberInfo bindingMemberInfo, FrameworkElement target)
         {
             return ParentObserver.GetOrAdd(target).Parent;
+        }
+
+        private static void SetParentValue(IBindingMemberInfo bindingMemberInfo, FrameworkElement frameworkElement, object arg3)
+        {
+            ParentObserver.GetOrAdd(frameworkElement).Parent = arg3;
         }
 
         private static IDisposable ObserveParentMember(IBindingMemberInfo bindingMemberInfo, FrameworkElement o, IEventListener arg3)

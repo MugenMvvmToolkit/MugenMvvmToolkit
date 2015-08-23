@@ -477,7 +477,7 @@ namespace MugenMvvmToolkit.Binding
         public static string GetMemberPath(Func<LambdaExpression> getExpression, string separator = ".")
         {
             Should.NotBeNull(getExpression, "getExpression");
-            if (getExpression.Target != null)
+            if (getExpression.HasClosure())
             {
                 LambdaExpression expression = getExpression();
                 expression.TraceClosureWarn();

@@ -137,6 +137,7 @@ namespace MugenMvvmToolkit
         private static readonly Dictionary<Type, Func<object, ICommand>[]> TypesToCommandsProperties;
         private static readonly Dictionary<Type, Action<object, IViewModel>> ViewToViewModelInterface;
         private static readonly Dictionary<Type, PropertyInfo> ViewModelToViewInterface;
+        private static readonly Dictionary<Type, bool> HasClosureDictionary;
 
         #endregion
 
@@ -150,6 +151,7 @@ namespace MugenMvvmToolkit
             UnsubscribeCollectionChangedDelegate = UnsubscribeCollectionChanged;
             UnsubscribePropertyChangedDelegate = UnsubscribePropertyChanged;
             UnsubscribeErrorsChangedDelegate = UnsubscribeErrorsChanged;
+            HasClosureDictionary = new Dictionary<Type, bool>();
             CachedAttributes = new Dictionary<MemberInfo, Attribute[]>();
             GetDataContextDelegateCache = new Dictionary<Type, Func<object, object>>();
             SetDataContextDelegateCache = new Dictionary<Type, Action<object, object>>();
@@ -515,7 +517,7 @@ namespace MugenMvvmToolkit
         public static MemberInfo GetMemberInfo([NotNull] this Func<LambdaExpression> getExpression)
         {
             Should.NotBeNull(getExpression, "getExpression");
-            if (getExpression.Target != null)
+            if (getExpression.HasClosure())
             {
                 LambdaExpression expression = getExpression();
                 expression.TraceClosureWarn();
@@ -792,6 +794,24 @@ namespace MugenMvvmToolkit
                     return method;
             }
             return null;
+        }
+
+        internal static bool HasClosure(this Delegate del)
+        {
+            if (del.Target == null)
+                return false;
+            var type = del.Target.GetType();
+            lock (HasClosureDictionary)
+            {
+                bool value;
+                if (!HasClosureDictionary.TryGetValue(type, out value))
+                {
+                    value = type.GetPropertiesEx(MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Instance).Length != 0 ||
+                        type.GetFieldsEx(MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Instance).Length != 0;
+                    HasClosureDictionary[type] = value;
+                }
+                return value;
+            }
         }
 
 #if PCL_WINRT

@@ -102,10 +102,10 @@ namespace MugenMvvmToolkit.Android.Binding.Models
         public void Raise()
         {
             var view = GetSource();
-            if (view == null)
+            if (_isAttached || view == null)
                 return;
             var parent = GetParent(view);
-            if (_isAttached || view.Id == global::Android.Resource.Id.Content || ReferenceEquals(parent, _parent.Target))
+            if (view.Id == global::Android.Resource.Id.Content || ReferenceEquals(parent, _parent.Target))
                 return;
             _parent = ToolkitExtensions.GetWeakReferenceOrDefault(parent, Empty.WeakReference, false);
             Raise(view, EventArgs.Empty);
