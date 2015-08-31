@@ -338,6 +338,20 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         }
 
         /// <summary>
+        ///     Tries to cancel the current validation process.
+        /// </summary>
+        public void CancelValidation()
+        {
+            lock (_runningTask)
+            {
+                var tasks = _runningTask.ToArrayEx();
+                _runningTask.Clear();
+                for (int i = 0; i < tasks.Length; i++)
+                    tasks[i].Value.Cancel();
+            }
+        }
+
+        /// <summary>
         ///     Clears errors for a property.
         /// </summary>
         /// <param name="propertyName">The name of the property</param>

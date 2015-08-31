@@ -34,7 +34,7 @@ using MugenMvvmToolkit.Silverlight.Binding.Models;
 using EventType = System.Windows.DependencyPropertyChangedEventArgs;
 
 namespace MugenMvvmToolkit.Silverlight.Binding.Infrastructure
-#elif WINDOWSCOMMON || NETFX_CORE
+#elif WINDOWSCOMMON
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
@@ -64,13 +64,13 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
         #region Nested types
 
         private sealed class BindingContextSource : IBindingContext
-#if WINDOWS_PHONE || NETFX_CORE
+#if WINDOWS_PHONE
 , IHandler<ValueChangedEventArgs>
 #endif
         {
             #region Fields
 
-#if WINDOWS_PHONE || NETFX_CORE
+#if WINDOWS_PHONE
             private readonly IObserver _observer;
 #else
             private readonly WeakReference _sourceReference;
@@ -81,7 +81,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 
             public BindingContextSource(FrameworkElement element)
             {
-#if WINDOWS_PHONE || NETFX_CORE
+#if WINDOWS_PHONE
                 _observer = BindingServiceProvider
                     .ObserverProvider
                     .Observe(element, BindingPath.DataContext, true);
@@ -102,7 +102,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
             {
                 get
                 {
-#if WINDOWS_PHONE || NETFX_CORE
+#if WINDOWS_PHONE
                     return _observer.Source;
 #else
                     return _sourceReference.Target;
@@ -150,7 +150,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 
             #region Methods
 
-#if WINDOWS_PHONE || NETFX_CORE
+#if WINDOWS_PHONE
             void IHandler<ValueChangedEventArgs>.Handle(object sender, ValueChangedEventArgs message)
             {
                 var handler = ValueChanged;
@@ -178,7 +178,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 
         #region Properties
 
-#if !WINDOWS_PHONE && !NETFX_CORE
+#if !WINDOWS_PHONE
         static BindingContextManagerEx()
         {
 #if WPF

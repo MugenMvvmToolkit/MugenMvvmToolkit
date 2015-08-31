@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Core(PCL_Silverlight)", "Core\MugenMvvmToolkit.Core(PCL_Silverlight)\MugenMvvmToolkit.Core(PCL_Silverlight).csproj", "{74D0561D-14CE-4BB7-911E-4F8EC86B203C}"
 EndProject
@@ -12,8 +12,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WPF(4.0)", "Platforms\MugenMvvmToolkit.WPF(4.0)\MugenMvvmToolkit.WPF(4.0).csproj", "{767BA920-CF3A-4894-8382-2DE780D398E3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Silverlight(5.0)", "Platforms\MugenMvvmToolkit.Silverlight(5.0)\MugenMvvmToolkit.Silverlight(5.0).csproj", "{F50A09D0-6C2B-4F08-9A42-67146BFAECE9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinRT(8.0)", "Platforms\MugenMvvmToolkit.WinRT(8.0)\MugenMvvmToolkit.WinRT(8.0).csproj", "{634B471B-9BEA-4C91-BE1C-2DCCD4D01668}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinPhone(8.0)", "Platforms\MugenMvvmToolkit.WinPhone(8.0)\MugenMvvmToolkit.WinPhone(8.0).csproj", "{DB5F3AF4-E212-43B4-8EA6-F78752FB9C15}"
 EndProject
@@ -27,7 +25,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.MugenConta
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.MugenContainer(WP8.0)", "IocContainers\MugenMvvmToolkit.MugenContainer(WP8.0)\MugenMvvmToolkit.MugenContainer(WP8.0).csproj", "{E91177F0-F219-4FBA-89DA-B6B7A8E0F5D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.MugenContainer(WinRT8.0)", "IocContainers\MugenMvvmToolkit.MugenContainer(WinRT8.0)\MugenMvvmToolkit.MugenContainer(WinRT8.0).csproj", "{E167271B-5F89-4D89-99B2-F585E232035F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.MugenContainer(WinRT)", "IocContainers\MugenMvvmToolkit.MugenContainer(WinRT)\MugenMvvmToolkit.MugenContainer(WinRT).csproj", "{E167271B-5F89-4D89-99B2-F585E232035F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.NinjectContainer(NET4)", "IocContainers\MugenMvvmToolkit.NinjectContainer(NET4)\MugenMvvmToolkit.NinjectContainer(NET4).csproj", "{1EB1A717-7102-4138-8A37-42DFD943E0F9}"
 EndProject
@@ -43,7 +41,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Platforms", "Platforms", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{6FC06C60-0685-44E6-A8F3-A158A3265740}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinRT.Test(8.0)", "Tests\MugenMvvmToolkit.WinRT.Test(8.0)\MugenMvvmToolkit.WinRT.Test(8.0).csproj", "{F1185078-9FD9-4E3E-8299-E06B60D07B48}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinRT.Test", "Tests\MugenMvvmToolkit.WinRT.Test\MugenMvvmToolkit.WinRT.Test.csproj", "{F1185078-9FD9-4E3E-8299-E06B60D07B48}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Silverlight.Test(5.0)", "Tests\MugenMvvmToolkit.Silverlight.Test(5.0)\MugenMvvmToolkit.Silverlight.Test(5.0).csproj", "{B5AAA482-431C-4A0F-AE08-8FE96BB24B62}"
 EndProject
@@ -84,8 +82,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Android", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinPhone.Binding(8.0)", "Platforms\MugenMvvmToolkit.WinPhone.Binding(8.0)\MugenMvvmToolkit.WinPhone.Binding(8.0).csproj", "{9489F7E3-F3A1-4ABD-B152-369CA1B102C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinRT.Binding(8.0)", "Platforms\MugenMvvmToolkit.WinRT.Binding(8.0)\MugenMvvmToolkit.WinRT.Binding(8.0).csproj", "{7AD9872B-D026-47F0-ADA9-1EBC321522C8}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WPF.Binding(4.0)", "Platforms\MugenMvvmToolkit.WPF.Binding(4.0)\MugenMvvmToolkit.WPF.Binding(4.0).csproj", "{627042AA-2DA6-4744-982A-E6BA58D9421A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Core(PCL_WinRT)", "Core\MugenMvvmToolkit.Core(PCL_WinRT)\MugenMvvmToolkit.Core(PCL_WinRT).csproj", "{F4323E9E-1608-429B-83DC-6A3670761850}"
@@ -123,6 +119,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Android.Design", "Platforms\MugenMvvmToolkit.Android.Design\MugenMvvmToolkit.Android.Design.csproj", "{60C043FA-389E-4339-BA43-E8CA940BBFCA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Xamarin.Forms.WinRT", "Platforms\MugenMvvmToolkit.Xamarin.Forms.WinRT\MugenMvvmToolkit.Xamarin.Forms.WinRT.csproj", "{C1687D2E-D65C-48D6-9DAD-8ED5ECE38E87}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinRT.Binding(UWP)", "Platforms\MugenMvvmToolkit.WinRT.Binding(UWP)\MugenMvvmToolkit.WinRT.Binding(UWP).csproj", "{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -186,22 +184,6 @@ Global
 		{F50A09D0-6C2B-4F08-9A42-67146BFAECE9}.Release|ARM.ActiveCfg = Release|Any CPU
 		{F50A09D0-6C2B-4F08-9A42-67146BFAECE9}.Release|x64.ActiveCfg = Release|Any CPU
 		{F50A09D0-6C2B-4F08-9A42-67146BFAECE9}.Release|x86.ActiveCfg = Release|Any CPU
-		{634B471B-9BEA-4C91-BE1C-2DCCD4D01668}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{634B471B-9BEA-4C91-BE1C-2DCCD4D01668}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{634B471B-9BEA-4C91-BE1C-2DCCD4D01668}.Debug|ARM.ActiveCfg = Debug|ARM
-		{634B471B-9BEA-4C91-BE1C-2DCCD4D01668}.Debug|ARM.Build.0 = Debug|ARM
-		{634B471B-9BEA-4C91-BE1C-2DCCD4D01668}.Debug|x64.ActiveCfg = Debug|x64
-		{634B471B-9BEA-4C91-BE1C-2DCCD4D01668}.Debug|x64.Build.0 = Debug|x64
-		{634B471B-9BEA-4C91-BE1C-2DCCD4D01668}.Debug|x86.ActiveCfg = Debug|x86
-		{634B471B-9BEA-4C91-BE1C-2DCCD4D01668}.Debug|x86.Build.0 = Debug|x86
-		{634B471B-9BEA-4C91-BE1C-2DCCD4D01668}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{634B471B-9BEA-4C91-BE1C-2DCCD4D01668}.Release|Any CPU.Build.0 = Release|Any CPU
-		{634B471B-9BEA-4C91-BE1C-2DCCD4D01668}.Release|ARM.ActiveCfg = Release|ARM
-		{634B471B-9BEA-4C91-BE1C-2DCCD4D01668}.Release|ARM.Build.0 = Release|ARM
-		{634B471B-9BEA-4C91-BE1C-2DCCD4D01668}.Release|x64.ActiveCfg = Release|x64
-		{634B471B-9BEA-4C91-BE1C-2DCCD4D01668}.Release|x64.Build.0 = Release|x64
-		{634B471B-9BEA-4C91-BE1C-2DCCD4D01668}.Release|x86.ActiveCfg = Release|x86
-		{634B471B-9BEA-4C91-BE1C-2DCCD4D01668}.Release|x86.Build.0 = Release|x86
 		{DB5F3AF4-E212-43B4-8EA6-F78752FB9C15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DB5F3AF4-E212-43B4-8EA6-F78752FB9C15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB5F3AF4-E212-43B4-8EA6-F78752FB9C15}.Debug|ARM.ActiveCfg = Debug|ARM
@@ -447,22 +429,6 @@ Global
 		{9489F7E3-F3A1-4ABD-B152-369CA1B102C8}.Release|x64.ActiveCfg = Release|Any CPU
 		{9489F7E3-F3A1-4ABD-B152-369CA1B102C8}.Release|x86.ActiveCfg = Release|x86
 		{9489F7E3-F3A1-4ABD-B152-369CA1B102C8}.Release|x86.Build.0 = Release|x86
-		{7AD9872B-D026-47F0-ADA9-1EBC321522C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7AD9872B-D026-47F0-ADA9-1EBC321522C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7AD9872B-D026-47F0-ADA9-1EBC321522C8}.Debug|ARM.ActiveCfg = Debug|ARM
-		{7AD9872B-D026-47F0-ADA9-1EBC321522C8}.Debug|ARM.Build.0 = Debug|ARM
-		{7AD9872B-D026-47F0-ADA9-1EBC321522C8}.Debug|x64.ActiveCfg = Debug|x64
-		{7AD9872B-D026-47F0-ADA9-1EBC321522C8}.Debug|x64.Build.0 = Debug|x64
-		{7AD9872B-D026-47F0-ADA9-1EBC321522C8}.Debug|x86.ActiveCfg = Debug|x86
-		{7AD9872B-D026-47F0-ADA9-1EBC321522C8}.Debug|x86.Build.0 = Debug|x86
-		{7AD9872B-D026-47F0-ADA9-1EBC321522C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7AD9872B-D026-47F0-ADA9-1EBC321522C8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7AD9872B-D026-47F0-ADA9-1EBC321522C8}.Release|ARM.ActiveCfg = Release|ARM
-		{7AD9872B-D026-47F0-ADA9-1EBC321522C8}.Release|ARM.Build.0 = Release|ARM
-		{7AD9872B-D026-47F0-ADA9-1EBC321522C8}.Release|x64.ActiveCfg = Release|x64
-		{7AD9872B-D026-47F0-ADA9-1EBC321522C8}.Release|x64.Build.0 = Release|x64
-		{7AD9872B-D026-47F0-ADA9-1EBC321522C8}.Release|x86.ActiveCfg = Release|x86
-		{7AD9872B-D026-47F0-ADA9-1EBC321522C8}.Release|x86.Build.0 = Release|x86
 		{627042AA-2DA6-4744-982A-E6BA58D9421A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{627042AA-2DA6-4744-982A-E6BA58D9421A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{627042AA-2DA6-4744-982A-E6BA58D9421A}.Debug|ARM.ActiveCfg = Debug|Any CPU
@@ -645,6 +611,22 @@ Global
 		{C1687D2E-D65C-48D6-9DAD-8ED5ECE38E87}.Release|ARM.ActiveCfg = Release|Any CPU
 		{C1687D2E-D65C-48D6-9DAD-8ED5ECE38E87}.Release|x64.ActiveCfg = Release|Any CPU
 		{C1687D2E-D65C-48D6-9DAD-8ED5ECE38E87}.Release|x86.ActiveCfg = Release|Any CPU
+		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Debug|ARM.ActiveCfg = Debug|ARM
+		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Debug|ARM.Build.0 = Debug|ARM
+		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Debug|x64.ActiveCfg = Debug|x64
+		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Debug|x64.Build.0 = Debug|x64
+		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Debug|x86.ActiveCfg = Debug|x86
+		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Debug|x86.Build.0 = Debug|x86
+		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Release|ARM.ActiveCfg = Release|ARM
+		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Release|ARM.Build.0 = Release|ARM
+		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Release|x64.ActiveCfg = Release|x64
+		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Release|x64.Build.0 = Release|x64
+		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Release|x86.ActiveCfg = Release|x86
+		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -655,7 +637,6 @@ Global
 		{A2D15B14-F23E-46DE-9165-AB1D9104B978} = {C33E21AA-9A24-4573-8A03-C3F5877B2130}
 		{767BA920-CF3A-4894-8382-2DE780D398E3} = {96974E15-CFDD-494A-BF58-BDC9BF5B2212}
 		{F50A09D0-6C2B-4F08-9A42-67146BFAECE9} = {CE915081-82CF-4669-9D44-8B78697B06BC}
-		{634B471B-9BEA-4C91-BE1C-2DCCD4D01668} = {97AD981A-C408-47E2-B151-2139D15BC22F}
 		{DB5F3AF4-E212-43B4-8EA6-F78752FB9C15} = {88CB48B3-0D0A-44A6-8BCC-DDB2AF4A187B}
 		{C66077D8-DBFD-479D-ADAB-BF569263E914} = {4F2AFA9B-4B37-4010-AAE5-435BD2E03940}
 		{4B2877EA-DE1D-4CE0-984B-E285354011F2} = {4F2AFA9B-4B37-4010-AAE5-435BD2E03940}
@@ -683,7 +664,6 @@ Global
 		{05FE347F-2CB2-46CE-A2B7-73F6410BF13A} = {CE915081-82CF-4669-9D44-8B78697B06BC}
 		{45239A20-0DD7-43CE-ACAA-86249154ADF5} = {CEF06B1C-77EE-4DC5-9283-87F9C3678892}
 		{9489F7E3-F3A1-4ABD-B152-369CA1B102C8} = {88CB48B3-0D0A-44A6-8BCC-DDB2AF4A187B}
-		{7AD9872B-D026-47F0-ADA9-1EBC321522C8} = {97AD981A-C408-47E2-B151-2139D15BC22F}
 		{627042AA-2DA6-4744-982A-E6BA58D9421A} = {96974E15-CFDD-494A-BF58-BDC9BF5B2212}
 		{F4323E9E-1608-429B-83DC-6A3670761850} = {C33E21AA-9A24-4573-8A03-C3F5877B2130}
 		{BD7749AB-822F-4ED2-BB75-0FEF2B9AD453} = {C33E21AA-9A24-4573-8A03-C3F5877B2130}
@@ -703,5 +683,6 @@ Global
 		{4AF9E468-99AC-41E2-92A3-41102B0365DB} = {CEF06B1C-77EE-4DC5-9283-87F9C3678892}
 		{60C043FA-389E-4339-BA43-E8CA940BBFCA} = {CEF06B1C-77EE-4DC5-9283-87F9C3678892}
 		{C1687D2E-D65C-48D6-9DAD-8ED5ECE38E87} = {9D4E83A0-560F-46D4-AB0A-19FB4DEC35F5}
+		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673} = {97AD981A-C408-47E2-B151-2139D15BC22F}
 	EndGlobalSection
 EndGlobal

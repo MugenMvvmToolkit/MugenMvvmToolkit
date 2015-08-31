@@ -21,7 +21,7 @@ using System.Runtime.CompilerServices;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Models;
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
 using Windows.UI.Xaml;
 
 namespace MugenMvvmToolkit.WinRT.Infrastructure

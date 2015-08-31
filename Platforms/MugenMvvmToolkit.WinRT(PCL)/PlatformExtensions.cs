@@ -20,6 +20,8 @@ using System;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading;
+using Windows.Security.ExchangeActiveSyncProvisioning;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Navigation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -109,15 +111,11 @@ namespace MugenMvvmToolkit.WinRT
 
         internal static PlatformInfo GetPlatformInfo()
         {
-#if NETFX_CORE
-            return new PlatformInfo(PlatformType.WinRT, new Version(8, 0));
-#else
             //NOTE: not a good solution but I do not know of another.
-            var type = Type.GetType("Windows.Phone.ApplicationModel.ApplicationProfile, Windows, ContentType=WindowsRuntime", false);
-            if (type == null)
-                return new PlatformInfo(PlatformType.WinRT, new Version(8, 1));
-            return new PlatformInfo(PlatformType.WinPhone, new Version(8, 1));
-#endif
+            var isPhone = new EasClientDeviceInformation().OperatingSystem.SafeContains("WindowsPhone", StringComparison.OrdinalIgnoreCase);
+            var isWinRT10 = typeof(DependencyObject).GetMethodEx("RegisterPropertyChangedCallback", MemberFlags.Instance | MemberFlags.Public) != null;
+            var version = isWinRT10 ? new Version(10, 0) : new Version(8, 1);
+            return new PlatformInfo(isPhone ? PlatformType.WinPhone : PlatformType.WinRT, version);
         }
 
         internal static NavigationMode ToNavigationMode(this Windows.UI.Xaml.Navigation.NavigationMode mode)

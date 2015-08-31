@@ -37,7 +37,7 @@ using MugenMvvmToolkit.Silverlight.Infrastructure.Navigation;
 using MugenMvvmToolkit.Silverlight.Infrastructure.Presenters;
 
 namespace MugenMvvmToolkit.Silverlight.Modules
-#elif NETFX_CORE || WINDOWSCOMMON
+#elif WINDOWSCOMMON
 using MugenMvvmToolkit.WinRT.Infrastructure;
 using MugenMvvmToolkit.WinRT.Infrastructure.Navigation;
 using MugenMvvmToolkit.WinRT.Infrastructure.Presenters;
@@ -109,7 +109,7 @@ namespace MugenMvvmToolkit.WinPhone.Modules
                         .ThreadManager
                         .Invoke(ExecutionMode.AsynchronousOnUiThread, handler, handler, (h1, h2) => System.Windows.Input.CommandManager.RequerySuggested -= h1);
                 }
-#elif NETFX_CORE || WINDOWSCOMMON || WINDOWS_PHONE
+#elif WINDOWSCOMMON || WINDOWS_PHONE
                 IocContainer.BindToBindingInfo(GetApplicationStateManager());
                 IApplicationStateManager stateManager;
                 if (IocContainer.TryGet(out stateManager))
@@ -154,7 +154,7 @@ namespace MugenMvvmToolkit.WinPhone.Modules
 #endif
 
 
-#if !NETFX_CORE && !WINDOWSCOMMON
+#if !WINDOWSCOMMON
         /// <summary>
         ///     Gets the <see cref="IReflectionManager" /> that will be used by default.
         /// </summary>
@@ -165,7 +165,7 @@ namespace MugenMvvmToolkit.WinPhone.Modules
         }
 #endif
 
-#if WINDOWS_PHONE || NETFX_CORE || WINDOWSCOMMON
+#if WINDOWS_PHONE || WINDOWSCOMMON
         /// <summary>
         ///     Gets the <see cref="IOperationCallbackFactory" /> that will be used in the current application by default.
         /// </summary>
@@ -213,7 +213,7 @@ namespace MugenMvvmToolkit.WinPhone.Modules
             {
                 var presenter = new ViewModelPresenter();
                 presenter.DynamicPresenters.Add(new DynamicViewModelNavigationPresenter());
-#if !WINDOWS_PHONE && !NETFX_CORE
+#if !WINDOWS_PHONE
                 presenter.DynamicPresenters.Add(
                                     new DynamicViewModelWindowPresenter(container.Get<IViewMappingProvider>(), container.Get<IViewManager>(),
                                         container.Get<IWrapperManager>(), container.Get<IThreadManager>(),
@@ -246,7 +246,7 @@ namespace MugenMvvmToolkit.WinPhone.Modules
             return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(System.Windows.Threading.Dispatcher.CurrentDispatcher), DependencyLifecycle.SingleInstance);
 #elif SILVERLIGHT || WINDOWS_PHONE
             return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(System.Windows.Deployment.Current.Dispatcher), DependencyLifecycle.SingleInstance);
-#elif NETFX_CORE || WINDOWSCOMMON
+#elif WINDOWSCOMMON
             return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(Windows.UI.Xaml.Window.Current.Dispatcher), DependencyLifecycle.SingleInstance);
 #endif
         }

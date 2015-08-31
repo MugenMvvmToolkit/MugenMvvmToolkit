@@ -2,21 +2,16 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.Android.AppCompat</id>
-    <version>4.1.0</version>
+    <version>4.2.0</version>
     <title>MugenMvvmToolkit - Android Support Library v7 AppCompat</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
       This package adds Android Support Library v7 AppCompat support for MugenMvvmToolkit.
     </description>
     <releaseNotes>
-      - Added support for WinRT platform (Xamarin.Forms).
-      - Added the ability to add default binding member for any type (BindingBuilderExtensions.RegisterDefaultBindingMember). This allows to write Bind() without a path, in this case the default member will be used.
-      - Added the ability to subscribe to any member change if the member supports change notification. For example if member name is Checked the name of the event will be CheckedChanged.
-      - Added the ability to write complex expression in binding parameters.
-      - Added the BindingServiceProvider.BindingCultureInfo property.
-      - Added the BindingSyntaxEx.Resource method that allows to use static resource path.
-      - Updated caching algorithm for lambda.
-      - Improved navigation system (Xamarin.Forms).
+      - Added WinRT 10 (UWP) support.
+      - Removed WinRT 8 support.
+      - Updated state restoration\preservation algorithm to support the VS2015 compiler.      
       - Minor changes.
     </releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -25,7 +20,7 @@
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
-      <dependency id="MugenMvvmToolkit" version="[4.1.0, 4.2.0)" />      
+      <dependency id="MugenMvvmToolkit" version="[4.2.0, 4.3.0)" />      
       <dependency id="Xamarin.Android.Support.v7.AppCompat" version="22.2.1.0" />
     </dependencies>
   </metadata>

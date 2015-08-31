@@ -21,10 +21,10 @@ using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-#if !NETFX_CORE && !WINDOWSCOMMON
+#if !WINDOWSCOMMON
 using System.Globalization;
 #endif
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
@@ -144,7 +144,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Converters
 
         #region Implementation of IValueConverter
 
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
         public object Convert(object value, Type targetType = null, object parameter = null, string language = null)
 #elif ANDROID || WINFORMS || TOUCH || XAMARIN_FORMS
         public object Convert(object value, Type targetType = null, object parameter = null, CultureInfo culture = null, IDataContext context = null)
@@ -196,7 +196,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Converters
             }
         }
 
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
         public object ConvertBack(object value, Type targetType = null, object parameter = null, string language = null)
 #elif ANDROID || WINFORMS || TOUCH || XAMARIN_FORMS
         public object ConvertBack(object value, Type targetType = null, object parameter = null, CultureInfo culture = null, IDataContext context = null)

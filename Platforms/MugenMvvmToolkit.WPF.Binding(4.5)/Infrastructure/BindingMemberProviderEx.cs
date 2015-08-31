@@ -34,7 +34,7 @@ using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Silverlight.Binding.Models;
 
 namespace MugenMvvmToolkit.Silverlight.Binding.Infrastructure
-#elif WINDOWSCOMMON || NETFX_CORE
+#elif WINDOWSCOMMON
 using System.Reflection;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.WinRT.Binding.Models;

@@ -18,7 +18,7 @@
 
 using System;
 using System.Collections.Generic;
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 using BindingEx = Windows.UI.Xaml.Data.Binding;
@@ -32,7 +32,7 @@ using BindingEx = System.Windows.Data.Binding;
 namespace MugenMvvmToolkit.WPF.MarkupExtensions
 #elif SILVERLIGHT
 namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
-#elif NETFX_CORE || WINDOWSCOMMON
+#elif WINDOWSCOMMON
 namespace MugenMvvmToolkit.WinRT.MarkupExtensions
 #elif WINDOWS_PHONE
 using System.Reflection;
@@ -280,7 +280,7 @@ namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
                 {
                     Path = new PropertyPath("Visibility"),
                     Mode = BindingMode.OneWay,
-#if !NETFX_CORE && !WINDOWSCOMMON
+#if !WINDOWSCOMMON
 #if WINDOWS_PHONE
                     UpdateSourceTrigger = UpdateSourceTrigger.Default,
 #else

@@ -29,7 +29,7 @@ namespace MugenMvvmToolkit.iOS.Interfaces.Navigation
 namespace MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation
 #elif SILVERLIGHT
 namespace MugenMvvmToolkit.Silverlight.Interfaces.Navigation
-#elif WINDOWSCOMMON || NETFX_CORE
+#elif WINDOWSCOMMON
 namespace MugenMvvmToolkit.WinRT.Interfaces.Navigation
 #elif WINDOWS_PHONE
 namespace MugenMvvmToolkit.WinPhone.Interfaces.Navigation

@@ -24,7 +24,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
 namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Models
 #elif SILVERLIGHT
 namespace MugenMvvmToolkit.Silverlight.Binding.Models
-#elif NETFX_CORE || WINDOWSCOMMON
+#elif WINDOWSCOMMON
 namespace MugenMvvmToolkit.WinRT.Binding.Models
 #elif WINDOWS_PHONE
 namespace MugenMvvmToolkit.WinPhone.Binding.Models

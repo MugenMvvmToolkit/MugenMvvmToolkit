@@ -56,7 +56,7 @@ using MugenMvvmToolkit.Silverlight.Binding.Models;
 using BooleanToVisibilityConverter = MugenMvvmToolkit.Silverlight.Binding.Converters.BooleanToVisibilityConverter;
 
 namespace MugenMvvmToolkit.Silverlight.Binding.Modules
-#elif WINDOWSCOMMON || NETFX_CORE
+#elif WINDOWSCOMMON
 using System.Reflection;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -96,7 +96,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
             if (View.BindChanged == null)
                 View.BindChanged = OnBindChanged;
             ViewManager.ViewCleared += OnViewCleared;
-#if !WINDOWSCOMMON && !NETFX_CORE
+#if !WINDOWSCOMMON
             BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
 #endif
         }
@@ -128,7 +128,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
                 .CreateMember<FrameworkElement, object>(AttachedMemberConstants.ParentExplicit, GetParentValue, SetParentValue, ObserveParentMember));
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, object>(AttachedMemberConstants.FindByNameMethod, FindByNameMemberImpl));
-#if SILVERLIGHT || NETFX_CORE || WINDOWSCOMMON || WINDOWS_PHONE
+#if SILVERLIGHT || WINDOWSCOMMON || WINDOWS_PHONE
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, bool>(AttachedMemberConstants.Focused,
                     (info, control) => FocusManager.GetFocusedElement() == control, null, "LostFocus"));
@@ -147,7 +147,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
 #endif
 
             //TextBox                        
-#if WINDOWSCOMMON || NETFX_CORE
+#if WINDOWSCOMMON
             memberProvider.Register(AttachedBindingMember.CreateMember<TextBox, string>("Text",
                 (info, box) => box.Text,
                 (info, box, value) => box.Text = value ?? string.Empty, "TextChanged"));
@@ -176,7 +176,9 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
 
         private static IDisposable ObserveVisiblityMember(IBindingMemberInfo bindingMemberInfo, UIElement uiElement, IEventListener arg3)
         {
-#if NETFX_CORE || WINDOWSCOMMON || WINDOWS_PHONE
+#if WINDOWS_UWP
+            return DependencyPropertyBindingMember.ObserveProperty(uiElement, UIElement.VisibilityProperty, arg3);
+#elif WINDOWSCOMMON || WINDOWS_PHONE
             return new DependencyPropertyBindingMember.DependencyPropertyListener(uiElement, "Visibility", arg3);
 #else
             return new DependencyPropertyBindingMember.DependencyPropertyListener(uiElement, UIElement.VisibilityProperty, arg3);
@@ -213,10 +215,14 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
             return ParentObserver.GetOrAdd(o).AddWithUnsubscriber(arg3);
         }
 
-#if WINDOWSCOMMON || NETFX_CORE
+#if WINDOWSCOMMON
         private static IDisposable ObserveTextTextBlock(IBindingMemberInfo bindingMemberInfo, TextBlock textBlock, IEventListener arg3)
         {
+#if WINDOWS_UWP
+            return DependencyPropertyBindingMember.ObserveProperty(textBlock, TextBlock.TextProperty, arg3);
+#else
             return new DependencyPropertyBindingMember.DependencyPropertyListener(textBlock, "Text", arg3);
+#endif
         }
 #endif
         private static DependencyObject FindChild(DependencyObject parent, string childName)
@@ -355,7 +361,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
 
             if (!typeof(IValueConverter).IsAssignableFrom(type) || !type.IsPublicNonAbstractClass())
                 return;
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
             var constructor = type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(info => !info.IsStatic && info.GetParameters().Length == 0);
 #else
             var constructor = type.GetConstructor(Empty.Array<Type>());

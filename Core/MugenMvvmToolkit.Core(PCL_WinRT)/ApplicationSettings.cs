@@ -22,8 +22,10 @@ using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit
 {
@@ -42,7 +44,7 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Gets the assembly version.
         /// </summary>
-        public const string AssemblyVersion = "4.1.0.0";
+        public const string AssemblyVersion = "4.2.0.0";
 
         /// <summary>
         ///     Gets the assembly copyright.
@@ -166,12 +168,22 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static CommandExecutionMode CommandExecutionMode { get; set; }
 
+#if !NONOTIFYDATAERROR
+        /// <summary>
+        ///     Gets or sets the value that is used to retrieve entity-level errors by <see cref="ValidatableViewModel.this"/>. Default value is <c>all</c>
+        /// </summary>
+        public static string GetAllErrorsIndexerProperty { get; set; }
+#endif
+
         #endregion
 
         #region Methods
 
         internal static void SetDefaultValues()
         {
+#if !NONOTIFYDATAERROR 
+            GetAllErrorsIndexerProperty = "all";
+#endif
             NotificationCollectionMode =
                 NotificationCollectionMode.CollectionIntefaceUseNotificationValue |
                 NotificationCollectionMode.OnlyOnUiThread;

@@ -28,7 +28,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
 using System.Windows.Controls;
 
 namespace MugenMvvmToolkit.Silverlight.Infrastructure
-#elif WINDOWSCOMMON || NETFX_CORE
+#elif WINDOWSCOMMON
 using Windows.UI.Xaml.Controls;
 
 namespace MugenMvvmToolkit.WinRT.Infrastructure
@@ -90,7 +90,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
             {
 #if WPF
                 var result = System.Windows.VisualStateManager.GoToState(control, stateName, useTransitions);
-#elif !NETFX_CORE && !WINDOWSCOMMON
+#elif !WINDOWSCOMMON
                 var result = System.Windows.VisualStateManager.GoToState(control, stateName, useTransitions);
 #else
                 var result = Windows.UI.Xaml.VisualStateManager.GoToState(control, stateName, useTransitions);

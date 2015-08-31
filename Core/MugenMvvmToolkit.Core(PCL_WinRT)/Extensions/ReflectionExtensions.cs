@@ -176,19 +176,22 @@ namespace MugenMvvmToolkit
                 "Xamarin.Android.Support.v7.RecyclerView",
                 "Xamarin.Android.Support.v7.AppCompat",
                 "Xamarin.Android.Support.v7.CardView",
+                "Xamarin.Android.Support.Design",
                 "Xamarin.Forms.Core",
                 "Xamarin.Forms.Platform",
                 "Xamarin.Forms.Xaml",
                 "Xamarin.Forms.Platform.Android",
                 "Xamarin.Forms.Platform.iOS",
-                "Xamarin.Forms.Platform.WP8"                
+                "Xamarin.Forms.Platform.WP8"
             };
             IsToolkitAssemblyDelegate = IsToolkitAssembly;
             CachedViewModelProperties = new Dictionary<Type, Dictionary<string, ICollection<string>>>();
             CachedIgnoreAttributes = new Dictionary<Type, string[]>();
             ExcludedProperties = typeof(EditableViewModel<>)
-                .GetPropertiesEx(PropertyBindingFlag)
-                .ToArrayEx(info => info.Name);
+               .GetPropertiesEx(PropertyBindingFlag)
+               .Select(info => info.Name)
+               .Concat(new[] { Empty.IndexerPropertyChangedArgs.PropertyName })
+               .ToArray();
             TypesToCommandsProperties = new Dictionary<Type, Func<object, ICommand>[]>();
             ViewToViewModelInterface = new Dictionary<Type, Action<object, IViewModel>>();
             ViewModelToViewInterface = new Dictionary<Type, PropertyInfo>();
@@ -772,10 +775,8 @@ namespace MugenMvvmToolkit
         public static MethodInfo GetMethodEx([NotNull] this Type type, string name, Type[] types, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
-            var methods = type.GetMethodsEx(flags);
-            for (int i = 0; i < methods.Length; i++)
+            foreach (var method in type.GetMethodsEx(flags))
             {
-                var method = methods[i];
                 if (method.Name != name)
                     continue;
                 var parameters = method.GetParameters();
@@ -806,8 +807,8 @@ namespace MugenMvvmToolkit
                 bool value;
                 if (!HasClosureDictionary.TryGetValue(type, out value))
                 {
-                    value = type.GetPropertiesEx(MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Instance).Length != 0 ||
-                        type.GetFieldsEx(MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Instance).Length != 0;
+                    value = type.GetPropertiesEx(MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Instance).Count != 0 ||
+                        type.GetFieldsEx(MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Instance).Count != 0;
                     HasClosureDictionary[type] = value;
                 }
                 return value;
@@ -819,6 +820,11 @@ namespace MugenMvvmToolkit
         public static PropertyInfo GetPropertyEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
+            foreach (var property in type.GetRuntimeProperties())
+            {
+                if (property.Name == name && FilterProperty(property, flags))
+                    return property;
+            }
             while (type != null)
             {
                 var typeInfo = type.GetTypeInfo();
@@ -833,7 +839,7 @@ namespace MugenMvvmToolkit
         }
 
         [NotNull]
-        public static PropertyInfo[] GetPropertiesEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
+        public static ICollection<PropertyInfo> GetPropertiesEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
             var list = new List<PropertyInfo>();
@@ -847,13 +853,18 @@ namespace MugenMvvmToolkit
                 }
                 type = type == typeof(object) ? null : typeInfo.BaseType;
             }
-            return list.ToArray();
+            return list;
         }
 
         [CanBeNull]
         public static FieldInfo GetFieldEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
+            foreach (var field in type.GetRuntimeFields())
+            {
+                if (field.Name == name && FilterField(field, flags))
+                    return field;
+            }
             while (type != null)
             {
                 var typeInfo = type.GetTypeInfo();
@@ -868,7 +879,7 @@ namespace MugenMvvmToolkit
         }
 
         [NotNull]
-        public static FieldInfo[] GetFieldsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
+        public static ICollection<FieldInfo> GetFieldsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
             var list = new List<FieldInfo>();
@@ -882,7 +893,7 @@ namespace MugenMvvmToolkit
                 }
                 type = type == typeof(object) ? null : typeInfo.BaseType;
             }
-            return list.ToArray();
+            return list;
         }
 
         [CanBeNull]
@@ -890,10 +901,8 @@ namespace MugenMvvmToolkit
         {
             Should.NotBeNull(type, "type");
             MethodInfo result = null;
-            var methods = type.GetMethodsEx(flags);
-            for (int index = 0; index < methods.Length; index++)
+            foreach (var method in type.GetMethodsEx(flags))
             {
-                var method = methods[index];
                 if (method.Name == name)
                 {
                     if (result != null)
@@ -905,7 +914,7 @@ namespace MugenMvvmToolkit
         }
 
         [NotNull]
-        public static MethodInfo[] GetMethodsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
+        public static ICollection<MethodInfo> GetMethodsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
             var list = new List<MethodInfo>();
@@ -919,13 +928,18 @@ namespace MugenMvvmToolkit
                 }
                 type = type == typeof(object) ? null : typeInfo.BaseType;
             }
-            return list.ToArray();
+            return list;
         }
 
         [CanBeNull]
         public static EventInfo GetEventEx(this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
+            foreach (var @event in type.GetRuntimeEvents())
+            {
+                if (@event.Name == name && FilterMethod(@event.AddMethod ?? @event.RemoveMethod, flags))
+                    return @event;
+            }
             while (type != null)
             {
                 var typeInfo = type.GetTypeInfo();
@@ -1082,7 +1096,7 @@ namespace MugenMvvmToolkit
         }
 
         [NotNull]
-        public static PropertyInfo[] GetPropertiesEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
+        public static ICollection<PropertyInfo> GetPropertiesEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
             var bindingFlags = flags.ToBindingFlags(false);
@@ -1095,7 +1109,7 @@ namespace MugenMvvmToolkit
                     list.AddRange(type.GetProperties(bindingFlags));
                     type = type == typeof(object) ? null : type.BaseType;
                 }
-                return list.ToArray();
+                return list;
             }
             return type.GetProperties(bindingFlags | BindingFlags.FlattenHierarchy);
         }
@@ -1120,7 +1134,7 @@ namespace MugenMvvmToolkit
         }
 
         [NotNull]
-        public static FieldInfo[] GetFieldsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
+        public static ICollection<FieldInfo> GetFieldsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
             var bindingFlags = flags.ToBindingFlags(false);
@@ -1133,7 +1147,7 @@ namespace MugenMvvmToolkit
                     list.AddRange(type.GetFields(bindingFlags));
                     type = type == typeof(object) ? null : type.BaseType;
                 }
-                return list.ToArray();
+                return list;
             }
             return type.GetFields(bindingFlags | BindingFlags.FlattenHierarchy);
         }
@@ -1158,7 +1172,7 @@ namespace MugenMvvmToolkit
         }
 
         [NotNull]
-        public static MethodInfo[] GetMethodsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
+        public static ICollection<MethodInfo> GetMethodsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, "type");
             var bindingFlags = flags.ToBindingFlags(false);
@@ -1171,7 +1185,7 @@ namespace MugenMvvmToolkit
                     list.AddRange(type.GetMethods(bindingFlags));
                     type = type == typeof(object) ? null : type.BaseType;
                 }
-                return list.ToArray();
+                return list;
             }
             return type.GetMethods(bindingFlags | BindingFlags.FlattenHierarchy);
         }

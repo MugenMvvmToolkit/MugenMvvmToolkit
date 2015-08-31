@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit</id>
-    <version>4.1.0</version>
+    <version>4.2.0</version>
     <title>MugenMvvmToolkit</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -36,14 +36,9 @@
       - Excellent binding performance.
     </description>
     <releaseNotes>
-      - Added support for WinRT platform (Xamarin.Forms).
-      - Added the ability to add default binding member for any type (BindingBuilderExtensions.RegisterDefaultBindingMember). This allows to write Bind() without a path, in this case the default member will be used.
-      - Added the ability to subscribe to any member change if the member supports change notification. For example if member name is Checked the name of the event will be CheckedChanged.
-      - Added the ability to write complex expression in binding parameters.
-      - Added the BindingServiceProvider.BindingCultureInfo property.
-      - Added the BindingSyntaxEx.Resource method that allows to use static resource path.
-      - Updated caching algorithm for lambda.
-      - Improved navigation system (Xamarin.Forms).
+      - Added WinRT 10 (UWP) support.
+      - Removed WinRT 8 support.
+      - Updated state restoration\preservation algorithm to support the VS2015 compiler.      
       - Minor changes.
     </releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -55,6 +50,7 @@
       <group targetFramework="wp8" />
       <group targetFramework="wp81" />      
       <group targetFramework="net45" />
+      <group targetFramework="uap" />
       <group targetFramework="MonoAndroid10" />
       <group targetFramework="Xamarin.iOS10" />
       <group targetFramework="win8" />
@@ -124,14 +120,6 @@
     <file src="..\bin\Platforms\WinRT\PCL\MugenMvvmToolkit.WinRT.pdb" target="lib\win81\MugenMvvmToolkit.WinRT.pdb" />
     <file src="..\bin\Platforms\WinRT\PCL\MugenMvvmToolkit.WinRT.xml" target="lib\win81\MugenMvvmToolkit.WinRT.xml" />
 
-    <!-- WINRT 8.0 -->
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\win8\MugenMvvmToolkit.dll" />
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\win8\MugenMvvmToolkit.pdb" />
-    <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.xml" target="lib\win8\MugenMvvmToolkit.xml" />
-    <file src="..\bin\Platforms\WinRT\8.0\MugenMvvmToolkit.WinRT.dll" target="lib\win8\MugenMvvmToolkit.WinRT.dll" />
-    <file src="..\bin\Platforms\WinRT\8.0\MugenMvvmToolkit.WinRT.pdb" target="lib\win8\MugenMvvmToolkit.WinRT.pdb" />
-    <file src="..\bin\Platforms\WinRT\8.0\MugenMvvmToolkit.WinRT.xml" target="lib\win8\MugenMvvmToolkit.WinRT.xml" />
-
     <!-- WP 8.1 SILVERLIGHT -->
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\wp81\MugenMvvmToolkit.dll" />
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\wp81\MugenMvvmToolkit.pdb" />
@@ -172,6 +160,6 @@
     <file src="..\bin\Platforms\Touch\MugenMvvmToolkit.iOS.xml" target="lib\Xamarin.iOS10\MugenMvvmToolkit.iOS.xml" />
 
     <file src="TouchContent\error.png" target="content\Xamarin.iOS10\Resources\error.png" />
-    <file src="TouchContent\error@2x.png" target="content\Xamarin.iOS10\Resources\error@2x.png" />
+   <!-- <file src="TouchContent\error@2x.png" target="content\Xamarin.iOS10\Resources\error@2x.png" /> 3.1 nuget bug-->
   </files>
 </package>

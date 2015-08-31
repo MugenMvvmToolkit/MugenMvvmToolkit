@@ -43,7 +43,7 @@ using System.Windows;
 using System.Windows.Data;
 
 namespace MugenMvvmToolkit.Silverlight.Binding.Infrastructure
-#elif WINDOWSCOMMON || NETFX_CORE
+#elif WINDOWSCOMMON
 using MugenMvvmToolkit.WinRT.Binding.Converters;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;

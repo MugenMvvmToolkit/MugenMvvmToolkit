@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.Xamarin.Forms</id>
-    <version>4.1.0</version>
+    <version>4.2.0</version>
     <title>MugenMvvmToolkit - Xamarin.Forms</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -37,14 +37,9 @@
       - Excellent binding performance.
     </description>
     <releaseNotes>
-      - Added support for WinRT platform (Xamarin.Forms).
-      - Added the ability to add default binding member for any type (BindingBuilderExtensions.RegisterDefaultBindingMember). This allows to write Bind() without a path, in this case the default member will be used.
-      - Added the ability to subscribe to any member change if the member supports change notification. For example if member name is Checked the name of the event will be CheckedChanged.
-      - Added the ability to write complex expression in binding parameters.
-      - Added the BindingServiceProvider.BindingCultureInfo property.
-      - Added the BindingSyntaxEx.Resource method that allows to use static resource path.
-      - Updated caching algorithm for lambda.
-      - Improved navigation system (Xamarin.Forms).
+      - Added WinRT 10 (UWP) support.
+      - Removed WinRT 8 support.
+      - Updated state restoration\preservation algorithm to support the VS2015 compiler.      
       - Minor changes.
     </releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -53,7 +48,7 @@
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios xamarin.forms</tags>
     <dependencies>
-      <dependency id="Xamarin.Forms" version="1.4.4.6387" />
+      <dependency id="Xamarin.Forms" version="1.4.4.6392" />
     </dependencies>
   </metadata>
   <files>
@@ -84,7 +79,7 @@
     <file src="..\bin\Platforms\Xamarin.Forms\Touch\MugenMvvmToolkit.Xamarin.Forms.iOS.xml" target="lib\Xamarin.iOS10\MugenMvvmToolkit.Xamarin.Forms.iOS.xml" />
 
     <file src="TouchContent\error.png" target="content\Xamarin.iOS10\Resources\error.png" />
-    <file src="TouchContent\error@2x.png" target="content\Xamarin.iOS10\Resources\error@2x.png" />
+    <!--<file src="TouchContent\error@2x.png" target="content\Xamarin.iOS10\Resources\error@2x.png" /> 3.1 nuget bug -->
     <file src="XamarinFormsContent\RuntimeLoadAssembly.cs.pp" target="content\Xamarin.iOS10\RuntimeLoadAssembly.cs.pp" />
 
     <!-- Android -->

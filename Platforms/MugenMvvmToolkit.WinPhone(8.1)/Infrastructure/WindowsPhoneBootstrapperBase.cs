@@ -63,8 +63,8 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="WindowsPhoneBootstrapperBase" /> class.
         /// </summary>
-        protected WindowsPhoneBootstrapperBase([NotNull] PhoneApplicationFrame rootFrame)
-            : base(PlatformExtensions.GetPlatformInfo())
+        protected WindowsPhoneBootstrapperBase([NotNull] PhoneApplicationFrame rootFrame, PlatformInfo platform = null)
+            : base(platform ?? PlatformExtensions.GetPlatformInfo())
         {
             Should.NotBeNull(rootFrame, "rootFrame");
             _rootFrame = rootFrame;

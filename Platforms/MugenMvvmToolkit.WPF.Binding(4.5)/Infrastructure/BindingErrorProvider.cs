@@ -36,7 +36,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Binding.Infrastructure
-#elif WINDOWSCOMMON || NETFX_CORE
+#elif WINDOWSCOMMON
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -71,7 +71,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
                 base.SetErrors(target, errors, context);
                 return;
             }
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
             var control = depObj as Control;
             if (control != null)
                 VisualStateManager.GoToState(control, errors.Count == 0 ? "Valid" : "Invalid", true);

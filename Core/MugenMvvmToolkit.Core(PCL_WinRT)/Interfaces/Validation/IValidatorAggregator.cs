@@ -123,6 +123,20 @@ namespace MugenMvvmToolkit.Interfaces.Validation
         [SuppressTaskBusyHandler, NotNull]
         Task ValidateAsync();
 
+#if !NONOTIFYDATAERROR
+        /// <summary>
+        ///     Gets the validation errors for a specified property or for the entire entity.
+        /// </summary>
+        /// <param name="propertyName">
+        ///     The name of the property to retrieve validation errors for; or null or
+        ///     <see cref="F:System.String.Empty" />, to retrieve entity-level errors.
+        /// </param>
+        /// <returns>
+        ///     The validation errors for the property or entity.
+        /// </returns>
+        IList<object> this[string propertyName] { get; }
+#endif
+
         /// <summary>
         ///     Gets the validation errors for a specified property or for the entire entity.
         /// </summary>

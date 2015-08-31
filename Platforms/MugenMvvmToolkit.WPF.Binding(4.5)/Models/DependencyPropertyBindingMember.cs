@@ -16,7 +16,7 @@
 
 #endregion
 
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
@@ -31,9 +31,10 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Models;
 
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
 using BindingEx = Windows.UI.Xaml.Data.Binding;
 
 namespace MugenMvvmToolkit.WinRT.Binding.Models
@@ -105,21 +106,22 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
         }
 #endif
 
+#if !WINDOWS_UWP
         public sealed class DependencyPropertyListener : DependencyObject, IDisposable
         {
-            #region Fields
+        #region Fields
 
             public static readonly DependencyProperty ValueProperty = DependencyProperty
                 .Register("Value", typeof(object), typeof(DependencyPropertyListener), new PropertyMetadata(null, OnValueChanged));
 
-#if !NETFX_CORE && !WINDOWSCOMMON
+#if !WINDOWSCOMMON
             private static readonly Action<DependencyPropertyListener> DisposeDelegate = DisposeInternal;
 #endif
             private WeakEventListenerWrapper _listener;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="DependencyPropertyListener" /> class.
@@ -133,7 +135,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
                         Path = new PropertyPath(propertyToBind),
                         Source = source,
                         Mode = BindingMode.OneWay,
-#if !NETFX_CORE
 #if !WINDOWS_PHONE
                         UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
 #endif
@@ -152,11 +153,9 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
                         NotifyOnSourceUpdated = false,
                         NotifyOnTargetUpdated = false
 #endif
-
-#endif
                     });
             }
-#if !NETFX_CORE && !WINDOWSCOMMON && !WINDOWS_PHONE
+#if !WINDOWSCOMMON && !WINDOWS_PHONE
             /// <summary>
             ///     Initializes a new instance of the <see cref="DependencyPropertyListener" /> class.
             /// </summary>
@@ -184,9 +183,9 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
             }
 #endif
 
-            #endregion
+        #endregion
 
-            #region Properties
+        #region Properties
 
             public object Value
             {
@@ -194,9 +193,9 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
                 set { SetValue(ValueProperty, value); }
             }
 
-            #endregion
+        #endregion
 
-            #region Methods
+        #region Methods
 
             private static void OnValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
             {
@@ -220,16 +219,16 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
                 }
             }
 
-            #endregion
+        #endregion
 
-            #region Implementation of IDisposable
+        #region Implementation of IDisposable
 
             /// <summary>
             ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             /// </summary>
             public void Dispose()
             {
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
                 if (Dispatcher.HasThreadAccess)
                     DisposeInternal(this);
                 else
@@ -242,8 +241,10 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
 #endif
             }
 
-            #endregion
+        #endregion
         }
+#endif
+
 
         #endregion
 
@@ -316,6 +317,14 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
             return item is T;
         }
 
+#if WINDOWS_UWP
+        public static IDisposable ObserveProperty(DependencyObject src, DependencyProperty property, IEventListener listener)
+        {
+            listener = listener.ToWeakEventListener();
+            var t = src.RegisterPropertyChangedCallback(property, listener.Handle);
+            return WeakActionToken.Create(src, property, t, (dp, p, token) => dp.UnregisterPropertyChangedCallback(p, token));
+        }
+#endif
         #endregion
 
         #region Implementation of IBindingMemberInfo
@@ -415,7 +424,9 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
                 return DataContextChangedHelper.Listen(frameworkElement, listener);
 #endif
             if (_changePropertyMember == null)
-#if NETFX_CORE || WINDOWSCOMMON || WINDOWS_PHONE
+#if WINDOWS_UWP
+                return ObserveProperty((DependencyObject)source, _dependencyProperty, listener);
+#elif WINDOWSCOMMON || WINDOWS_PHONE
                 return new DependencyPropertyListener(source, _path, listener);
 #else
                 return new DependencyPropertyListener(source, _dependencyProperty, listener);

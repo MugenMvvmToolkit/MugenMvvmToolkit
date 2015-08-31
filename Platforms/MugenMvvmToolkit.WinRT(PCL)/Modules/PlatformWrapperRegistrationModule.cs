@@ -239,7 +239,6 @@ namespace MugenMvvmToolkit.WinRT.Modules
             #endregion
         }
 
-#if WINDOWSCOMMON
         private sealed class SettingsFlyoutWrapper : IDisposable, IWindowView, IViewWrapper
         {
             #region Fields
@@ -430,15 +429,12 @@ namespace MugenMvvmToolkit.WinRT.Modules
 
             #endregion
         }
-#endif
 
         #endregion
 
         #region Fields
 
-#if WINDOWSCOMMON
         private const string ContentDialogFullName = "Windows.UI.Xaml.Controls.ContentDialog";
-#endif
 
         #endregion
 
@@ -449,13 +445,11 @@ namespace MugenMvvmToolkit.WinRT.Modules
         /// </summary>
         protected override void RegisterWrappers(WrapperManager wrapperManager)
         {
-#if WINDOWSCOMMON
             wrapperManager.AddWrapper<IWindowView, ContentDialogWrapper>(IsContentDialog,
                 (o, context) => new ContentDialogWrapper((FrameworkElement)o));
             wrapperManager.AddWrapper<IWindowView, SettingsFlyoutWrapper>(
                 (type, context) => typeof(SettingsFlyout).IsAssignableFrom(type),
                 (o, context) => new SettingsFlyoutWrapper((SettingsFlyout)o));
-#endif
             wrapperManager.AddWrapper<IWindowView, PopupWrapper>(
                 (type, context) => typeof(IPopupView).IsAssignableFrom(type),
                 (o, context) => new PopupWrapper((IPopupView)o));
@@ -465,7 +459,6 @@ namespace MugenMvvmToolkit.WinRT.Modules
 
         #region Methods
 
-#if WINDOWSCOMMON
         private static bool IsContentDialog(Type type, IDataContext context)
         {
             while (typeof(object) != type)
@@ -476,7 +469,6 @@ namespace MugenMvvmToolkit.WinRT.Modules
             }
             return false;
         }
-#endif
 
         #endregion
     }

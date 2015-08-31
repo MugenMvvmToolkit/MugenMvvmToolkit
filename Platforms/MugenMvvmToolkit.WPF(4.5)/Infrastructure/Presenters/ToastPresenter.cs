@@ -19,7 +19,7 @@
 #if WINDOWS_PHONE
 using Microsoft.Phone.Controls;
 #endif
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -60,7 +60,7 @@ using System.Windows.Media.Effects;
 namespace MugenMvvmToolkit.Silverlight.Infrastructure.Presenters
 #elif XAMARIN_FORMS && WINDOWSCOMMON
 namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Infrastructure.Presenters
-#elif NETFX_CORE || WINDOWSCOMMON
+#elif WINDOWSCOMMON
 namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
 #elif WINDOWS_PHONE
 using System.Windows.Media.Animation;
@@ -80,8 +80,8 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
             #region Fields
 
             private readonly ToastPosition _position;
-            private readonly WeakReference _reference;
-#if NETFX_CORE || WINDOWSCOMMON
+            private readonly Popup _popup;
+#if WINDOWSCOMMON
             private readonly Window _parent;
 #else
             private readonly FrameworkElement _parent;
@@ -95,7 +95,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
 
             #region Constructors
 
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
             public EventClosure(Popup popup, ToastPosition position, Window parent)
 #else
             public EventClosure(Popup popup, ToastPosition position, FrameworkElement parent)
@@ -104,7 +104,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
             {
                 _position = position;
                 _parent = parent;
-                _reference = ServiceProvider.WeakReferenceFactory(popup);
+                _popup = popup;
             }
 
             #endregion
@@ -113,7 +113,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
 
             public Popup Popup
             {
-                get { return (Popup)_reference.Target; }
+                get { return _popup; }
             }
 
             #endregion
@@ -122,18 +122,12 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
 
             public void Handle(object sender, object args)
             {
-                var popup = (Popup)_reference.Target;
-                if (popup == null)
-                    Clear();
-                else
-                    UpdatePosition(_parent, popup, _position);
+                UpdatePosition(_parent, _popup, _position);
             }
 
             public void Clear()
             {
-                var popup = (Popup)_reference.Target;
-                if (popup != null)
-                    popup.IsOpen = false;
+                _popup.IsOpen = false;
 #if WPF
                 ((Window)_parent).LocationChanged -= Handle;
 #elif WINDOWS_PHONE
@@ -234,10 +228,10 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
             var placementTarget = Application.Current.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive);
 #elif SILVERLIGHT || WINDOWS_PHONE
             var placementTarget = Application.Current.RootVisual as FrameworkElement;
-#elif NETFX_CORE || WINDOWSCOMMON
+#elif WINDOWSCOMMON
             var placementTarget = Window.Current;
 #endif
-                        if (placementTarget == null)
+            if (placementTarget == null)
                 return;
             var popups = ServiceProvider
                 .AttachedValueProvider
@@ -308,7 +302,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
                 CornerRadius = new CornerRadius(2),
                 VerticalAlignment = VerticalAlignment.Center
             };
-#if !NETFX_CORE && !WINDOWS_PHONE && !WINDOWSCOMMON
+#if !WINDOWS_PHONE && !WINDOWSCOMMON
             var colorBrush = Background as SolidColorBrush;
             if (colorBrush != null)
                 border.Effect = new DropShadowEffect
@@ -328,7 +322,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
             if (content != null)
             {
                 var key = new DataTemplateKey(content.GetType());
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
                 if (Application.Current.Resources.ContainsKey(key))
 #else
                 if (Application.Current.Resources.Contains(key))
@@ -362,11 +356,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
 #elif WINDOWSCOMMON
             object style;
             if (Application.Current.Resources.TryGetValue("BaseTextBlockStyle", out style))
-                text.Style = style as Style;
-            text.LineStackingStrategy = LineStackingStrategy.MaxHeight;
-#elif NETFX_CORE
-            object style;
-            if (Application.Current.Resources.TryGetValue("BasicTextStyle", out style))
                 text.Style = style as Style;
             text.LineStackingStrategy = LineStackingStrategy.MaxHeight;
 #else
@@ -457,6 +446,11 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
 #if WPF
             completed();
 #else
+            if (!popup.IsOpen)
+            {
+                completed();
+                return;
+            }
             var sb = new Storyboard();
             var translateAnimation = new DoubleAnimationUsingKeyFrames
             {
@@ -504,14 +498,14 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
                 BeginCloseAnimation(popup, closure.Clear);
         }
 
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
         private static void UpdatePosition(Window parent, Popup popup, ToastPosition position)
 #else
         private static void UpdatePosition(FrameworkElement parent, Popup popup, ToastPosition position)
 #endif
         {
             var control = (FrameworkElement)popup.Child;
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
             double parentWidth = parent.Bounds.Width;
             double parentHeight = parent.Bounds.Height;
 #elif WINDOWS_PHONE
@@ -571,7 +565,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
             switch (position)
             {
                 case ToastPosition.Bottom:
-#if WINDOWS_PHONE || WINDOWSCOMMON || NETFX_CORE
+#if WINDOWS_PHONE || WINDOWSCOMMON
                     verticalOffset = parentHeight - control.DesiredSize.Height - 85;
 #else
                     verticalOffset = parentHeight - control.DesiredSize.Height - 50;
@@ -605,7 +599,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
 #if !WPF
         private static void SetTargetProperty(Timeline target, string property)
         {
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
             Storyboard.SetTargetProperty(target, property);
 #else
             Storyboard.SetTargetProperty(target, new PropertyPath(property));

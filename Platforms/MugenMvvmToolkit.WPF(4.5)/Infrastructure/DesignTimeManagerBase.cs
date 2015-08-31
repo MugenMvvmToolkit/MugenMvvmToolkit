@@ -38,7 +38,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
 using System.ComponentModel;
 
 namespace MugenMvvmToolkit.Silverlight.Infrastructure
-#elif NETFX_CORE || WINDOWSCOMMON
+#elif WINDOWSCOMMON
 namespace MugenMvvmToolkit.WinRT.Infrastructure
 #elif WINDOWS_PHONE
 using System.ComponentModel;
@@ -254,7 +254,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                     .FromProperty(prop, typeof(FrameworkElement))
                     .Metadata
                     .DefaultValue || IsVsRunning();
-#elif NETFX_CORE || WINDOWSCOMMON
+#elif WINDOWSCOMMON
                 return Windows.ApplicationModel.DesignMode.DesignModeEnabled;
 #endif
             }

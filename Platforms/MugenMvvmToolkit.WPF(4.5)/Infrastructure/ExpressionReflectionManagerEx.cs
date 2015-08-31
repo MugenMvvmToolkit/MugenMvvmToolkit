@@ -138,12 +138,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 #if SILVERLIGHT
             return new DynamicMethod("dynamic_" + type.Name + Guid.NewGuid().ToString("N"), outputValue, inputValue);
 #else
-#if NETFX_CORE
-            var typeInfo = type.GetTypeInfo();
-#else
-            Type typeInfo = type;
-#endif
-            return new DynamicMethod("dynamic_" + type.Name + Guid.NewGuid().ToString("N"), outputValue, inputValue, typeInfo.Module, true);
+            return new DynamicMethod("dynamic_" + type.Name + Guid.NewGuid().ToString("N"), outputValue, inputValue, type.Module, true);
 #endif
         }
 

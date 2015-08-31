@@ -23,6 +23,7 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Models;
 #if WPF
 using System.Windows;
 using Bootstrapper = MugenMvvmToolkit.WPF.Infrastructure.WpfBootstrapperBase;
@@ -33,6 +34,7 @@ using Bootstrapper = MugenMvvmToolkit.WinForms.Infrastructure.WinFormsBootstrapp
 
 namespace MugenMvvmToolkit.WinForms.Infrastructure
 #elif WINDOWS_PHONE
+using System.Windows;
 using Microsoft.Phone.Controls;
 using Bootstrapper = MugenMvvmToolkit.WinPhone.Infrastructure.WindowsPhoneBootstrapperBase;
 
@@ -42,7 +44,8 @@ using System.Windows;
 using Bootstrapper = MugenMvvmToolkit.Silverlight.Infrastructure.SilverlightBootstrapperBase;
 
 namespace MugenMvvmToolkit.Silverlight.Infrastructure
-#elif NETFX_CORE || WINDOWSCOMMON
+#elif WINDOWSCOMMON
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Bootstrapper = MugenMvvmToolkit.WinRT.Infrastructure.WinRTBootstrapperBase;
 
@@ -53,6 +56,7 @@ using Bootstrapper = MugenMvvmToolkit.iOS.Infrastructure.TouchBootstrapperBase;
 
 namespace MugenMvvmToolkit.iOS.Infrastructure
 #elif XAMARIN_FORMS
+using Xamarin.Forms;
 using Bootstrapper = MugenMvvmToolkit.Xamarin.Forms.Infrastructure.XamarinFormsBootstrapperBase;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
@@ -80,41 +84,43 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
         /// </summary>
         public Bootstrapper([NotNull] Application application, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
-            IViewModelSettings viewModelSettings = null, params IModule[] modules)
-            : base(application)
+            IViewModelSettings viewModelSettings = null, PlatformInfo platform = null, params IModule[] modules)
+            : base(application, platform: platform)
 #elif WINFORMS
         /// <summary>
         ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
         /// </summary>
         public Bootstrapper([NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
-            IViewModelSettings viewModelSettings = null, params IModule[] modules)
+            IViewModelSettings viewModelSettings = null, PlatformInfo platform = null, params IModule[] modules)
+            : base(true, platform)
 #elif WINDOWS_PHONE
         /// <summary>
         ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
         /// </summary>
         public Bootstrapper([NotNull] PhoneApplicationFrame rootFrame, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
-            IViewModelSettings viewModelSettings = null, params IModule[] modules)
-            : base(rootFrame)
-#elif NETFX_CORE || WINDOWSCOMMON
+            IViewModelSettings viewModelSettings = null, PlatformInfo platform = null, params IModule[] modules)
+            : base(rootFrame, platform)
+#elif WINDOWSCOMMON
         /// <summary>
         ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
         /// </summary>
         public Bootstrapper([NotNull] Frame rootFrame, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
-            IViewModelSettings viewModelSettings = null, params IModule[] modules)
-            : base(rootFrame, assemblies != null)
+            IViewModelSettings viewModelSettings = null, PlatformInfo platform = null, params IModule[] modules)
+            : base(rootFrame, assemblies != null, platform)
 #elif TOUCH
         /// <summary>
         ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
         /// </summary>
         public Bootstrapper([NotNull] UIWindow window, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
-            IViewModelSettings viewModelSettings = null, params IModule[] modules)
-            : base(window)
+            IViewModelSettings viewModelSettings = null, PlatformInfo platform = null, params IModule[] modules)
+            : base(window, platform)
 #elif XAMARIN_FORMS
         /// <summary>
         ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
         /// </summary>
         public Bootstrapper([NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
-            IViewModelSettings viewModelSettings = null, params IModule[] modules)            
+            IViewModelSettings viewModelSettings = null, PlatformInfo platform = null, params IModule[] modules)
+            : base(platform)
 #endif
         {
             Should.NotBeNull(iocContainer, "iocContainer");
@@ -154,21 +160,39 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         /// </summary>
         protected override ICollection<Assembly> GetAssemblies()
         {
-            if (_assemblies == null)
-                return base.GetAssemblies();
-            var assemblies = new HashSet<Assembly>(_assemblies);
-#if WINDOWSCOMMON || NETFX_CORE || XAMARIN_FORMS
+            var assemblies = ToHashSet(_assemblies ?? base.GetAssemblies());
+#if WINDOWSCOMMON || XAMARIN_FORMS
             assemblies.Add(GetType().GetTypeInfo().Assembly);
             assemblies.Add(typeof(Bootstrapper).GetTypeInfo().Assembly);
             assemblies.Add(typeof(ApplicationSettings).GetTypeInfo().Assembly);
+            assemblies.Add(GetMainViewModelType().GetTypeInfo().Assembly);
 #else
             assemblies.Add(GetType().Assembly);
             assemblies.Add(typeof(Bootstrapper).Assembly);
             assemblies.Add(typeof(ApplicationSettings).Assembly);
+            assemblies.Add(GetMainViewModelType().Assembly);
 #endif
 #if !WINFORMS && !TOUCH
             TryLoadAssembly(BindingAssemblyName, assemblies);
 #endif
+            try
+            {
+#if !WINFORMS && !TOUCH
+                var application = Application.Current;
+                if (application != null)
+                {
+#if WINDOWSCOMMON || XAMARIN_FORMS
+                    assemblies.Add(application.GetType().GetTypeInfo().Assembly);
+#else
+                    assemblies.Add(application.GetType().Assembly);
+#endif
+                }
+#endif
+            }
+            catch
+            {
+                ;
+            }
             return assemblies;
         }
 
@@ -190,5 +214,15 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         }
 
         #endregion
+
+        #region Methods
+
+        private static HashSet<Assembly> ToHashSet(IEnumerable<Assembly> assemblies)
+        {
+            return assemblies as HashSet<Assembly> ?? new HashSet<Assembly>(assemblies ?? Empty.Array<Assembly>());
+        }
+
+        #endregion
+
     }
 }

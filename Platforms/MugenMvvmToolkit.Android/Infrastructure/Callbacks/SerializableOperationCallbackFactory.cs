@@ -37,7 +37,7 @@ using MugenMvvmToolkit.ViewModels;
 namespace MugenMvvmToolkit.Android.Infrastructure.Callbacks
 #elif TOUCH
 namespace MugenMvvmToolkit.iOS.Infrastructure.Callbacks
-#elif WINDOWSCOMMON || NETFX_CORE
+#elif WINDOWSCOMMON
 namespace MugenMvvmToolkit.WinRT.Infrastructure.Callbacks
 #elif WINDOWS_PHONE
 namespace MugenMvvmToolkit.WinPhone.Infrastructure.Callbacks
@@ -63,6 +63,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         {
             #region Fields
 
+            private const int AsyncOperationField = 0;
             private const int SerializableField = 1;
             private const int AwaiterField = 2;
             private const int NonSerializableField = 3;
@@ -110,16 +111,11 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                     case BuilderField:
                         var type = Type.GetType(TypeName, true);
                         var createMethod = type.GetMethodEx("Create", MemberFlags.NonPublic | MemberFlags.Public | MemberFlags.Static);
-                        if (createMethod == null)
-                        {
-                            TraceError(field, targetType);
-                            return false;
-                        }
                         var startMethod = type.GetMethodEx("Start", MemberFlags.NonPublic | MemberFlags.Public | MemberFlags.Instance);
-                        if (startMethod == null || !startMethod.IsGenericMethodDefinition)
+                        if (createMethod == null || startMethod == null || !startMethod.IsGenericMethodDefinition)
                         {
-                            TraceError(field, targetType);
-                            return false;
+                            ((IAsyncStateMachine)target).MoveNext();
+                            return true;
                         }
                         var builder = createMethod.Invoke(null, Empty.Array<object>());
                         field.SetValueEx(target, builder);
@@ -130,6 +126,12 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                         var awaiterType = typeof(SerializableAwaiter<>).MakeGenericType(Type.GetType(awaiterResultType, true));
                         var instance = Activator.CreateInstance(awaiterType, result);
                         field.SetValueEx(target, instance);
+                        break;
+                    case AsyncOperationField:
+                        var opType = typeof(AsyncOperation<>).MakeGenericType(Type.GetType(awaiterResultType, true));
+                        var opInstance = (IAsyncOperation)Activator.CreateInstance(opType);
+                        AsyncOperation<object>.TrySetResult(opInstance, result);
+                        field.SetValueEx(target, opInstance);
                         break;
                     case AnonymousClass:
                         var anonType = Type.GetType(TypeName, true);
@@ -156,10 +158,10 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                             if (!items.TryGetValue(serviceType, out service))
                             {
                                 if (field.Name.Contains("CachedAnonymousMethodDelegate"))
-                                    service = GetDefault(field.FieldType);
+                                    service = field.GetValueEx<object>(target);
                                 else if (!ServiceProvider.IocContainer.TryGet(serviceType, out service))
                                 {
-                                    service = GetDefault(field.FieldType);
+                                    service = field.GetValueEx<object>(target);
                                     TraceError(field, targetType);
                                 }
                                 items[serviceType] = service;
@@ -188,7 +190,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 return true;
             }
 
-            public static FieldSnapshot Create(FieldInfo field, object target)
+            public static FieldSnapshot Create(FieldInfo field, object target, IAsyncOperation asyncOperation)
             {
                 var isStateMachine = target is IAsyncStateMachine;
                 if (isStateMachine)
@@ -206,12 +208,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 if (value == null || value is IAsyncStateMachine)
                     return null;
 
-                if (isStateMachine && field.Name.Contains("$awaiter"))
-                {
-                    if (value is IAsyncOperationAwaiter)
-                        return new FieldSnapshot { Name = field.Name, FieldType = AwaiterField };
-                    return null;
-                }
+                if (isStateMachine && value is IAsyncOperationAwaiter)
+                    return new FieldSnapshot { Name = field.Name, FieldType = AwaiterField };
 
                 var viewModel = value as IViewModel;
                 if (viewModel != null)
@@ -272,7 +270,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                     var snapshots = new List<FieldSnapshot>();
                     foreach (var anonymousField in type.GetFieldsEx(MemberFlags.Instance | MemberFlags.NonPublic | MemberFlags.Public))
                     {
-                        var snapshot = Create(anonymousField, value);
+                        var snapshot = Create(anonymousField, value, asyncOperation);
                         if (snapshot != null)
                             snapshots.Add(snapshot);
                     }
@@ -284,6 +282,12 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                         TypeName = type.AssemblyQualifiedName
                     };
                 }
+                if (asyncOperation != null && Equals(value, asyncOperation))
+                    return new FieldSnapshot
+                    {
+                        Name = field.Name,
+                        FieldType = AsyncOperationField
+                    };
                 return new FieldSnapshot
                 {
                     Name = field.Name,
@@ -332,11 +336,11 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         {
             #region Constructors
 
-            public AwaiterSerializableCallback(Action continuation, IAsyncStateMachine stateMachine, string awaiterResultType, bool isUiThread)
+            public AwaiterSerializableCallback(Action continuation, IAsyncStateMachine stateMachine, string awaiterResultType, bool isUiThread, IAsyncOperation asyncOperation)
             {
                 IsUiThread = isUiThread;
                 AwaiterResultType = awaiterResultType;
-                Initialize(continuation, stateMachine);
+                Initialize(continuation, stateMachine, asyncOperation);
             }
 
             #endregion
@@ -359,7 +363,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             #region Methods
 
-            private void Initialize(Action continuation, IAsyncStateMachine stateMachine)
+            private void Initialize(Action continuation, IAsyncStateMachine stateMachine, IAsyncOperation asyncOperation)
             {
                 const MemberFlags flags = MemberFlags.NonPublic | MemberFlags.Public | MemberFlags.Instance;
                 if (stateMachine == null)
@@ -395,7 +399,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
                 foreach (var field in type.GetFieldsEx(flags))
                 {
-                    var snapshot = FieldSnapshot.Create(field, stateMachine);
+                    var snapshot = FieldSnapshot.Create(field, stateMachine, asyncOperation);
                     if (snapshot != null)
                         FieldSnapshots.Add(snapshot);
                 }
@@ -405,27 +409,69 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             {
                 if (StateMachineType == null || FieldSnapshots == null)
                 {
-                    Tracer.Error("The await callback cannot be executed.");
+                    Tracer.Error("The await callback cannot be executed empty serialization state property " +
+                                 (StateMachineType == null ? "StateMachineType" : "FieldSnapshots"));
                     return;
                 }
                 var type = Type.GetType(StateMachineType, true);
-                IAsyncStateMachine stateMachine;
-#if NETFX_CORE || WINDOWSCOMMON || XAMARIN_FORMS
+                IAsyncStateMachine stateMachine = null;
+#if WINDOWSCOMMON || XAMARIN_FORMS
                 if (type.GetTypeInfo().IsValueType)
 #else
                 if (type.IsValueType)
 #endif
-
-                    stateMachine = (IAsyncStateMachine)GetDefault(type);
+                {
+                    try
+                    {
+#if WINDOWSCOMMON
+                        stateMachine = (IAsyncStateMachine)Activator.CreateInstance(type);
+#else
+                        stateMachine = (IAsyncStateMachine)GetDefault(type);
+#endif
+                    }
+                    catch
+                    {
+                        ;
+                    }
+                }
                 else
                 {
-                    var constructor = type.GetConstructor(Empty.Array<Type>());
-                    if (constructor == null)
+                    try
                     {
-                        Tracer.Error("The await callback cannot be executed.");
+                        var constructor = type.GetConstructor(Empty.Array<Type>());
+                        if (constructor != null)
+                            stateMachine = (IAsyncStateMachine)constructor.InvokeEx();
+                    }
+                    catch
+                    {
+                        ;
+                    }
+                }
+
+                if (stateMachine == null)
+                {
+                    Exception e = null;
+                    try
+                    {
+#if WINDOWSCOMMON
+                        if (type.GetTypeInfo().IsValueType)
+                            stateMachine = (IAsyncStateMachine)GetDefault(type);
+                        else
+                            stateMachine = (IAsyncStateMachine)Activator.CreateInstance(type);
+#else
+                        stateMachine = (IAsyncStateMachine)Activator.CreateInstance(type);
+#endif
+                    }
+                    catch (Exception ex)
+                    {
+                        e = ex;
+                    }
+                    if (e != null)
+                    {
+                        Tracer.Error("The await callback cannot be executed missing constructor, state machine " + type +
+                                     " " + e.Flatten(true));
                         return;
                     }
-                    stateMachine = (IAsyncStateMachine)constructor.InvokeEx();
                 }
 
                 var viewModels = CollectViewModels(result);
@@ -436,9 +482,12 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 FieldSnapshots.Sort((x1, x2) => x1.FieldType.CompareTo(x2.FieldType));
                 for (int index = 0; index < FieldSnapshots.Count; index++)
                 {
-                    if (!FieldSnapshots[index].Restore(type, stateMachine, items, viewModels, AwaiterResultType, result))
+                    var fieldSnapshot = FieldSnapshots[index];
+                    if (!fieldSnapshot.Restore(type, stateMachine, items, viewModels, AwaiterResultType, result))
                     {
-                        Tracer.Error("The await callback cannot be executed, source " + result.Source);
+                        object fieldInfo = (object)type.GetFieldEx(fieldSnapshot.Name,
+                            MemberFlags.NonPublic | MemberFlags.Public | MemberFlags.Instance) ?? fieldSnapshot.Name;
+                        Tracer.Error("The await callback cannot be executed, field ({0}) cannot be restored source {1}", fieldInfo, result.Source);
                         break;
                     }
                 }
@@ -446,8 +495,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             private static void TraceError(object target)
             {
-                Tracer.Error("The serializable awaiter cannot get IAsyncStateMachine from target {0}",
-                    target);
+                Tracer.Error("The serializable awaiter cannot get IAsyncStateMachine from target {0}", target);
             }
 
             #endregion
@@ -473,6 +521,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             private readonly Action _continuation;
             private readonly IHasStateMachine _hasStateMachine;
             private readonly Type _resultType;
+            private readonly IAsyncOperation _asyncOperation;
             private ISerializableCallback _serializableCallback;
             private readonly SynchronizationContext _context;
             private readonly bool _isUiThread;
@@ -481,12 +530,13 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             #region Constructors
 
-            public AwaiterContinuation(Action continuation, IHasStateMachine hasStateMachine, Type resultType, bool continueOnCapturedContext)
+            public AwaiterContinuation(Action continuation, IHasStateMachine hasStateMachine, Type resultType, bool continueOnCapturedContext, IAsyncOperation asyncOperation)
             {
                 Should.NotBeNull(continuation, "continuation");
                 _continuation = continuation;
                 _hasStateMachine = hasStateMachine;
                 _resultType = resultType;
+                _asyncOperation = asyncOperation;
                 if (continueOnCapturedContext)
                 {
                     _context = SynchronizationContext.Current;
@@ -501,8 +551,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             public ISerializableCallback ToSerializableCallback()
             {
                 if (_serializableCallback == null)
-                    _serializableCallback = new AwaiterSerializableCallback(_continuation, _hasStateMachine.StateMachine,
-                        _resultType.AssemblyQualifiedName, _isUiThread);
+                    _serializableCallback = new AwaiterSerializableCallback(_continuation, _hasStateMachine.StateMachine, _resultType.AssemblyQualifiedName, _isUiThread, _asyncOperation);
                 return _serializableCallback;
             }
 
@@ -554,7 +603,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             public void OnCompleted(Action continuation)
             {
-                _operation.ContinueWith(new AwaiterContinuation(continuation, this, typeof(TResult), _continueOnCapturedContext));
+                _operation.ContinueWith(new AwaiterContinuation(continuation, this, typeof(TResult), _continueOnCapturedContext, _operation));
             }
 
             public bool IsCompleted
@@ -782,7 +831,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 var snapshots = new List<FieldSnapshot>();
                 foreach (var anonymousField in targetType.GetFieldsEx(MemberFlags.Instance | MemberFlags.NonPublic | MemberFlags.Public))
                 {
-                    var snapshot = FieldSnapshot.Create(anonymousField, target);
+                    var snapshot = FieldSnapshot.Create(anonymousField, target, null);
                     if (snapshot != null)
                         snapshots.Add(snapshot);
                 }

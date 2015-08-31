@@ -90,8 +90,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="XamarinFormsBootstrapperBase" /> class.
         /// </summary>
-        protected XamarinFormsBootstrapperBase()
-            : base(GetPlatformInfo())
+        protected XamarinFormsBootstrapperBase(PlatformInfo platform = null)
+            : base(platform ?? GetPlatformInfo())
         {
         }
 

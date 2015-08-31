@@ -38,7 +38,7 @@ using Xamarin.Forms;
 namespace MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation
 #elif SILVERLIGHT
 namespace MugenMvvmToolkit.Silverlight.Interfaces.Navigation
-#elif NETFX_CORE || WINDOWSCOMMON
+#elif WINDOWSCOMMON
 namespace MugenMvvmToolkit.WinRT.Interfaces.Navigation
 #elif WINDOWS_PHONE
 using System.Windows.Navigation;

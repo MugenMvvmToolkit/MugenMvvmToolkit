@@ -105,6 +105,11 @@ namespace MugenMvvmToolkit.Interfaces.Validation
         Task ValidateAsync();
 
         /// <summary>
+        ///     Tries to cancel the current validation process.
+        /// </summary>
+        void CancelValidation();
+
+        /// <summary>
         ///     Clears errors for a property.
         /// </summary>
         /// <param name="propertyName">The name of the property</param>

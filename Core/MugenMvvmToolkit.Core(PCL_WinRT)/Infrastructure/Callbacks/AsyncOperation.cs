@@ -56,6 +56,17 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         #region Methods
 
         /// <summary>
+        ///     Tries to sets the result of the specified operation.
+        /// </summary>
+        public static bool TrySetResult(IAsyncOperation operation, IOperationResult result)
+        {
+            var operationInternal = operation as IAsyncOperationInternal;
+            if (operationInternal == null)
+                return false;
+            return operationInternal.SetResult(result, false);
+        }
+
+        /// <summary>
         ///     Sets the result of this operation.
         /// </summary>
         public void SetResult([NotNull] IOperationResult<TResult> result)

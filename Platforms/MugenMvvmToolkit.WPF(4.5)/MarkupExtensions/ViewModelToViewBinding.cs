@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
             Initialize();
         }
 
-#if !NETFX_CORE && !WINDOWSCOMMON
+#if !WINDOWSCOMMON
         /// <summary>
         ///     Initializes a new instance of the <see cref="ViewModelToViewBinding" /> class with an initial path.
         /// </summary>
@@ -95,7 +95,7 @@ namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
         private void Initialize()
         {
             base.Converter = new ViewModelToViewConverter();
-#if !NETFX_CORE && !WINDOWSCOMMON
+#if !WINDOWSCOMMON
             ValidatesOnDataErrors = false;
             ValidatesOnExceptions = false;
 #if !NET4

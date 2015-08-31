@@ -108,8 +108,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="AndroidBootstrapperBase" /> class.
         /// </summary>
-        protected AndroidBootstrapperBase()
-            : base(PlatformExtensions.GetPlatformInfo())
+        protected AndroidBootstrapperBase(PlatformInfo platform = null)
+            : base(platform ?? PlatformExtensions.GetPlatformInfo())
         {
         }
 
@@ -164,8 +164,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         ///     Starts the current bootstrapper.
         /// </summary>
         public virtual void Start()
-        {            
-            Initialize();			
+        {
+            Initialize();
             CreateMainViewModel(GetMainViewModelType())
                 .ShowAsync((model, result) => model.Dispose(), null, new DataContext(InitializationContext));
         }

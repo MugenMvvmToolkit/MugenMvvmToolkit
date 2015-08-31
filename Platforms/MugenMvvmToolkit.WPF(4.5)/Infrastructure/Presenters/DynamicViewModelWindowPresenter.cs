@@ -66,7 +66,7 @@ using MugenMvvmToolkit.Silverlight.Infrastructure.Mediators;
 using MugenMvvmToolkit.Silverlight.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Silverlight.Infrastructure.Presenters
-#elif NETFX_CORE || WINDOWSCOMMON
+#elif WINDOWSCOMMON
 using MugenMvvmToolkit.WinRT.Infrastructure.Mediators;
 using MugenMvvmToolkit.WinRT.Interfaces.Views;
 

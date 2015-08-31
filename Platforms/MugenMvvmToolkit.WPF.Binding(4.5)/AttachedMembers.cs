@@ -18,7 +18,7 @@
 using System.Collections.Generic;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Models;
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
 using UIElementEx = Windows.UI.Xaml.UIElement;
 #elif XAMARIN_FORMS
 using UIElementEx = Xamarin.Forms.VisualElement;
@@ -29,7 +29,7 @@ using UIElementEx = System.Windows.UIElement;
 
 #if WPF
 namespace MugenMvvmToolkit.WPF.Binding
-#elif NETFX_CORE || WINDOWSCOMMON
+#elif WINDOWSCOMMON
 namespace MugenMvvmToolkit.WinRT.Binding
 #elif WINDOWS_PHONE
 namespace MugenMvvmToolkit.WinPhone.Binding

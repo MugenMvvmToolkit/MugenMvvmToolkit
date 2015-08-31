@@ -68,8 +68,8 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="WpfBootstrapperBase" /> class.
         /// </summary>
-        protected WpfBootstrapperBase([NotNull] Application application, bool autoStart = true)
-            : base(PlatformExtensions.GetPlatformInfo())
+        protected WpfBootstrapperBase([NotNull] Application application, bool autoStart = true, PlatformInfo platform = null)
+            : base(platform ?? PlatformExtensions.GetPlatformInfo())
         {
             Should.NotBeNull(application, "application");
             application.Startup += ApplicationOnStartup;

@@ -16,7 +16,7 @@
 
 #endregion
 
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #else
@@ -33,7 +33,7 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 namespace MugenMvvmToolkit.WPF.Binding.Models
 #elif SILVERLIGHT
 namespace MugenMvvmToolkit.Silverlight.Binding.Models
-#elif NETFX_CORE || WINDOWSCOMMON
+#elif WINDOWSCOMMON
 namespace MugenMvvmToolkit.WinRT.Binding.Models
 #elif WINDOWS_PHONE
 namespace MugenMvvmToolkit.WinPhone.Binding.Models

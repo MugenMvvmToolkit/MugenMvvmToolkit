@@ -66,8 +66,8 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="TouchBootstrapperBase" /> class.
         /// </summary>
-        protected TouchBootstrapperBase([NotNull] UIWindow window)
-            : base(PlatformExtensions.GetPlatformInfo())
+        protected TouchBootstrapperBase([NotNull] UIWindow window, PlatformInfo platform = null)
+            : base(platform ?? PlatformExtensions.GetPlatformInfo())
         {
             Should.NotBeNull(window, "window");
             _window = window;

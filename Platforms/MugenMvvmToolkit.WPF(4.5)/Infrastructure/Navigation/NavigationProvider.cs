@@ -56,7 +56,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 using MugenMvvmToolkit.Silverlight.Interfaces.Navigation;
 
 namespace MugenMvvmToolkit.Silverlight.Infrastructure.Navigation
-#elif NETFX_CORE || WINDOWSCOMMON
+#elif WINDOWSCOMMON
 using System.Reflection;
 using MugenMvvmToolkit.WinRT.Interfaces.Navigation;
 
@@ -630,7 +630,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
                     if (items.Count == 1)
                     {
                         var type = items[0].ViewModelType;
-#if NETFX_CORE || WINDOWSCOMMON || XAMARIN_FORMS
+#if WINDOWSCOMMON || XAMARIN_FORMS
                         if (!type.GetTypeInfo().IsGenericTypeDefinition)
 #else
                         if (!type.IsGenericTypeDefinition)
@@ -670,7 +670,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             if (vm == null)
             {
                 IDataContext viewModelState = null;
-#if WINDOWS_PHONE || NETFX_CORE || WINDOWSCOMMON
+#if WINDOWS_PHONE || WINDOWSCOMMON
                 viewModelState = PlatformExtensions.GetViewModelState(view);
                 if (viewModelState != null)
                     PlatformExtensions.SetViewModelState(view, null);
@@ -927,13 +927,13 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
                 return false;
 
             var vmType = viewModel.GetType();
-#if NETFX_CORE || WINDOWSCOMMON || XAMARIN_FORMS
+#if WINDOWSCOMMON || XAMARIN_FORMS
             if (!viewModelType.GetTypeInfo().IsGenericType)
 #else
             if (!viewModelType.IsGenericType)
 #endif
                 return vmType.Equals(viewModelType);
-#if NETFX_CORE || WINDOWSCOMMON || XAMARIN_FORMS
+#if WINDOWSCOMMON || XAMARIN_FORMS
             if (!vmType.GetTypeInfo().IsGenericType)
 #else
             if (!vmType.IsGenericType)

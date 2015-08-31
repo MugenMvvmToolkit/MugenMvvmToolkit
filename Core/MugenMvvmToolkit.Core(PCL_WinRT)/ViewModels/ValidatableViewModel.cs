@@ -392,6 +392,7 @@ namespace MugenMvvmToolkit.ViewModels
         {
             OnPropertyChanged(Empty.HasErrorsChangedArgs);
             OnPropertyChanged(Empty.IsValidChangedArgs);
+            OnPropertyChanged(Empty.IndexerPropertyChangedArgs);
             if (ErrorsChanged != null)
                 ThreadManager.Invoke(Settings.EventExecutionMode, this, args, RaiseErrorsChangedDelegate);
         }
@@ -698,7 +699,14 @@ namespace MugenMvvmToolkit.ViewModels
         public virtual event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
 #if NONOTIFYDATAERROR
-        string IDataErrorInfo.this[string columnName]
+        /// <summary>
+        /// Gets the error message for the property with the given name.
+        /// </summary>
+        /// <returns>
+        /// The error message for the property. The default is an empty string ("").
+        /// </returns>
+        /// <param name="columnName">The name of the property whose error message to get. </param>
+        public string this[string columnName]
         {
             get
             {
@@ -717,6 +725,26 @@ namespace MugenMvvmToolkit.ViewModels
                 if (errors == null || errors.Count == 0)
                     return null;
                 return string.Join(Environment.NewLine, errors);
+            }
+        }
+#else
+        /// <summary>
+        ///     Gets the validation errors for a specified property or for the entire entity.
+        /// </summary>
+        /// <param name="propertyName">
+        ///     The name of the property to retrieve validation errors for; or null or
+        ///     <see cref="F:System.String.Empty" />, to retrieve entity-level errors.
+        /// </param>
+        /// <returns>
+        ///     The validation errors for the property or entity.
+        /// </returns>
+        public IList<object> this[string propertyName]
+        {
+            get
+            {
+                if (ApplicationSettings.GetAllErrorsIndexerProperty == propertyName)
+                    propertyName = string.Empty;
+                return GetErrors(propertyName);
             }
         }
 #endif

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -18,6 +18,10 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <NuGetPackageImportStamp>588a7834</NuGetPackageImportStamp>
+    <TargetPlatformVersion>8.1</TargetPlatformVersion>
+    <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
+    <TargetFrameworkVersion />
+    <AppxBundle>Never</AppxBundle>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -532,17 +536,17 @@
       <Project>{c66077d8-dbfd-479d-adab-bf569263e914}</Project>
       <Name>MugenMvvmToolkit.AutofacContainer%28PCL%29</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.MugenContainer%28WinRT8.0%29\MugenMvvmToolkit.MugenContainer%28WinRT8.0%29.csproj">
+    <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.MugenContainer%28WinRT%29\MugenMvvmToolkit.MugenContainer%28WinRT%29.csproj">
       <Project>{e167271b-5f89-4d89-99b2-f585e232035f}</Project>
-      <Name>MugenMvvmToolkit.MugenContainer%28WinRT8.0%29</Name>
+      <Name>MugenMvvmToolkit.MugenContainer%28WinRT%29</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.WinRT.Binding%288.0%29\MugenMvvmToolkit.WinRT.Binding%288.0%29.csproj">
-      <Project>{7ad9872b-d026-47f0-ada9-1ebc321522c8}</Project>
-      <Name>MugenMvvmToolkit.WinRT.Binding%288.0%29</Name>
+    <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.WinRT%28PCL%29\MugenMvvmToolkit.WinRT%28PCL%29.csproj">
+      <Project>{9e1fd76f-907f-480c-a0c5-d165e07aa566}</Project>
+      <Name>MugenMvvmToolkit.WinRT%28PCL%29</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.WinRT%288.0%29\MugenMvvmToolkit.WinRT%288.0%29.csproj">
-      <Project>{634b471b-9bea-4c91-be1c-2dccd4d01668}</Project>
-      <Name>MugenMvvmToolkit.WinRT%288.0%29</Name>
+    <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.WinRT.Binding%28PCL%29\MugenMvvmToolkit.WinRT.Binding%28PCL%29.csproj">
+      <Project>{916955bd-f025-45fe-9824-ebc709234e36}</Project>
+      <Name>MugenMvvmToolkit.WinRT.Binding%28PCL%29</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -560,8 +564,8 @@
   <ItemGroup>
     <Folder Include="Infrastructure\Mediators\" />
   </ItemGroup>
-  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '11.0' ">
-    <VisualStudioVersion>11.0</VisualStudioVersion>
+  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
+    <VisualStudioVersion>12.0</VisualStudioVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

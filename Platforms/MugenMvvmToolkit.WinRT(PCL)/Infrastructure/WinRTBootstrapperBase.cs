@@ -62,8 +62,8 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="WinRTBootstrapperBase" /> class.
         /// </summary>
-        protected WinRTBootstrapperBase([NotNull] Frame rootFrame, bool overrideAssemblies)
-            : base(PlatformExtensions.GetPlatformInfo())
+        protected WinRTBootstrapperBase([NotNull] Frame rootFrame, bool overrideAssemblies, PlatformInfo platform = null)
+            : base(platform ?? PlatformExtensions.GetPlatformInfo())
         {
             Should.NotBeNull(rootFrame, "rootFrame");
             _rootFrame = rootFrame;
@@ -182,11 +182,10 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         private static async Task<List<Assembly>> GetAssembliesAsync()
         {
             var assemblies = new List<Assembly>();
-            try
+            var files = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFilesAsync();
+            foreach (var file in files)
             {
-                var files = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFilesAsync();
-
-                foreach (var file in files)
+                try
                 {
                     if ((file.FileType == ".dll") || (file.FileType == ".exe"))
                     {
@@ -195,13 +194,13 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
                         if (asm.IsToolkitAssembly())
                             assemblies.Add(asm);
                     }
+
+                }
+                catch
+                {
+                    ;
                 }
             }
-            catch (Exception e)
-            {
-                Tracer.Error(e.Flatten(true));
-            }
-
             return assemblies;
         }
 

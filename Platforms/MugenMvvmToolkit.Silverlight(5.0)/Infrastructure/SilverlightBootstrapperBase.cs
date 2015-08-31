@@ -49,8 +49,8 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="SilverlightBootstrapperBase" /> class.
         /// </summary>
-        protected SilverlightBootstrapperBase([NotNull] Application application, bool autoStart = true)
-            : base(PlatformExtensions.GetPlatformInfo())
+        protected SilverlightBootstrapperBase([NotNull] Application application, bool autoStart = true, PlatformInfo platform = null)
+            : base(platform ?? PlatformExtensions.GetPlatformInfo())
         {
             Should.NotBeNull(application, "application");
             _application = application;

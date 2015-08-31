@@ -101,8 +101,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
             //NOTE: not a good solution but I do not know of another.
             var type = Type.GetType("Windows.Phone.ApplicationModel.ApplicationProfile, Windows, ContentType=WindowsRuntime", false);
             if (type == null)
-                return new PlatformInfo(PlatformType.WinRT, new Version(8, 1));
-            return new PlatformInfo(PlatformType.WinPhone, new Version(8, 1));
+                return new PlatformInfo(PlatformType.XamarinFormsWinRT, new Version(8, 1));
+            return new PlatformInfo(PlatformType.XamarinFormsWinPhone, new Version(8, 1));
 #endif
 
         }

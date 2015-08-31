@@ -52,8 +52,8 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="WinFormsBootstrapperBase" /> class.
         /// </summary>
-        protected WinFormsBootstrapperBase(bool autoRunApplication = true)
-            : base(PlatformExtensions.GetPlatformInfo())
+        protected WinFormsBootstrapperBase(bool autoRunApplication = true, PlatformInfo platform = null)
+            : base(platform ?? PlatformExtensions.GetPlatformInfo())
         {
             AutoRunApplication = autoRunApplication;
             ShutdownOnMainViewModelClose = true;
