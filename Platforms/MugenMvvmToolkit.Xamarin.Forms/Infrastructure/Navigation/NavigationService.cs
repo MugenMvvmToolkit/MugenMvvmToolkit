@@ -321,9 +321,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
         {
             if (CurrentContent != page)
                 return;
-            var eventArgs = new NavigatingCancelEventArgs(null, NavigationMode.Back, null, SendBackButtonPressed != null, true);
+            bool isCancelable = _rootPage.Navigation.NavigationStack.Count > 1 || SendBackButtonPressed != null;
+            var eventArgs = new NavigatingCancelEventArgs(null, NavigationMode.Back, null, isCancelable, true);
             RaiseNavigating(eventArgs);
-            if (SendBackButtonPressed == null)
+            if (!isCancelable)
                 eventArgs.Cancel = false;
             args.Cancel = eventArgs.Cancel;
 

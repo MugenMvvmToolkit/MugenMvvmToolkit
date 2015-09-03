@@ -17,6 +17,8 @@
 #endregion
 
 using System;
+using Android.OS;
+using Android.Runtime;
 using Android.Views;
 using MugenMvvmToolkit.Android.Binding.Models;
 using MugenMvvmToolkit.Binding;
@@ -30,7 +32,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
     {
         #region Nested types
 
-        private abstract class LayoutObserver : IDisposable
+        private abstract class LayoutObserver : Java.Lang.Object, View.IOnLayoutChangeListener, ViewTreeObserver.IOnGlobalLayoutListener
         {
             #region Fields
 
@@ -40,11 +42,21 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             #region Constructors
 
-            protected LayoutObserver(View view)
+            protected LayoutObserver(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+            {
+            }
+
+            protected LayoutObserver(View view, bool treeObserver)
             {
                 _viewReference = ServiceProvider.WeakReferenceFactory(view);
-                if (view.ViewTreeObserver.IsAlive)
-                    view.ViewTreeObserver.GlobalLayout += OnGlobalLayoutChanged;
+                if (!treeObserver && Build.VERSION.SdkInt >= BuildVersionCodes.Honeycomb)
+                    view.AddOnLayoutChangeListener(this);
+                else
+                {
+                    var viewTreeObserver = view.ViewTreeObserver;
+                    if (viewTreeObserver.IsAlive)
+                        viewTreeObserver.AddOnGlobalLayoutListener(this);
+                }
             }
 
             #endregion
@@ -59,39 +71,102 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 return (View)viewReference.Target;
             }
 
-            private void OnGlobalLayoutChanged(object sender, EventArgs eventArgs)
+            private void Raise()
             {
                 if (_viewReference == null)
                     return;
                 var view = GetView();
-                if (view == null)
-                    Dispose();
+                if (view.IsAlive())
+                    OnGlobalLayoutChangedInternal(view);
                 else
-                    OnGlobalLayoutChangedInternal(view, sender, eventArgs);
+                    Dispose();
             }
 
-            protected abstract void OnGlobalLayoutChangedInternal(View view, object sender, EventArgs eventArgs);
+            protected abstract void OnGlobalLayoutChangedInternal(View view);
 
             #endregion
 
-            #region Implementation of IDisposable
+            #region Implementation of interfaces
 
-            public void Dispose()
+            public void OnLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop,
+                int oldRight,
+                int oldBottom)
             {
-                try
+                Raise();
+            }
+
+            public void OnGlobalLayout()
+            {
+                Raise();
+            }
+
+            #endregion
+
+            #region Overrides
+
+            protected override void Dispose(bool disposing)
+            {
+                if (disposing)
                 {
-                    var view = (View)_viewReference.Target;
-                    if (view != null && view.ViewTreeObserver.IsAlive)
-                        view.ViewTreeObserver.GlobalLayout -= OnGlobalLayoutChanged;
+                    try
+                    {
+                        var view = GetView();
+                        if (view.IsAlive())
+                        {
+                            if (Build.VERSION.SdkInt >= BuildVersionCodes.Honeycomb)
+                                view.RemoveOnLayoutChangeListener(this);
+                            else
+                            {
+                                var viewTreeObserver = view.ViewTreeObserver;
+                                if (viewTreeObserver.IsAlive)
+                                    viewTreeObserver.RemoveOnGlobalLayoutListener(this);
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Tracer.Warn(e.Flatten());
+                    }
+                    finally
+                    {
+                        _viewReference = null;
+                    }
                 }
-                catch (Exception e)
-                {
-                    Tracer.Warn(e.Flatten());
-                }
-                finally
-                {
-                    _viewReference = null;
-                }
+                base.Dispose(disposing);
+            }
+
+            #endregion
+
+        }
+
+        private sealed class SizeObserver : LayoutObserver
+        {
+            #region Fields
+
+            private readonly WeakEventListenerWrapper _listenerRef;
+
+            #endregion
+
+            #region Constructors
+
+            public SizeObserver(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+            {
+            }
+
+            public SizeObserver(View view, IEventListener handler)
+                : base(view, false)
+            {
+                _listenerRef = handler.ToWeakWrapper();
+            }
+
+            #endregion
+
+            #region Overrides of LayoutObserver
+
+            protected override void OnGlobalLayoutChangedInternal(View view)
+            {
+                if (!_listenerRef.EventListener.TryHandle(view, EventArgs.Empty))
+                    Dispose();
             }
 
             #endregion
@@ -108,8 +183,12 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             #region Constructors
 
+            public VisiblityObserver(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+            {
+            }
+
             public VisiblityObserver(View view, IEventListener handler)
-                : base(view)
+                : base(view, true)
             {
                 _listenerRef = handler.ToWeakWrapper();
                 _oldValue = view.Visibility;
@@ -119,13 +198,13 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             #region Overrides of LayoutObserver
 
-            protected override void OnGlobalLayoutChangedInternal(View view, object sender, EventArgs eventArgs)
+            protected override void OnGlobalLayoutChangedInternal(View view)
             {
                 ViewStates visibility = view.Visibility;
                 if (_oldValue == visibility)
                     return;
                 _oldValue = visibility;
-                if (!_listenerRef.EventListener.TryHandle(view, eventArgs))
+                if (!_listenerRef.EventListener.TryHandle(view, EventArgs.Empty))
                     Dispose();
             }
 
@@ -138,7 +217,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         private static void RegisterViewMembers(IBindingMemberProvider memberProvider)
         {
-            //View            
+            //View
             memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.FindByNameMethod, ViewFindByNameMember));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.ParentExplicit, GetViewParentValue, SetViewParentValue, ObserveViewParent));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, bool>(AttachedMemberConstants.Focused,
@@ -163,6 +242,8 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 (info, view, value) => view.Visibility = value ? ViewStates.Gone : ViewStates.Visible,
                 ObserveViewVisibility));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<View, object>(AttachedMembers.Toolbar.MenuTemplate.Path));
+            memberProvider.Register(AttachedBindingMember.CreateEvent<View>("WidthChanged", (info, o, arg3) => new SizeObserver(o, arg3)));
+            memberProvider.Register(AttachedBindingMember.CreateEvent<View>("HeightChanged", (info, o, arg3) => new SizeObserver(o, arg3)));
         }
 
         private static IDisposable ObserveViewVisibility(IBindingMemberInfo bindingMemberInfo, View view, IEventListener arg3)

@@ -1081,7 +1081,7 @@ namespace MugenMvvmToolkit
                 list.AddRange(items);
                 return;
             }
-            var notifiableCollection = collection as SynchronizedNotifiableCollection<T>;
+            var notifiableCollection = collection as INotifiableCollection<T>;
             if (notifiableCollection != null)
             {
                 notifiableCollection.AddRange(items);
@@ -1117,7 +1117,7 @@ namespace MugenMvvmToolkit
         {
             Should.NotBeNull(collection, "collection");
             Should.NotBeNull(items, "items");
-            var notifiableCollection = collection as SynchronizedNotifiableCollection<T>;
+            var notifiableCollection = collection as INotifiableCollection<T>;
             if (notifiableCollection != null)
             {
                 notifiableCollection.RemoveRange(items);

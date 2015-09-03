@@ -42,7 +42,7 @@ namespace MugenMvvmToolkit.WinForms.Collections
         ///     for the specified list.
         /// </summary>
         /// <param name="collection">The list that is wrapped by the new collection.</param>
-        public BindingListWrapper(SynchronizedNotifiableCollection<T> collection = null)
+        public BindingListWrapper(INotifiableCollection<T> collection = null)
             : base(collection ?? new SynchronizedNotifiableCollection<T>())
         {
             _locker = new object();

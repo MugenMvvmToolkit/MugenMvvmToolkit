@@ -395,6 +395,25 @@ namespace MugenMvvmToolkit.ViewModels
             OnPropertyChanged(Empty.IndexerPropertyChangedArgs);
             if (ErrorsChanged != null)
                 ThreadManager.Invoke(Settings.EventExecutionMode, this, args, RaiseErrorsChangedDelegate);
+#if NONOTIFYDATAERROR
+            string ignoreProperty = args.PropertyName ?? string.Empty;
+            lock (_locker)
+            {
+                //Disable validation to prevent cycle
+                var contains = IgnoreProperties.Contains(ignoreProperty);
+                if (!contains)
+                    IgnoreProperties.Add(ignoreProperty);
+                try
+                {
+                    OnPropertyChanged(ignoreProperty, ExecutionMode.None);
+                }
+                finally
+                {
+                    if (!contains)
+                        IgnoreProperties.Remove(ignoreProperty);
+                }
+            }
+#endif
         }
 
         private static void RaiseErrorsChangedStatic(ValidatableViewModel @this, DataErrorsChangedEventArgs args)
@@ -402,25 +421,6 @@ namespace MugenMvvmToolkit.ViewModels
             var handler = @this.ErrorsChanged;
             if (handler != null)
                 handler(@this, args);
-#if NONOTIFYDATAERROR
-            string ignoreProperty = args.PropertyName ?? string.Empty;
-            lock (@this._locker)
-            {
-                //Disable validation to prevent cycle
-                var contains = @this.IgnoreProperties.Contains(ignoreProperty);
-                if (!contains)
-                    @this.IgnoreProperties.Add(ignoreProperty);
-                try
-                {
-                    @this.OnPropertyChanged(ignoreProperty, ExecutionMode.None);
-                }
-                finally
-                {
-                    if (!contains)
-                        @this.IgnoreProperties.Remove(ignoreProperty);
-                }
-            }
-#endif
         }
 
         private IValidatorContext CreateContextInternal(object instanceToValidate)

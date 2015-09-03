@@ -17,9 +17,7 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Threading;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -33,32 +31,52 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
     {
         #region Netsted types
 
-        private sealed class RootObserver : List<IDisposable>, IDisposable, IEventListener
+        private sealed class RootListener : EventListenerList, IEventListener
         {
             #region Fields
 
-            private bool _updating;
-            private readonly WeakReference _reference;
-            private WeakEventListenerWrapper _listener;
+            private readonly WeakReference _target;
+            private WeakReference _parent;
 
             #endregion
 
             #region Constructors
 
-            public RootObserver(object target, IEventListener listener)
+            public RootListener(object target)
             {
-                _reference = ServiceProvider.WeakReferenceFactory(target);
-                _listener = listener.ToWeakWrapper();
-                TryHandle(null, null);
+                _target = ServiceProvider.WeakReferenceFactory(target);
+                _parent = ServiceProvider.WeakReferenceFactory(BindingServiceProvider.VisualTreeManager.FindParent(target));
+                var parentMember = BindingServiceProvider.VisualTreeManager.GetParentMember(target.GetType());
+                if (parentMember != null)
+                    parentMember.TryObserve(target, this);
             }
 
             #endregion
 
-            #region Implementation of interfaces
+            #region Methods
+
+            public static RootListener GetOrAdd(object target)
+            {
+                return ServiceProvider
+                    .AttachedValueProvider
+                    .GetOrAdd(target, "_#@rtls#@_", (o, o1) => new RootListener(o), null);
+            }
+
+            public object GetRoot()
+            {
+                var parent = _parent.Target;
+                if (parent == null)
+                    return _target.Target;
+                return GetOrAdd(parent).GetRoot();
+            }
+
+            #endregion
+
+            #region Implementation of IEventListener
 
             public bool IsAlive
             {
-                get { return _reference.Target != null && _listener.EventListener.IsAlive; }
+                get { return _target.Target != null; }
             }
 
             public bool IsWeak
@@ -68,71 +86,21 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public bool TryHandle(object sender, object message)
             {
-                if (_updating)
-                    return true;
-                if (_listener.IsEmpty)
+                var target = _target.Target;
+                if (target == null)
                     return false;
-                bool lockTaken = false;
-                try
+                var oldParent = _parent.Target;
+                var parent = BindingServiceProvider.VisualTreeManager.FindParent(target);
+                if (oldParent != parent)
                 {
-                    Monitor.Enter(this, ref lockTaken);
-                    if (_listener.IsEmpty)
-                        return false;
-                    _updating = true;
-                    object currentItem = _reference.Target;
-                    if (currentItem == null)
-                    {
-                        Dispose(true);
-                        return false;
-                    }
-
-                    if (!_listener.EventListener.TryHandle(currentItem, message))
-                    {
-                        Dispose(true);
-                        return false;
-                    }
-
-                    Dispose(false);
-                    var treeManager = BindingServiceProvider.VisualTreeManager;
-                    while (currentItem != null)
-                    {
-                        var parentMember = treeManager.GetParentMember(currentItem.GetType());
-                        if (parentMember == null)
-                            break;
-                        var observer = parentMember.TryObserve(currentItem, this);
-                        if (observer != null)
-                            Add(observer);
-                        currentItem = parentMember.GetValue(currentItem, null);
-                    }
-                    return true;
+                    if (oldParent != null)
+                        GetOrAdd(oldParent).Remove(this);
+                    if (parent != null)
+                        GetOrAdd(parent).Add(this);
+                    _parent = ServiceProvider.WeakReferenceFactory(parent);
                 }
-                finally
-                {
-                    _updating = false;
-                    if (lockTaken)
-                        Monitor.Exit(this);
-                }
-            }
-
-            public void Dispose()
-            {
-                lock (this)
-                    Dispose(true);
-            }
-
-            #endregion
-
-            #region Methods
-
-            private void Dispose(bool dispose)
-            {
-                if (_listener.IsEmpty)
-                    return;
-                if (dispose)
-                    _listener = WeakEventListenerWrapper.Empty;
-                for (int i = 0; i < Count; i++)
-                    this[i].Dispose();
-                Clear();
+                Raise(sender, message);
+                return true;
             }
 
             #endregion
@@ -255,23 +223,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         private static IDisposable ObserveRootElement(IBindingMemberInfo bindingMemberInfo, object o, IEventListener arg3)
         {
-            return new RootObserver(o, arg3);
+            return RootListener.GetOrAdd(o).AddWithUnsubscriber(arg3);
         }
 
         private static object GetRootElement(IBindingMemberInfo bindingMemberInfo, object currentItem)
         {
-            var treeManager = BindingServiceProvider.VisualTreeManager;
-            while (currentItem != null)
-            {
-                var parentMember = treeManager.GetParentMember(currentItem.GetType());
-                if (parentMember == null)
-                    return currentItem;
-                var next = parentMember.GetValue(currentItem, null);
-                if (next == null)
-                    return currentItem;
-                currentItem = next;
-            }
-            return null;
+            return RootListener.GetOrAdd(currentItem).GetRoot();
         }
 
         private static void TypeNameEqual(Type type, string typeName, out bool shortNameEqual, out bool fullNameEqual)

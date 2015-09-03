@@ -16,7 +16,8 @@
 
 #endregion
 
-using MugenMvvmToolkit.Models;
+using System.Diagnostics;
+using TraceLevel = MugenMvvmToolkit.Models.TraceLevel;
 
 #if WPF
 namespace MugenMvvmToolkit.WPF.Infrastructure
@@ -31,7 +32,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
 
         static TracerEx()
         {
-            TraceWarning = true;
+            TraceWarning = Debugger.IsAttached;
             TraceError = true;
         }
 

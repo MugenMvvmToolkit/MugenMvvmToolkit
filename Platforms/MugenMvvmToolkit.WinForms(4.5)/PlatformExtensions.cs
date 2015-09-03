@@ -24,8 +24,7 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Collections;
+using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.WinForms.Binding;
 using MugenMvvmToolkit.WinForms.Binding.Models;
@@ -72,7 +71,7 @@ namespace MugenMvvmToolkit.WinForms
         /// <typeparam name="T">The type of collection.</typeparam>
         /// <param name="collection">The specified collection.</param>
         /// <returns>An instance of <see cref="BindingListWrapper{T}" />.</returns>
-        public static BindingListWrapper<T> ToBindingList<T>(this SynchronizedNotifiableCollection<T> collection)
+        public static BindingListWrapper<T> ToBindingList<T>(this INotifiableCollection<T> collection)
         {
             Should.NotBeNull(collection, "collection");
             return new BindingListWrapper<T>(collection);

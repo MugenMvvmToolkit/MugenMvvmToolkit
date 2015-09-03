@@ -16,8 +16,9 @@
 
 #endregion
 
+using System.Diagnostics;
 using Android.Util;
-using MugenMvvmToolkit.Models;
+using TraceLevel = MugenMvvmToolkit.Models.TraceLevel;
 
 namespace MugenMvvmToolkit.Android.Infrastructure
 {
@@ -27,7 +28,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         static TracerEx()
         {
-            TraceWarning = true;
+            TraceWarning = Debugger.IsAttached;
             TraceError = true;
         }
 

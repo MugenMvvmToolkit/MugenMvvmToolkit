@@ -379,6 +379,11 @@ namespace MugenMvvmToolkit.Android
             get { return (Activity)_activityRef.Target; }
         }
 
+        /// <summary>
+        ///     Occurs when the <c>CurrentActivity</c> property changed.
+        /// </summary>
+        public static event EventHandler CurrentActivityChanged;
+
         #endregion
 
         #region Methods
@@ -517,16 +522,29 @@ namespace MugenMvvmToolkit.Android
 
         public static void SetCurrentActivity(Activity activity, bool clear)
         {
+            bool changed = false;
             lock (CurrentActivityLocker)
             {
                 var currentActivity = CurrentActivity;
                 if (clear)
                 {
                     if (ReferenceEquals(currentActivity, activity))
+                    {
                         _activityRef = Empty.WeakReference;
+                        changed = true;
+                    }
                 }
                 else if (!ReferenceEquals(currentActivity, activity))
+                {
                     _activityRef = ServiceProvider.WeakReferenceFactory(activity);
+                    changed = true;
+                }
+            }
+            if (changed)
+            {
+                var handler = CurrentActivityChanged;
+                if (handler != null)
+                    handler(activity, EventArgs.Empty);
             }
         }
 
