@@ -20,7 +20,7 @@ using System;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
-using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces
 {
@@ -40,11 +40,6 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         /// </summary>
         [CanBeNull]
         object Source { get; }
-
-        /// <summary>
-        ///     Gets or sets the value changed listener.
-        /// </summary>
-        IHandler<ValueChangedEventArgs> Listener { get; set; }
 
         /// <summary>
         ///     Updates the current values.
@@ -73,5 +68,10 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         /// </summary>
         [NotNull]
         IBindingPathMembers GetPathMembers(bool throwOnError);
+
+        /// <summary>
+        ///     Occurs when value changed.
+        /// </summary>
+        event EventHandler<IObserver, ValueChangedEventArgs> ValueChanged;
     }
 }

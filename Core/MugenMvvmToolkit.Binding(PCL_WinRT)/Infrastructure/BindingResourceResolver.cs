@@ -271,7 +271,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return target;
             IDataBinding data;
             if (context.TryGetData(BindingConstants.Binding, out data))
-                return data.TargetAccessor.Source.GetSource(false);
+                return data.TargetAccessor.Source.GetActualSource(false);
             return null;
         }
 
@@ -522,7 +522,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     WeakReference srcWeak;
                     if (binding.Context.TryGetData(BindingConstants.Source, out srcWeak))
                         return new BindingResourceObject(srcWeak);
-                    target = binding.TargetAccessor.Source.GetSource(false);
+                    target = binding.TargetAccessor.Source.GetActualSource(false);
                 }
                 if (target == null)
                     target = context.GetData(BindingBuilderConstants.Target);

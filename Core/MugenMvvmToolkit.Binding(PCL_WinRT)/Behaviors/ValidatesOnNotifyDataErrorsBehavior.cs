@@ -26,7 +26,6 @@ using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Validation;
@@ -103,7 +102,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             if (!CanAttach())
                 return false;
             _senderKey = Key + Binding.TargetAccessor.Source.Path.Path;
-            EventHandler<IBindingSource, ValueChangedEventArgs> handler = OnBindingSourceValueChanged;
+            EventHandler<IObserver, ValueChangedEventArgs> handler = OnBindingSourceValueChanged;
             var accessor = Binding.SourceAccessor as ISingleBindingSourceAccessor;
             if (_subscribers == null)
             {
@@ -129,7 +128,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected override void OnDetached()
         {
-            EventHandler<IBindingSource, ValueChangedEventArgs> handler = OnBindingSourceValueChanged;
+            EventHandler<IObserver, ValueChangedEventArgs> handler = OnBindingSourceValueChanged;
             var accessor = Binding.SourceAccessor as ISingleBindingSourceAccessor;
             if (accessor == null)
             {
@@ -226,7 +225,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             UpdateErrors(errors, context);
         }
 
-        private void TrySubscribe(IBindingSource source)
+        private void TrySubscribe(IObserver source)
         {
             var dataErrorInfo = source.GetPathMembers(false).PenultimateValue as INotifyDataErrorInfo;
             if (dataErrorInfo == null)
@@ -236,7 +235,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 _subscribers.Add(subscriber);
         }
 
-        private void OnBindingSourceValueChanged(IBindingSource sender, ValueChangedEventArgs args)
+        private void OnBindingSourceValueChanged(IObserver sender, ValueChangedEventArgs args)
         {
             if (args.LastMemberChanged && !sender.Path.IsEmpty)
                 return;
@@ -244,7 +243,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             UpdateErrors(null);
         }
 
-        private void CollectErrors(ref List<object> errors, IBindingSource bindingSource)
+        private void CollectErrors(ref List<object> errors, IObserver bindingSource)
         {
             var notifyDataErrorInfo = bindingSource.GetPathMembers(false).PenultimateValue as INotifyDataErrorInfo;
             if (notifyDataErrorInfo == null)

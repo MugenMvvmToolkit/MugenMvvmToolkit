@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
@@ -46,7 +45,7 @@ namespace MugenMvvmToolkit.Binding.DataConstants
 
         public static readonly DataConstant<IBindingPath> TargetPath;
 
-        public static readonly DataConstant<IList<Func<IDataContext, IBindingSource>>> Sources;
+        public static readonly DataConstant<IList<Func<IDataContext, IObserver>>> Sources;
 
         public static readonly DataConstant<Func<IDataContext, IList<object>, object>> MultiExpression;
 

@@ -11,7 +11,6 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Sources;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestModels;
@@ -50,7 +49,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             IBindingPath path = BindingPath.Create("test");
             var bindingManager = new BindingManager();
             DataBinding binding = CreateDataBinding(
-                new BindingSourceAccessorMock { Source = new BindingSourceMock { GetSource = b => target, Path = path } },
+                new BindingSourceAccessorMock { Source = new ObserverMock { GetActualSource = b => target, Path = path } },
                 new BindingSourceAccessorMock(), bindingManager);
             bindingManager.Register(target, path.Path, binding);
             bindingManager.GetBindings(target).Single().ShouldEqual(binding);
@@ -64,7 +63,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
-                Source = new BindingSourceMock { GetSource = b => new object(), Path = path }
+                Source = new ObserverMock { GetActualSource = b => new object(), Path = path }
             };
             var source = new BindingSourceAccessorMock();
             DataBinding binding = CreateDataBinding(target, source, bindingManager);
@@ -81,7 +80,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
-                Source = new BindingSourceMock { GetSource = b => new object(), Path = path }
+                Source = new ObserverMock { GetActualSource = b => new object(), Path = path }
             };
             var source = new BindingSourceAccessorMock();
             DataBinding binding = CreateDataBinding(target, source, bindingManager);
@@ -99,13 +98,13 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
-                Source = new BindingSourceMock { GetSource = b => new object(), Path = path }
+                Source = new ObserverMock { GetActualSource = b => new object(), Path = path }
             };
             var source = new BindingSourceAccessorMock
             {
-                Source = new BindingSourceMock
+                Source = new ObserverMock
                 {
-                    GetSource = b => new object(),
+                    GetActualSource = b => new object(),
                     Path = path,
                     IsValid = b => true
                 }
@@ -130,9 +129,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
-                Source = new BindingSourceMock
+                Source = new ObserverMock
                 {
-                    GetSource = b => new object(),
+                    GetActualSource = b => new object(),
                     Path = path,
                     IsValid = b => true
                 }
@@ -159,11 +158,11 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
-                Source = new BindingSourceMock { GetSource = b => new object(), Path = path }
+                Source = new ObserverMock { GetActualSource = b => new object(), Path = path }
             };
             var source = new BindingSourceAccessorMock
             {
-                Source = new BindingSourceMock
+                Source = new ObserverMock
                 {
                     IsValid = b => true
                 }
@@ -188,7 +187,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
-                Source = new BindingSourceMock { GetSource = b => new object(), Path = path }
+                Source = new ObserverMock { GetActualSource = b => new object(), Path = path }
             };
             var source = new BindingSourceAccessorMock();
             DataBinding binding = CreateDataBinding(target, source, bindingManager);
@@ -211,9 +210,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
-                Source = new BindingSourceMock
+                Source = new ObserverMock
                 {
-                    GetSource = b => new object(),
+                    GetActualSource = b => new object(),
                     Path = path,
                     IsValid = b => true
                 }
@@ -240,7 +239,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
-                Source = new BindingSourceMock { GetSource = b => new object(), Path = path }
+                Source = new ObserverMock { GetActualSource = b => new object(), Path = path }
             };
             var source = new BindingSourceAccessorMock();
 
@@ -263,7 +262,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
-                Source = new BindingSourceMock { GetSource = b => new object(), Path = path }
+                Source = new ObserverMock { GetActualSource = b => new object(), Path = path }
             };
             var source = new BindingSourceAccessorMock();
             DataBinding binding = CreateDataBinding(target, source, bindingManager);
@@ -281,7 +280,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
-                Source = new BindingSourceMock { GetSource = b => new object(), Path = path }
+                Source = new ObserverMock { GetActualSource = b => new object(), Path = path }
             };
             var source = new BindingSourceAccessorMock();
             DataBinding binding = CreateDataBinding(target, source, bindingManager);
@@ -302,7 +301,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
-                Source = new BindingSourceMock { GetSource = b => new object(), Path = path }
+                Source = new ObserverMock { GetActualSource = b => new object(), Path = path }
             };
             var source = new BindingSourceAccessorMock();
             DataBinding binding = CreateDataBinding(target, source, bindingManager);
@@ -324,7 +323,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
-                Source = new BindingSourceMock { GetSource = b => new object(), Path = path }
+                Source = new ObserverMock { GetActualSource = b => new object(), Path = path }
             };
             var source = new BindingSourceAccessorMock();
             DataBinding binding = CreateDataBinding(target, source, bindingManager);
@@ -358,9 +357,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
-                Source = new BindingSourceMock
+                Source = new ObserverMock
                 {
-                    GetSource = b => new object(),
+                    GetActualSource = b => new object(),
                     Path = path,
                     IsValid = b => true
                 }
@@ -387,15 +386,15 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
-                Source = new BindingSourceMock
+                Source = new ObserverMock
                 {
-                    GetSource = b => new object(),
+                    GetActualSource = b => new object(),
                     Path = path
                 }
             };
             var source = new BindingSourceAccessorMock
             {
-                Source = new BindingSourceMock
+                Source = new ObserverMock
                 {
                     IsValid = b => true
                 }
@@ -418,11 +417,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var cycleItem1 = new CycleItem();
             var cycleItem2 = new CycleItem();
             var dataBinding = CreateDataBinding(
-                new BindingSourceAccessor(
-                    new BindingSource(new SinglePathObserver(cycleItem1, BindingPath.Create("Property"), true)),
+                new BindingSourceAccessor(new SinglePathObserver(cycleItem1, BindingPath.Create("Property"), true),
                     DataContext.Empty, true),
-                new BindingSourceAccessor(
-                    new BindingSource(new SinglePathObserver(cycleItem2, BindingPath.Create("Property"), true)),
+                new BindingSourceAccessor(new SinglePathObserver(cycleItem2, BindingPath.Create("Property"), true),
                     DataContext.Empty, false));
             dataBinding.Behaviors.Add(new TwoWayBindingMode());
             cycleItem2.Property = 10;

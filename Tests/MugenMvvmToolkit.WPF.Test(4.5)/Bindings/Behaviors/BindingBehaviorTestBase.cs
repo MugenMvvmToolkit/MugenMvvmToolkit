@@ -17,9 +17,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Behaviors
 
         protected BindingSourceAccessorMock SourceAccessorMock { get; private set; }
 
-        protected BindingSourceMock TargetSourceMock { get; private set; }
+        protected ObserverMock TargetSourceMock { get; private set; }
 
-        protected BindingSourceMock SourceSourceMock { get; private set; }
+        protected ObserverMock SourceSourceMock { get; private set; }
 
         protected DataBindingMock BindingMock { get; private set; }
 
@@ -66,8 +66,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Behaviors
             BindingMock = new DataBindingMock();
             TargetAccessorMock = new BindingSourceAccessorMock();
             SourceAccessorMock = new BindingSourceAccessorMock();
-            TargetSourceMock = new BindingSourceMock();
-            SourceSourceMock = new BindingSourceMock();
+            TargetSourceMock = new ObserverMock();
+            SourceSourceMock = new ObserverMock();
             SourceAccessorMock.Source = SourceSourceMock;
             TargetAccessorMock.Source = TargetSourceMock;
             BindingMock.TargetAccessor = TargetAccessorMock;

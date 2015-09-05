@@ -87,7 +87,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Fields
 
-        private readonly IBindingPathMembers _members;
+        private readonly EmptyBindingPathMembers _members;
 
         #endregion
 
@@ -101,7 +101,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             Should.BeSupported(path.IsEmpty, "The EmptyPathObserver supports only empty path members.");
             _members = new EmptyBindingPathMembers(ServiceProvider.WeakReferenceFactory(this));
-            Initialize((IEventListener)_members);
         }
 
         #endregion
@@ -109,16 +108,32 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Overrides of ObserverBase
 
         /// <summary>
+        ///     Indicates that current observer dependes on <see cref="ObserverBase.ValueChanged" /> subscribers.
+        /// </summary>
+        protected override bool DependsOnSubscribers
+        {
+            get { return true; }
+        }
+
+        /// <summary>
         ///     Updates the current values.
         /// </summary>
-        protected override void UpdateInternal()
+        protected override IBindingPathMembers UpdateInternal(bool hasSubscribers)
+        {
+            return _members;
+        }
+
+        /// <summary>
+        ///     Releases the current observers.
+        /// </summary>
+        protected override void ClearObserversInternal()
         {
         }
 
         /// <summary>
-        ///     Gets the source object include the path members.
+        ///     Creates the source event listener.
         /// </summary>
-        protected override IBindingPathMembers GetPathMembersInternal()
+        protected override IEventListener CreateSourceListener()
         {
             return _members;
         }

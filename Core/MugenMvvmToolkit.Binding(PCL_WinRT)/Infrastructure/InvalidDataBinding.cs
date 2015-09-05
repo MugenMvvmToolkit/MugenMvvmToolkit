@@ -20,7 +20,6 @@ using System;
 using MugenMvvmToolkit.Binding.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Sources;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
@@ -44,9 +43,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         static InvalidDataBinding()
         {
-            SourceAccessorStatic =
-                new BindingSourceAccessor(new BindingSource(new EmptyPathObserver(new object(), BindingPath.Empty)),
-                    DataContext.Empty, false);
+            SourceAccessorStatic = new BindingSourceAccessor(new EmptyPathObserver(new object(), BindingPath.Empty), DataContext.Empty, false);
         }
 
         /// <summary>

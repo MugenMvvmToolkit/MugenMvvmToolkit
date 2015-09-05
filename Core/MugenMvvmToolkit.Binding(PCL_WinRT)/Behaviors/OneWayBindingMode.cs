@@ -17,7 +17,6 @@
 #endregion
 
 using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
@@ -65,7 +64,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Methods
 
-        private void OneTimeTargetHandler(IBindingSource sender, ValueChangedEventArgs args)
+        private void OneTimeTargetHandler(IObserver sender, ValueChangedEventArgs args)
         {
             IDataBinding binding = Binding;
             if (binding != null && binding.SourceAccessor.IsAllMembersAvailable() && binding.TargetAccessor.IsAllMembersAvailable())

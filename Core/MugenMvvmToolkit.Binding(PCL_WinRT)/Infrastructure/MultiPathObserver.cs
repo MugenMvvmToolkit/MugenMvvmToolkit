@@ -92,19 +92,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             private readonly IBindingMemberInfo _lastMember;
             private readonly IList<IBindingMemberInfo> _members;
             private readonly WeakReference _observerRef;
-            private readonly IBindingPath _path;
             private readonly WeakReference _penultimateValueRef;
 
             #endregion
 
             #region Constructors
 
-            public MultiBindingPathMembers(WeakReference observerReference, object penultimateValue, IBindingPath path,
-                IList<IBindingMemberInfo> members)
+            public MultiBindingPathMembers(WeakReference observerReference, object penultimateValue, IList<IBindingMemberInfo> members)
             {
                 _observerRef = observerReference;
                 _penultimateValueRef = ToolkitExtensions.GetWeakReference(penultimateValue);
-                _path = path;
                 _members = members;
                 _lastMember = _members[_members.Count - 1];
             }
@@ -115,7 +112,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public IBindingPath Path
             {
-                get { return _path; }
+                get
+                {
+                    var observer = (ObserverBase)_observerRef.Target;
+                    if (observer == null)
+                        return BindingPath.None;
+                    return observer.Path;
+                }
             }
 
             public bool AllMembersAvailable
@@ -160,8 +163,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private readonly List<IDisposable> _listeners;
         private readonly LastMemberListener _lastMemberListener;
 
-        private IBindingPathMembers _members;
-
         #endregion
 
         #region Constructors
@@ -175,9 +176,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Should.BeSupported(!path.IsEmpty, "The MultiPathObserver doesn't support the empty path members.");
             _listeners = new List<IDisposable>(path.Parts.Count - 1);
             _ignoreAttachedMembers = ignoreAttachedMembers;
-            _members = UnsetBindingPathMembers.Instance;
             _lastMemberListener = new LastMemberListener(ServiceProvider.WeakReferenceFactory(this));
-            Initialize(this);
         }
 
         #endregion
@@ -185,86 +184,83 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Overrides of ObserverBase
 
         /// <summary>
+        ///     Indicates that current observer dependes on <see cref="ObserverBase.ValueChanged" /> subscribers.
+        /// </summary>
+        protected override bool DependsOnSubscribers
+        {
+            get { return false; }
+        }
+
+        /// <summary>
         ///     Updates the current values.
         /// </summary>
-        protected override void UpdateInternal()
+        protected override IBindingPathMembers UpdateInternal(bool hasSubscribers)
         {
-            try
+            object source = GetActualSource();
+            if (source == null || source.IsUnsetValue())
             {
-                ClearListeners();
-                object source = GetActualSource();
-                if (source == null || source.IsUnsetValue())
-                {
-                    _members = UnsetBindingPathMembers.Instance;
-                    return;
-                }
-                bool allMembersAvailable = true;
-                IBindingMemberProvider memberProvider = BindingServiceProvider.MemberProvider;
-                IList<string> items = Path.Parts;
+                return UnsetBindingPathMembers.Instance;
+            }
+            bool allMembersAvailable = true;
+            IBindingMemberProvider memberProvider = BindingServiceProvider.MemberProvider;
+            IList<string> items = Path.Parts;
 
-                //Trying to get member using full path with dot, example BindingErrorProvider.Errors or ErrorProvider.Errors.                
-                if (items.Count == 2)
+            //Trying to get member using full path with dot, example BindingErrorProvider.Errors or ErrorProvider.Errors.                
+            if (items.Count == 2)
+            {
+                var pathMember = memberProvider.GetBindingMember(source.GetType(), Path.Path, _ignoreAttachedMembers, false);
+                if (pathMember != null)
                 {
-                    var pathMember = memberProvider.GetBindingMember(source.GetType(), Path.Path, _ignoreAttachedMembers, false);
-                    if (pathMember != null)
-                    {
-                        var observer = TryObserveMember(source, pathMember, true);
-                        if (observer != null)
-                            _listeners.Add(observer);
-                        _members = new MultiBindingPathMembers(_lastMemberListener.Reference, source, Path, new[] { pathMember });
-                        return;
-                    }
-                }
-
-
-                int lastIndex = items.Count - 1;
-                var members = new List<IBindingMemberInfo>();
-                for (int index = 0; index < items.Count; index++)
-                {
-                    string name = items[index];
-                    IBindingMemberInfo pathMember = memberProvider
-                        .GetBindingMember(source.GetType(), name, _ignoreAttachedMembers, true);
-                    members.Add(pathMember);
-                    var observer = TryObserveMember(source, pathMember, index == lastIndex);
+                    var observer = TryObserveMember(source, pathMember, true);
                     if (observer != null)
                         _listeners.Add(observer);
-                    if (index == lastIndex)
-                        break;
-                    source = pathMember.GetValue(source, null);
-                    if (source == null || source.IsUnsetValue())
-                    {
-                        allMembersAvailable = false;
-                        break;
-                    }
+                    return new MultiBindingPathMembers(_lastMemberListener.Reference, source, new[] { pathMember });
                 }
-
-                _members = allMembersAvailable
-                    ? new MultiBindingPathMembers(_lastMemberListener.Reference, source, Path, members)
-                    : UnsetBindingPathMembers.Instance;
             }
-            catch (Exception)
+
+
+            int lastIndex = items.Count - 1;
+            var members = new List<IBindingMemberInfo>();
+            for (int index = 0; index < items.Count; index++)
             {
-                _members = UnsetBindingPathMembers.Instance;
-                throw;
+                string name = items[index];
+                IBindingMemberInfo pathMember = memberProvider
+                    .GetBindingMember(source.GetType(), name, _ignoreAttachedMembers, true);
+                members.Add(pathMember);
+                var observer = TryObserveMember(source, pathMember, index == lastIndex);
+                if (observer != null)
+                    _listeners.Add(observer);
+                if (index == lastIndex)
+                    break;
+                source = pathMember.GetValue(source, null);
+                if (source == null || source.IsUnsetValue())
+                {
+                    allMembersAvailable = false;
+                    break;
+                }
             }
+
+            return allMembersAvailable
+                ? new MultiBindingPathMembers(_lastMemberListener.Reference, source, members)
+                : UnsetBindingPathMembers.Instance;
         }
 
         /// <summary>
-        ///     Gets the source object include the path members.
+        ///     Creates the source event listener.
         /// </summary>
-        protected override IBindingPathMembers GetPathMembersInternal()
+        protected override IEventListener CreateSourceListener()
         {
-            return _members;
+            return this;
         }
 
         /// <summary>
-        ///     Releases resources held by the object.
+        ///     Releases the current observers.
         /// </summary>
-        protected override void OnDispose()
+        protected override void ClearObserversInternal()
         {
-            ClearListeners();
-            _members = UnsetBindingPathMembers.Instance;
-            base.OnDispose();
+            for (int index = 0; index < _listeners.Count; index++)
+                _listeners[index].Dispose();
+            _listeners.Clear();
         }
 
         #endregion
@@ -282,13 +278,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return observer;
             }
             return TryObserveMember(source, pathMember, this, pathMember.Path);
-        }
-
-        private void ClearListeners()
-        {
-            for (int index = 0; index < _listeners.Count; index++)
-                _listeners[index].Dispose();
-            _listeners.Clear();
         }
 
         #endregion

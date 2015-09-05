@@ -144,6 +144,8 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             #region Fields
 
             private readonly WeakEventListenerWrapper _listenerRef;
+            private int width;
+            private int height;
 
             #endregion
 
@@ -157,6 +159,8 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 : base(view, false)
             {
                 _listenerRef = handler.ToWeakWrapper();
+                height = view.Height;
+                width = view.Width;
             }
 
             #endregion
@@ -165,8 +169,13 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             protected override void OnGlobalLayoutChangedInternal(View view)
             {
-                if (!_listenerRef.EventListener.TryHandle(view, EventArgs.Empty))
-                    Dispose();
+                if (view.Width != width || view.Height != height)
+                {
+                    width = view.Width;
+                    height = view.Height;
+                    if (!_listenerRef.EventListener.TryHandle(view, EventArgs.Empty))
+                        Dispose();
+                }
             }
 
             #endregion

@@ -24,7 +24,6 @@ using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
@@ -48,6 +47,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             private readonly Func<IDataContext, IBindingValueConverter> _converterDelegate;
             private readonly Func<IDataContext, CultureInfo> _converterCultureDelegate;
             private readonly Func<IDataContext, object> _converterParameterDelegate;
+            private readonly Func<IDataContext, object> _commandParameterDelegate;
             private readonly Func<IDataContext, object> _fallbackDelegate;
             private readonly object _targetNullValue;
 
@@ -58,13 +58,14 @@ namespace MugenMvvmToolkit.Binding.Accessors
             /// <summary>
             /// Initializes a new instance of the <see cref="BindingParameters"/> class.
             /// </summary>
-            internal BindingParameters(Func<IDataContext, IBindingValueConverter> converterDelegate, Func<IDataContext, CultureInfo> converterCultureDelegate, Func<IDataContext, object> converterParameterDelegate, Func<IDataContext, object> fallbackDelegate, object targetNullValue)
+            internal BindingParameters(Func<IDataContext, IBindingValueConverter> converterDelegate, Func<IDataContext, CultureInfo> converterCultureDelegate, Func<IDataContext, object> converterParameterDelegate, Func<IDataContext, object> fallbackDelegate, object targetNullValue, Func<IDataContext, object> commandParameterDelegate)
             {
                 _converterDelegate = converterDelegate;
                 _converterCultureDelegate = converterCultureDelegate;
                 _converterParameterDelegate = converterParameterDelegate;
                 _fallbackDelegate = fallbackDelegate;
                 _targetNullValue = targetNullValue;
+                _commandParameterDelegate = commandParameterDelegate;
             }
 
             #endregion
@@ -72,7 +73,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             #region Properties
 
             /// <summary>
-            ///     Gets or sets the <see cref="IBindingValueConverter" /> delegate.
+            ///     Gets the <see cref="IBindingValueConverter" /> delegate.
             /// </summary>
             [CanBeNull]
             public Func<IDataContext, IBindingValueConverter> ConverterDelegate
@@ -81,7 +82,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             }
 
             /// <summary>
-            ///     Gets or sets the converter parameter delegate.
+            ///     Gets the converter parameter delegate.
             /// </summary>
             [CanBeNull]
             public Func<IDataContext, object> ConverterParameterDelegate
@@ -90,7 +91,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             }
 
             /// <summary>
-            ///     Gets or sets the converter culture delegate.
+            ///     Gets the converter culture delegate.
             /// </summary>
             [CanBeNull]
             public Func<IDataContext, CultureInfo> ConverterCultureDelegate
@@ -108,12 +109,21 @@ namespace MugenMvvmToolkit.Binding.Accessors
             }
 
             /// <summary>
-            ///     Gets or sets the fallback value delegate.
+            ///     Gets the fallback value delegate.
             /// </summary>
             [CanBeNull]
             public Func<IDataContext, object> FallbackDelegate
             {
                 get { return _fallbackDelegate; }
+            }
+
+            /// <summary>
+            ///     Gets the command parameter delegate.
+            /// </summary>
+            [CanBeNull]
+            public Func<IDataContext, object> CommandParameterDelegate
+            {
+                get { return _commandParameterDelegate; }
             }
 
             #endregion
@@ -153,9 +163,12 @@ namespace MugenMvvmToolkit.Binding.Accessors
             Func<IDataContext, object> fallbackDelegate = null;
             if (!isTarget && context.TryGetData(BindingBuilderConstants.Fallback, out fallbackDelegate))
                 hasValue = true;
+            Func<IDataContext, object> commandParameterDelegate = null;
+            if (isTarget && context.TryGetData(BindingBuilderConstants.CommandParameter, out commandParameterDelegate))
+                hasValue = true;
             if (hasValue)
                 _parameters = new BindingParameters(converterDelegate, converterCultureDelegate,
-                    converterParameterDelegate, fallbackDelegate, targetNullValue);
+                    converterParameterDelegate, fallbackDelegate, targetNullValue, commandParameterDelegate);
         }
 
         #endregion
@@ -163,7 +176,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
         #region Properties
 
         /// <summary>
-        /// Gets the value that indicats that accessor is a target.
+        ///     Gets the value that indicats that accessor is a target.
         /// </summary>
         protected bool IsTarget
         {
@@ -196,7 +209,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
         /// <summary>
         ///     Gets the underlying sources.
         /// </summary>
-        public abstract IList<IBindingSource> Sources { get; }
+        public abstract IList<IObserver> Sources { get; }
 
         /// <summary>
         ///     Gets the source value.

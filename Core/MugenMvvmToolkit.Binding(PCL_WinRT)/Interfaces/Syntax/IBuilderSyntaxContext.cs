@@ -18,7 +18,6 @@
 
 using System;
 using System.Linq.Expressions;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Syntax
@@ -47,7 +46,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Syntax
         ///     Gets or adds parameter expression.
         /// </summary>
         Expression GetOrAddParameterExpression(string prefix, string path, Expression expression,
-            Func<IDataContext, string, IBindingSource> createSource);
+            Func<IDataContext, string, IObserver> createSource);
 
         /// <summary>
         ///     Adds the delegate callback that will be called when creating binding.

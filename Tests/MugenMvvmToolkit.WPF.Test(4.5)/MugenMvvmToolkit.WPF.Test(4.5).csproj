@@ -107,8 +107,6 @@
     <Compile Include="Bindings\Infrastructure\BindingResourceResolverTest.cs" />
     <Compile Include="Bindings\Infrastructure\ObserverTest.cs" />
     <Compile Include="Bindings\Parse\BindingParserTest.cs" />
-    <Compile Include="Bindings\Sources\BindingSourceTest.cs" />
-    <Compile Include="Bindings\Sources\BindingTargetTest.cs" />
     <Compile Include="BindingTestBase.cs" />
     <Compile Include="Collections\LightDictionaryBaseTest.cs" />
     <Compile Include="Collections\TrackingCollectionTest.cs" />
@@ -192,7 +190,6 @@
     <Compile Include="TestModels\BindingBehaviorMock.cs" />
     <Compile Include="TestModels\BindingContextMock.cs" />
     <Compile Include="TestModels\BindingSourceModel.cs" />
-    <Compile Include="TestModels\BindingSourceMock.cs" />
     <Compile Include="TestModels\ValueConverterCoreMock.cs" />
     <Compile Include="TestModels\DataBindingMock.cs" />
     <Compile Include="TestModels\ExplicitDataContext.cs" />

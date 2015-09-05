@@ -31,10 +31,8 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
-using MugenMvvmToolkit.Binding.Sources;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
@@ -309,7 +307,7 @@ namespace MugenMvvmToolkit.Binding
         public static readonly object[] NullValue;
 
         internal static readonly IEventListener EmptyListener;
-        internal static readonly Func<IDataContext, string, IBindingSource> CreteBindingSourceDel;
+        internal static readonly Func<IDataContext, string, IObserver> CreteBindingSourceDel;
 
         private static readonly Func<string, string, string> MergePathDelegate;
         private static readonly Dictionary<Delegate, string> DelegateToPathCache;
@@ -726,9 +724,9 @@ namespace MugenMvvmToolkit.Binding
         }
 
         /// <summary>
-        ///     Creates an instance of <see cref="IBindingSource" /> using the relative source value.
+        ///     Creates an instance of <see cref="IObserver" /> using the relative source value.
         /// </summary>
-        public static IBindingSource CreateBindingSource(IRelativeSourceExpressionNode node, [NotNull] object target,
+        public static IObserver CreateBindingSource(IRelativeSourceExpressionNode node, [NotNull] object target,
             string pathEx)
         {
             if (target == null)
@@ -771,9 +769,9 @@ namespace MugenMvvmToolkit.Binding
         }
 
         /// <summary>
-        ///     Creates an instance of <see cref="IBindingSource" /> using the DataContext or source value if any.
+        ///     Creates an instance of <see cref="IObserver" /> using the DataContext or source value if any.
         /// </summary>
-        internal static BindingSource CreateBindingSource(IDataContext context, string path, object src,
+        internal static IObserver CreateBindingSource(IDataContext context, string path, object src,
             bool ignoreSrc = false)
         {
             if (src == null && (ignoreSrc || !context.TryGetData(BindingBuilderConstants.Source, out src)))
@@ -781,9 +779,9 @@ namespace MugenMvvmToolkit.Binding
                     .ContextManager
                     .GetBindingContext(context.GetData(BindingBuilderConstants.Target, true),
                         context.GetData(BindingBuilderConstants.TargetPath, true).Path);
-            return new BindingSource(BindingServiceProvider
+            return BindingServiceProvider
                 .ObserverProvider
-                .Observe(src, BindingServiceProvider.BindingPathFactory(path), false));
+                .Observe(src, BindingServiceProvider.BindingPathFactory(path), false);
         }
 
         internal static void CheckDuplicateLambdaParameter(ICollection<string> parameters)
@@ -975,7 +973,7 @@ namespace MugenMvvmToolkit.Binding
             return true;
         }
 
-        internal static object GetCurrentValue(this IBindingSource source)
+        internal static object GetCurrentValue(this IObserver source)
         {
             IBindingPathMembers pathMembers = source.GetPathMembers(true);
             object value = pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, null);

@@ -8,13 +8,12 @@ using MugenMvvmToolkit.Binding.Accessors;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Sources;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestModels;
-using MugenMvvmToolkit.ViewModels;
 using Should;
 
 namespace MugenMvvmToolkit.Test.Bindings.Accessors
@@ -327,7 +326,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             var sourceModel = new BindingSourceModel { IntProperty = targetNullValue };
             var dataContext = new DataContext
             {
-                {BindingBuilderConstants.TargetNullValue, targetNullValue},                
+                {BindingBuilderConstants.TargetNullValue, targetNullValue},
             };
 
             string propertyName = GetMemberPath<BindingSourceModel>(model => model.IntProperty);
@@ -343,7 +342,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             var sourceModel = new BindingSourceModel { ObjectProperty = null };
             var dataContext = new DataContext
             {
-                {BindingBuilderConstants.TargetNullValue, targetNullValue},                
+                {BindingBuilderConstants.TargetNullValue, targetNullValue},
             };
 
             string propertyName = GetMemberPath<BindingSourceModel>(model => model.ObjectProperty);
@@ -806,8 +805,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             }, this);
             var srcAccessor = new BindingSourceAccessorMock();
             var source = new BindingSourceModel();
-            var accessor = GetAccessor(source, BindingSourceModel.EventName, EmptyContext, false);
-            ((BindingTarget)accessor.Source).CommandParameterDelegate = d => parameter;
+            var accessor = GetAccessor(source, BindingSourceModel.EventName, EmptyContext, false, d => parameter);
             srcAccessor.GetValue = (info, context, arg3) => command;
 
             accessor.SetValue(srcAccessor, EmptyContext, true);
@@ -862,8 +860,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             });
             var srcAccessor = new BindingSourceAccessorMock();
             var source = new BindingSourceModel();
-            var accessor = GetAccessor(source, BindingSourceModel.EventName, EmptyContext, false);
-            ((BindingTarget)accessor.Source).CommandParameterDelegate = d => parameter;
+            var accessor = GetAccessor(source, BindingSourceModel.EventName, EmptyContext, false, d => parameter);
             srcAccessor.GetValue = (info, context, arg3) => command;
             accessor.SetValue(srcAccessor, EmptyContext, true);
             source.RaiseEvent();
@@ -874,12 +871,90 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             isInvoked.ShouldBeTrue();
         }
 
-        protected virtual ISingleBindingSourceAccessor GetAccessor(object model, string path, IDataContext context, bool isSource)
+        [TestMethod]
+        public void AccessorShouldToggleEnabledTrue()
         {
-            var observer = new MultiPathObserver(model, BindingPath.Create(path), false);
-            var source = isSource
-                ? new BindingSource(observer)
-                : new BindingTarget(observer);
+            bool canExecute = false;
+            bool isInvoked = false;
+            var parameter = new object();
+            var command = new RelayCommand(o => { }, o =>
+            {
+                o.ShouldEqual(parameter);
+                isInvoked = true;
+                return canExecute;
+            }, this);
+            bool isEnabled = true;
+            IAttachedBindingMemberInfo<object, bool> member =
+                AttachedBindingMember.CreateMember<object, bool>(AttachedMemberConstants.Enabled,
+                    (info, o) => isEnabled,
+                    (info, o, v) => isEnabled = v);
+            var memberProvider = new BindingMemberProvider();
+            memberProvider.Register(typeof(object), member, false);
+            BindingServiceProvider.MemberProvider = memberProvider;
+
+            var srcAccessor = new BindingSourceAccessorMock();
+            var source = new BindingSourceModel();
+            var accessor = GetAccessor(source, BindingSourceModel.EventName, EmptyContext, false, d => parameter);
+            srcAccessor.GetValue = (info, context, arg3) => command;
+
+            isEnabled.ShouldBeTrue();
+            accessor.SetValue(srcAccessor, EmptyContext, true);
+            isInvoked.ShouldBeTrue();
+            isEnabled.ShouldBeFalse();
+
+            isInvoked = false;
+            canExecute = true;
+            command.RaiseCanExecuteChanged();
+            isInvoked.ShouldBeTrue();
+            isEnabled.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public void AccessorShouldToggleEnabledFalse()
+        {
+            bool canExecute = false;
+            bool isInvoked = false;
+            var parameter = new object();
+            var command = new RelayCommand(o => { }, o =>
+            {
+                o.ShouldEqual(parameter);
+                isInvoked = true;
+                return canExecute;
+            }, this);
+            bool isEnabled = true;
+            IAttachedBindingMemberInfo<object, bool> member =
+                AttachedBindingMember.CreateMember<object, bool>(AttachedMemberConstants.Enabled,
+                    (info, o) => isEnabled,
+                    (info, o, v) => isEnabled = v);
+            var memberProvider = new BindingMemberProvider();
+            memberProvider.Register(typeof(object), member, false);
+            BindingServiceProvider.MemberProvider = memberProvider;
+
+            var srcAccessor = new BindingSourceAccessorMock();
+            var source = new BindingSourceModel();
+            var accessor = GetAccessor(source, BindingSourceModel.EventName, new DataContext(BindingBuilderConstants.ToggleEnabledState.ToValue(false)), false, d => parameter);
+            srcAccessor.GetValue = (info, context, arg3) => command;
+
+            isEnabled.ShouldBeTrue();
+            accessor.SetValue(srcAccessor, EmptyContext, true);
+            isInvoked.ShouldBeFalse();
+            isEnabled.ShouldBeTrue();
+
+            isInvoked = false;
+            canExecute = true;
+            command.RaiseCanExecuteChanged();
+            isInvoked.ShouldBeFalse();
+            isEnabled.ShouldBeTrue();
+        }
+
+        protected virtual ISingleBindingSourceAccessor GetAccessor(object model, string path, IDataContext context, bool isSource, Func<IDataContext, object> commandParameterDelegate = null)
+        {
+            var source = new MultiPathObserver(model, BindingPath.Create(path), false);
+            if (commandParameterDelegate != null)
+            {
+                context = context.ToNonReadOnly();
+                context.AddOrUpdate(BindingBuilderConstants.CommandParameter, commandParameterDelegate);
+            }
             return new BindingSourceAccessor(source, context, !isSource);
         }
 

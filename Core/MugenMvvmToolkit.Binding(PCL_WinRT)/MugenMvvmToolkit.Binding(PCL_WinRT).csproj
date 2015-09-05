@@ -118,7 +118,6 @@
     <Compile Include="Interfaces\IDataBinding.cs" />
     <Compile Include="Interfaces\IObserver.cs" />
     <Compile Include="Interfaces\IObserverProvider.cs" />
-    <Compile Include="Interfaces\IBindingSourceDecorator.cs" />
     <Compile Include="Interfaces\IVisualTreeManager.cs" />
     <Compile Include="Interfaces\IBindingValueConverter.cs" />
     <Compile Include="Interfaces\IWeakEventManager.cs" />
@@ -146,8 +145,6 @@
     <Compile Include="Interfaces\Parse\Nodes\IMethodCallExpressionNode.cs" />
     <Compile Include="Interfaces\Parse\Nodes\IRelativeSourceExpressionNode.cs" />
     <Compile Include="Interfaces\Parse\Nodes\IUnaryExressionNode.cs" />
-    <Compile Include="Interfaces\Sources\IBindingSource.cs" />
-    <Compile Include="Interfaces\Sources\IBindingTarget.cs" />
     <Compile Include="Interfaces\Syntax\IBindingBehaviorSyntax.cs" />
     <Compile Include="Interfaces\Syntax\IBindingInfoBehaviorSyntax.cs" />
     <Compile Include="Interfaces\Syntax\IBindingInfoSyntax.cs" />
@@ -199,8 +196,6 @@
     <Compile Include="Parse\RelativeSourcePathMergerVisitor.cs" />
     <Compile Include="Parse\Tokenizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Sources\BindingSource.cs" />
-    <Compile Include="Sources\BindingTarget.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Solution Items\MugenMvvmToolkit.licenseheader">

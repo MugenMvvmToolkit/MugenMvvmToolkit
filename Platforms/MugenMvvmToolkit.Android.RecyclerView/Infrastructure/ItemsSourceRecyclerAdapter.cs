@@ -193,8 +193,7 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
             }
         }
 
-        public override void OnBindViewHolder(global::Android.Support.V7.Widget.RecyclerView.ViewHolder holder,
-            int position)
+        public override void OnBindViewHolder(global::Android.Support.V7.Widget.RecyclerView.ViewHolder holder, int position)
         {
             object item = GetRawItem(position);
             if (holder.ItemViewType == global::Android.Resource.Layout.SimpleListItem1)
@@ -202,9 +201,9 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
                 var textView = holder.ItemView as TextView;
                 if (textView != null)
                     textView.Text = item.ToStringSafe("(null)");
-                return;
             }
-            holder.ItemView.SetDataContext(item);
+            else
+                holder.ItemView.SetDataContext(item);
         }
 
         public override global::Android.Support.V7.Widget.RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent,

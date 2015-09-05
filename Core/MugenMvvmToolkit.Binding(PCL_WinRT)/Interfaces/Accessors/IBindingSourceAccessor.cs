@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
@@ -47,7 +46,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Accessors
         ///     Gets the underlying sources.
         /// </summary>
         [NotNull]
-        IList<IBindingSource> Sources { get; }
+        IList<IObserver> Sources { get; }
 
         /// <summary>
         ///     Gets the source value.

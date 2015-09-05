@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvmToolkit.Binding.DataConstants;
+using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
@@ -15,7 +14,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
     {
         #region Fields
 
-        private IList<IBindingSource> _sources;
+        private IList<IObserver> _sources;
 
         #endregion
 
@@ -52,7 +51,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         /// <summary>
         ///     Gets the underlying sources.
         /// </summary>
-        public IList<IBindingSource> Sources
+        public IList<IObserver> Sources
         {
             get
             {
@@ -76,7 +75,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         /// <summary>
         ///     Gets the underlying source.
         /// </summary>
-        public IBindingSource Source { get; set; }
+        public IObserver Source { get; set; }
 
         /// <summary>
         ///     Sets the source value.

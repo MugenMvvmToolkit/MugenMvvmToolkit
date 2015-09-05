@@ -260,6 +260,8 @@ namespace MugenMvvmToolkit.Android
 
         #region Properties
 
+        public static bool KeepWeakReference { get; set; }
+
         /// <summary>
         ///     Gets or sets the delegate that allows to handle view creation.
         /// </summary>
@@ -582,8 +584,11 @@ namespace MugenMvvmToolkit.Android
             if (obj == null)
             {
                 var reference = new WeakReference(item, true);
-                lock (WeakReferences)
-                    WeakReferences.Add(reference);
+                if (KeepWeakReference || !AttachedValueProvider.SetTagSupported)
+                {
+                    lock (WeakReferences)
+                       WeakReferences.Add(reference);
+                }
                 return reference;
             }
             var handle = obj.Handle;

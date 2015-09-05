@@ -36,12 +36,6 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         ICollection<IBindingBehavior> DefaultBehaviors { get; }
 
         /// <summary>
-        ///     Gets the collection of <see cref="IBindingSourceDecorator" />.
-        /// </summary>
-        [NotNull]
-        ICollection<IBindingSourceDecorator> SourceDecorators { get; }
-
-        /// <summary>
         ///     Gets or sets the <see cref="IBindingParser" />.
         /// </summary>
         [NotNull]

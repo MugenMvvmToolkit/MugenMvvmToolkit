@@ -169,7 +169,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             #endregion
         }
 
-        private sealed class BindingContextSource : IBindingContext, IHandler<ValueChangedEventArgs>
+        private sealed class BindingContextSource : IBindingContext
         {
             #region Fields
 
@@ -187,7 +187,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 _observer = BindingServiceProvider
                     .ObserverProvider
                     .Observe(source, BindingServiceProvider.BindingPathFactory(member.Path), true);
-                _observer.Listener = this;
+                _observer.ValueChanged += ObserverOnValueChanged;
             }
 
             #endregion
@@ -229,16 +229,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 }
             }
 
-            public void Handle(object sender, ValueChangedEventArgs message)
-            {
-                OnDataContextChanged(message);
-            }
-
             public event EventHandler<ISourceValue, EventArgs> ValueChanged;
 
             #endregion
 
             #region Methods
+
+            private void ObserverOnValueChanged(IObserver sender, ValueChangedEventArgs args)
+            {
+                OnDataContextChanged(args);
+            }
 
             private void OnDataContextChanged(ValueChangedEventArgs message)
             {

@@ -22,9 +22,9 @@ using System.Threading;
 using System.Windows.Input;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.DataConstants;
+using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -126,7 +126,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
                     var reference = _valueReference as WeakReference;
                     if (reference == null || !ReferenceEquals(reference.Target, command))
                         _valueReference = ToolkitExtensions.GetWeakReferenceOrDefault(command, null, true);
-                    if (accessor._toggleEnabledState && accessor.BindingTarget != null &&
+                    if (accessor._toggleEnabledState && accessor.IsTarget &&
                         InitializeCanExecuteDelegate(command))
                     {
                         accessor.CommandOnCanExecuteChanged(command, LastContext);
@@ -158,12 +158,8 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 command.CanExecuteChanged -= _canExecuteHandler;
 
                 var accessor = (BindingSourceAccessor)_sourceReference.Target;
-                if (accessor == null)
-                    return;
-
-                var cmdSource = accessor.BindingTarget;
-                if (cmdSource != null)
-                    cmdSource.IsEnabled = true;
+                if (accessor != null)
+                    accessor.SetIsEnabled(true);
             }
 
             private bool UnsubscribeEventHandler()
@@ -239,7 +235,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
         #region Fields
 
         private readonly bool _toggleEnabledState;
-        private IBindingSource _bindingSource;
+        private IObserver _bindingSource;
         private EventClosure _closure;
 
         #endregion
@@ -254,7 +250,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
         /// <summary>
         ///     Initializes a new instance of the <see cref="BindingSourceAccessor" /> class.
         /// </summary>
-        public BindingSourceAccessor([NotNull]IBindingSource bindingSource, [NotNull] IDataContext context, bool isTarget)
+        public BindingSourceAccessor([NotNull]IObserver bindingSource, [NotNull] IDataContext context, bool isTarget)
             : base(context, isTarget)
         {
             Should.NotBeNull(bindingSource, "bindingSource");
@@ -268,14 +264,6 @@ namespace MugenMvvmToolkit.Binding.Accessors
         #region Properties
 
         /// <summary>
-        ///     Gets the <see cref="IBindingTarget" />, if any.
-        /// </summary>
-        private IBindingTarget BindingTarget
-        {
-            get { return _bindingSource as IBindingTarget; }
-        }
-
-        /// <summary>
         ///     Gets or sets the property that is responsible for the automatic toggle enabled state for command.
         /// </summary>
         public static bool ToggleEnabledStateDefault { get; set; }
@@ -287,7 +275,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
         /// <summary>
         ///     Gets the underlying source.
         /// </summary>
-        public IBindingSource Source
+        public IObserver Source
         {
             get { return _bindingSource; }
         }
@@ -311,12 +299,12 @@ namespace MugenMvvmToolkit.Binding.Accessors
         /// <summary>
         ///     Gets the underlying sources.
         /// </summary>
-        public override IList<IBindingSource> Sources
+        public override IList<IObserver> Sources
         {
             get
             {
                 if (_bindingSource == null)
-                    return Empty.Array<IBindingSource>();
+                    return Empty.Array<IObserver>();
                 return new[] { _bindingSource };
             }
         }
@@ -460,11 +448,47 @@ namespace MugenMvvmToolkit.Binding.Accessors
             _closure.SetValue(bindingActionValue, newValue);
         }
 
+        private void SetIsEnabled(bool value)
+        {
+            var source = _bindingSource;
+            if (source == null)
+                return;
+            object penultimateValue = source.GetPathMembers(false).PenultimateValue;
+            if (penultimateValue == null || penultimateValue.IsUnsetValue())
+                return;
+            IBindingMemberInfo member = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(penultimateValue.GetType(), AttachedMemberConstants.Enabled, false, false);
+            if (member == null)
+                Tracer.Warn("The member {0} cannot be obtained on type {1}",
+                    AttachedMemberConstants.Enabled, penultimateValue.GetType());
+            else
+                member.SetValue(penultimateValue, new[] { Empty.BooleanToObject(value) });
+        }
+
+        private object GetCommandParameterFromSource(IDataContext context)
+        {
+            if (Parameters != null && Parameters.CommandParameterDelegate != null)
+                return Parameters.CommandParameterDelegate(context);
+
+            var source = _bindingSource;
+            if (source == null)
+                return null;
+            object target = source.GetPathMembers(false).PenultimateValue;
+            if (target == null || target.IsUnsetValue())
+                return null;
+
+            var commandParameterMember = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(target.GetType(), AttachedMemberConstants.CommandParameter, false, false);
+            if (commandParameterMember == null)
+                return null;
+            return commandParameterMember.GetValue(target, new object[] { context });
+        }
+
         private void CommandOnCanExecuteChanged([NotNull] ICommand command, IDataContext context)
         {
-            var cmdSource = BindingTarget;
-            if (cmdSource != null)
-                cmdSource.IsEnabled = command.CanExecute(GetCommandParameter(context));
+            SetIsEnabled(command.CanExecute(GetCommandParameter(context)));
         }
 
         private void OnEventImpl(object target, object eventArgs, IDataContext context)
@@ -486,10 +510,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         private object GetCommandParameter(IDataContext context)
         {
-            var target = BindingTarget;
-            if (target == null)
-                return null;
-            var param = target.GetCommandParameter(context);
+            var param = GetCommandParameterFromSource(context);
             var path = param as string;
             if (string.IsNullOrEmpty(path) ||
                 (!path.StartsWith("$args.", StringComparison.Ordinal) &&

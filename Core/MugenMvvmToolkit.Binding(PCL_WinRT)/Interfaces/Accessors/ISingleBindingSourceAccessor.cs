@@ -17,7 +17,6 @@
 #endregion
 
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Accessors
 {
@@ -30,6 +29,6 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Accessors
         ///     Gets the underlying source.
         /// </summary>
         [NotNull]
-        IBindingSource Source { get; }
+        IObserver Source { get; }
     }
 }

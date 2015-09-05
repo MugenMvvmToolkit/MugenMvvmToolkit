@@ -6,9 +6,8 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Accessors;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Infrastructure;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
+using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Sources;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestModels;
@@ -232,10 +231,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             valueAccessor.GetValue(memberMock, dataContext, true).ShouldEqual(targetNullValue);
         }
 
-        private static IBindingSource CreateSource(object model, string path)
+        private static IObserver CreateSource(object model, string path)
         {
-            var observer = new MultiPathObserver(model, BindingPath.Create(path), false);
-            return new BindingSource(observer);
+            return new MultiPathObserver(model, BindingPath.Create(path), false);            
         }
 
         #endregion

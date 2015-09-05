@@ -20,9 +20,9 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.DataConstants;
+using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
     {
         #region Fields
 
-        private IBindingSource[] _sources;
+        private IObserver[] _sources;
         private Func<IDataContext, IList<object>, object> _formatExpression;
         private BindingActionValue _getSourceMemberValue;
 
@@ -48,7 +48,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
         /// <summary>
         ///     Initializes a new instance of the <see cref="MultiBindingSourceAccessor" /> class.
         /// </summary>
-        public MultiBindingSourceAccessor([NotNull] IBindingSource[] sources,
+        public MultiBindingSourceAccessor([NotNull] IObserver[] sources,
             [NotNull] Func<IDataContext, IList<object>, object> formatExpression, [NotNull] IDataContext context)
             : base(context, false)
         {
@@ -81,7 +81,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
         /// <summary>
         ///     Gets the underlying sources.
         /// </summary>
-        public override IList<IBindingSource> Sources
+        public override IList<IObserver> Sources
         {
             get { return _sources; }
         }
@@ -95,7 +95,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             _getSourceMemberValue = null;
             for (int index = 0; index < _sources.Length; index++)
                 _sources[index].Dispose();
-            _sources = Empty.Array<IBindingSource>();
+            _sources = Empty.Array<IObserver>();
             base.Dispose();
         }
 

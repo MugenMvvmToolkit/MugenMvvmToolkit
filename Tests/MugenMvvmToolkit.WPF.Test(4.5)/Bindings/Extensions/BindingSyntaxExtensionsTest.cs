@@ -12,7 +12,6 @@ using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Extensions.Syntax;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Interfaces.Syntax;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -44,8 +43,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(targetObj, targetPath).To(sourcePath);
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             BindingParserTest.BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
             var sourceObj = new BindingSourceModel();
             BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = sourceObj;
@@ -61,8 +60,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => model.IntProperty);
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             BindingParserTest.BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
             var sourceObj = new BindingSourceModel();
             BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = sourceObj;
@@ -77,8 +76,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(targetObj, () => model => model.ObjectProperty).To(sourcePath);
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             BindingParserTest.BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
             var sourceObj = new BindingSourceModel();
             BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = sourceObj;
@@ -93,8 +92,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(targetObj, () => model => model.ObjectProperty).To<BindingSourceModel>(() => model => model.IntProperty);
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             BindingParserTest.BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
             var sourceObj = new BindingSourceModel();
             BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = sourceObj;
@@ -111,8 +110,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(targetObj, targetPath).To(sourceObj, sourcePath);
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             BindingParserTest.BindingSourceShouldBeValid(source, sourcePath, sourceObj);
         }
 
@@ -126,8 +125,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(targetObj, targetPath).To(sourceObj, () => model => model.IntProperty);
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             BindingParserTest.BindingSourceShouldBeValid(source, sourcePath, sourceObj);
         }
 
@@ -140,8 +139,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(targetObj, () => model => model.ObjectProperty).To(sourceObj, sourcePath);
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             BindingParserTest.BindingSourceShouldBeValid(source, sourcePath, sourceObj);
         }
 
@@ -154,8 +153,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(targetObj, () => model => model.ObjectProperty).To(sourceObj, () => model => model.IntProperty);
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             BindingParserTest.BindingSourceShouldBeValid(source, sourcePath, sourceObj);
         }
 
@@ -168,8 +167,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(targetObj, targetPath).ToSelf(() => model => model.IntProperty);
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             BindingParserTest.BindingSourceShouldBeValid(source, sourcePath, targetObj);
         }
 
@@ -182,8 +181,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(targetObj, targetPath).ToSelf(sourcePath);
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             BindingParserTest.BindingSourceShouldBeValid(source, sourcePath, targetObj);
         }
 
@@ -498,7 +497,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
             source.Path.IsEmpty.ShouldBeTrue();
-            source.GetSource(true).ShouldEqual(sourceModel);
+            source.GetActualSource(true).ShouldEqual(sourceModel);
             var pathMembers = source.GetPathMembers(true);
             pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, null).ShouldEqual(sourceModel);
         }
@@ -513,7 +512,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
             source.Path.Path.ShouldEqual(GetMemberPath(sourceModel, model => model.ObjectProperty));
-            source.GetSource(true).ShouldEqual(sourceModel);
+            source.GetActualSource(true).ShouldEqual(sourceModel);
             var pathMembers = source.GetPathMembers(true);
             pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, null).ShouldEqual(sourceModel.ObjectProperty);
         }
@@ -530,7 +529,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
             source.Path.IsEmpty.ShouldBeTrue();
-            source.GetSource(true).ShouldEqual(sourceModel);
+            source.GetActualSource(true).ShouldEqual(sourceModel);
             var pathMembers = source.GetPathMembers(true);
             pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, null).ShouldEqual(sourceModel);
         }
@@ -547,7 +546,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
             source.Path.Path.ShouldEqual(GetMemberPath(sourceModel, model => model.ObjectProperty));
-            source.GetSource(true).ShouldEqual(sourceModel);
+            source.GetActualSource(true).ShouldEqual(sourceModel);
             var pathMembers = source.GetPathMembers(true);
             pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, null).ShouldEqual(sourceModel.ObjectProperty);
         }
@@ -564,7 +563,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
             source.Path.Path.ShouldEqual(GetMemberPath(sourceModel, model => model.IntProperty));
-            source.GetSource(true).ShouldEqual(sourceModel);
+            source.GetActualSource(true).ShouldEqual(sourceModel);
             var pathMembers = source.GetPathMembers(true);
             pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, null).ShouldEqual(sourceModel.IntProperty);
         }
@@ -581,7 +580,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
             source.Path.Path.ShouldEqual(GetMemberPath(sourceModel, model => model.NestedModel.IntProperty));
-            source.GetSource(true).ShouldEqual(sourceModel);
+            source.GetActualSource(true).ShouldEqual(sourceModel);
             var pathMembers = source.GetPathMembers(true);
             pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, null).ShouldEqual(sourceModel.NestedModel.IntProperty);
         }
@@ -595,7 +594,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
 
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             source.Path.IsEmpty.ShouldBeTrue();
-            source.GetSource(true).ShouldEqual(sourceModel);
+            source.GetActualSource(true).ShouldEqual(sourceModel);
 
             var behavior = builder.GetOrAddBehaviors().OfType<NotifyDataErrorsAggregatorBehavior>().Single();
             behavior.ErrorPaths.IsNullOrEmpty().ShouldBeTrue();
@@ -615,7 +614,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
 
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             source.Path.IsEmpty.ShouldBeTrue();
-            source.GetSource(true).ShouldEqual(sourceModel);
+            source.GetActualSource(true).ShouldEqual(sourceModel);
 
             var behavior = builder.GetOrAddBehaviors().OfType<NotifyDataErrorsAggregatorBehavior>().Single();
             behavior.ErrorPaths.SequenceEqual(new[] { "1", "2" }).ShouldBeTrue();
@@ -635,7 +634,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
 
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             source.Path.Path.ShouldEqual(GetMemberPath(sourceModel, model => model.ObjectProperty));
-            source.GetSource(true).ShouldEqual(sourceModel);
+            source.GetActualSource(true).ShouldEqual(sourceModel);
 
             var behavior = builder.GetOrAddBehaviors().OfType<NotifyDataErrorsAggregatorBehavior>().Single();
             behavior.ErrorPaths.SequenceEqual(new[] { "1", "2" }).ShouldBeTrue();
@@ -655,8 +654,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
 
 
             var sources = builder.GetData(BindingBuilderConstants.Sources).Select(func => func(builder)).ToArray();
-            sources[0].GetSource(true).ShouldEqual(sourceModel);
-            sources[1].GetSource(true).ShouldEqual(sourceModel);
+            sources[0].GetActualSource(true).ShouldEqual(sourceModel);
+            sources[1].GetActualSource(true).ShouldEqual(sourceModel);
             if (sources[0].Path.IsEmpty)
                 sources[1].Path.Path.ShouldEqual(GetMemberPath(sourceModel, model => model.ObjectProperty));
             else
@@ -708,7 +707,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
             source.Path.Path.IsEmpty().ShouldBeTrue();
-            source.GetSource(true).ShouldEqual(relativeObj);
+            source.GetActualSource(true).ShouldEqual(relativeObj);
             var pathMembers = source.GetPathMembers(true);
             pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, null).ShouldEqual(relativeObj);
             isInvoked.ShouldBeTrue();
@@ -755,7 +754,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
             source.Path.Path.ShouldEqual(GetMemberPath(targetObj, model => model.ObjectProperty));
-            source.GetSource(true).ShouldEqual(relativeObj);
+            source.GetActualSource(true).ShouldEqual(relativeObj);
             var pathMembers = source.GetPathMembers(true);
             pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, null).ShouldEqual(relativeObj.ObjectProperty);
             isInvoked.ShouldBeTrue();
@@ -801,7 +800,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
             source.Path.Path.IsEmpty().ShouldBeTrue();
-            source.GetSource(true).ShouldEqual(element);
+            source.GetActualSource(true).ShouldEqual(element);
             var pathMembers = source.GetPathMembers(true);
             pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, null).ShouldEqual(element);
             isInvoked.ShouldBeTrue();
@@ -847,7 +846,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
             source.Path.Path.ShouldEqual(GetMemberPath(targetObj, model => model.ObjectProperty));
-            source.GetSource(true).ShouldEqual(relativeObj);
+            source.GetActualSource(true).ShouldEqual(relativeObj);
             var pathMembers = source.GetPathMembers(true);
             pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, null).ShouldEqual(relativeObj.ObjectProperty);
             isInvoked.ShouldBeTrue();
@@ -910,8 +909,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => BindingSyntaxEx.DataContext<BindingSourceModel>());
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             BindingParserTest.BindingSourceShouldBeValidDataContext(targetObj, source, string.Empty);
             var sourceObj = new BindingSourceModel();
             BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = sourceObj;
@@ -927,8 +926,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => BindingSyntaxEx.DataContext<BindingSourceModel>().IntProperty);
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             BindingParserTest.BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
             var sourceObj = new BindingSourceModel();
             BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = sourceObj;
@@ -943,8 +942,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => BindingSyntaxEx.Self<object>().DataContext<BindingSourceModel>());
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             source.Path.Path.ShouldEqual(AttachedMemberConstants.DataContext);
         }
 
@@ -957,8 +956,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => BindingSyntaxEx.Self<object>().DataContext<BindingSourceModel>().IntProperty);
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             source.Path.Path.ShouldEqual(AttachedMemberConstants.DataContext + "." + sourcePath);
         }
 
@@ -971,8 +970,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => model.Member<int>(sourcePath));
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             BindingParserTest.BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
             var sourceObj = new BindingSourceModel();
             BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = sourceObj;
@@ -988,8 +987,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var src = new BindingSourceModel { ObjectProperty = new BindingSourceModel { StringProperty = "test" } };
             builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => model.GetObjectProperty().Member<string>("StringProperty"));
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             BindingParserTest.BindingSourceShouldBeValidDataContext(targetObj, source, string.Empty);
             var sourceObj = new BindingSourceModel();
             BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = sourceObj;
@@ -1008,8 +1007,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var src = new BindingSourceModel { ObjectProperty = new BindingSourceModel { StringProperty = "test" } };
             builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => model.GetObjectProperty().Member<string>("StringProperty").Member<int>("Length"));
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             BindingParserTest.BindingSourceShouldBeValidDataContext(targetObj, source, string.Empty);
             var sourceObj = new BindingSourceModel();
             BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = sourceObj;
@@ -1028,10 +1027,10 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var src = new BindingSourceModel { ObjectProperty = "test" };
             builder.Bind(targetObj, targetPath).To(src, () => model => model.Member<string>("ObjectProperty").Member<int>("Length"));
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             source.Path.Path.ShouldEqual("ObjectProperty.Length");
-            source.GetSource(true).ShouldEqual(src);
+            source.GetActualSource(true).ShouldEqual(src);
         }
 
         [TestMethod]
@@ -1043,10 +1042,10 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var src = new BindingSourceModel { ObjectProperty = "test" };
             builder.Bind(targetObj, targetPath).To(src, () => model => model.Member<string>("ObjectProperty").Member<int>("Length") + 0);
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             source.Path.Path.ShouldEqual("ObjectProperty.Length");
-            source.GetSource(true).ShouldEqual(src);
+            source.GetActualSource(true).ShouldEqual(src);
 
             var data = builder.GetData(BindingBuilderConstants.MultiExpression);
             data.Invoke(builder, new object[] { ((string)src.ObjectProperty).Length }).ShouldEqual(((string)src.ObjectProperty).Length);
@@ -1061,8 +1060,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => model.Member(sourcePath));
 
-            IList<Func<IDataContext, IBindingSource>> sources = builder.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(builder);
+            IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(builder);
             BindingParserTest.BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath.Path);
             var sourceObj = new BindingSourceModel();
             BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = sourceObj;

@@ -27,6 +27,7 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
@@ -43,16 +44,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             #region Fields
 
-            public static readonly IHandler<ValueChangedEventArgs> Instance = new DefaultListener();
             protected readonly WeakReference Ref;
 
             #endregion
 
             #region Constructors
-
-            private DefaultListener()
-            {
-            }
 
             public DefaultListener(WeakReference @ref)
             {
@@ -101,14 +97,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private static readonly EventInfo ValueChangedEvent;
         private static readonly Exception DisposedException;
         private static readonly ISourceValue EmptySource;
+        private static readonly IDisposable EmptyDisposable;
 
         private readonly IBindingPath _path;
 
+        private IBindingPathMembers _pathMembers;
         private object _source;
         private IDisposable _sourceListener;
         private Exception _observationException;
-        private IHandler<ValueChangedEventArgs> _listener;
         private int _state;
+        private EventHandler<IObserver, ValueChangedEventArgs> _valueChanged;
 
         #endregion
 
@@ -119,6 +117,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             CollectionChangedEvent = typeof(INotifyCollectionChanged).GetEventEx("CollectionChanged", MemberFlags.Instance | MemberFlags.Public);
             ValueChangedEvent = typeof(ISourceValue).GetEventEx("ValueChanged", MemberFlags.Instance | MemberFlags.Public);
             DisposedException = ExceptionManager.ObjectDisposed(typeof(ObserverBase));
+            EmptyDisposable = new ActionToken(() => { });
             EmptySource = new BindingResourceObject(null);
         }
 
@@ -130,7 +129,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Should.NotBeNull(source, "source");
             Should.NotBeNull(path, "path");
             _path = path;
-            _listener = DefaultListener.Instance;
             if (source is ISourceValue)
                 _source = source;
             else
@@ -168,6 +166,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             get { return _source; }
         }
 
+        /// <summary>
+        ///     Indicates that current observer dependes on <see cref="ValueChanged" /> subscribers.
+        /// </summary>
+        protected abstract bool DependsOnSubscribers { get; }
+
         #endregion
 
         #region Methods
@@ -175,12 +178,20 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <summary>
         ///     Updates the current values.
         /// </summary>
-        protected abstract void UpdateInternal();
+        protected abstract IBindingPathMembers UpdateInternal(bool hasSubscribers);
 
         /// <summary>
-        ///     Gets the source object include the path members.
+        ///     Releases the current observers.
         /// </summary>
-        protected abstract IBindingPathMembers GetPathMembersInternal();
+        protected abstract void ClearObserversInternal();
+
+        /// <summary>
+        ///     Creates the source event listener.
+        /// </summary>
+        protected virtual IEventListener CreateSourceListener()
+        {
+            return new DefaultListener(ToolkitExtensions.GetWeakReference(this));
+        }
 
         /// <summary>
         ///     Releases resources held by the object.
@@ -196,7 +207,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             try
             {
-                _listener.Handle(this, args);
+                var handler = _valueChanged;
+                if (handler != null)
+                    handler(this, args);
             }
             catch
             {
@@ -227,26 +240,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         }
 
         /// <summary>
-        ///     This method must be invoked after the initialization of the current observer.
-        /// </summary>
-        protected void Initialize([CanBeNull] IEventListener sourceListener)
-        {
-            var ctx = _source as IBindingContext;
-            if (ctx == null)
-            {
-                if (_source is ISourceValue)
-                    _sourceListener = BindingServiceProvider.WeakEventManager.TrySubscribe(_source, ValueChangedEvent,
-                        sourceListener ?? new DefaultListener(ToolkitExtensions.GetWeakReference(this)));
-            }
-            else
-            {
-                _sourceListener = WeakEventManager.AddBindingContextListener(ctx,
-                    sourceListener ?? new DefaultListener(ToolkitExtensions.GetWeakReference(this)), true);
-            }
-            Update();
-        }
-
-        /// <summary>
         ///     Gets the actual source.
         ///     If the source is an <see cref="ISourceValue" /> this method returns the value of Value property.
         /// </summary>
@@ -265,6 +258,23 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return value;
             }
             return reference.Target;
+        }
+
+        private void InitializeSourceListener()
+        {
+            var ctx = _source as IBindingContext;
+            if (ctx == null)
+            {
+
+                if (_source is ISourceValue)
+                    _sourceListener = BindingServiceProvider.WeakEventManager.TrySubscribe(_source, ValueChangedEvent, CreateSourceListener());
+            }
+            else
+            {
+                _sourceListener = WeakEventManager.AddBindingContextListener(ctx, CreateSourceListener(), true);
+            }
+            if (_sourceListener == null)
+                _sourceListener = EmptyDisposable;
         }
 
         #endregion
@@ -294,15 +304,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         }
 
         /// <summary>
-        ///     Gets or sets the value changed listener.
-        /// </summary>
-        public IHandler<ValueChangedEventArgs> Listener
-        {
-            get { return _listener; }
-            set { _listener = value ?? DefaultListener.Instance; }
-        }
-
-        /// <summary>
         ///     Updates the current values.
         /// </summary>
         public void Update()
@@ -310,19 +311,32 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (Interlocked.CompareExchange(ref _state, UpdatingState, DefaultState) != DefaultState)
                 return;
             Exception ex = null;
+            var hasSubscribers = _valueChanged != null;
             try
             {
-                UpdateInternal();
+                if (_sourceListener == null)
+                {
+                    if (hasSubscribers || !DependsOnSubscribers)
+                        InitializeSourceListener();
+                }
+                ClearObserversInternal();
+                _pathMembers = UpdateInternal(hasSubscribers);
             }
             catch (Exception exception)
             {
                 ex = exception;
+                _pathMembers = UnsetBindingPathMembers.Instance;
             }
             finally
             {
                 if (Interlocked.CompareExchange(ref _state, DefaultState, UpdatingState) == UpdatingState)
+                {
                     _observationException = ex;
-                RaiseValueChanged(ValueChangedEventArgs.FalseEventArgs);
+                    if (DependsOnSubscribers && !hasSubscribers && _valueChanged != null)
+                        Update();
+                    else
+                        RaiseValueChanged(ValueChangedEventArgs.FalseEventArgs);
+                }
             }
         }
 
@@ -337,6 +351,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </returns>
         public bool Validate(bool throwOnError)
         {
+            if (ReferenceEquals(_pathMembers, null))
+                Update();
             var exception = _observationException;
             if (exception == null)
                 return true;
@@ -364,12 +380,31 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         public IBindingPathMembers GetPathMembers(bool throwOnError)
         {
+            if (ReferenceEquals(_pathMembers, null))
+            {
+                Interlocked.CompareExchange(ref _pathMembers, UnsetBindingPathMembers.Instance, null);
+                Update();
+            }
             var exception = _observationException;
             if (exception == null)
-                return GetPathMembersInternal();
+                return _pathMembers;
             if (throwOnError)
                 throw exception;
             return UnsetBindingPathMembers.Instance;
+        }
+
+        /// <summary>
+        ///     Occurs when value changed.
+        /// </summary>
+        public event EventHandler<IObserver, ValueChangedEventArgs> ValueChanged
+        {
+            add
+            {
+                _valueChanged += value;
+                if (ReferenceEquals(_sourceListener, null))
+                    Update();
+            }
+            remove { _valueChanged -= value; }
         }
 
         /// <summary>
@@ -379,18 +414,35 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
                 return;
+            _pathMembers = UnsetBindingPathMembers.Instance;
+            _valueChanged = null;
             if (_sourceListener != null)
             {
                 _sourceListener.Dispose();
                 _sourceListener = null;
             }
+            ClearObserversInternal();
             _observationException = DisposedException;
             if (_source is WeakReference)
                 _source = Empty.WeakReference;
             else
                 _source = EmptySource;
-            _listener = DefaultListener.Instance;
             OnDispose();
+        }
+
+        #endregion
+
+        #region Overrides of Object
+
+        /// <summary>
+        ///     Returns a string that represents the current object.
+        /// </summary>
+        /// <returns>
+        ///     A string that represents the current object.
+        /// </returns>
+        public override string ToString()
+        {
+            return string.Format("{0}, Member: {1}, IsValid: {2}", Path, GetPathMembers(false).LastMember, Validate(false).ToString());
         }
 
         #endregion

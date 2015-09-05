@@ -3,8 +3,6 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
-using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Test.TestModels
@@ -17,23 +15,34 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         public IBindingPathMembers PathMembers { get; set; }
 
-        public Func<bool, bool> Validate { get; set; }
+        public Func<bool, IBindingPathMembers> GetPathMembers { get; set; }
+
+        public Func<bool, bool> IsValid { get; set; }
 
         public Func<bool, object> GetActualSource { get; set; }
+
+        #endregion
+
+        #region Methods
+
+        public void RaiseValueChanged(ValueChangedEventArgs args = null)
+        {
+            if (args == null)
+                args = ValueChangedEventArgs.FalseEventArgs;
+            var handler = ValueChanged;
+            if (handler != null) handler(this, args);
+        }
 
         #endregion
 
         #region Implementation of IObserver
 
         /// <summary>
-        ///     Gets or sets the value changed listener.
-        /// </summary>
-        public IHandler<ValueChangedEventArgs> Listener { get; set; }
-
-        /// <summary>
         ///     Gets the path.
         /// </summary>
         public IBindingPath Path { get; set; }
+
+        public bool IsTrackChangesEnabled { get; set; }
 
         /// <summary>
         ///     Gets the source value.
@@ -43,12 +52,16 @@ namespace MugenMvvmToolkit.Test.TestModels
         /// <summary>
         ///     Gets the source object include the path members.
         /// </summary>
-        public IBindingPathMembers GetPathMembers(bool throwOnError)
+        IBindingPathMembers IObserver.GetPathMembers(bool throwOnError)
         {
+            if (GetPathMembers != null)
+                return GetPathMembers(throwOnError);
             if (PathMembers == null)
                 return UnsetBindingPathMembers.Instance;
             return PathMembers;
         }
+
+        public event EventHandler<IObserver, ValueChangedEventArgs> ValueChanged;
 
         /// <summary>
         ///     Updates the current values.
@@ -69,7 +82,7 @@ namespace MugenMvvmToolkit.Test.TestModels
         /// </returns>
         bool IObserver.Validate(bool throwOnError)
         {
-            return Validate(throwOnError);
+            return IsValid(throwOnError);
         }
 
         /// <summary>
@@ -78,18 +91,6 @@ namespace MugenMvvmToolkit.Test.TestModels
         object IObserver.GetActualSource(bool throwOnError)
         {
             return GetActualSource(throwOnError);
-        }
-
-        #endregion
-
-        #region Methods
-
-        public void RaiseValueChanged(ValueChangedEventArgs args = null)
-        {
-            if (args == null)
-                args = ValueChangedEventArgs.FalseEventArgs;
-            IHandler<ValueChangedEventArgs> handler = Listener;
-            if (handler != null) handler.Handle(this, args);
         }
 
         #endregion

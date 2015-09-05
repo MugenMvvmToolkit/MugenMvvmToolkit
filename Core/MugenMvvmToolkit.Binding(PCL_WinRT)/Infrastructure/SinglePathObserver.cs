@@ -97,7 +97,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private readonly bool _ignoreAttachedMembers;
         private readonly WeakReference _ref;
         private IDisposable _weakEventListener;
-        private IBindingPathMembers _pathMembers;
 
         #endregion
 
@@ -111,21 +110,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             Should.BeSupported(path.IsSingle, "The SinglePathObserver supports only single path members.");
             _ignoreAttachedMembers = ignoreAttachedMembers;
-            _pathMembers = UnsetBindingPathMembers.Instance;
             _ref = ServiceProvider.WeakReferenceFactory(this);
-            Initialize(null);
-        }
-
-        #endregion
-
-        #region Methods
-
-        private void ClearListener()
-        {
-            var listener = _weakEventListener;
-            _weakEventListener = null;
-            if (listener != null)
-                listener.Dispose();
         }
 
         #endregion
@@ -133,48 +118,40 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Overrides of ObserverBase
 
         /// <summary>
+        ///     Indicates that current observer dependes on <see cref="ObserverBase.ValueChanged" /> subscribers.
+        /// </summary>
+        protected override bool DependsOnSubscribers
+        {
+            get { return OriginalSource is WeakReference; }
+        }
+
+        /// <summary>
         ///     Updates the current values.
         /// </summary>
-        protected override void UpdateInternal()
+        protected override IBindingPathMembers UpdateInternal(bool hasSubscribers)
         {
-            try
-            {
-                ClearListener();
-                object source = GetActualSource();
-                if (source == null || source.IsUnsetValue())
-                    _pathMembers = UnsetBindingPathMembers.Instance;
-                else
-                {
-                    IBindingMemberInfo lastMember = BindingServiceProvider
-                        .MemberProvider
-                        .GetBindingMember(source.GetType(), Path.Path, _ignoreAttachedMembers, true);
-                    _pathMembers = new SingleBindingPathMembers(OriginalSource as WeakReference ?? ToolkitExtensions.GetWeakReference(source), Path, lastMember);
-                    _weakEventListener = TryObserveMember(source, lastMember, this, Path.Path);
-                }
-            }
-            catch
-            {
-                _pathMembers = UnsetBindingPathMembers.Instance;
-                throw;
-            }
+            object source = GetActualSource();
+            if (source == null || source.IsUnsetValue())
+                return UnsetBindingPathMembers.Instance;
+
+            IBindingMemberInfo lastMember = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(source.GetType(), Path.Path, _ignoreAttachedMembers, true);
+            var srcRef = OriginalSource as WeakReference;
+            if (hasSubscribers || srcRef == null)
+                _weakEventListener = TryObserveMember(source, lastMember, this, Path.Path);
+            return new SingleBindingPathMembers(srcRef ?? ToolkitExtensions.GetWeakReference(source), Path, lastMember);
         }
 
         /// <summary>
-        ///     Gets the source object include the path members.
+        ///     Releases the current observers.
         /// </summary>
-        protected override IBindingPathMembers GetPathMembersInternal()
+        protected override void ClearObserversInternal()
         {
-            return _pathMembers;
-        }
-
-        /// <summary>
-        ///     Releases resources held by the object.
-        /// </summary>
-        protected override void OnDispose()
-        {
-            ClearListener();
-            _pathMembers = UnsetBindingPathMembers.Instance;
-            base.OnDispose();
+            var listener = _weakEventListener;
+            _weakEventListener = null;
+            if (listener != null)
+                listener.Dispose();
         }
 
         #endregion

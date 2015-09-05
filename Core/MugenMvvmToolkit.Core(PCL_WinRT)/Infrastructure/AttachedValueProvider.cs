@@ -216,7 +216,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 #elif ANDROID
         //Prior to Android 4.0, the implementation of View.setTag(int, Object) would store the objects in a static map, where the values were strongly referenced. 
         //This means that if the object contains any references pointing back to the context, the context (which points to pretty much everything else) will leak. 
-        private static readonly bool SetTagSupported = Build.VERSION.SdkInt >= BuildVersionCodes.IceCreamSandwich;
+        internal static readonly bool SetTagSupported = Build.VERSION.SdkInt >= BuildVersionCodes.IceCreamSandwich;
 #endif
         private static readonly ConditionalWeakTable<object, AttachedValueDictionary>.CreateValueCallback
             CreateDictionaryDelegate = o => new AttachedValueDictionary();

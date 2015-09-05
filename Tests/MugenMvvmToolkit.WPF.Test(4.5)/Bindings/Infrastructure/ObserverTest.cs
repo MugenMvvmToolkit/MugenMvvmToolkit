@@ -6,8 +6,6 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Models.EventArg;
-using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Test.TestModels;
 using Should;
 
@@ -21,41 +19,6 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         private sealed class Source
         {
             public int StringProperty { get; set; }
-        }
-
-        private sealed class HandlerToDelegate : IHandler<ValueChangedEventArgs>
-        {
-            #region Fields
-
-            private readonly EventHandler<ValueChangedEventArgs> _handler;
-
-            #endregion
-
-            #region Constructors
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="HandlerToDelegate"/> class.
-            /// </summary>
-            public HandlerToDelegate(EventHandler<ValueChangedEventArgs> handler)
-            {
-                _handler = handler;
-            }
-
-            #endregion
-
-            #region Implementation of IHandler<in ValueChangedEventArgs>
-
-            /// <summary>
-            ///     Handles the message.
-            /// </summary>
-            /// <param name="sender">The object that raised the event.</param>
-            /// <param name="message">Information about event.</param>
-            public void Handle(object sender, ValueChangedEventArgs message)
-            {
-                _handler(sender, message);
-            }
-
-            #endregion
         }
 
         #endregion
@@ -98,7 +61,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var model = new BindingSourceModel();
             var propertyName = GetMemberPath<BindingSourceModel>(sourceModel => sourceModel.StringProperty);
             var observer = CreateObserver(model, propertyName, false);
-            observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
+            observer.ValueChanged += (sender, args) => isInvoked = true;
 
             isInvoked = false;
             model.StringProperty = "test";
@@ -116,7 +79,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var model = new BindingSourceEventNotifierModel();
             var propertyName = GetMemberPath<BindingSourceEventNotifierModel>(sourceModel => sourceModel.ObjectProperty);
             var observer = CreateObserver(model, propertyName, false);
-            observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
+            observer.ValueChanged += (sender, args) => isInvoked = true;
 
             isInvoked = false;
             model.ObjectProperty = "test";
@@ -136,7 +99,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var propertyName = GetMemberPath(model, sourceModel => sourceModel.NestedModel.StringProperty);
 
             var observer = CreateObserver(model, propertyName, false);
-            observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
+            observer.ValueChanged += (sender, args) => isInvoked = true;
 
             isInvoked = false;
             model.NestedModel = new BindingSourceNestedModel();
@@ -159,7 +122,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var propertyName = GetMemberPath(model, sourceModel => sourceModel.NestedModel.ObjectProperty);
 
             var observer = CreateObserver(model, propertyName, false);
-            observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
+            observer.ValueChanged += (sender, args) => isInvoked = true;
 
             isInvoked = false;
             model.NestedModel = new BindingSourceEventNotifierModel();
@@ -183,7 +146,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var model = new BindingSourceModel();
             var propertyName = GetMemberPath(model, sourceModel => sourceModel["test"]);
             var observer = CreateObserver(model, propertyName, false);
-            observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
+            observer.ValueChanged += (sender, args) => isInvoked = true;
 
             isInvoked = false;
             model["test"] = "test";
@@ -206,7 +169,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var propertyName = GetMemberPath(model, sourceModel => sourceModel.NestedModel["test"]);
 
             var observer = CreateObserver(model, propertyName, false);
-            observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
+            observer.ValueChanged += (sender, args) => isInvoked = true;
 
             isInvoked = false;
             model.NestedModel = new BindingSourceNestedModel();
@@ -232,7 +195,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var model = new BindingSourceModel();
             var propertyName = GetMemberPath(model, sourceModel => sourceModel["test", 0]);
             var observer = CreateObserver(model, propertyName, false);
-            observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
+            observer.ValueChanged += (sender, args) => isInvoked = true;
 
             isInvoked = false;
             model["test", 0] = "test";
@@ -255,7 +218,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var propertyName = GetMemberPath(model, sourceModel => sourceModel.NestedModel["test", 0]);
 
             var observer = CreateObserver(model, propertyName, false);
-            observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
+            observer.ValueChanged += (sender, args) => isInvoked = true;
 
             isInvoked = false;
             model.NestedModel = new BindingSourceNestedModel();
@@ -282,7 +245,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var propertyName = GetMemberPath(model, sourceModel => sourceModel.NestedModel.StringProperty);
 
             var observer = CreateObserver(model, propertyName, false);
-            observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
+            observer.ValueChanged += (sender, args) => isInvoked = true;
 
             isInvoked = false;
             model.NestedModel = new BindingSourceNestedModel();
@@ -341,7 +304,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var model = new BindingSourceModel();
             var propertyName = GetMemberPath<BindingSourceModel>(sourceModel => sourceModel.StringProperty);
             var observer = CreateObserver(model, propertyName, false);
-            observer.Listener = new HandlerToDelegate((sender, args) => isInvoked = true);
+            observer.ValueChanged += (sender, args) => isInvoked = true;
 
             isInvoked = false;
             model.StringProperty = "test";

@@ -23,7 +23,7 @@ using System.Linq.Expressions;
 using MugenMvvmToolkit.Binding.Attributes;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Extensions.Syntax;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
+using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Syntax;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -44,14 +44,14 @@ namespace MugenMvvmToolkit.Binding.Parse
 
             public readonly Action<IBindingToSyntax>[] Actions;
             public readonly Func<IDataContext, object[], object> Expression;
-            public readonly Func<IDataContext, IBindingSource>[] Members;
+            public readonly Func<IDataContext, IObserver>[] Members;
 
             #endregion
 
             #region Constructors
 
             public ParameterCacheValue(Action<IBindingToSyntax>[] actions,
-                Func<IDataContext, object[], object> expression, Func<IDataContext, IBindingSource>[] members)
+                Func<IDataContext, object[], object> expression, Func<IDataContext, IObserver>[] members)
             {
                 Actions = actions;
                 Expression = expression;
@@ -70,7 +70,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         private static readonly Dictionary<Delegate, ParameterCacheValue> CacheParameter;
 
         private List<Action<IBindingToSyntax>> _callbacks;
-        private List<KeyValuePair<ParameterExpression, Func<IDataContext, IBindingSource>>> _members;
+        private List<KeyValuePair<ParameterExpression, Func<IDataContext, IObserver>>> _members;
         private ParameterExpression _sourceExpression;
 
         private Expression _currentExpression;
@@ -91,7 +91,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             _sourceExpression = expression.Parameters[0];
             _callbacks = new List<Action<IBindingToSyntax>>();
-            _members = new List<KeyValuePair<ParameterExpression, Func<IDataContext, IBindingSource>>>(2);
+            _members = new List<KeyValuePair<ParameterExpression, Func<IDataContext, IObserver>>>(2);
         }
 
         #endregion
@@ -192,7 +192,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
             var func = value.Expression;
             var members = value.Members;
-            var sources = new IBindingSource[members.Length];
+            var sources = new IObserver[members.Length];
             for (int i = 0; i < members.Length; i++)
                 sources[i] = members[i].Invoke(builder.Builder);
             return dataContext =>
@@ -329,7 +329,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         /// <summary>
         ///     Gets or adds parameter expression.
         /// </summary>
-        public Expression GetOrAddParameterExpression(string prefix, string path, Expression expression, Func<IDataContext, string, IBindingSource> createSource)
+        public Expression GetOrAddParameterExpression(string prefix, string path, Expression expression, Func<IDataContext, string, IObserver> createSource)
         {
             var key = prefix + path;
             for (int i = 0; i < _members.Count; i++)
@@ -343,7 +343,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 }
             }
             var parameter = Expression.Parameter(expression.Type, key);
-            _members.Add(new KeyValuePair<ParameterExpression, Func<IDataContext, IBindingSource>>(parameter, context => createSource(context, path)));
+            _members.Add(new KeyValuePair<ParameterExpression, Func<IDataContext, IObserver>>(parameter, context => createSource(context, path)));
             return parameter;
         }
 

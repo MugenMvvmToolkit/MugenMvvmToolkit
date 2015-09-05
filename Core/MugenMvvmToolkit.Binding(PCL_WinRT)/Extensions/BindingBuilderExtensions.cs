@@ -25,7 +25,6 @@ using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Interfaces.Syntax;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Parse;
@@ -138,7 +137,7 @@ namespace MugenMvvmToolkit.Binding
         #region To
 
         public static IBindingModeInfoBehaviorSyntax<object> ToSource([NotNull] this IBindingToSyntax syntax,
-            [NotNull] Func<IDataContext, IBindingSource> bindingSourceDelegate)
+            [NotNull] Func<IDataContext, IObserver> bindingSourceDelegate)
         {
             Should.NotBeNull(syntax, "syntax");
             Should.NotBeNull(bindingSourceDelegate, "bindingSourceDelegate");
@@ -580,14 +579,14 @@ namespace MugenMvvmToolkit.Binding
             return syntax.GetOrAddSyntaxBuilder<IBindingInfoBehaviorSyntax<TSource>, object, TSource>();
         }
 
-        private static IList<Func<IDataContext, IBindingSource>> GetOrAddBindingSources(
+        private static IList<Func<IDataContext, IObserver>> GetOrAddBindingSources(
             [NotNull] this IDataContext syntax)
         {
             Should.NotBeNull(syntax, "syntax");
-            IList<Func<IDataContext, IBindingSource>> delegates = syntax.GetData(BindingBuilderConstants.Sources);
+            IList<Func<IDataContext, IObserver>> delegates = syntax.GetData(BindingBuilderConstants.Sources);
             if (delegates == null)
             {
-                delegates = new List<Func<IDataContext, IBindingSource>>(1);
+                delegates = new List<Func<IDataContext, IObserver>>(1);
                 syntax.Add(BindingBuilderConstants.Sources, delegates);
             }
             return delegates;

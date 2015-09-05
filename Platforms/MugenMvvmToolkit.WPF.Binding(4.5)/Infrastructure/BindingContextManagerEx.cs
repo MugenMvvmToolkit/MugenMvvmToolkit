@@ -53,7 +53,11 @@ using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.WinPhone.Binding.Models;
+#if WINDOWS_PHONE
+using EventType = MugenMvvmToolkit.Binding.Models.EventArg.ValueChangedEventArgs;
+#else
 using EventType = System.Windows.DependencyPropertyChangedEventArgs;
+#endif
 
 namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 #endif
@@ -64,9 +68,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
         #region Nested types
 
         private sealed class BindingContextSource : IBindingContext
-#if WINDOWS_PHONE
-, IHandler<ValueChangedEventArgs>
-#endif
         {
             #region Fields
 
@@ -85,7 +86,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
                 _observer = BindingServiceProvider
                     .ObserverProvider
                     .Observe(element, BindingPath.DataContext, true);
-                _observer.Listener = this;
+                _observer.ValueChanged += RaiseDataContextChanged;
 #else
                 _sourceReference = ServiceProvider.WeakReferenceFactory(element);
                 element.DataContextChanged += RaiseDataContextChanged;
@@ -150,14 +151,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 
             #region Methods
 
-#if WINDOWS_PHONE
-            void IHandler<ValueChangedEventArgs>.Handle(object sender, ValueChangedEventArgs message)
-            {
-                var handler = ValueChanged;
-                if (handler != null)
-                    handler(this, EventArgs.Empty);
-            }
-#else
             private void RaiseDataContextChanged(object sender, EventType args)
             {
                 var handler = ValueChanged;
@@ -165,6 +158,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
                     handler(this, EventArgs.Empty);
             }
 
+#if !WINDOWS_PHONE
             private void ElementOnUnloaded(object sender, RoutedEventArgs routedEventArgs)
             {
                 if (Value == null)

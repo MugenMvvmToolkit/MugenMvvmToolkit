@@ -154,10 +154,10 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             {
                 TargetAccessor = new BindingSourceAccessorMock
                 {
-                    Source = new BindingSourceMock
+                    Source = new ObserverMock
                     {
                         Path = BindingPath.Create(path),
-                        GetSource = b => target
+                        GetActualSource = b => target
                     }
                 }
             };

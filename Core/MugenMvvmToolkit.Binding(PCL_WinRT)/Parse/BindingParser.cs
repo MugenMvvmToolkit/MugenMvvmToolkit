@@ -28,10 +28,8 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
-using MugenMvvmToolkit.Binding.Sources;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
@@ -51,7 +49,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         protected const string NullLiteral = "null";
 
         private static readonly Comparison<KeyValuePair<KeyValuePair<string, int>, Action<IDataContext>[]>> MemberComparison;
-        private static readonly Func<IDataContext, IBindingSource>[] EmptyBindingSourceDelegates;
+        private static readonly Func<IDataContext, IObserver>[] EmptyBindingSourceDelegates;
         private static readonly HashSet<string> LiteralConstants;
         private static readonly HashSet<TokenType> LiteralTokens;
         private static readonly HashSet<TokenType> ResourceTokens;
@@ -111,7 +109,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 TokenType.RealLiteral,
                 TokenType.StringLiteral
             };
-            EmptyBindingSourceDelegates = new Func<IDataContext, IBindingSource>[]
+            EmptyBindingSourceDelegates = new Func<IDataContext, IObserver>[]
             {
                 BindEmptyPathSource
             };
@@ -1072,12 +1070,12 @@ namespace MugenMvvmToolkit.Binding.Parse
                 else if (isEmpty)
                     invoker = CreateExpressionInvoker(expression, members, true);
 
-                Func<IDataContext, IBindingSource>[] bindingSource;
+                Func<IDataContext, IObserver>[] bindingSource;
                 if (isEmpty)
                     bindingSource = EmptyBindingSourceDelegates;
                 else
                 {
-                    bindingSource = new Func<IDataContext, IBindingSource>[members.Length];
+                    bindingSource = new Func<IDataContext, IObserver>[members.Length];
                     for (int i = 0; i < members.Length; i++)
                         bindingSource[i] = GetBindingSourceDelegate(members[i].Value);
                 }
@@ -1266,16 +1264,16 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {
                     var members = _memberVisitor.Members.ToArrayEx();
                     var bindingSource = members.Length == 0
-                        ? Empty.Array<Func<IDataContext, IBindingSource>>()
-                        : new Func<IDataContext, IBindingSource>[members.Length];
+                        ? Empty.Array<Func<IDataContext, IObserver>>()
+                        : new Func<IDataContext, IObserver>[members.Length];
                     for (int i = 0; i < members.Length; i++)
                         bindingSource[i] = GetBindingSourceDelegate(members[i].Value);
                     var invoker = CreateExpressionInvoker(node, members, members.Length == 0);
                     return context =>
                     {
                         var sources = bindingSource.Length == 0
-                            ? Empty.Array<IBindingSource>()
-                            : new IBindingSource[bindingSource.Length];
+                            ? Empty.Array<IObserver>()
+                            : new IObserver[bindingSource.Length];
                         for (int i = 0; i < bindingSource.Length; i++)
                             sources[i] = bindingSource[i].Invoke(context);
                         setComplexValue(context, dataContext =>
@@ -1387,7 +1385,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Bind members
 
-        protected static Func<IDataContext, IBindingSource> GetBindingSourceDelegate(BindingMemberExpressionNode node)
+        protected static Func<IDataContext, IObserver> GetBindingSourceDelegate(BindingMemberExpressionNode node)
         {
             IBindingPath path = BindingServiceProvider.BindingPathFactory(node.Path);
             if (node.IsDynamic)
@@ -1396,7 +1394,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 return context =>
                 {
                     var resourceObject = BindingServiceProvider.ResourceResolver.ResolveObject(resourceName, context, true);
-                    return new BindingSource(BindingServiceProvider.ObserverProvider.Observe(resourceObject, path, false));
+                    return BindingServiceProvider.ObserverProvider.Observe(resourceObject, path, false);
                 };
             }
             if (node.IsRelativeSource)
@@ -1407,18 +1405,18 @@ namespace MugenMvvmToolkit.Binding.Parse
             return context => BindSource(context, path);
         }
 
-        private static IBindingSource BindEmptyPathSource(IDataContext context)
+        private static IObserver BindEmptyPathSource(IDataContext context)
         {
             return BindSource(context, BindingPath.Empty);
         }
 
-        private static IBindingSource BindSource(IDataContext context, IBindingPath path)
+        private static IObserver BindSource(IDataContext context, IBindingPath path)
         {
             object src = context.GetData(BindingBuilderConstants.Source) ??
                          BindingServiceProvider.ContextManager.GetBindingContext(
                              context.GetData(BindingBuilderConstants.Target, true),
                              context.GetData(BindingBuilderConstants.TargetPath, true).Path);
-            return new BindingSource(BindingServiceProvider.ObserverProvider.Observe(src, path, false));
+            return BindingServiceProvider.ObserverProvider.Observe(src, path, false);
         }
 
         #endregion

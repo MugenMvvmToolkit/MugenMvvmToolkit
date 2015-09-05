@@ -19,7 +19,6 @@
 using System;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 
@@ -45,6 +44,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             IdDefaultValuesOnExceptionBehavior = new Guid("BB266907-520E-4461-9D95-A549326049DA");
         }
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="DefaultValueOnExceptionBehavior" /> class.
+        /// </summary>
         public DefaultValueOnExceptionBehavior(object value)
         {
             _value = value;
@@ -88,7 +90,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 SetDefaultValue(singleAccessor.Source);
         }
 
-        private void SetDefaultValue(IBindingSource source)
+        private void SetDefaultValue(IObserver source)
         {
             var pathMembers = source.GetPathMembers(false);
             if (pathMembers.AllMembersAvailable)

@@ -28,9 +28,7 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Parse;
-using MugenMvvmToolkit.Binding.Sources;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -52,7 +50,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private static readonly Func<IDataContext, IList<object>, object> FormatMembersExpressionDelegate;
 
         private readonly OrderedListInternal<IBindingBehavior> _defaultBehaviors;
-        private readonly IList<IBindingSourceDecorator> _decorators;
         private readonly Func<IDataContext, IDataBinding> _buildDelegate;
 
         private IBindingParser _parser;
@@ -79,8 +76,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public BindingProvider(IBindingParser parser = null)
         {
             _parser = parser ?? new BindingParser();
-            var comparer = new DelegateComparer<IBindingSourceDecorator>((manager, targetManager) => targetManager.Priority.CompareTo(manager.Priority));
-            _decorators = new OrderedListInternal<IBindingSourceDecorator>(comparer);
             _defaultBehaviors = new OrderedListInternal<IBindingBehavior>(BehaviorComparer)
             {
                 new OneWayBindingMode()
@@ -98,14 +93,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public ICollection<IBindingBehavior> DefaultBehaviors
         {
             get { return _defaultBehaviors; }
-        }
-
-        /// <summary>
-        ///     Gets the collection of <see cref="IBindingSourceDecorator" />.
-        /// </summary>
-        public ICollection<IBindingSourceDecorator> SourceDecorators
-        {
-            get { return _decorators; }
         }
 
         /// <summary>
@@ -272,13 +259,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (sourceDelegates.Count > 1 || formatExpression != null)
             {
                 formatExpression = formatExpression ?? FormatMembersExpressionDelegate;
-                var sources = new IBindingSource[sourceDelegates.Count];
+                var sources = new IObserver[sourceDelegates.Count];
                 for (int index = 0; index < sourceDelegates.Count; index++)
-                    sources[index] = Decorate(sourceDelegates[index].Invoke(context), false, context);
+                    sources[index] = sourceDelegates[index].Invoke(context);
                 sourceAccessor = new MultiBindingSourceAccessor(sources, formatExpression, context);
             }
             else
-                sourceAccessor = new BindingSourceAccessor(Decorate(sourceDelegates[0].Invoke(context), false, context), context, false);
+                sourceAccessor = new BindingSourceAccessor(sourceDelegates[0].Invoke(context), context, false);
             var binding = new DataBinding(new BindingSourceAccessor(GetBindingTarget(context, out target, out targetPath), context, true), sourceAccessor);
             object source;
             if (context.TryGetData(BindingBuilderConstants.Source, out source))
@@ -291,18 +278,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         ///     Creates the binding target.
         /// </summary>
         [NotNull]
-        protected virtual IBindingSource GetBindingTarget([NotNull] IDataContext context, out object target, out IBindingPath targetPath)
+        protected virtual IObserver GetBindingTarget([NotNull] IDataContext context, out object target, out IBindingPath targetPath)
         {
             target = context.GetData(BindingBuilderConstants.Target, true);
             targetPath = context.GetData(BindingBuilderConstants.TargetPath, true);
             var src = context.GetData(BindingBuilderConstants.TargetSource);
-            IBindingSource bindingSource = new BindingTarget(BindingServiceProvider.ObserverProvider.Observe(src ?? target, targetPath, false))
-            {
-                CommandParameterDelegate = context.GetData(BindingBuilderConstants.CommandParameter)
-            };
-            if (_decorators.Count != 0)
-                return Decorate(bindingSource, true, context);
-            return bindingSource;
+            return BindingServiceProvider.ObserverProvider.Observe(src ?? target, targetPath, false);
         }
 
         /// <summary>
@@ -337,16 +318,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             behaviors.Sort(BehaviorComparer);
             for (int index = 0; index < behaviors.Count; index++)
                 binding.Behaviors.Add(behaviors[index]);
-        }
-
-        /// <summary>
-        ///     Decorates the source using <see cref="SourceDecorators" /> property.
-        /// </summary>
-        protected IBindingSource Decorate(IBindingSource source, bool isTarget, IDataContext context)
-        {
-            for (int index = 0; index < _decorators.Count; index++)
-                _decorators[index].Decorate(ref source, isTarget, context);
-            return source;
         }
 
         private static IDataBinding CreateInvalidaDataBinding(IDataContext dataContext)

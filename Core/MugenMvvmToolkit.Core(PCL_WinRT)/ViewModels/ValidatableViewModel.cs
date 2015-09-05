@@ -405,7 +405,7 @@ namespace MugenMvvmToolkit.ViewModels
                     IgnoreProperties.Add(ignoreProperty);
                 try
                 {
-                    OnPropertyChanged(ignoreProperty, ExecutionMode.None);
+                    OnPropertyChanged(ignoreProperty);
                 }
                 finally
                 {

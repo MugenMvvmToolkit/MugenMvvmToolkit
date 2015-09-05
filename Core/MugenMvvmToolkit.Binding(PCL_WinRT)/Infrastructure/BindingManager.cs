@@ -133,7 +133,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public virtual void Unregister(IDataBinding binding)
         {
             Should.NotBeNull(binding, "binding");
-            object source = binding.TargetAccessor.Source.GetSource(false);
+            object source = binding.TargetAccessor.Source.GetActualSource(false);
             string path = binding.TargetAccessor.Source.Path.Path;
             if (source != null && path != null)
                 ClearBindings(source, path);
