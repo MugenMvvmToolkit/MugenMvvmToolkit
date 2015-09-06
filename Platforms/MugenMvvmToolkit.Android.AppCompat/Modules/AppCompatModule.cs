@@ -270,7 +270,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
         ///     Initializes a new instance of the <see cref="AppCompatModule" /> class.
         /// </summary>
         public AppCompatModule()
-            : base(true, priority: BindingModulePriority - 1)
+            : base(true, priority: BindingModulePriority - 2)
         {
         }
 

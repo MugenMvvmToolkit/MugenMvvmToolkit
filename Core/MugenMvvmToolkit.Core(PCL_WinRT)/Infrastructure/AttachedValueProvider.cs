@@ -42,6 +42,8 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
+using Android.Preferences;
+using MugenMvvmToolkit.Android.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Android.Infrastructure
 #elif WPF
@@ -328,6 +330,28 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                     return true;
                 }
             }
+            var pref = item as Preference;
+            if (pref.IsAlive() && pref.HasKey)
+            {
+                try
+                {
+                    var activityView = pref.Context as IActivityView;
+                    if (activityView != null)
+                    {
+                        var metadata = activityView.Mediator.Metadata;
+                        lock (metadata)
+                        {
+                            var key = pref.Key + pref.GetType().FullName + pref.GetHashCode();
+                            if (metadata.Remove(key))
+                                return true;
+                        }
+                    }
+                }
+                catch
+                {
+                    ;
+                }
+            }
 #endif
             return _internalDictionary.Remove(item);
         }
@@ -421,6 +445,39 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                     if (dict == null)
                         return null;
                     return dict.Dictionary;
+                }
+            }
+
+            //.NET object (Preference) is garbage collected and all attached members too but Java object is still alive.
+            //Save values to activity dictionary.
+            var pref = item as Preference;
+            if (pref.IsAlive() && pref.HasKey)
+            {
+                try
+                {
+                    var activityView = pref.Context as IActivityView;
+                    if (activityView != null)
+                    {
+                        var metadata = activityView.Mediator.Metadata;
+                        lock (metadata)
+                        {
+                            object v;
+                            var key = pref.Key + pref.GetType().FullName + pref.GetHashCode();
+                            if (!metadata.TryGetValue(key, out v))
+                            {
+                                if (addNew)
+                                {
+                                    v = new AttachedValueDictionary();
+                                    metadata[key] = v;
+                                }
+                            }
+                            return (LightDictionaryBase<string, object>)v;
+                        }
+                    }
+                }
+                catch
+                {
+                    ;
                 }
             }
 #endif

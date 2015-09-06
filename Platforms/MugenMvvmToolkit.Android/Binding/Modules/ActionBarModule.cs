@@ -397,6 +397,11 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         #region Fields
 
+#if APPCOMPAT
+        private const int P = BindingModulePriority - 2;
+#else
+        private const int P = BindingModulePriority - 1;
+#endif
         private const string ActionBarActionModeKey = "!#CurrentActionMode";
         private const string ActionViewBindKey = "@ActionViewBind";
         private const string ActionProviderBindKey = "@ActionProviderBind";
@@ -409,7 +414,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         ///     Initializes a new instance of the <see cref="ActionBarModule" /> class.
         /// </summary>
         public ActionBarModule()
-            : base(true, priority: BindingModulePriority - 1)
+            : base(true, priority: P)
         {
         }
 

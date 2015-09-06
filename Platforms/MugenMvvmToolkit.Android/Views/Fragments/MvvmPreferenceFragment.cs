@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.Android.Views.Fragments
         {
         }
 
-        protected MvvmPreferenceFragment(int? viewId)
+        protected MvvmPreferenceFragment(int? viewId = null)
         {
             _viewId = viewId;
         }
@@ -164,6 +164,11 @@ namespace MugenMvvmToolkit.Android.Views.Fragments
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             Mediator.OnViewCreated(view, savedInstanceState, base.OnViewCreated);
+        }
+
+        public override void AddPreferencesFromResource(int preferencesResId)
+        {
+            Mediator.AddPreferencesFromResource(base.AddPreferencesFromResource, preferencesResId);
         }
 
         #endregion

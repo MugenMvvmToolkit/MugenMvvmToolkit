@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using Android.App;
 using Android.Content.Res;
@@ -31,6 +32,11 @@ namespace MugenMvvmToolkit.Android.Interfaces.Mediators
     public interface IMvvmActivityMediator
     {
         /// <summary>
+        ///     Gets the current activity metadata.
+        /// </summary>
+        IDictionary<string, object> Metadata { get; }
+
+            /// <summary>
         ///     Gets the <see cref="Activity" />.
         /// </summary>
         Activity Activity { get; }
@@ -139,6 +145,11 @@ namespace MugenMvvmToolkit.Android.Interfaces.Mediators
         ///     This hook is called whenever an item in your options menu is selected.
         /// </summary>
         bool OnOptionsItemSelected(IMenuItem item, Func<IMenuItem, bool> baseOnOptionsItemSelected);
+
+        /// <summary>
+        ///     Inflates the given XML resource and adds the preference hierarchy to the current preference hierarchy.
+        /// </summary>
+        void AddPreferencesFromResource(Action<int> baseAddPreferencesFromResource, int preferencesResId);
 
         /// <summary>
         ///     This hook is called whenever an item in your options menu is selected.

@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.StarterPack.WinForms</id>
-    <version>4.2.0</version>
+    <version>4.3.0</version>
     <title>MugenMvvmToolkit - Starter Pack WinForms</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -42,7 +42,7 @@
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
-      <dependency id="MugenMvvmToolkit.WinForms" version="4.2.0" />
+      <dependency id="MugenMvvmToolkit.WinForms" version="4.3.0" />
     </dependencies>
   </metadata>
   <files>

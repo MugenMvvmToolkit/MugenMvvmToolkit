@@ -45,7 +45,7 @@ namespace MugenMvvmToolkit.Android.Views.Activities
         {
         }
 
-        protected MvvmPreferenceActivity(int? viewId)
+        protected MvvmPreferenceActivity(int? viewId = null)
         {
             _viewId = viewId;
         }
@@ -124,6 +124,12 @@ namespace MugenMvvmToolkit.Android.Views.Activities
             return Mediator.OnCreateOptionsMenu(menu, base.OnCreateOptionsMenu);
         }
 
+        [Obsolete("deprecated")]
+        public override void AddPreferencesFromResource(int preferencesResId)
+        {
+            Mediator.AddPreferencesFromResource(base.AddPreferencesFromResource, preferencesResId);
+        }
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             Mediator.OnCreate(_viewId, savedInstanceState, base.OnCreate);
@@ -169,6 +175,6 @@ namespace MugenMvvmToolkit.Android.Views.Activities
             Mediator.OnPostCreate(savedInstanceState, base.OnPostCreate);
         }
 
-        #endregion
+        #endregion        
     }
 }

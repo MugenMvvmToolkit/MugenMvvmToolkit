@@ -17,6 +17,7 @@
 #endregion
 
 using Android.Content;
+using Android.Preferences;
 using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
@@ -73,6 +74,12 @@ namespace MugenMvvmToolkit.Android
             rb.Rating = rb.Rating;
             rb.RatingBarChange += (sender, args) => { };
             rb.RatingBarChange -= (sender, args) => { };
+
+            Preference preference = new Preference(null);
+            preference.PreferenceClick += (sender, args) => { };
+            preference.PreferenceClick -= (sender, args) => { };
+            preference.Enabled = preference.Enabled;
+            preference.Title = preference.Title;
 
             var dp = new DatePicker(null);
             dp.DateTime = dp.DateTime;

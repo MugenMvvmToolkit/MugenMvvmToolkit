@@ -108,12 +108,14 @@
     <Compile Include="Binding\Infrastructure\ActionBarTabItemsSourceGenerator.cs" />
     <Compile Include="Binding\Infrastructure\BindableLayoutInflater.cs" />
     <Compile Include="Binding\Infrastructure\BindableLayoutInflaterProxy.cs" />
+    <Compile Include="Binding\Infrastructure\PreferenceItemsSourceGenerator.cs" />
     <Compile Include="Binding\Infrastructure\ResourceDataTemplateSelectorBase.cs" />
     <Compile Include="Binding\Infrastructure\ViewContentViewManager.cs" />
     <Compile Include="Binding\Interfaces\IResourceDataTemplateSelector.cs" />
     <Compile Include="Binding\Models\ActionBarTabTemplate.cs" />
     <Compile Include="Binding\Models\ActionBarTemplate.cs" />
     <Compile Include="Binding\Modules\FragmentDataBindingModule.cs" />
+    <Compile Include="Binding\Modules\PreferenceDataBindingModule.cs" />
     <Compile Include="DataConstants\ViewFactoryConstants.cs" />
     <Compile Include="Binding\Interfaces\IItemsSourceAdapter.cs" />
     <Compile Include="Binding\Infrastructure\FragmentContentViewManager.cs" />

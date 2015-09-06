@@ -22,9 +22,11 @@ using System.ComponentModel;
 using Android.App;
 using Android.Content;
 using Android.OS;
+using Android.Preferences;
 using Android.Util;
 using Android.Views;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Views;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
@@ -92,6 +94,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         private DialogInterfaceOnKeyListener _keyListener;
         private View _view;
         private bool _removed;
+        private bool _isPreferenceContext;
 
         #endregion
 
@@ -188,13 +191,29 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                     viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateManager, this);
                 viewModel.Settings.Metadata.AddOrUpdate(PlatformExtensions.FragmentConstant, Target);
             }
-            else if (DataContext == null && savedInstanceState != null && savedInstanceState.ContainsKey(IgnoreStateKey))
+            else if (DataContext == null)
             {
-                _removed = true;
-                Target.FragmentManager
-                    .BeginTransaction()
-                    .Remove(Target)
-                    .CommitAllowingStateLoss();
+                if (savedInstanceState != null && savedInstanceState.ContainsKey(IgnoreStateKey))
+                {
+                    _removed = true;
+                    Target.FragmentManager
+                        .BeginTransaction()
+                        .Remove(Target)
+                        .CommitAllowingStateLoss();
+                }
+#if !APPCOMPAT
+                else if (Target is PreferenceFragment)
+                {
+                    var activity = Target.Activity as PreferenceActivity;
+                    if (activity != null)
+                    {
+                        _isPreferenceContext = true;
+                        Target.Bind(AttachedMembers.Object.DataContext)
+                            .To(activity, AttachedMembers.Object.DataContext)
+                            .Build();
+                    }
+                }
+#endif
             }
         }
 
@@ -230,6 +249,24 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             {
                 _view.ClearBindingsRecursively(true, true);
                 _view = null;
+            }
+        }
+
+        /// <summary>
+        ///     Gets the current preference manager.
+        /// </summary>
+        protected override PreferenceManager PreferenceManager
+        {
+            get
+            {
+#if APPCOMPAT
+                return null;
+#else
+                var fragment = Target as PreferenceFragment;
+                if (fragment == null)
+                    return null;
+                return fragment.PreferenceManager;
+#endif
             }
         }
 
@@ -273,6 +310,17 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         }
 
         /// <summary>
+        ///     Called after <c>OnCreate(Android.OS.Bundle)</c> or after <c>OnRestart</c> when the activity had been stopped, but is now again being displayed to the user.
+        /// </summary>
+        public override void OnSaveInstanceState(Bundle outState, Action<Bundle> baseOnSaveInstanceState)
+        {
+            if (_isPreferenceContext)
+                baseOnSaveInstanceState(outState);
+            else
+                base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
+        }
+
+        /// <summary>
         ///     Called when the fragment is no longer attached to its activity.
         /// </summary>
         public virtual void OnDetach(Action baseOnDetach)
@@ -296,22 +344,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                     BindingServiceProvider.BindingProvider.CreateBindingsFromString(Target, bind, null);
             }
             baseOnInflate(activity, attrs, savedInstanceState);
-        }
-
-        /// <summary>
-        ///     Called when the Fragment is no longer resumed.
-        /// </summary>
-        public virtual void OnPause(Action baseOnPause)
-        {
-            baseOnPause();
-        }
-
-        /// <summary>
-        ///     Called when the fragment is visible to the user and actively running.
-        /// </summary>
-        public virtual void OnResume(Action baseOnResume)
-        {
-            baseOnResume();
         }
 
         /// <summary>
@@ -351,6 +383,25 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         {
             if (OnClosing())
                 baseDismiss();
+        }
+
+        /// <summary>
+        ///     Inflates the given XML resource and adds the preference hierarchy to the current preference hierarchy.
+        /// </summary>
+        public virtual void AddPreferencesFromResource(Action<int> baseAddPreferencesFromResource, int preferencesResId)
+        {
+#if APPCOMPAT
+            PreferenceFragment fragment = null;
+#else
+            var fragment = Target as PreferenceFragment;
+#endif
+            if (fragment == null)
+            {
+                Tracer.Error("The AddPreferencesFromResource method supported only for PreferenceFragment");
+                return;
+            }
+            baseAddPreferencesFromResource(preferencesResId);
+            InitializePreferences(fragment.PreferenceScreen, preferencesResId);
         }
 
         /// <summary>

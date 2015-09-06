@@ -17,10 +17,13 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
 using Android.App;
 using Android.Content.Res;
 using Android.OS;
+using Android.Preferences;
 using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
@@ -30,6 +33,7 @@ using MugenMvvmToolkit.Android.Interfaces.Mediators;
 using MugenMvvmToolkit.Android.Interfaces.Navigation;
 using MugenMvvmToolkit.Android.Views;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -94,6 +98,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         #region Fields
 
+        private Dictionary<string, object> _dictionary;
         private BindableMenuInflater _menuInflater;
         private BindableLayoutInflater _layoutInflater;
         private IMenu _menu;
@@ -101,6 +106,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         private bool _isBackNavigation;
         private View _view;
         private bool _ignoreFinishNavigation;
+        private IDictionary<string, object> _metadata;
 
         #endregion
 
@@ -118,6 +124,22 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         #endregion
 
         #region Implementation of IMvvmActivityMediator
+
+        /// <summary>
+        ///     Gets the current activity metadata.
+        /// </summary>
+        public virtual IDictionary<string, object> Metadata
+        {
+            get
+            {
+                if (_metadata == null)
+                {
+                    Interlocked.CompareExchange(ref _metadata, new Dictionary<string, object>(StringComparer.Ordinal),
+                        null);
+                }
+                return _metadata;
+            }
+        }
 
         /// <summary>
         ///     Gets the <see cref="IMvvmActivityMediator.Activity" />.
@@ -235,6 +257,11 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             _view.RemoveFromParent();
             _view.ClearBindingsRecursively(true, true);
             _view = null;
+            if (_metadata != null)
+            {
+                _metadata.Clear();
+                _metadata = null;
+            }
 
             MenuTemplate.Clear(_menu);
             _menu = null;
@@ -269,17 +296,31 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
 
         /// <summary>
+        ///     Gets the current preference manager.
+        /// </summary>
+        protected override PreferenceManager PreferenceManager
+        {
+            get
+            {
+                var activity = Target as PreferenceActivity;
+                if (activity == null)
+                    return null;
+                return activity.PreferenceManager;
+            }
+        }
+
+        /// <summary>
         ///     Called as part of the activity lifecycle when an activity is going into
         ///     the background, but has not (yet) been killed.
         /// </summary>
-        public virtual void OnPause(Action baseOnPause)
+        public override void OnPause(Action baseOnPause)
         {
             var service = Get<INavigationService>();
             service.OnPauseActivity(Target);
-            baseOnPause();
             var handler = Paused;
             if (handler != null)
                 handler(Target, EventArgs.Empty);
+            base.OnPause(baseOnPause);
         }
 
         /// <summary>
@@ -296,9 +337,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         /// <summary>
         ///     Called after <c>OnRestoreInstanceState(Android.OS.Bundle)</c>, <c>OnRestart</c>, or <c>OnPause</c>, for your activity to start interacting with the user.
         /// </summary>
-        public virtual void OnResume(Action baseOnResume)
+        public override void OnResume(Action baseOnResume)
         {
-            baseOnResume();
+            base.OnResume(baseOnResume);
             var handler = Resume;
             if (handler != null)
                 handler(Target, EventArgs.Empty);
@@ -415,6 +456,21 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             if (optionsItemSelected == null)
                 return baseOnOptionsItemSelected(item);
             return optionsItemSelected(item) || baseOnOptionsItemSelected(item);
+        }
+
+        /// <summary>
+        ///     Inflates the given XML resource and adds the preference hierarchy to the current preference hierarchy.
+        /// </summary>
+        public virtual void AddPreferencesFromResource(Action<int> baseAddPreferencesFromResource, int preferencesResId)
+        {
+            var activity = Target as PreferenceActivity;
+            if (activity == null)
+            {
+                Tracer.Error("The AddPreferencesFromResource method supported only for PreferenceActivity");
+                return;
+            }
+            baseAddPreferencesFromResource(preferencesResId);
+            InitializePreferences(activity.PreferenceScreen, preferencesResId);
         }
 
         void IHandler<FinishActivityMessage>.Handle(object sender, FinishActivityMessage message)

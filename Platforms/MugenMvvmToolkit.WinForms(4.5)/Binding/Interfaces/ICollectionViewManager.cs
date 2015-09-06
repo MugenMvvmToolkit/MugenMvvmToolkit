@@ -31,7 +31,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Interfaces
         /// <summary>
         ///     Inserts an item to the specified index.
         /// </summary>
-        void Insert([NotNull] object view, int index, object item);
+        void Insert([NotNull] object view, int index, object viewItem);
 
         /// <summary>
         ///     Removes an item.

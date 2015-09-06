@@ -139,6 +139,11 @@ namespace MugenMvvmToolkit.Android.Interfaces.Mediators
         void Dismiss(Action baseDismiss);
 
         /// <summary>
+        ///     Inflates the given XML resource and adds the preference hierarchy to the current preference hierarchy.
+        /// </summary>
+        void AddPreferencesFromResource(Action<int> baseAddPreferencesFromResource, int preferencesResId);
+
+        /// <summary>
         ///     Occurs when the DataContext property changed.
         /// </summary>
         event EventHandler<Fragment, EventArgs> DataContextChanged;

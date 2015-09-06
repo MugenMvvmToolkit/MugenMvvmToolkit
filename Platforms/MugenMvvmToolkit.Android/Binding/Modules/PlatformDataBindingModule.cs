@@ -226,6 +226,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             Should.NotBeNull(memberProvider, "memberProvider");
             RegisterMenuMembers(memberProvider);
             RegisterViewMembers(memberProvider);
+            RegisterPreferenceMembers(memberProvider);
             BindingBuilderExtensions.RegisterDefaultBindingMember<Button>("Click");
             BindingBuilderExtensions.RegisterDefaultBindingMember<TextView>(() => v => v.Text);
             BindingBuilderExtensions.RegisterDefaultBindingMember<EditText>(() => v => v.Text);

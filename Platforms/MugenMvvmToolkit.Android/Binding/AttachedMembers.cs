@@ -376,6 +376,58 @@ namespace MugenMvvmToolkit.Android.Binding
 
             #endregion
         }
+
+        public class Preference : Object
+        {
+            #region Fields
+
+            public static readonly BindingMemberDescriptor<global::Android.Preferences.Preference, bool> Click;
+            public static readonly BindingMemberDescriptor<global::Android.Preferences.Preference, IEventListener> ValueChangedEvent;
+
+            #endregion
+
+            #region Constructors
+
+            static Preference()
+            {
+                Click = new BindingMemberDescriptor<global::Android.Preferences.Preference, bool>("PreferenceClick");
+                ValueChangedEvent = new BindingMemberDescriptor<global::Android.Preferences.Preference, IEventListener>("ValueChanged");
+            }
+
+            protected Preference()
+            {
+            }
+
+            #endregion
+        }
+
+        public class PreferenceGroup : Preference
+        {
+            #region Fields
+
+            public static readonly BindingMemberDescriptor<global::Android.Preferences.PreferenceGroup, IEnumerable> ItemsSource;
+            public static readonly BindingMemberDescriptor<global::Android.Preferences.PreferenceGroup, IItemsSourceGenerator> ItemsSourceGenerator;
+            public static readonly BindingMemberDescriptor<global::Android.Preferences.PreferenceGroup, IDataTemplateSelector> ItemTemplateSelector;
+            public static readonly BindingMemberDescriptor<global::Android.Preferences.PreferenceGroup, ICollectionViewManager> CollectionViewManager;
+
+            #endregion
+
+            #region Constructors
+
+            static PreferenceGroup()
+            {
+                ItemsSource = new BindingMemberDescriptor<global::Android.Preferences.PreferenceGroup, IEnumerable>(AttachedMemberConstants.ItemsSource);
+                ItemsSourceGenerator = ItemsSourceGeneratorBase.MemberDescriptor.Override<global::Android.Preferences.PreferenceGroup>();
+                ItemTemplateSelector = new BindingMemberDescriptor<global::Android.Preferences.PreferenceGroup, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
+                CollectionViewManager = ViewGroup.CollectionViewManager.Override<global::Android.Preferences.PreferenceGroup>();
+            }
+
+            protected PreferenceGroup()
+            {
+            }
+
+            #endregion
+        }
 #else
         public class View : AttachedMembers.View
         {

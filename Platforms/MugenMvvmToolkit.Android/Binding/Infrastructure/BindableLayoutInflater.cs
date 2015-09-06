@@ -36,6 +36,12 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         private IViewFactory _viewFactory;
 
+        private readonly HashSet<string> _ignoreViewTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "fragment",
+            "android.preference.PreferenceFrameLayout"
+        };
+
         #endregion
 
         #region Constructors
@@ -106,6 +112,14 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             }
         }
 
+        /// <summary>
+        ///     Gets the list of view names that should be ignored.
+        /// </summary>
+        public HashSet<string> IgnoreViewTypes
+        {
+            get { return _ignoreViewTypes; }
+        }
+
         #endregion
 
         #region Overrides of LayoutInflater
@@ -148,7 +162,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         /// </summary>
         protected virtual View OnCreateViewInternal(string name, Context context, IAttributeSet attrs)
         {
-            if (name == "fragment")
+            if (_ignoreViewTypes.Contains(name))
             {
                 IFactory factory = NestedFactory;
                 if (factory == null)

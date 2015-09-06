@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.Binding</id>
-    <version>4.2.1</version>
+    <version>4.3.0</version>
     <title>MugenMvvmToolkit - Binding Extensions</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -37,9 +37,9 @@
       - Excellent binding performance.
     </description>
     <releaseNotes>
-      - Improved relative binding performance.
-      - Added PlatformExtensions.CurrentActivityChanged event (Android).
-      - Fixed incorrect error notification (WPF 4.0).
+      - Improved binding performance and reduced memory usage.
+      - Added binding support for preferences (Android).
+      - Removed IBindingSource and IBindingTarget interfaces and implementations.
       - Minor changes.
     </releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -48,7 +48,7 @@
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
-      <dependency id="MugenMvvmToolkit" version="[4.2.1, 4.3.0)" />
+      <dependency id="MugenMvvmToolkit" version="[4.3.0, 4.4.0)" />
     </dependencies>
   </metadata>
   <files>
