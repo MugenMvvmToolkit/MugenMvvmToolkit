@@ -26,7 +26,6 @@ using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
-using MugenMvvmToolkit.Android.Binding.Models;
 using MugenMvvmToolkit.Android.Binding.Modules;
 using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Android.Views;
@@ -185,9 +184,15 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         {
             if (ItemsSource == null)
                 return null;
-            return CreateView(GetRawItem(position), convertView, parent, _dropDownTemplateProvider, IsSpinner()
+            var view = CreateView(GetRawItem(position), convertView, parent, _dropDownTemplateProvider, IsSpinner()
                 ? global::Android.Resource.Layout.SimpleDropDownItem1Line
                 : global::Android.Resource.Layout.SimpleSpinnerDropDownItem);
+            if (view != null && !ReferenceEquals(view, convertView))
+            {
+                view.ListenParentChange();
+                view.SetBindingMemberValue(AttachedMembers.Object.Parent, Container);
+            }
+            return view;
         }
 
         public override Object GetItem(int position)
