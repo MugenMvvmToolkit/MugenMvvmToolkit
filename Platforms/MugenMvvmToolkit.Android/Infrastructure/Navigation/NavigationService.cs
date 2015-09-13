@@ -19,8 +19,11 @@
 using System;
 using Android.App;
 using Android.Content;
+using Android.OS;
+using Android.Runtime;
 using MugenMvvmToolkit.Android.Infrastructure.Mediators;
 using MugenMvvmToolkit.Android.Interfaces.Navigation;
+using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Android.Models.EventArg;
 using MugenMvvmToolkit.Android.Views.Activities;
 using MugenMvvmToolkit.Binding;
@@ -29,18 +32,124 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using Object = Java.Lang.Object;
 
 namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 {
     public class NavigationService : INavigationService
     {
-        #region Fields
+        #region Nested Types
 
-        private const string ParameterString = "viewmodelparameter";
+        private sealed class ActivityLifecycleListener : Object, Application.IActivityLifecycleCallbacks
+        {
+            #region Fields
+
+            private readonly NavigationService _service;
+
+            #endregion
+
+            #region Constructors
+
+            public ActivityLifecycleListener(NavigationService service)
+            {
+                _service = service;
+            }
+
+            public ActivityLifecycleListener(IntPtr handle, JniHandleOwnership transfer)
+                : base(handle, transfer)
+            {
+            }
+
+            #endregion
+
+            #region Methods
+
+            private bool IsAlive()
+            {
+                if (_service == null)
+                {
+                    var application = Application.Context as Application;
+                    if (application != null)
+                        application.UnregisterActivityLifecycleCallbacks(this);
+                    return false;
+                }
+                return true;
+            }
+
+            private void RaiseNew(Activity activity)
+            {
+                if (IsAlive() && !(activity is IActivityView) && _service.CurrentContent != activity)
+                {
+                    PlatformExtensions.SetCurrentActivity(activity, false);
+                    _service.RaiseNavigated(activity, NavigationMode.New, null);
+                }
+            }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public void OnActivityCreated(Activity activity, Bundle savedInstanceState)
+            {
+                RaiseNew(activity);
+            }
+
+            public void OnActivityDestroyed(Activity activity)
+            {
+            }
+
+            public void OnActivityPaused(Activity activity)
+            {
+                if (IsAlive() && !(activity is IActivityView))
+                    PlatformExtensions.SetCurrentActivity(activity, true);
+            }
+
+            public void OnActivityResumed(Activity activity)
+            {
+            }
+
+            public void OnActivitySaveInstanceState(Activity activity, Bundle outState)
+            {
+            }
+
+            public void OnActivityStarted(Activity activity)
+            {
+                RaiseNew(activity);
+            }
+
+            public void OnActivityStopped(Activity activity)
+            {
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region Fields
 
         private bool _isBack;
         private bool _isNew;
         private string _parameter;
+
+        private const string ParameterString = "viewmodelparameter";
+
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="NavigationService" /> class.
+        /// </summary>
+        public NavigationService()
+        {
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.IceCreamSandwich)
+            {
+                var application = Application.Context as Application;
+                if (application != null)
+                    application.RegisterActivityLifecycleCallbacks(new ActivityLifecycleListener(this));
+            }
+        }
 
         #endregion
 
@@ -51,7 +160,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         /// </summary>
         protected virtual bool RaiseNavigating(NavigatingCancelEventArgs args)
         {
-            EventHandler<INavigationService, NavigatingCancelEventArgsBase> handler = Navigating;
+            var handler = Navigating;
             if (handler != null)
             {
                 handler(this, args);
@@ -65,7 +174,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         /// </summary>
         protected virtual void RaiseNavigated(object content, NavigationMode mode, string parameter)
         {
-            EventHandler<INavigationService, NavigationEventArgsBase> handler = Navigated;
+            var handler = Navigated;
             if (handler != null)
                 handler(this, new NavigationEventArgs(content, parameter, mode));
         }
@@ -145,9 +254,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         }
 
         /// <summary>
-        ///     Called when the activity had been stopped, but is now again being displayed to the user.
+        ///     Called when activity will start interacting with the user.
         /// </summary>
-        public virtual void OnStartActivity(Activity activity, IDataContext context = null)
+        public virtual void OnResumeActivity(Activity activity, IDataContext context = null)
         {
             Should.NotBeNull(activity, "activity");
             if (ReferenceEquals(activity, PlatformExtensions.CurrentActivity))
@@ -164,6 +273,14 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 _isBack = false;
                 RaiseNavigated(activity, NavigationMode.Back, GetParameterFromIntent(activity.Intent));
             }
+        }
+
+        /// <summary>
+        ///     Called when the activity had been stopped, but is now again being displayed to the user.
+        /// </summary>
+        public virtual void OnStartActivity(Activity activity, IDataContext context = null)
+        {
+            OnResumeActivity(activity);
         }
 
         /// <summary>
@@ -220,7 +337,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             if (eventArgs.NavigationMode != NavigationMode.Back && eventArgs.Mapping != null)
                 return Navigate(eventArgs.Mapping, eventArgs.Parameter, dataContext);
 
-            Activity activity = PlatformExtensions.CurrentActivity;
+            var activity = PlatformExtensions.CurrentActivity;
             if (activity == null)
                 return false;
             GoBack();
@@ -250,7 +367,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 return false;
             if (dataContext == null)
                 dataContext = DataContext.Empty;
-            Activity activity = PlatformExtensions.CurrentActivity ?? SplashScreenActivityBase.Current;
+            var activity = PlatformExtensions.CurrentActivity ?? SplashScreenActivityBase.Current;
             var context = activity ?? Application.Context;
 
             var intent = new Intent(context, source.ViewType);
