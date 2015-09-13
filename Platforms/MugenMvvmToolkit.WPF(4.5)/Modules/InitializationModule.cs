@@ -194,7 +194,7 @@ namespace MugenMvvmToolkit.WinPhone.Modules
 #if WPF
             if (Context.Platform.Platform != PlatformType.WPF)
             {
-                BootstrapperBase.Initialized += (sender, args) =>
+                MvvmApplication.Initialized += (sender, args) =>
                 {
                     var container = ServiceProvider.IocContainer;
                     IViewModelPresenter presenter;

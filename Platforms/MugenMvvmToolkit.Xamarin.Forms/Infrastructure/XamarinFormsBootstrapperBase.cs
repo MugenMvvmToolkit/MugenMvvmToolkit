@@ -59,10 +59,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         #region Fields
 
-        protected static readonly DataConstant<bool> WrapToNavigationPageConstant;
         private const string WinRTAssemblyName = "MugenMvvmToolkit.Xamarin.Forms.WinRT";
         private static IPlatformService _platformService;
-
+        private readonly PlatformInfo _platform;
         private IViewModel _mainViewModel;
 
         #endregion
@@ -75,7 +74,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         static XamarinFormsBootstrapperBase()
         {
             ServiceProvider.SetDefaultDesignTimeManager();
-            WrapToNavigationPageConstant = DataConstant.Create(() => WrapToNavigationPageConstant);
             if (Device.OS != TargetPlatform.WinPhone)
                 LinkerInclude.Initialize();
             DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
@@ -91,8 +89,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         ///     Initializes a new instance of the <see cref="XamarinFormsBootstrapperBase" /> class.
         /// </summary>
         protected XamarinFormsBootstrapperBase(PlatformInfo platform = null)
-            : base(platform ?? GetPlatformInfo())
         {
+            _platform = platform ?? GetPlatformInfo();
         }
 
         #endregion
@@ -127,13 +125,13 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         #region Overrides of BootstrapperBase
 
         /// <summary>
-        ///     Gets the application assemblies.
+        ///     Initializes the current bootstrapper.
         /// </summary>
-        protected override ICollection<Assembly> GetAssemblies()
+        protected override void InitializeInternal()
         {
-            if (_platformService == null)
-                return base.GetAssemblies();
-            return _platformService.GetAssemblies();
+            var application = CreateApplication();
+            var iocContainer = CreateIocContainer();
+            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
         }
 
         #endregion
@@ -147,50 +145,47 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         {
             if (Current != null && !ReferenceEquals(Current, this))
                 return Current.Start(wrapToNavigationPage);
-
-            InitializationContext = new DataContext(InitializationContext);
-            InitializationContext.AddOrUpdate(WrapToNavigationPageConstant, wrapToNavigationPage);
+            Initialize();
+            var app = MvvmApplication.Current;
+            var iocContainer = app.IocContainer;
+            var ctx = new DataContext(app.Context);
             if (_mainViewModel == null || _mainViewModel.IsDisposed)
             {
-                Initialize();
-                Type viewModelType = GetMainViewModelType();
-                _mainViewModel = CreateMainViewModel(viewModelType);
+                Type viewModelType = app.GetStartViewModelType();
+                _mainViewModel = iocContainer
+                    .Get<IViewModelProvider>()
+                    .GetViewModel(viewModelType, ctx);
             }
 
-            var view = (Page)ViewManager.GetOrCreateView(_mainViewModel, true, new DataContext(InitializationContext));
-            NavigationPage page = view as NavigationPage ?? CreateNavigationPage(view);
+            var view = (Page)ViewManager.GetOrCreateView(_mainViewModel, true, ctx);
+            NavigationPage page = view as NavigationPage;
+            if (page == null && wrapToNavigationPage)
+                page = CreateNavigationPage(view);
             if (page == null)
                 return view;
             INavigationService navigationService;
-            if (!IocContainer.TryGet(out navigationService))
+            if (!iocContainer.TryGet(out navigationService))
             {
                 navigationService = CreateNavigationService();
-                IocContainer.BindToConstant(navigationService);
+                iocContainer.BindToConstant(navigationService);
             }
             //Activating navigation provider
             INavigationProvider provider;
-            IocContainer.TryGet(out provider);
+            iocContainer.TryGet(out provider);
 
             navigationService.UpdateRootPage(page);
             return page;
         }
 
         /// <summary>
-        ///     Creates the main view model.
+        ///     Gets the application assemblies.
         /// </summary>
-        [NotNull]
-        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType)
+        protected virtual ICollection<Assembly> GetAssemblies()
         {
-            return IocContainer
-                .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, new DataContext(InitializationContext));
+            if (_platformService == null)
+                return new[] { GetType().GetTypeInfo().Assembly, typeof(BootstrapperBase).GetTypeInfo().Assembly };
+            return _platformService.GetAssemblies();
         }
-
-        /// <summary>
-        ///     Gets the type of main view model.
-        /// </summary>
-        [NotNull]
-        protected abstract Type GetMainViewModelType();
 
         /// <summary>
         ///     Creates an instance of <see cref="NavigationPage" />
@@ -198,9 +193,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         [CanBeNull]
         protected virtual NavigationPage CreateNavigationPage(Page mainPage)
         {
-            if (InitializationContext.GetData(WrapToNavigationPageConstant))
-                return new NavigationPage(mainPage);
-            return null;
+            return new NavigationPage(mainPage);
         }
 
         /// <summary>
@@ -209,7 +202,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         [NotNull]
         protected virtual INavigationService CreateNavigationService()
         {
-            return new NavigationService(IocContainer.Get<IThreadManager>());
+            return new NavigationService(ServiceProvider.ThreadManager);
         }
 
         private static PlatformInfo GetPlatformInfo()

@@ -23,7 +23,6 @@ using MugenMvvmToolkit.Android.Infrastructure.Navigation;
 using MugenMvvmToolkit.Android.Infrastructure.Presenters;
 using MugenMvvmToolkit.Android.Interfaces;
 using MugenMvvmToolkit.Android.Interfaces.Navigation;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;

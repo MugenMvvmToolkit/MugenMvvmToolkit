@@ -239,7 +239,11 @@ namespace MugenMvvmToolkit.ViewModels
         /// </summary>
         protected ViewModelBase()
         {
-            _settings = ApplicationSettings.ViewModelSettings.Clone();
+            var current = MvvmApplication.Current;
+            if (current == null || current.ViewModelSettings == null)
+                _settings = new DefaultViewModelSettings();
+            else
+                _settings = current.ViewModelSettings.Clone();
             Tracer.TraceViewModel(AuditAction.Created, this);
             if (IsDesignMode)
                 ServiceProvider.DesignTimeManager.InitializeViewModel(this);

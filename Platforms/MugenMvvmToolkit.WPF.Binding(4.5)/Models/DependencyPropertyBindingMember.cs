@@ -109,7 +109,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
 #if !WINDOWS_UWP
         public sealed class DependencyPropertyListener : DependencyObject, IDisposable
         {
-        #region Fields
+            #region Fields
 
             public static readonly DependencyProperty ValueProperty = DependencyProperty
                 .Register("Value", typeof(object), typeof(DependencyPropertyListener), new PropertyMetadata(null, OnValueChanged));
@@ -119,14 +119,14 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
 #endif
             private WeakEventListenerWrapper _listener;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="DependencyPropertyListener" /> class.
             /// </summary>
-            public DependencyPropertyListener(object source, string propertyToBind, IEventListener listener)
+            public DependencyPropertyListener(DependencyObject source, string propertyToBind, IEventListener listener)
             {
                 _listener = listener.ToWeakWrapper();
                 BindingOperations.SetBinding(this, ValueProperty,
@@ -159,7 +159,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
             /// <summary>
             ///     Initializes a new instance of the <see cref="DependencyPropertyListener" /> class.
             /// </summary>
-            public DependencyPropertyListener(object source, DependencyProperty propertyToBind, IEventListener listener)
+            public DependencyPropertyListener(DependencyObject source, DependencyProperty propertyToBind, IEventListener listener)
             {
                 _listener = listener.ToWeakWrapper();
                 BindingOperations.SetBinding(this, ValueProperty,
@@ -183,9 +183,9 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
             }
 #endif
 
-        #endregion
+            #endregion
 
-        #region Properties
+            #region Properties
 
             public object Value
             {
@@ -193,9 +193,9 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
                 set { SetValue(ValueProperty, value); }
             }
 
-        #endregion
+            #endregion
 
-        #region Methods
+            #region Methods
 
             private static void OnValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
             {
@@ -219,9 +219,9 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
                 }
             }
 
-        #endregion
+            #endregion
 
-        #region Implementation of IDisposable
+            #region Implementation of IDisposable
 
             /// <summary>
             ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -241,7 +241,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
 #endif
             }
 
-        #endregion
+            #endregion
         }
 #endif
 
@@ -427,9 +427,9 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
 #if WINDOWS_UWP
                 return ObserveProperty((DependencyObject)source, _dependencyProperty, listener);
 #elif WINDOWSCOMMON || WINDOWS_PHONE
-                return new DependencyPropertyListener(source, _path, listener);
+                return new DependencyPropertyListener((DependencyObject)source, _path, listener);
 #else
-                return new DependencyPropertyListener(source, _dependencyProperty, listener);
+                return new DependencyPropertyListener((DependencyObject)source, _dependencyProperty, listener);
 #endif
             return _changePropertyMember.SetValue(source, new object[] { listener }) as IDisposable;
         }

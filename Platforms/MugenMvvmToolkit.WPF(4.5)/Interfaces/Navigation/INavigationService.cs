@@ -89,6 +89,11 @@ namespace MugenMvvmToolkit.WinPhone.Interfaces.Navigation
         void OnPauseActivity([NotNull] Activity activity, IDataContext context = null);
 
         /// <summary>
+        ///     Called when activity will start interacting with the user.
+        /// </summary>
+        void OnResumeActivity([NotNull] Activity activity, IDataContext context = null);
+
+        /// <summary>
         ///     Called when the activity had been stopped, but is now again being displayed to the user.
         /// </summary>
         void OnStartActivity([NotNull] Activity activity, IDataContext context = null);

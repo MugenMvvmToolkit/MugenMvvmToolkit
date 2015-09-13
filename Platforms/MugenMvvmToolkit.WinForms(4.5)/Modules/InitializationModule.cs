@@ -141,7 +141,7 @@ namespace MugenMvvmToolkit.WinForms.Modules
                             container.Get<IOperationCallbackManager>()));
                     return presenter;
                 }, DependencyLifecycle.SingleInstance);
-            BootstrapperBase.Initialized += (sender, args) =>
+            MvvmApplication.Initialized += (sender, args) =>
             {
                 var container = ServiceProvider.IocContainer;
                 IViewModelPresenter presenter;

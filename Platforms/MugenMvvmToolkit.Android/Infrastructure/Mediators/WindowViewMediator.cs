@@ -77,7 +77,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             }
             if (fragmentManager == null)
             {
-                Should.BeOfType<Activity>(navigationProvider.CurrentContent, "Activity");
+                Should.BeOfType<Activity>(navigationProvider.CurrentContent, "CurrentContent");
                 var activity = (Activity)navigationProvider.CurrentContent;
                 fragmentManager = activity.GetFragmentManager();
             }

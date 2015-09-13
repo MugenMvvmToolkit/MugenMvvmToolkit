@@ -316,6 +316,9 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\IModule.cs">
       <Link>Interfaces\IModule.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IMvvmApplication.cs">
+      <Link>Interfaces\IMvvmApplication.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\IReflectionManager.cs">
       <Link>Interfaces\IReflectionManager.cs</Link>
     </Compile>
@@ -624,6 +627,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Modules\WrapperRegistrationModuleBase.cs">
       <Link>Modules\WrapperRegistrationModuleBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\MvvmApplication.cs">
+      <Link>MvvmApplication.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>

@@ -96,7 +96,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
                         view.Unloaded += handler;
                     }
                 }
-                SetParent(value);
+                SetParent(GetSource(), value);
             }
         }
 
@@ -117,18 +117,13 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
         private void OnChanged(object sender, RoutedEventArgs routedEventArgs)
         {
             var source = GetSource();
-            if (source == null)
-                return;
-            if (!_isAttached)
-                SetParent(FindParent(source));
+            if (source != null && !_isAttached)
+                SetParent(source, FindParent(source));
         }
 
-        private void SetParent(object value)
+        private void SetParent(object source, object value)
         {
-            var source = GetSource();
-            if (source == null)
-                return;
-            if (ReferenceEquals(value, _parent.Target))
+            if (source == null || ReferenceEquals(value, _parent.Target))
                 return;
             _parent = ToolkitExtensions.GetWeakReferenceOrDefault(value, Empty.WeakReference, false);
             Raise(source, EventArgs.Empty);
@@ -150,11 +145,16 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
             if (member != null)
             {
                 object value = member.GetValue(target, null);
-                if (value == null)
-                    return null;
-                return (DependencyObject)value;
+                if (value != null)
+                    return (DependencyObject)value;
             }
-            return VisualTreeHelper.GetParent(target) ?? target.Parent;
+#if WPF
+            if (target.IsLoaded)
+                return target.Parent ?? VisualTreeHelper.GetParent(target) ?? LogicalTreeHelper.GetParent(target);
+            return target.Parent;
+#else
+            return target.Parent ?? VisualTreeHelper.GetParent(target);
+#endif
         }
 
         #endregion

@@ -399,11 +399,13 @@ namespace MugenMvvmToolkit.Binding
         /// <summary>
         ///     Adds the specified object to resources.
         /// </summary>
-        public static void AddObject([NotNull] this IBindingResourceResolver resolver, [NotNull] string name,
+        public static BindingResourceObject AddObject([NotNull] this IBindingResourceResolver resolver, [NotNull] string name,
             object value, bool rewrite = true)
         {
             Should.NotBeNull(resolver, "resolver");
-            resolver.AddObject(name, new BindingResourceObject(value), rewrite);
+            var resourceObject = new BindingResourceObject(value);
+            resolver.AddObject(name, resourceObject, rewrite);
+            return resourceObject;
         }
 
         /// <summary>

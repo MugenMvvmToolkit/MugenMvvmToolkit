@@ -186,10 +186,10 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             _bundle = savedInstanceState;
             OnCreate(savedInstanceState);
 
+            baseOnCreate(savedInstanceState);
+
             var service = Get<INavigationService>();
             service.OnCreateActivity(Target);
-
-            baseOnCreate(savedInstanceState);
 
             var handler = Created;
             if (handler != null)
@@ -340,6 +340,10 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public override void OnResume(Action baseOnResume)
         {
             base.OnResume(baseOnResume);
+
+            var service = Get<INavigationService>();
+            service.OnResumeActivity(Target);
+
             var handler = Resume;
             if (handler != null)
                 handler(Target, EventArgs.Empty);

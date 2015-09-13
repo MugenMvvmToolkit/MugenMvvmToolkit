@@ -26,7 +26,6 @@ using System.Xml.Linq;
 using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Preferences;
 using Android.Runtime;
 using Android.Util;
 using Android.Views;
@@ -43,7 +42,6 @@ using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Android.Models;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -57,6 +55,34 @@ namespace MugenMvvmToolkit.Android
     public static partial class PlatformExtensions
     {
         #region Nested types
+
+        private sealed class WeakReferenceChain : WeakReference
+        {
+            #region Fields
+
+            public WeakReferenceChain Next;
+
+            #endregion
+
+            #region Constructors
+
+            public WeakReferenceChain(object target)
+                : base(target, true)
+            {
+            }
+
+            #endregion
+
+            #region Overrides of WeakReference
+
+            public override object Target
+            {
+                get { return base.Target; }
+                set { throw new NotSupportedException(); }
+            }
+
+            #endregion
+        }
 
         private sealed class IntPtrComparer : IEqualityComparer<IntPtr>
         {
@@ -145,17 +171,29 @@ namespace MugenMvvmToolkit.Android
             {
                 try
                 {
-                    if (WeakReferences.Count != 0)
+                    if (_weakReferenceChainHead != null)
                     {
-                        lock (WeakReferences)
+                        lock (ReferenceChainLocker)
                         {
-                            for (int i = 0; i < WeakReferences.Count; i++)
+                            WeakReferenceChain head = null;
+                            WeakReferenceChain tail = null;
+                            var current = _weakReferenceChainHead;
+                            while (current != null)
                             {
-                                if (WeakReferences[i].Target == null)
+                                if (current.Target != null)
                                 {
-                                    WeakReferences.RemoveAt(i);
-                                    i--;
+                                    if (head == null)
+                                    {
+                                        head = current;
+                                        tail = current;
+                                    }
+                                    else
+                                    {
+                                        tail.Next = current;
+                                        tail = current;
+                                    }
                                 }
+                                current = current.Next;
                             }
                         }
                     }
@@ -207,10 +245,12 @@ namespace MugenMvvmToolkit.Android
         internal static readonly bool IsApiGreaterThanOrEqualTo17;
 
         //NOTE ConditionalWeakTable invokes finalizer for value, even if the key object is still alive https://bugzilla.xamarin.com/show_bug.cgi?id=21620
-        private static readonly List<WeakReference> WeakReferences;
+        private static WeakReferenceChain _weakReferenceChainTail;
+        private static WeakReferenceChain _weakReferenceChainHead;
         private static readonly Dictionary<IntPtr, JavaObjectWeakReference> NativeWeakReferences;
         private static readonly ContentViewManager ContentViewManagerField;
         private static readonly object CurrentActivityLocker;
+        private static readonly object ReferenceChainLocker;
         private static Func<Activity, IDataContext, IMvvmActivityMediator> _mvvmActivityMediatorFactory;
         private static Func<Context, IDataContext, BindableMenuInflater> _menuInflaterFactory;
         private static Func<Context, IDataContext, IViewFactory, LayoutInflater, BindableLayoutInflater> _layoutInflaterFactory;
@@ -249,9 +289,9 @@ namespace MugenMvvmToolkit.Android
             _isFragment = o => false;
             _isActionBar = _isFragment;
             _activityRef = Empty.WeakReference;
-            WeakReferences = new List<WeakReference>(128);
             NativeWeakReferences = new Dictionary<IntPtr, JavaObjectWeakReference>(109, new IntPtrComparer());
             CurrentActivityLocker = new object();
+            ReferenceChainLocker = new object();
             FragmentViewMember = AttachedBindingMember.CreateAutoProperty<View, object>("!$fragment");
             _mvvmFragmentMediatorFactory = MvvmFragmentMediatorFactoryMethod;
             // ReSharper disable once ObjectCreationAsStatement
@@ -261,8 +301,6 @@ namespace MugenMvvmToolkit.Android
         #endregion
 
         #region Properties
-
-        public static bool KeepWeakReference { get; set; }
 
         /// <summary>
         ///     Gets or sets the delegate that allows to handle view creation.
@@ -585,11 +623,19 @@ namespace MugenMvvmToolkit.Android
             var obj = item as Object;
             if (obj == null)
             {
-                var reference = new WeakReference(item, true);
-                if (KeepWeakReference || !AttachedValueProvider.SetTagSupported)
+                var reference = new WeakReferenceChain(item);
+                lock (ReferenceChainLocker)
                 {
-                    lock (WeakReferences)
-                       WeakReferences.Add(reference);
+                    if (_weakReferenceChainHead == null)
+                    {
+                        _weakReferenceChainHead = reference;
+                        _weakReferenceChainTail = reference;
+                    }
+                    else
+                    {
+                        _weakReferenceChainTail.Next = reference;
+                        _weakReferenceChainTail = reference;
+                    }
                 }
                 return reference;
             }

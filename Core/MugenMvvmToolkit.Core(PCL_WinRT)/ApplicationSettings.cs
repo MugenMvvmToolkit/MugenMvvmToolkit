@@ -18,14 +18,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit
 {
@@ -56,9 +52,6 @@ namespace MugenMvvmToolkit
         /// </summary>
         public const string AssemblyCompany = "Vyacheslav Volkov";
 
-        private static IViewModelSettings _viewModelSettings;
-        private static PlatformInfo _platform;
-
         #endregion
 
         #region Constructors
@@ -71,36 +64,6 @@ namespace MugenMvvmToolkit
         #endregion
 
         #region Properties
-
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
-        [NotNull]
-        public static PlatformInfo Platform
-        {
-            get
-            {
-                if (_platform == null)
-                    return PlatformInfo.Unknown;
-                return _platform;
-            }
-            set { _platform = value; }
-        }
-
-        /// <summary>
-        ///     Gets or sets the default view-model settings.
-        /// </summary>
-        [NotNull]
-        public static IViewModelSettings ViewModelSettings
-        {
-            get
-            {
-                if (_viewModelSettings == null)
-                    Interlocked.CompareExchange(ref _viewModelSettings, new DefaultViewModelSettings(), null);
-                return _viewModelSettings;
-            }
-            set { _viewModelSettings = value; }
-        }
 
         /// <summary>
         ///     Gets the delegate that is responsible to add can execute changed event to external provider.
@@ -181,7 +144,7 @@ namespace MugenMvvmToolkit
 
         internal static void SetDefaultValues()
         {
-#if !NONOTIFYDATAERROR 
+#if !NONOTIFYDATAERROR
             GetAllErrorsIndexerProperty = "all";
 #endif
             NotificationCollectionMode =

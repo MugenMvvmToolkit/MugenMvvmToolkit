@@ -53,9 +53,11 @@
     <Compile Include="Infrastructure\Callbacks\NavigationOperation.cs" />
     <Compile Include="Infrastructure\CompositeEqualityComparer.cs" />
     <Compile Include="Interfaces\Callbacks\INavigationOperation.cs" />
+    <Compile Include="Interfaces\IMvvmApplication.cs" />
     <Compile Include="Interfaces\Models\IBusyToken.cs" />
     <Compile Include="Models\EventArg\NavigatingCancelEventArgsBase.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgsBase.cs" />
+    <Compile Include="MvvmApplication.cs" />
     <Compile Include="Properties\AssemblyInfoCommon.cs" />
     <Compile Include="Attributes\DisplayNameAttribute.cs" />
     <Compile Include="Attributes\IgnorePropertyAttribute.cs" />
