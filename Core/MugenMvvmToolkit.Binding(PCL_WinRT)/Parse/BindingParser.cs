@@ -1239,6 +1239,16 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             ValidateToken(TokenType.Equal);
             NextToken(true);
+            //CommandParameter=, - empty value to datacontext.
+            if (IsAnyOf(DelimeterTokens))
+                return new Action<IDataContext>[]
+                {
+                    context =>
+                    {
+                        var ctx = BindingServiceProvider.ContextManager.GetBindingContext(context.GetData(BindingBuilderConstants.Target, true));
+                        setComplexValue(context, dataContext => ctx.Value);
+                    }
+                };
             var actions = new List<Action<IDataContext>>();
             IExpressionNode node = Handle(ParseExpression(), false, Context, actions);
             if (node != null)
