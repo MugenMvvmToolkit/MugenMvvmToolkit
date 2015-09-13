@@ -65,61 +65,89 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
     /// <summary>
     ///     Represents the base class that is used to start MVVM application.
     /// </summary>
-    public class Bootstrapper<TRootViewModel> : Bootstrapper
-        where TRootViewModel : IViewModel
+    public class Bootstrapper<T> : Bootstrapper
+        where T : class
     {
+        #region Nested types
+
+        private sealed class DefaultApp : MvvmApplication
+        {
+            #region Fields
+
+            public IViewModelSettings Settings;
+
+            #endregion
+
+            #region Methods
+
+            protected override IViewModelSettings CreateViewModelSettings()
+            {
+                return Settings ?? base.CreateViewModelSettings();
+            }
+
+            public override Type GetStartViewModelType()
+            {
+                return typeof(T);
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         private readonly IIocContainer _iocContainer;
         private readonly IEnumerable<Assembly> _assemblies;
         private readonly IViewModelSettings _viewModelSettings;
-        private readonly IModule[] _modules;
+        private IMvvmApplication _application;
 
         #endregion
 
         #region Constructors
 
+        static Bootstrapper()
+        {
+            if (!typeof(IViewModel).IsAssignableFrom(typeof(T)) && !typeof(IMvvmApplication).IsAssignableFrom(typeof(T)))
+                throw new InvalidOperationException("The Bootstrapper<T> has invalid start type. The parameter T should be of type IViewModel or IMvvmApplication");
+        }
+
 #if WPF || (SILVERLIGHT && !WINDOWS_PHONE)
         /// <summary>
         ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
         /// </summary>
-        public Bootstrapper([NotNull] Application application, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
-            IViewModelSettings viewModelSettings = null, PlatformInfo platform = null, params IModule[] modules)
+        public Bootstrapper([NotNull] Application application, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, IViewModelSettings viewModelSettings = null, PlatformInfo platform = null)
             : base(application, platform: platform)
 #elif WINFORMS
         /// <summary>
         ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
         /// </summary>
-        public Bootstrapper([NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
-            IViewModelSettings viewModelSettings = null, PlatformInfo platform = null, params IModule[] modules)
+        public Bootstrapper([NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, IViewModelSettings viewModelSettings = null, PlatformInfo platform = null)
             : base(true, platform)
 #elif WINDOWS_PHONE
         /// <summary>
         ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
         /// </summary>
-        public Bootstrapper([NotNull] PhoneApplicationFrame rootFrame, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
-            IViewModelSettings viewModelSettings = null, PlatformInfo platform = null, params IModule[] modules)
+        public Bootstrapper([NotNull] PhoneApplicationFrame rootFrame, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, IViewModelSettings viewModelSettings = null, PlatformInfo platform = null)
             : base(rootFrame, platform)
 #elif WINDOWSCOMMON
         /// <summary>
         ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
         /// </summary>
-        public Bootstrapper([NotNull] Frame rootFrame, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
-            IViewModelSettings viewModelSettings = null, PlatformInfo platform = null, params IModule[] modules)
+        public Bootstrapper([NotNull] Frame rootFrame, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, IViewModelSettings viewModelSettings = null, PlatformInfo platform = null)
             : base(rootFrame, assemblies != null, platform)
 #elif TOUCH
         /// <summary>
         ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
         /// </summary>
-        public Bootstrapper([NotNull] UIWindow window, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
-            IViewModelSettings viewModelSettings = null, PlatformInfo platform = null, params IModule[] modules)
+        public Bootstrapper([NotNull] UIWindow window, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, IViewModelSettings viewModelSettings = null, PlatformInfo platform = null)
             : base(window, platform)
 #elif XAMARIN_FORMS
         /// <summary>
         ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
         /// </summary>
         public Bootstrapper([NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
-            IViewModelSettings viewModelSettings = null, PlatformInfo platform = null, params IModule[] modules)
+            IViewModelSettings viewModelSettings = null, PlatformInfo platform = null)
             : base(platform)
 #endif
         {
@@ -127,33 +155,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             _iocContainer = iocContainer;
             _assemblies = assemblies;
             _viewModelSettings = viewModelSettings;
-            _modules = modules.IsNullOrEmpty() ? null : modules;
         }
 
         #endregion
 
         #region Overrides of BootstrapperBase
-
-        /// <summary>
-        ///     Creates an instance of <see cref="IViewModelSettings" />.
-        /// </summary>
-        /// <returns>An instance of <see cref="IViewModelSettings" />.</returns>
-        protected override IViewModelSettings CreateViewModelSettings()
-        {
-            if (_viewModelSettings == null)
-                return base.CreateViewModelSettings();
-            return _viewModelSettings;
-        }
-
-        /// <summary>
-        ///     Gets the application modules.
-        /// </summary>
-        protected override IList<IModule> GetModules()
-        {
-            if (_modules == null)
-                return base.GetModules();
-            return _modules;
-        }
 
         /// <summary>
         ///     Gets the application assemblies.
@@ -165,12 +171,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             assemblies.Add(GetType().GetTypeInfo().Assembly);
             assemblies.Add(typeof(Bootstrapper).GetTypeInfo().Assembly);
             assemblies.Add(typeof(ApplicationSettings).GetTypeInfo().Assembly);
-            assemblies.Add(GetMainViewModelType().GetTypeInfo().Assembly);
+            assemblies.Add(typeof(T).GetTypeInfo().Assembly);
 #else
             assemblies.Add(GetType().Assembly);
             assemblies.Add(typeof(Bootstrapper).Assembly);
             assemblies.Add(typeof(ApplicationSettings).Assembly);
-            assemblies.Add(GetMainViewModelType().Assembly);
+            assemblies.Add(typeof(T).Assembly);
 #endif
 #if !WINFORMS && !TOUCH
             TryLoadAssembly(BindingAssemblyName, assemblies);
@@ -197,11 +203,15 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         }
 
         /// <summary>
-        ///     Gets the type of main view model.
+        ///     Creates an instance of <see cref="IMvvmApplication" />.
         /// </summary>
-        protected override sealed Type GetMainViewModelType()
+        protected override IMvvmApplication CreateApplication()
         {
-            return typeof(TRootViewModel);
+            if (_application != null)
+                return _application;
+            if (typeof(IMvvmApplication).IsAssignableFrom(typeof(T)))
+                return (IMvvmApplication)Activator.CreateInstance(typeof(T));
+            return new DefaultApp { Settings = _viewModelSettings };
         }
 
         /// <summary>
@@ -216,6 +226,15 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         #endregion
 
         #region Methods
+
+        /// <summary>
+        ///     Sets the application.
+        /// </summary>
+        public void SetApplication<TApp>(TApp app)
+            where TApp : class, T, IMvvmApplication
+        {
+            _application = app;
+        }
 
         private static HashSet<Assembly> ToHashSet(IEnumerable<Assembly> assemblies)
         {

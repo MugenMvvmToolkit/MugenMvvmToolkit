@@ -49,6 +49,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         /// </summary>
         protected const string BindingAssemblyName = "MugenMvvmToolkit.WinPhone.Binding";
         private readonly PhoneApplicationFrame _rootFrame;
+        private readonly PlatformInfo _platform;
 
         #endregion
 
@@ -64,10 +65,10 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         ///     Initializes a new instance of the <see cref="WindowsPhoneBootstrapperBase" /> class.
         /// </summary>
         protected WindowsPhoneBootstrapperBase([NotNull] PhoneApplicationFrame rootFrame, PlatformInfo platform = null)
-            : base(platform ?? PlatformExtensions.GetPlatformInfo())
         {
             Should.NotBeNull(rootFrame, "rootFrame");
             _rootFrame = rootFrame;
+            _platform = platform ?? PlatformExtensions.GetPlatformInfo();
             PhoneApplicationService.Current.Launching += OnLaunching;
         }
 
@@ -88,22 +89,43 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         #region Overrides of BootstrapperBase
 
         /// <summary>
-        ///     Starts the current bootstrapper.
+        ///     Initializes the current bootstrapper.
         /// </summary>
-        protected override void OnInitialize()
+        protected override void InitializeInternal()
         {
-            base.OnInitialize();
+            var application = CreateApplication();
+            var iocContainer = CreateIocContainer();
+            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
             FrameStateManager.RegisterFrame(_rootFrame);
             var service = CreateNavigationService(_rootFrame);
             if (service != null)
-                IocContainer.BindToConstant(service);
+                iocContainer.BindToConstant(service);
             Should.PropertyNotBeNull(PhoneApplicationService.Current, "PhoneApplicationService.Current");
+        }
+
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        ///     Starts the current bootstrapper.
+        /// </summary>
+        public virtual void Start()
+        {
+            Initialize();
+            var app = MvvmApplication.Current;
+            var ctx = new DataContext(app.Context);
+            var viewModelType = app.GetStartViewModelType();
+            var viewModel = app.IocContainer
+               .Get<IViewModelProvider>()
+               .GetViewModel(viewModelType, ctx);
+            viewModel.ShowAsync((model, result) => model.Dispose(), context: ctx);
         }
 
         /// <summary>
         ///     Gets the application assemblies.
         /// </summary>
-        protected override ICollection<Assembly> GetAssemblies()
+        protected virtual ICollection<Assembly> GetAssemblies()
         {
             var listAssembly = new List<Assembly>();
             foreach (AssemblyPart part in Deployment.Current.Parts)
@@ -124,36 +146,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
             }
             return listAssembly;
         }
-
-        #endregion
-
-        #region Methods
-
-        /// <summary>
-        ///     Starts the current bootstrapper.
-        /// </summary>
-        public virtual void Start()
-        {
-            Initialize();
-            CreateMainViewModel(GetMainViewModelType()).ShowAsync((model, result) => model.Dispose(), context: new DataContext(InitializationContext));
-        }
-
-        /// <summary>
-        ///     Creates the main view model.
-        /// </summary>
-        [NotNull]
-        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType)
-        {
-            return IocContainer
-                .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, new DataContext(InitializationContext));
-        }
-
-        /// <summary>
-        ///     Gets the type of main view model.
-        /// </summary>
-        [NotNull]
-        protected abstract Type GetMainViewModelType();
 
         /// <summary>
         ///     Creates an instance of <see cref="INavigationService" />.

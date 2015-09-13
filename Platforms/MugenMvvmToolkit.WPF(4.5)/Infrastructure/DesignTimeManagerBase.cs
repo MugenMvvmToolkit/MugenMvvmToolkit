@@ -17,6 +17,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -51,6 +53,31 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
     /// </summary>
     public class DesignTimeManagerBase : IDesignTimeManager
     {
+        #region Nested Types
+
+        private sealed class DesignApp : MvvmApplication
+        {
+            #region Constructors
+
+            public DesignApp()
+                : base(LoadMode.Design)
+            {
+            }
+
+            #endregion
+
+            #region Methods
+
+            public override Type GetStartViewModelType()
+            {
+                return typeof(IViewModel);
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         private static bool? _isDesignModeStatic;
@@ -142,10 +169,12 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                     return;
                 _iocContainer = CreateIocContainer();
                 _context = GetContext();
-                if (IocContainer == null)
-                    ApplicationSettings.Platform = _platform;
-                else
-                    ServiceProvider.Initialize(IocContainer, _platform);
+                if (_iocContainer != null)
+                {
+                    var application = CreateApplication();
+                    application.Initialize(_platform, _iocContainer, ReflectionExtensions.GetDesignAssemblies(), _context);
+                    ServiceProvider.Initialize(application);
+                }
                 OnInitialized();
             }
             catch (Exception exception)
@@ -210,6 +239,14 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
             }
             return null;
+        }
+
+        /// <summary>
+        ///     Creates an instance of <see cref="IMvvmApplication" />.
+        /// </summary>
+        protected virtual IMvvmApplication CreateApplication()
+        {
+            return new DesignApp();
         }
 
         /// <summary>

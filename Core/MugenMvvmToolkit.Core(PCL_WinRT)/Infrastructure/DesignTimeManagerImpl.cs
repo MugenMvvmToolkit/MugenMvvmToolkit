@@ -62,8 +62,8 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             get
             {
-                if (_platform == null && BootstrapperBase.Current != null)
-                    return BootstrapperBase.Current.Platform;
+                if (_platform == null && MvvmApplication.Current != null)
+                    return MvvmApplication.Current.Platform;
                 return _platform;
             }
         }

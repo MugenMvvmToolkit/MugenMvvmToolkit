@@ -24,7 +24,6 @@ using System.Windows.Resources;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Silverlight.Infrastructure
@@ -41,6 +40,7 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
         /// </summary>
         protected const string BindingAssemblyName = "MugenMvvmToolkit.Silverlight.Binding";
         private readonly Application _application;
+        private readonly PlatformInfo _platform;
 
         #endregion
 
@@ -50,13 +50,12 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
         ///     Initializes a new instance of the <see cref="SilverlightBootstrapperBase" /> class.
         /// </summary>
         protected SilverlightBootstrapperBase([NotNull] Application application, bool autoStart = true, PlatformInfo platform = null)
-            : base(platform ?? PlatformExtensions.GetPlatformInfo())
         {
             Should.NotBeNull(application, "application");
             _application = application;
+            _platform = platform ?? PlatformExtensions.GetPlatformInfo();
             AutoStart = autoStart;
             application.Startup += ApplicationOnStartup;
-            application.Exit += ApplicationOnExit;
         }
 
         #endregion
@@ -78,12 +77,37 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
 
         #endregion
 
-        #region Overrides of BootstrapperBase
+        #region Methods
+
+        /// <summary>
+        ///     Initializes the current bootstrapper.
+        /// </summary>
+        protected override void InitializeInternal()
+        {
+            var application = CreateApplication();
+            var iocContainer = CreateIocContainer();
+            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
+        }
+
+        /// <summary>
+        ///     Starts the current bootstrapper.
+        /// </summary>
+        public virtual void Start()
+        {
+            Initialize();
+            var app = MvvmApplication.Current;
+            var ctx = new DataContext(app.Context);
+            var viewModelType = app.GetStartViewModelType();
+            var viewModel = app.IocContainer
+               .Get<IViewModelProvider>()
+               .GetViewModel(viewModelType, ctx);
+            _application.RootVisual = (UIElement)ViewManager.GetOrCreateView(viewModel, false, ctx);
+        }
 
         /// <summary>
         ///     Gets the application assemblies.
         /// </summary>
-        protected override ICollection<Assembly> GetAssemblies()
+        protected virtual ICollection<Assembly> GetAssemblies()
         {
             var listAssembly = new List<Assembly>();
             foreach (AssemblyPart part in Deployment.Current.Parts)
@@ -96,37 +120,6 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
             return listAssembly;
         }
 
-        #endregion
-
-        #region Methods
-
-        /// <summary>
-        ///     Starts the current bootstrapper.
-        /// </summary>
-        public virtual void Start()
-        {
-            Initialize();
-            var viewModelType = GetMainViewModelType();
-            _application.RootVisual = (UIElement)ViewManager.GetOrCreateView(CreateMainViewModel(viewModelType), false, new DataContext(InitializationContext));
-        }
-
-        /// <summary>
-        ///     Creates the main view model.
-        /// </summary>
-        [NotNull]
-        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType)
-        {
-            return IocContainer
-                .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, new DataContext(InitializationContext));
-        }
-
-        /// <summary>
-        ///     Gets the type of main view model.
-        /// </summary>
-        [NotNull]
-        protected abstract Type GetMainViewModelType();
-
         private void ApplicationOnStartup(object sender, StartupEventArgs args)
         {
             var application = sender as Application;
@@ -134,14 +127,6 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
                 application.Startup -= ApplicationOnStartup;
             if (AutoStart)
                 Start();
-        }
-
-        private void ApplicationOnExit(object sender, EventArgs eventArgs)
-        {
-            var application = sender as Application;
-            if (application != null)
-                application.Exit -= ApplicationOnExit;
-            Stop();
         }
 
         #endregion

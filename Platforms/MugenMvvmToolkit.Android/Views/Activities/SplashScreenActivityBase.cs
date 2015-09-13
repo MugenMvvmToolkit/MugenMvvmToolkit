@@ -27,8 +27,6 @@ using Android.Widget;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Infrastructure;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Android.Views.Activities
 {
@@ -108,10 +106,7 @@ namespace MugenMvvmToolkit.Android.Views.Activities
             try
             {
                 if (_bootstrapper == null)
-                {
                     _bootstrapper = activityBase.CreateBootstrapper();
-                    _bootstrapper.InitializationContext = activityBase.GetContext() ?? DataContext.Empty;
-                }
                 _bootstrapper.Start();
             }
             catch (Exception e)
@@ -134,12 +129,6 @@ namespace MugenMvvmToolkit.Android.Views.Activities
         {
             if (exception != null)
                 throw exception;
-        }
-
-        [CanBeNull]
-        protected virtual IDataContext GetContext()
-        {
-            return DataContext.Empty;
         }
 
         [CanBeNull]

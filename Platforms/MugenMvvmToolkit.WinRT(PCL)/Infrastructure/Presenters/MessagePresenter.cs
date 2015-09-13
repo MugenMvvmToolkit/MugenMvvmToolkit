@@ -113,11 +113,11 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
                 case MessageButton.YesNoCancel:
                     messageDialog.Commands.Add(CreateUiCommand(MessageResult.Yes, tcs));
                     messageDialog.Commands.Add(CreateUiCommand(MessageResult.No, tcs));
-                    if (ApplicationSettings.Platform.Platform != PlatformType.WinPhone)
+                    if (MvvmApplication.Current.Platform.Platform != PlatformType.WinPhone)
                         messageDialog.Commands.Add(CreateUiCommand(MessageResult.Cancel, tcs));
                     break;
                 case MessageButton.AbortRetryIgnore:
-                    if (ApplicationSettings.Platform.Platform == PlatformType.WinPhone)
+                    if (MvvmApplication.Current.Platform.Platform == PlatformType.WinPhone)
 #if XAMARIN_FORMS
                         throw new ArgumentOutOfRangeException("button");
 #else

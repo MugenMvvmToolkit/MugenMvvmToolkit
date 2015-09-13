@@ -266,21 +266,18 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Sets the <see cref="IocContainer" />.
         /// </summary>
-        public static void Initialize(IIocContainer iocContainer, PlatformInfo platform)
+        public static void Initialize(IMvvmApplication application)
         {
-            Should.NotBeNull(iocContainer, "iocContainer");
-            ApplicationSettings.Platform = platform;
-            _iocContainer = iocContainer;
-            TryInitialize(iocContainer, ref _tracer);
-            TryInitialize(iocContainer, ref ReflectionManagerField);
-            TryInitialize(iocContainer, ref _attachedValueProvider);
-            TryInitialize(iocContainer, ref _threadManager);
-            TryInitialize(iocContainer, ref _operationCallbackFactory);
-            TryInitialize(iocContainer, ref ValidatorProviderField);
-            TryInitialize(iocContainer, ref _viewModelProvider);
-            TryInitialize(iocContainer, ref EventAggregatorField);
-            if (iocContainer.CanResolve<IViewModelSettings>())
-                ApplicationSettings.ViewModelSettings = iocContainer.Get<IViewModelSettings>();
+            Should.NotBeNull(application, "application");
+            _iocContainer = application.IocContainer;
+            TryInitialize(_iocContainer, ref _tracer);
+            TryInitialize(_iocContainer, ref ReflectionManagerField);
+            TryInitialize(_iocContainer, ref _attachedValueProvider);
+            TryInitialize(_iocContainer, ref _threadManager);
+            TryInitialize(_iocContainer, ref _operationCallbackFactory);
+            TryInitialize(_iocContainer, ref ValidatorProviderField);
+            TryInitialize(_iocContainer, ref _viewModelProvider);
+            TryInitialize(_iocContainer, ref EventAggregatorField);
         }
 
         /// <summary>

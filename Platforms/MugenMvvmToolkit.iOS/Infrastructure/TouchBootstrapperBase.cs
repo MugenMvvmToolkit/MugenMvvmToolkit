@@ -45,6 +45,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         #region Fields
 
         private readonly UIWindow _window;
+        private readonly PlatformInfo _platform;
         private INavigationService _navigationService;
 
         #endregion
@@ -67,10 +68,10 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         ///     Initializes a new instance of the <see cref="TouchBootstrapperBase" /> class.
         /// </summary>
         protected TouchBootstrapperBase([NotNull] UIWindow window, PlatformInfo platform = null)
-            : base(platform ?? PlatformExtensions.GetPlatformInfo())
         {
             Should.NotBeNull(window, "window");
             _window = window;
+            _platform = platform ?? PlatformExtensions.GetPlatformInfo();
             WrapToNavigationController = true;
         }
 
@@ -93,30 +94,20 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         #endregion
 
-        #region Overrides of BootstrapperBase
-
-        /// <summary>
-        ///     Gets the application assemblies.
-        /// </summary>
-        protected override ICollection<Assembly> GetAssemblies()
-        {
-            return new HashSet<Assembly>(AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies());
-        }
+        #region Methods
 
         /// <summary>
         ///     Initializes the current bootstrapper.
         /// </summary>
-        protected override void OnInitialize()
+        protected override void InitializeInternal()
         {
-            base.OnInitialize();
+            var application = CreateApplication();
+            var iocContainer = CreateIocContainer();
+            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
             _navigationService = CreateNavigationService(_window);
             if (_navigationService != null)
-                IocContainer.BindToConstant(_navigationService);
+                iocContainer.BindToConstant(_navigationService);
         }
-
-        #endregion
-
-        #region Methods
 
         /// <summary>
         ///     Starts the current bootstrapper.
@@ -124,29 +115,17 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         public virtual void Start()
         {
             Initialize();
-            IViewModel viewModel = CreateMainViewModel(GetMainViewModelType());
+            var app = MvvmApplication.Current;
+            var ctx = new DataContext(app.Context);
+            var viewModelType = app.GetStartViewModelType();
+            var viewModel = app.IocContainer
+               .Get<IViewModelProvider>()
+               .GetViewModel(viewModelType, ctx);
             if (WrapToNavigationController)
-                viewModel.ShowAsync((model, result) => model.Dispose(), null, new DataContext(InitializationContext));
+                viewModel.ShowAsync((model, result) => model.Dispose(), null, ctx);
             else
-                _window.RootViewController = (UIViewController)ViewManager.GetOrCreateView(viewModel, null, new DataContext(InitializationContext));
+                _window.RootViewController = (UIViewController)ViewManager.GetOrCreateView(viewModel, null, ctx);
         }
-
-        /// <summary>
-        ///     Creates the main view model.
-        /// </summary>
-        [NotNull]
-        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType)
-        {
-            return IocContainer
-                .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, new DataContext(InitializationContext));
-        }
-
-        /// <summary>
-        ///     Gets the type of main view model.
-        /// </summary>
-        [NotNull]
-        protected abstract Type GetMainViewModelType();
 
         /// <summary>
         ///     Creates an instance of <see cref="INavigationService" />.
@@ -155,6 +134,14 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         protected virtual INavigationService CreateNavigationService(UIWindow window)
         {
             return new NavigationService(window);
+        }
+
+        /// <summary>
+        ///     Gets the application assemblies.
+        /// </summary>
+        protected virtual ICollection<Assembly> GetAssemblies()
+        {
+            return new HashSet<Assembly>(AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies());
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)

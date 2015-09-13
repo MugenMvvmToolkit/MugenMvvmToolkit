@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
@@ -39,6 +38,12 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
     /// </summary>
     public abstract class WinFormsBootstrapperBase : BootstrapperBase
     {
+        #region Fields
+
+        private readonly PlatformInfo _platform;
+
+        #endregion
+
         #region Constructors
 
         static WinFormsBootstrapperBase()
@@ -53,8 +58,8 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
         ///     Initializes a new instance of the <see cref="WinFormsBootstrapperBase" /> class.
         /// </summary>
         protected WinFormsBootstrapperBase(bool autoRunApplication = true, PlatformInfo platform = null)
-            : base(platform ?? PlatformExtensions.GetPlatformInfo())
         {
+            _platform = platform ?? PlatformExtensions.GetPlatformInfo();
             AutoRunApplication = autoRunApplication;
             ShutdownOnMainViewModelClose = true;
         }
@@ -78,17 +83,13 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
         #region Overrides of BootstrapperBase
 
         /// <summary>
-        ///     Gets the application assemblies.
+        ///     Initializes the current bootstrapper.
         /// </summary>
-        protected override ICollection<Assembly> GetAssemblies()
+        protected override void InitializeInternal()
         {
-            var assemblies = new HashSet<Assembly>();
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
-            {
-                if (assemblies.Add(assembly))
-                    assemblies.AddRange(assembly.GetReferencedAssemblies().Select(Assembly.Load).SkipFrameworkAssemblies());
-            }
-            return assemblies;
+            var application = CreateApplication();
+            var iocContainer = CreateIocContainer();
+            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
         }
 
         #endregion
@@ -100,38 +101,38 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
         /// </summary>
         public virtual void Start()
         {
-            InitializationContext = new DataContext(InitializationContext);
-            if (!InitializationContext.Contains(NavigationConstants.IsDialog))
-                InitializationContext.Add(NavigationConstants.IsDialog, false);
             Initialize();
-            var viewModelType = GetMainViewModelType();
-            CreateMainViewModel(viewModelType)
+            var app = MvvmApplication.Current;
+            var ctx = new DataContext(app.Context);
+            if (!ctx.Contains(NavigationConstants.IsDialog))
+                ctx.Add(NavigationConstants.IsDialog, false);
+            app.IocContainer
+                .Get<IViewModelProvider>()
+                .GetViewModel(app.GetStartViewModelType(), ctx)
                 .ShowAsync((model, result) =>
                 {
                     model.Dispose();
                     if (ShutdownOnMainViewModelClose)
                         Application.Exit();
-                }, context: new DataContext(InitializationContext));
+                }, context: ctx);
             if (AutoRunApplication)
                 Application.Run();
         }
 
         /// <summary>
-        ///     Creates the main view model.
+        ///     Gets the application assemblies.
         /// </summary>
-        [NotNull]
-        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType)
+        protected virtual ICollection<Assembly> GetAssemblies()
         {
-            return IocContainer
-                .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, new DataContext(InitializationContext));
+            var assemblies = new HashSet<Assembly>();
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
+            {
+                if (assemblies.Add(assembly))
+                    assemblies.AddRange(
+                        assembly.GetReferencedAssemblies().Select(Assembly.Load).SkipFrameworkAssemblies());
+            }
+            return assemblies;
         }
-
-        /// <summary>
-        ///     Gets the type of main view model.
-        /// </summary>
-        [NotNull]
-        protected abstract Type GetMainViewModelType();
 
         private static void OnViewCleared(IViewManager viewManager, IViewModel viewModel, object arg3, IDataContext arg4)
         {

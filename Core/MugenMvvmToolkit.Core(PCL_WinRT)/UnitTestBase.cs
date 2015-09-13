@@ -17,6 +17,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
@@ -29,14 +31,14 @@ using MugenMvvmToolkit.ViewModels;
 namespace MugenMvvmToolkit
 {
     /// <summary>
-    ///     Represents the class that is used for unit tests. 
+    ///     Represents the class that is used for unit tests.
     /// </summary>
     public abstract class UnitTestBase
     {
-        #region Nested types
+        #region Nested Types
 
         /// <summary>
-        /// Represents the default unit test module.
+        ///     Represents the default unit test module.
         /// </summary>
         public sealed class DefaultUnitTestModule : InitializationModuleBase
         {
@@ -53,11 +55,51 @@ namespace MugenMvvmToolkit
             #endregion
         }
 
-        #endregion
+        /// <summary>
+        ///     Represents the default implementation of unit test <see cref="IMvvmApplication"/>.
+        /// </summary>
+        protected class UnitTestApp : MvvmApplication
+        {
+            #region Fields
 
-        #region Fields
+            private readonly IModule[] _modules;
 
-        private IIocContainer _iocContainer;
+            #endregion
+
+            #region Constructors
+
+            /// <summary>
+            ///     Initializes a new instance of the <see cref="UnitTestApp" /> class.
+            /// </summary>
+            public UnitTestApp(LoadMode mode = LoadMode.UnitTest, params IModule[] modules)
+                : base(mode)
+            {
+                _modules = modules;
+            }
+
+            #endregion
+
+            #region Methods
+
+            protected override IList<IModule> GetModules(IList<Assembly> assemblies)
+            {
+                if (_modules.IsNullOrEmpty())
+                    return base.GetModules(assemblies);
+                return _modules;
+            }
+
+            protected override IModuleContext CreateModuleContext(IList<Assembly> assemblies)
+            {
+                return new ModuleContext(PlatformInfo.UnitTest, LoadMode.UnitTest, IocContainer, null, assemblies);
+            }
+
+            public override Type GetStartViewModelType()
+            {
+                return typeof(IViewModel);
+            }
+
+            #endregion
+        }
 
         #endregion
 
@@ -68,7 +110,7 @@ namespace MugenMvvmToolkit
         /// </summary>
         protected IIocContainer IocContainer
         {
-            get { return _iocContainer; }
+            get { return MvvmApplication.Current.IocContainer; }
         }
 
         /// <summary>
@@ -93,26 +135,36 @@ namespace MugenMvvmToolkit
         /// </summary>
         protected void Initialize([NotNull] IIocContainer iocContainer, PlatformInfo platform, params IModule[] modules)
         {
-            Should.NotBeNull(iocContainer, "iocContainer");
-            ServiceProvider.DesignTimeManager = new DesignTimeManagerImpl(platform);
-            if (modules != null)
-                CreateModuleContext(iocContainer).LoadModules(modules);
-            _iocContainer = iocContainer;
-            if (ViewModelProvider == null)
-                ViewModelProvider = IocContainer.CanResolve<IViewModelProvider>()
-                    ? IocContainer.Get<IViewModelProvider>()
-                    : new ViewModelProvider(IocContainer);
-            ServiceProvider.Initialize(iocContainer, platform ?? PlatformInfo.UnitTest);
+            Initialize(new UnitTestApp(modules: modules), iocContainer, platform, typeof(UnitTestApp).GetAssembly(),
+                GetType().GetAssembly());
         }
 
         /// <summary>
-        ///     Creates an instance of <see cref="IModuleContext" />.
+        ///     Initializes the current unit-test.
         /// </summary>
-        /// <returns>An instance of <see cref="IModuleContext" />.</returns>
-        protected virtual IModuleContext CreateModuleContext(IIocContainer iocContainer)
+        protected void Initialize([NotNull] IMvvmApplication application, [NotNull] IIocContainer iocContainer,
+            params Assembly[] assemblies)
         {
-            return new ModuleContext(PlatformInfo.UnitTest, LoadMode.UnitTest, iocContainer, null,
-                new[] { GetType().GetAssembly() });
+            Initialize(application, iocContainer, PlatformInfo.UnitTest, assemblies);
+        }
+
+        /// <summary>
+        ///     Initializes the current unit-test.
+        /// </summary>
+        protected void Initialize([NotNull] IMvvmApplication application, [NotNull] IIocContainer iocContainer,
+            PlatformInfo platform, params Assembly[] assemblies)
+        {
+            Should.NotBeNull(application, "application");
+            Should.NotBeNull(iocContainer, "iocContainer");
+            ServiceProvider.DesignTimeManager = new DesignTimeManagerImpl(platform);
+            application.Initialize(platform ?? PlatformInfo.UnitTest, iocContainer, assemblies, DataContext.Empty);
+            if (ViewModelProvider == null)
+            {
+                IViewModelProvider viewModelProvider;
+                ViewModelProvider = iocContainer.TryGet(out viewModelProvider)
+                    ? viewModelProvider
+                    : new ViewModelProvider(iocContainer);
+            }
         }
 
         /// <summary>
@@ -147,9 +199,11 @@ namespace MugenMvvmToolkit
         /// </returns>
         protected internal T GetViewModel<T>([NotNull] GetViewModelDelegate<T> getViewModelGeneric,
             IViewModel parentViewModel = null, ObservationMode? observationMode = null,
-            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters) where T : class, IViewModel
+            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
+            where T : class, IViewModel
         {
-            return ViewModelProvider.GetViewModel(getViewModelGeneric, parentViewModel, observationMode, containerCreationMode,
+            return ViewModelProvider.GetViewModel(getViewModelGeneric, parentViewModel, observationMode,
+                containerCreationMode,
                 parameters);
         }
 

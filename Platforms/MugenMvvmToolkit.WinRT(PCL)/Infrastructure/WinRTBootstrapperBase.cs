@@ -47,6 +47,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         protected const string BindingAssemblyName = "MugenMvvmToolkit.WinRT.Binding";
         private readonly Frame _rootFrame;
         private readonly bool _overrideAssemblies;
+        private readonly PlatformInfo _platform;
         private List<Assembly> _assemblies;
 
         #endregion
@@ -63,11 +64,11 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         ///     Initializes a new instance of the <see cref="WinRTBootstrapperBase" /> class.
         /// </summary>
         protected WinRTBootstrapperBase([NotNull] Frame rootFrame, bool overrideAssemblies, PlatformInfo platform = null)
-            : base(platform ?? PlatformExtensions.GetPlatformInfo())
         {
             Should.NotBeNull(rootFrame, "rootFrame");
             _rootFrame = rootFrame;
             _overrideAssemblies = overrideAssemblies;
+            _platform = platform ?? PlatformExtensions.GetPlatformInfo();
         }
 
         #endregion
@@ -87,29 +88,16 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         #region Overrides of BootstrapperBase
 
         /// <summary>
-        ///     Starts the current bootstrapper.
+        ///     Initializes the current bootstrapper.
         /// </summary>
-        protected override void OnInitialize()
+        protected override void InitializeInternal()
         {
-            base.OnInitialize();
+            var application = CreateApplication();
+            var iocContainer = CreateIocContainer();
+            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
             var service = CreateNavigationService(_rootFrame);
             if (service != null)
-                IocContainer.BindToConstant(service);
-        }
-
-        /// <summary>
-        ///     Gets the application assemblies.
-        /// </summary>
-        protected override ICollection<Assembly> GetAssemblies()
-        {
-            if (_assemblies != null)
-                return _assemblies;
-            var assemblies = new HashSet<Assembly> { GetType().GetAssembly(), typeof(WinRTBootstrapperBase).GetAssembly() };
-            var application = Application.Current;
-            if (application != null)
-                assemblies.Add(application.GetType().GetAssembly());
-            TryLoadAssembly(BindingAssemblyName, assemblies);
-            return assemblies;
+                iocContainer.BindToConstant(service);
         }
 
         #endregion
@@ -122,7 +110,13 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         public virtual void Start()
         {
             Initialize();
-            CreateMainViewModel(GetMainViewModelType()).ShowAsync((model, result) => model.Dispose(), context: new DataContext(InitializationContext));
+            var app = MvvmApplication.Current;
+            var ctx = new DataContext(app.Context);
+            var viewModelType = app.GetStartViewModelType();
+            var viewModel = app.IocContainer
+               .Get<IViewModelProvider>()
+               .GetViewModel(viewModelType, ctx);
+            viewModel.ShowAsync((model, result) => model.Dispose(), context: ctx);
         }
 
         /// <summary>
@@ -136,14 +130,18 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         }
 
         /// <summary>
-        ///     Creates the main view model.
+        ///     Gets the application assemblies.
         /// </summary>
-        [NotNull]
-        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType)
+        protected virtual ICollection<Assembly> GetAssemblies()
         {
-            return IocContainer
-                .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, new DataContext(InitializationContext));
+            if (_assemblies != null)
+                return _assemblies;
+            var assemblies = new HashSet<Assembly> { GetType().GetAssembly(), typeof(WinRTBootstrapperBase).GetAssembly() };
+            var application = Application.Current;
+            if (application != null)
+                assemblies.Add(application.GetType().GetAssembly());
+            TryLoadAssembly(BindingAssemblyName, assemblies);
+            return assemblies;
         }
 
         /// <summary>
@@ -154,12 +152,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         {
             return new FrameNavigationService(frame);
         }
-
-        /// <summary>
-        ///     Gets the type of main view model.
-        /// </summary>
-        [NotNull]
-        protected abstract Type GetMainViewModelType();
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
         {

@@ -53,6 +53,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         /// Gets the name of binding assembly.
         /// </summary>
         protected const string BindingAssemblyName = "MugenMvvmToolkit.WPF.Binding";
+        private readonly PlatformInfo _platform;
 
         #endregion
 
@@ -69,9 +70,9 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         ///     Initializes a new instance of the <see cref="WpfBootstrapperBase" /> class.
         /// </summary>
         protected WpfBootstrapperBase([NotNull] Application application, bool autoStart = true, PlatformInfo platform = null)
-            : base(platform ?? PlatformExtensions.GetPlatformInfo())
         {
             Should.NotBeNull(application, "application");
+            _platform = platform ?? PlatformExtensions.GetPlatformInfo();
             application.Startup += ApplicationOnStartup;
             AutoStart = autoStart;
         }
@@ -100,18 +101,13 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         #region Overrides of BootstrapperBase
 
         /// <summary>
-        ///     Gets the application assemblies.
+        ///     Initializes the current bootstrapper.
         /// </summary>
-        protected override ICollection<Assembly> GetAssemblies()
+        protected override void InitializeInternal()
         {
-            var assemblies = new HashSet<Assembly>();
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
-            {
-                if (assemblies.Add(assembly))
-                    assemblies.AddRange(assembly.GetReferencedAssemblies().Select(Assembly.Load).SkipFrameworkAssemblies());
-            }
-            TryLoadAssembly(BindingAssemblyName, assemblies);
-            return assemblies;
+            var application = CreateApplication();
+            var iocContainer = CreateIocContainer();
+            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
         }
 
         #endregion
@@ -123,60 +119,63 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         /// </summary>
         public virtual void Start()
         {
-            InitializationContext = new DataContext(InitializationContext);
-            if (!InitializationContext.Contains(NavigationConstants.IsDialog))
-                InitializationContext.Add(NavigationConstants.IsDialog, false);
             Initialize();
-            Type viewModelType = GetMainViewModelType();
+            var app = MvvmApplication.Current;
+            var iocContainer = app.IocContainer;
+            var ctx = new DataContext(app.Context);
+            if (!ctx.Contains(NavigationConstants.IsDialog))
+                ctx.Add(NavigationConstants.IsDialog, false);
+            var viewModelType = app.GetStartViewModelType();
+
             NavigationWindow rootWindow = null;
-            var mappingProvider = IocContainer.Get<IViewMappingProvider>();
-            IViewMappingItem mapping = mappingProvider.FindMappingForViewModel(viewModelType, InitializationContext.GetData(NavigationConstants.ViewName), true);
+            var mappingProvider = iocContainer.Get<IViewMappingProvider>();
+            IViewMappingItem mapping = mappingProvider.FindMappingForViewModel(viewModelType, ctx.GetData(NavigationConstants.ViewName), true);
             if (typeof(Page).IsAssignableFrom(mapping.ViewType))
             {
                 rootWindow = CreateNavigationWindow();
                 var service = CreateNavigationService(rootWindow);
-                IocContainer.BindToConstant(service);
+                iocContainer.BindToConstant(service);
             }
-            var vm = CreateMainViewModel(viewModelType);
+            var vm = iocContainer
+               .Get<IViewModelProvider>()
+               .GetViewModel(viewModelType, ctx);
             vm.ShowAsync((model, result) =>
             {
                 model.Dispose();
                 if (ShutdownOnMainViewModelClose)
                 {
-                    Application app = Application.Current;
-                    if (app != null)
+                    Application application = Application.Current;
+                    if (application != null)
                     {
-                        Action action = app.Shutdown;
-                        app.Dispatcher.BeginInvoke(action);
+                        Action action = application.Shutdown;
+                        application.Dispatcher.BeginInvoke(action);
                     }
                 }
-            }, context: new DataContext(InitializationContext));
+            }, context: ctx);
             if (rootWindow != null)
             {
-                IWindowViewMediator mediator = new WindowViewMediator(rootWindow, vm, IocContainer.Get<IThreadManager>(),
-                    IocContainer.Get<IViewManager>(), IocContainer.Get<IWrapperManager>(),
-                    IocContainer.Get<IOperationCallbackManager>());
-                mediator.UpdateView(new PlatformWrapperRegistrationModule.WindowViewWrapper(rootWindow), true, new DataContext(InitializationContext));
+                IWindowViewMediator mediator = new WindowViewMediator(rootWindow, vm, iocContainer.Get<IThreadManager>(),
+                    iocContainer.Get<IViewManager>(), iocContainer.Get<IWrapperManager>(),
+                    iocContainer.Get<IOperationCallbackManager>());
+                mediator.UpdateView(new PlatformWrapperRegistrationModule.WindowViewWrapper(rootWindow), true, ctx);
                 rootWindow.Show();
             }
         }
 
         /// <summary>
-        ///     Creates the main view model.
+        ///     Gets the application assemblies.
         /// </summary>
-        [NotNull]
-        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType)
+        protected virtual ICollection<Assembly> GetAssemblies()
         {
-            return IocContainer
-                .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, new DataContext(InitializationContext));
+            var assemblies = new HashSet<Assembly>();
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
+            {
+                if (assemblies.Add(assembly))
+                    assemblies.AddRange(assembly.GetReferencedAssemblies().Select(Assembly.Load).SkipFrameworkAssemblies());
+            }
+            TryLoadAssembly(BindingAssemblyName, assemblies);
+            return assemblies;
         }
-
-        /// <summary>
-        ///     Gets the type of main view model.
-        /// </summary>
-        [NotNull]
-        protected abstract Type GetMainViewModelType();
 
         /// <summary>
         ///     Creates an instance of <see cref="INavigationService" />.
@@ -186,7 +185,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         {
             return UseUriNavigation
                 ? new WindowNavigationService(window)
-                : new WindowNavigationService(window, type => IocContainer.Get(type));
+                : new WindowNavigationService(window, type => MvvmApplication.Current.IocContainer.Get(type));
         }
 
         /// <summary>

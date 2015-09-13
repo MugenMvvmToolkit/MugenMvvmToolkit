@@ -40,40 +40,50 @@ namespace MugenMvvmToolkit.Android.Infrastructure
     /// <summary>
     ///     Represents the base class that is used to start MVVM application.
     /// </summary>
-    public abstract class AndroidBootstrapperBase : BootstrapperBase
+    public abstract class AndroidBootstrapperBase : BootstrapperBase, IComparer<string>
     {
-        #region Nested types
+        private readonly PlatformInfo _platform;
 
-        private sealed class AssemblyNameComparer : IComparer<string>
+        #region Nested Types
+
+        /// <summary>
+        ///     Represents the default implementation of <see cref="IMvvmApplication"/>.
+        /// </summary>
+        protected sealed class DefaultApp : MvvmApplication
         {
             #region Fields
 
-            public static readonly AssemblyNameComparer Comparer;
+            private readonly Type _startViewModelType;
+            private readonly IViewModelSettings _viewModelSettings;
 
             #endregion
 
             #region Constructors
 
-            static AssemblyNameComparer()
+            /// <summary>
+            ///     Initializes a new instance of the <see cref="DefaultApp" /> class.
+            /// </summary>
+            public DefaultApp(Type startViewModelType, IViewModelSettings viewModelSettings = null, LoadMode mode = LoadMode.Runtime)
+                : base(mode)
             {
-                Comparer = new AssemblyNameComparer();
+                Should.NotBeNull(startViewModelType, "startViewModelType");
+                Should.BeOfType<IViewModel>(startViewModelType, "startViewModelType");
+                _startViewModelType = startViewModelType;
+                _viewModelSettings = viewModelSettings;
             }
 
             #endregion
 
-            #region Implementation of IComparer<in string>
+            #region Methods
 
-            public int Compare(string x, string y)
+            protected override IViewModelSettings CreateViewModelSettings()
             {
-                if (string.Equals(x, y, StringComparison.Ordinal))
-                    return 0;
-                var xSupport = x.IndexOf(".Android.Support.", StringComparison.Ordinal) >= 0;
-                var ySupport = y.IndexOf(".Android.Support.", StringComparison.Ordinal) >= 0;
-                if (xSupport == ySupport)
-                    return string.Compare(x, y, StringComparison.Ordinal);
-                if (xSupport)
-                    return 1;
-                return -1;
+                return _viewModelSettings ?? base.CreateViewModelSettings();
+            }
+
+            public override Type GetStartViewModelType()
+            {
+                return _startViewModelType;
             }
 
             #endregion
@@ -86,9 +96,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         private const int EmptyState = 0;
         private const int InitializedStateGlobal = 1;
         private const int InitializedStateLocal = 2;
-
         private static int _appStateGlobal;
-        private ICollection<Assembly> _assemblies;
 
         #endregion
 
@@ -108,9 +116,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="AndroidBootstrapperBase" /> class.
         /// </summary>
-        protected AndroidBootstrapperBase(PlatformInfo platform = null)
-            : base(platform ?? PlatformExtensions.GetPlatformInfo())
+        public AndroidBootstrapperBase(PlatformInfo platform = null)
         {
+            _platform = platform ?? PlatformExtensions.GetPlatformInfo();
         }
 
         #endregion
@@ -120,55 +128,11 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         /// <summary>
         ///     Gets the collection of view assemblies.
         /// </summary>
-        public static IList<Assembly> ViewAssemblies { get; private set; }
-
-        #endregion
-
-        #region Overrides of BootstrapperBase
-
-        /// <summary>
-        ///     Initializes the current bootstrapper.
-        /// </summary>
-        public override void Initialize()
-        {
-            if (Interlocked.Exchange(ref _appStateGlobal, InitializedStateLocal) != InitializedStateLocal)
-                base.Initialize();
-        }
-
-        /// <summary>
-        ///     Initializes the current bootstrapper.
-        /// </summary>
-        protected override void OnInitialize()
-        {
-            //NOTE: to improve startup performance saving the collection of assemblies to use it later.
-            ViewAssemblies = GetAndroidViewAssemblies();
-            TypeCache<View>.Initialize(null);
-            base.OnInitialize();
-        }
-
-        /// <summary>
-        ///     Gets the application assemblies.
-        /// </summary>
-        protected override ICollection<Assembly> GetAssemblies()
-        {
-            if (_assemblies == null)
-                InitalizeAssemblies();
-            return _assemblies;
-        }
+        public static IList<Assembly> ViewAssemblies { get; protected set; }
 
         #endregion
 
         #region Methods
-
-        /// <summary>
-        ///     Starts the current bootstrapper.
-        /// </summary>
-        public virtual void Start()
-        {
-            Initialize();
-            CreateMainViewModel(GetMainViewModelType())
-                .ShowAsync((model, result) => model.Dispose(), null, new DataContext(InitializationContext));
-        }
 
         /// <summary>
         ///     Makes sure that the application is initialized.
@@ -177,7 +141,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         {
             if (Interlocked.CompareExchange(ref _appStateGlobal, InitializedStateGlobal, EmptyState) != EmptyState)
                 return;
-
             var attributes = new List<BootstrapperAttribute>();
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
             {
@@ -191,36 +154,49 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             if (bootstrapperAttribute == null)
                 throw new InvalidOperationException(@"The BootstrapperAttribute was not found. 
 You must specify the type of application bootstrapper using BootstrapperAttribute, for example [assembly:Bootstrapper(typeof(MyBootstrapperType))]");
-            var instance = (BootstrapperBase)Activator.CreateInstance(bootstrapperAttribute.BootstrapperType);
+            var instance = (AndroidBootstrapperBase)Activator.CreateInstance(bootstrapperAttribute.BootstrapperType);
             instance.Initialize();
         }
 
         /// <summary>
-        ///     Gets the android view assemblies.
+        ///     Initializes the current bootstrapper.
         /// </summary>
-        protected virtual IList<Assembly> GetAndroidViewAssemblies()
+        protected override void InitializeInternal()
+        {
+            if (Interlocked.Exchange(ref _appStateGlobal, InitializedStateLocal) == InitializedStateLocal)
+                return;
+            TypeCache<View>.Initialize(null);
+            var application = CreateApplication();
+            application.Initialize(_platform, CreateIocContainer(),
+                GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
+        }
+
+        /// <summary>
+        ///     Starts the current bootstrapper.
+        /// </summary>
+        public virtual void Start()
+        {
+            Initialize();
+            var app = MvvmApplication.Current;
+            var ctx = new DataContext(app.Context);
+            var viewModelType = app.GetStartViewModelType();
+            app.IocContainer
+               .Get<IViewModelProvider>()
+               .GetViewModel(viewModelType, ctx)
+               .ShowAsync((model, result) => model.Dispose(), null, ctx);
+        }
+
+        /// <summary>
+        ///     Gets the application assemblies.
+        /// </summary>
+        [NotNull]
+        protected virtual ICollection<Assembly> GetAssemblies()
         {
             return InitalizeAssemblies();
         }
 
-        /// <summary>
-        ///     Creates the main view model.
-        /// </summary>
-        [NotNull]
-        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType)
-        {
-            return IocContainer
-                .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, new DataContext(InitializationContext));
-        }
-
-        /// <summary>
-        ///     Gets the type of main view model.
-        /// </summary>
-        [NotNull]
-        protected abstract Type GetMainViewModelType();
-
-        private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
+        private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext,
+            IViewModelPresenter arg3)
         {
             var viewName = viewModel.GetViewName(dataContext);
             var container = viewModel.GetIocContainer(true);
@@ -229,20 +205,11 @@ You must specify the type of application bootstrapper using BootstrapperAttribut
             return mappingItem == null || !typeof(Activity).IsAssignableFrom(mappingItem.ViewType);
         }
 
-        private static bool CanShowViewModelNavigationPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
-        {
-            var viewName = viewModel.GetViewName(dataContext);
-            var container = viewModel.GetIocContainer(true);
-            var mappingProvider = container.Get<IViewMappingProvider>();
-            var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
-            return mappingItem != null && typeof(Activity).IsAssignableFrom(mappingItem.ViewType);
-        }
-
-        private IList<Assembly> InitalizeAssemblies()
+        private ICollection<Assembly> InitalizeAssemblies()
         {
             var assemblies = new HashSet<Assembly>();
             var viewAssemblies = new HashSet<Assembly>();
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 if (assembly.IsToolkitAssembly())
                 {
@@ -252,8 +219,38 @@ You must specify the type of application bootstrapper using BootstrapperAttribut
                 else if (!assembly.IsDynamic && !assembly.IsMicrosoftAssembly())
                     viewAssemblies.Add(assembly);
             }
-            _assemblies = assemblies;
-            return viewAssemblies.OrderBy(assembly => assembly.FullName, AssemblyNameComparer.Comparer).ToArray();
+            //NOTE: to improve startup performance saving the collection of assemblies to use it later.
+            ViewAssemblies = viewAssemblies
+                .OrderBy(assembly => assembly.FullName, this)
+                .ToArray();
+            return assemblies;
+        }
+
+        private static bool CanShowViewModelNavigationPresenter(IViewModel viewModel, IDataContext dataContext,
+            IViewModelPresenter arg3)
+        {
+            var viewName = viewModel.GetViewName(dataContext);
+            var container = viewModel.GetIocContainer(true);
+            var mappingProvider = container.Get<IViewMappingProvider>();
+            var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
+            return mappingItem != null && typeof(Activity).IsAssignableFrom(mappingItem.ViewType);
+        }
+
+        #endregion
+
+        #region Implementation of interfaces
+
+        int IComparer<string>.Compare(string x, string y)
+        {
+            if (string.Equals(x, y, StringComparison.Ordinal))
+                return 0;
+            var xSupport = x.IndexOf(".Android.Support.", StringComparison.Ordinal) >= 0;
+            var ySupport = y.IndexOf(".Android.Support.", StringComparison.Ordinal) >= 0;
+            if (xSupport == ySupport)
+                return string.Compare(x, y, StringComparison.Ordinal);
+            if (xSupport)
+                return 1;
+            return -1;
         }
 
         #endregion
