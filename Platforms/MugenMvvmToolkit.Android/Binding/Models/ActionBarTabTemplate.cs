@@ -16,6 +16,7 @@
 
 #endregion
 
+using System.Linq;
 using System.Xml.Serialization;
 using Android.App;
 using Android.Views;
@@ -128,6 +129,8 @@ namespace MugenMvvmToolkit.Android.Binding.Models
                         viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
                     _content = PlatformExtensions.GetContentView(layout, layout.Context, _content,
                         _contentTemplateProvider.GetTemplateId(), _contentTemplateProvider.GetDataTemplateSelector());
+                    if (BindingServiceProvider.BindingManager.GetBindings(tab, AttachedMembers.Object.DataContext).Any())
+                        _content.SetBindingMemberValue(AttachedMembers.Object.Parent, tab);
                     layout.SetContentView(_content, ft, (@group, fragment, arg3) =>
                     {
                         if (fragment.IsDetached)
