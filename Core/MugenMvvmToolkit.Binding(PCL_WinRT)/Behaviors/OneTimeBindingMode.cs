@@ -65,13 +65,14 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected override bool OnAttached()
         {
-            if (!Binding.SourceAccessor.IsAllMembersAvailable() || !Binding.UpdateTarget())
+            if (!Binding.SourceAccessor.IsAllMembersAvailable() || !Binding.TargetAccessor.IsAllMembersAvailable())
             {
                 EventHandler<IObserver, ValueChangedEventArgs> handler = OneTimeHandler;
                 SubscribeSources(handler);
                 Binding.TargetAccessor.Source.ValueChanged += handler;
                 return true;
             }
+            Binding.UpdateTarget();
             if (_disposeBinding)
                 Binding.Dispose();
             return false;

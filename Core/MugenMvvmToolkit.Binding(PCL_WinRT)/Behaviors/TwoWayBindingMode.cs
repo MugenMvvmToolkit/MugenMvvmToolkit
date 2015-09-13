@@ -34,11 +34,11 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected override bool OnAttached()
         {
+            Binding.UpdateTarget();
             SubscribeSources();
             if (!Binding.TargetAccessor.IsAllMembersAvailable())
                 Binding.TargetAccessor.Source.ValueChanged += OneTimeTargetHandler;
             SubscribeTarget();
-            Binding.UpdateTarget();
             return true;
         }
 

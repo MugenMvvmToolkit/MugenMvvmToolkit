@@ -33,10 +33,10 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         /// </summary>
         protected override bool OnAttached()
         {
+            Binding.UpdateSource();
             SubscribeTarget();
             if (!Binding.SourceAccessor.IsAllMembersAvailable())
                 SubscribeSources(OneTimeSourceHandler);
-            Binding.UpdateSource();
             return true;
         }
 
