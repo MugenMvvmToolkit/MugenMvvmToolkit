@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Windows.Input;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
@@ -43,7 +44,9 @@ namespace MugenMvvmToolkit.Binding.Accessors
         {
             #region Fields
 
-            private readonly WeakReference _sourceReference;
+            private object _source;
+            private readonly bool _toggleEnabledState;
+            private readonly Func<IDataContext, object> _parameterDelegate;
             private IDisposable _subscriber;
             private BindingActionValue _currentValue;
             private object _valueReference;
@@ -54,9 +57,11 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
             #region Constructors
 
-            public EventClosure(WeakReference sourceReference)
+            public EventClosure(IObserver source, bool toggleEnabledState, Func<IDataContext, object> parameterDelegate)
             {
-                _sourceReference = sourceReference;
+                _source = source;
+                _toggleEnabledState = toggleEnabledState;
+                _parameterDelegate = parameterDelegate;
             }
 
             #endregion
@@ -84,36 +89,43 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 }
             }
 
-            public void Unsubscribe(bool dispose)
+            public void Unsubscribe(bool dispose, bool oneTime)
             {
                 if (_subscriber == null)
                     return;
+                if (dispose && oneTime && GetReferenceValue() is ICommand)
+                {
+                    var penultimateValue = GetPenultimateValue();
+                    if (penultimateValue != null && !penultimateValue.IsUnsetValue())
+                    {
+                        LastContext = LastContext == null ? new DataContext() : new DataContext(LastContext);
+                        LastContext.Remove(BindingConstants.Binding);
+                        _source = ToolkitExtensions.GetWeakReference(penultimateValue);
+                        return;
+                    }
+                }
+
                 LastContext = null;
                 //it's normal here.
                 lock (this)
                 {
-                    if (UnsubscribeEventHandler())
-                        UnsubscribeCommand();
-                    ClearValueReference();
+                    UnsubscribeEventHandler();
+                    UnsubscribeCommand();
+                    _valueReference = null;
                 }
                 if (dispose)
                     _canExecuteHandler = null;
             }
 
-            private void ClearValueReference()
-            {
-                _valueReference = null;
-            }
-
             private void SetValue(object newValue)
             {
-                var accessor = (BindingSourceAccessor)_sourceReference.Target;
-                if (accessor == null || newValue == null)
+                if (newValue == null)
                 {
                     UnsubscribeCommand();
-                    ClearValueReference();
+                    _valueReference = null;
                     return;
                 }
+
                 var command = newValue as ICommand;
                 if (command == null)
                 {
@@ -124,27 +136,15 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 else
                 {
                     var reference = _valueReference as WeakReference;
-                    if (reference == null || !ReferenceEquals(reference.Target, command))
-                        _valueReference = ToolkitExtensions.GetWeakReferenceOrDefault(command, null, true);
-                    if (accessor._toggleEnabledState && accessor.IsTarget &&
-                        InitializeCanExecuteDelegate(command))
+                    if (reference != null && ReferenceEquals(reference.Target, command))
+                        return;
+                    UnsubscribeCommand();
+                    _valueReference = ToolkitExtensions.GetWeakReferenceOrDefault(command, null, true);
+                    if (_toggleEnabledState && InitializeCanExecuteDelegate(command))
                     {
-                        accessor.CommandOnCanExecuteChanged(command, LastContext);
+                        CommandOnCanExecuteChanged(command);
                         command.CanExecuteChanged += _canExecuteHandler;
                     }
-                }
-            }
-
-            private void CommandOnCanExecuteChanged()
-            {
-                var target = (BindingSourceAccessor)_sourceReference.Target;
-                if (target == null)
-                    UnsubscribeEventHandler();
-                else
-                {
-                    var command = GetReferenceValue() as ICommand;
-                    if (command != null)
-                        target.CommandOnCanExecuteChanged(command, LastContext);
                 }
             }
 
@@ -153,23 +153,21 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 var command = GetReferenceValue() as ICommand;
                 if (command == null)
                     return;
-                if (_canExecuteHandler == null)
-                    return;
-                command.CanExecuteChanged -= _canExecuteHandler;
-
-                var accessor = (BindingSourceAccessor)_sourceReference.Target;
-                if (accessor != null)
-                    accessor.SetIsEnabled(true);
+                var handler = _canExecuteHandler;
+                if (handler != null)
+                {
+                    command.CanExecuteChanged -= handler;
+                    SetIsEnabled(true);
+                }
             }
 
-            private bool UnsubscribeEventHandler()
+            private void UnsubscribeEventHandler()
             {
                 IDisposable unsubscriber = _subscriber;
                 if (unsubscriber == null)
-                    return false;
-                _subscriber = null;
+                    return;
+                Interlocked.CompareExchange(ref _subscriber, null, unsubscriber);
                 unsubscriber.Dispose();
-                return true;
             }
 
             private object GetReferenceValue()
@@ -193,9 +191,70 @@ namespace MugenMvvmToolkit.Binding.Accessors
                     var relayCommand = command as IRelayCommand;
                     if (relayCommand == null || relayCommand.HasCanExecuteImpl)
                         Interlocked.CompareExchange(ref _canExecuteHandler, ReflectionExtensions
-                            .CreateWeakEventHandler<EventClosure, EventArgs>(this, (closure, o, arg3) => closure.CommandOnCanExecuteChanged()).Handle, null);
+                            .CreateWeakEventHandler<EventClosure, EventArgs>(this, (closure, o, arg3) => closure.CommandOnCanExecuteChanged(o)).Handle, null);
                 }
                 return _canExecuteHandler != null;
+            }
+
+            private void SetIsEnabled(bool value)
+            {
+                object penultimateValue = GetPenultimateValue();
+                if (penultimateValue == null || penultimateValue.IsUnsetValue())
+                    return;
+                IBindingMemberInfo member = BindingServiceProvider
+                    .MemberProvider
+                    .GetBindingMember(penultimateValue.GetType(), AttachedMemberConstants.Enabled, false, false);
+                if (member == null)
+                    Tracer.Warn("The member {0} cannot be obtained on type {1}",
+                        AttachedMemberConstants.Enabled, penultimateValue.GetType());
+                else
+                    member.SetValue(penultimateValue, new[] { Empty.BooleanToObject(value) });
+            }
+
+            private object GetCommandParameterFromSource(IDataContext context)
+            {
+                if (_parameterDelegate != null)
+                    return _parameterDelegate(context);
+
+                object target = GetPenultimateValue();
+                if (target == null || target.IsUnsetValue())
+                    return null;
+
+                var commandParameterMember = BindingServiceProvider
+                    .MemberProvider
+                    .GetBindingMember(target.GetType(), AttachedMemberConstants.CommandParameter, false, false);
+                if (commandParameterMember == null)
+                    return null;
+                return commandParameterMember.GetValue(target, new object[] { context });
+            }
+
+            private void CommandOnCanExecuteChanged(object sender)
+            {
+                var command = sender as ICommand ?? GetReferenceValue() as ICommand;
+                if (command != null)
+                    SetIsEnabled(command.CanExecute(GetCommandParameter(LastContext)));
+            }
+
+            private object GetCommandParameter(IDataContext context)
+            {
+                var param = GetCommandParameterFromSource(context);
+                var path = param as string;
+                if (string.IsNullOrEmpty(path) ||
+                    (!path.StartsWith("$args.", StringComparison.Ordinal) &&
+                     !path.StartsWith("$arg.", StringComparison.Ordinal)))
+                    return param;
+                var args = context.GetData(BindingConstants.CurrentEventArgs);
+                if (args == null)
+                    return null;
+                return BindingExtensions.GetValueFromPath(args, path, 1);
+            }
+
+            private object GetPenultimateValue()
+            {
+                var observer = _source as IObserver;
+                if (observer == null)
+                    return ((WeakReference)_source).Target;
+                return observer.GetPathMembers(false).PenultimateValue;
             }
 
             #endregion
@@ -204,7 +263,13 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
             public bool IsAlive
             {
-                get { return _sourceReference.Target != null; }
+                get
+                {
+                    var observer = _source as IObserver;
+                    if (observer == null)
+                        return ((WeakReference)_source).Target != null;
+                    return observer.IsAlive;
+                }
             }
 
             public bool IsWeak
@@ -214,16 +279,27 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
             public bool TryHandle(object sender, object message)
             {
-                var target = (BindingSourceAccessor)_sourceReference.Target;
+                var target = GetReferenceValue();
                 if (target == null)
                 {
                     UnsubscribeEventHandler();
                     return false;
                 }
-
-                var value = GetReferenceValue();
                 LastContext.AddOrUpdate(BindingConstants.CurrentEventArgs, message);
-                target.OnEventImpl(value, message, LastContext);
+
+                var command = target as ICommand;
+                if (command != null)
+                {
+                    command.Execute(GetCommandParameter(LastContext));
+                    return true;
+                }
+                var actionValue = target as BindingActionValue;
+                if (actionValue == null || actionValue.MemberSource.Target == null)
+                {
+                    UnsubscribeEventHandler();
+                    return false;
+                }
+                actionValue.TrySetValue(new[] { GetCommandParameter(LastContext), message, LastContext }, out target);
                 return true;
             }
 
@@ -235,7 +311,8 @@ namespace MugenMvvmToolkit.Binding.Accessors
         #region Fields
 
         private readonly bool _toggleEnabledState;
-        private IObserver _bindingSource;
+        private readonly bool _isOneTime;
+        private readonly IObserver _bindingSource;
         private EventClosure _closure;
 
         #endregion
@@ -255,8 +332,23 @@ namespace MugenMvvmToolkit.Binding.Accessors
         {
             Should.NotBeNull(bindingSource, "bindingSource");
             _bindingSource = bindingSource;
-            if (!context.TryGetData(BindingBuilderConstants.ToggleEnabledState, out _toggleEnabledState))
-                _toggleEnabledState = ToggleEnabledStateDefault;
+            if (isTarget)
+            {
+                if (!context.TryGetData(BindingBuilderConstants.ToggleEnabledState, out _toggleEnabledState))
+                    _toggleEnabledState = ToggleEnabledStateDefault;
+                List<IBindingBehavior> data;
+                if (context.TryGetData(BindingBuilderConstants.Behaviors, out data))
+                {
+                    for (int i = 0; i < data.Count; i++)
+                    {
+                        if (data[i] is OneTimeBindingMode)
+                        {
+                            _isOneTime = true;
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         #endregion
@@ -315,9 +407,8 @@ namespace MugenMvvmToolkit.Binding.Accessors
         public override void Dispose()
         {
             if (_closure != null)
-                _closure.Unsubscribe(true);
+                _closure.Unsubscribe(true, _isOneTime);
             _bindingSource.Dispose();
-            _bindingSource = null;
             ValueChanging = null;
             ValueChanged = null;
             _closure = null;
@@ -404,7 +495,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             else
             {
                 if (_closure != null)
-                    _closure.Unsubscribe(false);
+                    _closure.Unsubscribe(false, _isOneTime);
                 lastMember.SetValue(penultimateValue, new[] { newValue });
                 if (ValueChanged != null)
                     RaiseValueChanged(context, penultimateValue, lastMember, oldValue, newValue, args);
@@ -443,83 +534,11 @@ namespace MugenMvvmToolkit.Binding.Accessors
             if (newValue == null && _closure == null)
                 return;
             if (_closure == null)
-                Interlocked.CompareExchange(ref _closure, new EventClosure(ServiceProvider.WeakReferenceFactory(this)), null);
+                Interlocked.CompareExchange(ref _closure,
+                    new EventClosure(_bindingSource, _toggleEnabledState && IsTarget,
+                        Parameters == null ? null : Parameters.CommandParameterDelegate), null);
             _closure.LastContext = context;
             _closure.SetValue(bindingActionValue, newValue);
-        }
-
-        private void SetIsEnabled(bool value)
-        {
-            var source = _bindingSource;
-            if (source == null)
-                return;
-            object penultimateValue = source.GetPathMembers(false).PenultimateValue;
-            if (penultimateValue == null || penultimateValue.IsUnsetValue())
-                return;
-            IBindingMemberInfo member = BindingServiceProvider
-                .MemberProvider
-                .GetBindingMember(penultimateValue.GetType(), AttachedMemberConstants.Enabled, false, false);
-            if (member == null)
-                Tracer.Warn("The member {0} cannot be obtained on type {1}",
-                    AttachedMemberConstants.Enabled, penultimateValue.GetType());
-            else
-                member.SetValue(penultimateValue, new[] { Empty.BooleanToObject(value) });
-        }
-
-        private object GetCommandParameterFromSource(IDataContext context)
-        {
-            if (Parameters != null && Parameters.CommandParameterDelegate != null)
-                return Parameters.CommandParameterDelegate(context);
-
-            var source = _bindingSource;
-            if (source == null)
-                return null;
-            object target = source.GetPathMembers(false).PenultimateValue;
-            if (target == null || target.IsUnsetValue())
-                return null;
-
-            var commandParameterMember = BindingServiceProvider
-                .MemberProvider
-                .GetBindingMember(target.GetType(), AttachedMemberConstants.CommandParameter, false, false);
-            if (commandParameterMember == null)
-                return null;
-            return commandParameterMember.GetValue(target, new object[] { context });
-        }
-
-        private void CommandOnCanExecuteChanged([NotNull] ICommand command, IDataContext context)
-        {
-            SetIsEnabled(command.CanExecute(GetCommandParameter(context)));
-        }
-
-        private void OnEventImpl(object target, object eventArgs, IDataContext context)
-        {
-            if (target == null)
-                return;
-
-            var command = target as ICommand;
-            if (command != null)
-            {
-                command.Execute(GetCommandParameter(context));
-                return;
-            }
-
-            var actionValue = target as BindingActionValue;
-            if (actionValue != null)
-                actionValue.TrySetValue(new[] { GetCommandParameter(context), eventArgs, context }, out target);
-        }
-
-        private object GetCommandParameter(IDataContext context)
-        {
-            var param = GetCommandParameterFromSource(context);
-            var path = param as string;
-            if (string.IsNullOrEmpty(path) ||
-                (!path.StartsWith("$args.", StringComparison.Ordinal) &&
-                 !path.StartsWith("$arg.", StringComparison.Ordinal)))
-                return param;
-            var args = context.GetData(BindingConstants.CurrentEventArgs);
-            if (args == null)
-                return null;
-            return BindingExtensions.GetValueFromPath(args, path, 1);
         }
 
         #endregion
