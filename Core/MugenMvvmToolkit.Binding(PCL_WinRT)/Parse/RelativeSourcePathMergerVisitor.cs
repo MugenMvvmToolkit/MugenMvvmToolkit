@@ -26,7 +26,7 @@ namespace MugenMvvmToolkit.Binding.Parse
     /// <summary>
     ///    Represents the expression visitor that allows to merge relative source path: 
     ///    {Relative ControlType}.Test.Value to {Relative ControlType, Path=Test.Value}, $Relative(Type, Level).Value to {Relative ControlType, Level=Level, Path=Value}
-    ///    {Element Name}.Value to {Element Name, Path=Value}, $Element(Name).Value to {Element Name, Path=Value}
+    ///    {Element Name}.Value to {Element Name, Path=Value}, $Element(Name).Value to {Element Name, Path=Value} $args to $GetEventArgs()
     /// </summary>
     public class RelativeSourcePathMergerVisitor : IExpressionVisitor
     {
@@ -104,6 +104,17 @@ namespace MugenMvvmToolkit.Binding.Parse
         /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
         public IExpressionNode Visit(IExpressionNode node)
         {
+            var member = node as IMemberExpressionNode;
+            if (member != null && member.Target is ResourceExpressionNode)
+            {
+                if (member.Member == "self" || member.Member == "this")
+                    return new MemberExpressionNode(member.Target, BindingServiceProvider.ResourceResolver.SelfResourceName);
+                if (member.Member == "context")
+                    return new MemberExpressionNode(member.Target, BindingServiceProvider.ResourceResolver.DataContextResourceName);
+                if (member.Member == "args" || member.Member == "arg")
+                    return new MethodCallExpressionNode(member.Target, DefaultBindingParserHandler.GetEventArgsMethod, Empty.Array<IExpressionNode>(), Empty.Array<string>());
+            }
+
             var nodes = new List<IExpressionNode>();
             var members = new List<string>();
             string memberName = node.TryGetMemberName(true, true, nodes, members);
@@ -116,7 +127,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                     return relativeExp;
                 }
 
-                var methodCall = nodes[0] as MethodCallExpressionNode;
+                var methodCall = nodes[0] as IMethodCallExpressionNode;
                 if (methodCall != null && methodCall.Target is ResourceExpressionNode)
                 {
                     if (RelativeSourceAliases.Contains(methodCall.Method))

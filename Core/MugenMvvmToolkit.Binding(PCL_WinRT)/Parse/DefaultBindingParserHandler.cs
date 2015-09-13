@@ -39,7 +39,6 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         internal const string GetEventArgsMethod = "GetEventArgs";
         internal const string GetErrorsMethod = "GetErrors";
-        private const string GetEventArgsDynamicMethod = "$GetEventArgs()";
 
         private readonly Dictionary<Guid, string[]> _errorPathNames;
 
@@ -54,9 +53,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {"&lt;", "<"},
                 {"&gt;", ">"},
                 {"&quot;", "\""},
-                {"&amp;", "&"},
-                {"$args", GetEventArgsDynamicMethod},
-                {"$arg", GetEventArgsDynamicMethod}
+                {"&amp;", "&"}
             };
         }
 
@@ -82,10 +79,6 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             foreach (var replaceKeyword in ReplaceKeywords)
                 bindingExpression = bindingExpression.Replace(replaceKeyword.Key, replaceKeyword.Value);
-            bindingExpression = bindingExpression
-                .Replace("$self", "$" + BindingServiceProvider.ResourceResolver.SelfResourceName)
-                .Replace("$this", "$" + BindingServiceProvider.ResourceResolver.SelfResourceName)
-                .Replace("$context", "$" + BindingServiceProvider.ResourceResolver.SelfResourceName + "." + AttachedMemberConstants.DataContext);
         }
 
         /// <summary>
