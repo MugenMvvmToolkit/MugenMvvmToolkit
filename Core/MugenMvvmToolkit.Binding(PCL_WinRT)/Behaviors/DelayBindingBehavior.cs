@@ -37,15 +37,15 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 #if PCL_WINRT
         private sealed class Timer
         {
-            #region Fields
+        #region Fields
 
             private readonly Action<object> _callback;
             private readonly object _state;
             private CancellationTokenSource _currentTokenSource;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             public Timer(Action<object> callback, object state, int dueTime, int period)
             {
@@ -54,9 +54,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 Change(dueTime, period);
             }
 
-            #endregion
+        #endregion
 
-            #region Methods
+        #region Methods
 
             public void Change(int dueTime, int period)
             {
@@ -94,7 +94,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 }
             }
 
-            #endregion
+        #endregion
         }
 #endif
 
@@ -263,6 +263,8 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         {
             try
             {
+                if (!IsAttached)
+                    return;
                 _isUpdating = true;
                 _timer.Change(int.MaxValue, int.MaxValue);
                 var binding = Binding;
@@ -273,6 +275,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                     else
                         binding.UpdateSource();
                 }
+            }
+            catch (ObjectDisposedException)
+            {
             }
             finally
             {
