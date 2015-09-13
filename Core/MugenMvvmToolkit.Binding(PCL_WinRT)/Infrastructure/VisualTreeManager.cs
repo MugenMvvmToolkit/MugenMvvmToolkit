@@ -45,7 +45,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             public RootListener(object target)
             {
                 _target = ServiceProvider.WeakReferenceFactory(target);
-                _parent = ServiceProvider.WeakReferenceFactory(BindingServiceProvider.VisualTreeManager.FindParent(target));
+                _parent = Empty.WeakReference;
+                UpdateParent(target);
                 var parentMember = BindingServiceProvider.VisualTreeManager.GetParentMember(target.GetType());
                 if (parentMember != null)
                     parentMember.TryObserve(target, this);
@@ -70,6 +71,20 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return GetOrAdd(parent).GetRoot();
             }
 
+            private void UpdateParent(object target)
+            {
+                var oldParent = _parent.Target;
+                var parent = BindingServiceProvider.VisualTreeManager.FindParent(target);
+                if (oldParent != parent)
+                {
+                    if (oldParent != null)
+                        GetOrAdd(oldParent).Remove(this);
+                    if (parent != null)
+                        GetOrAdd(parent).Add(this);
+                    _parent = ServiceProvider.WeakReferenceFactory(parent);
+                }
+            }
+
             #endregion
 
             #region Implementation of IEventListener
@@ -89,16 +104,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 var target = _target.Target;
                 if (target == null)
                     return false;
-                var oldParent = _parent.Target;
-                var parent = BindingServiceProvider.VisualTreeManager.FindParent(target);
-                if (oldParent != parent)
-                {
-                    if (oldParent != null)
-                        GetOrAdd(oldParent).Remove(this);
-                    if (parent != null)
-                        GetOrAdd(parent).Add(this);
-                    _parent = ServiceProvider.WeakReferenceFactory(parent);
-                }
+                UpdateParent(target);
                 Raise(sender, message);
                 return true;
             }
