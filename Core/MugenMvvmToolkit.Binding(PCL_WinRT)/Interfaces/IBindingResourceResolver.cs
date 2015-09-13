@@ -48,6 +48,12 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         string BindingSourceResourceName { get; set; }
 
         /// <summary>
+        ///     Gets or sets the name of data context resource default is <c>context</c>.
+        /// </summary>
+        [NotNull]
+        string DataContextResourceName { get; set; }
+
+        /// <summary>
         ///     Gets a collection of known types.
         /// </summary>
         [NotNull]

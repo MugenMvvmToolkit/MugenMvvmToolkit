@@ -100,7 +100,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             #region Fields
 
             private ISourceValue _value;
-            private string _name;
 
             #endregion
 
@@ -130,23 +129,17 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public void SetValue(ISourceValue value, string name, bool rewrite)
             {
-                if (_value != null)
+                var oldValue = _value;
+                if (oldValue != null)
                 {
                     if (!rewrite)
-                        throw ExceptionManager.ObjectInitialized("resource", _value.Value, "Name - " + name);
-                    _value.ValueChanged -= OnValueChanged;
+                        throw ExceptionManager.ObjectInitialized("resource", oldValue.Value, "Name - " + name);
+                    oldValue.ValueChanged -= OnValueChanged;
                 }
-                _name = name;
                 _value = value;
                 if (value != null)
                     value.ValueChanged += OnValueChanged;
                 OnValueChanged(null, EventArgs.Empty);
-            }
-
-            public void OnResourceAdded(ISourceValue value, string name)
-            {
-                if (_name == name)
-                    SetValue(value, name, true);
             }
 
             private void OnValueChanged(ISourceValue sender, EventArgs args)
@@ -164,17 +157,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Fields
 
-        private const int MaxInstanceObject = 200;
         private const string ResourcePrefix = "@$res.";
         private readonly Dictionary<string, IBindingValueConverter> _converters;
         private readonly Dictionary<string, IBindingResourceMethod> _dynamicMethods;
         private readonly Dictionary<string, DynamicResourceObject> _objects;
         private readonly Dictionary<string, Func<IDataContext, IList<object>, IBindingBehavior>> _behaviors;
         private readonly Dictionary<string, Type> _types;
-        private readonly List<WeakReference> _instanceObjects;
         private string _bindingSourceResourceName;
         private string _rootElementResourceName;
         private string _selfResourceName;
+        private string _dataContextResourceName;
 
         #endregion
 
@@ -188,6 +180,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             BindingSourceResourceName = "src";
             RootElementResourceName = "root";
             SelfResourceName = "self";
+            DataContextResourceName = "context";
             _behaviors = new Dictionary<string, Func<IDataContext, IList<object>, IBindingBehavior>>();
             _converters = new Dictionary<string, IBindingValueConverter>();
             _dynamicMethods = new Dictionary<string, IBindingResourceMethod>
@@ -197,7 +190,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 {DefaultBindingParserHandler.GetErrorsMethod, new BindingResourceMethod(GetErrorsMethod, typeof(IList<object>))}
             };
             _objects = new Dictionary<string, DynamicResourceObject>();
-            _instanceObjects = new List<WeakReference>();
             _types = new Dictionary<string, Type>
             {
                 {"object", typeof (Object)},
@@ -250,19 +242,20 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             RootElementResourceName = resolver.RootElementResourceName;
             BindingSourceResourceName = resolver.BindingSourceResourceName;
             SelfResourceName = resolver.SelfResourceName;
+            DataContextResourceName = resolver.DataContextResourceName;
             _behaviors = new Dictionary<string, Func<IDataContext, IList<object>, IBindingBehavior>>(resolver._behaviors);
             _converters = new Dictionary<string, IBindingValueConverter>(resolver._converters);
             _dynamicMethods = new Dictionary<string, IBindingResourceMethod>(resolver._dynamicMethods);
             _objects = new Dictionary<string, DynamicResourceObject>(resolver._objects);
             _types = new Dictionary<string, Type>(resolver._types);
-            _instanceObjects = new List<WeakReference>(resolver._instanceObjects);
         }
 
         #endregion
 
         #region Methods
 
-        protected static object TryGetTarget(IDataContext context)
+        [CanBeNull]
+        protected static object TryGetTarget([CanBeNull] IDataContext context)
         {
             if (context == null)
                 return null;
@@ -273,6 +266,23 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (context.TryGetData(BindingConstants.Binding, out data))
                 return data.TargetAccessor.Source.GetActualSource(false);
             return null;
+        }
+
+        [NotNull]
+        protected ISourceValue GetOrAddDynamicResource([NotNull] string name, bool traceWarn)
+        {
+            lock (_objects)
+            {
+                DynamicResourceObject value;
+                if (!_objects.TryGetValue(name, out value))
+                {
+                    if (traceWarn && Tracer.TraceWarning)
+                        Tracer.Warn(BindingExceptionManager.CannotResolveInstanceFormat2, "resource", name, GetType().Name);
+                    value = new DynamicResourceObject();
+                    _objects[name] = value;
+                }
+                return value;
+            }
         }
 
         private static object FormatImpl(IList<Type> typeArgs, object[] args, IDataContext arg3)
@@ -327,11 +337,18 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <param name="target">The binding target.</param>
         /// <param name="name">The specified name.</param>
         /// <param name="context">The specified data context, if any.</param>
+        /// <param name="keepValue">If <c>true</c> saves value as attached value in target</param>
         [CanBeNull]
-        protected virtual ISourceValue ResolveObjectInternal([NotNull] object target, string name, IDataContext context)
+        protected virtual ISourceValue ResolveObjectInternal([NotNull] object target, string name, IDataContext context, out bool keepValue)
         {
+            keepValue = true;
             if (SelfResourceName.Equals(name, StringComparison.Ordinal))
                 return new BindingResourceObject(target, true);
+            if (DataContextResourceName.Equals(name, StringComparison.Ordinal))
+            {
+                keepValue = false;
+                return BindingServiceProvider.ContextManager.GetBindingContext(target);
+            }
             if (RootElementResourceName.Equals(name, StringComparison.Ordinal))
             {
                 var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
@@ -341,39 +358,20 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return null;
         }
 
-        private DynamicResourceObject GetTargetResourceObject(string name, IDataContext context)
+        private ISourceValue GetTargetResourceObject(string name, IDataContext context)
         {
             var target = TryGetTarget(context);
             if (target == null)
                 return null;
-
             string key = ResourcePrefix + name;
-            var sourceValue = ServiceProvider.AttachedValueProvider.GetValue<DynamicResourceObject>(target, key, false);
-            if (sourceValue == null)
-            {
-                var value = ResolveObjectInternal(target, name, context);
-                if (value == null)
-                    return null;
-                sourceValue = new DynamicResourceObject();
-                sourceValue.SetValue(value, name, true);
-                ServiceProvider.AttachedValueProvider.SetValue(target, key, sourceValue);
-                lock (_instanceObjects)
-                {
-                    if (_instanceObjects.Count > MaxInstanceObject)
-                    {
-                        for (int i = 0; i < _instanceObjects.Count; i++)
-                        {
-                            if (_instanceObjects[i].Target == null)
-                            {
-                                _instanceObjects.RemoveAt(i);
-                                --i;
-                            }
-                        }
-                    }
-                    _instanceObjects.Add(ServiceProvider.WeakReferenceFactory(sourceValue));
-                }
-            }
-            return sourceValue;
+            var value = ServiceProvider.AttachedValueProvider.GetValue<ISourceValue>(target, key, false);
+            if (value != null)
+                return value;
+            bool keepValue;
+            value = ResolveObjectInternal(target, name, context, out keepValue);
+            if (keepValue)
+                ServiceProvider.AttachedValueProvider.SetValue(target, key, value);
+            return value;
         }
 
         #endregion
@@ -416,6 +414,19 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 Should.PropertyNotBeNull(value);
                 _bindingSourceResourceName = value;
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the name of data context resource default is <c>context</c>.
+        /// </summary>
+        public string DataContextResourceName
+        {
+            get { return _dataContextResourceName; }
+            set
+            {
+                Should.PropertyNotBeNull(value);
+                _dataContextResourceName = value;
             }
         }
 
@@ -529,21 +540,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (target != null)
                     return BindingServiceProvider.ContextManager.GetBindingContext(target);
             }
-            lock (_objects)
-            {
-                DynamicResourceObject value;
-                if (!_objects.TryGetValue(name, out value))
-                {
-                    var targetResourceObject = GetTargetResourceObject(name, context);
-                    if (targetResourceObject != null)
-                        return targetResourceObject;
-                    if (Tracer.TraceWarning)
-                        Tracer.Warn(BindingExceptionManager.CannotResolveInstanceFormat2, "resource", name, GetType().Name);
-                    value = new DynamicResourceObject();
-                    _objects[name] = value;
-                }
-                return value;
-            }
+            var targetResourceObject = GetTargetResourceObject(name, context);
+            if (targetResourceObject == null)
+                return GetOrAddDynamicResource(name, true);
+            return targetResourceObject;
         }
 
         /// <summary>
@@ -644,30 +644,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             Should.NotBeNullOrWhitespace(name, "name");
             Should.NotBeNull(obj, "obj");
+            DynamicResourceObject value;
             lock (_objects)
             {
-                DynamicResourceObject value;
                 if (!_objects.TryGetValue(name, out value))
                 {
                     value = new DynamicResourceObject();
                     _objects[name] = value;
                 }
-                value.SetValue(obj, name, rewrite);
             }
-            lock (_instanceObjects)
-            {
-                for (int i = 0; i < _instanceObjects.Count; i++)
-                {
-                    var resourceObject = (DynamicResourceObject)_instanceObjects[i].Target;
-                    if (resourceObject == null)
-                    {
-                        _instanceObjects.RemoveAt(i);
-                        --i;
-                    }
-                    else
-                        resourceObject.OnResourceAdded(obj, name);
-                }
-            }
+            value.SetValue(obj, name, rewrite);
         }
 
         /// <summary>

@@ -64,12 +64,14 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
     {
         #region Nested types
 
-        private sealed class XamlUnresolvedResource : ISourceValue, IEventListener
+        private sealed class XamlResourceWrapper : ISourceValue, IEventListener
         {
             #region Fields
 
             private object _value;
+            private EventHandler<ISourceValue, EventArgs> _handler;
             private readonly string _key;
+            private readonly ISourceValue _globalResource;
             private readonly IDisposable _unsubscriber;
             private readonly WeakReference _reference;
 
@@ -77,12 +79,13 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 
             #region Constructors
 
-            public XamlUnresolvedResource(object target, string key, IBindingMemberInfo rootMember)
+            public XamlResourceWrapper(object target, string key, IBindingMemberInfo rootMember, ISourceValue globalResource)
             {
                 _key = key;
                 _value = BindingConstants.UnsetValue;
                 _reference = ServiceProvider.WeakReferenceFactory(target);
                 _unsubscriber = rootMember.TryObserve(target, this);
+                _globalResource = globalResource;
             }
 
             #endregion
@@ -91,13 +94,18 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 
             public object Value
             {
-                get { return _value; }
+                get
+                {
+                    if (ReferenceEquals(_value, BindingConstants.UnsetValue))
+                        return _globalResource.Value;
+                    return _value;
+                }
                 private set
                 {
                     if (Equals(_value, value))
                         return;
                     _value = value;
-                    var handler = ValueChanged;
+                    var handler = _handler;
                     if (handler != null)
                         handler(this, EventArgs.Empty);
                 }
@@ -105,7 +113,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 
             public bool IsAlive
             {
-                get { return _reference.Target != null; }
+                get { return _reference.Target != null || _globalResource.IsAlive; }
             }
 
             public bool IsWeak
@@ -120,13 +128,26 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
                 {
                     if (_unsubscriber != null)
                         _unsubscriber.Dispose();
+                    _handler = null;
                     return false;
                 }
                 Value = TryFindResource(target, _key) ?? BindingConstants.UnsetValue;
                 return true;
             }
 
-            public event EventHandler<ISourceValue, EventArgs> ValueChanged;
+            public event EventHandler<ISourceValue, EventArgs> ValueChanged
+            {
+                add
+                {
+                    _handler += value;
+                    _globalResource.ValueChanged += value;
+                }
+                remove
+                {
+                    _handler -= value;
+                    _globalResource.ValueChanged -= value;
+                }
+            }
 
             #endregion
         }
@@ -183,28 +204,28 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
             return base.ResolveConverter(name, context, throwOnError);
         }
 
+
         /// <summary>
         ///     Gets an instance of <see cref="ISourceValue" /> by the specified name.
         /// </summary>
         /// <param name="target">The binding target.</param>
         /// <param name="name">The specified name.</param>
         /// <param name="context">The specified data context, if any.</param>
-        protected override ISourceValue ResolveObjectInternal(object target, string name, IDataContext context)
+        /// <param name="keepValue">If <c>true</c> saves value as attached value in target</param>
+        protected override ISourceValue ResolveObjectInternal(object target, string name, IDataContext context, out bool keepValue)
         {
-            var value = base.ResolveObjectInternal(target, name, context);
+            var value = base.ResolveObjectInternal(target, name, context, out keepValue);
             if (value != null)
                 return value;
 
+            keepValue = true;
             var item = TryFindResource(target, name);
             if (item != null)
-                return new BindingResourceObject(item);
+                return new BindingResourceObject(item, true);
 
             var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
             if (rootMember != null)
-            {
-                Tracer.Warn("The XAML resource with key '{0}' cannot be found.", name);
-                return new XamlUnresolvedResource(target, name, rootMember);
-            }
+                return new XamlResourceWrapper(target, name, rootMember, GetOrAddDynamicResource(name, false));
             return null;
         }
 
