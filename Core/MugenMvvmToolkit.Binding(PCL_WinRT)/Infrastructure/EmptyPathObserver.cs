@@ -118,7 +118,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <summary>
         ///     Updates the current values.
         /// </summary>
-        protected override IBindingPathMembers UpdateInternal(bool hasSubscribers)
+        protected override IBindingPathMembers UpdateInternal(IBindingPathMembers oldPath, bool hasSubscribers)
         {
             return _members;
         }

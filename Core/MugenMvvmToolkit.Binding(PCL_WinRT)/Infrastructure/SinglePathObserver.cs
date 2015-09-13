@@ -128,16 +128,25 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <summary>
         ///     Updates the current values.
         /// </summary>
-        protected override IBindingPathMembers UpdateInternal(bool hasSubscribers)
+        protected override IBindingPathMembers UpdateInternal(IBindingPathMembers oldPath, bool hasSubscribers)
         {
             object source = GetActualSource();
             if (source == null || source.IsUnsetValue())
                 return UnsetBindingPathMembers.Instance;
-
+            var srcRef = OriginalSource as WeakReference;
+            if (oldPath != null && srcRef != null)
+            {
+                var members = oldPath as SingleBindingPathMembers;
+                if (members != null)
+                {
+                    if (hasSubscribers)
+                        _weakEventListener = TryObserveMember(source, members.LastMember, this, Path.Path);
+                    return members;
+                }
+            }
             IBindingMemberInfo lastMember = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(source.GetType(), Path.Path, _ignoreAttachedMembers, true);
-            var srcRef = OriginalSource as WeakReference;
             if (hasSubscribers || srcRef == null)
                 _weakEventListener = TryObserveMember(source, lastMember, this, Path.Path);
             return new SingleBindingPathMembers(srcRef ?? ToolkitExtensions.GetWeakReference(source), Path, lastMember);

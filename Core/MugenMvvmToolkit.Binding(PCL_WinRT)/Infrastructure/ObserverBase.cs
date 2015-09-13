@@ -140,25 +140,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Properties
 
         /// <summary>
-        ///     Gets an indication whether the object referenced by the current <see cref="ObserverBase" /> object has
-        ///     been garbage collected.
-        /// </summary>
-        /// <returns>
-        ///     true if the object referenced by the current <see cref="ObserverBase" /> object has not been garbage
-        ///     collected and is still accessible; otherwise, false.
-        /// </returns>
-        public bool IsAlive
-        {
-            get
-            {
-                var reference = _source as WeakReference;
-                if (reference == null)
-                    return ((ISourceValue)_source).IsAlive;
-                return reference.Target != null;
-            }
-        }
-
-        /// <summary>
         ///     Gets the original source object.
         /// </summary>
         protected object OriginalSource
@@ -178,7 +159,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// <summary>
         ///     Updates the current values.
         /// </summary>
-        protected abstract IBindingPathMembers UpdateInternal(bool hasSubscribers);
+        protected abstract IBindingPathMembers UpdateInternal(IBindingPathMembers oldPath, bool hasSubscribers);
 
         /// <summary>
         ///     Releases the current observers.
@@ -277,9 +258,62 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 _sourceListener = EmptyDisposable;
         }
 
+        private void Update(bool notify)
+        {
+            if (Interlocked.CompareExchange(ref _state, UpdatingState, DefaultState) != DefaultState)
+                return;
+            Exception ex = null;
+            var hasSubscribers = _valueChanged != null;
+            try
+            {
+                if (_sourceListener == null)
+                {
+                    if (hasSubscribers || !DependsOnSubscribers)
+                        InitializeSourceListener();
+                }
+                ClearObserversInternal();
+                _pathMembers = UpdateInternal(_pathMembers, hasSubscribers);
+            }
+            catch (Exception exception)
+            {
+                ex = exception;
+                _pathMembers = UnsetBindingPathMembers.Instance;
+            }
+            finally
+            {
+                if (Interlocked.CompareExchange(ref _state, DefaultState, UpdatingState) == UpdatingState)
+                {
+                    _observationException = ex;
+                    if (DependsOnSubscribers && !hasSubscribers && _valueChanged != null)
+                        Update(true);
+                    else if (notify)
+                        RaiseValueChanged(ValueChangedEventArgs.FalseEventArgs);
+                }
+            }
+        }
+
         #endregion
 
         #region Implementation of IObserver
+
+        /// <summary>
+        ///     Gets an indication whether the object referenced by the current <see cref="ObserverBase" /> object has
+        ///     been garbage collected.
+        /// </summary>
+        /// <returns>
+        ///     true if the object referenced by the current <see cref="ObserverBase" /> object has not been garbage
+        ///     collected and is still accessible; otherwise, false.
+        /// </returns>
+        public bool IsAlive
+        {
+            get
+            {
+                var reference = _source as WeakReference;
+                if (reference == null)
+                    return ((ISourceValue)_source).IsAlive;
+                return reference.Target != null;
+            }
+        }
 
         /// <summary>
         ///     Gets the path.
@@ -308,36 +342,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         /// </summary>
         public void Update()
         {
-            if (Interlocked.CompareExchange(ref _state, UpdatingState, DefaultState) != DefaultState)
-                return;
-            Exception ex = null;
-            var hasSubscribers = _valueChanged != null;
-            try
-            {
-                if (_sourceListener == null)
-                {
-                    if (hasSubscribers || !DependsOnSubscribers)
-                        InitializeSourceListener();
-                }
-                ClearObserversInternal();
-                _pathMembers = UpdateInternal(hasSubscribers);
-            }
-            catch (Exception exception)
-            {
-                ex = exception;
-                _pathMembers = UnsetBindingPathMembers.Instance;
-            }
-            finally
-            {
-                if (Interlocked.CompareExchange(ref _state, DefaultState, UpdatingState) == UpdatingState)
-                {
-                    _observationException = ex;
-                    if (DependsOnSubscribers && !hasSubscribers && _valueChanged != null)
-                        Update();
-                    else
-                        RaiseValueChanged(ValueChangedEventArgs.FalseEventArgs);
-                }
-            }
+            Update(true);
         }
 
         /// <summary>
@@ -400,9 +405,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             add
             {
+                if (_state == DisposedState)
+                    return;
                 _valueChanged += value;
                 if (ReferenceEquals(_sourceListener, null))
-                    Update();
+                    Update(false);
             }
             remove { _valueChanged -= value; }
         }

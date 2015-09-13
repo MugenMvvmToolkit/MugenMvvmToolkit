@@ -30,6 +30,16 @@ namespace MugenMvvmToolkit.Binding.Interfaces
     public interface IObserver : IDisposable
     {
         /// <summary>
+        ///     Gets an indication whether the object referenced by the current <see cref="IObserver" /> object has
+        ///     been garbage collected.
+        /// </summary>
+        /// <returns>
+        ///     true if the object referenced by the current <see cref="IObserver" /> object has not been garbage
+        ///     collected and is still accessible; otherwise, false.
+        /// </returns>
+        bool IsAlive { get; }
+
+        /// <summary>
         ///     Gets the path.
         /// </summary>
         [NotNull]
