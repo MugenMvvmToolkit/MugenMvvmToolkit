@@ -140,7 +140,6 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         public void ResolverShouldRegisterAndResolveDynamicObjectTarget()
         {
             string name = BindingServiceProvider.ResourceResolver.RootElementResourceName;
-            const string firstValue = "1";
             var visualTreeManagerMock = new VisualTreeManagerMock();
             BindingServiceProvider.VisualTreeManager = visualTreeManagerMock;
             var rootMember = AttachedBindingMember.CreateAutoProperty<object, object>("root");
@@ -153,7 +152,6 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
                 {BindingBuilderConstants.Target, target}
             };
 
-            var source = new BindingResourceObject(firstValue);
             var resolver = CreateBindingResourceResolver();
 
             bool isInvoked = false;
@@ -161,8 +159,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             value.Value.ShouldEqual(target);
             value.ValueChanged += (sender, args) => isInvoked = true;
 
-            resolver.AddObject(name, source, true);
-            value.Value.ShouldEqual(firstValue);
+            rootMember.SetValue(target, name);
+            value.Value.ShouldEqual(name);
             isInvoked.ShouldBeTrue();
         }
 

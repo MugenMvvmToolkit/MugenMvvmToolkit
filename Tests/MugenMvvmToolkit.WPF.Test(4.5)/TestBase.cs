@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MugenMvvmToolkit.DataConstants;
@@ -19,6 +20,43 @@ namespace MugenMvvmToolkit.Test
     [TestClass]
     public abstract class TestBase
     {
+        #region Nested types
+
+        private sealed class UnitTestApp : MvvmApplication
+        {
+            #region Fields
+
+            private readonly TestBase _test;
+
+            #endregion
+
+            #region Constructors
+
+            public UnitTestApp(TestBase test)
+                : base(LoadMode.UnitTest)
+            {
+                _test = test;
+            }
+
+            #endregion
+
+            #region Methods
+
+            public override IViewModelSettings ViewModelSettings
+            {
+                get { return _test.Settings; }
+            }
+
+            public override Type GetStartViewModelType()
+            {
+                return typeof(IViewModel);
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Properties
 
         protected List<Type> CanBeResolvedTypes { get; private set; }
@@ -63,7 +101,6 @@ namespace MugenMvvmToolkit.Test
             ThreadManager = new ThreadManagerMock();
             ServiceProvider.ThreadManager = ThreadManager;
             Settings = new ViewModelSettingsMock();
-            ApplicationSettings.ViewModelSettings = Settings;
             DisplayNameProvider = new DisplayNameProviderMock();
             IocContainer = new IocContainerMock
             {
@@ -71,10 +108,11 @@ namespace MugenMvvmToolkit.Test
                 CanResolveDelegate = CanResolve
             };
             ServiceProvider.Tracer = new ConsoleTracer();
-            ServiceProvider.Initialize(IocContainer, PlatformInfo.UnitTest);
             ViewModelProvider = new ViewModelProvider(IocContainer);
             OnInit();
-            ServiceProvider.Initialize(IocContainer, PlatformInfo.UnitTest);
+            var app = new UnitTestApp(this);
+            app.Initialize(PlatformInfo.UnitTest, IocContainer, Empty.Array<Assembly>(), DataContext.Empty);
+            ServiceProvider.Initialize(app);
         }
 
         protected T GetViewModel<T>() where T : IViewModel, new()

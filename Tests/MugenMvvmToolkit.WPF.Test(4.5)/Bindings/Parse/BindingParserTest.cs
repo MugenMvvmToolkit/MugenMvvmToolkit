@@ -83,7 +83,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
 
             var sources = context.GetData(BindingBuilderConstants.Sources);
             IObserver source = sources.Single().Invoke(context);
-            BindingSourceShouldBeValid(source, AttachedMemberConstants.DataContext + "." + sourcePath, target);
+            BindingSourceShouldBeValidDataContext(target, source, sourcePath);
         }
 
         [TestMethod]

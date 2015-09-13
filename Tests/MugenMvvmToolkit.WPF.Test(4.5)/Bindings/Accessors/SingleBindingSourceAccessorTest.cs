@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Accessors;
+using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Infrastructure;
+using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -869,6 +872,89 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             isInvoked = false;
             source.RaiseEvent();
             isInvoked.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public void ExecuteShouldCallCmdExecuteMethodOneTimeModeAfterDispose()
+        {
+            var parameter = new object();
+            bool isInvoked = false;
+            var command = new RelayCommand(o =>
+            {
+                o.ShouldEqual(parameter);
+                isInvoked = true;
+            });
+            var srcAccessor = new BindingSourceAccessorMock();
+            var source = new BindingSourceModel();
+            var ctx = new DataContext(BindingBuilderConstants.Behaviors.ToValue(new List<IBindingBehavior> { new OneTimeBindingMode() }));
+            var accessor = GetAccessor(source, BindingSourceModel.EventName, ctx, false, d => parameter);
+            srcAccessor.GetValue = (info, context, arg3) => command;
+            accessor.SetValue(srcAccessor, EmptyContext, true);
+            accessor.Dispose();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+
+            source.RaiseEvent();
+            isInvoked.ShouldBeTrue();
+
+            isInvoked = false;
+            source.RaiseEvent();
+            isInvoked.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public void SetValueShouldUpdateIsEnabledPropertyOneTimeModeAfterDispose()
+        {
+            bool canExecute = false;
+            var command = new RelayCommand(o => { }, o => canExecute, this);
+
+            var srcAccessor = new BindingSourceAccessorMock();
+            var source = new BindingSourceModel();
+            var ctx = new DataContext(BindingBuilderConstants.Behaviors.ToValue(new List<IBindingBehavior> { new OneTimeBindingMode() }));
+            var accessor = GetAccessor(source, BindingSourceModel.EventName, ctx, false);
+            srcAccessor.GetValue = (info, context, arg3) => command;
+            accessor.SetValue(srcAccessor, EmptyContext, true);
+            accessor.Dispose();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+
+            source.IsEnabled.ShouldBeFalse();
+            canExecute = true;
+            command.RaiseCanExecuteChanged();
+            source.IsEnabled.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public void AccessorShouldUseCommandParameterCanExecuteOneTimeModeAfterDispose()
+        {
+            bool isInvoked = false;
+            var parameter = new object();
+            var command = new RelayCommand(o => { }, o =>
+            {
+                o.ShouldEqual(parameter);
+                isInvoked = true;
+                return false;
+            }, this);
+            var srcAccessor = new BindingSourceAccessorMock();
+            var source = new BindingSourceModel();
+            var ctx = new DataContext(BindingBuilderConstants.Behaviors.ToValue(new List<IBindingBehavior> { new OneTimeBindingMode() }));
+            var accessor = GetAccessor(source, BindingSourceModel.EventName, ctx, false, d => parameter);
+            srcAccessor.GetValue = (info, context, arg3) => command;
+
+            accessor.SetValue(srcAccessor, EmptyContext, true);
+            accessor.Dispose();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+
+            isInvoked.ShouldBeTrue();
+
+            isInvoked = false;
+            command.RaiseCanExecuteChanged();
+            isInvoked.ShouldBeTrue();
+            source.ToString();//TO KEEP ALIVE
         }
 
         [TestMethod]

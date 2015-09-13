@@ -66,7 +66,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
         {
             var vm = GetViewModel<NavigableViewModelMock>();
             IOperationCallback operationCallback = null;
-            ApplicationSettings.Platform = new PlatformInfo(PlatformType.WPF, new Version(0, 0));
             OperationCallbackManager.Register = (type, o, arg3, arg4) =>
             {
                 type.ShouldEqual(OperationType.TabNavigation);

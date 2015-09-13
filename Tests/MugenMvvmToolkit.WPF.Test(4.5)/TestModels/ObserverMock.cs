@@ -9,6 +9,12 @@ namespace MugenMvvmToolkit.Test.TestModels
 {
     public class ObserverMock : DisposableObject, IObserver
     {
+        #region Fields
+
+        private bool _isAlive = true;
+
+        #endregion
+
         #region Properties
 
         public Action Update { get; set; }
@@ -36,6 +42,12 @@ namespace MugenMvvmToolkit.Test.TestModels
         #endregion
 
         #region Implementation of IObserver
+
+        public bool IsAlive
+        {
+            get { return _isAlive; }
+            set { _isAlive = value; }
+        }
 
         /// <summary>
         ///     Gets the path.
