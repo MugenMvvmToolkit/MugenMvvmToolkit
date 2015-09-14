@@ -42,7 +42,25 @@
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
-      <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="4.3.0" />
+      <group targetFramework="MonoAndroid10">
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="4.3.0" />
+      </group>
+      <group targetFramework="Xamarin.iOS10">
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="4.3.0" />
+      </group>
+      <group targetFramework="wp8">
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="4.3.0" />
+      </group>
+      <group targetFramework="wpa81">
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="4.3.0" />
+      </group>
+      <group targetFramework="win81">
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="4.3.0" />
+      </group>
+      <group targetFramework="portable-net45+win+wp80+MonoAndroid10+Xamarin.iOS10">
+        <dependency id="MugenMvvmToolkit.AutofacContainer" version="4.3.0" />
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="4.3.0" />		
+      </group>
     </dependencies>
   </metadata>
   <files>

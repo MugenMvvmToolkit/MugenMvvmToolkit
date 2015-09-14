@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
     {
         #region Nested types
 
-        internal sealed class MenuItemOnMenuItemClickListener : Object, IMenuItemOnMenuItemClickListener
+        private sealed class MenuItemOnMenuItemClickListener : Object, IMenuItemOnMenuItemClickListener
         {
             #region Fields
 
@@ -103,7 +103,8 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                     item.SetChecked(value);
                     return true;
                 }));
-            memberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.MenuItem.Click, SetClickEventValue));
+            memberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.MenuItem.Click, SetClickEventValue,
+                (item, args) => item.SetOnMenuItemClickListener(new MenuItemOnMenuItemClickListener(item))));
 
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<IMenuItem, object>("AlphabeticShortcut",

@@ -1,5 +1,6 @@
 using System;
 using $rootnamespace$;
+using MugenMvvmToolkit;
 using MugenMvvmToolkit.Android.Attributes;
 using MugenMvvmToolkit.Android.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
@@ -14,12 +15,12 @@ namespace $rootnamespace$
 
         protected override IIocContainer CreateIocContainer()
         {
-            return new IIocContainer();
+            return new AutofacContainer();
         }
 
-        protected override Type GetMainViewModelType()
+        protected override IMvvmApplication CreateApplication()
         {
-            return typeof (MainViewModel);
+            return new Core.App();
         }
 
         #endregion

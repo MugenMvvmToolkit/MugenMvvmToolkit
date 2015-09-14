@@ -42,15 +42,27 @@
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
-      <dependency id="MugenMvvmToolkit" version="4.3.0" />
+      <group>
+        <dependency id="MugenMvvmToolkit" version="4.3.0" />
+      </group>
+      <group targetFramework="Xamarin.iOS">
+        <dependency id="MugenMvvmToolkit" version="4.3.0" />
+		<dependency id="MugenMvvmToolkit.AutofacContainer" version="4.3.0" />
+      </group>
+	  <group targetFramework="MonoAndroid10">
+        <dependency id="MugenMvvmToolkit" version="4.3.0" />
+		<dependency id="MugenMvvmToolkit.AutofacContainer" version="4.3.0" />
+      </group>
     </dependencies>
   </metadata>
   <files>
     <!-- CORE PCL WINRT -->
     <file src="CoreContent\MainViewModel.cs.pp" target="content\portable-net45+win+wpa81+wp80\ViewModels\MainViewModel.cs.pp" />
+    <file src="CoreContent\App.cs.pp" target="content\portable-net45+win+wpa81+wp80\App.cs.pp" />
 
     <!-- CORE PCL SILVERLIGHT -->
     <file src="CoreContent\MainViewModel.cs.pp" target="content\portable-net45+sl40+win+wp71\ViewModels\MainViewModel.cs.pp" />
+    <file src="CoreContent\App.cs.pp" target="content\portable-net45+sl40+win+wp71\App.cs.pp" />
 
     <!-- Android -->
     <file src="AndroidContent\Setup.cs.pp" target="content\MonoAndroid10\Setup.cs.pp" />

@@ -8,7 +8,7 @@ namespace $rootnamespace$
         public App()
         {
             // ReSharper disable once ObjectCreationAsStatement
-            new Bootstrapper<MainViewModel>(this, new IIocContainer());
+            new Bootstrapper<Core.App>(this, new IIocContainer());
         }
     }
 }

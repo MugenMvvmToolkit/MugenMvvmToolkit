@@ -57,7 +57,7 @@ namespace $rootnamespace$
                 PhoneApplicationService.Current.UserIdleDetectionMode = IdleDetectionMode.Disabled;
             }
             // ReSharper disable once ObjectCreationAsStatement
-            new Bootstrapper<MainViewModel>(RootFrame, new IIocContainer());
+            new Bootstrapper<Core.App>(RootFrame, new IIocContainer());
         }
 
         // Code to execute when the application is launching (eg, from Start)

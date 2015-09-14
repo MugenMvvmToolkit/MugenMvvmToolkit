@@ -1,3 +1,4 @@
+using MugenMvvmToolkit;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure;
 using Xamarin.Forms;
 
@@ -8,7 +9,7 @@ namespace $rootnamespace$
         public App()
         {
             XamarinFormsBootstrapperBase bootstrapper = XamarinFormsBootstrapperBase.Current ??
-                                                        new Bootstrapper<MainViewModel>(/*new IIocContainer()*/);
+                                                        new Bootstrapper<Core.App>(new AutofacContainer());
             MainPage = bootstrapper.Start();
         }
     }

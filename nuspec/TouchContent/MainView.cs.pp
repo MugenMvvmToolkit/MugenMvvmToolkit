@@ -1,4 +1,5 @@
 using CoreGraphics;
+using Core.ViewModels;
 using Foundation;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;

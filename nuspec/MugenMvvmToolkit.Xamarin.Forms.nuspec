@@ -37,9 +37,19 @@
       - Excellent binding performance.
     </description>
     <releaseNotes>
-      - Improved binding performance and reduced memory usage.
+      - Added the IMvvmApplication interface that allows to separate the logic associated with the launch of the application in a portable class library.
+      - Added the ability to use command bindings with the OneTimeMode (Binding).
+      - Added the DataContextResourceName property that allows to set default keywoard for the $context resource (Binding).
+      - Added the ability to use empty binding parameters it would be equivalent to the $context binding: CommandParameter=; equivalent to CommandParameter=$context; (Binding).
+      - Added the Application.IActivityLifecycleCallbacks listener to handle activity navigation not from the framework (Android).
       - Added binding support for preferences (Android).
-      - Removed IBindingSource and IBindingTarget interfaces and implementations.
+      - Improved binding performance and reduced memory usage.
+      - Optimized the xaml and target resources (Binding).
+      - Fixed an incorrect behavior of the root listener in some case (Binding).
+      - Fixed incorrect data context for the GetDropDownView method (Android).
+      - Fixed incorrect data context in the case of explicit data context binding (Android ActionBarTab).
+      - Handled the ObjectDisposedException that can be caused by race condition (Net 4.0 DelayBindingBehavior).
+      - Removed IBindingSource and IBindingTarget interfaces and implementations (Binding).
       - Minor changes.
     </releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -78,7 +88,7 @@
     <file src="..\bin\Platforms\Xamarin.Forms\Touch\MugenMvvmToolkit.Xamarin.Forms.iOS.dll" target="lib\Xamarin.iOS10\MugenMvvmToolkit.Xamarin.Forms.iOS.dll" />    
     <file src="..\bin\Platforms\Xamarin.Forms\Touch\MugenMvvmToolkit.Xamarin.Forms.iOS.xml" target="lib\Xamarin.iOS10\MugenMvvmToolkit.Xamarin.Forms.iOS.xml" />
 
-    <file src="TouchContent\error.png" target="content\Xamarin.iOS10\Resources\error.png" />
+    <file src="TouchContent\error@2x.png" target="content\Xamarin.iOS10\Resources\error.png" />
     <!--<file src="TouchContent\error@2x.png" target="content\Xamarin.iOS10\Resources\error@2x.png" /> 3.1 nuget bug -->
     <file src="XamarinFormsContent\RuntimeLoadAssembly.cs.pp" target="content\Xamarin.iOS10\RuntimeLoadAssembly.cs.pp" />
 

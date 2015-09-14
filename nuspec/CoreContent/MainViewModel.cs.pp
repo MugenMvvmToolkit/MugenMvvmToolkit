@@ -1,6 +1,6 @@
 ﻿using MugenMvvmToolkit.ViewModels;
 
-namespace $rootnamespace$.ViewModels
+namespace Core.ViewModels
 {
     public class MainViewModel : CloseableViewModel
     {

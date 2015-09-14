@@ -156,7 +156,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             if (isSubMenu)
             {
                 ISubMenu subMenu = menu.AddSubMenu(groupId, id, order, string.Empty);
-                setter = new XmlPropertySetter<MenuItemTemplate, IMenuItem>(subMenu.Item, context, new BindingSet());                
+                setter = new XmlPropertySetter<MenuItemTemplate, IMenuItem>(subMenu.Item, context, new BindingSet());
                 subMenu.SetBindingMemberValue(AttachedMembers.Object.Parent, menu);
                 subMenu.Item.SetBindingMemberValue(AttachedMembers.Object.Parent, subMenu);
                 SetDataContext(subMenu, setter.BindingSet, dataContext, useContext);
@@ -210,7 +210,6 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             setter.SetBinding(() => template => template.ActionProviderTemplateSelector, ActionProviderTemplateSelector, false);
             setter.SetProperty(() => template => template.ActionView, ActionView);
             setter.SetStringProperty(() => template => template.ActionProvider, ActionProvider);
-            menuItem.SetOnMenuItemClickListener(new PlatformDataBindingModule.MenuItemOnMenuItemClickListener(menuItem));
         }
 
         private void SetDataContext(object target, BindingSet setter, object dataContext, bool useContext)

@@ -2,7 +2,6 @@ using System.Collections;
 using Android.App;
 using Android.Graphics.Drawables;
 using Android.Support.Design.Widget;
-using Android.Support.V7.Widget;
 using Android.Widget;
 using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
@@ -159,7 +158,18 @@ namespace MugenMvvmToolkit.Android.Design.Modules
         {
             Activity activity = view.Context.GetActivity();
             if (activity != null)
+            {
                 activity.MenuInflater.Inflate(args.NewValue, view.Menu, view);
+
+                //http://stackoverflow.com/questions/30695038/how-to-programmatically-add-a-submenu-item-to-the-new-material-design-android-su/30706233#30706233
+                var menu = view.Menu;
+                var size = menu.Size();
+                if (size > 0)
+                {
+                    var item = menu.GetItem(size - 1);
+                    item.SetTitle(item.TitleFormatted);
+                }
+            }
         }
 
         #endregion
