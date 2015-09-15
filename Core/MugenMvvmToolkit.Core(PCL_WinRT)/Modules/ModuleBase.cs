@@ -124,8 +124,17 @@ namespace MugenMvvmToolkit.Modules
         public bool Load(IModuleContext context)
         {
             Should.NotBeNull(context, "context");
-            if ((_supportedModes & context.Mode) == 0)
-                return false;
+            var mode = _supportedModes & context.Mode;
+            if (_supportedModes.HasFlagEx(LoadMode.RuntimeDebug) || _supportedModes.HasFlagEx(LoadMode.RuntimeRelease))
+            {
+                if (mode != context.Mode)
+                    return false;
+            }
+            else
+            {
+                if (mode == 0)
+                    return false;
+            }
             if (!_iocContainerCanBeNull && context.IocContainer == null)
                 return false;
             lock (_locker)
