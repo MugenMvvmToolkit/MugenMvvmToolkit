@@ -366,7 +366,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
         {
             PlatformExtensions.LayoutInflaterFactory = (context, dataContext, factory, inflater) =>
             {
-                if (factory == null && !ServiceProvider.IocContainer.TryGet(out factory))
+                if (factory == null && !ServiceProvider.TryGet(out factory))
                     factory = new ViewFactory();
                 if (inflater == null)
                     return new BindableLayoutInflaterCompat(factory, context);
@@ -420,6 +420,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
 
             //ViewPager
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.ViewPager.SelectedItem, ViewPagerSelectedItemChanged));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.ViewPager.GetPageTitleDelegate));
             var itemMember = AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.ViewPager.CurrentItem,
                 ViewPagerCurrentItemChanged, AdapterViewCurrentItemAttached, (pager, info) => pager.CurrentItem);
             memberProvider.Register(itemMember);

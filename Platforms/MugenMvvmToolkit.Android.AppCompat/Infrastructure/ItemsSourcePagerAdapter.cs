@@ -214,7 +214,12 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
         {
             if (ItemsSource == null)
                 return base.GetPageTitleFormatted(position);
-            var displayName = ItemsSource.ElementAtIndex(position) as IHasDisplayName;
+            var item = ItemsSource.ElementAtIndex(position);
+            var func = _viewPager.GetBindingMemberValue(AttachedMembersCompat.ViewPager.GetPageTitleDelegate);
+            if (func != null)
+                return func(item);
+
+            var displayName = item as IHasDisplayName;
             if (displayName == null)
                 return null;
             return new String(displayName.DisplayName);

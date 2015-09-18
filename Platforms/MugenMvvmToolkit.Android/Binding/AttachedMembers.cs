@@ -17,7 +17,6 @@
 #endregion
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using Android.App;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
@@ -25,16 +24,18 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
-
 #if APPCOMPAT
+using Java.Lang;
 using MugenMvvmToolkit.Android.Binding;
 using ActionBarEx = Android.Support.V7.App.ActionBar;
 using TolbarEx = Android.Support.V7.Widget.Toolbar;
+using Object = System.Object;
 namespace MugenMvvmToolkit.Android.AppCompat
 {
     public static class AttachedMembersCompat
 #else
 using Android.Views;
+using System.Collections.Generic;
 using ActionBarEx = Android.App.ActionBar;
 using TolbarEx = Android.Widget.Toolbar;
 namespace MugenMvvmToolkit.Android.Binding
@@ -457,6 +458,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
             public static readonly BindingMemberDescriptor<global::Android.Support.V4.View.ViewPager, object> SelectedItem;
             public static readonly BindingMemberDescriptor<global::Android.Support.V4.View.ViewPager, int> CurrentItem;
+            public static readonly BindingMemberDescriptor<global::Android.Support.V4.View.ViewPager, Func<object, ICharSequence>> GetPageTitleDelegate;
 
         #endregion
 
@@ -466,6 +468,7 @@ namespace MugenMvvmToolkit.Android.Binding
             {
                 SelectedItem = new BindingMemberDescriptor<global::Android.Support.V4.View.ViewPager, object>(AttachedMemberConstants.SelectedItem);
                 CurrentItem = new BindingMemberDescriptor<global::Android.Support.V4.View.ViewPager, int>("CurrentItem");
+                GetPageTitleDelegate = new BindingMemberDescriptor<global::Android.Support.V4.View.ViewPager, Func<object, ICharSequence>>("GetPageTitle");
             }
 
             protected ViewPager()
