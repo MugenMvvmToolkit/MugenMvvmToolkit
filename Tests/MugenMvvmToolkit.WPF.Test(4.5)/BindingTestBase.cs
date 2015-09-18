@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.Test
 
         protected static string GetMemberPath<T>(Expression<Func<T, object>> expression)
         {
-            return BindingExtensions.GetMemberPath(expression);
+            return BindingExtensions.GetMemberPath(() => expression);
         }
 
         #endregion

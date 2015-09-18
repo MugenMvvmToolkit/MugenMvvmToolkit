@@ -148,32 +148,6 @@ namespace MugenMvvmToolkit.Models
         }
 
         /// <summary>
-        ///     Calls the event for the specified property.
-        /// </summary>
-        /// <param name="expression">Specified expression with property.</param>
-        [NotifyPropertyChangedInvocator("expression")]
-        [Obsolete(ExceptionManager.ObsoleteExpressionUsage)]
-        protected void OnPropertyChanged<T>(Expression<Func<T>> expression)
-        {
-            OnPropertyChanged(expression, PropertyChangeExecutionMode);
-        }
-
-        /// <summary>
-        ///     Calls the event for the specified property.
-        /// </summary>
-        /// <param name="expression">Specified expression with property.</param>
-        /// <param name="executionMode">
-        ///     Specifies the execution mode for raise property changed event.
-        /// </param>
-        [NotifyPropertyChangedInvocator("expression")]
-        [Obsolete(ExceptionManager.ObsoleteExpressionUsage)]
-        protected void OnPropertyChanged<T>(Expression<Func<T>> expression, ExecutionMode executionMode)
-        {
-            Should.NotBeNull(expression, "expression");
-            OnPropertyChanged(expression.GetMemberInfo().Name, executionMode);
-        }
-
-        /// <summary>
         ///     Sets a property with calling property change event.
         /// </summary>
         /// <typeparam name="T">The type of property.</typeparam>
@@ -191,28 +165,6 @@ namespace MugenMvvmToolkit.Models
             {
                 field = newValue;
                 OnPropertyChanged(propName, executionMode.GetValueOrDefault(PropertyChangeExecutionMode));
-            }
-        }
-
-        /// <summary>
-        ///     Sets a property with calling property change event.
-        /// </summary>
-        /// <typeparam name="T">The type of property.</typeparam>
-        /// <param name="field">The property field.</param>
-        /// <param name="newValue">The new property value.</param>
-        /// <param name="expression">Specified expression with property.</param>
-        /// <param name="executionMode">
-        ///     Specifies the execution mode for raise property changed event.
-        /// </param>
-        [NotifyPropertyChangedInvocator("expression")]
-        [Obsolete(ExceptionManager.ObsoleteExpressionUsage)]
-        protected void SetProperty<T>(ref T field, T newValue, Expression<Func<T>> expression,
-            ExecutionMode? executionMode = null)
-        {
-            if (!EqualityComparer<T>.Default.Equals(field, newValue))
-            {
-                field = newValue;
-                OnPropertyChanged(expression, executionMode.GetValueOrDefault(PropertyChangeExecutionMode));
             }
         }
 

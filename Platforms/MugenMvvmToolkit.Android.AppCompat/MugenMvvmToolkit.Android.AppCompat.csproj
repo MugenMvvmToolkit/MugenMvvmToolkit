@@ -140,7 +140,6 @@
     <Compile Include="Models\Enums.cs" />
     <Compile Include="Modules\AppCompatModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Views\Activities\MvvmActionBarActivity.cs" />
     <Compile Include="Views\Activities\MvvmAppCompatActivity.cs" />
     <Compile Include="Views\Activities\MvvmFragmentActivity.cs" />
   </ItemGroup>

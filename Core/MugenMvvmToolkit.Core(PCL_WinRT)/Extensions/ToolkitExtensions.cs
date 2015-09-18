@@ -1549,9 +1549,7 @@ namespace MugenMvvmToolkit
         {
             Should.NotBeNull(aggregator, "aggregator");
             Should.NotBeNull(instanceToValidate, "instanceToValidate");
-            var validator = ServiceProvider.IocContainer == null
-                ? Activator.CreateInstance<TValidator>()
-                : ServiceProvider.IocContainer.Get<TValidator>();
+            var validator = ServiceProvider.GetOrCreate<TValidator>();
             validator.Initialize(aggregator.CreateContext(instanceToValidate));
             aggregator.AddValidator(validator);
             return validator;
@@ -2132,7 +2130,7 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Invokes an action using the specified execution mode.
         /// </summary>
-        public static void Invoke(this IThreadManager threadManager, ExecutionMode mode, Action invokeAction, OperationPriority priority = OperationPriority.Normal, CancellationToken token = default (CancellationToken))
+        public static void Invoke(this IThreadManager threadManager, ExecutionMode mode, Action invokeAction, OperationPriority priority = OperationPriority.Normal, CancellationToken token = default(CancellationToken))
         {
             switch (mode)
             {
@@ -2158,7 +2156,7 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Invokes an action using the specified execution mode.
         /// </summary>
-        public static void Invoke<TTarget, TArg>(this IThreadManager threadManager, ExecutionMode mode, TTarget target, TArg arg1, Action<TTarget, TArg> invokeAction, OperationPriority priority = OperationPriority.Normal, CancellationToken token = default (CancellationToken))
+        public static void Invoke<TTarget, TArg>(this IThreadManager threadManager, ExecutionMode mode, TTarget target, TArg arg1, Action<TTarget, TArg> invokeAction, OperationPriority priority = OperationPriority.Normal, CancellationToken token = default(CancellationToken))
         {
             switch (mode)
             {
@@ -2184,7 +2182,7 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Invokes an action using the specified execution mode.
         /// </summary>
-        public static void Invoke<TTarget, TArg1, TArg2>(this IThreadManager threadManager, ExecutionMode mode, TTarget target, TArg1 arg1, TArg2 arg2, Action<TTarget, TArg1, TArg2> invokeAction, OperationPriority priority = OperationPriority.Normal, CancellationToken token = default (CancellationToken))
+        public static void Invoke<TTarget, TArg1, TArg2>(this IThreadManager threadManager, ExecutionMode mode, TTarget target, TArg1 arg1, TArg2 arg2, Action<TTarget, TArg1, TArg2> invokeAction, OperationPriority priority = OperationPriority.Normal, CancellationToken token = default(CancellationToken))
         {
             switch (mode)
             {

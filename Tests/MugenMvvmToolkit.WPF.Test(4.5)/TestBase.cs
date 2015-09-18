@@ -112,7 +112,6 @@ namespace MugenMvvmToolkit.Test
             OnInit();
             var app = new UnitTestApp(this);
             app.Initialize(PlatformInfo.UnitTest, IocContainer, Empty.Array<Assembly>(), DataContext.Empty);
-            ServiceProvider.Initialize(app);
         }
 
         protected T GetViewModel<T>() where T : IViewModel, new()

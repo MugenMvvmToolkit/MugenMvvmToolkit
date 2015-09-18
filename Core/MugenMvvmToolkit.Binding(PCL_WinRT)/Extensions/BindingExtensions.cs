@@ -496,20 +496,6 @@ namespace MugenMvvmToolkit.Binding
         }
 
         /// <summary>
-        ///     Gets the member names from the specified expression.
-        /// </summary>
-        [Pure]
-        [Obsolete(ExceptionManager.ObsoleteExpressionUsage)]
-        public static string GetMemberPath(LambdaExpression expression, string separator = ".")
-        {
-            Expression lastExpression;
-            string path;
-            if (TryGetMemberPath(expression.Body, separator, true, out lastExpression, out path))
-                return path;
-            return null;
-        }
-
-        /// <summary>
         ///     Gets the value of binding member.
         /// </summary>
         public static object GetValue([CanBeNull] this BindingActionValue actionValue, object[] args)
@@ -1015,6 +1001,16 @@ namespace MugenMvvmToolkit.Binding
         internal static string RemoveBounds(this string st)
         {
             return st.Substring(1, st.Length - 2);
+        }
+
+        [Pure]
+        private static string GetMemberPath(LambdaExpression expression, string separator = ".")
+        {
+            Expression lastExpression;
+            string path;
+            if (TryGetMemberPath(expression.Body, separator, true, out lastExpression, out path))
+                return path;
+            return null;
         }
 
         private static object AsResourceMethodDelegate<TArg1, TResult>(this Func<TArg1, IDataContext, TResult> method,

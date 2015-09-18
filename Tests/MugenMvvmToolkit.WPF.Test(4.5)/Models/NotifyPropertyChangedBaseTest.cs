@@ -80,9 +80,9 @@ namespace MugenMvvmToolkit.Test.Models
             set
             {
                 if (_useGlobalSetting)
-                    SetProperty(ref _setProperty, value, () => SetPropertyExpression);
+                    this.SetProperty(ref _setProperty, value, () => vm => SetPropertyExpression);
                 else
-                    SetProperty(ref _setProperty, value, () => SetPropertyExpression, _executionMode);
+                    this.SetProperty(ref _setProperty, value, () => vm => SetPropertyExpression, _executionMode);
             }
         }
 
@@ -109,9 +109,9 @@ namespace MugenMvvmToolkit.Test.Models
                 if (value == _propertyExp) return;
                 _propertyExp = value;
                 if (_useGlobalSetting)
-                    OnPropertyChanged(() => PropertyExp);
+                    this.OnPropertyChanged(() => m => m.PropertyExp);
                 else
-                    OnPropertyChanged(() => PropertyExp, _executionMode);
+                    this.OnPropertyChanged(() => m => m.PropertyExp, _executionMode);
             }
         }
 
@@ -174,7 +174,7 @@ namespace MugenMvvmToolkit.Test.Models
                                        lastProp = args.PropertyName;
                                        count++;
                                    };
-            OnPropertyChanged(() => SetPropertyName);
+            this.OnPropertyChanged(() => vm => vm.SetPropertyName);
             lastProp.ShouldEqual("SetPropertyName");
             count.ShouldEqual(1);
 
@@ -182,7 +182,7 @@ namespace MugenMvvmToolkit.Test.Models
             ClearPropertyChangedSubscribers();
             count = 0;
             lastProp = null;
-            OnPropertyChanged(() => SetPropertyName);
+            this.OnPropertyChanged(() => vm => vm.SetPropertyName);
             lastProp.ShouldBeNull();
             count.ShouldEqual(0);
         }

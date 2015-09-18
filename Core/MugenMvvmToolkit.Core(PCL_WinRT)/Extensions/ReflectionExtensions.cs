@@ -538,7 +538,6 @@ namespace MugenMvvmToolkit
             }
         }
 
-        [Obsolete(ExceptionManager.ObsoleteExpressionUsage)]
         internal static MemberInfo GetMemberInfo([NotNull] this LambdaExpression expression)
         {
             Should.NotBeNull(expression, "expression");

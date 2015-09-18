@@ -26,8 +26,6 @@ namespace MugenMvvmToolkit
     {
         #region Fields
 
-        internal const string ObsoleteExpressionUsage = "Performance issue: use the method overload with Func argument (() => vm => vm.Prop) instead of Expression (vm => vm.Prop). The method will be removed in the next version.";
-
         internal const string CommandCannotBeExecutedString =
             "The method Execute in RelayCommand cannot be executed because the CanExecute method returns a false value.";
 
