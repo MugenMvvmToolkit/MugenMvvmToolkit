@@ -17,24 +17,21 @@
 #endregion
 
 using System;
-using Android.App;
-using Android.Content;
 using Android.Runtime;
 using Android.Widget;
-using MugenMvvmToolkit.Interfaces.Navigation;
 
 namespace MugenMvvmToolkit.Android.Views
 {
     [Register("mugenmvvmtoolkit.android.views.UserControl")]
-    public abstract class UserControl : FrameLayout
+    public class UserControl : FrameLayout
     {
         #region Constructors
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="UserControl" /> class.
         /// </summary>
-        protected UserControl(int viewId)
-            : base(GetCurrentContext())
+        public UserControl(int viewId)
+            : base(PlatformExtensions.CurrentActivity)
         {
             Context.GetBindableLayoutInflater().Inflate(viewId, this, true);
         }
@@ -47,22 +44,6 @@ namespace MugenMvvmToolkit.Android.Views
         {
         }
 
-        #endregion
-
-        #region Methods
-
-        private static Context GetCurrentContext()
-        {
-            Activity context = PlatformExtensions.CurrentActivity;
-            if (context == null)
-            {
-                INavigationProvider service;
-                if (ServiceProvider.IocContainer.TryGet(out service))
-                    context = service.CurrentContent as Activity;
-            }
-            return context;
-        }
-
-        #endregion
+        #endregion        
     }
 }
