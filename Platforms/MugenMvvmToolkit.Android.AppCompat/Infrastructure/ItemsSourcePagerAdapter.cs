@@ -134,7 +134,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
             }
             if (notifyDataSet)
                 NotifyDataSetChanged();
-            if (!_isRestored)
+            if (value != null && !_isRestored && _viewPager.GetBindingMemberValue(AttachedMembersCompat.ViewPager.RestoreSelectedIndex).GetValueOrDefault(true))
             {
                 _isRestored = true;
                 TryRestoreSelectedIndex();
@@ -289,8 +289,6 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
             {
                 var view = (View)@object;
                 container.RemoveView(view);
-                if (removed)
-                    view.ClearBindingsRecursively(true, true);
             }
             else
             {

@@ -189,7 +189,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         protected override void Update(IEnumerable itemsSource, IDataContext context = null)
         {
             base.Update(itemsSource, context);
-            if (!_isRestored)
+            if (itemsSource != null && !_isRestored && TabHost.GetBindingMemberValue(AttachedMembers.TabHost.RestoreSelectedIndex).GetValueOrDefault(true))
             {
                 _isRestored = true;
                 TryRestoreSelectedIndex();
@@ -499,9 +499,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         private static void RemoveTab(TabHostItemsSourceGenerator generator, TabInfo tab)
         {
-            var view = tab.Content as View;
-            if (view != null)
-                view.ClearBindingsRecursively(true, true);
         }
 
         private ICollectionViewManager GetCollectionViewManager()
