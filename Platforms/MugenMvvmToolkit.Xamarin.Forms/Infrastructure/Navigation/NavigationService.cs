@@ -221,7 +221,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                 animated = UseAnimations;
             Page page;
             if (viewModel == null)
-                page = (Page)ServiceProvider.IocContainer.Get(source.ViewType);
+                page = (Page)ServiceProvider.Get<IViewManager>().GetViewAsync(source, dataContext).Result;
             else
                 page = (Page)ViewManager.GetOrCreateView(viewModel, null, dataContext);
             page.SetNavigationParameter(parameter);

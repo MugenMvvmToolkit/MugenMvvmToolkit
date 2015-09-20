@@ -39,6 +39,16 @@ namespace MugenMvvmToolkit.Interfaces
         Task<object> GetViewAsync([NotNull] IViewModel viewModel, IDataContext context = null);
 
         /// <summary>
+        ///     Gets an instance of view object for the specified view model.
+        /// </summary>
+        /// <param name="viewMapping">The view mapping to create view.</param>
+        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
+        /// <returns>
+        ///     An instance of view object.
+        /// </returns>
+        Task<object> GetViewAsync([NotNull] IViewMappingItem viewMapping, IDataContext context = null);
+
+        /// <summary>
         ///     Configures the specified view for the specified view-model.
         /// </summary>
         /// <param name="viewModel">The specified view model.</param>

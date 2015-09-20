@@ -32,6 +32,11 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             return ToolkitExtensions.FromResult(GetViewRawDelegate(viewModel, dataContext));
         }
 
+        public Task<object> GetViewAsync(IViewMappingItem viewMapping, IDataContext context = null)
+        {
+            throw new NotImplementedException();
+        }
+
         Task IViewManager.InitializeViewAsync(IViewModel viewModel, object view, IDataContext dataContext)
         {
             if (InitializeViewForViewModelDelegate != null)

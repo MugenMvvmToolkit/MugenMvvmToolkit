@@ -22,6 +22,7 @@ using System.Windows.Navigation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -40,7 +41,6 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
         #region Fields
 
         private readonly bool _useUrlNavigation;
-        private readonly Func<Type, object> _viewFactory;
         private readonly NavigationWindow _window;
         private NavigationMode _lastMode;
 
@@ -51,24 +51,16 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
         /// <summary>
         ///     Initializes a new instance of the <see cref="FrameNavigationService" /> class.
         /// </summary>
-        public WindowNavigationService([NotNull] NavigationWindow window, Func<Type, object> viewFactory)
-            : this(window)
-        {
-            Should.NotBeNull(viewFactory, "viewFactory");
-            _useUrlNavigation = false;
-            _viewFactory = viewFactory;
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="FrameNavigationService" /> class.
-        /// </summary>
-        public WindowNavigationService([NotNull] NavigationWindow window)
+        public WindowNavigationService([NotNull] NavigationWindow window, bool useUrlNavigation)
         {
             Should.NotBeNull(window, "window");
             _window = window;
-            _useUrlNavigation = true;
-            _window.Navigating += OnNavigating;
-            _window.Navigated += OnNavigated;
+            _useUrlNavigation = useUrlNavigation;
+            if (useUrlNavigation)
+            {
+                _window.Navigating += OnNavigating;
+                _window.Navigated += OnNavigated;
+            }
         }
 
         #endregion
@@ -234,6 +226,14 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
 
         #region Methods
 
+        /// <summary>
+        ///     Creates an instance of view object.
+        /// </summary>
+        protected virtual object CreateView(IViewMappingItem viewMapping, object parameter)
+        {
+            return ServiceProvider.Get<IViewManager>().GetViewAsync(viewMapping, parameter as IDataContext).Result;
+        }
+
         private void ClearNavigationStackIfNeed(IDataContext context)
         {
             if (context == null)
@@ -254,8 +254,8 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
                 return _window.Navigate(source.Uri, parameter);
             }
             if (parameter == null)
-                return _window.Navigate(_viewFactory(source.ViewType));
-            return _window.Navigate(_viewFactory(source.ViewType), parameter);
+                return _window.Navigate(CreateView(source, null));
+            return _window.Navigate(CreateView(source, parameter), parameter);
         }
 
         private bool NavigateInternal(NavigatingCancelEventArgsBase args)

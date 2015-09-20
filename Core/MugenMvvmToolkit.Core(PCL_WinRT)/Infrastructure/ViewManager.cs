@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Fields
 
-        private const string ViewManagerCreatorPath = "@#vcreator";
+        protected const string ViewManagerCreatorPath = "@#vcreator";
         private static Func<object, object> _getDataContext;
         private static Action<object, object> _setDataContext;
         private readonly IThreadManager _threadManager;
@@ -184,6 +184,31 @@ namespace MugenMvvmToolkit.Infrastructure
         }
 
         /// <summary>
+        ///     Gets an instance of view object for the specified view model.
+        /// </summary>
+        /// <param name="viewMapping">The view mapping to create view.</param>
+        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
+        /// <returns>
+        ///     An instance of view object.
+        /// </returns>
+        public Task<object> GetViewAsync(IViewMappingItem viewMapping, IDataContext context = null)
+        {
+            Should.NotBeNull(viewMapping, "viewMapping");
+            var tcs = new TaskCompletionSource<object>();
+            ThreadManager.InvokeOnUiThreadAsync(() =>
+            {
+                if (context == null)
+                    context = DataContext.Empty;
+                object view = GetView(viewMapping, context);
+                Action<IViewManager, IViewModel, object, IDataContext> handler = ViewCreated;
+                if (handler != null)
+                    handler(this, null, view, context);
+                tcs.SetResult(view);
+            });
+            return tcs.Task;
+        }
+
+        /// <summary>
         ///     Configures the specified view for the specified view-model.
         /// </summary>
         /// <param name="viewModel">The specified view model.</param>
@@ -277,11 +302,24 @@ namespace MugenMvvmToolkit.Infrastructure
             string viewBindingName = viewModel.GetViewName(context);
             Type vmType = viewModel.GetType();
             IViewMappingItem mappingItem = ViewMappingProvider.FindMappingForViewModel(vmType, viewBindingName, true);
-            object viewObj = viewModel.GetIocContainer(true).Get(mappingItem.ViewType);
+            return GetView(mappingItem, context);
+        }
+
+        /// <summary>
+        ///     Gets an instance of view object for the specified view model.
+        /// </summary>
+        /// <param name="viewMapping">The view mapping to create view.</param>
+        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
+        /// <returns>
+        ///     An instance of view object.
+        /// </returns>
+        protected virtual object GetView([NotNull] IViewMappingItem viewMapping, [NotNull] IDataContext context)
+        {
+            object viewObj = ServiceProvider.Get(viewMapping.ViewType);
             if (DisposeView)
                 ServiceProvider.AttachedValueProvider.SetValue(viewObj, ViewManagerCreatorPath, null);
             if (Tracer.TraceInformation)
-                Tracer.Info("The view {0} for the view-model {1} was created.", viewObj.GetType(), vmType);
+                Tracer.Info("The view {0} for the view-model {1} was created.", viewObj.GetType(), viewMapping.ViewModelType);
             return viewObj;
         }
 

@@ -30,6 +30,7 @@ using MugenMvvmToolkit.iOS.Interfaces.Navigation;
 using MugenMvvmToolkit.iOS.Interfaces.Views;
 using MugenMvvmToolkit.iOS.Models.EventArg;
 using MugenMvvmToolkit.iOS.Views;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Models.Messages;
@@ -205,7 +206,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             IViewModel viewModel = dataContext.GetData(NavigationConstants.ViewModel);
             UIViewController viewController;
             if (viewModel == null)
-                viewController = (UIViewController)ServiceProvider.IocContainer.Get(source.ViewType);
+                viewController = (UIViewController)ServiceProvider.Get<IViewManager>().GetViewAsync(source, dataContext).Result;
             else
                 viewController = (UIViewController)ViewManager.GetOrCreateView(viewModel, null, dataContext);
 
