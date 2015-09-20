@@ -394,11 +394,10 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
                         if (!args.NewValue)
                             return;
                         Activity activity = layout.Context.GetActivity();
-                        if (activity == null)
-                            return;
-                        DrawerListenerImpl
-                            .GetOrAdd(layout)
-                            .SetListener(activity, new ActionBarDrawerToggle(activity, layout, Resource.String.Empty, Resource.String.Empty));
+                        if (activity != null)
+                            DrawerListenerImpl
+                                .GetOrAdd(layout)
+                                .SetListener(activity, new ActionBarDrawerToggle(activity, layout, Resource.String.Empty, Resource.String.Empty));
                     });
             memberProvider.Register(actionBarDrawerToggleEnabledMember);
             memberProvider.Register(typeof(DrawerLayout), "ActionBarDrawerEnabled", actionBarDrawerToggleEnabledMember, true);
@@ -421,6 +420,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
             //ViewPager
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.ViewPager.SelectedItem, ViewPagerSelectedItemChanged));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.ViewPager.GetPageTitleDelegate));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.ViewPager.RestoreSelectedIndex));
             var itemMember = AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.ViewPager.CurrentItem,
                 ViewPagerCurrentItemChanged, AdapterViewCurrentItemAttached, (pager, info) => pager.CurrentItem);
             memberProvider.Register(itemMember);
