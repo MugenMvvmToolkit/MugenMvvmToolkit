@@ -46,6 +46,7 @@ namespace MugenMvvmToolkit.Android.Design.Modules
 
             //TabLayout              
             provider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ItemsSource.Override<TabLayout>(), TabLayoutItemsSourceChanged));
+            provider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersDesign.TabLayout.RestoreSelectedIndex));
             provider.Register(AttachedBindingMember.CreateMember(AttachedMembersDesign.TabLayout.SelectedItem,
                     TabLayoutGetSelectedItem, TabLayoutSetSelectedItem, (info, layout, arg3) =>
                     {

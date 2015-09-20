@@ -1,11 +1,15 @@
 using System.Collections;
+using Android.App;
+using Android.OS;
 using Android.Support.Design.Widget;
 using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
+using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Android.Design.Infrastructure
 {
@@ -13,8 +17,10 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure
     {
         #region Fields
 
+        private const string SelectedIndexKey = "!~tabindex";
         private readonly TabLayout _tabLayout;
         private readonly IBindingMemberInfo _collectionViewManagerMember;
+        private bool _isRestored;
 
         #endregion
 
@@ -38,6 +44,16 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure
         protected override bool IsTargetDisposed
         {
             get { return !_tabLayout.IsAlive(); }
+        }
+
+        protected override void Update(IEnumerable itemsSource, IDataContext context = null)
+        {
+            base.Update(itemsSource, context);
+            if (itemsSource != null && !_isRestored && _tabLayout.GetBindingMemberValue(AttachedMembersDesign.TabLayout.RestoreSelectedIndex).GetValueOrDefault(true))
+            {
+                _isRestored = true;
+                TryRestoreSelectedIndex();
+            }
         }
 
         protected override void Add(int insertionIndex, int count)
@@ -143,6 +159,31 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure
         private ICollectionViewManager GetCollectionViewManager()
         {
             return (ICollectionViewManager)_collectionViewManagerMember.GetValue(_tabLayout, Empty.Array<object>());
+        }
+
+        private void TryRestoreSelectedIndex()
+        {
+            var activityView = _tabLayout.Context as IActivityView;
+            if (activityView == null)
+                return;
+            var bundle = activityView.Mediator.Bundle;
+            if (bundle != null)
+            {
+                var i = bundle.GetInt(SelectedIndexKey, int.MinValue);
+                if (i != int.MinValue)
+                {
+                    if (_tabLayout.TabCount > i)
+                        _tabLayout.GetTabAt(i).Select();
+                }
+            }
+            activityView.Mediator.SaveInstanceState += ActivityViewOnSaveInstanceState;
+        }
+
+        private void ActivityViewOnSaveInstanceState(Activity sender, ValueEventArgs<Bundle> args)
+        {
+            var index = _tabLayout.SelectedTabPosition;
+            if (index > 0)
+                args.Value.PutInt(SelectedIndexKey, index);
         }
 
         #endregion

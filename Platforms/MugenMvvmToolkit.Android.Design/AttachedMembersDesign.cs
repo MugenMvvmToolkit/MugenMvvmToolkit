@@ -35,6 +35,7 @@ namespace MugenMvvmToolkit.Android.Design
             #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Support.Design.Widget.TabLayout, object> SelectedItem;
+            public static readonly BindingMemberDescriptor<global::Android.Support.Design.Widget.TabLayout, bool?> RestoreSelectedIndex;
 
             #endregion
 
@@ -43,6 +44,7 @@ namespace MugenMvvmToolkit.Android.Design
             static TabLayout()
             {
                 SelectedItem = new BindingMemberDescriptor<global::Android.Support.Design.Widget.TabLayout, object>(AttachedMemberConstants.SelectedItem);
+                RestoreSelectedIndex = AttachedMembers.TabHost.RestoreSelectedIndex.Override<global::Android.Support.Design.Widget.TabLayout>();
             }
 
             protected TabLayout()
