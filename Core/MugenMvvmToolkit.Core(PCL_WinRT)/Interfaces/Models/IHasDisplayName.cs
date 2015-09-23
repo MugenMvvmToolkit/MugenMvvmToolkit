@@ -16,14 +16,12 @@
 
 #endregion
 
-using System.ComponentModel;
-
 namespace MugenMvvmToolkit.Interfaces.Models
 {
     /// <summary>
     ///     Represents the model that has a display name.
     /// </summary>
-    public interface IHasDisplayName : INotifyPropertyChanged
+    public interface IHasDisplayName
     {
         /// <summary>
         ///     Gets or sets the display name for the current model.
