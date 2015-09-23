@@ -19,11 +19,12 @@
 using System;
 using Android.Runtime;
 using Android.Widget;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Android.Views
 {
     [Register("mugenmvvmtoolkit.android.views.UserControl")]
-    public class UserControl : FrameLayout
+    public class UserControl : FrameLayout, IHasDisplayName
     {
         #region Constructors
 
@@ -44,6 +45,15 @@ namespace MugenMvvmToolkit.Android.Views
         {
         }
 
-        #endregion        
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        ///     Gets or sets the display name for the current model.
+        /// </summary>
+        public string DisplayName { get; set; }
+
+        #endregion
     }
 }
