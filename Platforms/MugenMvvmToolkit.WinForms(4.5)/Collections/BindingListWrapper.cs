@@ -30,7 +30,6 @@ namespace MugenMvvmToolkit.WinForms.Collections
     {
         #region Fields
 
-        private readonly object _locker;
         private bool _collectionUpdating;
 
         #endregion
@@ -45,7 +44,6 @@ namespace MugenMvvmToolkit.WinForms.Collections
         public BindingListWrapper(INotifiableCollection<T> collection = null)
             : base(collection ?? new SynchronizedNotifiableCollection<T>())
         {
-            _locker = new object();
             CollectionChanged += CollectionOnCollectionChanged;
         }
 
@@ -69,31 +67,28 @@ namespace MugenMvvmToolkit.WinForms.Collections
         {
             try
             {
-                lock (_locker)
+                _collectionUpdating = true;
+                ListChangedEventArgs args = null;
+                switch (arg.Action)
                 {
-                    _collectionUpdating = true;
-                    ListChangedEventArgs args = null;
-                    switch (arg.Action)
-                    {
-                        case NotifyCollectionChangedAction.Add:
-                            args = new ListChangedEventArgs(ListChangedType.ItemAdded, arg.NewStartingIndex);
-                            break;
-                        case NotifyCollectionChangedAction.Remove:
-                            args = new ListChangedEventArgs(ListChangedType.ItemDeleted, arg.OldStartingIndex);
-                            break;
-                        case NotifyCollectionChangedAction.Replace:
-                            args = new ListChangedEventArgs(ListChangedType.ItemChanged, arg.NewStartingIndex);
-                            break;
-                        case NotifyCollectionChangedAction.Move:
-                            args = new ListChangedEventArgs(ListChangedType.ItemMoved, arg.NewStartingIndex,
-                                arg.OldStartingIndex);
-                            break;
-                        case NotifyCollectionChangedAction.Reset:
-                            args = new ListChangedEventArgs(ListChangedType.Reset, -1);
-                            break;
-                    }
-                    OnListChanged(args);
+                    case NotifyCollectionChangedAction.Add:
+                        args = new ListChangedEventArgs(ListChangedType.ItemAdded, arg.NewStartingIndex);
+                        break;
+                    case NotifyCollectionChangedAction.Remove:
+                        args = new ListChangedEventArgs(ListChangedType.ItemDeleted, arg.OldStartingIndex);
+                        break;
+                    case NotifyCollectionChangedAction.Replace:
+                        args = new ListChangedEventArgs(ListChangedType.ItemChanged, arg.NewStartingIndex);
+                        break;
+                    case NotifyCollectionChangedAction.Move:
+                        args = new ListChangedEventArgs(ListChangedType.ItemMoved, arg.NewStartingIndex,
+                            arg.OldStartingIndex);
+                        break;
+                    case NotifyCollectionChangedAction.Reset:
+                        args = new ListChangedEventArgs(ListChangedType.Reset, -1);
+                        break;
                 }
+                OnListChanged(args);
             }
             finally
             {
