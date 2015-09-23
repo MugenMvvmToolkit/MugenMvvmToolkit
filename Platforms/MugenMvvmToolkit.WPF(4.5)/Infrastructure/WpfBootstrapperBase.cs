@@ -183,9 +183,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         [NotNull]
         protected virtual INavigationService CreateNavigationService(NavigationWindow window)
         {
-            return UseUriNavigation
-                ? new WindowNavigationService(window)
-                : new WindowNavigationService(window, type => MvvmApplication.Current.IocContainer.Get(type));
+            return new WindowNavigationService(window, UseUriNavigation);
         }
 
         /// <summary>

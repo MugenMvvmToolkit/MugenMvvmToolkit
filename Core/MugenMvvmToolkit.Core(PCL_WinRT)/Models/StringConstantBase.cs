@@ -127,6 +127,11 @@ namespace MugenMvvmToolkit.Models
             return _id;
         }
 
+        internal bool EqualsWithoutNullCheck(TType other)
+        {
+            return _id.Equals(other._id, StringComparison.Ordinal);
+        }
+
         public static bool operator ==(StringConstantBase<TType> left, TType right)
         {
             return !ReferenceEquals(left, null) && left.Equals(right);

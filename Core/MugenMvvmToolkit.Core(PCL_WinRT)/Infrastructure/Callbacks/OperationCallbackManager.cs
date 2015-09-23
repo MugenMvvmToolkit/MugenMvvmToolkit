@@ -83,6 +83,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         private static readonly DataConstant<CallbackDictionary> CallbackConstant;
 
         private readonly object _locker;
+        private readonly ISerializer _serializer;
 
         #endregion
 
@@ -96,8 +97,10 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         /// <summary>
         ///     Initializes a new instance of the <see cref="OperationCallbackManager" /> class.
         /// </summary>
-        public OperationCallbackManager()
+        public OperationCallbackManager(ISerializer serializer)
         {
+            Should.NotBeNull(serializer, "serializer");
+            _serializer = serializer;
             _locker = new object();
         }
 
@@ -222,18 +225,14 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 callback.Invoke(result);
         }
 
-        private static void RegisterInternal(CallbackDictionary callbacks, string id, IOperationCallback callback)
+        private void RegisterInternal(CallbackDictionary callbacks, string id, IOperationCallback callback)
         {
             //Only for debug callback
             if (AlwaysSerializeCallback && callback.IsSerializable)
             {
-                ISerializer serializer;
-                if (ServiceProvider.IocContainer.TryGet(out serializer))
-                {
-                    var stream = serializer.Serialize(callback);
-                    stream.Position = 0;
-                    callback = (IOperationCallback)serializer.Deserialize(stream);
-                }
+                var stream = _serializer.Serialize(callback);
+                stream.Position = 0;
+                callback = (IOperationCallback)_serializer.Deserialize(stream);
             }
 
             lock (callbacks)

@@ -56,7 +56,7 @@ namespace MugenMvvmToolkit.WinRT
             {
                 if (_applicationStateManager == null)
                     Interlocked.CompareExchange(ref _applicationStateManager,
-                        ServiceProvider.IocContainer.Get<IApplicationStateManager>(), null);
+                        ServiceProvider.Get<IApplicationStateManager>(), null);
                 return _applicationStateManager;
             }
             set { _applicationStateManager = value; }

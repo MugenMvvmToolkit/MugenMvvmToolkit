@@ -16,6 +16,7 @@
 
 #endregion
 
+using System;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
@@ -194,18 +195,7 @@ namespace MugenMvvmToolkit.WinPhone.Modules
 #if WPF
             if (Context.Platform.Platform != PlatformType.WPF)
             {
-                MvvmApplication.Initialized += (sender, args) =>
-                {
-                    var container = ServiceProvider.IocContainer;
-                    IViewModelPresenter presenter;
-                    if (container.TryGet(out presenter))
-                    {
-                        presenter.DynamicPresenters.Add(new DynamicViewModelNavigationPresenter());
-                        presenter.DynamicPresenters.Add(new DynamicViewModelWindowPresenter(container.Get<IViewMappingProvider>(), container.Get<IViewManager>(),
-                                                container.Get<IWrapperManager>(), container.Get<IThreadManager>(),
-                                                container.Get<IOperationCallbackManager>()));
-                    }
-                };
+                MvvmApplication.Initialized += MvvmApplicationOnInitialized;
                 return BindingInfo<IViewModelPresenter>.Empty;
             }
 #endif
@@ -274,5 +264,21 @@ namespace MugenMvvmToolkit.WinPhone.Modules
         }
 
         #endregion
+
+        #region Methods
+#if WPF
+        private static void MvvmApplicationOnInitialized(object sender, EventArgs eventArgs)
+        {
+            MvvmApplication.Initialized -= MvvmApplicationOnInitialized;
+            IViewModelPresenter presenter;
+            if (ServiceProvider.TryGet(out presenter))
+            {
+                presenter.DynamicPresenters.Add(new DynamicViewModelNavigationPresenter());
+                presenter.DynamicPresenters.Add(ServiceProvider.Get<DynamicViewModelWindowPresenter>());
+            }
+        }
+#endif
+        #endregion
+
     }
 }

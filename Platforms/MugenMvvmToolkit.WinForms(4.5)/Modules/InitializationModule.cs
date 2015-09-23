@@ -16,6 +16,7 @@
 
 #endregion
 
+using System;
 using System.Threading;
 using System.Windows.Forms;
 using MugenMvvmToolkit.Infrastructure;
@@ -141,16 +142,7 @@ namespace MugenMvvmToolkit.WinForms.Modules
                             container.Get<IOperationCallbackManager>()));
                     return presenter;
                 }, DependencyLifecycle.SingleInstance);
-            MvvmApplication.Initialized += (sender, args) =>
-            {
-                var container = ServiceProvider.IocContainer;
-                IViewModelPresenter presenter;
-                if (container.TryGet(out presenter))
-                    presenter.DynamicPresenters.Add(
-                            new DynamicViewModelWindowPresenter(container.Get<IViewMappingProvider>(),
-                                container.Get<IViewManager>(), container.Get<IWrapperManager>(), container.Get<IThreadManager>(),
-                                container.Get<IOperationCallbackManager>()));
-            };
+            MvvmApplication.Initialized += MvvmApplicationOnInitialized;
             return BindingInfo<IViewModelPresenter>.Empty;
         }
 
@@ -164,5 +156,18 @@ namespace MugenMvvmToolkit.WinForms.Modules
         }
 
         #endregion
+
+        #region Methods
+
+        private static void MvvmApplicationOnInitialized(object sender, EventArgs eventArgs)
+        {
+            MvvmApplication.Initialized -= MvvmApplicationOnInitialized;
+            IViewModelPresenter presenter;
+            if (ServiceProvider.TryGet(out presenter))
+                presenter.DynamicPresenters.Add(ServiceProvider.Get<DynamicViewModelWindowPresenter>());
+        }
+
+        #endregion
+
     }
 }

@@ -127,7 +127,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
 
         static ApplicationStateManager()
         {
-            KnownTypesStatic = new[] { typeof(LazySerializableContainer) };
+            KnownTypesStatic = new[] { typeof(LazySerializableContainer), typeof(DataContext) };
         }
 
         /// <summary>

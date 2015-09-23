@@ -24,7 +24,7 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 namespace MugenMvvmToolkit.Attributes
 {
     /// <summary>
-    ///     Attribute class used to specify a specific View Model derivement or visual representation to be used on the target element.
+    ///     Attribute class used to specify a specific view model to be used on the target element.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
     public class ViewModelAttribute : Attribute

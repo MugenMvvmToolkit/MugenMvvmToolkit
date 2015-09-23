@@ -127,11 +127,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         {
             var collectionViewManager = GetCollectionViewManager();
             if (collectionViewManager == null)
-            {
-                var view = _viewGroup.GetChildAt(index);
                 _viewGroup.RemoveViewAt(index);
-                view.ClearBindingsRecursively(true, true);
-            }
             else
                 collectionViewManager.RemoveAt(_viewGroup, index);
         }

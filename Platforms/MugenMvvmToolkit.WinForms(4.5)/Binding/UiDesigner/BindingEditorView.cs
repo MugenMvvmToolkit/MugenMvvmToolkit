@@ -24,6 +24,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.WinForms.Binding.Interfaces;
 using MugenMvvmToolkit.WinForms.Binding.Models;
 using MugenMvvmToolkit.WinForms.Binding.Parse;
@@ -79,7 +80,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
         /// </summary>
         public BindingEditorView()
         {
-            ServiceProvider.InitializeDesignTimeManager();
+            DesignTimeInitializer.InitializeDesignTimeManager();
             InitializeComponent();
             bindingEditor.Handler = this;
             _controlsDictionary = new SortedDictionary<string, SortedDictionary<string, AutoCompleteItem>>(StringComparer.CurrentCulture);

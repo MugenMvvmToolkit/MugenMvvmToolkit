@@ -29,10 +29,7 @@ using MugenMvvmToolkit.Models.Exceptions;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the static class to work in design mode.
-    /// </summary>
-    internal static class DesignTimeInitializer
+    public static class DesignTimeInitializer
     {
         #region Fields
 
@@ -97,10 +94,24 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Methods
 
         /// <summary>
+        ///     Tries to initialize <see cref="IDesignTimeManager" />.
+        /// </summary>
+        public static void InitializeDesignTimeManager()
+        {
+            // ReSharper disable once UnusedVariable
+            var dummy = ServiceProvider.DesignTimeManager;
+        }
+
+        public static void SetDefaultDesignTimeManager()
+        {
+            ServiceProvider.DesignTimeManager = DesignTimeManagerImpl.Instance;
+        }
+
+        /// <summary>
         ///     Gets an instance of <see cref="IDesignTimeManager" />.
         /// </summary>
         [CanBeNull]
-        public static IDesignTimeManager GetDesignTimeManager()
+        internal static IDesignTimeManager GetDesignTimeManager()
         {
             if (Locker == null)
                 return null;
@@ -321,12 +332,21 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static bool FilterAssembly(Assembly assembly)
         {
-            if (!assembly.IsToolkitAssembly())
+
+            try
+            {
+                if (!assembly.IsToolkitAssembly())
+                    return false;
+                if (GetIsDynamic(assembly))
+                    return false;
+                var assemblyNames = GetReferencedAssemblies(assembly);
+                return assemblyNames != null && assemblyNames.Any(name => name.FullName == ToolkitAssemblyName);
+            }
+            catch (Exception e)
+            {
+                Tracer.Error(e.Flatten(true));
                 return false;
-            if (GetIsDynamic(assembly))
-                return false;
-            var assemblyNames = GetReferencedAssemblies(assembly);
-            return assemblyNames != null && assemblyNames.Any(name => name.FullName == ToolkitAssemblyName);
+            }
         }
 
         private static DateTime GetLastWriteTime(Assembly assembly)
