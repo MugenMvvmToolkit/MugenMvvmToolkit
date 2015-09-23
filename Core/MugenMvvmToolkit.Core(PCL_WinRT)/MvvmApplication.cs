@@ -70,6 +70,14 @@ namespace MugenMvvmToolkit
         public static IMvvmApplication Current { get; protected set; }
 
         /// <summary>
+        ///     Gets a value indicating whether this instance is initialized.
+        /// </summary>
+        public virtual bool IsInitialized
+        {
+            get { return _state == InitializedState; }
+        }
+
+        /// <summary>
         ///     Gets the current platform.
         /// </summary>
         public virtual PlatformInfo Platform
@@ -204,7 +212,6 @@ namespace MugenMvvmToolkit
             if (context != null)
                 Context.Merge(context);
             OnInitialize(assemblies);
-            ServiceProvider.Initialize(this);
             RaiseInitialized(this);
         }
 

@@ -30,6 +30,11 @@ namespace MugenMvvmToolkit.Interfaces
     public interface IMvvmApplication
     {
         /// <summary>
+        ///     Gets a value indicating whether this instance is initialized.
+        /// </summary>
+        bool IsInitialized { get; }
+
+        /// <summary>
         ///     Gets the current platform.
         /// </summary>
         [NotNull]
@@ -43,7 +48,6 @@ namespace MugenMvvmToolkit.Interfaces
         /// <summary>
         ///     Gets the current <see cref="IIocContainer" />.
         /// </summary>
-        [NotNull]
         IIocContainer IocContainer { get; }
 
         /// <summary>
