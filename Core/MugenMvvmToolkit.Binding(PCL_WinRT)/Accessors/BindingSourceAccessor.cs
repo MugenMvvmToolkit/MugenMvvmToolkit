@@ -455,7 +455,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
             object oldValue;
             object newValue = targetAccessor.GetValue(lastMember, context, throwOnError);
-            if (lastMember.CanRead)
+            if (lastMember.CanRead && !BindingMemberType.BindingContext.EqualsWithoutNullCheck(lastMember.MemberType))
             {
                 oldValue = lastMember.GetValue(penultimateValue, null);
                 if (ReferenceEquals(oldValue, newValue) || newValue.IsUnsetValueOrDoNothing())
@@ -487,7 +487,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             newValue = BindingServiceProvider.ValueConverter(lastMember, lastMember.Type, newValue);
             if (Equals(oldValue, newValue))
                 return false;
-            if (BindingMemberType.Event.Equals(lastMember.MemberType))
+            if (BindingMemberType.Event.EqualsWithoutNullCheck(lastMember.MemberType))
             {
                 TryRegisterEvent((BindingActionValue)oldValue, newValue, context);
                 RaiseValueChanged(context, penultimateValue, lastMember, oldValue, newValue, args);
