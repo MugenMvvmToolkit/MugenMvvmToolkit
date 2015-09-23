@@ -96,12 +96,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
             public void OnActivityDestroyed(Activity activity)
             {
+                if (IsAlive() && !(activity is IActivityView))
+                    PlatformExtensions.SetCurrentActivity(activity, true);
             }
 
             public void OnActivityPaused(Activity activity)
             {
-                if (IsAlive() && !(activity is IActivityView))
-                    PlatformExtensions.SetCurrentActivity(activity, true);
             }
 
             public void OnActivityResumed(Activity activity)
@@ -250,7 +250,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 return;
             RaiseNavigating(NavigatingCancelEventArgs.NonCancelableEventArgs);
             RaiseNavigated(null, NavigationMode.New, null);
-            PlatformExtensions.SetCurrentActivity(activity, true);
         }
 
         /// <summary>
