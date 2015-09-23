@@ -173,7 +173,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                 {
                     var application = CreateApplication();
                     application.Initialize(_platform, _iocContainer, ReflectionExtensions.GetDesignAssemblies(), _context);
-                    ServiceProvider.Initialize(application);
                 }
                 OnInitialized();
             }

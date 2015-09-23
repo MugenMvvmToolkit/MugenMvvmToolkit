@@ -201,7 +201,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
                 if (type == typeof(MvvmNavigationController))
                     controller = new MvvmNavigationController();
                 else
-                    controller = (UIViewController)ServiceProvider.IocContainer.Get(type);
+                    controller = (UIViewController)ServiceProvider.Get(type);
             }
             controller.RestorationIdentifier = restorationIdentifier;
             return controller;

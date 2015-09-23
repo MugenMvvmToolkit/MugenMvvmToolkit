@@ -52,8 +52,7 @@ namespace MugenMvvmToolkit.WinPhone
             get
             {
                 if (_applicationStateManager == null)
-                    Interlocked.CompareExchange(ref _applicationStateManager,
-                        ServiceProvider.IocContainer.Get<IApplicationStateManager>(), null);
+                    Interlocked.CompareExchange(ref _applicationStateManager, ServiceProvider.Get<IApplicationStateManager>(), null);
                 return _applicationStateManager;
             }
             set { _applicationStateManager = value; }

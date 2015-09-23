@@ -640,7 +640,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         private static Func<string> GetDisplayNameAccessor(MemberInfo member)
         {
-            if (DisplayNameProvider == null && !ServiceProvider.IocContainer.TryGet(out DisplayNameProvider))
+            if (DisplayNameProvider == null && !ServiceProvider.TryGet(out DisplayNameProvider))
                 DisplayNameProvider = new DisplayNameProvider();
             return DisplayNameProvider.GetDisplayNameAccessor(member);
         }

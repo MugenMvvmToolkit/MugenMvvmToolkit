@@ -138,7 +138,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                         object anonClass;
                         if (!items.TryGetValue(anonType, out anonClass))
                         {
-                            anonClass = ServiceProvider.IocContainer.Get(anonType);
+                            anonClass = ServiceProvider.GetOrCreate(anonType);
                             foreach (var snapshot in Snapshots)
                                 snapshot.Restore(anonType, anonClass, items, viewModels, awaiterResultType, result);
                             items[anonType] = anonClass;
@@ -159,7 +159,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                             {
                                 if (field.Name.Contains("CachedAnonymousMethodDelegate"))
                                     service = field.GetValueEx<object>(target);
-                                else if (!ServiceProvider.IocContainer.TryGet(serviceType, out service))
+                                else if (!ServiceProvider.TryGet(serviceType, out service))
                                 {
                                     service = field.GetValueEx<object>(target);
                                     TraceError(field, targetType);
@@ -737,7 +737,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 {
                     if (!items.TryGetValue(type, out target))
                     {
-                        target = ServiceProvider.IocContainer.Get(type);
+                        target = ServiceProvider.GetOrCreate(type);
                         items[type] = target;
                     }
                 }

@@ -41,7 +41,6 @@ namespace MugenMvvmToolkit
 
         private static readonly Dictionary<Type, ConstructorInfo> EntityConstructorInfos;
 
-        private static IIocContainer _iocContainer;
         private static IThreadManager _threadManager;
         private static ITracer _tracer;
         private static IAttachedValueProvider _attachedValueProvider;
@@ -66,6 +65,10 @@ namespace MugenMvvmToolkit
             _weakReferenceFactory = CreateWeakReference;
             _instanceEventAggregatorFactory = GetInstanceEventAggregator;
             ObjectToSubscriberConverter = ObjectToSubscriberConverterImpl;
+            var current = MvvmApplication.Current;
+            if (current != null && current.IsInitialized)
+                Initialize(current);
+            MvvmApplication.Initialized += MvvmApplicationOnInitialized;
         }
 
         #endregion
@@ -121,7 +124,12 @@ namespace MugenMvvmToolkit
         /// </summary>
         public static IIocContainer IocContainer
         {
-            get { return _iocContainer; }
+            get
+            {
+                if (MvvmApplication.Current == null)
+                    return null;
+                return MvvmApplication.Current.IocContainer;
+            }
         }
 
         /// <summary>
@@ -238,7 +246,7 @@ namespace MugenMvvmToolkit
             get
             {
                 if (_viewModelProvider == null)
-                    _viewModelProvider = new ViewModelProvider(_iocContainer);
+                    _viewModelProvider = new ViewModelProvider(IocContainer);
                 return _viewModelProvider;
             }
             set { _viewModelProvider = value; }
@@ -264,34 +272,81 @@ namespace MugenMvvmToolkit
         #region Methods
 
         /// <summary>
-        ///     Sets the <see cref="IocContainer" />.
+        ///    Tries to get an instance of the specified service.
         /// </summary>
-        public static void Initialize(IMvvmApplication application)
+        [Pure]
+        public static bool TryGet(Type type, out object result, string name = null,
+            params IIocParameter[] parameters)
         {
-            Should.NotBeNull(application, "application");
-            _iocContainer = application.IocContainer;
-            TryInitialize(_iocContainer, ref _tracer);
-            TryInitialize(_iocContainer, ref ReflectionManagerField);
-            TryInitialize(_iocContainer, ref _attachedValueProvider);
-            TryInitialize(_iocContainer, ref _threadManager);
-            TryInitialize(_iocContainer, ref _operationCallbackFactory);
-            TryInitialize(_iocContainer, ref ValidatorProviderField);
-            TryInitialize(_iocContainer, ref _viewModelProvider);
-            TryInitialize(_iocContainer, ref EventAggregatorField);
+            var iocContainer = IocContainer;
+            if (iocContainer == null)
+            {
+#if PCL_WINRT
+                result = type.GetTypeInfo().IsValueType ? Activator.CreateInstance(type) : null;                
+#else
+                result = type.IsValueType ? Activator.CreateInstance(type) : null;
+#endif
+                return false;
+            }
+            return iocContainer.TryGet(type, out result, name, parameters);
         }
 
         /// <summary>
-        ///     Tries to initialize <see cref="IDesignTimeManager" />.
+        ///    Tries to get an instance of the specified service.
         /// </summary>
-        public static void InitializeDesignTimeManager()
+        [Pure]
+        public static bool TryGet<T>(out T result, string name = null,
+            params IIocParameter[] parameters)
         {
-            // ReSharper disable once UnusedVariable
-            var dummy = DesignTimeManager;
+            var iocContainer = IocContainer;
+            if (iocContainer == null)
+            {
+                result = default(T);
+                return false;
+            }
+            return iocContainer.TryGet(out result, name, parameters);
         }
 
-        public static void SetDefaultDesignTimeManager()
+        /// <summary>
+        ///     Gets or creates an instance of the specified type using that type's.
+        /// </summary>
+        [Pure]
+        public static T GetOrCreate<T>()
         {
-            ServiceProvider.DesignTimeManager = DesignTimeManagerImpl.Instance;
+            return (T)GetOrCreate(typeof(T));
+        }
+
+        /// <summary>
+        ///     Gets or creates an instance of the specified type using that type's.
+        /// </summary>
+        [Pure]
+        public static object GetOrCreate(Type type)
+        {
+            var iocContainer = IocContainer;
+            if (iocContainer == null)
+                return Activator.CreateInstance(type);
+            return iocContainer.Get(type);
+        }
+
+        /// <summary>
+        ///     Gets an instance of the specified service.
+        /// </summary>
+        [Pure]
+        public static T Get<T>(string name = null, params IIocParameter[] parameters)
+        {
+            return (T)Get(typeof(T), name, parameters);
+        }
+
+        /// <summary>
+        ///     Gets an instance of the specified service.
+        /// </summary>
+        [Pure]
+        public static object Get(Type type, string name = null, params IIocParameter[] parameters)
+        {
+            var iocContainer = IocContainer;
+            if (iocContainer == null)
+                throw ExceptionManager.ObjectNotInitialized("MvvmApplication", null);
+            return iocContainer.Get(type, name, parameters);
         }
 
         internal static IList<T> TryDecorate<T>(IList<T> itemsSource)
@@ -300,6 +355,25 @@ namespace MugenMvvmToolkit
             if (decorator == null)
                 return itemsSource;
             return decorator.Decorate(itemsSource);
+        }
+
+        private static void MvvmApplicationOnInitialized(object sender, EventArgs eventArgs)
+        {
+            Initialize(MvvmApplication.Current);
+        }
+
+        private static void Initialize(IMvvmApplication application)
+        {
+            Should.NotBeNull(application, "application");
+            var iocContainer = application.IocContainer;
+            TryInitialize(iocContainer, ref _tracer);
+            TryInitialize(iocContainer, ref ReflectionManagerField);
+            TryInitialize(iocContainer, ref _attachedValueProvider);
+            TryInitialize(iocContainer, ref _threadManager);
+            TryInitialize(iocContainer, ref _operationCallbackFactory);
+            TryInitialize(iocContainer, ref ValidatorProviderField);
+            TryInitialize(iocContainer, ref _viewModelProvider);
+            TryInitialize(iocContainer, ref EventAggregatorField);
         }
 
         private static void TryInitialize<TService>(IIocContainer iocContainer, ref TService service)

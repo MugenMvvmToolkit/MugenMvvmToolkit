@@ -275,7 +275,7 @@ namespace MugenMvvmToolkit.Android
             _menuInflaterFactory = (context, dataContext) => new BindableMenuInflater(context);
             _layoutInflaterFactory = (context, dataContext, factory, inflater) =>
             {
-                if (factory == null && !ServiceProvider.IocContainer.TryGet(out factory))
+                if (factory == null && !ServiceProvider.TryGet(out factory))
                     factory = new ViewFactory();
                 if (inflater == null)
                     return new BindableLayoutInflater(factory, context);

@@ -393,7 +393,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         {
             var viewModel = DataContext as IViewModel;
             if (viewModel == null)
-                return ServiceProvider.IocContainer.Get<T>();
+                return ServiceProvider.Get<T>();
             return viewModel.GetIocContainer(true).Get<T>();
         }
 

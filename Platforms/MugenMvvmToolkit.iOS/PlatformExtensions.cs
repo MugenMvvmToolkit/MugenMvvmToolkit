@@ -59,7 +59,7 @@ namespace MugenMvvmToolkit.iOS
             {
                 get { return true; }
                 // ReSharper disable once ValueParameterNotUsed
-                set { ; }
+                set {; }
             }
 
             #endregion
@@ -120,8 +120,7 @@ namespace MugenMvvmToolkit.iOS
             get
             {
                 if (_applicationStateManager == null)
-                    Interlocked.CompareExchange(ref _applicationStateManager,
-                        ServiceProvider.IocContainer.Get<IApplicationStateManager>(), null);
+                    Interlocked.CompareExchange(ref _applicationStateManager, ServiceProvider.Get<IApplicationStateManager>(), null);
                 return _applicationStateManager;
             }
             set { _applicationStateManager = value; }
