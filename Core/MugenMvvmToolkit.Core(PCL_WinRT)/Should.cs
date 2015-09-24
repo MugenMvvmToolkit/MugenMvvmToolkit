@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
@@ -38,8 +39,8 @@ namespace MugenMvvmToolkit
         /// <exception cref="ArgumentNullException"> if tested value if null.</exception>
         /// <param name="argumentValue">Argument value to test.</param>
         /// <param name="paramName">Name of the parameter being tested. </param>
-        [DebuggerStepThrough]
-        public static void NotBeNull(object argumentValue, [InvokerParameterName] string paramName)
+        [DebuggerStepThrough, AssertionMethod]
+        public static void NotBeNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)]object argumentValue, [InvokerParameterName] string paramName)
         {
             if (argumentValue == null)
                 throw new ArgumentNullException(paramName);
@@ -51,8 +52,8 @@ namespace MugenMvvmToolkit
         /// <exception cref="ArgumentException"> if tested value if null.</exception>
         /// <param name="argumentValue">Argument value to test.</param>
         /// <param name="paramName">Name of the parameter being tested. </param>
-        [DebuggerStepThrough]
-        public static void NotBeNullOrEmpty(string argumentValue, [InvokerParameterName] string paramName)
+        [DebuggerStepThrough, AssertionMethod]
+        public static void NotBeNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL)]string argumentValue, [InvokerParameterName] string paramName)
         {
             if (string.IsNullOrEmpty(argumentValue))
                 throw new ArgumentException(string.Format("Argument '{0}' cannot be null or empty", paramName));
@@ -64,8 +65,8 @@ namespace MugenMvvmToolkit
         /// <exception cref="ArgumentException"> if tested value if null.</exception>
         /// <param name="argumentValue">Argument value to test.</param>
         /// <param name="paramName">Name of the parameter being tested. </param>
-        [DebuggerStepThrough]
-        public static void NotBeNullOrWhitespace(string argumentValue, [InvokerParameterName] string paramName)
+        [DebuggerStepThrough, AssertionMethod]
+        public static void NotBeNullOrWhitespace([AssertionCondition(AssertionConditionType.IS_NOT_NULL)]string argumentValue, [InvokerParameterName] string paramName)
         {
             if (string.IsNullOrEmpty(argumentValue) || (string.CompareOrdinal(argumentValue.Trim(), string.Empty) == 0))
                 throw new ArgumentException(string.Format("Argument '{0}' cannot be null or whitespace", paramName));
@@ -77,8 +78,8 @@ namespace MugenMvvmToolkit
         /// <exception cref="ArgumentException"> if tested value if null.</exception>
         /// <param name="argumentValue">Argument value to test.</param>
         /// <param name="paramName">Name of the parameter being tested. </param>
-        [DebuggerStepThrough]
-        public static void NotBeNullOrEmpty<T>(T argumentValue, [InvokerParameterName] string paramName)
+        [DebuggerStepThrough, AssertionMethod]
+        public static void NotBeNullOrEmpty<T>([AssertionCondition(AssertionConditionType.IS_NOT_NULL)]T argumentValue, [InvokerParameterName] string paramName)
             where T : IEnumerable
         {
             if (argumentValue.IsNullOrEmpty())
@@ -91,11 +92,11 @@ namespace MugenMvvmToolkit
         /// <exception cref="ArgumentException"> if tested value if null.</exception>
         /// <param name="argumentValue">Argument value to test.</param>
         /// <param name="paramName">Name of the parameter being tested. </param>
-        [DebuggerStepThrough]
-        public static void NotBeNullOrDefault<T>(T? argumentValue, [InvokerParameterName] string paramName)
+        [DebuggerStepThrough, AssertionMethod]
+        public static void NotBeNullOrDefault<T>([AssertionCondition(AssertionConditionType.IS_NOT_NULL)]T? argumentValue, [InvokerParameterName] string paramName)
             where T : struct
         {
-            if (argumentValue == null || argumentValue.Equals(default(T)))
+            if (argumentValue == null || EqualityComparer<T>.Default.Equals(default(T), argumentValue.Value))
                 throw new ArgumentException(string.Format("Argument '{0}' cannot be null or defult", paramName));
         }
 
@@ -108,7 +109,7 @@ namespace MugenMvvmToolkit
         [DebuggerStepThrough]
         public static void NotBeDefault<T>(T argumentValue, [InvokerParameterName] string paramName) where T : struct
         {
-            if (argumentValue.Equals(default(T)))
+            if (EqualityComparer<T>.Default.Equals(default(T), argumentValue))
                 throw new ArgumentException(string.Format("Argument '{0}' cannot be default", paramName));
         }
 
@@ -169,8 +170,8 @@ namespace MugenMvvmToolkit
         /// </summary>
         /// <param name="isSupported">if set to <c>true</c>, the action is supported; otherwise <c>false</c>.</param>
         /// <param name="error">The error message.</param>
-        [DebuggerStepThrough]
-        public static void BeSupported(bool isSupported, string error)
+        [DebuggerStepThrough, AssertionMethod]
+        public static void BeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)]bool isSupported, string error)
         {
             if (!isSupported)
                 throw new NotSupportedException(error);
@@ -184,8 +185,8 @@ namespace MugenMvvmToolkit
         /// <param name="errorFormat">The error format.</param>
         /// <param name="args">The arguments for the string format.</param>
         [StringFormatMethod("errorFormat")]
-        [DebuggerStepThrough]
-        public static void BeSupported(bool isSupported, string errorFormat, params object[] args)
+        [DebuggerStepThrough, AssertionMethod]
+        public static void BeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)]bool isSupported, string errorFormat, params object[] args)
         {
             if (!isSupported)
                 throw new NotSupportedException(string.Format(errorFormat, args));
@@ -197,8 +198,8 @@ namespace MugenMvvmToolkit
         /// </summary>
         /// <param name="isSupported">if set to <c>true</c>, the action is supported; otherwise <c>false</c>.</param>
         /// <param name="methodName">The specified method signature.</param>
-        [DebuggerStepThrough]
-        public static void MethodBeSupported(bool isSupported, string methodName)
+        [DebuggerStepThrough, AssertionMethod]
+        public static void MethodBeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)]bool isSupported, string methodName)
         {
             BeSupported(isSupported, "The method " + methodName + " has not been implemented by this class.");
         }
@@ -234,8 +235,8 @@ namespace MugenMvvmToolkit
         /// </summary>
         /// <param name="paramName">Name of the parameter.</param>
         /// <param name="validation">The validation function.</param>
-        [DebuggerStepThrough]
-        public static void BeValid(string paramName, bool validation)
+        [DebuggerStepThrough, AssertionMethod]
+        public static void BeValid(string paramName, [AssertionCondition(AssertionConditionType.IS_TRUE)] bool validation)
         {
             if (!validation)
                 throw new ArgumentException(string.Format("Argument '{0}' is not valid", paramName));
@@ -247,8 +248,8 @@ namespace MugenMvvmToolkit
         /// <exception cref="ArgumentNullException"> if tested value if null.</exception>
         /// <param name="value">Argument value to test.</param>
         /// <param name="propertyName">Name of the parameter being tested. </param>
-        [DebuggerStepThrough]
-        public static void PropertyNotBeNull(object value, [CallerMemberName] string propertyName = "")
+        [DebuggerStepThrough, AssertionMethod]
+        public static void PropertyNotBeNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)]object value, [CallerMemberName] string propertyName = "")
         {
             if (value == null)
                 throw new ArgumentNullException(propertyName,
@@ -261,8 +262,8 @@ namespace MugenMvvmToolkit
         /// <exception cref="ArgumentNullException"> if tested value if null.</exception>
         /// <param name="value">Argument value to test.</param>
         /// <param name="propertyName">Name of the parameter being tested. </param>
-        [DebuggerStepThrough]
-        public static void PropertyNotBeNullOrEmpty(string value, string propertyName)
+        [DebuggerStepThrough, AssertionMethod]
+        public static void PropertyNotBeNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL)]string value, string propertyName)
         {
             if (string.IsNullOrEmpty(value))
                 throw new ArgumentNullException(propertyName,

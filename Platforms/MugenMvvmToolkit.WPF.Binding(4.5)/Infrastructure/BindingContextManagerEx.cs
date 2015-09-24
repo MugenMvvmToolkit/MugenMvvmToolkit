@@ -67,7 +67,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
     {
         #region Nested types
 
-        private sealed class BindingContextSource : IBindingContext
+        private sealed class FrameworkElementBindingContext : IBindingContext
         {
             #region Fields
 
@@ -80,7 +80,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 
             #region Constructors
 
-            public BindingContextSource(FrameworkElement element)
+            public FrameworkElementBindingContext(FrameworkElement element)
             {
 #if WINDOWS_PHONE
                 _observer = BindingServiceProvider
@@ -199,7 +199,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
             var member = item as FrameworkElement;
             if (member == null)
                 return base.CreateBindingContext(item);
-            return new BindingContextSource(member);
+            return new FrameworkElementBindingContext(member);
         }
 
         #endregion

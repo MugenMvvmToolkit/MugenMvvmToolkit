@@ -831,9 +831,7 @@ namespace MugenMvvmToolkit.Binding
 
         internal static bool IsUnsetValueOrDoNothing(this object obj)
         {
-            if (obj is DataConstant)
-                return ReferenceEquals(obj, BindingConstants.UnsetValue) || ReferenceEquals(obj, BindingConstants.DoNothing);
-            return false;
+            return ReferenceEquals(obj, BindingConstants.UnsetValue) || ReferenceEquals(obj, BindingConstants.DoNothing);
         }
 
         internal static bool IsUnsetValue(this object obj)

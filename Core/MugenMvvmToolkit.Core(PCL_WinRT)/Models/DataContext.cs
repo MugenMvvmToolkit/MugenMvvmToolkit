@@ -174,7 +174,7 @@ namespace MugenMvvmToolkit.Models
         /// </summary>
         protected override bool Equals(DataConstant x, DataConstant y)
         {
-            return ReferenceEquals(x, y) || x.EqualsWithoutNullCheck(y);
+            return ReferenceEquals(x, y) || x.Equals(y);
         }
 
         /// <summary>

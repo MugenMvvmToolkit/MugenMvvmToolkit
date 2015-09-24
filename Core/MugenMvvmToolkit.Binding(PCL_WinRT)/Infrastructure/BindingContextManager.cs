@@ -90,7 +90,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                         {
                             _isParentContext = false;
                             ClearOldContext();
-                            if (ReferenceEquals(_dataContext, value))
+                            if (Equals(_dataContext, value))
                                 return;
                             _dataContext = value;
                         }
