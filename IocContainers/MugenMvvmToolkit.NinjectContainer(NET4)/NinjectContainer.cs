@@ -150,7 +150,7 @@ namespace MugenMvvmToolkit
 
             var list = new List<IParameter>();
             foreach (var iocParameter in parameters)
-                list.AddIfNotNull(ConvertParameter(iocParameter));
+                list.AddIfNotNull(ConvertParameter(iocParameter, false));
             list.Add(new ParameterContainer(parameters));
             return list.ToArrayEx();
         }
@@ -158,14 +158,22 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Converts parameter.
         /// </summary>
-        protected virtual IParameter ConvertParameter(IIocParameter parameter)
+        protected virtual IParameter ConvertParameter(IIocParameter parameter, bool isDelegate)
         {
             if (parameter == null)
                 return null;
             if (parameter.ParameterType == IocParameterType.Constructor)
+            {
+                if (isDelegate)
+                    return new ConstructorArgument(parameter.Name, context => parameter.Value);
                 return new ConstructorArgument(parameter.Name, parameter.Value);
+            }
             if (parameter.ParameterType == IocParameterType.Property)
+            {
+                if (isDelegate)
+                    return new PropertyValue(parameter.Name, context => parameter.Value);
                 return new PropertyValue(parameter.Name, parameter.Value);
+            }
             Tracer.Warn("The parameter with type {0} is not supported", parameter.ParameterType);
             return null;
         }
@@ -189,14 +197,22 @@ namespace MugenMvvmToolkit
                 "SetLifecycle(IBindingInSyntax<object> syntax, DependencyLifecycle lifecycle)");
         }
 
-        private static IList<IIocParameter> GetParameters(IContext context)
+        private static IList<IIocParameter> GetParameters(IIocParameter[] iocParameters, IContext context)
         {
             if (context.Parameters == null || context.Parameters.Count == 0)
-                return Empty.Array<IIocParameter>();
-            var parameterContainer = context.Parameters.OfType<ParameterContainer>().FirstOrDefault();
-            if (parameterContainer == null)
-                return Empty.Array<IIocParameter>();
-            return parameterContainer.Parameters;
+                return iocParameters;
+            List<IIocParameter> result = null;
+            foreach (var parameter in context.Parameters.OfType<ParameterContainer>())
+            {
+                if (result == null)
+                    result = new List<IIocParameter>();
+                result.AddRange(parameter.Parameters);
+            }
+            if (result == null)
+                return iocParameters;
+            if (iocParameters != null)
+                result.AddRange(iocParameters);
+            return result;
         }
 
         #endregion
@@ -306,14 +322,16 @@ namespace MugenMvvmToolkit
         /// </param>
         /// <param name="name">The specified binding name.</param>
         public void BindToMethod(Type service, Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate,
-            DependencyLifecycle lifecycle, string name = null)
+            DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
             Should.NotBeNull(service, "service");
             Should.NotBeNull(methodBindingDelegate, "methodBindingDelegate");
+            if (parameters == null)
+                parameters = Empty.Array<IIocParameter>();
             IBindingWhenInNamedWithOrOnSyntax<object> syntax = _kernel
                 .Bind(service)
-                .ToMethod(context => methodBindingDelegate(this, GetParameters(context)));
+                .ToMethod(context => methodBindingDelegate(this, GetParameters(parameters, context)));
             SetLifecycle(syntax, lifecycle);
             if (name != null)
                 syntax.Named(name);
@@ -328,7 +346,7 @@ namespace MugenMvvmToolkit
         ///     The specified <see cref="DependencyLifecycle" />
         /// </param>
         /// <param name="name">The specified binding name.</param>
-        public void Bind(Type service, Type typeTo, DependencyLifecycle lifecycle, string name = null)
+        public void Bind(Type service, Type typeTo, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
             Should.NotBeNull(service, "service");
@@ -336,6 +354,11 @@ namespace MugenMvvmToolkit
             IBindingWhenInNamedWithOrOnSyntax<object> syntax = _kernel
                 .Bind(service)
                 .To(typeTo);
+            if (parameters != null)
+            {
+                for (int index = 0; index < parameters.Length; index++)
+                    syntax.WithParameter(ConvertParameter(parameters[index], true));
+            }
             SetLifecycle(syntax, lifecycle);
             if (name != null)
                 syntax.Named(name);

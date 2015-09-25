@@ -293,28 +293,28 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public void BindToMethod(Type service,
                 Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate, DependencyLifecycle lifecycle,
-                string name = null)
+                string name = null, params IIocParameter[] parameters)
             {
                 if (_isMixed && _parentInitialized)
                 {
                     if (!IsContainerDisposed(_parentContainer))
-                        _parentContainer.BindToMethod(service, methodBindingDelegate, lifecycle, name);
-                    _iocContainer.BindToMethod(service, methodBindingDelegate, lifecycle, name);
+                        _parentContainer.BindToMethod(service, methodBindingDelegate, lifecycle, name, parameters);
+                    _iocContainer.BindToMethod(service, methodBindingDelegate, lifecycle, name, parameters);
                 }
                 else
-                    IocContainer.BindToMethod(service, methodBindingDelegate, lifecycle, name);
+                    IocContainer.BindToMethod(service, methodBindingDelegate, lifecycle, name, parameters);
             }
 
-            public void Bind(Type service, Type typeTo, DependencyLifecycle lifecycle, string name = null)
+            public void Bind(Type service, Type typeTo, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
             {
                 if (_isMixed && _parentInitialized)
                 {
                     if (!IsContainerDisposed(_parentContainer))
-                        _parentContainer.Bind(service, typeTo, lifecycle, name);
-                    _iocContainer.Bind(service, typeTo, lifecycle, name);
+                        _parentContainer.Bind(service, typeTo, lifecycle, name, parameters);
+                    _iocContainer.Bind(service, typeTo, lifecycle, name, parameters);
                 }
                 else
-                    IocContainer.Bind(service, typeTo, lifecycle, name);
+                    IocContainer.Bind(service, typeTo, lifecycle, name, parameters);
             }
 
             public void Unbind(Type service)

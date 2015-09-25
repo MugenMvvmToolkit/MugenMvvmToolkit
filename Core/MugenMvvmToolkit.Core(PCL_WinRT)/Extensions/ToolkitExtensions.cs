@@ -385,12 +385,13 @@ namespace MugenMvvmToolkit
         ///     Specified <see cref="DependencyLifecycle" />
         /// </param>
         /// <param name="name">The specified binding name.</param>
+        /// <param name="parameters">The specified parameters.</param>
         public static void Bind<T, TTypeTo>([NotNull] this IIocContainer iocContainer, DependencyLifecycle lifecycle,
-            string name = null)
+            string name = null, params IIocParameter[] parameters)
             where TTypeTo : T
         {
             Should.NotBeNull(iocContainer, "iocContainer");
-            iocContainer.Bind(typeof(T), typeof(TTypeTo), lifecycle, name);
+            iocContainer.Bind(typeof(T), typeof(TTypeTo), lifecycle, name, parameters);
         }
 
         /// <summary>
@@ -420,11 +421,11 @@ namespace MugenMvvmToolkit
         /// </param>
         /// <param name="name">The specified binding name.</param>
         public static void BindToMethod<T>([NotNull] this IIocContainer iocContainer,
-            [NotNull] Func<IIocContainer, IList<IIocParameter>, T> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null)
+            [NotNull] Func<IIocContainer, IList<IIocParameter>, T> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
             Should.NotBeNull(iocContainer, "iocContainer");
             Should.NotBeNull(methodBindingDelegate, "methodBindingDelegate");
-            iocContainer.BindToMethod(typeof(T), methodBindingDelegate.AsMethodBindingDelegateObject, lifecycle, name);
+            iocContainer.BindToMethod(typeof(T), methodBindingDelegate.AsMethodBindingDelegateObject, lifecycle, name, parameters);
         }
 
         /// <summary>

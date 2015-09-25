@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MugenInjection.Attributes;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models.IoC;
 using Should;
@@ -408,6 +409,83 @@ namespace MugenMvvmToolkit.Test.Ioc
                 iocContainer.CanResolve<ISimple>(name).ShouldBeTrue();
             }
         }
+
+        [TestMethod]
+        public virtual void ShouldPassPredefinedParametersToMethodDelegate()
+        {
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                var parameters = new IIocParameter[]
+                {
+                    new IocParameter("parameterConstructor", "parameterConstructor", IocParameterType.Constructor),
+                    new IocParameter("ParameterProperty", "ParameterProperty", IocParameterType.Property)
+                };
+                iocContainer.BindToMethod(typeof(Simple), (container, list) =>
+                {
+                    list.SequenceEqual(parameters).ShouldBeTrue();
+                    return new Simple();
+                }, DependencyLifecycle.SingleInstance, parameters: parameters);
+                iocContainer.Get<Simple>();
+            }
+        }
+
+        [TestMethod]
+        public virtual void ShouldResolveClassWithDynamicParameters()
+        {
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                var parameters = new IIocParameter[]
+                {
+                    new IocParameter("parameterConstructor", "parameterConstructor", IocParameterType.Constructor),
+                    new IocParameter("ParameterProperty", "ParameterProperty", IocParameterType.Property)
+                };
+                iocContainer.Bind(typeof(ParameterClass), typeof(ParameterClass), DependencyLifecycle.SingleInstance);
+                var parameterClass = iocContainer.Get<ParameterClass>(parameters: parameters);
+                parameterClass.ParameterConstructor.ShouldEqual(parameters[0].Value);
+                parameterClass.ParameterProperty.ShouldEqual(parameters[1].Value);
+            }
+        }
+
+        [TestMethod]
+        public virtual void ShouldResolveClassWithPredefinedParameters()
+        {
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                var parameters = new IIocParameter[]
+                {
+                    new IocParameter("parameterConstructor", "parameterConstructor", IocParameterType.Constructor),
+                    new IocParameter("ParameterProperty", "ParameterProperty", IocParameterType.Property)
+                };
+                iocContainer.Bind(typeof(ParameterClass), typeof(ParameterClass), DependencyLifecycle.SingleInstance, parameters: parameters);
+                var parameterClass = iocContainer.Get<ParameterClass>();
+                parameterClass.ParameterConstructor.ShouldEqual(parameters[0].Value);
+                parameterClass.ParameterProperty.ShouldEqual(parameters[1].Value);
+            }
+        }
+
+        #endregion
+    }
+
+    public class ParameterClass
+    {
+        #region Constructors
+
+        public ParameterClass(string parameterConstructor)
+        {
+            ParameterConstructor = parameterConstructor;
+        }
+
+        #endregion
+
+        #region Properties
+
+        public string ParameterConstructor { get; set; }
+
+        [Inject]
+#if !NETFX_CORE
+        [Ninject.Inject]
+#endif
+        public string ParameterProperty { get; set; }
 
         #endregion
     }

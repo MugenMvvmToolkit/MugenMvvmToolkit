@@ -144,7 +144,7 @@ namespace MugenMvvmToolkit
 
             var list = new List<IInjectionParameter>();
             foreach (var iocParameter in parameters)
-                list.AddIfNotNull(ConvertParameter(iocParameter));
+                list.AddIfNotNull(ConvertParameter(iocParameter, false));
             list.Add(new ParameterContainer(parameters));
             return list.ToArrayEx();
         }
@@ -152,14 +152,22 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Converts parameter.
         /// </summary>
-        protected virtual IInjectionParameter ConvertParameter(IIocParameter parameter)
+        protected virtual IInjectionParameter ConvertParameter(IIocParameter parameter, bool isDelegate)
         {
             if (parameter == null)
                 return null;
             if (parameter.ParameterType == IocParameterType.Constructor)
+            {
+                if (isDelegate)
+                    return new ConstructorParameter(parameter.Name, context => parameter.Value);
                 return new ConstructorParameter(parameter.Name, parameter.Value);
+            }
             if (parameter.ParameterType == IocParameterType.Property)
+            {
+                if (isDelegate)
+                    return new PropertyParameter(parameter.Name, context => parameter.Value);
                 return new PropertyParameter(parameter.Name, parameter.Value);
+            }
             Tracer.Warn("The parameter with type {0} is not supported", parameter.ParameterType);
             return null;
         }
@@ -177,14 +185,22 @@ namespace MugenMvvmToolkit
             return null;
         }
 
-        private static IList<IIocParameter> GetParameters(IBindingContext context)
+        private static IList<IIocParameter> GetParameters(IIocParameter[] iocParameters, IBindingContext context)
         {
             if (context.Parameters == null || context.Parameters.Count == 0)
-                return Empty.Array<IIocParameter>();
-            var parameterContainer = context.Parameters.OfType<ParameterContainer>().FirstOrDefault();
-            if (parameterContainer == null)
-                return Empty.Array<IIocParameter>();
-            return parameterContainer.Parameters;
+                return iocParameters;
+            List<IIocParameter> result = null;
+            foreach (var parameter in context.Parameters.OfType<ParameterContainer>())
+            {
+                if (result == null)
+                    result = new List<IIocParameter>();
+                result.AddRange(parameter.Parameters);
+            }
+            if (result == null)
+                return iocParameters;
+            if (iocParameters != null)
+                result.AddRange(iocParameters);
+            return result;
         }
 
         private void OnDisposed()
@@ -291,9 +307,7 @@ namespace MugenMvvmToolkit
         {
             this.NotBeDisposed();
             Should.NotBeNull(service, "service");
-            IConstantObjectPriorityWhenSyntax syntax = _injector
-                .BindWithManualBuild(service)
-                .ToConstant(constValue);
+            IConstantObjectPriorityWhenSyntax syntax = _injector.BindWithManualBuild(service).ToConstant(constValue);
             if (name != null)
                 syntax.NamedBinding(name);
             syntax.Build();
@@ -308,15 +322,14 @@ namespace MugenMvvmToolkit
         ///     The specified <see cref="DependencyLifecycle" />
         /// </param>
         /// <param name="name">The specified binding name.</param>
-        public void BindToMethod(Type service, Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null)
+        public void BindToMethod(Type service, Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
             Should.NotBeNull(service, "service");
             Should.NotBeNull(methodBindingDelegate, "methodBindingDelegate");
-            IMethodCallbackObjectPriorityUseWithSyntax syntax = _injector
-                .BindWithManualBuild(service)
-                .ToMethod(context => methodBindingDelegate(this, GetParameters(context)))
-                .InScope(GetScope(lifecycle));
+            if (parameters == null)
+                parameters = Empty.Array<IIocParameter>();
+            IMethodCallbackObjectPriorityUseWithSyntax syntax = _injector.BindWithManualBuild(service).ToMethod(context => methodBindingDelegate(this, GetParameters(parameters, context))).InScope(GetScope(lifecycle));
             if (name != null)
                 syntax.NamedBinding(name);
             syntax.Build();
@@ -331,15 +344,18 @@ namespace MugenMvvmToolkit
         /// <param name="dependencyLifecycle">
         ///     The specified <see cref="DependencyLifecycle" />
         /// </param>
-        public void Bind(Type service, Type typeTo, DependencyLifecycle dependencyLifecycle, string name = null)
+        /// <param name="parameters">The specified parameters.</param>
+        public void Bind(Type service, Type typeTo, DependencyLifecycle dependencyLifecycle, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
             Should.NotBeNull(service, "service");
             Should.NotBeNull(typeTo, "typeTo");
-            ITypeCallbackConstructorObjectPriorityUseWithSyntax syntax = _injector
-                .BindWithManualBuild(service)
-                .To(typeTo)
-                .InScope(GetScope(dependencyLifecycle));
+            ITypeCallbackConstructorObjectPriorityUseWithSyntax syntax = _injector.BindWithManualBuild(service).To(typeTo).InScope(GetScope(dependencyLifecycle));
+            if (parameters != null)
+            {
+                for (int index = 0; index < parameters.Length; index++)
+                    syntax.WithParameter(ConvertParameter(parameters[index], true));
+            }
             if (name != null)
                 syntax.NamedBinding(name);
             syntax.Build();

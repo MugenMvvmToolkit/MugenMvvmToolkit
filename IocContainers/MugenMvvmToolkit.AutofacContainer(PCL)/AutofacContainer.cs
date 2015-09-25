@@ -158,7 +158,7 @@ namespace MugenMvvmToolkit
         /// <summary>
         ///     Converts parameters.
         /// </summary>
-        protected Parameter[] ConvertParameters(IList<IIocParameter> parameters)
+        protected IList<Parameter> ConvertParameters(IList<IIocParameter> parameters)
         {
             if (parameters == null || parameters.Count == 0)
                 return Empty.Array<Parameter>();
@@ -167,7 +167,7 @@ namespace MugenMvvmToolkit
             foreach (var iocParameter in parameters)
                 list.AddIfNotNull(ConvertParameter(iocParameter));
             list.Add(new ParameterContainer(parameters));
-            return list.ToArrayEx();
+            return list;
         }
 
         /// <summary>
@@ -206,14 +206,22 @@ namespace MugenMvvmToolkit
                 "SetLifetimeScope(DependencyLifecycle dependencyLifecycle, IRegistrationBuilder<object, ConcreteReflectionActivatorData, SingleRegistrationStyle> builder)");
         }
 
-        private static IList<IIocParameter> GetParameters(IEnumerable<Parameter> parameters)
+        private static IList<IIocParameter> GetParameters(IIocParameter[] iocParameters, IEnumerable<Parameter> parameters)
         {
             if (parameters == null)
-                return Empty.Array<IIocParameter>();
-            var parameterContainer = parameters.OfType<ParameterContainer>().FirstOrDefault();
-            if (parameterContainer == null)
-                return Empty.Array<IIocParameter>();
-            return parameterContainer.Parameters;
+                return iocParameters;
+            List<IIocParameter> result = null;
+            foreach (var parameter in parameters.OfType<ParameterContainer>())
+            {
+                if (result == null)
+                    result = new List<IIocParameter>();
+                result.AddRange(parameter.Parameters);
+            }
+            if (result == null)
+                return iocParameters;
+            if (iocParameters != null)
+                result.AddRange(iocParameters);
+            return result;
         }
 
         #endregion
@@ -314,15 +322,17 @@ namespace MugenMvvmToolkit
         ///     The specified <see cref="DependencyLifecycle" />
         /// </param>
         /// <param name="name">The specified binding name.</param>
-        public void BindToMethod(Type service, Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null)
+        public void BindToMethod(Type service, Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
             Should.NotBeNull(service, "service");
             Should.NotBeNull(methodBindingDelegate, "methodBindingDelegate");
+            if (parameters == null)
+                parameters = Empty.Array<IIocParameter>();
             var builder = new ContainerBuilder();
             IRegistrationBuilder<object, SimpleActivatorData, SingleRegistrationStyle> syntax = name == null
-                ? builder.Register((context, args) => methodBindingDelegate(this, GetParameters(args))).As(service)
-                : builder.Register((context, args) => methodBindingDelegate(this, GetParameters(args))).Named(name, service);
+                ? builder.Register((context, args) => methodBindingDelegate(this, GetParameters(parameters, args))).As(service)
+                : builder.Register((context, args) => methodBindingDelegate(this, GetParameters(parameters, args))).Named(name, service);
             SetLifetimeScope(lifecycle, syntax.RegistrationData);
             builder.Update(_container.ComponentRegistry);
         }
@@ -336,7 +346,7 @@ namespace MugenMvvmToolkit
         /// <param name="dependencyLifecycle">
         ///     The specified <see cref="DependencyLifecycle" />
         /// </param>
-        public void Bind(Type service, Type typeTo, DependencyLifecycle dependencyLifecycle, string name = null)
+        public void Bind(Type service, Type typeTo, DependencyLifecycle dependencyLifecycle, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
             Should.NotBeNull(service, "service");
@@ -345,6 +355,18 @@ namespace MugenMvvmToolkit
             IRegistrationBuilder<object, ConcreteReflectionActivatorData, SingleRegistrationStyle> syntax = name == null
                 ? builder.RegisterType(typeTo).As(service)
                 : builder.RegisterType(typeTo).Named(name, service);
+            if (parameters != null)
+            {
+                for (int index = 0; index < parameters.Length; index++)
+                {
+                    var iocParameter = parameters[index];
+                    var parameter = ConvertParameter(iocParameter);
+                    if (iocParameter.ParameterType == IocParameterType.Property)
+                        syntax.WithProperty(parameter);
+                    else
+                        syntax.WithParameter(parameter);
+                }
+            }
             SetLifetimeScope(dependencyLifecycle, syntax.RegistrationData);
             builder.Update(_container.ComponentRegistry);
         }

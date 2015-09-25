@@ -138,7 +138,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         ///     The specified <see cref="DependencyLifecycle" />
         /// </param>
         /// <param name="name">The specified binding name.</param>
-        void IIocContainer.BindToMethod(Type service, Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null)
+        void IIocContainer.BindToMethod(Type service, Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
             throw new NotImplementedException();
         }
@@ -152,7 +152,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         /// <param name="dependencyLifecycle">
         ///     The specified <see cref="DependencyLifecycle" />
         /// </param>
-        void IIocContainer.Bind(Type service, Type typeTo, DependencyLifecycle dependencyLifecycle, string name)
+        void IIocContainer.Bind(Type service, Type typeTo, DependencyLifecycle dependencyLifecycle, string name, params IIocParameter[] parameters)
         {
             BindFunc(service, typeTo, dependencyLifecycle, name);
         }

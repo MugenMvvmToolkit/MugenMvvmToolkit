@@ -92,7 +92,8 @@ namespace MugenMvvmToolkit.Interfaces
         ///     The specified <see cref="DependencyLifecycle" />
         /// </param>
         /// <param name="name">The specified binding name.</param>
-        void BindToMethod([NotNull] Type service, Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null);
+        /// <param name="parameters">The specified parameters.</param>
+        void BindToMethod([NotNull] Type service, Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters);
 
         /// <summary>
         ///     Indicates that the service should be bound to the specified type.
@@ -103,7 +104,8 @@ namespace MugenMvvmToolkit.Interfaces
         /// <param name="lifecycle">
         ///     The specified <see cref="DependencyLifecycle" />
         /// </param>
-        void Bind([NotNull] Type service, [NotNull] Type typeTo, DependencyLifecycle lifecycle, string name = null);
+        /// <param name="parameters">The specified parameters.</param>
+        void Bind([NotNull] Type service, [NotNull] Type typeTo, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters);
 
         /// <summary>
         ///     Unregisters all bindings with specified conditions for the specified service.
