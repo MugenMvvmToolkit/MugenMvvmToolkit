@@ -433,7 +433,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (_source is WeakReference)
                 _source = Empty.WeakReference;
             else
+            {
+                var disposable = _source as IDisposable;
+                if (disposable != null)
+                    disposable.Dispose();
                 _source = EmptySource;
+            }
             OnDispose();
         }
 

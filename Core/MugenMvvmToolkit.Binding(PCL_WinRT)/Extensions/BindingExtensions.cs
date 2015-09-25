@@ -151,14 +151,14 @@ namespace MugenMvvmToolkit.Binding
             #endregion
         }
 
-        private sealed class ParentSourceValue : ISourceValue, IEventListener
+        private sealed class ParentSourceValue : ISourceValue, IEventListener, IDisposable
         {
             #region Fields
 
             private readonly bool _isElementSource;
             private readonly IRelativeSourceExpressionNode _node;
             private readonly IDisposable _subscriber;
-            private readonly WeakReference _targetReference;
+            private WeakReference _targetReference;
             private bool _hasParent;
             private WeakReference _value;
 
@@ -240,7 +240,15 @@ namespace MugenMvvmToolkit.Binding
 
             public event EventHandler<ISourceValue, EventArgs> ValueChanged;
 
-            #endregion
+            public void Dispose()
+            {
+                if (_subscriber != null)
+                    _subscriber.Dispose();
+                _value = Empty.WeakReference;
+                _targetReference = Empty.WeakReference;
+            }
+
+            #endregion            
         }
 
         private sealed class WeakEventListener : IEventListener
