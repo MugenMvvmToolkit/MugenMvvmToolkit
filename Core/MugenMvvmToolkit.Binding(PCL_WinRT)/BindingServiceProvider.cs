@@ -86,7 +86,7 @@ namespace MugenMvvmToolkit.Binding
                 AttachedMemberConstants.DataContext
             };
             SetDefaultValues();
-            DesignTimeInitializer.InitializeDesignTimeManager();
+            MvvmApplication.InitializeDesignTimeManager();
             ViewManager.GetDataContext = BindingExtensions.DataContext;
             ViewManager.SetDataContext = BindingExtensions.SetDataContext;
         }

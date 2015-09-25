@@ -127,6 +127,20 @@ namespace MugenMvvmToolkit
         public static event EventHandler Initialized;
 
         /// <summary>
+        ///     Tries to initialize <see cref="IDesignTimeManager" />.
+        /// </summary>
+        public static void InitializeDesignTimeManager()
+        {
+            // ReSharper disable once UnusedVariable
+            var dummy = ServiceProvider.DesignTimeManager;
+        }
+
+        public static void SetDefaultDesignTimeManager()
+        {
+            ServiceProvider.DesignTimeManager = DesignTimeManagerImpl.Instance;
+        }
+
+        /// <summary>
         ///     Initializes the current bootstrapper.
         /// </summary>
         protected virtual void OnInitialize(IList<Assembly> assemblies)
