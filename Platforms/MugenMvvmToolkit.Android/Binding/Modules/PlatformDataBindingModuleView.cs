@@ -279,6 +279,9 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         {
             if (target == null)
                 return null;
+            var rootView = target.RootView;
+            if (rootView != null)
+                target = rootView;
             var name = arg3[0].ToStringSafe();
             var result = target.FindViewWithTag(name);
             if (result == null)
