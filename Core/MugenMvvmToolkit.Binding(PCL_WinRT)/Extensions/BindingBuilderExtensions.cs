@@ -35,9 +35,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding
 {
-    /// <summary>
-    ///     Represents the binding builders extensions.
-    /// </summary>
     public static class BindingBuilderExtensions
     {
         #region Fields

@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ViewFactory.cs">
@@ -52,9 +52,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         #region Implementation of IViewFactory
 
-        /// <summary>
-        ///     Creates an instance of <see cref="ViewResult" /> using the view name.
-        /// </summary>
         public virtual ViewResult Create(string name, Context context, IAttributeSet attrs)
         {
             Should.NotBeNullOrWhitespace(name, "name");
@@ -62,9 +59,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             return Create(type, context, attrs);
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="ViewResult" /> using the view type.
-        /// </summary>
         public virtual ViewResult Create(Type type, Context context, IAttributeSet attrs)
         {
             Should.NotBeNull(type, "type");

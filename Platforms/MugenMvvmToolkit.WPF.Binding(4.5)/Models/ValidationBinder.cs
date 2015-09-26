@@ -37,9 +37,6 @@ namespace MugenMvvmToolkit.Silverlight.Binding.Models
 namespace MugenMvvmToolkit.WinPhone.Binding.Models
 #endif
 {
-    /// <summary>
-    /// Represents the class that allows to use default binding validaion mechanism.
-    /// </summary>
     public sealed class ValidationBinder :
 #if NET4
  NotifyPropertyChangedBase, IDataErrorInfo
@@ -85,9 +82,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the fake value that is used to create binding.
-        /// </summary>
         public object Value
         {
             get { return this; }
@@ -100,9 +94,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
 
         #region Methods
 
-        /// <summary>
-        ///     Sets errors for a control.
-        /// </summary>
         public static void SetErrors([NotNull] FrameworkElement element, [CanBeNull] IList<object> errors)
         {
             Should.NotBeNull(element, "element");

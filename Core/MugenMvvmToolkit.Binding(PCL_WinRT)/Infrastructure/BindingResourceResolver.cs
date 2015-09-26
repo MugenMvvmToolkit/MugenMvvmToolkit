@@ -32,9 +32,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the dynamic resource resolver.
-    /// </summary>
     public class BindingResourceResolver : IBindingResourceResolver
     {
         #region Nested types
@@ -172,9 +169,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingResourceResolver" /> class.
-        /// </summary>
         public BindingResourceResolver()
         {
             BindingSourceResourceName = "src";
@@ -233,9 +227,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             this.AddType(typeof(Environment));
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingResourceResolver" /> class.
-        /// </summary>
         public BindingResourceResolver([NotNull] BindingResourceResolver resolver)
         {
             Should.NotBeNull(resolver, "resolver");
@@ -331,13 +322,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return BindingSyntaxEx.GetErrorsImpl((Guid)objects[0], arg3, objects);
         }
 
-        /// <summary>
-        ///     Gets an instance of <see cref="ISourceValue" /> by the specified name.
-        /// </summary>
-        /// <param name="target">The binding target.</param>
-        /// <param name="name">The specified name.</param>
-        /// <param name="context">The specified data context, if any.</param>
-        /// <param name="keepValue">If <c>true</c> saves value as attached value in target</param>
         [CanBeNull]
         protected virtual ISourceValue ResolveObjectInternal([NotNull] object target, string name, IDataContext context, out bool keepValue)
         {
@@ -378,9 +362,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IExpressionMemberResolver
 
-        /// <summary>
-        ///     Gets or sets the name of self element resource default is <c>self</c>.
-        /// </summary>
         public string SelfResourceName
         {
             get { return _selfResourceName; }
@@ -391,9 +372,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the name of root element resource default is <c>root</c>.
-        /// </summary>
         public string RootElementResourceName
         {
             get { return _rootElementResourceName; }
@@ -404,9 +382,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the name of binding source resource default is <c>src</c>.
-        /// </summary>
         public string BindingSourceResourceName
         {
             get { return _bindingSourceResourceName; }
@@ -417,9 +392,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the name of data context resource default is <c>context</c>.
-        /// </summary>
         public string DataContextResourceName
         {
             get { return _dataContextResourceName; }
@@ -430,25 +402,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets a collection of known types.
-        /// </summary>
         public virtual IList<Type> GetKnownTypes()
         {
             lock (_types)
                 return _types.Values.Distinct().ToList();
         }
 
-        /// <summary>
-        ///     Gets an instance of <see cref="IBindingValueConverter" /> by the specified name.
-        /// </summary>
-        /// <param name="name">The specified name.</param>
-        /// <param name="context">The specified data context, if any.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the type cannot be found; false to return null. Specifying
-        ///     false also suppresses some other exception conditions, but not all of them.
-        /// </param>
-        /// <returns>An instance of <see cref="IBindingValueConverter" />.</returns>
         public virtual IBindingValueConverter ResolveConverter(string name, IDataContext context, bool throwOnError)
         {
             Should.NotBeNullOrWhitespace(name, "name");
@@ -461,16 +420,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets an instance of <see cref="Type" /> by the specified name.
-        /// </summary>
-        /// <param name="typeName">The specified name.</param>
-        /// <param name="context">The specified data context, if any.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the type cannot be found; false to return null. Specifying
-        ///     false also suppresses some other exception conditions, but not all of them.
-        /// </param>
-        /// <returns>An instance of <see cref="Type" />.</returns>
         public virtual Type ResolveType(string typeName, IDataContext context, bool throwOnError)
         {
             Type value = Type.GetType(typeName, false);
@@ -485,16 +434,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return value;
         }
 
-        /// <summary>
-        ///     Gets an instance of <see cref="IBindingResourceMethod" /> by the specified name.
-        /// </summary>
-        /// <param name="name">The specified name.</param>
-        /// <param name="context">The specified data context, if any.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the type cannot be found; false to return null. Specifying
-        ///     false also suppresses some other exception conditions, but not all of them.
-        /// </param>
-        /// <returns>An instance of <see cref="IBindingResourceMethod" />.</returns>
         public virtual IBindingResourceMethod ResolveMethod(string name, IDataContext context, bool throwOnError)
         {
             Should.NotBeNullOrWhitespace(name, "name");
@@ -507,16 +446,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets an instance of <see cref="ISourceValue" /> by the specified name.
-        /// </summary>
-        /// <param name="name">The specified name.</param>
-        /// <param name="context">The specified data context, if any.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the type cannot be found; false to return null. Specifying
-        ///     false also suppresses some other exception conditions, but not all of them.
-        /// </param>
-        /// <returns>An instance of <see cref="ISourceValue" />.</returns>
         public virtual ISourceValue ResolveObject(string name, IDataContext context, bool throwOnError)
         {
             Should.NotBeNullOrWhitespace(name, "name");
@@ -546,17 +475,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return targetResourceObject;
         }
 
-        /// <summary>
-        ///     Gets an instance of <see cref="IBindingBehavior" /> by the specified name.
-        /// </summary>
-        /// <param name="name">The specified name.</param>
-        /// <param name="context">The specified data context.</param>
-        /// <param name="args">The specified args to create behavior.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the object cannot be found; false to return null. Specifying
-        ///     false also suppresses some other exception conditions, but not all of them.
-        /// </param>
-        /// <returns>An instance of <see cref="IBindingBehavior" />.</returns>
         public virtual IBindingBehavior ResolveBehavior(string name, IDataContext context, IList<object> args, bool throwOnError)
         {
             Should.NotBeNullOrWhitespace(name, "name");
@@ -573,9 +491,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return value(context, args);
         }
 
-        /// <summary>
-        ///     Adds the specified behavior.
-        /// </summary>
         public virtual void AddBehavior(string name, Func<IDataContext, IList<object>, IBindingBehavior> getBehavior, bool rewrite)
         {
             Should.NotBeNullOrWhitespace(name, "name");
@@ -589,9 +504,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Adds the specified converter.
-        /// </summary>
         public virtual void AddConverter(string name, IBindingValueConverter converter, bool rewrite)
         {
             Should.NotBeNullOrWhitespace(name, "name");
@@ -605,9 +517,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Adds the specified type.
-        /// </summary>
         public virtual void AddType(string name, Type type, bool rewrite)
         {
             Should.NotBeNullOrWhitespace(name, "name");
@@ -621,9 +530,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Adds the specified method.
-        /// </summary>
         public virtual void AddMethod(string name, IBindingResourceMethod method, bool rewrite)
         {
             Should.NotBeNullOrWhitespace(name, "name");
@@ -637,9 +543,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Adds the specified object.
-        /// </summary>
         public virtual void AddObject(string name, ISourceValue obj, bool rewrite)
         {
             Should.NotBeNullOrWhitespace(name, "name");
@@ -656,9 +559,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             value.SetValue(obj, name, rewrite);
         }
 
-        /// <summary>
-        ///     Removes the specified behavior using name.
-        /// </summary>
         public virtual bool RemoveBehavior(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -667,9 +567,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return _behaviors.Remove(name);
         }
 
-        /// <summary>
-        ///     Removes the specified converter using name.
-        /// </summary>
         public bool RemoveConverter(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -678,9 +575,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return _converters.Remove(name);
         }
 
-        /// <summary>
-        ///     Removes the specified type using name.
-        /// </summary>
         public bool RemoveType(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -689,9 +583,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return _types.Remove(name);
         }
 
-        /// <summary>
-        ///     Removes the specified method using name.
-        /// </summary>
         public bool RemoveMethod(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -700,9 +591,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return _dynamicMethods.Remove(name);
         }
 
-        /// <summary>
-        ///     Removes the specified object using name.
-        /// </summary>
         public bool RemoveObject(string name)
         {
             if (string.IsNullOrEmpty(name))

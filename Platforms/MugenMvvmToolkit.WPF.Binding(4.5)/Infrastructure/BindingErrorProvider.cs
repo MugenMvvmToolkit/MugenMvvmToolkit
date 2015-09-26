@@ -49,20 +49,10 @@ using MugenMvvmToolkit.WinPhone.MarkupExtensions;
 namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 #endif
 {
-    /// <summary>
-    ///     Represents the class that provides a user interface for indicating that a control on a form has an error associated
-    ///     with it.
-    /// </summary>
     public class BindingErrorProvider : BindingErrorProviderBase
     {
         #region Overrides of BindingErrorProviderBase
 
-        /// <summary>
-        ///     Sets errors for binding target.
-        /// </summary>
-        /// <param name="target">The binding target object.</param>
-        /// <param name="errors">The collection of errors</param>
-        /// <param name="context">The specified context, if any.</param>
         protected override void SetErrors(object target, IList<object> errors, IDataContext context)
         {
             var depObj = target as DependencyObject;

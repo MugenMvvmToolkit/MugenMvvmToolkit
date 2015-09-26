@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="MvvmPreferenceFragment.cs">
@@ -66,26 +66,17 @@ namespace MugenMvvmToolkit.Android.Views.Fragments
 
         #region Implementation of IView
 
-        /// <summary>
-        ///     Gets the current <see cref="IMvvmFragmentMediator" />.
-        /// </summary>
         public virtual IMvvmFragmentMediator Mediator
         {
             get { return this.GetOrCreateMediator(ref _mediator); }
         }
 
-        /// <summary>
-        ///     Gets or sets the data context of the current view.
-        /// </summary>
         public object DataContext
         {
             get { return Mediator.DataContext; }
             set { Mediator.DataContext = value; }
         }
 
-        /// <summary>
-        ///     Occurs when the DataContext property changed.
-        /// </summary>
         public event EventHandler<Fragment, EventArgs> DataContextChanged
         {
             add { Mediator.DataContextChanged += value; }

@@ -53,19 +53,10 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Inserts an item to the specified index.
-        /// </summary>
         protected abstract void Insert(TView view, int index, TViewItem viewItem);
 
-        /// <summary>
-        ///     Removes an item.
-        /// </summary>
         protected abstract void RemoveAt(TView view, int index);
 
-        /// <summary>
-        ///     Removes all items.
-        /// </summary>
         protected abstract void Clear(TView view);
 
         #endregion

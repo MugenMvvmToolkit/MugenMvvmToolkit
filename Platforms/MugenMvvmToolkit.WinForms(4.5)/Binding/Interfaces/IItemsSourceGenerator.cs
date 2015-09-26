@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="IItemsSourceGenerator.cs">
@@ -30,37 +30,19 @@ namespace MugenMvvmToolkit.WinForms.Binding.Interfaces
 namespace MugenMvvmToolkit.Silverlight.Binding.Interfaces
 #endif
 {
-    /// <summary>
-    ///     Represents the interface that allows to generate items from collection.
-    /// </summary>
     public interface IItemsSourceGenerator
     {
-        /// <summary>
-        ///     Gets the current items source, if any.
-        /// </summary>
         [CanBeNull]
         IEnumerable ItemsSource { get; }
 
-        /// <summary>
-        ///     Sets the current items source.
-        /// </summary>
         void SetItemsSource([CanBeNull] IEnumerable itemsSource, IDataContext context = null);
 
-        /// <summary>
-        ///     Resets the current items source.
-        /// </summary>
         void Reset();
     }
 
 #if ANDROID
-    /// <summary>
-    ///     Represents the interface that allows to generate items from collection.
-    /// </summary>
     public interface IItemsSourceGeneratorEx : IItemsSourceGenerator
     {
-        /// <summary>
-        ///     Gets or sets the selected item.
-        /// </summary>
         object SelectedItem { get; set; }
     }
 #endif

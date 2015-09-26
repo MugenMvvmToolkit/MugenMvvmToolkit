@@ -14,9 +14,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of IObserverProvider
 
-        /// <summary>
-        ///     Attempts to track the value change using the binding path.
-        /// </summary>
         IObserver IObserverProvider.Observe(object target, IBindingPath path, bool ignoreAttachedMembers)
         {
             return Observe(target, path, ignoreAttachedMembers);

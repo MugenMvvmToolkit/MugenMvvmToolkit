@@ -65,9 +65,6 @@ using System.Windows;
 namespace MugenMvvmToolkit.WinPhone.Infrastructure
 #endif
 {
-    /// <summary>
-    ///     Represents the attached value provider class, that allows to attach a value to an object using path.
-    /// </summary>
 #if PCL_WINRT || PCL_Silverlight || PCL_NET4
     public class AttachedValueProviderDefault : AttachedValueProviderBase
 #else
@@ -77,9 +74,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         #region Nested types
 
 #if TOUCH
-        /// <summary>
-        ///     https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ObjCRuntimeRef/index.html#//apple_ref/c/tdef/objc_AssociationPolicy
-        /// </summary>
         private enum OBJC_ASSOCIATION_POLICY
         {
             OBJC_ASSOCIATION_RETAIN = 01401
@@ -216,8 +210,8 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         private static readonly IntPtr AttachedValueKeyHandle = new NSObject().Handle;
         private static readonly Dictionary<IntPtr, AttachedValueHolder> AttachedValueHolders = new Dictionary<IntPtr, AttachedValueHolder>(109, new IntPtrComparer());
 #elif ANDROID
-        //Prior to Android 4.0, the implementation of View.setTag(int, Object) would store the objects in a static map, where the values were strongly referenced. 
-        //This means that if the object contains any references pointing back to the context, the context (which points to pretty much everything else) will leak. 
+        //Prior to Android 4.0, the implementation of View.setTag(int, Object) would store the objects in a static map, where the values were strongly referenced.
+        //This means that if the object contains any references pointing back to the context, the context (which points to pretty much everything else) will leak.
         internal static readonly bool SetTagSupported = Build.VERSION.SdkInt >= BuildVersionCodes.IceCreamSandwich;
 #endif
         private static readonly ConditionalWeakTable<object, AttachedValueDictionary>.CreateValueCallback
@@ -247,9 +241,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 #endif
 
 #if TOUCH
-        /// <summary>
-        ///     https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ObjCRuntimeRef/index.html#//apple_ref/c/func/objc_setAssociatedObject
-        /// </summary>
         [DllImport(Constants.ObjectiveCLibrary)]
         private static extern void objc_setAssociatedObject(IntPtr target, IntPtr key, IntPtr value,
             OBJC_ASSOCIATION_POLICY policy);
@@ -275,9 +266,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #region Overrides of AttachedValueProviderBase<WeakKey,AttachedValueDictionary>
 
-        /// <summary>
-        ///     Clears all attached properties in the specified item.
-        /// </summary>
         protected override bool ClearInternal(object item)
         {
             var model = item as NotifyPropertyChangedBase;
@@ -356,9 +344,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
             return _internalDictionary.Remove(item);
         }
 
-        /// <summary>
-        ///     Gets or adds the attached values container.
-        /// </summary>
         protected override LightDictionaryBase<string, object> GetOrAddAttachedDictionary(object item, bool addNew)
         {
             var model = item as NotifyPropertyChangedBase;

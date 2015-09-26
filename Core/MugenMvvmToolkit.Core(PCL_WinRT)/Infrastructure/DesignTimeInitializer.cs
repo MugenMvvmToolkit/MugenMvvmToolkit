@@ -101,9 +101,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Gets an instance of <see cref="IDesignTimeManager" />.
-        /// </summary>
         [CanBeNull]
         internal static IDesignTimeManager GetDesignTimeManager()
         {

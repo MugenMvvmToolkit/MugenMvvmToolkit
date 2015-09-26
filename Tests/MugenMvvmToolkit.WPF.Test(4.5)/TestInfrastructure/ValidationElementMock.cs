@@ -15,13 +15,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of IValidationElement
 
-        /// <summary>
-        ///     Determines whether the specified object is valid.
-        /// </summary>
-        /// <returns>
-        ///     A collection that holds failed-validation information.
-        /// </returns>
-        /// <param name="validationContext">The context information about the validation operation.</param>
         IEnumerable<object> DataAnnotationValidatior.IValidationElement.Validate(
             DataAnnotationValidatior.ValidationContext validationContext)
         {

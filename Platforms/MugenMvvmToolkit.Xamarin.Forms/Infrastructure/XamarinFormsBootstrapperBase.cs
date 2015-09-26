@@ -39,9 +39,6 @@ using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 {
-    /// <summary>
-    ///     Represents the base class that is used to start MVVM application.
-    /// </summary>
     public abstract class XamarinFormsBootstrapperBase : BootstrapperBase
     {
         #region Nested types
@@ -68,9 +65,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="XamarinFormsBootstrapperBase" /> class.
-        /// </summary>
         static XamarinFormsBootstrapperBase()
         {
             MvvmApplication.SetDefaultDesignTimeManager();
@@ -85,9 +79,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             BindingServiceProvider.BindingMemberPriorities[contextName] = int.MaxValue - 1;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="XamarinFormsBootstrapperBase" /> class.
-        /// </summary>
         protected XamarinFormsBootstrapperBase(PlatformInfo platform = null)
         {
             _platform = platform ?? GetPlatformInfo();
@@ -97,18 +88,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the current <see cref="XamarinFormsBootstrapperBase" />.
-        /// </summary>
         [CanBeNull]
         public new static XamarinFormsBootstrapperBase Current
         {
             get { return BootstrapperBase.Current as XamarinFormsBootstrapperBase; }
         }
 
-        /// <summary>
-        ///     Gets the name of binding assembly.
-        /// </summary>
         protected static string BindingAssemblyName
         {
             get
@@ -124,9 +109,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         #region Overrides of BootstrapperBase
 
-        /// <summary>
-        ///     Initializes the current bootstrapper.
-        /// </summary>
         protected override void InitializeInternal()
         {
             var application = CreateApplication();
@@ -138,9 +120,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Starts the current bootstrapper.
-        /// </summary>
         public virtual Page Start(bool wrapToNavigationPage = true)
         {
             if (Current != null && !ReferenceEquals(Current, this))
@@ -177,9 +156,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             return page;
         }
 
-        /// <summary>
-        ///     Gets the application assemblies.
-        /// </summary>
         protected virtual ICollection<Assembly> GetAssemblies()
         {
             if (_platformService == null)
@@ -187,18 +163,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             return _platformService.GetAssemblies();
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="NavigationPage" />
-        /// </summary>
         [CanBeNull]
         protected virtual NavigationPage CreateNavigationPage(Page mainPage)
         {
             return new NavigationPage(mainPage);
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="INavigationService" />
-        /// </summary>
         [NotNull]
         protected virtual INavigationService CreateNavigationService()
         {

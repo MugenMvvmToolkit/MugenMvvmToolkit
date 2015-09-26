@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ViewResult.cs">
@@ -33,9 +33,6 @@ namespace MugenMvvmToolkit.Android.Models
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewResult" /> class.
-        /// </summary>
         public ViewResult([NotNull] View view, IDataContext dataContext)
         {
             Should.NotBeNull(view, "view");
@@ -47,18 +44,12 @@ namespace MugenMvvmToolkit.Android.Models
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the <see cref="View" />.
-        /// </summary>
         [NotNull]
         public View View
         {
             get { return _view; }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IDataContext" />.
-        /// </summary>
         [NotNull]
         public IDataContext DataContext
         {

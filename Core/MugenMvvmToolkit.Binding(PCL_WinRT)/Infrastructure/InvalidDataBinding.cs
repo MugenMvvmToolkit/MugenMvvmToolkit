@@ -24,9 +24,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the invalid data binding.
-    /// </summary>
     public sealed class InvalidDataBinding : DataBinding
     {
         #region Fields
@@ -38,17 +35,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="InvalidDataBinding" /> class.
-        /// </summary>
         static InvalidDataBinding()
         {
             SourceAccessorStatic = new BindingSourceAccessor(new EmptyPathObserver(new object(), BindingPath.Empty), DataContext.Empty, false);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DataBinding" /> class.
-        /// </summary>
         public InvalidDataBinding(Exception exception)
             : base(SourceAccessorStatic, SourceAccessorStatic)
         {
@@ -59,9 +50,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the binding exception.
-        /// </summary>
         public Exception Exception
         {
             get { return _exception; }
@@ -71,27 +59,18 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Overrides of DataBinding
 
-        /// <summary>
-        ///     Sends the current value back to the source.
-        /// </summary>
         public override bool UpdateSource()
         {
             RaiseBindingException(_exception, _exception, BindingAction.UpdateSource);
             return false;
         }
 
-        /// <summary>
-        ///     Forces a data transfer from source to target.
-        /// </summary>
         public override bool UpdateTarget()
         {
             RaiseBindingException(_exception, _exception, BindingAction.UpdateTarget);
             return false;
         }
 
-        /// <summary>
-        ///     Validates the current binding and raises the BindingException event if needed.
-        /// </summary>
         public override bool Validate()
         {
             RaiseBindingException(_exception, _exception, BindingAction.UpdateTarget);

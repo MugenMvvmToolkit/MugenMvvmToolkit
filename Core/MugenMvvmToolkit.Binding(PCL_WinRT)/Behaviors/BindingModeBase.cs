@@ -24,16 +24,10 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
-    /// <summary>
-    ///     Represents the base class that describes the direction of the data flow in a binding.
-    /// </summary>
     public abstract class BindingModeBase : BindingBehaviorBase
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the id of binding mode behavior.
-        /// </summary>
         public static readonly Guid IdBindingMode;
 
         #endregion
@@ -49,69 +43,45 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Methods
 
-        /// <summary>
-        ///     Subscribes the target source.
-        /// </summary>
         protected void SubscribeTarget()
         {
             if (Binding != null)
                 Binding.TargetAccessor.Source.ValueChanged += TargetOnValueChanged;
         }
 
-        /// <summary>
-        ///     Unsubscribes the target source.
-        /// </summary>
         protected void UnsubscribeTarget()
         {
             if (Binding != null)
                 Binding.TargetAccessor.Source.ValueChanged -= TargetOnValueChanged;
         }
 
-        /// <summary>
-        ///     Subscribes the sources.
-        /// </summary>
         protected void SubscribeSources()
         {
             SubscribeSources(SourceOnValueChanged);
         }
 
-        /// <summary>
-        ///     Unsubscribes the sources.
-        /// </summary>
         protected void UnsubscribeSources()
         {
             UnsubscribeSources(SourceOnValueChanged);
         }
 
-        /// <summary>
-        ///     Subscribes the sources.
-        /// </summary>
         protected void SubscribeSources(EventHandler<IObserver, ValueChangedEventArgs> handler)
         {
             if (Binding != null)
                 SubscribeInternal(Binding.SourceAccessor, handler, true);
         }
 
-        /// <summary>
-        ///     Unsubscribes the sources.
-        /// </summary>
         protected void UnsubscribeSources(EventHandler<IObserver, ValueChangedEventArgs> handler)
         {
             if (Binding != null)
                 SubscribeInternal(Binding.SourceAccessor, handler, false);
         }
 
-        /// <summary>
-        ///     Updates the target binding when source value changed.
-        /// </summary>
         private void SourceOnValueChanged(IObserver sender, ValueChangedEventArgs args)
         {
             Binding.UpdateTarget();
         }
 
-        /// <summary>
-        ///     Updates the source binding when target value changed.
-        /// </summary>
         private void TargetOnValueChanged(IObserver sender, ValueChangedEventArgs args)
         {
             Binding.UpdateSource();
@@ -147,17 +117,11 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Overrides of BindingBehaviorBase
 
-        /// <summary>
-        ///     Gets the id of behavior. Each <see cref="IDataBinding" /> can have only one instance with the same id.
-        /// </summary>
         public override sealed Guid Id
         {
             get { return IdBindingMode; }
         }
 
-        /// <summary>
-        ///     Gets the behavior priority.
-        /// </summary>
         public override sealed int Priority
         {
             get { return int.MinValue; }

@@ -22,9 +22,6 @@ using System.Threading.Tasks;
 
 namespace MugenMvvmToolkit.Models.Messages
 {
-    /// <summary>
-    ///     Provides data for the error changed event.
-    /// </summary>
     public class AsyncValidationMessage
     {
         #region Fields
@@ -43,9 +40,6 @@ namespace MugenMvvmToolkit.Models.Messages
             EmptyTcs.SetResult(null);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="AsyncValidationMessage" /> class.
-        /// </summary>
         public AsyncValidationMessage(string propertyName)
         {
             _propertyName = propertyName;
@@ -55,17 +49,11 @@ namespace MugenMvvmToolkit.Models.Messages
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the name of property, if any.
-        /// </summary>
         public string PropertyName
         {
             get { return _propertyName; }
         }
 
-        /// <summary>
-        ///     Gets the validation task.
-        /// </summary>
         public Task Task
         {
             get
@@ -80,9 +68,6 @@ namespace MugenMvvmToolkit.Models.Messages
 
         #region Methods
 
-        /// <summary>
-        ///     Sest the current message to completed state.
-        /// </summary>
         protected internal void SetCompleted(Exception exception, bool canceled)
         {
             if (_tcs == null)

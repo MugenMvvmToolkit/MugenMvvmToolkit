@@ -24,63 +24,36 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         #region Implementation of IBinding
 
-        /// <summary>
-        ///     Gets the current <see cref="MugenMvvmToolkit.Interfaces.Models.IDataContext" />.
-        /// </summary>
         public IDataContext Context
         {
             get { return GetContext(); }
         }
 
-        /// <summary>
-        ///     Gets the binding target accessor.
-        /// </summary>
         public ISingleBindingSourceAccessor TargetAccessor { get; set; }
 
-        /// <summary>
-        ///     Gets the binding source accessor.
-        /// </summary>
         public IBindingSourceAccessor SourceAccessor { get; set; }
 
-        /// <summary>
-        ///     Gets the binding behaviors.
-        /// </summary>
         public ICollection<IBindingBehavior> Behaviors { get; set; }
 
-        /// <summary>
-        ///     Sends the current value back to the source.
-        /// </summary>
         bool IDataBinding.UpdateSource()
         {
             UpdateSource();
             return true;
         }
 
-        /// <summary>
-        ///     Forces a data transfer from source to target.
-        /// </summary>
         bool IDataBinding.UpdateTarget()
         {
             UpdateTarget();
             return true;
         }
 
-        /// <summary>
-        ///     Validates the current binding and raises the BindingException event if needed.
-        /// </summary>
         bool IDataBinding.Validate()
         {
             return Validate();
         }
 
-        /// <summary>
-        ///     Occurs when the binding updates the values.
-        /// </summary>
         public event EventHandler<IDataBinding, BindingEventArgs> BindingUpdated;
 
-        /// <summary>
-        ///     Occurs when an exception is not caught.
-        /// </summary>
         public event EventHandler<IDataBinding, BindingExceptionEventArgs> BindingException;
 
         #endregion

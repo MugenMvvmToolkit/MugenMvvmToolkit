@@ -24,18 +24,10 @@ using MugenMvvmToolkit.WinRT.Binding.Models;
 
 namespace MugenMvvmToolkit.WinRT.Binding
 {
-    /// <summary>
-    ///     Represents the platform specific extensions.
-    /// </summary>
     public static partial class PlatformDataBindingExtensions
     {
         #region Methods
 
-        /// <summary>
-        ///     Shows the flyout placed in relation to the specified element, and use this element as parent for content items.
-        /// </summary>
-        /// <param name="flyoutBase">The specified flayout.</param>
-        /// <param name="placementTarget">The element to use as the flyout's placement target.</param>
         public static void ShowAtEx([NotNull] this FlyoutBase flyoutBase, [NotNull] FrameworkElement placementTarget)
         {
             Should.NotBeNull(flyoutBase, "flyoutBase");

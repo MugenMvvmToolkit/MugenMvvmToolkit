@@ -43,11 +43,6 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Implementation of IExpressionVisitor
 
-        /// <summary>
-        ///     Dispatches the expression.
-        /// </summary>
-        /// <param name="node">The expression to visit.</param>
-        /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
         IExpressionNode IExpressionVisitor.Visit(IExpressionNode node)
         {
             _count++;

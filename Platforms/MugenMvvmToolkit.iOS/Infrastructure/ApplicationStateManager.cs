@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ApplicationStateManager.cs">
@@ -36,9 +36,6 @@ using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Infrastructure
 {
-    /// <summary>
-    ///     Represents the base implementation of <see cref="IApplicationStateManager"/>.
-    /// </summary>
     public class ApplicationStateManager : IApplicationStateManager
     {
         #region Fields
@@ -56,9 +53,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ApplicationStateManager" /> class.
-        /// </summary>
         public ApplicationStateManager([NotNull] ISerializer serializer, [NotNull] IViewModelProvider viewModelProvider,
             [NotNull] IViewManager viewManager, [NotNull] IViewModelPresenter viewModelPresenter)
         {
@@ -76,41 +70,26 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the <see cref="ISerializer" />.
-        /// </summary>
         protected ISerializer Serializer
         {
             get { return _serializer; }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IViewModelProvider" />.
-        /// </summary>
         protected IViewModelProvider ViewModelProvider
         {
             get { return _viewModelProvider; }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IViewManager" />.
-        /// </summary>
         protected IViewManager ViewManager
         {
             get { return _viewManager; }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IViewModelPresenter" />.
-        /// </summary>
         protected IViewModelPresenter ViewModelPresenter
         {
             get { return _viewModelPresenter; }
         }
 
-        /// <summary>
-        ///     Gets or sets the delegate that allows to create an instance of <see cref="UIViewController" />.
-        /// </summary>
         [CanBeNull]
         public static Func<Type, NSCoder, IDataContext, UIViewController> ViewControllerFactory { get; set; }
 
@@ -118,9 +97,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         #region Implementation of IApplicationStateManager
 
-        /// <summary>
-        ///     Occurs on save element state.
-        /// </summary>
         public void EncodeState(NSObject item, NSCoder state, IDataContext context = null)
         {
             Should.NotBeNull(item, "item");
@@ -145,9 +121,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Occurs on load element state.
-        /// </summary>
         public void DecodeState(NSObject item, NSCoder state, IDataContext context = null)
         {
             Should.NotBeNull(item, "item");
@@ -169,9 +142,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Tries to restore view controller.
-        /// </summary>
         public UIViewController GetViewController(string[] restorationIdentifierComponents, NSCoder coder, IDataContext context = null)
         {
             string id = restorationIdentifierComponents.LastOrDefault();
@@ -185,9 +155,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Tries to restore view controller.
-        /// </summary>
         [CanBeNull]
         protected virtual UIViewController GetViewControllerInternal([NotNull] string restorationIdentifier, [NotNull] Type type,
             [NotNull] NSCoder coder, [NotNull] IDataContext context)
@@ -207,9 +174,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             return controller;
         }
 
-        /// <summary>
-        ///     Restores the view model state.
-        /// </summary>
         [NotNull]
         protected virtual IDataContext RestoreViewModelState([NotNull] NSObject item, [NotNull] NSCoder coder, [NotNull] IDataContext context)
         {
@@ -220,9 +184,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
                 return (IDataContext)_serializer.Deserialize(ms);
         }
 
-        /// <summary>
-        ///     Restores the view model.
-        /// </summary>
         protected virtual void RestoreViewModel([NotNull] Type viewModelType, [NotNull] IDataContext viewModelState, [NotNull] NSObject item, [NotNull] NSCoder coder,
             [NotNull] IDataContext context)
         {
@@ -239,9 +200,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             _viewModelPresenter.Restore(viewModel, context);
         }
 
-        /// <summary>
-        ///     Preserves the view model.
-        /// </summary>
         protected virtual void PreserveViewModel([NotNull] IViewModel viewModel, NSObject item, [NotNull] NSCoder coder, [NotNull] IDataContext context)
         {
             var state = _viewModelProvider.PreserveViewModel(viewModel, context);

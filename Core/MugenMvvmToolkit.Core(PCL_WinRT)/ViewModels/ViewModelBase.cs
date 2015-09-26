@@ -32,9 +32,6 @@ using MugenMvvmToolkit.Models.Messages;
 
 namespace MugenMvvmToolkit.ViewModels
 {
-    /// <summary>
-    ///     Represents the base class for all view models.
-    /// </summary>
     [BaseViewModel(Priority = 9)]
     public abstract class ViewModelBase : NotifyPropertyChangedBase, IViewModel, IHandler<object>
     {
@@ -234,9 +231,6 @@ namespace MugenMvvmToolkit.ViewModels
             DisposedToken.Cancel();
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewModelBase" /> class.
-        /// </summary>
         protected ViewModelBase()
         {
             var current = MvvmApplication.Current;
@@ -253,17 +247,11 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the value indicating whether the control is in design mode (running under Blend or Visual Studio).
-        /// </summary>
         protected static bool IsDesignMode
         {
             get { return ServiceProvider.DesignTimeManager.IsDesignMode; }
         }
 
-        /// <summary>
-        ///     Gets the current <see cref="IEventAggregator" />.
-        /// </summary>
         protected internal IEventAggregator LocalEventAggregator
         {
             get
@@ -273,17 +261,11 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether this instance is restored.
-        /// </summary>
         protected internal bool IsRestored
         {
             get { return (_state & RestoredState) == RestoredState; }
         }
 
-        /// <summary>
-        ///     Gets or sets the default view model provider to create view models.
-        /// </summary>
         protected virtual IViewModelProvider ViewModelProvider
         {
             get { return ServiceProvider.ViewModelProvider; }
@@ -293,9 +275,6 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Implementation of IViewModel
 
-        /// <summary>
-        ///     Gets the cancellation token that uses to cancel an operation when the current view model will be disposed.
-        /// </summary>
         public CancellationToken DisposeCancellationToken
         {
             get
@@ -311,25 +290,16 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether this view model is initialized.
-        /// </summary>
         public bool IsInitialized
         {
             get { return _state != DefaultState; }
         }
 
-        /// <summary>
-        ///     Gets the busy state of the current view model.
-        /// </summary>
         public virtual bool IsBusy
         {
             get { return _busyTail != null; }
         }
 
-        /// <summary>
-        ///     Gets the information message for busy dialog.
-        /// </summary>
         public virtual object BusyMessage
         {
             get
@@ -341,17 +311,11 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IViewModelSettings" />.
-        /// </summary>
         public IViewModelSettings Settings
         {
             get { return _settings; }
         }
 
-        /// <summary>
-        ///     Gets the ioc adapter of the current view model.
-        /// </summary>
         public IIocContainer IocContainer
         {
             get
@@ -369,20 +333,11 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether this instance is disposed.
-        /// </summary>
         public bool IsDisposed
         {
             get { return _disposeCancellationToken != null && _disposeCancellationToken.IsCancellationRequested; }
         }
 
-        /// <summary>
-        ///     Initializes the current view model using the specified <see cref="IDataContext" />.
-        /// </summary>
-        /// <param name="context">
-        ///     The specified <see cref="IDataContext" />.
-        /// </param>
         void IViewModel.InitializeViewModel(IDataContext context)
         {
             EnsureNotDisposed();
@@ -411,13 +366,6 @@ namespace MugenMvvmToolkit.ViewModels
             Tracer.TraceViewModel(AuditAction.Initialized, this);
         }
 
-        /// <summary>
-        ///     Begins to indicate that the current view model is busy.
-        /// </summary>
-        /// <param name="message">
-        ///     The specified message for the <see cref="IViewModel.BusyMessage" /> property.
-        /// </param>
-        /// <returns>Id of the operation.</returns>
         public virtual IBusyToken BeginBusy(object message = null)
         {
             var token = new BusyToken(this, message ?? Settings.DefaultBusyMessage);
@@ -427,9 +375,6 @@ namespace MugenMvvmToolkit.ViewModels
             return token;
         }
 
-        /// <summary>
-        ///     Gets the collection of busy tokens.
-        /// </summary>
         public virtual IList<IBusyToken> GetBusyTokens()
         {
             var tail = _busyTail;
@@ -438,11 +383,6 @@ namespace MugenMvvmToolkit.ViewModels
             return tail.GetTokens(this);
         }
 
-        /// <summary>
-        ///     Publishes a message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">The message instance.</param>
         public void Publish(object sender, object message)
         {
             if (ReferenceEquals(sender, this))
@@ -455,10 +395,6 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        /// <summary>
-        ///     Subscribes an instance to events.
-        /// </summary>
-        /// <param name="subscriber">The instance to subscribe for event publication.</param>
         public bool Subscribe(ISubscriber subscriber)
         {
             if (!SubscribeInternal(subscriber))
@@ -481,18 +417,11 @@ namespace MugenMvvmToolkit.ViewModels
             return true;
         }
 
-        /// <summary>
-        ///     Unsubscribes the instance from all events.
-        /// </summary>
-        /// <param name="subscriber">The instance to unsubscribe.</param>
         public bool Unsubscribe(ISubscriber subscriber)
         {
             return UnsubscribeInternal(subscriber);
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         public void Dispose()
         {
             if (Interlocked.CompareExchange(ref _state, DisposingState, InitializedState) != InitializedState &&
@@ -519,22 +448,10 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        /// <summary>
-        ///     Occurs when this <see cref="IViewModel" /> is initialized.
-        ///     This event coincides with cases where the value of the <see cref="IsInitialized" /> property changes from false to true.
-        /// </summary>
         public event EventHandler<IViewModel, EventArgs> Initialized;
 
-        /// <summary>
-        ///     Occurs when the object is disposed by a call to the Dispose method.
-        /// </summary>
         public event EventHandler<IDisposableObject, EventArgs> Disposed;
 
-        /// <summary>
-        ///     Handles the message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">Information about event.</param>
         void IHandler<object>.Handle(object sender, object message)
         {
             if (!ReferenceEquals(sender, this))
@@ -546,16 +463,6 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Methods
 
-        /// <summary>
-        ///     Creates an instance of the specified view model.
-        /// </summary>
-        /// <param name="getViewModel">The specified delegate to create view model.</param>
-        /// <param name="containerCreationMode">The value that is responsible to initialize the IocContainer.</param>
-        /// <param name="observationMode">The value that is responsible for listen messages in created view model.</param>
-        /// <param name="parameters">The specified parameters to get view-model.</param>
-        /// <returns>
-        ///     An instance of <see cref="IViewModel" />.
-        /// </returns>
         protected internal IViewModel GetViewModel([NotNull] GetViewModelDelegate<IViewModel> getViewModel, ObservationMode? observationMode = null,
             IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
         {
@@ -563,16 +470,6 @@ namespace MugenMvvmToolkit.ViewModels
             return ViewModelProvider.GetViewModel(getViewModel, this, observationMode, containerCreationMode, parameters);
         }
 
-        /// <summary>
-        ///     Creates an instance of the specified view model.
-        /// </summary>
-        /// <param name="getViewModelGeneric">The specified delegate to create view model.</param>
-        /// <param name="containerCreationMode">The value that is responsible to initialize the IocContainer.</param>
-        /// <param name="observationMode">The value that is responsible for listen messages in created view model.</param>
-        /// <param name="parameters">The specified parameters to get view-model.</param>
-        /// <returns>
-        ///     An instance of <see cref="IViewModel" />.
-        /// </returns>
         protected internal T GetViewModel<T>([NotNull] GetViewModelDelegate<T> getViewModelGeneric, ObservationMode? observationMode = null,
             IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters) where T : class, IViewModel
         {
@@ -580,16 +477,6 @@ namespace MugenMvvmToolkit.ViewModels
             return ViewModelProvider.GetViewModel(getViewModelGeneric, this, observationMode, containerCreationMode, parameters);
         }
 
-        /// <summary>
-        ///     Creates an instance of the specified view model.
-        /// </summary>
-        /// <param name="viewModelType">The type of view model.</param>
-        /// <param name="containerCreationMode">The value that is responsible to initialize the IocContainer.</param>
-        /// <param name="observationMode">The value that is responsible for listen messages in created view model.</param>
-        /// <param name="parameters">The specified parameters to get view-model.</param>
-        /// <returns>
-        ///     An instance of <see cref="IViewModel" />.
-        /// </returns>
         protected internal IViewModel GetViewModel([NotNull] Type viewModelType, ObservationMode? observationMode = null,
             IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
         {
@@ -597,16 +484,6 @@ namespace MugenMvvmToolkit.ViewModels
             return ViewModelProvider.GetViewModel(viewModelType, this, observationMode, containerCreationMode, parameters);
         }
 
-        /// <summary>
-        ///     Creates an instance of the specified view model.
-        /// </summary>
-        /// <typeparam name="T">The type of view model.</typeparam>
-        /// <param name="containerCreationMode">The value that is responsible to initialize the IocContainer.</param>
-        /// <param name="observationMode">The value that is responsible for listen messages in created view model.</param>
-        /// <param name="parameters">The specified parameters to get view-model.</param>
-        /// <returns>
-        ///     An instance of <see cref="IViewModel" />.
-        /// </returns>
         protected internal T GetViewModel<T>(ObservationMode? observationMode = null,
             IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters) where T : IViewModel
         {
@@ -614,19 +491,11 @@ namespace MugenMvvmToolkit.ViewModels
             return ViewModelProvider.GetViewModel<T>(this, observationMode, containerCreationMode, parameters);
         }
 
-        /// <summary>
-        ///     Publishes a message.
-        /// </summary>
-        /// <param name="message">The message instance.</param>
-        /// <param name="mode">The execution mode.</param>
         protected void Publish([NotNull] object message, ExecutionMode mode = ExecutionMode.None)
         {
             ThreadManager.Invoke(mode, this, message, (@base, o) => @base.Publish(@base, o));
         }
 
-        /// <summary>
-        ///     Makes sure that the object is not disposed.
-        /// </summary>
         protected void EnsureNotDisposed()
         {
             this.NotBeDisposed();
@@ -703,20 +572,12 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Virtual methods
 
-        /// <summary>
-        ///     Subscribes an instance to events.
-        /// </summary>
-        /// <param name="subscriber">The instance to subscribe for event publication.</param>
         protected virtual bool SubscribeInternal(ISubscriber subscriber)
         {
             return !ReferenceEquals(subscriber.Target, this) && InitializeEventAggregator(true) &&
                    _localEventAggregator.Subscribe(subscriber);
         }
 
-        /// <summary>
-        ///     Unsubscribes the instance from all events.
-        /// </summary>
-        /// <param name="subscriber">The instance to unsubscribe.</param>
         protected virtual bool UnsubscribeInternal(ISubscriber subscriber)
         {
             if (InitializeEventAggregator(false))
@@ -724,64 +585,36 @@ namespace MugenMvvmToolkit.ViewModels
             return false;
         }
 
-        /// <summary>
-        ///     Publishes a message.
-        /// </summary>
-        /// <param name="sender">The specified sender.</param>
-        /// <param name="message">The message instance.</param>
         protected virtual void PublishInternal(object sender, object message)
         {
             if (InitializeEventAggregator(false))
                 _localEventAggregator.Publish(sender, message);
         }
 
-        /// <summary>
-        ///     Handles the message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">Information about event.</param>
         protected virtual void OnHandle(object sender, object message)
         {
         }
 
-        /// <summary>
-        ///     This method will be invoked when a busy operation is started.
-        /// </summary>
         protected virtual void OnBeginBusy(IBusyToken token)
         {
         }
 
-        /// <summary>
-        ///     Occurs after the view model is fully loaded.
-        /// </summary>
         internal virtual void OnInitializedInternal()
         {
         }
 
-        /// <summary>
-        ///     Occurs during the initialization of the view model.
-        /// </summary>
         protected virtual void OnInitializing(IDataContext context)
         {
         }
 
-        /// <summary>
-        ///     Occurs after the view model is fully loaded.
-        /// </summary>
         protected virtual void OnInitialized()
         {
         }
 
-        /// <summary>
-        ///     Occurs after the current view model is disposed, use for clear resource and event listeners(Internal only).
-        /// </summary>
         internal virtual void OnDisposeInternal(bool disposing)
         {
         }
 
-        /// <summary>
-        ///     Occurs after the current view model is disposed, use for clear resource and event listeners.
-        /// </summary>
         protected virtual void OnDispose(bool disposing)
         {
         }
@@ -790,9 +623,6 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Destructor
 
-        /// <summary>
-        ///     Destructor of view model.
-        /// </summary>
         ~ViewModelBase()
         {
             OnDisposeInternal(false);

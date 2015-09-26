@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="MediatorBase.cs">
@@ -115,9 +115,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             ClearCacheOnDisposeDelegate = ClearCacheOnDisposeViewModel;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="MediatorBase{TTarget}" /> class.
-        /// </summary>
         protected MediatorBase([NotNull] TTarget target)
         {
             Should.NotBeNull(target, "target");
@@ -128,9 +125,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the data context.
-        /// </summary>
         public virtual object DataContext
         {
             get { return _dataContext; }
@@ -147,26 +141,17 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             }
         }
 
-        /// <summary>
-        /// Returns true if the final <c>OnDestroy</c> call has been made on the Target, so this instance is now dead.
-        /// </summary>
         public bool IsDestroyed
         {
             get { return _isDestroyed; }
         }
 
-        /// <summary>
-        ///     Gets or sets the current target object.
-        /// </summary>
         [NotNull]
         protected TTarget Target
         {
             get { return _target; }
         }
 
-        /// <summary>
-        ///     Gets the current preference manager.
-        /// </summary>
         [CanBeNull]
         protected abstract PreferenceManager PreferenceManager { get; }
 
@@ -174,19 +159,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         #region Events
 
-        /// <summary>
-        ///     Occurs when the DataContext property changed.
-        /// </summary>
         public virtual event EventHandler<TTarget, EventArgs> DataContextChanged;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Called as part of the activity lifecycle when an activity is going into
-        ///     the background, but has not (yet) been killed.
-        /// </summary>
         public virtual void OnPause(Action baseOnPause)
         {
             var manager = PreferenceManager;
@@ -201,18 +179,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             baseOnPause();
         }
 
-        /// <summary>
-        ///     Called after <c>OnRestoreInstanceState(Android.OS.Bundle)</c>, <c>OnRestart</c>, or <c>OnPause</c>, for your activity to start interacting with the user.
-        /// </summary>
         public virtual void OnResume(Action baseOnResume)
         {
             baseOnResume();
             SetPreferenceListener();
         }
 
-        /// <summary>
-        ///     Perform any final cleanup before an activity is destroyed.
-        /// </summary>
         public virtual void OnDestroy(Action baseOnDestroy)
         {
             var viewModel = DataContext as IViewModel;
@@ -229,9 +201,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             baseOnDestroy();
         }
 
-        /// <summary>
-        ///     Called after <c>OnCreate(Android.OS.Bundle)</c> or after <c>OnRestart</c> when the activity had been stopped, but is now again being displayed to the user.
-        /// </summary>
         public virtual void OnSaveInstanceState(Bundle outState, Action<Bundle> baseOnSaveInstanceState)
         {
             lock (ContextCache)
@@ -260,9 +229,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             baseOnSaveInstanceState(outState);
         }
 
-        /// <summary>
-        ///     Called when the target is starting.
-        /// </summary>
         protected void OnCreate(Bundle bundle)
         {
             if (_id == Guid.Empty)
@@ -287,9 +253,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 RestoreContext(Target, cacheDataContext);
         }
 
-        /// <summary>
-        ///     Tries to restore instance context.
-        /// </summary>
         protected virtual void RestoreContext(TTarget target, object dataContext)
         {
             var viewModel = dataContext as IViewModel;
@@ -303,16 +266,10 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             }
         }
 
-        /// <summary>
-        ///     Occurs when the DataContext property changed.
-        /// </summary>
         protected virtual void OnDataContextChanged(object oldValue, object newValue)
         {
         }
 
-        /// <summary>
-        ///     Restores the view model.
-        /// </summary>
         [CanBeNull]
         protected virtual IViewModel RestoreViewModel([NotNull] Type viewModelType, [NotNull] Bundle bundle)
         {
@@ -323,9 +280,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             return Get<IViewModelProvider>().RestoreViewModel(RestoreViewModelState(bundle), context, false);
         }
 
-        /// <summary>
-        ///     Restores the view model state.
-        /// </summary>
         [NotNull]
         protected virtual IDataContext RestoreViewModelState([NotNull] Bundle bundle)
         {
@@ -337,9 +291,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 return (IDataContext)Get<ISerializer>().Deserialize(ms);
         }
 
-        /// <summary>
-        ///     Preserves the view model.
-        /// </summary>
         protected virtual void PreserveViewModel([NotNull] IViewModel viewModel, [NotNull] Bundle bundle)
         {
             var state = Get<IViewModelProvider>().PreserveViewModel(viewModel, MugenMvvmToolkit.Models.DataContext.Empty);

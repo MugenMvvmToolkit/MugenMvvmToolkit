@@ -24,10 +24,6 @@ using MugenMvvmToolkit.Annotations;
 
 namespace MugenMvvmToolkit.Models
 {
-    /// <summary>
-    ///     A command whose sole purpose is to relay its functionality to other objects by invoking delegates. The default
-    ///     return value for the CanExecute method is 'true'.
-    /// </summary>
     public class RelayCommand<TArg> : RelayCommandBase
     {
         #region Fields
@@ -40,23 +36,11 @@ namespace MugenMvvmToolkit.Models
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RelayCommand" /> class.
-        /// </summary>
-        /// <param name="execute">The specified command action for execute.</param>
         public RelayCommand([NotNull] Action<TArg> execute)
             : this(execute, null, Empty.Array<object>())
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RelayCommand" /> class.
-        /// </summary>
-        /// <param name="execute">The specified command action for execute.</param>
-        /// <param name="canExecute">The specified command condition.</param>
-        /// <param name="notifiers">
-        ///     The specified objects that invokes the <c>RaiseCanExecuteChanged</c> method when changes occur.
-        /// </param>
         public RelayCommand([NotNull] Action<TArg> execute, Func<TArg, bool> canExecute,
             [NotEmptyParams] params object[] notifiers)
             : base(canExecute != null, notifiers)
@@ -66,15 +50,6 @@ namespace MugenMvvmToolkit.Models
             _canExecute = canExecute;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RelayCommand" /> class.
-        /// </summary>
-        /// <param name="execute">The specified command action for execute.</param>
-        /// <param name="canExecute">The specified command condition.</param>
-        /// <param name="allowMultipleExecution">Indicates that command allows multiple execution.</param>
-        /// <param name="notifiers">
-        ///     The specified objects that invokes the <c>RaiseCanExecuteChanged</c> method when changes occur.
-        /// </param>
         protected internal RelayCommand([NotNull] Func<TArg, Task> execute, [CanBeNull] Func<TArg, bool> canExecute, bool allowMultipleExecution,
             [NotEmptyParams] params object[] notifiers)
             : base(canExecute != null, notifiers)
@@ -91,29 +66,12 @@ namespace MugenMvvmToolkit.Models
 
         #region Overrides of RelayCommandBase
 
-        /// <summary>
-        ///     Defines the method that determines whether the command can execute in its current state.
-        /// </summary>
-        /// <returns>
-        ///     true if this command can be executed; otherwise, false.
-        /// </returns>
-        /// <param name="parameter">
-        ///     Data used by the command.  If the command does not require data to be passed, this object can
-        ///     be set to null.
-        /// </param>
         protected override bool CanExecuteInternal(object parameter)
         {
             Func<TArg, bool> canExecute = _canExecute;
             return canExecute != null && _execute != null && canExecute((TArg)parameter);
         }
 
-        /// <summary>
-        ///     Defines the method to be called when the command is invoked.
-        /// </summary>
-        /// <param name="parameter">
-        ///     Data used by the command.  If the command does not require data to be passed, this object can
-        ///     be set to null.
-        /// </param>
         protected override void ExecuteInternal(object parameter)
         {
             var execute = _execute;
@@ -148,9 +106,6 @@ namespace MugenMvvmToolkit.Models
             }
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         protected override void OnDispose()
         {
             _canExecute = null;
@@ -161,10 +116,6 @@ namespace MugenMvvmToolkit.Models
         #endregion
     }
 
-    /// <summary>
-    ///     A command whose sole purpose is to relay its functionality to other objects by invoking delegates. The default
-    ///     return value for the CanExecute method is 'true'.
-    /// </summary>
     public class RelayCommand : RelayCommandBase
     {
         #region Fields
@@ -181,33 +132,17 @@ namespace MugenMvvmToolkit.Models
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RelayCommand" /> class.
-        /// </summary>
-        /// <param name="execute">The specified command action for execute.</param>
         public RelayCommand([NotNull] Action<object> execute)
             : this(execute, null, Empty.Array<object>())
         {
         }
 
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RelayCommand" /> class.
-        /// </summary>
-        /// <param name="execute">The specified command action for execute.</param>
         public RelayCommand([NotNull] Action execute)
             : this(execute, null, Empty.Array<object>())
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RelayCommand" /> class.
-        /// </summary>
-        /// <param name="execute">The specified command action for execute.</param>
-        /// <param name="canExecute">The specified command condition.</param>
-        /// <param name="notifiers">
-        ///     The specified objects that invokes the <c>RaiseCanExecuteChanged</c> method when changes occur.
-        /// </param>
         public RelayCommand([NotNull] Action<object> execute, [CanBeNull] Func<object, bool> canExecute,
             [NotEmptyParams] params object[] notifiers)
             : base(canExecute != null, notifiers)
@@ -218,14 +153,6 @@ namespace MugenMvvmToolkit.Models
             _state |= ObjectDelegateFlag;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RelayCommand" /> class.
-        /// </summary>
-        /// <param name="execute">The specified command action for execute.</param>
-        /// <param name="canExecute">The specified command condition.</param>
-        /// <param name="notifiers">
-        ///     The specified objects that invokes the <c>RaiseCanExecuteChanged</c> method when changes occur.
-        /// </param>
         public RelayCommand([NotNull] Action execute, [CanBeNull] Func<bool> canExecute,
             [NotEmptyParams] params object[] notifiers)
             : base(canExecute != null, notifiers)
@@ -235,15 +162,6 @@ namespace MugenMvvmToolkit.Models
             _canExecute = canExecute;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RelayCommand" /> class.
-        /// </summary>
-        /// <param name="execute">The specified command action for execute.</param>
-        /// <param name="canExecute">The specified command condition.</param>
-        /// <param name="allowMultipleExecution">Indicates that command allows multiple execution.</param>
-        /// <param name="notifiers">
-        ///     The specified objects that invokes the <c>RaiseCanExecuteChanged</c> method when changes occur.
-        /// </param>
         protected internal RelayCommand([NotNull] Func<Task> execute, [CanBeNull] Func<bool> canExecute, bool allowMultipleExecution, [NotEmptyParams] params object[] notifiers)
             : base(canExecute != null, notifiers)
         {
@@ -259,16 +177,6 @@ namespace MugenMvvmToolkit.Models
 
         #region Overrides of RelayCommandBase
 
-        /// <summary>
-        ///     Defines the method that determines whether the command can execute in its current state.
-        /// </summary>
-        /// <returns>
-        ///     true if this command can be executed; otherwise, false.
-        /// </returns>
-        /// <param name="parameter">
-        ///     Data used by the command.  If the command does not require data to be passed, this object can
-        ///     be set to null.
-        /// </param>
         protected override bool CanExecuteInternal(object parameter)
         {
             var canExecute = _canExecute;
@@ -279,13 +187,6 @@ namespace MugenMvvmToolkit.Models
             return ((Func<bool>)canExecute).Invoke();
         }
 
-        /// <summary>
-        ///     Defines the method to be called when the command is invoked.
-        /// </summary>
-        /// <param name="parameter">
-        ///     Data used by the command.  If the command does not require data to be passed, this object can
-        ///     be set to null.
-        /// </param>
         protected override void ExecuteInternal(object parameter)
         {
             var execute = _execute;
@@ -321,9 +222,6 @@ namespace MugenMvvmToolkit.Models
                 ((Action<object>)execute).Invoke(parameter);
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         protected override void OnDispose()
         {
             _execute = null;

@@ -24,9 +24,6 @@ using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Binding.Parse.Nodes
 {
-    /// <summary>
-    ///     Represents a call to either static or an instance method.
-    /// </summary>
     public class MethodCallExpressionNode : ExpressionNode, IMethodCallExpressionNode
     {
         #region Fields
@@ -40,9 +37,6 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="MethodCallExpressionNode" /> class.
-        /// </summary>
         public MethodCallExpressionNode(IExpressionNode target, [NotNull] string methodName,
             [CanBeNull] IList<IExpressionNode> args, [CanBeNull] IList<string> typeArgs)
             : base(ExpressionNodeType.MethodCall)
@@ -60,33 +54,21 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Implementation of IMethodCallExpressionNode
 
-        /// <summary>
-        ///     Gets the type arguments for the method.
-        /// </summary>
         public IList<string> TypeArgs
         {
             get { return _typeArgs; }
         }
 
-        /// <summary>
-        ///     Gets the method name for the method to be called.
-        /// </summary>
         public string Method
         {
             get { return _method; }
         }
 
-        /// <summary>
-        ///     Gets the expression that represents the instance for instance method calls or null for static method calls.
-        /// </summary>
         public IExpressionNode Target
         {
             get { return _target; }
         }
 
-        /// <summary>
-        ///     Gets a collection of expressions that represent arguments of the called method.
-        /// </summary>
         public IList<IExpressionNode> Arguments
         {
             get { return _arguments; }
@@ -96,9 +78,6 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Overrides of ExpressionNode
 
-        /// <summary>
-        ///     Calls the visitor on the expression.
-        /// </summary>
         protected override void AcceptInternal(IExpressionVisitor visitor)
         {
             if (Target != null)
@@ -109,24 +88,12 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
             }
         }
 
-        /// <summary>
-        ///     Creates a new object that is a copy of the current instance.
-        /// </summary>
-        /// <returns>
-        ///     A new object that is a copy of this instance.
-        /// </returns>
         protected override IExpressionNode CloneInternal()
         {
             return new MethodCallExpressionNode(Target == null ? null : Target.Clone(), Method,
                 Arguments.ToArrayEx(node => node.Clone()), TypeArgs);
         }
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>
-        ///     A string that represents the current object.
-        /// </returns>
         public override string ToString()
         {
             string typeArgs = null;

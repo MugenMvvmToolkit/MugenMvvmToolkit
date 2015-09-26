@@ -15,28 +15,11 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         #region Implementation of ICommand
 
-        /// <summary>
-        ///     Defines the method to be called when the command is invoked.
-        /// </summary>
-        /// <param name="parameter">
-        ///     Data used by the command.  If the command does not require data to be passed, this object can
-        ///     be set to null.
-        /// </param>
         public void Execute(object parameter)
         {
             throw new NotSupportedException();
         }
 
-        /// <summary>
-        ///     Defines the method that determines whether the command can execute in its current state.
-        /// </summary>
-        /// <returns>
-        ///     true if this command can be executed; otherwise, false.
-        /// </returns>
-        /// <param name="parameter">
-        ///     Data used by the command.  If the command does not require data to be passed, this object can
-        ///     be set to null.
-        /// </param>
         public bool CanExecute(object parameter)
         {
             throw new NotSupportedException();
@@ -44,69 +27,40 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         public event EventHandler CanExecuteChanged;
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         public void Dispose()
         {
             IsDisposed = true;
         }
 
-        /// <summary>
-        ///     Gets the value that indicates that command has can execute handler.
-        /// </summary>
         public bool HasCanExecuteImpl
         {
             get { return true; }
         }
 
-        /// <summary>
-        ///     Specifies the execution mode for <c>Execute</c> method.
-        /// </summary>
         public CommandExecutionMode ExecutionMode { get; set; }
 
-        /// <summary>
-        ///     Specifies the execution mode for <c>RaiseCanExecuteChanged</c> method in <c>IRelayCommand</c>.
-        /// </summary>
         public ExecutionMode CanExecuteMode { get; set; }
 
-        /// <summary>
-        ///     Gets the current command notifiers.
-        /// </summary>
         public IList<object> GetNotifiers()
         {
             throw new NotSupportedException();
         }
 
-        /// <summary>
-        ///     Adds the specified notifier to manage the <c>CanExecuteChanged</c> event.
-        /// </summary>
-        /// <param name="item">The specified notifier item.</param>
         public bool AddNotifier(object item)
         {
             throw new NotSupportedException();
         }
 
-        /// <summary>
-        ///     Removes the specified notifier.
-        /// </summary>
-        /// <param name="item">The specified notifier item.</param>
         public bool RemoveNotifier(object item)
         {
             throw new NotSupportedException();
         }
 
-        /// <summary>
-        ///     Removes all notifiers.
-        /// </summary>
         public void ClearNotifiers()
         {
             throw new NotSupportedException();
         }
 
-        /// <summary>
-        ///     This method can be used to raise the CanExecuteChanged handler.
-        /// </summary>
         public void RaiseCanExecuteChanged()
         {
             EventHandler handler = CanExecuteChanged;

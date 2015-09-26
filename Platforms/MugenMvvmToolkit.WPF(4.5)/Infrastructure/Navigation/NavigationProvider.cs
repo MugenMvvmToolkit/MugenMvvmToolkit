@@ -292,9 +292,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             OperationIdConstant = DataConstant.Create(() => OperationIdConstant, false);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigationProvider" /> class.
-        /// </summary>
         public NavigationProvider([NotNull] INavigationService navigationService, [NotNull] IThreadManager threadManager,
             [NotNull] IViewMappingProvider mappingProvider, [NotNull] IViewManager viewManager,
             [NotNull] IViewModelProvider viewModelProvider, IOperationCallbackManager callbackManager, INavigationCachePolicy cachePolicy = null)
@@ -323,45 +320,30 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         #region Properties
 
-        /// <summary>
-        /// Gets the <see cref="IViewManager"/>.
-        /// </summary>
         [NotNull]
         protected IViewManager ViewManager
         {
             get { return _viewManager; }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IViewMappingProvider"/>.
-        /// </summary>
         [NotNull]
         protected IViewMappingProvider ViewMappingProvider
         {
             get { return _mappingProvider; }
         }
 
-        /// <summary>
-        ///     Gets the current <see cref="IThreadManager"/>.
-        /// </summary>
         [NotNull]
         protected IThreadManager ThreadManager
         {
             get { return _threadManager; }
         }
 
-        /// <summary>
-        /// Gets the <see cref="IViewModelProvider"/>.
-        /// </summary>
         [NotNull]
         protected IViewModelProvider ViewModelProvider
         {
             get { return _viewModelProvider; }
         }
 
-        /// <summary>
-        /// Gets the <see cref="IOperationCallbackManager"/>.
-        /// </summary>
         [NotNull]
         protected IOperationCallbackManager CallbackManager
         {
@@ -372,34 +354,22 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         #region Implementation of INavigationProvider
 
-        /// <summary>
-        ///     Gets the <see cref="INavigationService" />.
-        /// </summary>
         public INavigationService NavigationService
         {
             get { return _navigationService; }
         }
 
-        /// <summary>
-        ///     Gets the active view model.
-        /// </summary>
         public IViewModel CurrentViewModel
         {
             get { return (IViewModel)_vmReference.Target; }
             protected set { _vmReference = ToolkitExtensions.GetWeakReferenceOrDefault(value, Empty.WeakReference, true); }
         }
 
-        /// <summary>
-        ///     Gets the current content.
-        /// </summary>
         public virtual object CurrentContent
         {
             get { return _navigationService.CurrentContent; }
         }
 
-        /// <summary>
-        ///     Gets the current navigation task.
-        /// </summary>
         public Task CurrentNavigationTask
         {
             get
@@ -411,53 +381,31 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             }
         }
 
-        /// <summary>
-        ///     Gets the cache policy, if any.
-        /// </summary>
         public INavigationCachePolicy CachePolicy
         {
             get { return _cachePolicy; }
         }
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate back.
-        /// </summary>
         public virtual bool CanGoBack
         {
             get { return _navigationService.CanGoBack; }
         }
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate forward.
-        /// </summary>
         public virtual bool CanGoForward
         {
             get { return _navigationService.CanGoForward; }
         }
 
-        /// <summary>
-        ///     Navigates back.
-        /// </summary>
         public virtual void GoBack()
         {
             _navigationService.GoBack();
         }
 
-        /// <summary>
-        ///     Navigates forward.
-        /// </summary>
         public virtual void GoForward()
         {
             _navigationService.GoForward();
         }
 
-        /// <summary>
-        ///     Navigates using the specified data context.
-        /// </summary>
-        /// <param name="callback">The specified callback, if any.</param>
-        /// <param name="context">
-        ///     The specified <see cref="IDataContext" />.
-        /// </param>
         public Task NavigateAsync(IOperationCallback callback, IDataContext context)
         {
             Should.NotBeNull(context, "context");
@@ -492,12 +440,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             return tcs.Task;
         }
 
-        /// <summary>
-        ///     Raised after the view model navigation.
-        /// </summary>
-        /// <param name="viewModel">The specified view model.</param>
-        /// <param name="mode">The specified navigation mode.</param>
-        /// <param name="context">The specified <see cref="IDataContext" />.</param>
         public virtual void OnNavigated(IViewModel viewModel, NavigationMode mode, IDataContext context)
         {
             Should.NotBeNull(viewModel, "viewModel");
@@ -508,14 +450,8 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             OnNavigated(navigationContext);
         }
 
-        /// <summary>
-        ///     Occurs after view model was navigated.
-        /// </summary>
         public virtual event EventHandler<INavigationProvider, NavigatedEventArgs> Navigated;
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         public virtual void Dispose()
         {
             NavigationService.Navigating -= NavigationServiceOnNavigating;
@@ -527,9 +463,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         #region Methods
 
-        /// <summary>
-        ///     Subscriber to the Navigating event.
-        /// </summary>
         protected virtual void NavigationServiceOnNavigating(object sender, NavigatingCancelEventArgsBase args)
         {
             try
@@ -543,9 +476,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             }
         }
 
-        /// <summary>
-        ///     Subscriber to the Navigated event.
-        /// </summary>
         protected virtual void NavigationServiceOnNavigated(object sender, NavigationEventArgsBase e)
         {
             string idOperation = null;
@@ -579,25 +509,11 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             }
         }
 
-        /// <summary>
-        ///     Called just before a view-model is no longer the active view-model in a frame.
-        /// </summary>
-        /// <param name="viewModel">The specified <see cref="IViewModel"/></param>
-        /// <param name="context">
-        ///     The specified <see cref="INavigationContext" />.
-        /// </param>
         protected virtual Task<bool> OnNavigatingFrom([NotNull] IViewModel viewModel, INavigationContext context)
         {
             return viewModel.TryCloseAsync(context, context);
         }
 
-        /// <summary>
-        ///     Called when a view-model becomes the active view-model in a frame.
-        /// </summary>
-        /// <param name="viewModel">The specified <see cref="IViewModel"/></param>
-        /// <param name="context">
-        ///     The specified <see cref="INavigationContext" />.
-        /// </param>
         protected virtual void OnNavigatedTo(IViewModel viewModel, INavigationContext context)
         {
             var navVm = viewModel as INavigableViewModel;
@@ -686,9 +602,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             return vm;
         }
 
-        /// <summary>
-        ///     Invokes the <see cref="Navigated" /> event.
-        /// </summary>
         protected virtual void RaiseNavigated(INavigationContext ctx)
         {
             var handler = Navigated;

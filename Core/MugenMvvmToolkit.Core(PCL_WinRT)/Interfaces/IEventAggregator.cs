@@ -22,24 +22,12 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Interfaces
 {
-    /// <summary>
-    ///     Enables loosely-coupled publication of and subscription to events.
-    /// </summary>
     public interface IEventAggregator : IObservable, IEventPublisher
     {
-        /// <summary>
-        ///     Determines whether the <see cref="IEventAggregator" /> contains a specific subscriber.
-        /// </summary>
         bool Contains([NotNull] ISubscriber subscriber);
 
-        /// <summary>
-        ///     Removes all subscribers.
-        /// </summary>
         void UnsubscribeAll();
 
-        /// <summary>
-        ///     Gets the collection of subscribers.
-        /// </summary>
         [NotNull]
         IList<ISubscriber> GetSubscribers();
     }

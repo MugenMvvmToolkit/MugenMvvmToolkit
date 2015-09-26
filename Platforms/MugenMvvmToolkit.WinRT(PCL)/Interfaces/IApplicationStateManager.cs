@@ -30,25 +30,13 @@ using Windows.UI.Xaml;
 namespace MugenMvvmToolkit.WinRT.Interfaces
 #endif
 {
-    /// <summary>
-    ///     Represents the application state manager.
-    /// </summary>
     public interface IApplicationStateManager
     {
-        /// <summary>
-        ///     Gets the collection of known types.
-        /// </summary>
         IList<Type> KnownTypes { get; }
 
-        /// <summary>
-        ///     Occurs on save element state.
-        /// </summary>
         void OnSaveState([NotNull] FrameworkElement element, [NotNull] IDictionary<string, object> state, object args,
             IDataContext context = null);
 
-        /// <summary>
-        ///     Occurs on load element state.
-        /// </summary>
         void OnLoadState([NotNull] FrameworkElement element, [NotNull] IDictionary<string, object> state, object args,
             IDataContext context = null);
     }

@@ -26,9 +26,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the observer that uses the single path member to observe.
-    /// </summary>
     public sealed class SinglePathObserver : ObserverBase, IEventListener, IHasWeakReference
     {
         #region Nested types
@@ -102,9 +99,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="SinglePathObserver" /> class.
-        /// </summary>
         public SinglePathObserver([NotNull] object source, [NotNull] IBindingPath path, bool ignoreAttachedMembers)
             : base(source, path)
         {
@@ -117,17 +111,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Overrides of ObserverBase
 
-        /// <summary>
-        ///     Indicates that current observer dependes on <see cref="ObserverBase.ValueChanged" /> subscribers.
-        /// </summary>
         protected override bool DependsOnSubscribers
         {
             get { return OriginalSource is WeakReference; }
         }
 
-        /// <summary>
-        ///     Updates the current values.
-        /// </summary>
         protected override IBindingPathMembers UpdateInternal(IBindingPathMembers oldPath, bool hasSubscribers)
         {
             object source = GetActualSource();
@@ -152,9 +140,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return new SingleBindingPathMembers(srcRef ?? ToolkitExtensions.GetWeakReference(source), Path, lastMember);
         }
 
-        /// <summary>
-        ///     Releases the current observers.
-        /// </summary>
         protected override void ClearObserversInternal()
         {
             var listener = _weakEventListener;

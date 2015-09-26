@@ -26,9 +26,6 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ValueAccessorChangedEventArgs" /> class.
-        /// </summary>
         public ValueAccessorChangingEventArgs(IDataContext context, object penultimateValue,
             IBindingMemberInfo lastMember, object oldValue, object newValue)
             : base(context, penultimateValue, lastMember, oldValue, newValue)
@@ -39,17 +36,8 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether the event should be canceled.
-        /// </summary>
-        /// <returns>
-        ///     true if the event should be canceled; otherwise, false.
-        /// </returns>
         public bool Cancel { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the new value.
-        /// </summary>
         [CanBeNull]
         public new object NewValue
         {

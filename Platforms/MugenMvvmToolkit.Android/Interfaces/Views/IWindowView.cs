@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="IWindowView.cs">
@@ -26,24 +26,12 @@ using Android.App;
 namespace MugenMvvmToolkit.Android.Interfaces.Views
 #endif
 {
-    /// <summary>
-    ///     Represent the base interface for a window view.
-    /// </summary>
     public interface IWindowView : IFragmentView
     {
-        /// <summary>
-        ///     Gets or sets the cancelable value.
-        /// </summary>
         bool Cancelable { get; set; }
 
-        /// <summary>
-        ///     Shows the window.
-        /// </summary>
         void Show(FragmentManager manager, string tag);
 
-        /// <summary>
-        ///     Dismiss the window
-        /// </summary>
         void Dismiss();
     }
 }

@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ItemsSourceRecyclerAdapter.cs">
@@ -61,9 +61,6 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ItemsSourceAdapter" /> class.
-        /// </summary>
         public ItemsSourceRecyclerAdapter([NotNull] global::Android.Support.V7.Widget.RecyclerView recyclerView)
         {
             Should.NotBeNull(recyclerView, "recyclerView");
@@ -95,9 +92,6 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
             get { return _layoutInflater; }
         }
 
-        /// <summary>
-        ///     Gets or sets the items source.
-        /// </summary>
         public virtual IEnumerable ItemsSource
         {
             get { return _itemsSource; }

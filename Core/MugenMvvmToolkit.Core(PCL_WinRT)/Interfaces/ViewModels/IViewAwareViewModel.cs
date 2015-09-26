@@ -18,14 +18,8 @@
 
 namespace MugenMvvmToolkit.Interfaces.ViewModels
 {
-    /// <summary>
-    ///     Represents the interface that allows to get access to the view.
-    /// </summary>
     public interface IViewAwareViewModel<TView> : IViewModel where TView : class
     {
-        /// <summary>
-        ///     Gets or sets the view object.
-        /// </summary>
         TView View { get; set; }
     }
 }

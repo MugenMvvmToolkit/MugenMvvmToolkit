@@ -21,17 +21,11 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Models.Messages
 {
-    /// <summary>
-    ///     Represents the message that indicates that any state was changed.
-    /// </summary>
     [Serializable]
     public class StateChangedMessage : IBroadcastMessage
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the empty message.
-        /// </summary>
         public static readonly StateChangedMessage Empty;
 
         #endregion
@@ -43,9 +37,6 @@ namespace MugenMvvmToolkit.Models.Messages
             Empty = new StateChangedMessage();
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="StateChangedMessage" /> class.
-        /// </summary>
         protected StateChangedMessage()
         {
         }

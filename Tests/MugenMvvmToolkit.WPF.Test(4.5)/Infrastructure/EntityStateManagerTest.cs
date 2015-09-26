@@ -68,7 +68,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             stateModel.Int = int.MaxValue;
             stateModel.String = null;
             stateModel.Guid = Guid.Empty;
-            
+
             stateModel.Guid.ShouldEqual(Guid.Empty);
             stateModel.String.ShouldBeNull();
             stateModel.Int.ShouldEqual(int.MaxValue);

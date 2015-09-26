@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ItemsSourceGeneratorBase.cs">
@@ -64,9 +64,6 @@ namespace MugenMvvmToolkit.Silverlight.Binding.Infrastructure
             BindingServiceProvider.BindingMemberPriorities[MemberDescriptor] = 2;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ItemsSourceGeneratorBase"/> class.
-        /// </summary>
         protected ItemsSourceGeneratorBase()
         {
             _handler = ReflectionExtensions.MakeWeakCollectionChangedHandler(this, (@base, o, arg3) => @base.OnCollectionChanged(arg3));
@@ -76,14 +73,8 @@ namespace MugenMvvmToolkit.Silverlight.Binding.Infrastructure
 
         #region Properites
 
-        /// <summary>
-        ///     Gets the current items source, if any.
-        /// </summary>
         protected abstract IEnumerable ItemsSource { get; set; }
 
-        /// <summary>
-        ///     Gets the current state of the target.
-        /// </summary>
         protected abstract bool IsTargetDisposed { get; }
 
         #endregion
@@ -214,17 +205,11 @@ namespace MugenMvvmToolkit.Silverlight.Binding.Infrastructure
 
         #region Implementation of IItemsSourceGenerator
 
-        /// <summary>
-        ///     Gets the current items source, if any.
-        /// </summary>
         IEnumerable IItemsSourceGenerator.ItemsSource
         {
             get { return ItemsSource; }
         }
 
-        /// <summary>
-        ///     Sets the current items source.
-        /// </summary>
         void IItemsSourceGenerator.SetItemsSource(IEnumerable itemsSource, IDataContext context)
         {
             Update(itemsSource, context);

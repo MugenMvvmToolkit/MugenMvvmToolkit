@@ -22,9 +22,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Models
 {
-    /// <summary>
-    ///     Represents the entity state entry.
-    /// </summary>
     [Serializable, DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true)]
     public class EntityStateEntry : IEntityStateEntry, IEquatable<EntityStateEntry>
     {
@@ -37,9 +34,6 @@ namespace MugenMvvmToolkit.Models
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="EntityStateEntry" /> class.
-        /// </summary>
         public EntityStateEntry(EntityState state, object entity)
         {
             Should.NotBeNull(entity, "entity");
@@ -51,9 +45,6 @@ namespace MugenMvvmToolkit.Models
 
         #region Implementation of IEntityStateEntry
 
-        /// <summary>
-        ///     Gets or sets the state of the <see cref="EntityState" />.
-        /// </summary>
         [DataMember]
         public EntityState State
         {
@@ -61,9 +52,6 @@ namespace MugenMvvmToolkit.Models
             internal set { _state = value; }
         }
 
-        /// <summary>
-        ///     Gets the entity object.
-        /// </summary>
         [DataMember]
         public object Entity
         {
@@ -75,12 +63,6 @@ namespace MugenMvvmToolkit.Models
 
         #region Overrides of Object
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>
-        ///     A string that represents the current object.
-        /// </returns>
         public override string ToString()
         {
             return string.Format("{0} - {1}", State, Entity);
@@ -90,13 +72,6 @@ namespace MugenMvvmToolkit.Models
 
         #region Equality members
 
-        /// <summary>
-        ///     Indicates whether the current object is equal to another object of the same type.
-        /// </summary>
-        /// <returns>
-        ///     true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
-        /// </returns>
-        /// <param name="other">An object to compare with this object.</param>
         public bool Equals(EntityStateEntry other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -104,15 +79,6 @@ namespace MugenMvvmToolkit.Models
             return State == other.State && Entity.Equals(other.Entity);
         }
 
-        /// <summary>
-        ///     Determines whether the specified <see cref="T:System.Object" /> is equal to the current
-        ///     <see cref="T:System.Object" />.
-        /// </summary>
-        /// <returns>
-        ///     true if the specified <see cref="T:System.Object" /> is equal to the current <see cref="T:System.Object" />;
-        ///     otherwise, false.
-        /// </returns>
-        /// <param name="obj">The <see cref="T:System.Object" /> to compare with the current <see cref="T:System.Object" />. </param>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
@@ -121,12 +87,6 @@ namespace MugenMvvmToolkit.Models
             return Equals((EntityStateEntry)obj);
         }
 
-        /// <summary>
-        ///     Serves as a hash function for a particular type.
-        /// </summary>
-        /// <returns>
-        ///     A hash code for the current <see cref="T:System.Object" />.
-        /// </returns>
         public override int GetHashCode()
         {
             unchecked

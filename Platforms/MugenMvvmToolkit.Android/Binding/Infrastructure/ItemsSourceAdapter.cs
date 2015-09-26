@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ItemsSourceAdapter.cs">
@@ -61,9 +61,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             _factory = (o, context, arg3) => new ItemsSourceAdapter(o, context, !ReferenceEquals(ViewGroupItemsSourceGenerator.Context, arg3));
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ItemsSourceAdapter" /> class.
-        /// </summary>
         public ItemsSourceAdapter([NotNull] object container, Context context, bool listenCollectionChanges, string dropDownItemTemplateSelectorName = null,
             string itemTemplateSelectorName = AttachedMemberConstants.ItemTemplateSelector, string dropDownItemTemplateIdName = null,
             string itemTemplateIdName = AttachedMemberConstants.ItemTemplate)
@@ -89,9 +86,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        /// Gets or sets the factory that allows to create items source adapter.
-        /// </summary>
         [NotNull]
         public static Func<object, Context, IDataContext, IItemsSourceAdapter> Factory
         {
@@ -117,9 +111,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         #region Implementation of IItemsSourceAdapter
 
-        /// <summary>
-        ///     Gets or sets the items source.
-        /// </summary>
         public virtual IEnumerable ItemsSource
         {
             get { return _itemsSource; }

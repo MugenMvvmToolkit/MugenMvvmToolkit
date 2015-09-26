@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="MessagePresenter.cs">
@@ -30,9 +30,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.iOS.Infrastructure.Presenters
 namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
 #endif
 {
-    /// <summary>
-    ///     Represent the base class for message box.
-    /// </summary>
     public class MessagePresenter : IMessagePresenter
     {
         #region Fields
@@ -43,9 +40,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="MessagePresenter" /> class.
-        /// </summary>
         public MessagePresenter(IThreadManager threadManager)
         {
             Should.NotBeNull(threadManager, "threadManager");
@@ -56,20 +50,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
 
         #region Implementation of IMessagePresenter
 
-        /// <summary>
-        ///     Displays a message box that has a message, title bar caption, button, and icon; and that accepts a default message
-        ///     box result and returns a result.
-        /// </summary>
-        /// <param name="message">A <see cref="T:System.String" /> that specifies the text to display.</param>
-        /// <param name="caption">A <see cref="T:System.String" /> that specifies the title bar caption to display.</param>
-        /// <param name="button">A <see cref="MessageButton" /> value that specifies which button or buttons to display.</param>
-        /// <param name="icon">A <see cref="MessageImage" /> value that specifies the icon to display.</param>
-        /// <param name="defaultResult">
-        ///     A <see cref="MessageResult" /> value that specifies the default result of the message
-        ///     box.
-        /// </param>
-        /// <param name="context">The specified context.</param>
-        /// <returns>A <see cref="MessageResult" /> value that specifies which message box button is clicked by the user.</returns>
         public Task<MessageResult> ShowAsync(string message, string caption = "",
             MessageButton button = MessageButton.Ok, MessageImage icon = MessageImage.None,
             MessageResult defaultResult = MessageResult.None, IDataContext context = null)

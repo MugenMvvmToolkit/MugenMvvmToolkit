@@ -22,19 +22,10 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Interfaces
 {
-    /// <summary>
-    ///     Represents the interface that allows to wrap an object to another object.
-    /// </summary>
     public interface IWrapperManager
     {
-        /// <summary>
-        ///     Determines whether the specified view can be wrapped to wrapper type.
-        /// </summary>
         bool CanWrap([NotNull] Type type, [NotNull] Type wrapperType, [CanBeNull] IDataContext dataContext);
 
-        /// <summary>
-        ///     Wraps the specified view object to the wrapper type.
-        /// </summary>
         [NotNull]
         object Wrap([NotNull] object item, [NotNull] Type wrapperType, [CanBeNull] IDataContext dataContext);
     }

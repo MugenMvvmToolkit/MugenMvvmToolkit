@@ -57,9 +57,6 @@ using System.Windows.Data;
 namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 #endif
 {
-    /// <summary>
-    ///     Represents the dynamic resource resolver supports {StaticResources}.
-    /// </summary>
     public class BindingResourceResolverEx : BindingResourceResolver
     {
         #region Nested types
@@ -156,16 +153,10 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingResourceResolverEx" /> class.
-        /// </summary>
         public BindingResourceResolverEx()
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingResourceResolverEx" /> class.
-        /// </summary>
         public BindingResourceResolverEx([NotNull] BindingResourceResolver resolver)
             : base(resolver)
         {
@@ -175,16 +166,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 
         #region Overrides of BindingResourceResolver
 
-        /// <summary>
-        ///     Gets an instance of <see cref="IBindingValueConverter" /> by the specified name.
-        /// </summary>
-        /// <param name="name">The specified name.</param>
-        /// <param name="context">The specified data context, if any.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the type cannot be found; false to return null. Specifying
-        ///     false also suppresses some other exception conditions, but not all of them.
-        /// </param>
-        /// <returns>An instance of <see cref="IBindingValueConverter" />.</returns>
         public override IBindingValueConverter ResolveConverter(string name, IDataContext context, bool throwOnError)
         {
             var result = base.ResolveConverter(name, context, false);
@@ -205,13 +186,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
         }
 
 
-        /// <summary>
-        ///     Gets an instance of <see cref="ISourceValue" /> by the specified name.
-        /// </summary>
-        /// <param name="target">The binding target.</param>
-        /// <param name="name">The specified name.</param>
-        /// <param name="context">The specified data context, if any.</param>
-        /// <param name="keepValue">If <c>true</c> saves value as attached value in target</param>
         protected override ISourceValue ResolveObjectInternal(object target, string name, IDataContext context, out bool keepValue)
         {
             var value = base.ResolveObjectInternal(target, name, context, out keepValue);
@@ -245,9 +219,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
             return currentElement;
         }
 #endif
-        /// <summary>
-        ///     Tries to find a resource by key.
-        /// </summary>
         protected static object TryFindResource([CanBeNull] object target, [NotNull] string resourceKey)
         {
 #if XAMARIN_FORMS

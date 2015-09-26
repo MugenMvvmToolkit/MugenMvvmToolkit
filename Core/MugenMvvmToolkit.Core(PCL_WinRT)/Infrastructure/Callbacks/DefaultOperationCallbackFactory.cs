@@ -25,9 +25,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure.Callbacks
 {
-    /// <summary>
-    ///     Rerpresets the factory that allows to create callback operations.
-    /// </summary>
     public class DefaultOperationCallbackFactory : IOperationCallbackFactory
     {
         #region Nested types
@@ -120,9 +117,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Fields
 
-        /// <summary>
-        ///   true to attempt to marshal the continuation back to the original context captured; otherwise, false.
-        /// </summary>
         public static readonly DataConstant<bool> ContinueOnCapturedContextConstant;
 
         private static DefaultOperationCallbackFactory _factory;
@@ -144,9 +138,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the <see cref="IOperationCallbackFactory" />.
-        /// </summary>
         public static IOperationCallbackFactory Instance
         {
             get
@@ -161,25 +152,16 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Implementation of IOperationCallbackFactory
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IAsyncOperationAwaiter" />.
-        /// </summary>
         public IAsyncOperationAwaiter CreateAwaiter(IAsyncOperation operation, IDataContext context)
         {
             return CreateAwaiterInternal<object>(operation, context);
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IAsyncOperationAwaiter{TResult}" />.
-        /// </summary>
         public IAsyncOperationAwaiter<TResult> CreateAwaiter<TResult>(IAsyncOperation<TResult> operation, IDataContext context)
         {
             return CreateAwaiterInternal<TResult>(operation, context);
         }
 
-        /// <summary>
-        ///     Tries to convert a delegate to an instance of <see cref="ISerializableCallback" />.
-        /// </summary>
         public ISerializableCallback CreateSerializableCallback(Delegate @delegate)
         {
             return null;

@@ -23,9 +23,6 @@ using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Binding.Parse.Nodes
 {
-    /// <summary>
-    ///     Represents indexing a property or array.
-    /// </summary>
     public class IndexExpressionNode : ExpressionNode, IIndexExpressionNode
     {
         #region Fields
@@ -37,9 +34,6 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="IndexExpressionNode" /> class.
-        /// </summary>
         public IndexExpressionNode(IExpressionNode obj, IList<IExpressionNode> args)
             : base(ExpressionNodeType.Index)
         {
@@ -51,17 +45,11 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Implementation of IIndexExpressionNode
 
-        /// <summary>
-        ///     An object to index.
-        /// </summary>
         public IExpressionNode Object
         {
             get { return _object; }
         }
 
-        /// <summary>
-        ///     Gets the arguments that will be used to index the property or array.
-        /// </summary>
         public IList<IExpressionNode> Arguments
         {
             get { return _arguments; }
@@ -71,9 +59,6 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Overrides of ExpressionNode
 
-        /// <summary>
-        ///     Calls the visitor on the expression.
-        /// </summary>
         protected override void AcceptInternal(IExpressionVisitor visitor)
         {
             if (_object != null)
@@ -84,23 +69,11 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
             }
         }
 
-        /// <summary>
-        ///     Creates a new object that is a copy of the current instance.
-        /// </summary>
-        /// <returns>
-        ///     A new object that is a copy of this instance.
-        /// </returns>
         protected override IExpressionNode CloneInternal()
         {
             return new IndexExpressionNode(_object == null ? null : Object.Clone(), _arguments.ToArrayEx(node => node.Clone()));
         }
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>
-        ///     A string that represents the current object.
-        /// </returns>
         public override string ToString()
         {
             string @join = string.Join(", ", Arguments);

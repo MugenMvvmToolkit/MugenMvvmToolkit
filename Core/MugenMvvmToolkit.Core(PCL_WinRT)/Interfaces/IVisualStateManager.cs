@@ -22,21 +22,8 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Interfaces
 {
-    /// <summary>
-    ///     Manages states and the logic for transitioning between states for controls.
-    /// </summary>
     public interface IVisualStateManager
     {
-        /// <summary>
-        ///     Transitions the control between two states.
-        /// </summary>
-        /// <returns>
-        ///     true if the control successfully transitioned to the new state; otherwise, false.
-        /// </returns>
-        /// <param name="view">The view to transition between states. </param>
-        /// <param name="stateName">The state to transition to.</param>
-        /// <param name="useTransitions">true to use a VisualTransition to transition between states; otherwise, false.</param>
-        /// <param name="context">The specified context.</param>
         [NotNull]
         Task<bool> GoToStateAsync([NotNull]object view, [NotNull] string stateName, bool useTransitions,
             [CanBeNull] IDataContext context);

@@ -21,14 +21,8 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Interfaces.Models
 {
-    /// <summary>
-    ///     Represents the interface that indicates that the instance has a self weak reference
-    /// </summary>
     public interface IHasWeakReference
     {
-        /// <summary>
-        ///     Gets the <see cref="WeakReference" /> of current object.
-        /// </summary>
         [NotNull]
         WeakReference WeakReference { get; }
     }

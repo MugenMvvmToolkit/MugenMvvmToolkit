@@ -33,9 +33,6 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="AttachedMemberChangedEventArgs{T}" /> class.
-        /// </summary>
         public AttachedMemberChangedEventArgs(T oldValue, T newValue, object[] args, [NotNull] IBindingMemberInfo member)
             : base(oldValue, newValue)
         {
@@ -48,18 +45,12 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the <see cref="IBindingMemberInfo" />.
-        /// </summary>
         [NotNull]
         public IBindingMemberInfo Member
         {
             get { return _member; }
         }
 
-        /// <summary>
-        /// Gets the optional values for member.
-        /// </summary>
         [CanBeNull]
         public object[] Args
         {

@@ -116,24 +116,12 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Fields
 
-        /// <summary>
-        ///     Gets the binding context member.
-        /// </summary>
         public static readonly BindingMemberInfo BindingContextMember;
 
-        /// <summary>
-        ///     Gets the empty member.
-        /// </summary>
         public static readonly IBindingMemberInfo Empty;
 
-        /// <summary>
-        ///     Gets the empty member.
-        /// </summary>
         public static readonly IBindingMemberInfo EmptyHasSetter;
 
-        /// <summary>
-        ///     Gets the unset member.
-        /// </summary>
         public static readonly IBindingMemberInfo Unset;
 
         internal static readonly IBindingMemberInfo MultiBindingSourceAccessorMember;
@@ -169,9 +157,6 @@ namespace MugenMvvmToolkit.Binding.Models
             MultiBindingSourceAccessorMember = new BindingMemberInfo();
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberInfo" /> class.
-        /// </summary>
         private BindingMemberInfo(string path, BindingMemberType memberType, Type type)
         {
             Should.NotBeNull(path, "path");
@@ -198,9 +183,6 @@ namespace MugenMvvmToolkit.Binding.Models
             _canWrite = true;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberInfo" /> class.
-        /// </summary>
         private BindingMemberInfo(string path, BindingMemberType memberType, bool hasSetter = false)
             : this(path, memberType, typeof(object))
         {
@@ -240,9 +222,6 @@ namespace MugenMvvmToolkit.Binding.Models
             }
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberInfo" /> class.
-        /// </summary>
         public BindingMemberInfo([NotNull] string path, [NotNull] FieldInfo field, Type sourceType)
             : this(path, BindingMemberType.Field, field.FieldType)
         {
@@ -256,9 +235,6 @@ namespace MugenMvvmToolkit.Binding.Models
             _canObserve = _memberEvent != null;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberInfo" /> class.
-        /// </summary>
         public BindingMemberInfo([NotNull] string path, [NotNull] PropertyInfo property, Type sourceType)
             : this(path, BindingMemberType.Property, property.PropertyType)
         {
@@ -290,9 +266,6 @@ namespace MugenMvvmToolkit.Binding.Models
             _canObserve = _memberEvent != null;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberInfo" /> class.
-        /// </summary>
         public BindingMemberInfo(string path, EventInfo @event, IBindingMemberInfo observableMember)
             : this(path, BindingMemberType.Event, @event == null ? typeof(Delegate) : @event.EventHandlerType)
         {
@@ -308,9 +281,6 @@ namespace MugenMvvmToolkit.Binding.Models
             _isSingleParameter = true;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberInfo" /> class.
-        /// </summary>
         public BindingMemberInfo(string path, Type type)
             : this(path, BindingMemberType.Array, type.GetElementType())
         {
@@ -325,9 +295,6 @@ namespace MugenMvvmToolkit.Binding.Models
             _isSingleParameter = true;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberInfo" /> class.
-        /// </summary>
         public BindingMemberInfo(string path, bool expandoObject)
             : this(path, BindingMemberType.Dynamic, typeof(object))
         {
@@ -369,68 +336,41 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Implementation of IBindingMemberInfo
 
-        /// <summary>
-        ///     Gets the path of member.
-        /// </summary>
         public string Path
         {
             get { return _path; }
         }
 
-        /// <summary>
-        ///     Gets the type of member.
-        /// </summary>
         public Type Type
         {
             get { return _type; }
         }
 
-        /// <summary>
-        ///     Gets the underlying member.
-        /// </summary>
         public MemberInfo Member
         {
             get { return _member; }
         }
 
-        /// <summary>
-        ///     Gets the member type.
-        /// </summary>
         public BindingMemberType MemberType
         {
             get { return _memberType; }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether the member can be read.
-        /// </summary>
         public bool CanRead
         {
             get { return _canRead; }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether the property can be written to.
-        /// </summary>
         public bool CanWrite
         {
             get { return _canWrite; }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether the member can be observed to.
-        /// </summary>
         public bool CanObserve
         {
             get { return _canObserve; }
         }
 
-        /// <summary>
-        ///     Returns the member value of a specified object.
-        /// </summary>
-        /// <param name="source">The object whose member value will be returned.</param>
-        /// <param name="args">Optional values for members.</param>
-        /// <returns>The member value of the specified object.</returns>
         public object GetValue(object source, object[] args)
         {
             if (_isSingleParameter)
@@ -438,11 +378,6 @@ namespace MugenMvvmToolkit.Binding.Models
             return _getValueAccessor(source, args);
         }
 
-        /// <summary>
-        ///     Sets the member value of a specified object.
-        /// </summary>
-        /// <param name="source">The object whose member value will be set.</param>
-        /// <param name="args">Optional values for members..</param>
         public object SetValue(object source, object[] args)
         {
             if (_isSingleParameter)
@@ -455,9 +390,6 @@ namespace MugenMvvmToolkit.Binding.Models
             return _setValueAccessor(source, args);
         }
 
-        /// <summary>
-        ///     Attempts to track the value change.
-        /// </summary>
         public IDisposable TryObserve(object source, IEventListener listener)
         {
             if (_isDataContext)
@@ -510,12 +442,6 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Overrides of Object
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>
-        ///     A string that represents the current object.
-        /// </returns>
         public override string ToString()
         {
             return string.Format("{0}, {1}", MemberType, Member);

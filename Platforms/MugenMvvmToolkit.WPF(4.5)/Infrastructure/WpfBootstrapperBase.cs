@@ -42,16 +42,10 @@ using MugenMvvmToolkit.WPF.Modules;
 
 namespace MugenMvvmToolkit.WPF.Infrastructure
 {
-    /// <summary>
-    ///     Represents the base class that is used to start MVVM application.
-    /// </summary>
     public abstract class WpfBootstrapperBase : BootstrapperBase
     {
         #region Fields
 
-        /// <summary>
-        /// Gets the name of binding assembly.
-        /// </summary>
         protected const string BindingAssemblyName = "MugenMvvmToolkit.WPF.Binding";
         private readonly PlatformInfo _platform;
 
@@ -66,9 +60,6 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="WpfBootstrapperBase" /> class.
-        /// </summary>
         protected WpfBootstrapperBase([NotNull] Application application, bool autoStart = true, PlatformInfo platform = null)
         {
             Should.NotBeNull(application, "application");
@@ -81,28 +72,16 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Indicates that bootstrapper should call the Start method when Application.Startup is raised.
-        /// </summary>
         public bool AutoStart { get; set; }
 
-        /// <summary>
-        ///     Indicates that the MainWindow should use only Uri navigation.
-        /// </summary>
         public bool UseUriNavigation { get; set; }
 
-        /// <summary>
-        ///     An application shuts down when either the main view model closes, or Application.Shutdown() is called.
-        /// </summary>
         public bool ShutdownOnMainViewModelClose { get; set; }
 
         #endregion
 
         #region Overrides of BootstrapperBase
 
-        /// <summary>
-        ///     Initializes the current bootstrapper.
-        /// </summary>
         protected override void InitializeInternal()
         {
             var application = CreateApplication();
@@ -114,9 +93,6 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Starts the current bootstrapper.
-        /// </summary>
         public virtual void Start()
         {
             Initialize();
@@ -162,9 +138,6 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets the application assemblies.
-        /// </summary>
         protected virtual ICollection<Assembly> GetAssemblies()
         {
             var assemblies = new HashSet<Assembly>();
@@ -177,18 +150,12 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
             return assemblies;
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="INavigationService" />.
-        /// </summary>
         [NotNull]
         protected virtual INavigationService CreateNavigationService(NavigationWindow window)
         {
             return new WindowNavigationService(window, UseUriNavigation);
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="NavigationWindow" />, if need.
-        /// </summary>
         [NotNull]
         protected virtual NavigationWindow CreateNavigationWindow()
         {

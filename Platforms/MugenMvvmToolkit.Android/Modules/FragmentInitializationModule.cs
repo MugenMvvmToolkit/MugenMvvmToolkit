@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="FragmentInitializationModule.cs">
@@ -34,9 +34,6 @@ namespace MugenMvvmToolkit.Android.Modules
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ModuleBase" /> class.
-        /// </summary>
         public FragmentInitializationModule()
             : base(false, MugenMvvmToolkit.Models.LoadMode.All, InitializationModulePriority - 1)
         {
@@ -46,9 +43,6 @@ namespace MugenMvvmToolkit.Android.Modules
 
         #region Overrides of ModuleBase
 
-        /// <summary>
-        ///     Loads the current module.
-        /// </summary>
         protected override bool LoadInternal()
         {
             IViewModelPresenter service;
@@ -66,9 +60,6 @@ namespace MugenMvvmToolkit.Android.Modules
             return true;
         }
 
-        /// <summary>
-        ///     Unloads the current module.
-        /// </summary>
         protected override void UnloadInternal()
         {
         }

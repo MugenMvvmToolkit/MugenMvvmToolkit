@@ -41,9 +41,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding
 {
-    /// <summary>
-    ///     Represents the binding extensions.
-    /// </summary>
     public static class BindingExtensions
     {
         #region Nested types
@@ -248,7 +245,7 @@ namespace MugenMvvmToolkit.Binding
                 _targetReference = Empty.WeakReference;
             }
 
-            #endregion            
+            #endregion
         }
 
         private sealed class WeakEventListener : IEventListener
@@ -309,9 +306,6 @@ namespace MugenMvvmToolkit.Binding
 
         #region Fields
 
-        /// <summary>
-        ///     Gets the array with single null value.
-        /// </summary>
         public static readonly object[] NullValue;
 
         internal static readonly IEventListener EmptyListener;
@@ -337,9 +331,6 @@ namespace MugenMvvmToolkit.Binding
 
         #region Methods
 
-        /// <summary>
-        ///     Attempts to subscribe to the event.
-        /// </summary>
         public static IDisposable TrySubscribe([NotNull] this IWeakEventManager eventManager, [NotNull] object target,
             string eventName, IEventListener listener,
             IDataContext context = null)
@@ -352,22 +343,12 @@ namespace MugenMvvmToolkit.Binding
             return eventManager.TrySubscribe(target, @event, listener, context);
         }
 
-        /// <summary>
-        ///     Handles the message.
-        /// </summary>
-        /// <param name="listener">The specified event listener.</param>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">Information about event.</param>
         public static void Handle<TSender, TMessage>(this IEventListener listener, TSender sender, TMessage message)
         {
             Should.NotBeNull(listener, "listener");
             listener.TryHandle(sender, message);
         }
 
-        /// <summary>
-        ///     Converts the specified <see cref="IEventListener" /> to a weak <see cref="IEventListener" /> if listener is not
-        ///     weak.
-        /// </summary>
         public static IEventListener ToWeakEventListener(this IEventListener listener)
         {
             if (listener.IsWeak)
@@ -375,17 +356,11 @@ namespace MugenMvvmToolkit.Binding
             return new WeakEventListener(listener);
         }
 
-        /// <summary>
-        ///     Converts the specified <see cref="IEventListener" /> to a <see cref="WeakReference" /> if listener is not weak.
-        /// </summary>
         public static WeakEventListenerWrapper ToWeakWrapper(this IEventListener target)
         {
             return new WeakEventListenerWrapper(target);
         }
 
-        /// <summary>
-        ///     Registers the specified member.
-        /// </summary>
         public static void Register<TTarget, TType>([NotNull] this IBindingMemberProvider memberProvider,
             [NotNull] IAttachedBindingMemberInfo<TTarget, TType> member, bool rewrite = true)
             where TTarget : class
@@ -393,9 +368,6 @@ namespace MugenMvvmToolkit.Binding
             memberProvider.Register(member.Path, member, rewrite);
         }
 
-        /// <summary>
-        ///     Registers the specified member.
-        /// </summary>
         public static void Register<TTarget, TType>([NotNull] this IBindingMemberProvider memberProvider, string path,
             [NotNull] IAttachedBindingMemberInfo<TTarget, TType> member, bool rewrite = true)
             where TTarget : class
@@ -404,9 +376,6 @@ namespace MugenMvvmToolkit.Binding
             memberProvider.Register(typeof(TTarget), path, member, rewrite);
         }
 
-        /// <summary>
-        ///     Adds the specified object to resources.
-        /// </summary>
         public static BindingResourceObject AddObject([NotNull] this IBindingResourceResolver resolver, [NotNull] string name,
             object value, bool rewrite = true)
         {
@@ -416,9 +385,6 @@ namespace MugenMvvmToolkit.Binding
             return resourceObject;
         }
 
-        /// <summary>
-        ///     Adds the specified type to resources.
-        /// </summary>
         public static void AddType([NotNull] this IBindingResourceResolver resolver, [NotNull] Type type,
             bool rewrite = true)
         {
@@ -427,9 +393,6 @@ namespace MugenMvvmToolkit.Binding
             resolver.AddType(type.FullName, type, rewrite);
         }
 
-        /// <summary>
-        ///     Adds the specified converter to resources.
-        /// </summary>
         public static void AddConverter([NotNull] this IBindingResourceResolver resolver,
             [NotNull] IBindingValueConverter converter, Type type = null, bool rewrite = true)
         {
@@ -444,9 +407,6 @@ namespace MugenMvvmToolkit.Binding
                 resolver.AddConverter(type.Name, converter, rewrite);
         }
 
-        /// <summary>
-        ///     Adds the specified method to resources.
-        /// </summary>
         public static void AddMethod<TArg1, TResult>([NotNull] this IBindingResourceResolver resolver,
             [NotNull] string name, [NotNull] Func<TArg1, IDataContext, TResult> method, bool rewrite = true)
         {
@@ -455,9 +415,6 @@ namespace MugenMvvmToolkit.Binding
                 new BindingResourceMethod(method.AsResourceMethodDelegate, typeof(TResult)), rewrite);
         }
 
-        /// <summary>
-        ///     Adds the specified method to resources.
-        /// </summary>
         public static void AddMethod<TArg1, TArg2, TResult>([NotNull] this IBindingResourceResolver resolver,
             [NotNull] string name, [NotNull] Func<TArg1, TArg2, IDataContext, TResult> method, bool rewrite = true)
         {
@@ -466,9 +423,6 @@ namespace MugenMvvmToolkit.Binding
                 new BindingResourceMethod(method.AsResourceMethodDelegate, typeof(TResult)), rewrite);
         }
 
-        /// <summary>
-        ///     Gets the binding context for the specified item.
-        /// </summary>
         public static IBindingContext GetBindingContext([NotNull] this IBindingContextManager contextManager,
             [NotNull] object target, [NotNull] string targetPath)
         {
@@ -478,9 +432,6 @@ namespace MugenMvvmToolkit.Binding
             return contextManager.GetBindingContext(target);
         }
 
-        /// <summary>
-        ///     Gets the member names from the specified expression.
-        /// </summary>
         [Pure]
         public static string GetMemberPath(Func<LambdaExpression> getExpression, string separator = ".")
         {
@@ -503,9 +454,6 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
-        /// <summary>
-        ///     Gets the value of binding member.
-        /// </summary>
         public static object GetValue([CanBeNull] this BindingActionValue actionValue, object[] args)
         {
             if (actionValue == null)
@@ -524,9 +472,6 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
-        /// <summary>
-        ///     Tries to set value.
-        /// </summary>
         public static bool TrySetValue<TResult>([CanBeNull] this BindingActionValue actionValue, object[] args,
             out TResult result)
         {
@@ -644,18 +589,12 @@ namespace MugenMvvmToolkit.Binding
             return eventMember.TryRaise(source, message ?? EventArgs.Empty);
         }
 
-        /// <summary>
-        ///     Gets the current data context for the specified item.
-        /// </summary>
         [BindingSyntaxMember]
         public static T DataContext<T>(this object item)
         {
             return (T)item.DataContext();
         }
 
-        /// <summary>
-        ///     Gets the current data context for the specified item.
-        /// </summary>
         [BindingSyntaxMember]
         public static object DataContext<TSource>(this TSource source)
             where TSource : class
@@ -719,9 +658,6 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IObserver" /> using the relative source value.
-        /// </summary>
         public static IObserver CreateBindingSource(IRelativeSourceExpressionNode node, [NotNull] object target,
             string pathEx)
         {
@@ -746,9 +682,6 @@ namespace MugenMvvmToolkit.Binding
             return BindingExceptionManager.DuplicateLambdaParameter(parameterName);
         }
 
-        /// <summary>
-        ///     Gets the value that indicates that all members are available.
-        /// </summary>
         public static bool IsAllMembersAvailable(this IBindingSourceAccessor accessor)
         {
             Should.NotBeNull(accessor, "accessor");
@@ -764,9 +697,6 @@ namespace MugenMvvmToolkit.Binding
             return true;
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IObserver" /> using the DataContext or source value if any.
-        /// </summary>
         internal static IObserver CreateBindingSource(IDataContext context, string path, object src,
             bool ignoreSrc = false)
         {

@@ -33,7 +33,8 @@
     <DefineConstants>TRACE;HASSERIALIZABLE;NONOTIFYDATAERROR;NET4;PCL_NET4;CORE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\bin\Core\NET4.0\MugenMvvmToolkit.XML</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>

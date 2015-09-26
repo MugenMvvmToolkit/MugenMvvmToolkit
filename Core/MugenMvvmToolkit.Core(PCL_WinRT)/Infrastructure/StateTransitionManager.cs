@@ -23,17 +23,11 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the class that provides methods for transiting one state to another state.
-    /// </summary>
     [Serializable, DataContract(Namespace = ApplicationSettings.DataContractNamespace)]
     public sealed class StateTransitionManager : IStateTransitionManager
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the instance of <see cref="StateTransitionManager" />.
-        /// </summary>
         public static readonly StateTransitionManager Instance;
 
         #endregion
@@ -53,13 +47,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of IStateTransitionManager
 
-        /// <summary>
-        ///     Changes state from one state to another state.
-        /// </summary>
-        /// <param name="from">The specified state from.</param>
-        /// <param name="to">The specified state to.</param>
-        /// <param name="validateState">The flag indicating that state will be validated before assigned.</param>
-        /// <returns>An instance of state, if any.</returns>
         public EntityState ChangeState(EntityState @from, EntityState to, bool validateState)
         {
             switch (from)

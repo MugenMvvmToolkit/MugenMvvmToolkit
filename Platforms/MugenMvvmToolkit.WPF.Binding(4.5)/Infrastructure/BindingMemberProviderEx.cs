@@ -54,16 +54,10 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberProvider" /> class.
-        /// </summary>
         public BindingMemberProviderEx()
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberProvider" /> class.
-        /// </summary>
         public BindingMemberProviderEx([NotNull] BindingMemberProvider provider)
             : base(provider)
         {
@@ -73,12 +67,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 
         #region Overrides of BindingMemberProvider
 
-        /// <summary>
-        ///     Gets an instance of <see cref="IBindingMemberInfo" /> using the source type and binding path.
-        /// </summary>
-        /// <param name="sourceType">The specified source type.</param>
-        /// <param name="path">The specified binding path.</param>
-        /// <returns>The instance of <see cref="IBindingMemberInfo" />.</returns>
         protected override IBindingMemberInfo GetExplicitBindingMember(Type sourceType, string path)
         {
             if (typeof(DependencyObject).IsAssignableFrom(sourceType))

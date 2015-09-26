@@ -40,9 +40,6 @@ namespace MugenMvvmToolkit.WinForms.Controls
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ToastMessageControl" /> class with default settings.
-        /// </summary>
         public ToastMessageControl([NotNull] string message, float duration, Color backgroundColor,
             Color foregroundColor, Color? glowColor, [NotNull] TaskCompletionSource<object> tcs)
         {
@@ -87,10 +84,6 @@ namespace MugenMvvmToolkit.WinForms.Controls
 
         #region Overrides of Control
 
-        /// <summary>
-        ///     Raises the <see cref="E:System.Windows.Forms.Control.Paint" /> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.PaintEventArgs" /> that contains the event data. </param>
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);

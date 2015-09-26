@@ -68,9 +68,6 @@ using System.Windows.Media.Animation;
 namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
 #endif
 {
-    /// <summary>
-    ///     Provides functionality to present a timed message.
-    /// </summary>
     public class ToastPresenter : IToastPresenter
     {
         #region Nested types
@@ -169,9 +166,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
         }
 #endif
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ToastPresenter" /> class.
-        /// </summary>
         public ToastPresenter([NotNull]IThreadManager threadManager)
         {
             Should.NotBeNull(threadManager, "threadManager");
@@ -202,9 +196,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
 
         #region Implementation of IToastPresenter
 
-        /// <summary>
-        ///     Shows the specified message.
-        /// </summary>
         public Task ShowAsync(object content, float duration, ToastPosition position = ToastPosition.Bottom, IDataContext context = null)
         {
             var tcs = new TaskCompletionSource<object>();
@@ -219,9 +210,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
 
         #region Methods
 
-        /// <summary>
-        ///     Shows the specified message.
-        /// </summary>
         protected virtual void ShowInternal(object content, float duration, ToastPosition position, IDataContext context, TaskCompletionSource<object> tcs)
         {
 #if WPF
@@ -350,7 +338,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
                 VerticalAlignment = VerticalAlignment.Center
             };
 #if WINDOWS_PHONE
-            object style;
             if (Application.Current.Resources.Contains("PhoneTextNormalStyle"))
                 text.Style = Application.Current.Resources["PhoneTextNormalStyle"] as Style;
 #elif WINDOWSCOMMON

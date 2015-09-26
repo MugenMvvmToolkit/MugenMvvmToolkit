@@ -23,17 +23,11 @@ using System.Runtime.Serialization;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the reference equality comparer
-    /// </summary>
     [DataContract(Namespace = ApplicationSettings.DataContractNamespace), Serializable]
     public class ReferenceEqualityComparer : IEqualityComparer<object>
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets an instance of <see cref="ReferenceEqualityComparer" />.
-        /// </summary>
         public static readonly IEqualityComparer<object> Instance;
 
         #endregion

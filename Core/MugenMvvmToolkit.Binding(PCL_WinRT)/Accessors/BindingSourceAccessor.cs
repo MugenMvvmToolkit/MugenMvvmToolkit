@@ -33,9 +33,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Accessors
 {
-    /// <summary>
-    ///     Represents the accessor for the single binding source.
-    /// </summary>
     public sealed class BindingSourceAccessor : BindingSourceAccessorBase, ISingleBindingSourceAccessor
     {
         #region Nested types
@@ -324,9 +321,6 @@ namespace MugenMvvmToolkit.Binding.Accessors
             ToggleEnabledStateDefault = true;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingSourceAccessor" /> class.
-        /// </summary>
         public BindingSourceAccessor([NotNull]IObserver bindingSource, [NotNull] IDataContext context, bool isTarget)
             : base(context, isTarget)
         {
@@ -355,42 +349,27 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the property that is responsible for the automatic toggle enabled state for command.
-        /// </summary>
         public static bool ToggleEnabledStateDefault { get; set; }
 
         #endregion
 
         #region Overrides of BindingSourceAccessorBase
 
-        /// <summary>
-        ///     Gets the underlying source.
-        /// </summary>
         public IObserver Source
         {
             get { return _bindingSource; }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether the member can be read.
-        /// </summary>
         public override bool CanRead
         {
             get { return true; }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether the property can be written to.
-        /// </summary>
         public override bool CanWrite
         {
             get { return true; }
         }
 
-        /// <summary>
-        ///     Gets the underlying sources.
-        /// </summary>
         public override IList<IObserver> Sources
         {
             get
@@ -401,9 +380,6 @@ namespace MugenMvvmToolkit.Binding.Accessors
             }
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         public override void Dispose()
         {
             if (_closure != null)
@@ -415,19 +391,10 @@ namespace MugenMvvmToolkit.Binding.Accessors
             base.Dispose();
         }
 
-        /// <summary>
-        ///     Occurs before the value changes.
-        /// </summary>
         public override event EventHandler<IBindingSourceAccessor, ValueAccessorChangingEventArgs> ValueChanging;
 
-        /// <summary>
-        ///     Occurs when value changed.
-        /// </summary>
         public override event EventHandler<IBindingSourceAccessor, ValueAccessorChangedEventArgs> ValueChanged;
 
-        /// <summary>
-        ///     Gets the raw value from source.
-        /// </summary>
         protected override object GetRawValueInternal(IBindingMemberInfo targetMember, IDataContext context,
             bool throwOnError)
         {
@@ -435,14 +402,6 @@ namespace MugenMvvmToolkit.Binding.Accessors
             return members.LastMember.GetValue(members.PenultimateValue, null);
         }
 
-        /// <summary>
-        ///     Sets the source value.
-        /// </summary>
-        /// <param name="targetAccessor">The specified accessor to get value.</param>
-        /// <param name="context">The specified operation context.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the value cannot be set.
-        /// </param>
         protected override bool SetValueInternal(IBindingSourceAccessor targetAccessor, IDataContext context,
             bool throwOnError)
         {

@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="FragmentContentViewManager.cs">
@@ -44,9 +44,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         #region Implementation of IContentViewManager
 
-        /// <summary>
-        ///     Sets the specified content.
-        /// </summary>
         public bool SetContent(object view, object content)
         {
             var targetView = view as ViewGroup;

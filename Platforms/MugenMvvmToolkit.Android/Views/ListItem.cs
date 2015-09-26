@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ListItem.cs">
@@ -36,17 +36,11 @@ namespace MugenMvvmToolkit.Android.Views
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ListItem" /> class.
-        /// </summary>
         protected ListItem(IntPtr javaReference, JniHandleOwnership transfer)
             : base(javaReference, transfer)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ListItem" /> class.
-        /// </summary>
         public ListItem(int templateId, BindableLayoutInflater inflater)
             : base(inflater.Context)
         {
@@ -58,17 +52,11 @@ namespace MugenMvvmToolkit.Android.Views
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the id of template.
-        /// </summary>
         public int TemplateId
         {
             get { return _templateId; }
         }
 
-        /// <summary>
-        ///     Gets the first child.
-        /// </summary>
         protected View FirstChild
         {
             get

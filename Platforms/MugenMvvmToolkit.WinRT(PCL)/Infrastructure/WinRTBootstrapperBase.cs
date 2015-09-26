@@ -41,9 +41,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
     {
         #region Fields
 
-        /// <summary>
-        /// Gets the name of binding assembly.
-        /// </summary>
         protected const string BindingAssemblyName = "MugenMvvmToolkit.WinRT.Binding";
         private readonly Frame _rootFrame;
         private readonly bool _overrideAssemblies;
@@ -60,9 +57,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="WinRTBootstrapperBase" /> class.
-        /// </summary>
         protected WinRTBootstrapperBase([NotNull] Frame rootFrame, bool overrideAssemblies, PlatformInfo platform = null)
         {
             Should.NotBeNull(rootFrame, "rootFrame");
@@ -75,9 +69,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the root frame.
-        /// </summary>
         protected Frame RootFrame
         {
             get { return _rootFrame; }
@@ -87,9 +78,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
 
         #region Overrides of BootstrapperBase
 
-        /// <summary>
-        ///     Initializes the current bootstrapper.
-        /// </summary>
         protected override void InitializeInternal()
         {
             var application = CreateApplication();
@@ -104,9 +92,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Starts the current bootstrapper.
-        /// </summary>
         public virtual void Start()
         {
             Initialize();
@@ -119,9 +104,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
             viewModel.ShowAsync((model, result) => model.Dispose(), context: ctx);
         }
 
-        /// <summary>
-        ///     Initializes the current bootstrapper asynchronously.
-        /// </summary>
         public async Task InitializeAsync()
         {
             if (!_overrideAssemblies)
@@ -129,9 +111,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
             Initialize();
         }
 
-        /// <summary>
-        ///     Gets the application assemblies.
-        /// </summary>
         protected virtual ICollection<Assembly> GetAssemblies()
         {
             if (_assemblies != null)
@@ -144,9 +123,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
             return assemblies;
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="INavigationService" />.
-        /// </summary>
         [CanBeNull]
         protected virtual INavigationService CreateNavigationService(Frame frame)
         {

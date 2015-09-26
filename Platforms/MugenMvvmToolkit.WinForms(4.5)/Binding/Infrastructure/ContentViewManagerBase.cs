@@ -31,9 +31,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 #endif
 
 {
-    /// <summary>
-    ///     Represents the base class that allows to set content in the specified view.
-    /// </summary>
     public abstract class ContentViewManagerBase<TView, TContent> : IContentViewManager
     {
         #region Implementation of IContentViewManager
@@ -44,7 +41,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             return SetContent((TView)view, (TContent)content);
         }
 #else
-        void IContentViewManager.SetContent(object view, object content)        
+        void IContentViewManager.SetContent(object view, object content)
         {
             SetContent((TView)view, (TContent)content);
         }
@@ -55,14 +52,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         #region Methods
 
 #if ANDROID
-        /// <summary>
-        ///     Sets the specified content.
-        /// </summary>
         protected abstract bool SetContent(TView view, TContent content);
 #else
-        /// <summary>
-        ///     Sets the specified content.
-        /// </summary>
         protected abstract void SetContent(TView view, TContent content);
 #endif
 

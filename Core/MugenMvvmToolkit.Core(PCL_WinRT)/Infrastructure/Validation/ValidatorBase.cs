@@ -37,9 +37,6 @@ using MugenMvvmToolkit.Models.Validation;
 
 namespace MugenMvvmToolkit.Infrastructure.Validation
 {
-    /// <summary>
-    ///     Represents a base class for a validator.
-    /// </summary>
     public abstract class ValidatorBase : IValidator
     {
         #region Nested types
@@ -115,14 +112,8 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         #region Fields
 
-        /// <summary>
-        ///     Gets the result that indicates that validator should clear errors.
-        /// </summary>
         protected static readonly Task<IDictionary<string, IEnumerable>> EmptyResult;
 
-        /// <summary>
-        ///     Gets the result that indicates that validator should not update errors.
-        /// </summary>
         protected static readonly Task<IDictionary<string, IEnumerable>> DoNothingResult;
 
         private static readonly IDictionary<string, ICollection<string>> EmptyMappingDictionary;
@@ -160,9 +151,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             DisposedHandler = (sender, args) => { };
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ValidatorBase" /> class.
-        /// </summary>
         protected ValidatorBase()
         {
             _errors = new Dictionary<string, IList<object>>(StringComparer.Ordinal);
@@ -174,58 +162,33 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         #region Implementation of IValidator
 
-        /// <summary>
-        ///     Gets a value indicating whether this instance is disposed.
-        /// </summary>
         public bool IsDisposed
         {
             get { return ReferenceEquals(_weakPropertyHandler, DisposedHandler); }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether this instance is initialized.
-        /// </summary>
         public bool IsInitialized
         {
             get { return Context != null; }
         }
 
-        /// <summary>
-        ///     Determines whether the current model is valid.
-        /// </summary>
-        /// <returns>
-        ///     If <c>true</c> current model is valid, otherwise <c>false</c>.
-        /// </returns>
         public bool IsValid
         {
             get
             {
                 if (Context == null)
                     return false;
-                lock (_errors)
-                    return IsValidInternal();
+                return IsValidInternal();
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the value, that indicates that the validator will be validate property on changed. Default is true.
-        /// </summary>
         public bool ValidateOnPropertyChanged { get; set; }
 
-        /// <summary>
-        ///     Gets the validator context.
-        /// </summary>
         public IValidatorContext Context
         {
             get { return _context; }
         }
 
-        /// <summary>
-        ///     Initializes the current validator using the specified <see cref="IValidatorContext" />.
-        /// </summary>
-        /// <param name="context">
-        ///     The specified <see cref="IValidatorContext" />.
-        /// </param>
         public bool Initialize(IValidatorContext context)
         {
             if (IsDisposed)
@@ -257,16 +220,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             return true;
         }
 
-        /// <summary>
-        ///     Gets the validation errors for a specified property or for the entire entity.
-        /// </summary>
-        /// <param name="propertyName">
-        ///     The name of the property to retrieve validation errors for; or null or
-        ///     <see cref="F:System.String.Empty" />, to retrieve entity-level errors.
-        /// </param>
-        /// <returns>
-        ///     The validation errors for the property or entity.
-        /// </returns>
         public IList<object> GetErrors(string propertyName)
         {
             EnsureInitialized();
@@ -274,12 +227,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 return GetErrorsInternal(propertyName);
         }
 
-        /// <summary>
-        ///     Gets all validation errors.
-        /// </summary>
-        /// <returns>
-        ///     The validation errors.
-        /// </returns>
         public IDictionary<string, IList<object>> GetErrors()
         {
             EnsureInitialized();
@@ -287,10 +234,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 return GetErrorsInternal();
         }
 
-        /// <summary>
-        ///     Updates information about errors in the specified property.
-        /// </summary>
-        /// <param name="propertyName">The specified property name.</param>
         public Task ValidateAsync(string propertyName)
         {
             EnsureInitialized();
@@ -326,9 +269,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             return Validate(singleMap);
         }
 
-        /// <summary>
-        ///     Updates information about all errors.
-        /// </summary>
         public Task ValidateAsync()
         {
             EnsureInitialized();
@@ -337,9 +277,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             return Validate(string.Empty);
         }
 
-        /// <summary>
-        ///     Tries to cancel the current validation process.
-        /// </summary>
         public void CancelValidation()
         {
             lock (_runningTask)
@@ -351,10 +288,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             }
         }
 
-        /// <summary>
-        ///     Clears errors for a property.
-        /// </summary>
-        /// <param name="propertyName">The name of the property</param>
         public void ClearErrors(string propertyName)
         {
             EnsureInitialized();
@@ -364,44 +297,22 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 ClearErrorsInternal(propertyName);
         }
 
-        /// <summary>
-        ///     Clears all errors.
-        /// </summary>
         public void ClearErrors()
         {
             EnsureInitialized();
             ClearErrorsInternal();
         }
 
-        /// <summary>
-        ///     Gets a value that indicates whether the entity has validation errors.
-        /// </summary>
-        /// <returns>
-        ///     true if the entity currently has validation errors; otherwise, false.
-        /// </returns>
         public bool HasErrors
         {
             get { return !IsValid; }
         }
 
-        /// <summary>
-        ///     Gets the validation errors for a specified property or for the entire entity.
-        /// </summary>
-        /// <returns>
-        ///     The validation errors for the property or entity.
-        /// </returns>
-        /// <param name="propertyName">
-        ///     The name of the property to retrieve validation errors for; or null or <see cref="F:System.String.Empty" />, to
-        ///     retrieve entity-level errors.
-        /// </param>
         IEnumerable INotifyDataErrorInfo.GetErrors(string propertyName)
         {
             return GetErrors(propertyName);
         }
 
-        /// <summary>
-        ///     Occurs when the validation errors have changed for a property or for the entire entity.
-        /// </summary>
         public virtual event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
 #if NONOTIFYDATAERROR
@@ -428,9 +339,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         }
 #endif
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         public void Dispose()
         {
             var oldHandler = Interlocked.Exchange(ref _weakPropertyHandler, DisposedHandler);
@@ -456,22 +364,13 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the value, that indicates that the validator will be validate property on changed. Default is true.
-        /// </summary>
         public static bool ValidateOnPropertyChangedDefault { get; set; }
 
-        /// <summary>
-        ///     Gets the dictionary that contains all errors.
-        /// </summary>
         protected Dictionary<string, IList<object>> Errors
         {
             get { return _errors; }
         }
 
-        /// <summary>
-        ///     Gets the object to validate.
-        /// </summary>
         protected object Instance
         {
             get
@@ -482,9 +381,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             }
         }
 
-        /// <summary>
-        ///     Gets the mapping of model properties.
-        /// </summary>
         [NotNull]
         protected IDictionary<string, ICollection<string>> PropertyMappings
         {
@@ -496,9 +392,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             }
         }
 
-        /// <summary>
-        ///     Gets the list of properties that will not be validated.
-        /// </summary>
         [NotNull]
         protected ICollection<string> IgnoreProperties
         {
@@ -510,17 +403,11 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             }
         }
 
-        /// <summary>
-        ///     Gets a value that indicates that the validator is now validated.
-        /// </summary>
         protected bool IsValidating
         {
             get { return _runningTask != null && _runningTask.Count != 0; }
         }
 
-        /// <summary>
-        /// Gets the current sync object to access to dictionary.
-        /// </summary>
         protected object Locker
         {
             get { return _errors; }
@@ -530,38 +417,16 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         #region Virtual-abstract methods
 
-        /// <summary>
-        ///     Initializes the current validator using the specified <see cref="IValidatorContext" />.
-        /// </summary>
-        /// <param name="context">
-        ///     The specified <see cref="IValidatorContext" />.
-        /// </param>
         protected virtual void OnInitialized(IValidatorContext context)
         {
         }
 
-        /// <summary>
-        ///     Gets all validation errors.
-        /// </summary>
-        /// <returns>
-        ///     The validation errors.
-        /// </returns>
         [NotNull]
         protected virtual IDictionary<string, IList<object>> GetErrorsInternal()
         {
             return new Dictionary<string, IList<object>>(_errors);
         }
 
-        /// <summary>
-        ///     Gets the validation errors for a specified property or for the entire entity.
-        /// </summary>
-        /// <returns>
-        ///     The validation errors for the property or entity.
-        /// </returns>
-        /// <param name="propertyName">
-        ///     The name of the property to retrieve validation errors for; or null or <see cref="F:System.String.Empty" />, to
-        ///     retrieve entity-level errors.
-        /// </param>
         [NotNull]
         protected virtual IList<object> GetErrorsInternal(string propertyName)
         {
@@ -581,29 +446,16 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             return list ?? Empty.Array<object>();
         }
 
-        /// <summary>
-        ///     Determines whether the current model is valid.
-        /// </summary>
-        /// <returns>
-        ///     If <c>true</c> current model is valid, otherwise <c>false</c>.
-        /// </returns>
         protected virtual bool IsValidInternal()
         {
             return _errors.Count == 0 && !IsValidating;
         }
 
-        /// <summary>
-        ///     Clears errors for a property.
-        /// </summary>
-        /// <param name="propertyName">The name of the property</param>
         protected virtual void ClearErrorsInternal(string propertyName)
         {
             UpdateErrors(propertyName, null, false);
         }
 
-        /// <summary>
-        ///     Clears all errors.
-        /// </summary>
         protected virtual void ClearErrorsInternal()
         {
             string[] keys;
@@ -613,10 +465,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 UpdateErrors(keys[index], null, false);
         }
 
-        /// <summary>
-        ///     Publishes a message.
-        /// </summary>
-        /// <param name="message">The message instance.</param>
         protected virtual void Publish(object message)
         {
             if (Context == null)
@@ -629,11 +477,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 viewModel.Publish(this, message);
         }
 
-        /// <summary>
-        ///     Raises the <see cref="ErrorsChanged"/> event.
-        /// </summary>
-        /// <param name="propertyName">The property that has new errors.</param>
-        /// <param name="isAsyncValidate">Indicates that property was async validation.</param>
         protected virtual void RaiseErrorsChanged(string propertyName, bool isAsyncValidate)
         {
             EventHandler<DataErrorsChangedEventArgs> handler = ErrorsChanged;
@@ -641,40 +484,23 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 handler(this, new DataErrorsChangedEventArgs(propertyName));
         }
 
-        /// <summary>
-        ///     Checks to see whether the validator can validate objects of the specified IValidatorContext.
-        /// </summary>
         internal virtual bool CanValidateContext(IValidatorContext validatorContext)
         {
             return true;
         }
 
-        /// <summary>
-        ///     Checks to see whether the validator can validate objects of the specified IValidatorContext.
-        /// </summary>
         protected virtual bool CanValidateInternal(IValidatorContext validatorContext)
         {
             return true;
         }
 
-        /// <summary>
-        ///     Releases resources held by the object.
-        /// </summary>
         protected virtual void OnDispose()
         {
         }
 
-        /// <summary>
-        ///     Updates information about errors in the specified property.
-        /// </summary>
-        /// <returns> The result of validation.</returns>
         [CanBeNull]
         protected abstract Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(string propertyName, CancellationToken token);
 
-        /// <summary>
-        ///     Updates information about all errors.
-        /// </summary>
-        /// <returns>The result of validation.</returns>
         [CanBeNull]
         protected abstract Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(CancellationToken token);
 
@@ -682,24 +508,11 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         #region Methods
 
-        /// <summary>
-        ///     Creates a <see cref="T:System.Threading.Tasks.Task`1" /> that's completed successfully with the specified result.
-        /// </summary>
-        /// <returns>
-        ///     The successfully completed task.
-        /// </returns>
-        /// <param name="result">The result to store into the completed task.</param>
         protected static Task<IDictionary<string, IEnumerable>> FromResult(IDictionary<string, IEnumerable> result)
         {
             return ToolkitExtensions.FromResult(result);
         }
 
-        /// <summary>
-        ///     Sets errors for a property with notification.
-        /// </summary>
-        /// <param name="propertyName">The name of the property.</param>
-        /// <param name="errors">The collection of errors.</param>
-        /// <param name="isAsyncValidate">Indicates that the validation was asynchronous.</param>
         protected internal void UpdateErrors([NotNull] string propertyName, [CanBeNull] IEnumerable errors,
             bool isAsyncValidate)
         {
@@ -710,32 +523,18 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 RaiseErrorsChanged(name, isAsyncValidate);
         }
 
-        /// <summary>
-        ///     Checks whether the member names are equal.
-        /// </summary>
-        /// <param name="memberName">The specified member name.</param>
-        /// <param name="getMember">The expression to get member.</param>
-        /// <returns>If true member names is equal, otherwise false.</returns>
         [Pure]
         protected static bool MemberNameEqual<T>(string memberName, Func<Expression<Func<T, object>>> getMember)
         {
             return ToolkitExtensions.MemberNameEqual(memberName, getMember);
         }
 
-        /// <summary>
-        ///     Gets member name from the specified expression.
-        /// </summary>
-        /// <param name="expression">The specified expression.</param>
-        /// <returns>The member name.</returns>
         [Pure]
         protected static string GetMemberName<T>(Func<Expression<Func<T, object>>> expression)
         {
             return expression.GetMemberName();
         }
 
-        /// <summary>
-        ///     Makes sure that the object is initialized.
-        /// </summary>
         protected void EnsureInitialized()
         {
             if (Context == null)
@@ -807,11 +606,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             return validationTask.TryExecuteSynchronously(value.Callback);
         }
 
-        /// <summary>
-        ///     Sets errors for a property with notification.
-        /// </summary>
-        /// <param name="propertyName">The name of the property.</param>
-        /// <param name="validatorErrors">The collection of errors.</param>
         private ICollection<string> UpdateErrorsInternal([NotNull] string propertyName,
             [CanBeNull] IEnumerable validatorErrors)
         {
@@ -948,16 +742,10 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         #endregion
     }
 
-    /// <summary>
-    ///     Represents a base class for a validator.
-    /// </summary>
     public abstract class ValidatorBase<T> : ValidatorBase
     {
         #region Properties
 
-        /// <summary>
-        ///     Gets the object to validate.
-        /// </summary>
         protected new T Instance
         {
             get { return (T)base.Instance; }
@@ -967,23 +755,12 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         #region Methods
 
-        /// <summary>
-        ///     Checks whether the member names are equal.
-        /// </summary>
-        /// <param name="memberName">The specified member name.</param>
-        /// <param name="getMember">The expression to get member.</param>
-        /// <returns>If true member names is equal, otherwise false.</returns>
         [Pure]
         protected static bool MemberNameEqual(string memberName, [NotNull] Func<Expression<Func<T, object>>> getMember)
         {
             return ToolkitExtensions.MemberNameEqual(memberName, getMember);
         }
 
-        /// <summary>
-        ///     Gets member name from the specified expression.
-        /// </summary>
-        /// <param name="expression">The specified expression.</param>
-        /// <returns>The member name.</returns>
         [Pure]
         protected static string GetMemberName(Func<Expression<Func<T, object>>> expression)
         {
@@ -994,9 +771,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         #region Overrides of ValidatorBase
 
-        /// <summary>
-        ///     Checks to see whether the validator can validate objects of the specified IValidatorContext.
-        /// </summary>
         internal override bool CanValidateContext(IValidatorContext validatorContext)
         {
             return validatorContext.Instance is T;

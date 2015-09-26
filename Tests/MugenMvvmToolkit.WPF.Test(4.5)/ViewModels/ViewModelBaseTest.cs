@@ -41,27 +41,18 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
             #region Overrides of ViewModelBase
 
-            /// <summary>
-            ///     Occurs after the view model is fully loaded.
-            /// </summary>
             internal override void OnInitializedInternal()
             {
                 MethodCallCollection.Add(InitViewModelInternalKey);
                 base.OnInitializedInternal();
             }
 
-            /// <summary>
-            ///     Occurs during the initialization of the view model.
-            /// </summary>
             protected override void OnInitializing(IDataContext context)
             {
                 MethodCallCollection.Add(InititalizingViewModelKey);
                 base.OnInitializing(context);
             }
 
-            /// <summary>
-            ///     Occurs after the view model is fully loaded.
-            /// </summary>
             protected override void OnInitialized()
             {
                 MethodCallCollection.Add(InitViewModelKey);
@@ -74,18 +65,12 @@ namespace MugenMvvmToolkit.Test.ViewModels
                 MethodCallCollection.Add(OnDisposedKey);
             }
 
-            /// <summary>
-            ///     Occurs after the current view model is disposed, use for clear resource and event listeners(Internal only).
-            /// </summary>
             internal override void OnDisposeInternal(bool disposing)
             {
                 MethodCallCollection.Add(DisposeInternalKey);
                 base.OnDisposeInternal(disposing);
             }
 
-            /// <summary>
-            ///     Occurs after the current view model is disposed, use for clear resource and event listeners.
-            /// </summary>
             protected override void OnDispose(bool disposing)
             {
                 MethodCallCollection.Add(DisposeKey);

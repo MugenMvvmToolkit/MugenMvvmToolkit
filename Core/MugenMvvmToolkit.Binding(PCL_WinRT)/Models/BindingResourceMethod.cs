@@ -24,9 +24,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
-    /// <summary>
-    ///     Represents the binding expression method that can be used in multi binding expression.
-    /// </summary>
     public class BindingResourceMethod : IBindingResourceMethod
     {
         #region Fields
@@ -39,9 +36,6 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingResourceMethod" /> class.
-        /// </summary>
         public BindingResourceMethod([NotNull] Func<IList<Type>, object[], IDataContext, object> method,
             [NotNull] Type returnType)
         {
@@ -51,9 +45,6 @@ namespace MugenMvvmToolkit.Binding.Models
             _returnType = returnType;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingResourceMethod" /> class.
-        /// </summary>
         public BindingResourceMethod([NotNull] Func<IList<Type>, object[], IDataContext, object> method,
             [NotNull] Func<IList<Type>, IList<Type>, IDataContext, Type> getReturnType)
         {
@@ -67,9 +58,6 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Implementation of IBindingResourceMethod
 
-        /// <summary>
-        ///     Gets the return type of method.
-        /// </summary>
         public Type GetReturnType(IList<Type> parameters, IList<Type> typeArgs, IDataContext context)
         {
             if (_getReturnType == null)
@@ -77,9 +65,6 @@ namespace MugenMvvmToolkit.Binding.Models
             return _getReturnType(parameters, typeArgs, context);
         }
 
-        /// <summary>
-        ///     Invokes the method
-        /// </summary>
         public object Invoke(IList<Type> typeArgs, object[] args, IDataContext context)
         {
             return _method(typeArgs, args, context);

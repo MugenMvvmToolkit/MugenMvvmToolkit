@@ -35,14 +35,8 @@ namespace MugenMvvmToolkit.WinRT.Interfaces.Navigation
 namespace MugenMvvmToolkit.WinPhone.Interfaces.Navigation
 #endif
 {
-    /// <summary>
-    ///     Represent the interface for navigation provider.
-    /// </summary>
     public interface INavigationProviderEx : INavigationProvider
     {
-        /// <summary>
-        ///     Gets the <see cref="INavigationService" />.
-        /// </summary>
         [NotNull]
         INavigationService NavigationService { get; }
     }

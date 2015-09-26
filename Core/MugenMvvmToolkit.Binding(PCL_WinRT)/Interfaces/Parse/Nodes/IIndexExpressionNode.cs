@@ -21,20 +21,11 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes
 {
-    /// <summary>
-    ///     Represents indexing a property or array.
-    /// </summary>
     public interface IIndexExpressionNode : IExpressionNode
     {
-        /// <summary>
-        ///     An object to index.
-        /// </summary>
         [NotNull]
         IExpressionNode Object { get; }
 
-        /// <summary>
-        ///     Gets the arguments that will be used to index the property or array.
-        /// </summary>
         [NotNull]
         IList<IExpressionNode> Arguments { get; }
     }

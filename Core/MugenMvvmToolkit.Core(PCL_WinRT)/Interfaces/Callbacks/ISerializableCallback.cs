@@ -18,14 +18,8 @@
 
 namespace MugenMvvmToolkit.Interfaces.Callbacks
 {
-    /// <summary>
-    ///     Represents the serializable callback.
-    /// </summary>
     public interface ISerializableCallback
     {
-        /// <summary>
-        ///     Invokes the callback using the specified operation result.
-        /// </summary>
         object Invoke(IOperationResult result);
     }
 }

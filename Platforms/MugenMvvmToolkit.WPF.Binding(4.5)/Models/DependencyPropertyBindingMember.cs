@@ -53,9 +53,6 @@ using BindingEx = System.Windows.Data.Binding;
 namespace MugenMvvmToolkit.WinPhone.Binding.Models
 #endif
 {
-    /// <summary>
-    ///     Represents the binding member for a dependency property.
-    /// </summary>
     public sealed class DependencyPropertyBindingMember : IBindingMemberInfo
     {
         #region Nested types
@@ -123,9 +120,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
 
             #region Constructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="DependencyPropertyListener" /> class.
-            /// </summary>
             public DependencyPropertyListener(DependencyObject source, string propertyToBind, IEventListener listener)
             {
                 _listener = listener.ToWeakWrapper();
@@ -156,9 +150,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
                     });
             }
 #if !WINDOWSCOMMON && !WINDOWS_PHONE
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="DependencyPropertyListener" /> class.
-            /// </summary>
             public DependencyPropertyListener(DependencyObject source, DependencyProperty propertyToBind, IEventListener listener)
             {
                 _listener = listener.ToWeakWrapper();
@@ -223,9 +214,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
 
             #region Implementation of IDisposable
 
-            /// <summary>
-            ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            /// </summary>
             public void Dispose()
             {
 #if WINDOWSCOMMON
@@ -286,9 +274,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
             }
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DependencyPropertyBindingMember" /> class.
-        /// </summary>
         public DependencyPropertyBindingMember([NotNull] DependencyProperty dependencyProperty, [NotNull] string path,
             [NotNull] Type type, bool readOnly, [CanBeNull] MemberInfo member, [CanBeNull] IBindingMemberInfo changePropertyMember)
         {
@@ -329,68 +314,41 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
 
         #region Implementation of IBindingMemberInfo
 
-        /// <summary>
-        ///     Gets the path of member.
-        /// </summary>
         public string Path
         {
             get { return _path; }
         }
 
-        /// <summary>
-        ///     Gets the type of member.
-        /// </summary>
         public Type Type
         {
             get { return _type; }
         }
 
-        /// <summary>
-        ///     Gets the underlying member, if any.
-        /// </summary>
         public MemberInfo Member
         {
             get { return _member; }
         }
 
-        /// <summary>
-        ///     Gets the member type.
-        /// </summary>
         public BindingMemberType MemberType
         {
             get { return BindingMemberType.DependencyProperty; }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether the member can be read.
-        /// </summary>
         public bool CanRead
         {
             get { return true; }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether the member can be written to.
-        /// </summary>
         public bool CanWrite
         {
             get { return _canWrite; }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether the member can be observed.
-        /// </summary>
         public bool CanObserve
         {
             get { return true; }
         }
 
-        /// <summary>
-        ///     Returns the member value of a specified object.
-        /// </summary>
-        /// <param name="source">The object whose member value will be returned.</param>
-        /// <param name="args">Optional values for methods. This value should be null for method members.</param>
-        /// <returns>The member value of the specified object.</returns>
         public object GetValue(object source, object[] args)
         {
             object value = ((DependencyObject)source).GetValue(_dependencyProperty);
@@ -399,11 +357,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
             return value;
         }
 
-        /// <summary>
-        ///     Sets the member value of a specified object.
-        /// </summary>
-        /// <param name="source">The object whose member value will be set.</param>
-        /// <param name="args">Optional values for methods. This value should be null for method members.</param>
         public object SetValue(object source, object[] args)
         {
             object value = args[0];
@@ -413,9 +366,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
             return null;
         }
 
-        /// <summary>
-        ///     Attempts to track the value change.
-        /// </summary>
         public IDisposable TryObserve(object source, IEventListener listener)
         {
 #if WINDOWS_PHONE

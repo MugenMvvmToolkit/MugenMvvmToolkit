@@ -26,9 +26,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Enables loosely-coupled publication of and subscription to events.
-    /// </summary>
     public class EventAggregator : IEventAggregator, IHandler<object>
     {
         #region Nested types
@@ -121,17 +118,11 @@ namespace MugenMvvmToolkit.Infrastructure
             EmptyMessage = new MessageSenderCache(subscriber, subscriber, subscriber, 0);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="EventAggregator" /> class.
-        /// </summary>
         public EventAggregator()
             : this(false)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="EventAggregator" /> class.
-        /// </summary>
         public EventAggregator(bool trace)
         {
             _trace = trace;
@@ -142,9 +133,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the list of subscribers.
-        /// </summary>
         protected List<ISubscriber> Subscribers
         {
             get { return _subscribers; }
@@ -173,11 +161,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of IEventAggregator
 
-        /// <summary>
-        ///     Publishes a message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">The message instance.</param>
         public virtual void Publish(object sender, object message)
         {
             Should.NotBeNull(sender, "sender");
@@ -226,10 +209,6 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Subscribes an instance to events.
-        /// </summary>
-        /// <param name="subscriber">The instance to subscribe for event publication.</param>
         public virtual bool Subscribe(ISubscriber subscriber)
         {
             Should.NotBeNull(subscriber, "subscriber");
@@ -241,10 +220,6 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Unsubscribes the instance from all events.
-        /// </summary>
-        /// <param name="subscriber">The instance to unsubscribe.</param>
         public virtual bool Unsubscribe(ISubscriber subscriber)
         {
             Should.NotBeNull(subscriber, "subscriber");
@@ -252,9 +227,6 @@ namespace MugenMvvmToolkit.Infrastructure
                 return Contains(subscriber, true);
         }
 
-        /// <summary>
-        ///     Determines whether the <see cref="IEventAggregator" /> contains a specific subscriber.
-        /// </summary>
         public virtual bool Contains(ISubscriber subscriber)
         {
             Should.NotBeNull(subscriber, "subscriber");
@@ -262,18 +234,12 @@ namespace MugenMvvmToolkit.Infrastructure
                 return Contains(subscriber, false);
         }
 
-        /// <summary>
-        ///     Removes all subscribers.
-        /// </summary>
         public virtual void UnsubscribeAll()
         {
             lock (_subscribers)
                 _subscribers.Clear();
         }
 
-        /// <summary>
-        ///     Gets the collection of subscribers.
-        /// </summary>
         public virtual IList<ISubscriber> GetSubscribers()
         {
             if (_subscribers.Count == 0)
@@ -300,9 +266,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Publishes a message to the specified target.
-        /// </summary>
         public static void Publish(object target, object sender, object message, IDataContext context = null)
         {
             Should.NotBeNull(target, "target");

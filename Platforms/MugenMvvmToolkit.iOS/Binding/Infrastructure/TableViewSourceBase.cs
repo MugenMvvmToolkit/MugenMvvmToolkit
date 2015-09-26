@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="TableViewSourceBase.cs">
@@ -168,9 +168,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the factory that allows to create items source adapter.
-        /// </summary>
         [NotNull]
         public static Func<UITableView, IDataContext, TableViewSourceBase> Factory
         {

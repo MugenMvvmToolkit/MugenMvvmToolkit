@@ -73,26 +73,14 @@ using MugenMvvmToolkit.WinRT.Interfaces.Views;
 namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
 #endif
 {
-    /// <summary>
-    ///     Represents the service that allows to show a view model using <see cref="IWindowViewMediator" />.
-    /// </summary>
     public class DynamicViewModelWindowPresenter : IRestorableDynamicViewModelPresenter
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the window view mediator data constant.
-        /// </summary>
         public static readonly DataConstant<IWindowViewMediator> WindowViewMediatorConstant;
 
-        /// <summary>
-        ///     Gets the view data constant that allows to restore mediator state.
-        /// </summary>
         public static readonly DataConstant<object> RestoredViewConstant;
 
-        /// <summary>
-        ///     Gets the view data constant that allows to restore mediator state.
-        /// </summary>
         public static readonly DataConstant<bool> IsOpenViewConstant;
 
         private readonly IThreadManager _threadManager;
@@ -113,9 +101,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
             IsOpenViewConstant = DataConstant.Create(() => IsOpenViewConstant);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DynamicViewModelWindowPresenter" /> class.
-        /// </summary>
         public DynamicViewModelWindowPresenter([NotNull] IViewMappingProvider viewMappingProvider,
             [NotNull] IViewManager viewManager,
             [NotNull] IWrapperManager wrapperManager, [NotNull] IThreadManager threadManager,
@@ -137,41 +122,26 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the <see cref="IViewMappingProvider" />.
-        /// </summary>
         protected IViewMappingProvider ViewMappingProvider
         {
             get { return _viewMappingProvider; }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IWrapperManager" />.
-        /// </summary>
         protected IWrapperManager WrapperManager
         {
             get { return _wrapperManager; }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IThreadManager" />.
-        /// </summary>
         protected IThreadManager ThreadManager
         {
             get { return _threadManager; }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IOperationCallbackManager" />.
-        /// </summary>
         protected IOperationCallbackManager CallbackManager
         {
             get { return _callbackManager; }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IViewManager" />.
-        /// </summary>
         protected IViewManager ViewManager
         {
             get { return _viewManager; }
@@ -181,20 +151,11 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
 
         #region Implementation of IDynamicViewModelPresenter
 
-        /// <summary>
-        ///     Gets the presenter priority.
-        /// </summary>
         public virtual int Priority
         {
             get { return ViewModelPresenter.DefaultWindowPresenterPriority; }
         }
 
-        /// <summary>
-        ///     Tries to show the specified <see cref="IViewModel" />.
-        /// </summary>
-        /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
-        /// <param name="context">The specified context.</param>
-        /// <param name="parentPresenter">The parent presenter, if any.</param>
         public INavigationOperation TryShowAsync(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)
         {
@@ -211,12 +172,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
             return operation;
         }
 
-        /// <summary>
-        /// Tries to restore the presenter state of the specified <see cref="IViewModel" />.
-        /// </summary>
-        /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
-        /// <param name="context">The specified context.</param>
-        /// <param name="parentPresenter">The parent presenter, if any.</param>
         public bool Restore(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {
             var view = context.GetData(RestoredViewConstant);
@@ -233,9 +188,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
 
         #region Methods
 
-        /// <summary>
-        ///     Creates an instnace of <see cref="IWindowViewMediator" /> for the specified view model.
-        /// </summary>
         [CanBeNull]
         protected virtual IWindowViewMediator CreateWindowViewMediator([NotNull] IViewModel viewModel, Type viewType,
             [NotNull] IDataContext context)

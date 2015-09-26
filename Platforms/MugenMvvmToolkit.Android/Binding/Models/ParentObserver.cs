@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ParentObserver.cs">
@@ -23,9 +23,6 @@ using MugenMvvmToolkit.Binding.Infrastructure;
 
 namespace MugenMvvmToolkit.Android.Binding.Models
 {
-    /// <summary>
-    ///     Represents the weak parent observer.
-    /// </summary>
     internal sealed class ParentObserver : EventListenerList
     {
         #region Fields
@@ -49,18 +46,12 @@ namespace MugenMvvmToolkit.Android.Binding.Models
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the source element.
-        /// </summary>
         [CanBeNull]
         public View Source
         {
             get { return (View)_view.Target; }
         }
 
-        /// <summary>
-        ///     Gets or sets the parent of current element.
-        /// </summary>
         [CanBeNull]
         public object Parent
         {
@@ -76,9 +67,6 @@ namespace MugenMvvmToolkit.Android.Binding.Models
 
         #region Methods
 
-        /// <summary>
-        ///     Gets or adds an instance of <see cref="ParentObserver" />.
-        /// </summary>
         public static ParentObserver GetOrAdd(View view)
         {
             return ServiceProvider
@@ -86,9 +74,6 @@ namespace MugenMvvmToolkit.Android.Binding.Models
                 .GetOrAdd(view, Key, (v, o) => new ParentObserver(v), null);
         }
 
-        /// <summary>
-        ///     Raises the parent changed event.
-        /// </summary>
         public static void Raise(View view)
         {
             ParentObserver observer;
@@ -96,9 +81,6 @@ namespace MugenMvvmToolkit.Android.Binding.Models
                 observer.Raise();
         }
 
-        /// <summary>
-        ///     Raises the parent changed event.
-        /// </summary>
         public void Raise()
         {
             var view = GetSource();

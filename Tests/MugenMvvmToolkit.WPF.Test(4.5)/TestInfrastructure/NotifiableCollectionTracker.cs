@@ -25,9 +25,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NotifiableCollectionTracker{T}" /> class.
-        /// </summary>
         public NotifiableCollectionTracker(SynchronizedNotifiableCollection<T> collection)
         {
             _collection = collection;

@@ -24,17 +24,10 @@ using MugenMvvmToolkit.Binding.Models.EventArg;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
-    /// <summary>
-    ///     Represents the binding behavior that allows to update binding source whenever the binding target element loses
-    ///     focus.
-    /// </summary>
     public sealed class LostFocusUpdateSourceBehavior : BindingBehaviorBase, IEventListener
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the id of behavior.
-        /// </summary>
         public static readonly Guid IdLostFocusUpdateSourceBehavior;
 
         private IDisposable _subscriber;
@@ -53,25 +46,16 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Overrides of BindingBehaviorBase
 
-        /// <summary>
-        ///     Gets the id of behavior. Each <see cref="IDataBinding" /> can have only one instance with the same id.
-        /// </summary>
         public override Guid Id
         {
             get { return IdLostFocusUpdateSourceBehavior; }
         }
 
-        /// <summary>
-        ///     Gets the behavior priority.
-        /// </summary>
         public override int Priority
         {
             get { return 0; }
         }
 
-        /// <summary>
-        ///     Attaches to the specified binding.
-        /// </summary>
         protected override bool OnAttached()
         {
             object value = Binding.TargetAccessor.Source.GetPathMembers(false).PenultimateValue;
@@ -90,9 +74,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             return true;
         }
 
-        /// <summary>
-        ///     Detaches this instance from its associated binding.
-        /// </summary>
         protected override void OnDetached()
         {
             Binding.SourceAccessor.ValueChanging -= SourceOnValueChanging;
@@ -102,9 +83,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             _member = null;
         }
 
-        /// <summary>
-        ///     Creates a new binding behavior that is a copy of the current instance.
-        /// </summary>
         protected override IBindingBehavior CloneInternal()
         {
             return new LostFocusUpdateSourceBehavior();

@@ -33,11 +33,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure
 
         #region Implementation of IHandler<in Alpha>
 
-        /// <summary>
-        ///     Handles the message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">Information about event.</param>
         public void Handle(object sender, Alpha message)
         {
             Alpha = message;
@@ -48,11 +43,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure
 
         #region Implementation of IHandler<in Beta>
 
-        /// <summary>
-        ///     Handles the message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">Information about event.</param>
         public void Handle(object sender, Beta message)
         {
             Beta = message;
@@ -76,11 +66,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure
 
         #region Implementation of IHandler<in T>
 
-        /// <summary>
-        ///     Handles the message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">Information about event.</param>
         public void Handle(object sender, T message)
         {
             Sender = sender;
@@ -101,9 +86,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="TestObservable" /> class.
-        /// </summary>
         public TestObservable()
         {
             Listeners = new EventAggregator();
@@ -113,10 +95,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure
 
         #region Implementation of IObservable
 
-        /// <summary>
-        ///     Subscribes an instance to events.
-        /// </summary>
-        /// <param name="instance">The instance to subscribe for event publication.</param>
         public bool Subscribe(ISubscriber instance)
         {
             if (Listeners == null)
@@ -124,10 +102,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             return Listeners.Subscribe(instance);
         }
 
-        /// <summary>
-        ///     Unsubscribes the instance from all events.
-        /// </summary>
-        /// <param name="instance">The instance to unsubscribe.</param>
         public bool Unsubscribe(ISubscriber instance)
         {
             if (Listeners != null)

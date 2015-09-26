@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="TableCellTemplateSelectorBase.cs">
@@ -24,17 +24,11 @@ using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 {
-    /// <summary>
-    ///     TableCellTemplateSelector allows the app writer to provide custom template selection logic.
-    /// </summary>
     public abstract class TableCellTemplateSelectorBase<TSource, TTemplate> : ITableCellTemplateSelector
         where TTemplate : UITableViewCell
     {
         #region Properties
 
-        /// <summary>
-        ///     Specifies that this template supports initialize method default is <c>true</c>.
-        /// </summary>
         protected virtual bool SupportInitialize
         {
             get { return true; }
@@ -44,33 +38,12 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Returns an app specific identifier for cell.
-        /// </summary>
-        /// <param name="item">The data content</param>
-        /// <param name="container">The element to which the template will be applied</param>
-        /// <returns>An app-specific template to apply, or null.</returns>
         protected abstract NSString GetIdentifier(TSource item, UITableView container);
 
-        /// <summary>
-        ///     Returns an app specific template.
-        /// </summary>
-        /// <param name="container">The element to which the template will be applied</param>
-        /// <param name="identifier">The specified identifier.</param>
-        /// <returns>An app-specific template to apply, or null.</returns>
         protected abstract TTemplate SelectTemplate(UITableView container, NSString identifier);
 
-        /// <summary>
-        ///     Initializes the specified template.
-        /// </summary>
         protected abstract void Initialize(TTemplate template, BindingSet<TTemplate, TSource> bindingSet);
 
-        /// <summary>
-        ///     Returns an app specific template height.
-        /// </summary>
-        /// <param name="container">The element to which the template will be applied</param>
-        /// <param name="identifier">The specified identifier.</param>
-        /// <returns>An app-specific template height to apply, or null.</returns>
         protected virtual nfloat? GetHeight(UITableView container, NSString identifier)
         {
             return null;
@@ -80,23 +53,11 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         #region Implementation of ITableCellTemplateSelector
 
-        /// <summary>
-        ///     Returns an app specific identifier for cell.
-        /// </summary>
-        /// <param name="item">The data content</param>
-        /// <param name="container">The element to which the template will be applied</param>
-        /// <returns>An app-specific template to apply, or null.</returns>
         NSString ITableCellTemplateSelector.GetIdentifier(object item, UITableView container)
         {
             return GetIdentifier((TSource) item, container);
         }
 
-        /// <summary>
-        ///     Returns an app specific template.
-        /// </summary>
-        /// <param name="container">The element to which the template will be applied</param>
-        /// <param name="identifier">The specified identifier.</param>
-        /// <returns>An app-specific template to apply, or null.</returns>
         UITableViewCell ITableCellTemplateSelector.SelectTemplate(UITableView container, NSString identifier)
         {
             TTemplate template = SelectTemplate(container, identifier);
@@ -109,12 +70,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             return template;
         }
 
-        /// <summary>
-        ///     Returns an app specific template height.
-        /// </summary>
-        /// <param name="container">The element to which the template will be applied</param>
-        /// <param name="identifier">The specified identifier.</param>
-        /// <returns>An app-specific template height to apply, or null.</returns>
         nfloat? ITableCellTemplateSelector.GetHeight(UITableView container, NSString identifier)
         {
             return GetHeight(container, identifier);

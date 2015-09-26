@@ -48,9 +48,6 @@ namespace MugenMvvmToolkit.Test.Models
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NotifyPropertyChangedBaseTest" /> class.
-        /// </summary>
         public NotifyPropertyChangedBaseTest()
         {
             _threadManagerMock = new ThreadManagerMock();
@@ -129,9 +126,6 @@ namespace MugenMvvmToolkit.Test.Models
 
         #region Overrides of NotifyPropertyChangedBase
 
-        /// <summary>
-        ///     Specifies the execution mode for raise property change event.
-        /// </summary>
         protected override ExecutionMode PropertyChangeExecutionMode
         {
             get { return PropertyExecutionMode; }
@@ -238,7 +232,7 @@ namespace MugenMvvmToolkit.Test.Models
             else
                 count.ShouldEqual(0);
 
-            //Invoke in ui thread 
+            //Invoke in ui thread
             updateProperty(null);
             changeRaiseInUi(ExecutionMode.AsynchronousOnUiThread);
             count = 0;
@@ -287,9 +281,6 @@ namespace MugenMvvmToolkit.Test.Models
 
         #region Overrides of NotifyPropertyChangedBase
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IThreadManager" />.
-        /// </summary>
         protected override IThreadManager ThreadManager
         {
             get { return _threadManagerMock ?? base.ThreadManager; }

@@ -26,9 +26,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the serializer interface that allows to serialize and deserialize objects.
-    /// </summary>
     public class Serializer : ISerializer
     {
         #region Nested types
@@ -56,9 +53,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Serializer" /> class.
-        /// </summary>
         public Serializer(IEnumerable<Assembly> assembliesToScan)
         {
             _knownTypes = new HashSet<Type>();
@@ -74,9 +68,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of ISerializer
 
-        /// <summary>
-        ///     Adds a known type.
-        /// </summary>
         public void AddKnownType(Type type)
         {
             lock (_knownTypes)
@@ -86,9 +77,6 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Adds a known type.
-        /// </summary>
         public bool RemoveKnownType(Type type)
         {
             lock (_knownTypes)
@@ -102,9 +90,6 @@ namespace MugenMvvmToolkit.Infrastructure
             return false;
         }
 
-        /// <summary>
-        ///     Serializes data to stream.
-        /// </summary>
         public Stream Serialize(object item)
         {
             Should.NotBeNull(item, "item");
@@ -116,9 +101,6 @@ namespace MugenMvvmToolkit.Infrastructure
             return ms;
         }
 
-        /// <summary>
-        ///     Deserializes data using stream.
-        /// </summary>
         public object Deserialize(Stream stream)
         {
             Should.NotBeNull(stream, "stream");

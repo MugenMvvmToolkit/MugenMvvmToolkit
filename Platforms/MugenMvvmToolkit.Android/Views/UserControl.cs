@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="UserControl.cs">
@@ -28,18 +28,12 @@ namespace MugenMvvmToolkit.Android.Views
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="UserControl" /> class.
-        /// </summary>
         public UserControl(int viewId)
             : base(PlatformExtensions.CurrentActivity)
         {
             Context.GetBindableLayoutInflater().Inflate(viewId, this, true);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="UserControl" /> class.
-        /// </summary>
         protected UserControl(IntPtr javaReference, JniHandleOwnership transfer)
             : base(javaReference, transfer)
         {
@@ -49,9 +43,6 @@ namespace MugenMvvmToolkit.Android.Views
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the display name for the current model.
-        /// </summary>
         public string DisplayName { get; set; }
 
         #endregion

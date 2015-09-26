@@ -19,26 +19,17 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
-    /// <summary>
-    ///     Represents the attached member descriptor.
-    /// </summary>
     public struct BindingMemberDescriptor<TSource, TValue>
         where TSource : class
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the member path.
-        /// </summary>
         public readonly string Path;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberDescriptor{TSource,TValue}" /> class.
-        /// </summary>
         public BindingMemberDescriptor([NotNull] string path)
         {
             Should.NotBeNull(path, "path");
@@ -76,12 +67,6 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Overrides of Object
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>
-        ///     A string that represents the current object.
-        /// </returns>
         public override string ToString()
         {
             return Path;

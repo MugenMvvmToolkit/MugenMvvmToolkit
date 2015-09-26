@@ -31,9 +31,6 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.ViewModels
 {
-    /// <summary>
-    ///     Represents the base wrapper for view models.
-    /// </summary>
     public abstract class WrapperViewModelBase<TViewModel> : ViewModelBase, ICloseableViewModel, INavigableViewModel,
                                                              IHasOperationResult, IHasDisplayName, ISelectable, IWrapperViewModel, IHasState
         where TViewModel : class, IViewModel
@@ -54,9 +51,6 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="WrapperViewModelBase{TViewModel}" /> class.
-        /// </summary>
         protected WrapperViewModelBase()
         {
             _locker = new object();
@@ -74,17 +68,11 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the current <see cref="IViewModel" />.
-        /// </summary>
         public TViewModel ViewModel
         {
             get { return _viewModel; }
         }
 
-        /// <summary>
-        ///     Gets the collection of properties that should be retranslated use property changed handler.
-        /// </summary>
         protected IDictionary<string, string> WrappedPropertyNames
         {
             get { return _wrappedPropertyNames; }
@@ -94,17 +82,11 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Implementation of interfaces
 
-        /// <summary>
-        ///     Gets the current <see cref="IViewModel" />.
-        /// </summary>
         IViewModel IWrapperViewModel.ViewModel
         {
             get { return _viewModel; }
         }
 
-        /// <summary>
-        ///     Gets or sets a command that attempts to remove this workspace from the user interface.
-        /// </summary>
         public virtual ICommand CloseCommand
         {
             get
@@ -128,9 +110,6 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        /// <summary>
-        ///     Wraps the specified view-model.
-        /// </summary>
         public void Wrap(IViewModel viewModel, IDataContext context = null)
         {
             EnsureNotDisposed();
@@ -158,11 +137,6 @@ namespace MugenMvvmToolkit.ViewModels
             InvalidateProperties();
         }
 
-        /// <summary>
-        ///     Tries to close view-model.
-        /// </summary>
-        /// <param name="parameter">The specified parameter, if any.</param>
-        /// <returns>An instance of task with result.</returns>
         Task<bool> ICloseableViewModel.CloseAsync(object parameter)
         {
             var closeableViewModel = ViewModel as ICloseableViewModel;
@@ -174,19 +148,10 @@ namespace MugenMvvmToolkit.ViewModels
             return Empty.TrueTask;
         }
 
-        /// <summary>
-        ///     Occurs when <see cref="ICloseableViewModel" /> is closing.
-        /// </summary>
         public virtual event EventHandler<ICloseableViewModel, ViewModelClosingEventArgs> Closing;
 
-        /// <summary>
-        ///     Occurs when <see cref="ICloseableViewModel" /> is closed.
-        /// </summary>
         public virtual event EventHandler<ICloseableViewModel, ViewModelClosedEventArgs> Closed;
 
-        /// <summary>
-        ///     Gets or sets the display name for the current model.
-        /// </summary>
         public virtual string DisplayName
         {
             get
@@ -209,9 +174,6 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the operation result value.
-        /// </summary>
         public virtual bool? OperationResult
         {
             get
@@ -234,9 +196,6 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the property that indicates that current model is selected.
-        /// </summary>
         public virtual bool IsSelected
         {
             get
@@ -259,12 +218,6 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        /// <summary>
-        ///     Called when a view-model becomes the active view-model in a frame.
-        /// </summary>
-        /// <param name="context">
-        ///     The specified <see cref="INavigationContext" />.
-        /// </param>
         void INavigableViewModel.OnNavigatedTo(INavigationContext context)
         {
             var navigableViewModel = ViewModel as INavigableViewModel;
@@ -273,12 +226,6 @@ namespace MugenMvvmToolkit.ViewModels
             OnShown(context);
         }
 
-        /// <summary>
-        ///     Called just before a view-model is no longer the active view-model in a frame.
-        /// </summary>
-        /// <param name="context">
-        ///     The specified <see cref="INavigationContext" />.
-        /// </param>
         Task<bool> INavigableViewModel.OnNavigatingFrom(INavigationContext context)
         {
             var navigableViewModel = ViewModel as INavigableViewModel;
@@ -287,12 +234,6 @@ namespace MugenMvvmToolkit.ViewModels
             return navigableViewModel.OnNavigatingFrom(context);
         }
 
-        /// <summary>
-        ///     Called when a view-model is no longer the active view-model in a frame.
-        /// </summary>
-        /// <param name="context">
-        ///     The specified <see cref="INavigationContext" />.
-        /// </param>
         void INavigableViewModel.OnNavigatedFrom(INavigationContext context)
         {
             var navigableViewModel = ViewModel as INavigableViewModel;
@@ -300,9 +241,6 @@ namespace MugenMvvmToolkit.ViewModels
                 navigableViewModel.OnNavigatedFrom(context);
         }
 
-        /// <summary>
-        ///     Loads state.
-        /// </summary>
         void IHasState.LoadState(IDataContext state)
         {
             if (ViewModel == null)
@@ -325,9 +263,6 @@ namespace MugenMvvmToolkit.ViewModels
             OnLoadState(state);
         }
 
-        /// <summary>
-        ///     Saves state.
-        /// </summary>
         void IHasState.SaveState(IDataContext state)
         {
             object data;
@@ -343,9 +278,6 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Methods
 
-        /// <summary>
-        ///     Tries to close view-model.
-        /// </summary>
         protected Task<bool> CloseAsync(object parameter = null)
         {
             var t = this.TryCloseAsync(parameter, null);
@@ -353,44 +285,26 @@ namespace MugenMvvmToolkit.ViewModels
             return t;
         }
 
-        /// <summary>
-        ///     Occurs when view model was wrapped.
-        /// </summary>
         protected virtual void OnWrapped(IDataContext context)
         {
         }
 
-        /// <summary>
-        ///     Occurs when view model is closed.
-        /// </summary>
         protected virtual void OnClosed([CanBeNull] object parameter)
         {
         }
 
-        /// <summary>
-        ///     Occurs when view model is shown.
-        /// </summary>
         protected virtual void OnShown([CanBeNull] object parameter)
         {
         }
 
-        /// <summary>
-        ///    Occurs on load state.
-        /// </summary>
         protected virtual void OnLoadState(IDataContext state)
         {
         }
 
-        /// <summary>
-        ///     Occurs on save state.
-        /// </summary>
         protected virtual void OnSaveState(IDataContext state)
         {
         }
 
-        /// <summary>
-        ///     Invokes the Closing event.
-        /// </summary>
         protected virtual bool RaiseClosing(object parameter)
         {
             var handler = Closing;
@@ -401,9 +315,6 @@ namespace MugenMvvmToolkit.ViewModels
             return !args.Cancel;
         }
 
-        /// <summary>
-        ///     Invokes the Closed event.
-        /// </summary>
         protected virtual void RaiseClosed(object parameter)
         {
             var handler = Closed;
@@ -439,9 +350,6 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Overrides of ViewModelBase
 
-        /// <summary>
-        ///     Occurs after the current view model is disposed, use for clear resource and event listeners(Internal only).
-        /// </summary>
         internal override void OnDisposeInternal(bool disposing)
         {
             if (disposing)

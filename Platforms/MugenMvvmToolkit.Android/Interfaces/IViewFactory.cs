@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="IViewFactory.cs">
@@ -26,14 +26,8 @@ namespace MugenMvvmToolkit.Android.Interfaces
 {
     public interface IViewFactory
     {
-        /// <summary>
-        ///     Creates an instance of <see cref="ViewResult" /> using the view name.
-        /// </summary>
         ViewResult Create([NotNull] string name, [NotNull] Context context, [NotNull] IAttributeSet attrs);
 
-        /// <summary>
-        ///     Creates an instance of <see cref="ViewResult" /> using the view type.
-        /// </summary>
         ViewResult Create([NotNull] Type type, [NotNull] Context context, [NotNull] IAttributeSet attrs);
     }
 }

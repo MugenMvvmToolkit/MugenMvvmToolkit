@@ -30,9 +30,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure.Validation
 {
-    /// <summary>
-    ///     Represents a validator that uses the <c>System.ComponentModel.DataAnnotations</c> to validate objects.
-    /// </summary>
     public class DataAnnotationValidatior : ValidatorBase<object>
     {
         #region Nested types
@@ -237,31 +234,18 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         #region Overrides of ValidatorBase
 
-        /// <summary>
-        ///     Checks to see whether the validator can validate objects of the specified IValidatorContext.
-        /// </summary>
         protected override bool CanValidateInternal(IValidatorContext validatorContext)
         {
             _validationElements = GetValidationElements(validatorContext.Instance);
             return _validationElements.Count > 0;
         }
 
-        /// <summary>
-        ///     Initializes the current validator using the specified <see cref="IValidatorContext" />.
-        /// </summary>
-        /// <param name="context">
-        ///     The specified <see cref="IValidatorContext" />.
-        /// </param>
         protected override void OnInitialized(IValidatorContext context)
         {
             _validationContext = new ValidationContext(context.Instance, context.ServiceProvider,
                 context.ValidationMetadata.ToDictionary());
         }
 
-        /// <summary>
-        ///     Updates information about errors in the specified property.
-        /// </summary>
-        /// <returns> The result of validation.</returns>
         protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(string propertyName, CancellationToken token)
         {
             List<IValidationElement> list;
@@ -273,10 +257,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             return FromResult(result);
         }
 
-        /// <summary>
-        ///     Updates information about all errors.
-        /// </summary>
-        /// <returns>The result of validation.</returns>
         protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(CancellationToken token)
         {
             var result = new Dictionary<string, IEnumerable>();
@@ -288,9 +268,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             return FromResult(result);
         }
 
-        /// <summary>
-        ///     Releases resources held by the object.
-        /// </summary>
         protected override void OnDispose()
         {
             _validationContext = null;
@@ -589,9 +566,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             memberNameSetter(contextResult, context.MemberName);
             return contextResult;
         }
-        /// <summary>
-        ///     Gets the metatata types for the specified type.
-        /// </summary>
         internal static Type[] GetMetadataTypes(Type type)
         {
             lock (MetadataTypeCache)

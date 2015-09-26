@@ -25,9 +25,6 @@ using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Binding.Parse
 {
-    /// <summary>
-    ///     Represents the tokenizer.
-    /// </summary>
     [DebuggerDisplay("{Token} = {Value})")]
     public class Tokenizer : ITokenizer
     {
@@ -64,18 +61,12 @@ namespace MugenMvvmToolkit.Binding.Parse
             };
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Tokenizer" /> class.
-        /// </summary>
         public Tokenizer(bool throwOnError)
         {
             _throwOnError = throwOnError;
             _ignoreChars = new HashSet<char>();
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Tokenizer" /> class.
-        /// </summary>
         public Tokenizer(bool throwOnError, [NotNull] string source)
             : this(throwOnError)
         {
@@ -86,31 +77,18 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the source string
-        /// </summary>
         public string Source
         {
             get { return _source; }
         }
 
-        /// <summary>
-        ///     Gets the current char value.
-        /// </summary>
         protected Char CurrentChar { get; set; }
 
-        /// <summary>
-        /// Gets the collection of ignore chars.
-        /// </summary>
         protected ICollection<char> IgnoreChars
         {
             get { return _ignoreChars; }
         }
 
-        /// <summary>
-        ///     true to throw an exception if the token is not valid;
-        ///     Specifying false also suppresses some other exception conditions, but not all of them.
-        /// </summary>
         protected bool ThrowOnError
         {
             get { return _throwOnError; }
@@ -120,39 +98,19 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Implementation of ITokenizer
 
-        /// <summary>
-        ///     Gets the first token char position.
-        /// </summary>
         public int FirstCharPosition { get; protected set; }
 
-        /// <summary>
-        ///     The current column number of the stream being read.
-        /// </summary>
         public int Position { get; protected set; }
 
-        /// <summary>
-        ///     Gets the length of source string.
-        /// </summary>
         public int Length
         {
             get { return Source.Length; }
         }
 
-        /// <summary>
-        ///     Gets the token type of the current token.
-        /// </summary>
         public TokenType Token { get; protected set; }
 
-        /// <summary>
-        ///     If the current token is a word token, this field contains a string giving the characters of the word token.
-        /// </summary>
         public string Value { get; protected set; }
 
-        /// <summary>
-        ///     Returns the next token.
-        /// </summary>
-        /// <param name="ignoreWhitespace">Determines is whitespace is ignored. True if whitespace is to be ignored.</param>
-        /// <returns>The TokenType of the next token.</returns>
         public TokenType NextToken(bool ignoreWhitespace)
         {
             return NextTokenInternal(ignoreWhitespace);
@@ -162,9 +120,6 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Methods
 
-        /// <summary>
-        /// Sets the new source of <see cref="ITokenizer"/>.
-        /// </summary>
         public void SetSource(string source)
         {
             Should.NotBeNullOrEmpty(source, "source");
@@ -173,9 +128,6 @@ namespace MugenMvvmToolkit.Binding.Parse
             Position = 0;
         }
 
-        /// <summary>
-        ///     Moves to the next char.
-        /// </summary>
         protected virtual void NextChar()
         {
             if (Position < Length)
@@ -183,10 +135,6 @@ namespace MugenMvvmToolkit.Binding.Parse
             CurrentChar = Position < Length ? Source[Position] : '\0';
         }
 
-        /// <summary>
-        ///     Returns the next token.
-        /// </summary>
-        /// <returns>The TokenType of the next token.</returns>
         protected virtual TokenType NextTokenInternal(bool ignoreWhitespace)
         {
             FirstCharPosition = Position;
@@ -494,9 +442,6 @@ namespace MugenMvvmToolkit.Binding.Parse
             return t;
         }
 
-        /// <summary>
-        /// Checks the identifier symbol.
-        /// </summary>
         protected virtual bool IsValidIdentifierSymbol(bool firstSymbol, char symbol)
         {
             if (firstSymbol)

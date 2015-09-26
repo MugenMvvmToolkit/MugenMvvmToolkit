@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="BindingSourceAccessorBase.cs">
@@ -30,16 +30,10 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Accessors
 {
-    /// <summary>
-    ///     Represents the base accessor for the binding source.
-    /// </summary>
     public abstract class BindingSourceAccessorBase : IBindingSourceAccessor
     {
         #region Nested types
 
-        /// <summary>
-        ///     Represents the bindings parameters.
-        /// </summary>
         protected sealed class BindingParameters
         {
             #region Fields
@@ -55,9 +49,6 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
             #region Constructors
 
-            /// <summary>
-            /// Initializes a new instance of the <see cref="BindingParameters"/> class.
-            /// </summary>
             internal BindingParameters(Func<IDataContext, IBindingValueConverter> converterDelegate, Func<IDataContext, CultureInfo> converterCultureDelegate, Func<IDataContext, object> converterParameterDelegate, Func<IDataContext, object> fallbackDelegate, object targetNullValue, Func<IDataContext, object> commandParameterDelegate)
             {
                 _converterDelegate = converterDelegate;
@@ -72,54 +63,36 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
             #region Properties
 
-            /// <summary>
-            ///     Gets the <see cref="IBindingValueConverter" /> delegate.
-            /// </summary>
             [CanBeNull]
             public Func<IDataContext, IBindingValueConverter> ConverterDelegate
             {
                 get { return _converterDelegate; }
             }
 
-            /// <summary>
-            ///     Gets the converter parameter delegate.
-            /// </summary>
             [CanBeNull]
             public Func<IDataContext, object> ConverterParameterDelegate
             {
                 get { return _converterParameterDelegate; }
             }
 
-            /// <summary>
-            ///     Gets the converter culture delegate.
-            /// </summary>
             [CanBeNull]
             public Func<IDataContext, CultureInfo> ConverterCultureDelegate
             {
                 get { return _converterCultureDelegate; }
             }
 
-            /// <summary>
-            ///     Gets the target null value.
-            /// </summary>
             [CanBeNull]
             public object TargetNullValue
             {
                 get { return _targetNullValue; }
             }
 
-            /// <summary>
-            ///     Gets the fallback value delegate.
-            /// </summary>
             [CanBeNull]
             public Func<IDataContext, object> FallbackDelegate
             {
                 get { return _fallbackDelegate; }
             }
 
-            /// <summary>
-            ///     Gets the command parameter delegate.
-            /// </summary>
             [CanBeNull]
             public Func<IDataContext, object> CommandParameterDelegate
             {
@@ -140,9 +113,6 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingSourceAccessorBase" /> class.
-        /// </summary>
         protected BindingSourceAccessorBase([NotNull] IDataContext context, bool isTarget)
         {
             Should.NotBeNull(context, "context");
@@ -175,17 +145,11 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the value that indicats that accessor is a target.
-        /// </summary>
         protected bool IsTarget
         {
             get { return _isTarget; }
         }
 
-        /// <summary>
-        /// Gets the current binding parameters.
-        /// </summary>
         [CanBeNull]
         protected BindingParameters Parameters
         {
@@ -196,30 +160,12 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         #region Implementation of IBindingSourceAccessor
 
-        /// <summary>
-        ///     Gets a value indicating whether the member can be read.
-        /// </summary>
         public abstract bool CanRead { get; }
 
-        /// <summary>
-        ///     Gets a value indicating whether the property can be written to.
-        /// </summary>
         public abstract bool CanWrite { get; }
 
-        /// <summary>
-        ///     Gets the underlying sources.
-        /// </summary>
         public abstract IList<IObserver> Sources { get; }
 
-        /// <summary>
-        ///     Gets the source value.
-        /// </summary>
-        /// <param name="targetMember">The specified member to set value.</param>
-        /// <param name="context">The specified operation context.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the value cannot be obtained; false to return
-        ///     <see cref="BindingConstants.InvalidValue" /> if the value cannot be obtained.
-        /// </param>
         public object GetValue(IBindingMemberInfo targetMember, IDataContext context, bool throwOnError)
         {
             try
@@ -237,14 +183,6 @@ namespace MugenMvvmToolkit.Binding.Accessors
             }
         }
 
-        /// <summary>
-        ///     Sets the source value.
-        /// </summary>
-        /// <param name="targetAccessor">The specified accessor to get value.</param>
-        /// <param name="context">The specified operation context.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the value cannot be set.
-        /// </param>
         public bool SetValue(IBindingSourceAccessor targetAccessor, IDataContext context, bool throwOnError)
         {
             try
@@ -259,48 +197,25 @@ namespace MugenMvvmToolkit.Binding.Accessors
             }
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         public virtual void Dispose()
         {
             _parameters = null;
         }
 
-        /// <summary>
-        ///     Occurs before the value changes.
-        /// </summary>
         public abstract event EventHandler<IBindingSourceAccessor, ValueAccessorChangingEventArgs> ValueChanging;
 
-        /// <summary>
-        ///     Occurs when value changed.
-        /// </summary>
         public abstract event EventHandler<IBindingSourceAccessor, ValueAccessorChangedEventArgs> ValueChanged;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Gets the raw value from source.
-        /// </summary>
         protected abstract object GetRawValueInternal(IBindingMemberInfo targetMember, IDataContext context,
             bool throwOnError);
 
-        /// <summary>
-        ///     Sets the source value.
-        /// </summary>
-        /// <param name="targetAccessor">The specified accessor to get value.</param>
-        /// <param name="context">The specified operation context.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the value cannot be set.
-        /// </param>
         protected abstract bool SetValueInternal(IBindingSourceAccessor targetAccessor, IDataContext context,
             bool throwOnError);
 
-        /// <summary>
-        ///     Gets the source value.
-        /// </summary>
         protected virtual object GetValueInternal(IBindingMemberInfo targetMember, IDataContext context,
             bool throwOnError)
         {

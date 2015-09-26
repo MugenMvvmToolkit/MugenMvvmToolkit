@@ -34,9 +34,6 @@ using Ninject.Syntax;
 
 namespace MugenMvvmToolkit
 {
-    /// <summary>
-    ///     Represents the Ninject ioc adapter.
-    /// </summary>
     public class NinjectContainer : IIocContainer
     {
         #region Nested types
@@ -105,9 +102,6 @@ namespace MugenMvvmToolkit
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the original ioc container.
-        /// </summary>
         public IKernel Container
         {
             get { return _kernel; }
@@ -117,17 +111,11 @@ namespace MugenMvvmToolkit
 
         #region Constructor
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NinjectContainer" /> class.
-        /// </summary>
         public NinjectContainer()
             : this(new StandardKernel())
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NinjectContainer" /> class.
-        /// </summary>
         public NinjectContainer(IKernel kernel, IIocContainer parent = null)
         {
             Should.NotBeNull(kernel, "kernel");
@@ -140,9 +128,6 @@ namespace MugenMvvmToolkit
 
         #region Methods
 
-        /// <summary>
-        ///     Converts parameters.
-        /// </summary>
         protected IParameter[] ConvertParameters(IList<IIocParameter> parameters)
         {
             if (parameters == null || parameters.Count == 0)
@@ -155,9 +140,6 @@ namespace MugenMvvmToolkit
             return list.ToArrayEx();
         }
 
-        /// <summary>
-        ///     Converts parameter.
-        /// </summary>
         protected virtual IParameter ConvertParameter(IIocParameter parameter, bool isDelegate)
         {
             if (parameter == null)
@@ -178,9 +160,6 @@ namespace MugenMvvmToolkit
             return null;
         }
 
-        /// <summary>
-        ///     Sets the lifecycle.
-        /// </summary>
         protected virtual void SetLifecycle(IBindingInSyntax<object> syntax, DependencyLifecycle lifecycle)
         {
             if (lifecycle == DependencyLifecycle.SingleInstance)
@@ -219,62 +198,34 @@ namespace MugenMvvmToolkit
 
         #region Implementation of IIocContainer
 
-        /// <summary>
-        ///     Gets the id of <see cref="IIocContainer" />.
-        /// </summary>
         public int Id
         {
             get { return _id; }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether this instance is disposed.
-        /// </summary>
         public bool IsDisposed
         {
             get { return _kernel.IsDisposed; }
         }
 
-        /// <summary>
-        ///     Occurs when the object is disposed by a call to the Dispose method.
-        /// </summary>
         public event EventHandler<IDisposableObject, EventArgs> Disposed;
 
-        /// <summary>
-        ///     Gets the parent ioc adapter.
-        /// </summary>
         public IIocContainer Parent
         {
             get { return _parent; }
         }
 
-        /// <summary>
-        ///     Gets the original ioc container.
-        /// </summary>
         object IIocContainer.Container
         {
             get { return _kernel; }
         }
 
-        /// <summary>
-        ///     Creates a child ioc adapter.
-        /// </summary>
-        /// <returns>
-        ///     An instance of <see cref="IIocContainer" />.
-        /// </returns>
         public IIocContainer CreateChild()
         {
             this.NotBeDisposed();
             return new NinjectContainer(new ChildKernel(_kernel), this);
         }
 
-        /// <summary>
-        ///     Gets an instance of the specified service.
-        /// </summary>
-        /// <param name="service">The specified service type.</param>
-        /// <param name="name">The specified binding name.</param>
-        /// <param name="parameters">The specified parameters.</param>
-        /// <returns>An instance of the service.</returns>
         public object Get(Type service, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
@@ -284,13 +235,6 @@ namespace MugenMvvmToolkit
             return _kernel.Get(service, name, ConvertParameters(parameters));
         }
 
-        /// <summary>
-        ///     Gets all instances of the specified service.
-        /// </summary>
-        /// <param name="service">Specified service type.</param>
-        /// <param name="name">The specified binding name.</param>
-        /// <param name="parameters">The specified parameters.</param>
-        /// <returns>An instance of the service.</returns>
         public IEnumerable<object> GetAll(Type service, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
@@ -300,9 +244,6 @@ namespace MugenMvvmToolkit
             return _kernel.GetAll(service, name, ConvertParameters(parameters));
         }
 
-        /// <summary>
-        ///     Indicates that the service should be bound to the specified constant value.
-        /// </summary>
         public void BindToConstant(Type service, object constValue, string name = null)
         {
             this.NotBeDisposed();
@@ -312,15 +253,6 @@ namespace MugenMvvmToolkit
                 syntax.Named(name);
         }
 
-        /// <summary>
-        ///     Indicates that the service should be bound to the specified method.
-        /// </summary>
-        /// <param name="service">The specified service type.</param>
-        /// <param name="methodBindingDelegate">The specified factory delegate.</param>
-        /// <param name="lifecycle">
-        ///     The specified <see cref="DependencyLifecycle" />
-        /// </param>
-        /// <param name="name">The specified binding name.</param>
         public void BindToMethod(Type service, Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate,
             DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
@@ -337,15 +269,6 @@ namespace MugenMvvmToolkit
                 syntax.Named(name);
         }
 
-        /// <summary>
-        ///     Indicates that the service should be bound to the specified type.
-        /// </summary>
-        /// <param name="service">The specified service type.</param>
-        /// <param name="typeTo">The specified to type</param>
-        /// <param name="lifecycle">
-        ///     The specified <see cref="DependencyLifecycle" />
-        /// </param>
-        /// <param name="name">The specified binding name.</param>
         public void Bind(Type service, Type typeTo, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
@@ -364,10 +287,6 @@ namespace MugenMvvmToolkit
                 syntax.Named(name);
         }
 
-        /// <summary>
-        ///     Unregisters all bindings with specified conditions for the specified service.
-        /// </summary>
-        /// <param name="service">The specified service type.</param>
         public void Unbind(Type service)
         {
             this.NotBeDisposed();
@@ -375,14 +294,6 @@ namespace MugenMvvmToolkit
             _kernel.Unbind(service);
         }
 
-        /// <summary>
-        ///     Determines whether the specified request can be resolved.
-        /// </summary>
-        /// <param name="service">The specified service type.</param>
-        /// <param name="name">The specified binding name.</param>
-        /// <returns>
-        ///     <c>True</c> if the specified service has been resolved; otherwise, <c>false</c>.
-        /// </returns>
         public bool CanResolve(Type service, string name = null)
         {
             Should.NotBeNull(service, "service");
@@ -395,9 +306,6 @@ namespace MugenMvvmToolkit
             return _kernel.CanResolve(req, true);
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         public void Dispose()
         {
             if (IsDisposed)
@@ -411,17 +319,6 @@ namespace MugenMvvmToolkit
             }
         }
 
-        /// <summary>
-        ///     Gets the service object of the specified type.
-        /// </summary>
-        /// <returns>
-        ///     A service object of type <paramref name="serviceType" />.
-        ///     -or-
-        ///     null if there is no service object of type <paramref name="serviceType" />.
-        /// </returns>
-        /// <param name="serviceType">
-        ///     An object that specifies the type of service object to get.
-        /// </param>
         object IServiceProvider.GetService(Type serviceType)
         {
             return _kernel.GetService(serviceType);

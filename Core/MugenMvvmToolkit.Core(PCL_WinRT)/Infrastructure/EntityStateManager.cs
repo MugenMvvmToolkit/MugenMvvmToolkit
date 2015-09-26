@@ -28,9 +28,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the base entity state manager that uses the property to save state.
-    /// </summary>
     public class EntityStateManager : IEntityStateManager
     {
         #region Nested types
@@ -54,17 +51,11 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Overrides of LightDictionaryBase<PropertyInfo,object>
 
-            /// <summary>
-            ///     Determines whether the specified objects are equal.
-            /// </summary>
             protected override bool Equals(string x, string y)
             {
                 return x.Equals(y, StringComparison.Ordinal);
             }
 
-            /// <summary>
-            ///     Returns a hash code for the specified object.
-            /// </summary>
             protected override int GetHashCode(string key)
             {
                 return key.GetHashCode();
@@ -74,18 +65,11 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Implementation of IEntitySnapshot
 
-            /// <summary>
-            ///     Gets a value indicating whether the snapshot supports change detection.
-            /// </summary>
             public bool SupportChangeDetection
             {
                 get { return true; }
             }
 
-            /// <summary>
-            ///     Restores the state of entity.
-            /// </summary>
-            /// <param name="entity">The specified entity to restore state.</param>
             public void Restore(object entity)
             {
                 Should.NotBeNull(entity, "entity");
@@ -98,9 +82,6 @@ namespace MugenMvvmToolkit.Infrastructure
                     Tracer.Info("The state of entity {0} was restored", entity.GetType());
             }
 
-            /// <summary>
-            ///     Gets a value indicating whether the entity has changes.
-            /// </summary>
             public bool HasChanges(object entity)
             {
                 Should.NotBeNull(entity, "entity");
@@ -112,9 +93,6 @@ namespace MugenMvvmToolkit.Infrastructure
                 return false;
             }
 
-            /// <summary>
-            ///     Gets a value indicating whether the entity has changes.
-            /// </summary>
             public bool HasChanges(object entity, string propertyName)
             {
                 Should.NotBeNull(entity, "entity");
@@ -124,9 +102,6 @@ namespace MugenMvvmToolkit.Infrastructure
                 return !Equals(savedState.PropertyInfo.GetValueEx<object>(entity), savedState.Value);
             }
 
-            /// <summary>
-            ///     Dumps the state of object.
-            /// </summary>
             public IDictionary<string, Tuple<object, object>> Dump(object entity)
             {
                 Should.NotBeNull(entity, "entity");
@@ -156,9 +131,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Constructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="SavedState" /> class.
-            /// </summary>
             public SavedState(PropertyInfo propertyInfo, object value)
             {
                 PropertyInfo = propertyInfo;
@@ -187,12 +159,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of IEntityStateManager
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IEntitySnapshot" />
-        /// </summary>
-        /// <param name="entity">The specified entity to create snapshot.</param>
-        /// <param name="context">The specified context, if any.</param>
-        /// <returns>An instance of <see cref="IEntitySnapshot" /></returns>
         public IEntitySnapshot CreateSnapshot(object entity, IDataContext context = null)
         {
             Should.NotBeNull(entity, "entity");
@@ -205,13 +171,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Gets properties for save state.
-        /// </summary>
-        /// <param name="entity">The specified entity.</param>
-        /// <returns>
-        ///     A series of instances of <see cref="PropertyInfo" />.
-        /// </returns>
         private IList<PropertyInfo> GetPropertiesInternal(object entity)
         {
             Type type = entity.GetType();
@@ -229,14 +188,6 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets properties for save state.
-        /// </summary>
-        /// <param name="entity">The specified entity.</param>
-        /// <param name="shouldCache"></param>
-        /// <returns>
-        ///     A series of instances of <see cref="PropertyInfo" />.
-        /// </returns>
         protected virtual IList<PropertyInfo> GetProperties(object entity, out bool shouldCache)
         {
             Type type = entity.GetType();

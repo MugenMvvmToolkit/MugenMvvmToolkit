@@ -23,9 +23,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Models
 {
-    /// <summary>
-    ///     Represents the module context.
-    /// </summary>
     public sealed class ModuleContext : IModuleContext
     {
         #region Fields
@@ -40,9 +37,6 @@ namespace MugenMvvmToolkit.Models
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ModuleContext" /> class.
-        /// </summary>
         public ModuleContext(PlatformInfo platform, LoadMode mode, IIocContainer iocContainer, IDataContext context,
             IList<Assembly> assemblies)
         {
@@ -57,41 +51,26 @@ namespace MugenMvvmToolkit.Models
 
         #region Implementation of IModuleContext
 
-        /// <summary>
-        ///     Gets the <see cref="IIocContainer" />.
-        /// </summary>
         public IIocContainer IocContainer
         {
             get { return _iocContainer; }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IDataContext" />.
-        /// </summary>
         public IDataContext Context
         {
             get { return _context; }
         }
 
-        /// <summary>
-        ///     Gets the application assemblies.
-        /// </summary>
         public IList<Assembly> Assemblies
         {
             get { return _assemblies; }
         }
 
-        /// <summary>
-        ///     Gets the module load mode.
-        /// </summary>
         public LoadMode Mode
         {
             get { return _mode; }
         }
 
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
         public PlatformInfo Platform
         {
             get { return _platform; }

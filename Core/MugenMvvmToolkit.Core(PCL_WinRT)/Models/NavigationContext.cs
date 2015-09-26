@@ -22,9 +22,6 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 
 namespace MugenMvvmToolkit.Models
 {
-    /// <summary>
-    ///     Represents the base navigation context implementation.
-    /// </summary>
     public class NavigationContext : DataContext, INavigationContext
     {
         #region Fields
@@ -39,9 +36,6 @@ namespace MugenMvvmToolkit.Models
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigationContext" /> class.
-        /// </summary>
         public NavigationContext([NotNull] NavigationType type, NavigationMode navigationMode, [CanBeNull] IViewModel viewModelFrom, [CanBeNull] IViewModel viewModelTo,
              [CanBeNull] object navigationProvider)
         {
@@ -57,41 +51,26 @@ namespace MugenMvvmToolkit.Models
 
         #region Implementation of INavigationContext
 
-        /// <summary>
-        ///     Gets the value of the mode parameter from the originating Navigate call.
-        /// </summary>
         public NavigationMode NavigationMode
         {
             get { return _navigationMode; }
         }
 
-        /// <summary>
-        /// Gets the previously navigate view model.
-        /// </summary>
         public IViewModel ViewModelFrom
         {
             get { return _viewModelFrom; }
         }
 
-        /// <summary>
-        ///     Gets the view model to navigate.
-        /// </summary>
         public IViewModel ViewModelTo
         {
             get { return _viewModelTo; }
         }
 
-        /// <summary>
-        ///     Gets the navigation type.
-        /// </summary>
         public NavigationType NavigationType
         {
             get { return _type; }
         }
 
-        /// <summary>
-        ///     Gets the navigation provider that creates this context.
-        /// </summary>
         public object NavigationProvider
         {
             get { return _navigationProvider; }

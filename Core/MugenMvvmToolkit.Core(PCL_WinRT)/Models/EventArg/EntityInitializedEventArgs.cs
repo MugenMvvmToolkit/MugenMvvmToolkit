@@ -32,9 +32,6 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes the <see cref="EntityInitializedEventArgs" />.
-        /// </summary>
         public EntityInitializedEventArgs([NotNull]object originalEntity, [NotNull] object entity)
         {
             Should.NotBeNull(originalEntity, "originalEntity");
@@ -66,9 +63,6 @@ namespace MugenMvvmToolkit.Models.EventArg
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes the <see cref="EntityInitializedEventArgs{TEntity}" />.
-        /// </summary>
         public EntityInitializedEventArgs([NotNull]TEntity originalEntity, [NotNull] TEntity entity)
             : base(originalEntity, entity)
         {

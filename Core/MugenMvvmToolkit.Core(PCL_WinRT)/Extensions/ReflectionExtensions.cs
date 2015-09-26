@@ -41,21 +41,12 @@ using MugenMvvmToolkit.ViewModels;
 // ReSharper disable once CheckNamespace
 namespace MugenMvvmToolkit
 {
-    /// <summary>
-    ///     Represents the reflection extensions.
-    /// </summary>
     public static class ReflectionExtensions
     {
         #region Nested types
 
-        /// <summary>
-        /// Represents the weak reference event wrapper.
-        /// </summary>
         public interface IWeakEventHandler<in TArg>
         {
-            /// <summary>
-            /// Invokes the event.
-            /// </summary>
             void Handle(object sender, TArg arg);
         }
 
@@ -201,9 +192,6 @@ namespace MugenMvvmToolkit
 
         #region Properties
 
-        /// <summary>
-        /// Gets or sets the delegate to get types.
-        /// </summary>
         [CanBeNull]
         public static Func<Assembly, Type[]> GetTypesDefault { get; set; }
 
@@ -211,9 +199,6 @@ namespace MugenMvvmToolkit
 
         #region Methods
 
-        /// <summary>
-        ///     Returns a weak-reference version of a delegate.
-        /// </summary>
         public static IWeakEventHandler<TArg> CreateWeakEventHandler<TTarget, TArg>([NotNull] TTarget target, [NotNull]Action<TTarget, object, TArg> invokeAction,
             Action<object, IWeakEventHandler<TArg>> unsubscribeAction = null)
             where TTarget : class
@@ -221,9 +206,6 @@ namespace MugenMvvmToolkit
             return new WeakEventHandler<TTarget, TArg, object>(target, invokeAction, unsubscribeAction);
         }
 
-        /// <summary>
-        ///     Returns a weak-reference version of a delegate.
-        /// </summary>
         public static TResult CreateWeakDelegate<TTarget, TArg, TResult>([NotNull] TTarget target,
             [NotNull]Action<TTarget, object, TArg> invokeAction, [CanBeNull] Action<object, TResult> unsubscribeAction,
             [NotNull] Func<IWeakEventHandler<TArg>, TResult> createHandler)
@@ -239,9 +221,6 @@ namespace MugenMvvmToolkit
             return handler;
         }
 
-        /// <summary>
-        ///     Returns a weak-reference version of a delegate.
-        /// </summary>
         public static PropertyChangedEventHandler MakeWeakPropertyChangedHandler<TTarget>([NotNull]TTarget target,
             [NotNull]Action<TTarget, object, PropertyChangedEventArgs> invokeAction)
             where TTarget : class
@@ -249,9 +228,6 @@ namespace MugenMvvmToolkit
             return CreateWeakDelegate(target, invokeAction, UnsubscribePropertyChangedDelegate, CreatePropertyChangedHandlerDelegate);
         }
 
-        /// <summary>
-        ///     Returns a weak-reference version of a delegate.
-        /// </summary>
         public static EventHandler<DataErrorsChangedEventArgs> MakeWeakErrorsChangedHandler<TTarget>([NotNull]TTarget target,
             [NotNull]Action<TTarget, object, DataErrorsChangedEventArgs> invokeAction)
             where TTarget : class
@@ -259,18 +235,12 @@ namespace MugenMvvmToolkit
             return CreateWeakDelegate(target, invokeAction, UnsubscribeErrorsChangedDelegate, CreateErrorsChangedHandlerDelegate);
         }
 
-        /// <summary>
-        ///     Returns a weak-reference version of a delegate.
-        /// </summary>
         public static NotifyCollectionChangedEventHandler MakeWeakCollectionChangedHandler<TTarget>(TTarget target, Action<TTarget, object,
             NotifyCollectionChangedEventArgs> invokeAction) where TTarget : class
         {
             return CreateWeakDelegate(target, invokeAction, UnsubscribeCollectionChangedDelegate, CreateCollectionChangedHandlerDelegate);
         }
 
-        /// <summary>
-        /// Gets the types defined in this assembly.
-        /// </summary>
         public static IList<Type> SafeGetTypes(this Assembly assembly, bool throwOnError)
         {
             try
@@ -293,57 +263,36 @@ namespace MugenMvvmToolkit
             return Empty.Array<Type>();
         }
 
-        /// <summary>
-        ///     Invokes the constructor using the current <see cref="IReflectionManager" />.
-        /// </summary>
         public static object InvokeEx([NotNull] this ConstructorInfo constructor)
         {
             return constructor.InvokeEx(Empty.Array<object>());
         }
 
-        /// <summary>
-        ///     Invokes the constructor using the current <see cref="IReflectionManager" />.
-        /// </summary>
         public static object InvokeEx([NotNull] this ConstructorInfo constructor, params object[] parameters)
         {
             return ServiceProvider.ReflectionManager.GetActivatorDelegate(constructor).Invoke(parameters);
         }
 
-        /// <summary>
-        ///     Invokes the method using the current <see cref="IReflectionManager" />.
-        /// </summary>
         public static object InvokeEx([NotNull] this MethodInfo method, object target)
         {
             return method.InvokeEx(target, Empty.Array<object>());
         }
 
-        /// <summary>
-        ///     Invokes the method using the current <see cref="IReflectionManager" />.
-        /// </summary>
         public static object InvokeEx([NotNull] this MethodInfo method, object target, params object[] parameters)
         {
             return ServiceProvider.ReflectionManager.GetMethodDelegate(method).Invoke(target, parameters);
         }
 
-        /// <summary>
-        ///     Gets the value using the current <see cref="IReflectionManager" />.
-        /// </summary>
         public static T GetValueEx<T>([NotNull] this MemberInfo member, object target)
         {
             return ServiceProvider.ReflectionManager.GetMemberGetter<T>(member).Invoke(target);
         }
 
-        /// <summary>
-        ///     Sets the value using the current <see cref="IReflectionManager" />.
-        /// </summary>
         public static void SetValueEx<T>([NotNull] this MemberInfo member, object target, T value)
         {
             ServiceProvider.ReflectionManager.GetMemberSetter<T>(member).Invoke(target, value);
         }
 
-        /// <summary>
-        ///     Tries to get data context.
-        /// </summary>
         internal static object GetDataContext(object item)
         {
             Should.NotBeNull(item, "item");
@@ -364,9 +313,6 @@ namespace MugenMvvmToolkit
             return func(item);
         }
 
-        /// <summary>
-        ///     Tries to set data context.
-        /// </summary>
         internal static bool SetDataContext(object item, object dataContext)
         {
             Should.NotBeNull(item, "item");
@@ -388,9 +334,6 @@ namespace MugenMvvmToolkit
             return true;
         }
 
-        /// <summary>
-        ///     Gets the modules.
-        /// </summary>
         public static IList<IModule> GetModules([NotNull] this IEnumerable<Assembly> assemblies, bool throwOnError)
         {
             Should.NotBeNull(assemblies, "assemblies");
@@ -426,17 +369,11 @@ namespace MugenMvvmToolkit
             return modules;
         }
 
-        /// <summary>
-        ///     Filters assemblies.
-        /// </summary>
         public static IEnumerable<Assembly> SkipFrameworkAssemblies(this IEnumerable<Assembly> assemblies)
         {
             return assemblies.Where(IsToolkitAssemblyDelegate);
         }
 
-        /// <summary>
-        ///     Checks whether the current assembly is Microsoft assembly.
-        /// </summary>
         public static bool IsMicrosoftAssembly(this Assembly assembly)
         {
             if (assembly.IsDynamic)
@@ -444,9 +381,6 @@ namespace MugenMvvmToolkit
             return assembly.HasKnownPublicKey(true);
         }
 
-        /// <summary>
-        ///     Checks whether the current assembly is toolkit assembly.
-        /// </summary>
         public static bool IsToolkitAssembly(this Assembly assembly)
         {
             if (assembly.IsDynamic)
@@ -454,17 +388,11 @@ namespace MugenMvvmToolkit
             return !assembly.HasKnownPublicKey(false);
         }
 
-        /// <summary>
-        ///     Gets the design time assemblies.
-        /// </summary>
         public static IList<Assembly> GetDesignAssemblies()
         {
             return DesignTimeInitializer.GetAssemblies(true);
         }
 
-        /// <summary>
-        ///     Checks whether the current type is public non-abstract class.
-        /// </summary>
         public static bool IsPublicNonAbstractClass(this Type type)
         {
 #if PCL_WINRT
@@ -475,9 +403,6 @@ namespace MugenMvvmToolkit
 #endif
         }
 
-        /// <summary>
-        ///     Checks whether the current type is anonymous class.
-        /// </summary>
         public static bool IsAnonymousClass(this Type type)
         {
 #if PCL_WINRT
@@ -511,11 +436,6 @@ namespace MugenMvvmToolkit
             return attributes;
         }
 
-        /// <summary>
-        ///     Gets member info from the specified expression.
-        /// </summary>
-        /// <param name="getExpression">The specified expression.</param>
-        /// <returns>The member info.</returns>        
         [Pure]
         public static MemberInfo GetMemberInfo([NotNull] this Func<LambdaExpression> getExpression)
         {
@@ -644,7 +564,7 @@ namespace MugenMvvmToolkit
                 }
                 catch (MemberAccessException)
                 {
-                    //To avoid method access exception.                
+                    //To avoid method access exception.
                 }
             }
         }
@@ -698,17 +618,11 @@ namespace MugenMvvmToolkit
             }
         }
 
-        /// <summary>
-        ///     This method is used to reduce closure allocation in generated methods.
-        /// </summary>
         internal static void SetValue<TValue>(this PropertyInfo property, object target, TValue value)
         {
             property.SetValue(target, value, Empty.Array<object>());
         }
 
-        /// <summary>
-        ///     This method is used to reduce closure allocation in generatde methods.
-        /// </summary>
         internal static void SetValue<TValue>(this FieldInfo field, object target, TValue value)
         {
             field.SetValue(target, value);
@@ -1062,13 +976,6 @@ namespace MugenMvvmToolkit
                     flags.HasMemberFlag(MemberFlags.Public) && method.IsPublic);
         }
 #else
-        /// <summary>
-        ///     Gets an object that represents the method represented by the specified delegate.
-        /// </summary>
-        /// <returns>
-        ///     An object that represents the method.
-        /// </returns>
-        /// <param name="del">The delegate to examine.</param>
         public static MethodInfo GetMethodInfo([NotNull] this Delegate del)
         {
             Should.NotBeNull(del, "del");

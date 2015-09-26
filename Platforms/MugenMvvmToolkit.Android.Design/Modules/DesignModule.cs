@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using Android.App;
 using Android.Graphics.Drawables;
 using Android.Support.Design.Widget;
@@ -21,9 +21,6 @@ namespace MugenMvvmToolkit.Android.Design.Modules
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DesignModule" /> class.
-        /// </summary>
         public DesignModule()
             : base(true, priority: BindingModulePriority - 1)
         {
@@ -33,9 +30,6 @@ namespace MugenMvvmToolkit.Android.Design.Modules
 
         #region Overrides of ModuleBase
 
-        /// <summary>
-        ///     Loads the current module.
-        /// </summary>
         protected override bool LoadInternal()
         {
             IBindingMemberProvider provider = BindingServiceProvider.MemberProvider;
@@ -44,7 +38,7 @@ namespace MugenMvvmToolkit.Android.Design.Modules
                 AttachedBindingMember.CreateAutoProperty(AttachedMembersDesign.NavigationView.MenuTemplate,
                     NavigationViewMenuTemplateChanged));
 
-            //TabLayout              
+            //TabLayout
             provider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ItemsSource.Override<TabLayout>(), TabLayoutItemsSourceChanged));
             provider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersDesign.TabLayout.RestoreSelectedIndex));
             provider.Register(AttachedBindingMember.CreateMember(AttachedMembersDesign.TabLayout.SelectedItem,
@@ -110,9 +104,6 @@ namespace MugenMvvmToolkit.Android.Design.Modules
             return true;
         }
 
-        /// <summary>
-        ///     Unloads the current module.
-        /// </summary>
         protected override void UnloadInternal()
         {
         }

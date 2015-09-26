@@ -21,16 +21,10 @@ using MugenMvvmToolkit.Binding.Models.EventArg;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
-    /// <summary>
-    ///     Updates the source property when the target property changes.
-    /// </summary>
     public sealed class OneWayToSourceBindingMode : BindingModeBase
     {
         #region Overrides of BindingBehaviorBase
 
-        /// <summary>
-        ///     Attaches to the specified binding.
-        /// </summary>
         protected override bool OnAttached()
         {
             Binding.UpdateSource();
@@ -40,17 +34,11 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             return true;
         }
 
-        /// <summary>
-        ///     Detaches this instance from its associated binding.
-        /// </summary>
         protected override void OnDetached()
         {
             UnsubscribeTarget();
         }
 
-        /// <summary>
-        ///     Creates a new binding behavior that is a copy of the current instance.
-        /// </summary>
         protected override IBindingBehavior CloneInternal()
         {
             return new OneWayToSourceBindingMode();

@@ -50,18 +50,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms
 
         #region Events
 
-        /// <summary>
-        ///     Occurs when the back button is pressed.
-        /// </summary>
         public static event EventHandler<Page, CancelEventArgs> BackButtonPressed;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Occurs when the back button is pressed.
-        /// </summary>
         public static bool HandleBackButtonPressed([NotNull] this Page page, Func<bool> baseOnBackButtonPressed = null)
         {
             Should.NotBeNull(page, "page");

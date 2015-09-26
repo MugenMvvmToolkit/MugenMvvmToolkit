@@ -30,9 +30,6 @@ using MugenMvvmToolkit.WinForms.Controls;
 
 namespace MugenMvvmToolkit.WinForms.Infrastructure.Presenters
 {
-    /// <summary>
-    ///     Provides functionality to present a timed message.
-    /// </summary>
     public class ToastPresenter : IToastPresenter
     {
         #region Fields
@@ -50,9 +47,6 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Presenters
             ControlName = Guid.NewGuid().ToString("n");
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ToastPresenter"/> class.
-        /// </summary>
         public ToastPresenter([NotNull] IThreadManager threadManager)
         {
             Should.NotBeNull(threadManager, "threadManager");
@@ -77,9 +71,6 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Presenters
 
         #region Implementation of IToastPresenter
 
-        /// <summary>
-        ///     Shows the specified message.
-        /// </summary>
         public Task ShowAsync(object content, float duration, ToastPosition position = ToastPosition.Bottom, IDataContext context = null)
         {
             var tcs = new TaskCompletionSource<object>();
@@ -94,9 +85,6 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Presenters
 
         #region Methods
 
-        /// <summary>
-        ///     Shows the specified message.
-        /// </summary>
         protected virtual void ShowInternal(object content, float duration, ToastPosition position, IDataContext context, TaskCompletionSource<object> tcs)
         {
             Form activeForm = Form.ActiveForm;

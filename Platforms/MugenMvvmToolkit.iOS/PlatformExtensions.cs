@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="PlatformExtensions.cs">
@@ -111,9 +111,6 @@ namespace MugenMvvmToolkit.iOS
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IApplicationStateManager" />.
-        /// </summary>
         [NotNull]
         public static IApplicationStateManager ApplicationStateManager
         {
@@ -126,9 +123,6 @@ namespace MugenMvvmToolkit.iOS
             set { _applicationStateManager = value; }
         }
 
-        /// <summary>
-        ///     Gets or sets the factory that creates an instance of <see cref="IMvvmViewControllerMediator" />.
-        /// </summary>
         [NotNull]
         public static Func<UIViewController, IDataContext, IMvvmViewControllerMediator> MvvmViewControllerMediatorFactory
         {

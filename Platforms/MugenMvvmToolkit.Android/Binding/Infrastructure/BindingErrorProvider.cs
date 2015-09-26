@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="BindingErrorProvider.cs">
@@ -25,10 +25,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the class that provides a user interface for indicating that a control on a form has an error associated
-    ///     with it.
-    /// </summary>
     public class BindingErrorProvider : BindingErrorProviderBase
     {
         #region Fields
@@ -39,12 +35,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         #region Overrides of BindingErrorProviderBase
 
-        /// <summary>
-        ///     Sets errors for binding target.
-        /// </summary>
-        /// <param name="target">The binding target object.</param>
-        /// <param name="errors">The collection of errors</param>
-        /// <param name="context">The specified context, if any.</param>
         protected override void SetErrors(object target, IList<object> errors, IDataContext context)
         {
             var textView = target as Object;

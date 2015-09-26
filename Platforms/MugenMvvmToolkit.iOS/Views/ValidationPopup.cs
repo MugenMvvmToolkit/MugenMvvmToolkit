@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ValidationPopup.cs">
@@ -27,9 +27,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.iOS.Views
 namespace MugenMvvmToolkit.iOS.Views
 #endif
 {
-    /// <summary>
-    ///     Source code ObjectiveC https://github.com/dhawaldawar/TextFieldValidator/blob/master/TextFieldValidator/TextFieldValidator.m.
-    /// </summary>
     public class ValidationPopup : UIView
     {
         #region Fields
@@ -116,7 +113,7 @@ namespace MugenMvvmToolkit.iOS.Views
 
             ctx.AddLines(new[]
             {
-                new CGPoint(15, 5), 
+                new CGPoint(15, 5),
                 new CGPoint(25, 25),
                 new CGPoint(5, 25)
             });

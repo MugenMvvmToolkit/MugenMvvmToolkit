@@ -36,7 +36,8 @@
     <DefineConstants>TRACE;XAMARIN_FORMS;WINDOWSCOMMON</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\bin\Platforms\Xamarin.Forms\WinRT\PCL\MugenMvvmToolkit.Xamarin.Forms.WinRT.XML</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
     <GenerateLibraryLayout>false</GenerateLibraryLayout>
   </PropertyGroup>
   <PropertyGroup>

@@ -21,9 +21,6 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the weak action token.
-    /// </summary>
     public static class WeakActionToken
     {
         #region Nested types
@@ -128,18 +125,12 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Creates a new instance of the weak action token class.
-        /// </summary>
         public static IDisposable Create<TTarget>([NotNull] TTarget target, [NotNull] Action<TTarget> action)
             where TTarget : class
         {
             return new WeakActionTokenInternal<TTarget, object, object>(action, target);
         }
 
-        /// <summary>
-        ///     Creates a new instance of the weak action token class.
-        /// </summary>
         public static IDisposable Create<TTarget, TArg1>([NotNull] TTarget target, TArg1 arg1,
             [NotNull] Action<TTarget, TArg1> action)
             where TTarget : class
@@ -147,9 +138,6 @@ namespace MugenMvvmToolkit.Infrastructure
             return new WeakActionTokenInternal<TTarget, TArg1, object>(action, target, arg1);
         }
 
-        /// <summary>
-        ///     Creates a new instance of the weak action token class.
-        /// </summary>
         public static IDisposable Create<TTarget, TArg1, TArg2>([NotNull] TTarget target, TArg1 arg1, TArg2 arg2,
             [NotNull] Action<TTarget, TArg1, TArg2> action)
             where TTarget : class

@@ -23,9 +23,6 @@ using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Binding.Parse.Nodes
 {
-    /// <summary>
-    ///     Represents an expression that has a binary operator.
-    /// </summary>
     public class BinaryExpressionNode : ExpressionNode, IBinaryExpressionNode
     {
         #region Filds
@@ -38,9 +35,6 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BinaryExpressionNode" /> class.
-        /// </summary>
         public BinaryExpressionNode([NotNull] IExpressionNode left, [NotNull] IExpressionNode right, TokenType token)
             : base(ExpressionNodeType.Binary)
         {
@@ -55,25 +49,16 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Implementation of IBinaryExpressionNode
 
-        /// <summary>
-        ///     Gets the left operand of the binary operation.
-        /// </summary>
         public IExpressionNode Left
         {
             get { return _left; }
         }
 
-        /// <summary>
-        ///     Gets the right operand of the binary operation.
-        /// </summary>
         public IExpressionNode Right
         {
             get { return _right; }
         }
 
-        /// <summary>
-        ///     Gets the implementing token for the binary operation.
-        /// </summary>
         public TokenType Token
         {
             get { return _token; }
@@ -83,32 +68,17 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Overrides of ExpressionNode
 
-        /// <summary>
-        ///     Calls the visitor on the expression.
-        /// </summary>
         protected override void AcceptInternal(IExpressionVisitor visitor)
         {
             _left = AcceptWithCheck(visitor, Left, true);
             _right = AcceptWithCheck(visitor, Right, true);
         }
 
-        /// <summary>
-        ///     Creates a new object that is a copy of the current instance.
-        /// </summary>
-        /// <returns>
-        ///     A new object that is a copy of this instance.
-        /// </returns>
         protected override IExpressionNode CloneInternal()
         {
             return new BinaryExpressionNode(Left.Clone(), Right.Clone(), Token);
         }
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>
-        ///     A string that represents the current object.
-        /// </returns>
         public override string ToString()
         {
             return string.Format("({0} {1} {2})", Left, Token.Value, Right);

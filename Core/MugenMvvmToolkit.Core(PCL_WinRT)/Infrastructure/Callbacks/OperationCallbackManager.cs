@@ -30,9 +30,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure.Callbacks
 {
-    /// <summary>
-    ///     Represents the callback manager.
-    /// </summary>
     public class OperationCallbackManager : IOperationCallbackManager
     {
         #region Nested types
@@ -43,9 +40,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         {
             #region Constructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="CallbackDictionary" /> class.
-            /// </summary>
             public CallbackDictionary()
                 : base(true)
             {
@@ -55,17 +49,11 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             #region Overrides of LightDictionaryBase<string,List<object>>
 
-            /// <summary>
-            ///     Determines whether the specified objects are equal.
-            /// </summary>
             protected override bool Equals(string x, string y)
             {
                 return x.Equals(y, StringComparison.Ordinal);
             }
 
-            /// <summary>
-            ///     Returns a hash code for the specified object.
-            /// </summary>
             protected override int GetHashCode(string key)
             {
                 return key.GetHashCode();
@@ -94,9 +82,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             CallbackConstant = DataConstant.Create(() => CallbackConstant, true);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OperationCallbackManager" /> class.
-        /// </summary>
         public OperationCallbackManager(ISerializer serializer)
         {
             Should.NotBeNull(serializer, "serializer");
@@ -108,18 +93,12 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Properties
 
-        /// <summary>
-        ///    Gets or sets the value, if <c>true</c> manager will serialize callback before store it, use this to debug your callbacks.
-        /// </summary>
         public static bool AlwaysSerializeCallback { get; set; }
 
         #endregion
 
         #region Implementation of IOperationCallbackManager
 
-        /// <summary>
-        ///     Registers the specified operation callback.
-        /// </summary>
         public void Register(OperationType operation, object source, IOperationCallback callback, IDataContext context)
         {
             Should.NotBeNull(operation, "operation");
@@ -131,9 +110,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             Tracer.Info("Callback '{0}' was registered, source: '{1}'", operation, source);
         }
 
-        /// <summary>
-        ///     Sets the result of operation.
-        /// </summary>
         public void SetResult(object source, IOperationResult result)
         {
             Should.NotBeNull(source, "source");
@@ -146,9 +122,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Methods
 
-        /// <summary>
-        ///     Registers the specified operation callback.
-        /// </summary>
         protected virtual void RegisterInternal(OperationType operation, [NotNull] object target,
             [NotNull] IOperationCallback callback, [NotNull] IDataContext context)
         {
@@ -172,9 +145,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             RegisterInternal(callbacks, operation.Id, callback);
         }
 
-        /// <summary>
-        ///     Sets the result of operation.
-        /// </summary>
         protected virtual void SetResultInternal([NotNull] object target, [NotNull] IOperationResult result)
         {
             string id = result.Operation.Id;

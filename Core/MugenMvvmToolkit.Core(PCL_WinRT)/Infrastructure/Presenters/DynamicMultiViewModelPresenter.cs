@@ -30,9 +30,6 @@ using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Presenters
 {
-    /// <summary>
-    ///     Represents the service that allows to show a view model using multi view model.
-    /// </summary>
     public class DynamicMultiViewModelPresenter : IDynamicViewModelPresenter
     {
         #region Fields
@@ -47,9 +44,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DynamicMultiViewModelPresenter" /> class.
-        /// </summary>
         public DynamicMultiViewModelPresenter([NotNull] IMultiViewModel multiViewModel,
             IOperationCallbackManager callbackManager = null, Func<IViewModel, IDataContext, IViewModelPresenter, bool> canShowViewModel = null)
         {
@@ -64,9 +58,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Properties
 
-        /// <summary>
-        /// Gets the delegate that determines that presenter can handle request.
-        /// </summary>
         [NotNull]
         public static Func<IViewModel, IDataContext, IViewModelPresenter, bool> CanShowViewModelDefault
         {
@@ -79,25 +70,16 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             set { _canShowDelegateDefault = value; }
         }
 
-        /// <summary>
-        ///     Get the current <see cref="IMultiViewModel" />.
-        /// </summary>
         protected IMultiViewModel MultiViewModel
         {
             get { return _multiViewModel; }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IOperationCallbackManager" />.
-        /// </summary>
         protected IOperationCallbackManager CallbackManager
         {
             get { return _callbackManager; }
         }
 
-        /// <summary>
-        /// Gets the delegate that determines that presenter can handle request.
-        /// </summary>
         protected Func<IViewModel, IDataContext, IViewModelPresenter, bool> CanShowViewModel
         {
             get
@@ -112,20 +94,11 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Implementation of IDynamicViewModelPresenter
 
-        /// <summary>
-        ///     Gets the presenter priority.
-        /// </summary>
         public int Priority
         {
             get { return ViewModelPresenter.DefaultMultiViewModelPresenterPriority; }
         }
 
-        /// <summary>
-        ///     Tries to show the specified <see cref="IViewModel" />.
-        /// </summary>
-        /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
-        /// <param name="context">The specified context.</param>
-        /// <param name="parentPresenter">The parent presenter, if any.</param>
         public virtual INavigationOperation TryShowAsync(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)
         {
@@ -145,9 +118,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Methods
 
-        /// <summary>
-        ///     Occurs when a view model is closed.
-        /// </summary>
         protected virtual void MultiViewModelOnViewModelClosed(object sender, ValueEventArgs<IViewModel> args)
         {
             var context = new NavigationContext(NavigationType.Tab, NavigationMode.Back, args.Value,

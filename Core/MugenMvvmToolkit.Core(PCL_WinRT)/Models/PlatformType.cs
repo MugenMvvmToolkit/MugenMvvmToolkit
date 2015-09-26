@@ -18,9 +18,6 @@
 
 namespace MugenMvvmToolkit.Models
 {
-    /// <summary>
-    ///     Represents the platform type.
-    /// </summary>
     public class PlatformType : StringConstantBase<PlatformType>
     {
         #region Fields
@@ -72,9 +69,6 @@ namespace MugenMvvmToolkit.Models
             XamarinFormsWinRT = new PlatformType("XamarinFormsWinRT");
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="PlatformType" /> class.
-        /// </summary>
         public PlatformType(string id)
             : base(id)
         {

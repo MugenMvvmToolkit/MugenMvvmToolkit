@@ -33,9 +33,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the observer that allows to observe an instance of object.
-    /// </summary>
     public abstract class ObserverBase : IObserver
     {
         #region Nested types
@@ -121,9 +118,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             EmptySource = new BindingResourceObject(null);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ObserverBase" /> class.
-        /// </summary>
         protected ObserverBase([NotNull] object source, [NotNull] IBindingPath path)
         {
             Should.NotBeNull(source, "source");
@@ -139,51 +133,30 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the original source object.
-        /// </summary>
         protected object OriginalSource
         {
             get { return _source; }
         }
 
-        /// <summary>
-        ///     Indicates that current observer dependes on <see cref="ValueChanged" /> subscribers.
-        /// </summary>
         protected abstract bool DependsOnSubscribers { get; }
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Updates the current values.
-        /// </summary>
         protected abstract IBindingPathMembers UpdateInternal(IBindingPathMembers oldPath, bool hasSubscribers);
 
-        /// <summary>
-        ///     Releases the current observers.
-        /// </summary>
         protected abstract void ClearObserversInternal();
 
-        /// <summary>
-        ///     Creates the source event listener.
-        /// </summary>
         protected virtual IEventListener CreateSourceListener()
         {
             return new DefaultListener(ToolkitExtensions.GetWeakReference(this));
         }
 
-        /// <summary>
-        ///     Releases resources held by the object.
-        /// </summary>
         protected virtual void OnDispose()
         {
         }
 
-        /// <summary>
-        ///     Raises the ValueChanged event.
-        /// </summary>
         protected virtual void RaiseValueChanged(ValueChangedEventArgs args)
         {
             try
@@ -198,9 +171,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Tries to add event handler using the event listener.
-        /// </summary>
         protected virtual IDisposable TryObserveMember(object value, IBindingMemberInfo member, IEventListener eventListener, string propertyName)
         {
             if (BindingMemberType.Event.EqualsWithoutNullCheck(member.MemberType))
@@ -220,10 +190,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return BindingServiceProvider.WeakEventManager.Subscribe(propertyChanged, propertyName, eventListener);
         }
 
-        /// <summary>
-        ///     Gets the actual source.
-        ///     If the source is an <see cref="ISourceValue" /> this method returns the value of Value property.
-        /// </summary>
         protected internal object GetActualSource()
         {
             var reference = _source as WeakReference;
@@ -296,14 +262,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IObserver
 
-        /// <summary>
-        ///     Gets an indication whether the object referenced by the current <see cref="ObserverBase" /> object has
-        ///     been garbage collected.
-        /// </summary>
-        /// <returns>
-        ///     true if the object referenced by the current <see cref="ObserverBase" /> object has not been garbage
-        ///     collected and is still accessible; otherwise, false.
-        /// </returns>
         public bool IsAlive
         {
             get
@@ -315,17 +273,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets the path.
-        /// </summary>
         public IBindingPath Path
         {
             get { return _path; }
         }
 
-        /// <summary>
-        ///     Gets the source value.
-        /// </summary>
         public object Source
         {
             get
@@ -337,23 +289,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Updates the current values.
-        /// </summary>
         public void Update()
         {
             Update(true);
         }
 
-        /// <summary>
-        ///     Determines whether the current source is valid.
-        /// </summary>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the source is not valid; false to return false.
-        /// </param>
-        /// <returns>
-        ///     If <c>true</c> current source is valid, otherwise <c>false</c>.
-        /// </returns>
         public bool Validate(bool throwOnError)
         {
             if (ReferenceEquals(_pathMembers, null))
@@ -366,9 +306,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return false;
         }
 
-        /// <summary>
-        ///     Gets the actual source object.
-        /// </summary>
         public object GetActualSource(bool throwOnError)
         {
             if (throwOnError)
@@ -380,9 +317,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return GetActualSource();
         }
 
-        /// <summary>
-        ///     Gets the source object include the path members.
-        /// </summary>
         public IBindingPathMembers GetPathMembers(bool throwOnError)
         {
             if (ReferenceEquals(_pathMembers, null))
@@ -398,9 +332,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return UnsetBindingPathMembers.Instance;
         }
 
-        /// <summary>
-        ///     Occurs when value changed.
-        /// </summary>
         public event EventHandler<IObserver, ValueChangedEventArgs> ValueChanged
         {
             add
@@ -414,9 +345,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             remove { _valueChanged -= value; }
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         public void Dispose()
         {
             if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
@@ -446,12 +374,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Overrides of Object
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>
-        ///     A string that represents the current object.
-        /// </returns>
         public override string ToString()
         {
             return string.Format("{0}, Member: {1}, IsValid: {2}", Path, GetPathMembers(false).LastMember, Validate(false).ToString());

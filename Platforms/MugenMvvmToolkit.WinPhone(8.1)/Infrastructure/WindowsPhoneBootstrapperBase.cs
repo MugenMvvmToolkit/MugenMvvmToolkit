@@ -37,16 +37,10 @@ using MugenMvvmToolkit.WinPhone.Interfaces.Navigation;
 
 namespace MugenMvvmToolkit.WinPhone.Infrastructure
 {
-    /// <summary>
-    ///     Represents the base class that is used to start MVVM application.
-    /// </summary>
     public abstract class WindowsPhoneBootstrapperBase : BootstrapperBase
     {
         #region Fields
 
-        /// <summary>
-        /// Gets the name of binding assembly.
-        /// </summary>
         protected const string BindingAssemblyName = "MugenMvvmToolkit.WinPhone.Binding";
         private readonly PhoneApplicationFrame _rootFrame;
         private readonly PlatformInfo _platform;
@@ -61,9 +55,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="WindowsPhoneBootstrapperBase" /> class.
-        /// </summary>
         protected WindowsPhoneBootstrapperBase([NotNull] PhoneApplicationFrame rootFrame, PlatformInfo platform = null)
         {
             Should.NotBeNull(rootFrame, "rootFrame");
@@ -76,9 +67,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the root frame.
-        /// </summary>
         protected PhoneApplicationFrame RootFrame
         {
             get { return _rootFrame; }
@@ -88,9 +76,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #region Overrides of BootstrapperBase
 
-        /// <summary>
-        ///     Initializes the current bootstrapper.
-        /// </summary>
         protected override void InitializeInternal()
         {
             var application = CreateApplication();
@@ -107,9 +92,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Starts the current bootstrapper.
-        /// </summary>
         public virtual void Start()
         {
             Initialize();
@@ -122,9 +104,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
             viewModel.ShowAsync((model, result) => model.Dispose(), context: ctx);
         }
 
-        /// <summary>
-        ///     Gets the application assemblies.
-        /// </summary>
         protected virtual ICollection<Assembly> GetAssemblies()
         {
             var listAssembly = new List<Assembly>();
@@ -147,9 +126,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
             return listAssembly;
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="INavigationService" />.
-        /// </summary>
         [CanBeNull]
         protected virtual INavigationService CreateNavigationService(PhoneApplicationFrame frame)
         {

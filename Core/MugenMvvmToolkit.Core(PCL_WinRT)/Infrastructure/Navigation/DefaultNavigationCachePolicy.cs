@@ -26,9 +26,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure.Navigation
 {
-    /// <summary>
-    ///     Represents the view model navigation cache policy, that clear the cache during back navigation.
-    /// </summary>
     public class DefaultNavigationCachePolicy : INavigationCachePolicy
     {
         #region Fields
@@ -39,9 +36,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DefaultNavigationCachePolicy" /> class.
-        /// </summary>
         public DefaultNavigationCachePolicy()
         {
             _cachedViewModels = new Dictionary<Type, List<IViewModel>>();
@@ -51,9 +45,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         #region Implementation of INavigationCachePolicy
 
-        /// <summary>
-        ///     Tries to save a view model in the cache.
-        /// </summary>
         public virtual void TryCacheViewModel(INavigationContext context, object view, IViewModel viewModel)
         {
             if (context.NavigationMode == NavigationMode.Back)
@@ -73,9 +64,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                     viewModel.GetType(), context.NavigationMode, type);
         }
 
-        /// <summary>
-        ///     Tries to get view model from the cache, and delete it from the cache.
-        /// </summary>
         public virtual IViewModel TryTakeViewModelFromCache(INavigationContext context, object view)
         {
             view = GetView(view);
@@ -95,9 +83,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             return vm;
         }
 
-        /// <summary>
-        ///     Gets the cached view models.
-        /// </summary>
         public virtual IList<IViewModel> GetViewModels(IDataContext context)
         {
             var list = new List<IViewModel>();
@@ -107,9 +92,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             return list;
         }
 
-        /// <summary>
-        ///     Removes the view model from cache.
-        /// </summary>
         public virtual bool Invalidate(IViewModel viewModel, IDataContext context)
         {
             bool clear = false;
@@ -125,9 +107,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             return clear;
         }
 
-        /// <summary>
-        ///     Clears the cache.
-        /// </summary>
         public virtual IList<IViewModel> Invalidate(IDataContext context)
         {
             var viewModels = GetViewModels(context);

@@ -26,9 +26,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the binding manager.
-    /// </summary>
     public class BindingManager : IBindingManager
     {
         #region Fields
@@ -52,13 +49,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IBindingManager
 
-        /// <summary>
-        ///     Registers the specified binding.
-        /// </summary>
-        /// <param name="target">The specified target.</param>
-        /// <param name="path">The specified path.</param>
-        /// <param name="binding">The specified <see cref="IDataBinding" />.</param>
-        /// <param name="context">The specified <see cref="IDataContext"/>, if any.</param>
         public virtual void Register(object target, string path, IDataBinding binding, IDataContext context = null)
         {
             Should.NotBeNull(target, "target");
@@ -82,13 +72,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 .AddOrUpdate(target, BindPrefix + path, binding, UpdateValueFactoryDelegate);
         }
 
-        /// <summary>
-        ///     Determine whether the specified binding is available in the <see cref="IBindingManager" />.
-        /// </summary>
-        /// <param name="binding">The <see cref="IDataBinding" /> to test for the registration of.</param>
-        /// <returns>
-        ///     True if the binding is registered.
-        /// </returns>
         public virtual bool IsRegistered(IDataBinding binding)
         {
             Should.NotBeNull(binding, "binding");
@@ -98,11 +81,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return dataBinding.IsAssociated;
         }
 
-        /// <summary>
-        ///     Retrieves the <see cref="IDataBinding" /> objects.
-        /// </summary>
-        /// <param name="target">The object to get bindings.</param>
-        /// <param name="context">The specified <see cref="IDataContext"/>, if any.</param>
         public virtual IEnumerable<IDataBinding> GetBindings(object target, IDataContext context = null)
         {
             Should.NotBeNull(target, "target");
@@ -112,12 +90,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 .ToArrayEx(pair => (IDataBinding)pair.Value);
         }
 
-        /// <summary>
-        ///     Retrieves the <see cref="IDataBinding" /> objects that is set on the specified property.
-        /// </summary>
-        /// <param name="target">The object where <paramref name="path" /> is.</param>
-        /// <param name="path">The binding target property from which to retrieve the binding.</param>
-        /// <param name="context">The specified <see cref="IDataContext"/>, if any.</param>
         public virtual IEnumerable<IDataBinding> GetBindings(object target, string path, IDataContext context = null)
         {
             Should.NotBeNull(target, "target");
@@ -127,9 +99,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return Enumerable.Empty<IDataBinding>();
         }
 
-        /// <summary>
-        ///     Unregisters the specified <see cref="IDataBinding"/>.
-        /// </summary>
         public virtual void Unregister(IDataBinding binding)
         {
             Should.NotBeNull(binding, "binding");
@@ -139,11 +108,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 ClearBindings(source, path);
         }
 
-        /// <summary>
-        ///     Removes all bindings from the specified target.
-        /// </summary>
-        /// <param name="target">The object from which to remove bindings.</param>
-        /// <param name="context">The specified <see cref="IDataContext"/>, if any.</param>
         public virtual void ClearBindings(object target, IDataContext context = null)
         {
             Should.NotBeNull(target, "target");
@@ -157,12 +121,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Removes the bindings from a property if there is one.
-        /// </summary>
-        /// <param name="target">The object from which to remove the bindings.</param>
-        /// <param name="path">The property path from which to remove the bindings.</param>
-        /// <param name="context">The specified <see cref="IDataContext"/>, if any.</param>
         public virtual void ClearBindings(object target, string path, IDataContext context = null)
         {
             Should.NotBeNull(target, "target");

@@ -28,16 +28,10 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the class that allows to subscribe to events using weak references.
-    /// </summary>
     public class WeakEventManager : IWeakEventManager
     {
         #region Nested types
 
-        /// <summary>
-        ///     This is internal class, don't use it.
-        /// </summary>
         public sealed class WeakListenerInternal : EventListenerList
         {
             #region Fields
@@ -92,9 +86,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Overrides of EventListenerListBase
 
-            /// <summary>
-            /// Occurs on add a listener.
-            /// </summary>
             protected override bool OnAdd(WeakEventListenerWrapper weakItem, bool withUnsubscriber, out IDisposable unsubscriber)
             {
                 unsubscriber = null;
@@ -110,9 +101,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return true;
             }
 
-            /// <summary>
-            /// Occurs on empty collection.
-            /// </summary>
             protected override void OnEmpty()
             {
                 Listeners = Empty;
@@ -403,9 +391,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IWeakEventManager
 
-        /// <summary>
-        ///     Attempts to subscribe to the event.
-        /// </summary>
         public virtual IDisposable TrySubscribe(object target, EventInfo eventInfo, IEventListener listener, IDataContext context = null)
         {
             Should.NotBeNull(target, "target");
@@ -422,9 +407,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return listenerInternal.AddWithUnsubscriber(listener);
         }
 
-        /// <summary>
-        ///     Subscribes to the property changed event.
-        /// </summary>
         public virtual IDisposable Subscribe(INotifyPropertyChanged propertyChanged, string propertyName, IEventListener listener, IDataContext context = null)
         {
             Should.NotBeNull(propertyChanged, "propertyChanged");

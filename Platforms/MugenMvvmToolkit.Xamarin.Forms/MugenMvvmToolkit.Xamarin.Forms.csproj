@@ -35,7 +35,8 @@
     <DefineConstants>TRACE;XAMARIN_FORMS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\bin\Platforms\Xamarin.Forms\PCL\MugenMvvmToolkit.Xamarin.Forms.XML</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>

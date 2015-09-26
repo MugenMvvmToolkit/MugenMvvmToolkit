@@ -28,30 +28,21 @@ using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Validation
 {
-    /// <summary>
-    ///     Represents the factory that allows to create an instance of <see cref="IValidator" />.
-    /// </summary>
     public class ValidatorProvider : IValidatorProvider
     {
         #region Fields
 
         private readonly Dictionary<Type, Type> _validators;
-        
+
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ValidatorProvider" /> class.
-        /// </summary>
         public ValidatorProvider()
             : this(true)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ValidatorProvider" /> class.
-        /// </summary>
         public ValidatorProvider(bool registerDefaultValidators)
         {
             _validators = new Dictionary<Type, Type>();
@@ -66,9 +57,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         #region Implementation of IValidatorProvider
 
-        /// <summary>
-        ///     Registers the specified validator.
-        /// </summary>
         public void Register(Type validatorType)
         {
             Should.BeOfType<IValidator>(validatorType, "validatorType");
@@ -76,9 +64,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 _validators[validatorType] = GetSupportedType(validatorType);
         }
 
-        /// <summary>
-        ///     Determines whether the specified validator is registered
-        /// </summary>
         public bool IsRegistered(Type validatorType)
         {
             Should.BeOfType<IValidator>(validatorType, "validatorType");
@@ -86,9 +71,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 return _validators.ContainsKey(validatorType);
         }
 
-        /// <summary>
-        ///     Unregisters the specified validator.
-        /// </summary>
         public bool Unregister(Type validatorType)
         {
             Should.BeOfType<IValidator>(validatorType, "validatorType");
@@ -96,20 +78,12 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 return _validators.Remove(validatorType);
         }
 
-        /// <summary>
-        ///     Gets the series of validator types.
-        /// </summary>
         public IList<Type> GetValidatorTypes()
         {
             lock (_validators)
                 return _validators.Keys.ToArrayEx();
         }
 
-        /// <summary>
-        ///     Gets the series of validators for the specified instance.
-        /// </summary>
-        /// <param name="context">The specified IValidatorContext.</param>
-        /// <returns>A series instances of validators.</returns>
         public IList<IValidator> GetValidators(IValidatorContext context)
         {
             Should.NotBeNull(context, "context");
@@ -129,9 +103,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             }
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IValidatorAggregator" />.
-        /// </summary>
         public IValidatorAggregator GetValidatorAggregator()
         {
             return GetValidatorAggregatorInternal();
@@ -141,9 +112,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         #region Methods
 
-        /// <summary>
-        ///     Creates an instance of specified type for the specified context.
-        /// </summary>
         [CanBeNull]
         protected virtual IValidator GetValidator([NotNull] Type validatorType, [NotNull] IValidatorContext context)
         {
@@ -171,9 +139,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             return null;
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IValidatorAggregator" />.
-        /// </summary>
         [NotNull]
         protected virtual IValidatorAggregator GetValidatorAggregatorInternal()
         {

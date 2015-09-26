@@ -23,9 +23,6 @@ using MugenMvvmToolkit.Interfaces.Validation;
 
 namespace MugenMvvmToolkit.Models.Validation
 {
-    /// <summary>
-    ///     Represents the validation context.
-    /// </summary>
     public class ValidatorContext : IValidatorContext
     {
         #region Fields
@@ -40,17 +37,11 @@ namespace MugenMvvmToolkit.Models.Validation
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ValidatorContext" /> class.
-        /// </summary>
         public ValidatorContext(object instanceToValidate, IServiceProvider serviceProvider = null)
             : this(instanceToValidate, null, null, null, serviceProvider)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ValidatorContext" /> class.
-        /// </summary>
         public ValidatorContext(object instanceToValidate, IDictionary<string, ICollection<string>> propertyMappings,
             ICollection<string> ignoredProperties, IDataContext validationMetadata = null,
             IServiceProvider serviceProvider = null)
@@ -67,41 +58,26 @@ namespace MugenMvvmToolkit.Models.Validation
 
         #region Implementation of IValidatorContext
 
-        /// <summary>
-        ///     Gets the object to validate.
-        /// </summary>
         public object Instance
         {
             get { return _instance; }
         }
 
-        /// <summary>
-        ///     Gets or sets the validation metadata.
-        /// </summary>
         public IDataContext ValidationMetadata
         {
             get { return _validationMetadata; }
         }
 
-        /// <summary>
-        ///     Gets the error properties mapping.
-        /// </summary>
         public IDictionary<string, ICollection<string>> PropertyMappings
         {
             get { return _propertyMappings; }
         }
 
-        /// <summary>
-        ///     Gets the list of properties that will not be validated.
-        /// </summary>
         public ICollection<string> IgnoreProperties
         {
             get { return _ignoreProperties; }
         }
 
-        /// <summary>
-        ///     Gets the service provider.
-        /// </summary>
         public IServiceProvider ServiceProvider
         {
             get { return _serviceProvider; }
@@ -111,14 +87,6 @@ namespace MugenMvvmToolkit.Models.Validation
 
         #region Implementation of IServiceProvider
 
-        /// <summary>
-        ///     Gets the service object of the specified type.
-        /// </summary>
-        /// <returns>
-        ///     A service object of type <paramref name="serviceType" />.-or- null if there is no service object of type
-        ///     <paramref name="serviceType" />.
-        /// </returns>
-        /// <param name="serviceType">An object that specifies the type of service object to get. </param>
         object IServiceProvider.GetService(Type serviceType)
         {
             if (ServiceProvider == null)

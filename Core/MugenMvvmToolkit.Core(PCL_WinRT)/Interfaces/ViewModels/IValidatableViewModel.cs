@@ -20,9 +20,6 @@ using MugenMvvmToolkit.Interfaces.Validation;
 
 namespace MugenMvvmToolkit.Interfaces.ViewModels
 {
-    /// <summary>
-    ///     Represents the interface for view model that allows to validate view model.
-    /// </summary>
     public interface IValidatableViewModel : IViewModel, IValidatorAggregator
     {
     }

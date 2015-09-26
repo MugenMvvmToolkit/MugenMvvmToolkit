@@ -27,9 +27,6 @@ using Xamarin.Forms.Xaml;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
 {
-    /// <summary>
-    ///     Provides high-level access to the definition of a binding, which connects the properties of binding target objects.
-    /// </summary>
     [ContentProperty("Path")]
     public partial class DataBindingExtension : IMarkupExtension
     {

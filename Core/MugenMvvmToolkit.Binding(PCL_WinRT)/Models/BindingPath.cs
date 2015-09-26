@@ -24,26 +24,14 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
-    /// <summary>
-    ///     Represents a data structure for describing a member as a path below another member, or below an owning type.
-    /// </summary>
     public sealed class BindingPath : IBindingPath
     {
         #region Fields
 
-        /// <summary>
-        /// Gets the non existing path.
-        /// </summary>
         public static readonly IBindingPath None;
 
-        /// <summary>
-        /// Gets the empty path.
-        /// </summary>
         public static readonly IBindingPath Empty;
 
-        /// <summary>
-        /// Gets the data context path.
-        /// </summary>
         public static readonly IBindingPath DataContext;
 
         private static readonly Dictionary<string, IBindingPath> Cache;
@@ -64,9 +52,6 @@ namespace MugenMvvmToolkit.Binding.Models
             DataContext = Create(AttachedMemberConstants.DataContext);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingPath" /> class.
-        /// </summary>
         private BindingPath(string path)
         {
             const StringComparison comparison = StringComparison.Ordinal;
@@ -107,17 +92,11 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Implementation of IBindingPath
 
-        /// <summary>
-        ///     Gets the string that describes the path.
-        /// </summary>
         public string Path
         {
             get { return _path; }
         }
 
-        /// <summary>
-        ///     Gets the path members.
-        /// </summary>
         public IList<string> Parts
         {
             get
@@ -128,17 +107,11 @@ namespace MugenMvvmToolkit.Binding.Models
             }
         }
 
-        /// <summary>
-        ///     Gets the value that indicates that path is empty.
-        /// </summary>
         public bool IsEmpty
         {
             get { return _isEmpty; }
         }
 
-        /// <summary>
-        ///     Gets the value that indicates that path has a single item.
-        /// </summary>
         public bool IsSingle
         {
             get { return _isSingle; }
@@ -153,9 +126,6 @@ namespace MugenMvvmToolkit.Binding.Models
             return Create(path, true);
         }
 
-        /// <summary>
-        ///     Creates a new instance of the <see cref="BindingPath" /> class.
-        /// </summary>
         [NotNull]
         public static IBindingPath Create([NotNull]string path, bool useCache = true)
         {
@@ -182,12 +152,6 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Overrides of Object
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>
-        ///     A string that represents the current object.
-        /// </returns>
         public override string ToString()
         {
             return _path;

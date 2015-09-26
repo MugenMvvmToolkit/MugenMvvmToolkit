@@ -73,17 +73,11 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Implementation of IOperationCallback
 
-        /// <summary>
-        ///     Gets a value indicating whether the <see cref="IOperationCallback" /> is serializable.
-        /// </summary>
         public bool IsSerializable
         {
             get { return _callback != null || _asyncOperation != null; }
         }
 
-        /// <summary>
-        ///     Invokes the callback using the specified operation result.
-        /// </summary>
         public void Invoke(IOperationResult result)
         {
             Should.NotBeNull(result, "result");

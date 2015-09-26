@@ -28,19 +28,10 @@ namespace MugenMvvmToolkit.iOS.Binding.Interfaces
 {
     public interface ICollectionViewManager
     {
-        /// <summary>
-        ///     Inserts an item to the specified index.
-        /// </summary>
         void Insert([NotNull] object view, int index, object viewItem);
 
-        /// <summary>
-        ///     Removes an item.
-        /// </summary>
         void RemoveAt([NotNull] object view, int index);
 
-        /// <summary>
-        ///     Removes all items.
-        /// </summary>
         void Clear([NotNull] object view);
     }
 }

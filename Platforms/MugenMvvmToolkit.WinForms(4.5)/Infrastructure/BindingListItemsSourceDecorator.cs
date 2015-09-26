@@ -23,16 +23,10 @@ using MugenMvvmToolkit.WinForms.Collections;
 
 namespace MugenMvvmToolkit.WinForms.Infrastructure
 {
-    /// <summary>
-    ///     Represnets the class that allows to wrap items source collection to <see cref="BindingListWrapper{T}" />.
-    /// </summary>
     public sealed class BindingListItemsSourceDecorator : IItemsSourceDecorator
     {
         #region Implementation of IItemsSourceDecorator
 
-        /// <summary>
-        ///     Decorates items source collection.
-        /// </summary>
         public IList<T> Decorate<T>(IList<T> itemsSource)
         {
             var notifiableCollection = itemsSource as SynchronizedNotifiableCollection<T>;

@@ -32,10 +32,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Provides high-level access to the definition of a binding, which connects the properties of binding target objects
-    ///     and any data source
-    /// </summary>
     public class DataBinding : IDataBinding, IDataContext, ICollection<IBindingBehavior>
     {
         #region Fields
@@ -53,9 +49,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DataBinding" /> class.
-        /// </summary>
         public DataBinding([NotNull] ISingleBindingSourceAccessor target, [NotNull] IBindingSourceAccessor source)
         {
             Should.NotBeNull(target, "target");
@@ -69,49 +62,31 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IDataBinding
 
-        /// <summary>
-        ///     Gets the current <see cref="IDataContext" />.
-        /// </summary>
         public IDataContext Context
         {
             get { return this; }
         }
 
-        /// <summary>
-        ///     Gets the binding target accessor.
-        /// </summary>
         public ISingleBindingSourceAccessor TargetAccessor
         {
             get { return _targetAccessor; }
         }
 
-        /// <summary>
-        ///     Gets the binding source accessor.
-        /// </summary>
         public IBindingSourceAccessor SourceAccessor
         {
             get { return _sourceAccessor; }
         }
 
-        /// <summary>
-        ///     Gets the binding behaviors.
-        /// </summary>
         public ICollection<IBindingBehavior> Behaviors
         {
             get { return this; }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether this instance is disposed.
-        /// </summary>
         public bool IsDisposed
         {
             get { return ReferenceEquals(DataContext.Empty, _lazyContext); }
         }
 
-        /// <summary>
-        ///     Sends the current value back to the source.
-        /// </summary>
         public virtual bool UpdateSource()
         {
             //ignoring the concurrent access, there is no need to use Interlocked or lock
@@ -140,9 +115,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return false;
         }
 
-        /// <summary>
-        ///     Forces a data transfer from source to target.
-        /// </summary>
         public virtual bool UpdateTarget()
         {
             //ignoring the concurrent access, there is no need to use Interlocked or lock
@@ -171,9 +143,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return false;
         }
 
-        /// <summary>
-        ///     Validates the current binding and raises the BindingException event if needed.
-        /// </summary>
         public virtual bool Validate()
         {
             var action = BindingAction.UpdateTarget;
@@ -207,9 +176,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         public void Dispose()
         {
             if (Interlocked.Exchange(ref _lazyContext, DataContext.Empty) == DataContext.Empty)
@@ -223,45 +189,27 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _targetAccessor.Dispose();
         }
 
-        /// <summary>
-        ///     Occurs when the binding updates the values.
-        /// </summary>
         public event EventHandler<IDataBinding, BindingEventArgs> BindingUpdated;
 
-        /// <summary>
-        ///     Occurs when an exception is not caught.
-        /// </summary>
         public event EventHandler<IDataBinding, BindingExceptionEventArgs> BindingException;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Occurs when behavior added.
-        /// </summary>
         protected virtual void OnBehaviorAdded([NotNull] IBindingBehavior behavior)
         {
         }
 
-        /// <summary>
-        ///     Occurs when behavior removed.
-        /// </summary>
         protected virtual void OnBehaviorRemoved([NotNull] IBindingBehavior behavior)
         {
         }
 
 
-        /// <summary>
-        ///     Releases resources held by the object.
-        /// </summary>
         protected virtual void OnDispose()
         {
         }
 
-        /// <summary>
-        ///     Raises the <see cref="BindingException" /> event.
-        /// </summary>
         protected void RaiseBindingException(Exception exception, Exception originalException, BindingAction action)
         {
             Tracer.Error(exception.Message);
@@ -269,9 +217,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (handler != null) handler(this, new BindingExceptionEventArgs(action, exception, originalException));
         }
 
-        /// <summary>
-        ///     Raises the <see cref="BindingUpdated" /> event.
-        /// </summary>
         protected void RaiseBindingUpdated(BindingEventArgs args)
         {
             var handler = BindingUpdated;
@@ -335,12 +280,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IDataContext
 
-        /// <summary>
-        ///     Gets the number of elements contained in the <see cref="IDataContext" />.
-        /// </summary>
-        /// <returns>
-        ///     The number of elements contained in the <see cref="IDataContext" />.
-        /// </returns>
         int IDataContext.Count
         {
             get
@@ -351,38 +290,23 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether the <see cref="IDataContext" /> is read-only.
-        /// </summary>
-        /// <returns>
-        ///     true if the <see cref="IDataContext" /> is read-only; otherwise, false.
-        /// </returns>
         bool IDataContext.IsReadOnly
         {
             get { return false; }
         }
 
-        /// <summary>
-        ///     Adds the data constant value.
-        /// </summary>
         void IDataContext.Add<T>(DataConstant<T> dataConstant, T value)
         {
             InitializeContext();
             _lazyContext.Add(dataConstant, value);
         }
 
-        /// <summary>
-        ///     Adds the data constant value or update existing.
-        /// </summary>
         void IDataContext.AddOrUpdate<T>(DataConstant<T> dataConstant, T value)
         {
             InitializeContext();
             _lazyContext.AddOrUpdate(dataConstant, value);
         }
 
-        /// <summary>
-        ///     Gets the data using the specified data constant.
-        /// </summary>
         T IDataContext.GetData<T>(DataConstant<T> dataConstant)
         {
             if (_lazyContext == null)
@@ -394,9 +318,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return _lazyContext.GetData(dataConstant);
         }
 
-        /// <summary>
-        ///     Gets the data using the specified data constant.
-        /// </summary>
         bool IDataContext.TryGetData<T>(DataConstant<T> dataConstant, out T data)
         {
             if (_lazyContext == null)
@@ -412,9 +333,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return _lazyContext.TryGetData(dataConstant, out data);
         }
 
-        /// <summary>
-        ///     Determines whether the <see cref="IDataContext" /> contains the specified key.
-        /// </summary>
         bool IDataContext.Contains(DataConstant dataConstant)
         {
             if (_lazyContext == null)
@@ -422,9 +340,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return _lazyContext.Contains(dataConstant);
         }
 
-        /// <summary>
-        ///     Removes the data constant value.
-        /// </summary>
         bool IDataContext.Remove(DataConstant dataConstant)
         {
             if (_lazyContext == null)
@@ -432,27 +347,18 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return _lazyContext.Remove(dataConstant);
         }
 
-        /// <summary>
-        ///     Updates the current context.
-        /// </summary>
         void IDataContext.Merge(IDataContext context)
         {
             InitializeContext();
             _lazyContext.Merge(context);
         }
 
-        /// <summary>
-        /// Removes all values from current context.
-        /// </summary>
         void IDataContext.Clear()
         {
             if (_lazyContext != null)
                 _lazyContext.Clear();
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IList{DataConstantValue}" /> from current context.
-        /// </summary>
         IList<DataConstantValue> IDataContext.ToList()
         {
             if (_lazyContext == null || _lazyContext == DataContext.Empty)

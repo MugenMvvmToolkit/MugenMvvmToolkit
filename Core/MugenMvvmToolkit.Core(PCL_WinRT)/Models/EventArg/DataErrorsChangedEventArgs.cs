@@ -22,9 +22,6 @@ using MugenMvvmToolkit.Interfaces.Validation;
 
 namespace MugenMvvmToolkit.Models.EventArg
 {
-    /// <summary>
-    ///     Provides data for the <see cref="INotifyDataErrorInfo.ErrorsChanged" /> event.
-    /// </summary>
     public class DataErrorsChangedEventArgs : EventArgs
     {
         #region Fields
@@ -32,12 +29,9 @@ namespace MugenMvvmToolkit.Models.EventArg
         private readonly string _propertyName;
 
         #endregion
-        
+
         #region Constructors
 
-        /// <summary>
-        /// Initializes the <see cref="DataErrorsChangedEventArgs"/>.
-        /// </summary>
         public DataErrorsChangedEventArgs(string propertyName)
         {
             _propertyName = propertyName;
@@ -47,16 +41,9 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the name of the property that has an error.
-        /// </summary>
-        /// <returns>
-        ///     The name of the property that has an error. null or <see cref="F:System.String.Empty" /> if the error is
-        ///     object-level.
-        /// </returns>
         public string PropertyName
         {
-            get { return _propertyName; }            
+            get { return _propertyName; }
         }
 
         #endregion

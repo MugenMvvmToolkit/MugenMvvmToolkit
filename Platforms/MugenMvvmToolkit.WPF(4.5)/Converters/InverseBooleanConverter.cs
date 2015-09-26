@@ -34,16 +34,10 @@ namespace MugenMvvmToolkit.WinRT.Binding.Converters
 namespace MugenMvvmToolkit.WinPhone.Binding.Converters
 #endif
 {
-    /// <summary>
-    ///     This converter reverses a Boolean value (True == False, False == True).
-    /// </summary>
     public sealed class InverseBooleanConverter : IValueConverter
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets an instance of <see cref="InverseBooleanConverter" />.
-        /// </summary>
         public static readonly InverseBooleanConverter Instance;
 
         #endregion

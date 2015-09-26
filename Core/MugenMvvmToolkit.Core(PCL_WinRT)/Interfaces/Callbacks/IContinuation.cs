@@ -20,14 +20,8 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Interfaces.Callbacks
 {
-    /// <summary>
-    ///     Represents the base interfaces for all continuations.
-    /// </summary>
     public interface IContinuation
     {
-        /// <summary>
-        ///     Tries to convert current operation to an instance of <see cref="ISerializableCallback" />.
-        /// </summary>
         [CanBeNull]
         ISerializableCallback ToSerializableCallback();
     }

@@ -38,23 +38,14 @@ using MugenMvvmToolkit.Xamarin.Forms.WinRT.Infrastructure.Presenters;
 namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
 #endif
 {
-    /// <summary>
-    ///     Represents the class that is used to initialize the IOC adapter.
-    /// </summary>
     public class InitializationModuleEx : InitializationModule
     {
         #region Cosntructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="InitializationModuleEx" /> class.
-        /// </summary>
         public InitializationModuleEx()
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="InitializationModuleEx" /> class.
-        /// </summary>
         protected InitializationModuleEx(LoadMode mode = LoadMode.All, int priority = InitializationModulePriority)
             : base(mode, priority)
         {
@@ -64,19 +55,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
 
         #region Overrides of InitializationModule
 
-        /// <summary>
-        ///     Gets the <see cref="IMessagePresenter" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IMessagePresenter" />.</returns>
         protected override BindingInfo<IMessagePresenter> GetMessagePresenter()
         {
             return BindingInfo<IMessagePresenter>.FromType<MessagePresenter>(DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IToastPresenter" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IToastPresenter" />.</returns>
         protected override BindingInfo<IToastPresenter> GetToastPresenter()
         {
             return BindingInfo<IToastPresenter>.FromType<ToastPresenter>(DependencyLifecycle.SingleInstance);

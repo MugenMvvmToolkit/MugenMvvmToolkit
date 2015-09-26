@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="PlatformExtensions.cs">
@@ -233,9 +233,6 @@ namespace MugenMvvmToolkit.Android
 
         #region Fields
 
-        /// <summary>
-        ///     Gets the fragment constant.
-        /// </summary>
         public static readonly DataConstant<object> FragmentConstant;
 
         internal static readonly bool IsApiGreaterThan10;
@@ -302,22 +299,13 @@ namespace MugenMvvmToolkit.Android
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the delegate that allows to handle view creation.
-        /// </summary>
         [CanBeNull]
         public static Func<View, string, Context, IAttributeSet, View> ViewCreated { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the default <see cref="IDataTemplateSelector" />.
-        /// </summary>
         [CanBeNull]
         public static IDataTemplateSelector DefaultDataTemplateSelector { get; set; }
 
 
-        /// <summary>
-        ///     Gets or sets the factory that creates an instance of <see cref="IMvvmActivityMediator" />.
-        /// </summary>
         [NotNull]
         public static Func<Activity, IDataContext, IMvvmActivityMediator> MvvmActivityMediatorFactory
         {
@@ -329,9 +317,6 @@ namespace MugenMvvmToolkit.Android
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the factory that creates an instance of <see cref="MenuInflater" />.
-        /// </summary>
         [NotNull]
         public static Func<Context, IDataContext, BindableMenuInflater> MenuInflaterFactory
         {
@@ -343,9 +328,6 @@ namespace MugenMvvmToolkit.Android
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the factory that creates an instance of <see cref="LayoutInflater" />.
-        /// </summary>
         [NotNull]
         public static Func<Context, IDataContext, IViewFactory, LayoutInflater, BindableLayoutInflater> LayoutInflaterFactory
         {
@@ -357,9 +339,6 @@ namespace MugenMvvmToolkit.Android
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the delegate that initializes a content view.
-        /// </summary>
         [NotNull]
         public static Func<object, Context, object, int?, IDataTemplateSelector, object> GetContentView
         {
@@ -372,9 +351,6 @@ namespace MugenMvvmToolkit.Android
         }
 
 
-        /// <summary>
-        ///     Gets or sets the delegate that initializes a content view.
-        /// </summary>
         [NotNull]
         public static Action<object, object> SetContentView
         {
@@ -386,9 +362,6 @@ namespace MugenMvvmToolkit.Android
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the delegate that determines that an object is fragment.
-        /// </summary>
         [NotNull]
         public static Func<object, bool> IsFragment
         {
@@ -400,9 +373,6 @@ namespace MugenMvvmToolkit.Android
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the delegate that determines that an object is action bar.
-        /// </summary>
         public static Func<object, bool> IsActionBar
         {
             get { return _isActionBar; }
@@ -413,17 +383,11 @@ namespace MugenMvvmToolkit.Android
             }
         }
 
-        /// <summary>
-        ///     Gets the current top activity.
-        /// </summary>
         public static Activity CurrentActivity
         {
             get { return (Activity)_activityRef.Target; }
         }
 
-        /// <summary>
-        ///     Occurs when the <c>CurrentActivity</c> property changed.
-        /// </summary>
         public static event EventHandler CurrentActivityChanged;
 
         #endregion
@@ -452,9 +416,6 @@ namespace MugenMvvmToolkit.Android
             }
         }
 
-        /// <summary>
-        ///     Inflate a menu hierarchy from the specified XML resource.
-        /// </summary>
         public static void Inflate(this MenuInflater menuInflater, int menuRes, IMenu menu, object parent)
         {
             Should.NotBeNull(menuInflater, "menuInflater");
@@ -465,9 +426,6 @@ namespace MugenMvvmToolkit.Android
                 bindableMenuInflater.Inflate(menuRes, menu, parent);
         }
 
-        /// <summary>
-        /// Converts a layout inflater to bindable layout inflater.
-        /// </summary>
         [NotNull]
         public static BindableLayoutInflater ToBindableLayoutInflater(this LayoutInflater inflater, Context context = null)
         {
@@ -479,9 +437,6 @@ namespace MugenMvvmToolkit.Android
             return LayoutInflaterFactory(context, DataContext.Empty, null, inflater);
         }
 
-        /// <summary>
-        ///     Gets a layout inflater from context.
-        /// </summary>
         [NotNull]
         public static BindableLayoutInflater GetBindableLayoutInflater([NotNull] this Context context)
         {

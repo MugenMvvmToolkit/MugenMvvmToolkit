@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="MvvmTabActivity.cs">
@@ -53,26 +53,17 @@ namespace MugenMvvmToolkit.Android.Views.Activities
 
         #region Implementation of IView
 
-        /// <summary>
-        ///     Gets the current <see cref="IMvvmActivityMediator" />.
-        /// </summary>
         public virtual IMvvmActivityMediator Mediator
         {
             get { return this.GetOrCreateMediator(ref _mediator); }
         }
 
-        /// <summary>
-        ///     Gets or sets the data context of the current view.
-        /// </summary>
         public object DataContext
         {
             get { return Mediator.DataContext; }
             set { Mediator.DataContext = value; }
         }
 
-        /// <summary>
-        ///     Occurs when the DataContext property changed.
-        /// </summary>
         public event EventHandler<Activity, EventArgs> DataContextChanged
         {
             add { Mediator.DataContextChanged += value; }

@@ -20,9 +20,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Interfaces.ViewModels
 {
-    /// <summary>
-    ///     Represents the base interface for the view model, that can be displayed in the UI.
-    /// </summary>
     public interface IWorkspaceViewModel : IHasDisplayName, ISelectable, ICloseableViewModel
     {
     }

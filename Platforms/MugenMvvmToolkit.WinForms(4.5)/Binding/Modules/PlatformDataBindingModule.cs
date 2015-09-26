@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="PlatformDataBindingModule.cs">
@@ -344,18 +344,12 @@ namespace MugenMvvmToolkit.WinForms.Binding.Modules
 
         #region Overrides of DataBindingModule
 
-        /// <summary>
-        ///    Occurs on load the current module.
-        /// </summary>
         protected override void OnLoaded(IModuleContext context)
         {
             Register(BindingServiceProvider.MemberProvider);
             base.OnLoaded(context);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IBindingErrorProvider" /> that will be used by default.
-        /// </summary>
         protected override IBindingErrorProvider GetBindingErrorProvider(IModuleContext context)
         {
             if (context.Platform.Platform == PlatformType.WinForms)

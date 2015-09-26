@@ -20,19 +20,10 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Interfaces.Models
 {
-    /// <summary>
-    ///     Represents the model that has a state.
-    /// </summary>
     public interface IHasState
     {
-        /// <summary>
-        ///     Loads state.
-        /// </summary>
         void LoadState([NotNull] IDataContext state);
 
-        /// <summary>
-        ///     Saves state.
-        /// </summary>
         void SaveState([NotNull] IDataContext state);
     }
 }

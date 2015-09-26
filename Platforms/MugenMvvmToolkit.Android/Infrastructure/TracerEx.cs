@@ -32,9 +32,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             TraceError = true;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="TracerEx" /> class.
-        /// </summary>
         public TracerEx()
         {
             Tag = "MugenMvvmApp";
@@ -44,18 +41,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the tag of log.
-        /// </summary>
         public string Tag { get; set; }
 
         #endregion
 
         #region Overrides of Tracer
 
-        /// <summary>
-        ///     Writes an informational message to the trace listeners.
-        /// </summary>
         protected override void TraceInternal(TraceLevel level, string message)
         {
             switch (level)

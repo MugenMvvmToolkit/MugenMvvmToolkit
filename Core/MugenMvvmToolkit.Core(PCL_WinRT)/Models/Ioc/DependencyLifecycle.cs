@@ -18,21 +18,12 @@
 
 namespace MugenMvvmToolkit.Models.IoC
 {
-    /// <summary>
-    ///     Represent the various lifecycles available for coponents configured in the container
-    /// </summary>
     public class DependencyLifecycle : StringConstantBase<DependencyLifecycle>
     {
         #region Fields
 
-        /// <summary>
-        ///     Singleton scope
-        /// </summary>
         public static readonly DependencyLifecycle SingleInstance;
 
-        /// <summary>
-        ///     Transient scope.
-        /// </summary>
         public static readonly DependencyLifecycle TransientInstance;
 
         #endregion
@@ -45,9 +36,6 @@ namespace MugenMvvmToolkit.Models.IoC
             TransientInstance = new DependencyLifecycle("Transient");
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DependencyLifecycle" /> class.
-        /// </summary>
         public DependencyLifecycle(string id)
             : base(id)
         {

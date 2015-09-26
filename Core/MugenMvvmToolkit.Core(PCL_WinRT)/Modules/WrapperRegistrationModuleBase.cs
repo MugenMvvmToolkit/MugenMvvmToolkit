@@ -22,24 +22,15 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Modules
 {
-    /// <summary>
-    ///     Represents the module that allows to register wrappers using <see cref="WrapperManager" /> class.
-    /// </summary>
     public abstract class WrapperRegistrationModuleBase : ModuleBase
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="WrapperRegistrationModuleBase" /> class.
-        /// </summary>
         protected WrapperRegistrationModuleBase()
             : this(LoadMode.All)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="WrapperRegistrationModuleBase" /> class.
-        /// </summary>
         protected WrapperRegistrationModuleBase(LoadMode supportedModes, int priority = WrapperRegistrationModulePriority)
             : base(false, supportedModes, priority)
         {
@@ -49,9 +40,6 @@ namespace MugenMvvmToolkit.Modules
 
         #region Overrides of ModuleBase
 
-        /// <summary>
-        ///     Loads the current module.
-        /// </summary>
         protected override sealed bool LoadInternal()
         {
             IWrapperManager wrapperManager;
@@ -64,9 +52,6 @@ namespace MugenMvvmToolkit.Modules
             return true;
         }
 
-        /// <summary>
-        ///     Unloads the current module.
-        /// </summary>
         protected override sealed void UnloadInternal()
         {
         }
@@ -75,9 +60,6 @@ namespace MugenMvvmToolkit.Modules
 
         #region Methods
 
-        /// <summary>
-        ///     Registers the wrappers using <see cref="WrapperManager" /> class.
-        /// </summary>
         protected abstract void RegisterWrappers(WrapperManager wrapperManager);
 
         #endregion

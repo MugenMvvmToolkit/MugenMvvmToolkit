@@ -33,9 +33,6 @@ using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.WinForms.Infrastructure
 {
-    /// <summary>
-    ///     Represents the base class that is used to start MVVM application.
-    /// </summary>
     public abstract class WinFormsBootstrapperBase : BootstrapperBase
     {
         #region Fields
@@ -54,9 +51,6 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
             ViewManager.ViewCleared += OnViewCleared;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="WinFormsBootstrapperBase" /> class.
-        /// </summary>
         protected WinFormsBootstrapperBase(bool autoRunApplication = true, PlatformInfo platform = null)
         {
             _platform = platform ?? PlatformExtensions.GetPlatformInfo();
@@ -68,23 +62,14 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Indicates that bootstrapper should call the Application.Run method after start.
-        /// </summary>
         public bool AutoRunApplication { get; set; }
 
-        /// <summary>
-        ///     An application shuts down when either the main view model closes, or Application.Exit() is called.
-        /// </summary>
         public bool ShutdownOnMainViewModelClose { get; set; }
 
         #endregion
 
         #region Overrides of BootstrapperBase
 
-        /// <summary>
-        ///     Initializes the current bootstrapper.
-        /// </summary>
         protected override void InitializeInternal()
         {
             var application = CreateApplication();
@@ -96,9 +81,6 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Starts the current bootstrapper.
-        /// </summary>
         public virtual void Start()
         {
             Initialize();
@@ -119,9 +101,6 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
                 Application.Run();
         }
 
-        /// <summary>
-        ///     Gets the application assemblies.
-        /// </summary>
         protected virtual ICollection<Assembly> GetAssemblies()
         {
             var assemblies = new HashSet<Assembly>();

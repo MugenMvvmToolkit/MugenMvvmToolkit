@@ -22,9 +22,6 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the action token.
-    /// </summary>
     public sealed class ActionToken : IDisposable
     {
         #region Fields
@@ -39,18 +36,12 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ActionToken" /> class.
-        /// </summary>
         public ActionToken([NotNull] Action action)
         {
             Should.NotBeNull(action, "action");
             _action = action;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ActionToken" /> class.
-        /// </summary>
         public ActionToken([NotNull] Action<object> action, object state)
         {
             Should.NotBeNull(action, "action");
@@ -62,9 +53,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of IDisposable
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         public void Dispose()
         {
             if (Interlocked.Exchange(ref _disposed, DisposedState) == DisposedState)

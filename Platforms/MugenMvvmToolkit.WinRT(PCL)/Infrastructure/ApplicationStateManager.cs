@@ -42,9 +42,6 @@ using MugenMvvmToolkit.WinRT.Interfaces;
 namespace MugenMvvmToolkit.WinRT.Infrastructure
 #endif
 {
-    /// <summary>
-    ///     Represents the application state manager.
-    /// </summary>
     public class ApplicationStateManager : IApplicationStateManager
     {
         #region Nested types
@@ -130,9 +127,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
             KnownTypesStatic = new[] { typeof(LazySerializableContainer), typeof(DataContext) };
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ApplicationStateManager" /> class.
-        /// </summary>
         public ApplicationStateManager([NotNull] ISerializer serializer, [NotNull] IViewModelProvider viewModelProvider,
             [NotNull] IViewManager viewManager, [NotNull] IViewModelPresenter viewModelPresenter)
         {
@@ -150,33 +144,21 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the <see cref="ISerializer" />.
-        /// </summary>
         protected ISerializer Serializer
         {
             get { return _serializer; }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IViewModelProvider" />.
-        /// </summary>
         protected IViewModelProvider ViewModelProvider
         {
             get { return _viewModelProvider; }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IViewManager" />.
-        /// </summary>
         protected IViewManager ViewManager
         {
             get { return _viewManager; }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IViewModelPresenter" />.
-        /// </summary>
         protected IViewModelPresenter ViewModelPresenter
         {
             get { return _viewModelPresenter; }
@@ -186,17 +168,11 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
 
         #region Implementation of IApplicationStateManager
 
-        /// <summary>
-        ///     Gets the collection of known types.
-        /// </summary>
         public virtual IList<Type> KnownTypes
         {
             get { return KnownTypesStatic; }
         }
 
-        /// <summary>
-        ///     Occurs on save element state.
-        /// </summary>
         public void OnSaveState(FrameworkElement element, IDictionary<string, object> state, object args,
             IDataContext context = null)
         {
@@ -210,9 +186,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Occurs on load element state.
-        /// </summary>
         public void OnLoadState(FrameworkElement element, IDictionary<string, object> state, object args,
             IDataContext context = null)
         {
@@ -245,9 +218,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Restores the view model state.
-        /// </summary>
         [NotNull]
         protected virtual IDataContext RestoreViewModelState([NotNull] FrameworkElement element, [NotNull] IDictionary<string, object> state,
              [NotNull] object args, [NotNull] IDataContext context)
@@ -258,9 +228,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
             return DataContext.Empty;
         }
 
-        /// <summary>
-        ///     Restores the view model.
-        /// </summary>
         protected virtual void RestoreViewModel([NotNull] Type viewModelType, [NotNull] IDataContext viewModelState, [NotNull] FrameworkElement element,
             [NotNull] IDictionary<string, object> state, [NotNull] object args, [NotNull] IDataContext context)
         {
@@ -276,9 +243,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
             _viewModelPresenter.Restore(viewModel, context);
         }
 
-        /// <summary>
-        ///     Preserves the view model.
-        /// </summary>
         protected virtual void PreserveViewModel([NotNull] IViewModel viewModel, [NotNull] FrameworkElement element,
              [NotNull] IDictionary<string, object> state, [NotNull] object args, [NotNull] IDataContext context)
         {

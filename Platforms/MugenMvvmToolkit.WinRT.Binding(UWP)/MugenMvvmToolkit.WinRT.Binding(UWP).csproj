@@ -35,7 +35,8 @@
     <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP;WINDOWSCOMMON</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\bin\Platforms\WinRT\UWP\MugenMvvmToolkit.WinRT.Binding.XML</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <PlatformTarget>ARM</PlatformTarget>

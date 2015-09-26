@@ -20,25 +20,13 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Interfaces.Callbacks
 {
-    /// <summary>
-    ///     Represents an action to run when the <see cref="IAsyncOperation" /> completes.
-    /// </summary>
     public interface IActionContinuation : IContinuation
     {
-        /// <summary>
-        ///     Invokes the action using the specified operation result.
-        /// </summary>
         void Invoke([NotNull] IOperationResult result);
     }
 
-    /// <summary>
-    ///     Represents an action to run when the <see cref="IAsyncOperation{TResult}" /> completes.
-    /// </summary>
     public interface IActionContinuation<in TResult> : IContinuation
     {
-        /// <summary>
-        ///     Invokes the action using the specified operation result.
-        /// </summary>
         void Invoke([NotNull] IOperationResult<TResult> result);
     }
 }

@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="IBindingPath.cs">
@@ -21,31 +21,16 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Models
 {
-    /// <summary>
-    ///     Represents a data structure for describing a member as a path below another member, or below an owning type.
-    /// </summary>
     public interface IBindingPath
     {
-        /// <summary>
-        ///     Gets the string that describes the path.
-        /// </summary>
         [NotNull]
         string Path { get; }
 
-        /// <summary>
-        ///     Gets the path members.
-        /// </summary>
         [NotNull]
         IList<string> Parts { get; }
 
-        /// <summary>
-        ///     Gets the value that indicates that path is empty.
-        /// </summary>
         bool IsEmpty { get; }
 
-        /// <summary>
-        ///     Gets the value that indicates that path has a single item.
-        /// </summary>
         bool IsSingle { get; }
     }
 }

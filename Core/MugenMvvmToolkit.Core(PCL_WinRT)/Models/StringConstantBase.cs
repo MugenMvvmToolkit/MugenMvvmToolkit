@@ -22,9 +22,6 @@ using System.Xml.Serialization;
 
 namespace MugenMvvmToolkit.Models
 {
-    /// <summary>
-    ///     Represents the base class for strong type constant.
-    /// </summary>
     [Serializable, DataContract(Namespace = ApplicationSettings.DataContractNamespace)]
     public abstract class StringConstantBase<TType> : IEquatable<TType> where TType : StringConstantBase<TType>
     {
@@ -40,9 +37,6 @@ namespace MugenMvvmToolkit.Models
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="StringConstantBase{TType}" /> class.
-        /// </summary>
         protected StringConstantBase(string id)
         {
             Should.NotBeNull(id, "id");
@@ -53,9 +47,6 @@ namespace MugenMvvmToolkit.Models
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the id of constant.
-        /// </summary>
         [DataMember]
         public string Id
         {
@@ -71,13 +62,6 @@ namespace MugenMvvmToolkit.Models
 
         #region Equality members
 
-        /// <summary>
-        ///     Indicates whether the current object is equal to another object of the same type.
-        /// </summary>
-        /// <returns>
-        ///     true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
-        /// </returns>
-        /// <param name="other">An object to compare with this object.</param>
         public virtual bool Equals(TType other)
         {
             if (ReferenceEquals(null, other))
@@ -87,26 +71,12 @@ namespace MugenMvvmToolkit.Models
             return _id.Equals(other._id, StringComparison.Ordinal);
         }
 
-        /// <summary>
-        ///     Determines whether the specified <see cref="T:System.Object" /> is equal to the current
-        ///     <see cref="T:System.Object" />.
-        /// </summary>
-        /// <returns>
-        ///     true if the specified object  is equal to the current object; otherwise, false.
-        /// </returns>
-        /// <param name="obj">The object to compare with the current object. </param>
         public override sealed bool Equals(object obj)
         {
             var other = obj as TType;
             return other != null && Equals(other);
         }
 
-        /// <summary>
-        ///     Serves as a hash function for a particular type.
-        /// </summary>
-        /// <returns>
-        ///     A hash code for the current <see cref="T:System.Object" />.
-        /// </returns>
         public override int GetHashCode()
         {
             // ReSharper disable NonReadonlyFieldInGetHashCode
@@ -116,12 +86,6 @@ namespace MugenMvvmToolkit.Models
             // ReSharper restore NonReadonlyFieldInGetHashCode
         }
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>
-        ///     A string that represents the current object.
-        /// </returns>
         public override string ToString()
         {
             return _id;

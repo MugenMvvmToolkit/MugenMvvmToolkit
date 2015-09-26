@@ -23,35 +23,17 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 
 namespace MugenMvvmToolkit.Interfaces.Navigation
 {
-    /// <summary>
-    ///     Represents the view model navigation cache policy.
-    /// </summary>
     public interface INavigationCachePolicy
     {
-        /// <summary>
-        ///     Tries to save a view model in the cache.
-        /// </summary>
         void TryCacheViewModel([NotNull] INavigationContext navigationContext, [NotNull] object view,
             [NotNull] IViewModel viewModel);
 
-        /// <summary>
-        ///     Tries to get view model from cache, and delete it from the cache.
-        /// </summary>
         IViewModel TryTakeViewModelFromCache([NotNull] INavigationContext navigationContext, [NotNull] object view);
 
-        /// <summary>
-        ///     Gets the cached view models.
-        /// </summary>
         IList<IViewModel> GetViewModels([CanBeNull] IDataContext context);
 
-        /// <summary>
-        ///     Removes the view model from cache.
-        /// </summary>
         bool Invalidate([NotNull] IViewModel viewModel, [CanBeNull] IDataContext context);
 
-        /// <summary>
-        ///     Clears the cache.
-        /// </summary>
         IList<IViewModel> Invalidate([CanBeNull] IDataContext context);
     }
 }

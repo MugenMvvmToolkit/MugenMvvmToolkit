@@ -26,9 +26,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the class that provide display name of object.
-    /// </summary>
     public class DisplayNameProvider : IDisplayNameProvider
     {
         #region Fields
@@ -53,10 +50,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of IDisplayNameProvider
 
-        /// <summary>
-        ///     Gets a display name for the specified type using the specified member.
-        /// </summary>
-        /// <param name="memberInfo">The specified member.</param>
         public Func<string> GetDisplayNameAccessor(MemberInfo memberInfo)
         {
             Should.NotBeNull(memberInfo, "memberInfo");
@@ -76,10 +69,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Gets a display name for the specified type using the specified member.
-        /// </summary>
-        /// <param name="memberInfo">The specified member.</param>
         protected virtual Func<string> GetDisplayNameInternal(MemberInfo memberInfo)
         {
 #if PCL_WINRT

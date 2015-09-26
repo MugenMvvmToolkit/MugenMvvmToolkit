@@ -23,9 +23,6 @@ using MugenMvvmToolkit.Interfaces.Callbacks;
 
 namespace MugenMvvmToolkit.Infrastructure.Callbacks
 {
-    /// <summary>
-    ///     Represents the multi serializable callback.
-    /// </summary>
     [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable]
     internal class AsyncOperationSerializableCallback : ISerializableCallback
     {

@@ -31,9 +31,6 @@ using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
 namespace MugenMvvmToolkit.WinRT
 {
-    /// <summary>
-    /// Represents the platform specific extensions.
-    /// </summary>
     public static class PlatformExtensions
     {
         #region Fields
@@ -46,9 +43,6 @@ namespace MugenMvvmToolkit.WinRT
 
         #region Properties
 
-        /// <summary>
-        /// Gets or sets the <see cref="IApplicationStateManager"/>.
-        /// </summary>
         [NotNull]
         public static IApplicationStateManager ApplicationStateManager
         {

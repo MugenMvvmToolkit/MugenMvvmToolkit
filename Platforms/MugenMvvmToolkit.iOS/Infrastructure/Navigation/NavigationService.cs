@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="NavigationService.cs">
@@ -48,9 +48,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigationService" /> class.
-        /// </summary>
         public NavigationService([NotNull] UIWindow window)
         {
             Should.NotBeNull(window, "window");
@@ -67,9 +64,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             UseAnimations = true;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigationService" /> class.
-        /// </summary>
         public NavigationService([NotNull] UINavigationController navigationController)
         {
             Should.NotBeNull(navigationController, "navigationController");
@@ -83,18 +77,12 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         public bool UseAnimations { get; set; }
 
-        /// <summary>
-        ///     Gets the current <see cref="MvvmNavigationController" />.
-        /// </summary>
         protected UINavigationController NavigationController { get; private set; }
 
         #endregion
 
         #region Implementation of INavigationService
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate back.
-        /// </summary>
         public virtual bool CanGoBack
         {
             get
@@ -105,17 +93,11 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             }
         }
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate forward.
-        /// </summary>
         public virtual bool CanGoForward
         {
             get { return false; }
         }
 
-        /// <summary>
-        ///     The current content.
-        /// </summary>
         public virtual object CurrentContent
         {
             get
@@ -127,26 +109,17 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             }
         }
 
-        /// <summary>
-        ///     Navigates back.
-        /// </summary>
         public virtual void GoBack()
         {
             EnsureInitialized();
             GoBackInternal();
         }
 
-        /// <summary>
-        ///     Navigates forward.
-        /// </summary>
         public virtual void GoForward()
         {
             Should.MethodBeSupported(false, "GoForward()");
         }
 
-        /// <summary>
-        ///     Gets a navigation parameter from event args.
-        /// </summary>
         public virtual string GetParameterFromArgs(EventArgs args)
         {
             Should.NotBeNull(args, "args");
@@ -162,9 +135,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             return cancelArgs.Parameter;
         }
 
-        /// <summary>
-        ///     Navigates using cancel event args.
-        /// </summary>
         public virtual bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
         {
             Should.NotBeNull(args, "args");
@@ -178,22 +148,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             return Navigate(eventArgs.Mapping, eventArgs.Parameter, dataContext);
         }
 
-        /// <summary>
-        ///     Displays the content located at the specified <see cref="IViewMappingItem" />.
-        /// </summary>
-        /// <param name="source">
-        ///     The <c>IViewPageMappingItem</c> of the content to display.
-        /// </param>
-        /// <param name="parameter">
-        ///     A <see cref="T:System.Object" /> that contains data to be used for processing during
-        ///     navigation.
-        /// </param>
-        /// <param name="dataContext">
-        ///     The specified <see cref="IDataContext" />.
-        /// </param>
-        /// <returns>
-        ///     <c>true</c> if the content was successfully displayed; otherwise, <c>false</c>.
-        /// </returns>
         public virtual bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, "source");
@@ -244,9 +198,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             return true;
         }
 
-        /// <summary>
-        ///     Determines whether the specified command <c>CloseCommand</c> can be execute.
-        /// </summary>
         public virtual bool CanClose(IViewModel viewModel, IDataContext dataContext)
         {
             Should.NotBeNull(viewModel, "viewModel");
@@ -263,9 +214,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             return false;
         }
 
-        /// <summary>
-        ///     Tries to close view-model page.
-        /// </summary>
         public virtual bool TryClose(IViewModel viewModel, IDataContext dataContext)
         {
             Should.NotBeNull(viewModel, "viewModel");
@@ -293,23 +241,14 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             return true;
         }
 
-        /// <summary>
-        ///     Raised prior to navigation.
-        /// </summary>
         public virtual event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
 
-        /// <summary>
-        ///     Raised after navigation.
-        /// </summary>
         public virtual event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Invokes the <see cref="Navigating" /> event.
-        /// </summary>
         protected virtual bool RaiseNavigating(NavigatingCancelEventArgs args)
         {
             EventHandler<INavigationService, NavigatingCancelEventArgsBase> handler = Navigating;
@@ -319,9 +258,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             return !args.Cancel;
         }
 
-        /// <summary>
-        ///     Invokes the <see cref="Navigated" /> event.
-        /// </summary>
         protected virtual void RaiseNavigated(NavigationEventArgs args)
         {
             EventHandler<INavigationService, NavigationEventArgsBase> handler = Navigated;

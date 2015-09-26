@@ -29,9 +29,6 @@ using MugenMvvmToolkit.Infrastructure;
 
 namespace MugenMvvmToolkit.Binding
 {
-    /// <summary>
-    ///     Represents the service locator for data binding infrastructure.
-    /// </summary>
     public static class BindingServiceProvider
     {
         #region Fields
@@ -95,43 +92,28 @@ namespace MugenMvvmToolkit.Binding
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the dictionary that contains mapping from string to mode behavior.
-        /// </summary>
         public static Dictionary<string, IBindingBehavior> BindingModeToBehavior
         {
             get { return BindingModeToBehaviorField; }
         }
 
-        /// <summary>
-        ///     Gets the list that contains the prefixes of fake members.
-        /// </summary>
         public static List<string> FakeMemberPrefixes
         {
             get { return FakeMemberPrefixesField; }
         }
 
-        /// <summary>
-        ///     Gets the dictionary that contains the priority of binding members.
-        /// </summary>
         [NotNull]
         public static Dictionary<string, int> BindingMemberPriorities
         {
             get { return MemberPriorities; }
         }
 
-        /// <summary>
-        ///     Gets the collection of possible data context member aliases.
-        /// </summary>
         [NotNull]
         public static HashSet<string> DataContextMemberAliases
         {
             get { return DataContextMemberAliasesField; }
         }
 
-        /// <summary>
-        ///     Gets or sets the delegate that allows to convert binding values.
-        /// </summary>
         [NotNull]
         public static Func<IBindingMemberInfo, Type, object, object> ValueConverter
         {
@@ -139,9 +121,6 @@ namespace MugenMvvmToolkit.Binding
             set { _valueConverter = value ?? ((member, type, o) => o); }
         }
 
-        /// <summary>
-        ///     Gets or sets the delegate that allows to find a member update event.
-        /// </summary>
         [NotNull]
         public static Func<Type, string, IBindingMemberInfo> UpdateEventFinder
         {
@@ -149,9 +128,6 @@ namespace MugenMvvmToolkit.Binding
             set { _updateEventFinder = value ?? FindUpdateEvent; }
         }
 
-        /// <summary>
-        ///     Gets or sets the factory that creates an instance of <see cref="IBindingPath" /> for the specified string.
-        /// </summary>
         [NotNull]
         public static Func<string, IBindingPath> BindingPathFactory
         {
@@ -163,9 +139,6 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IBindingProvider" />.
-        /// </summary>
         [NotNull]
         public static IBindingProvider BindingProvider
         {
@@ -177,9 +150,6 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IBindingManager" />.
-        /// </summary>
         [NotNull]
         public static IBindingManager BindingManager
         {
@@ -191,9 +161,6 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
-        /// <summary>
-        ///     Gets or sets  the <see cref="IBindingMemberProvider" />.
-        /// </summary>
         [NotNull]
         public static IBindingMemberProvider MemberProvider
         {
@@ -205,9 +172,6 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IObserverProvider" />.
-        /// </summary>
         [NotNull]
         public static IObserverProvider ObserverProvider
         {
@@ -219,9 +183,6 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IBindingContextManager" />.
-        /// </summary>
         [NotNull]
         public static IBindingContextManager ContextManager
         {
@@ -233,9 +194,6 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IBindingResourceResolver" />.
-        /// </summary>
         [NotNull]
         public static IBindingResourceResolver ResourceResolver
         {
@@ -247,9 +205,6 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the default <see cref="IVisualTreeManager" />.
-        /// </summary>
         [NotNull]
         public static IVisualTreeManager VisualTreeManager
         {
@@ -261,9 +216,6 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IWeakEventManager" />.
-        /// </summary>
         [NotNull]
         public static IWeakEventManager WeakEventManager
         {
@@ -275,15 +227,9 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IBindingErrorProvider" />.
-        /// </summary>
         [CanBeNull]
         public static IBindingErrorProvider ErrorProvider { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the binding <see cref="CultureInfo" /> default is CultureInfo.CurrentCulture.
-        /// </summary>
         public static Func<CultureInfo> BindingCultureInfo
         {
             get { return _bindingCultureInfo; }

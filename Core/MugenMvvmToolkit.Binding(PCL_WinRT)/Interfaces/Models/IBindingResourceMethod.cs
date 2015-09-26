@@ -23,20 +23,11 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Models
 {
-    /// <summary>
-    ///     Represents the binding expression method that can be used in multi binding expression.
-    /// </summary>
     public interface IBindingResourceMethod
     {
-        /// <summary>
-        ///     Gets the return type of method.
-        /// </summary>
         [NotNull]
         Type GetReturnType(IList<Type> parameters, [NotNull] IList<Type> typeArgs, [NotNull] IDataContext context);
 
-        /// <summary>
-        ///     Invokes the method
-        /// </summary>
         [CanBeNull]
         object Invoke([NotNull] IList<Type> typeArgs, object[] args, [NotNull] IDataContext context);
     }

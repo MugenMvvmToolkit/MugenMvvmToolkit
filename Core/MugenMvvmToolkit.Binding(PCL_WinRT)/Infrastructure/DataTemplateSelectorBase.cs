@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="DataTemplateSelectorBase.cs">
@@ -24,9 +24,6 @@ using MugenMvvmToolkit.Binding.Interfaces;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     DataTemplateSelector allows the app writer to provide custom template selection logic.
-    /// </summary>
     public abstract class DataTemplateSelectorBase<TSource, TTemplate> : IDataTemplateSelector where TTemplate : class
     {
         #region Fields
@@ -48,14 +45,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IDataTemplateSelector
 
-        /// <summary>
-        ///     Override this method to return an app specific template.
-        /// </summary>
-        /// <param name="item">The data content</param>
-        /// <param name="container">The element to which the template will be applied</param>
-        /// <returns>
-        ///     An app-specific template to apply, or null.
-        /// </returns>
         public object SelectTemplate(object item, object container)
         {
             TTemplate template = SelectTemplate((TSource)item, container);
@@ -85,24 +74,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Override this method to return an app specific template.
-        /// </summary>
-        /// <param name="item">The data content</param>
-        /// <param name="container">The element to which the template will be applied</param>
-        /// <returns>
-        ///     An app-specific template to apply, or null.
-        /// </returns>
         protected abstract TTemplate SelectTemplate(TSource item, object container);
 
-        /// <summary>
-        ///     Initializes the specified template.
-        /// </summary>
         protected abstract void Initialize(TTemplate template, BindingSet<TTemplate, TSource> bindingSet);
 
-        /// <summary>
-        ///     Checks to see whether the template selector can initialize template.
-        /// </summary>
         protected virtual bool CanInitialize([NotNull] TTemplate template, [NotNull] object container)
         {
             return !IsTemplateObjectType || !(template is ValueType);

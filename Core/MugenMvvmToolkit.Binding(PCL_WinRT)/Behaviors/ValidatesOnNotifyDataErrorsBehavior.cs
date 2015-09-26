@@ -34,18 +34,12 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
-    /// <summary>
-    ///     Represents the binding behavior that checks for errors that are raised by a data source that implements <see cref="INotifyDataErrorInfo" />.
-    /// </summary>
     public class ValidatesOnNotifyDataErrorsBehavior : BindingBehaviorBase, IEventListener, IHasWeakReference
     {
         #region Fields
 
         private const string Key = "@$be.";
 
-        /// <summary>
-        ///     Gets the id of behavior.
-        /// </summary>
         public static readonly Guid IdNotifyDataErrorInfoBindingBehavior;
         internal static readonly ValidatesOnNotifyDataErrorsBehavior Prototype;
         private static readonly EventInfo ErrorsChangedEvent;
@@ -69,34 +63,22 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the error paths.
-        /// </summary>
         public string[] ErrorPaths { get; set; }
 
         #endregion
 
         #region Overrides of BindingBehaviorBase
 
-        /// <summary>
-        ///     Gets the id of behavior. Each <see cref="IDataBinding" /> can have only one instance with the same id.
-        /// </summary>
         public override Guid Id
         {
             get { return IdNotifyDataErrorInfoBindingBehavior; }
         }
 
-        /// <summary>
-        ///     Gets the behavior priority.
-        /// </summary>
         public override int Priority
         {
             get { return 0; }
         }
 
-        /// <summary>
-        ///     Attaches to the specified binding.
-        /// </summary>
         protected override bool OnAttached()
         {
             if (!CanAttach())
@@ -123,9 +105,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             return true;
         }
 
-        /// <summary>
-        ///     Detaches this instance from its associated binding.
-        /// </summary>
         protected override void OnDetached()
         {
             EventHandler<IObserver, ValueChangedEventArgs> handler = OnBindingSourceValueChanged;
@@ -141,16 +120,13 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             UpdateSources(true);
             lock (_subscribers)
             {
-                // Ensure that all concurrent adds have completed. 
+                // Ensure that all concurrent adds have completed.
             }
             var context = new DataContext(Binding.Context);
             context.AddOrUpdate(BindingErrorProviderBase.ClearErrorsConstant, true);
             UpdateErrors(Empty.Array<object>(), context);
         }
 
-        /// <summary>
-        ///     Creates a new binding behavior that is a copy of the current instance.
-        /// </summary>
         protected override IBindingBehavior CloneInternal()
         {
             var errorPaths = ErrorPaths;
@@ -164,17 +140,11 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Methods
 
-        /// <summary>
-        /// Defines the method that determines whether the behavior can attach to binding.
-        /// </summary>
         protected virtual bool CanAttach()
         {
             return BindingServiceProvider.ErrorProvider != null;
         }
 
-        /// <summary>
-        /// Updates the current errors.
-        /// </summary>
         protected virtual void UpdateErrors([CanBeNull] IList<object> errors, IDataContext context)
         {
             var errorProvider = BindingServiceProvider.ErrorProvider;

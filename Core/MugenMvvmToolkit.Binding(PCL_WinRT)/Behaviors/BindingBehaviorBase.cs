@@ -22,9 +22,6 @@ using MugenMvvmToolkit.Binding.Interfaces;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
-    /// <summary>
-    ///     Represents the base class that allows to extend the <see cref="IDataBinding" /> by adding new features.
-    /// </summary>
     public abstract class BindingBehaviorBase : IBindingBehavior
     {
         #region Fields
@@ -40,20 +37,10 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Implementation of IBindingBehavior
 
-        /// <summary>
-        ///     Gets the id of behavior. Each <see cref="IDataBinding" /> can have only one instance with the same id.
-        /// </summary>
         public abstract Guid Id { get; }
 
-        /// <summary>
-        ///     Gets the behavior priority.
-        /// </summary>
         public abstract int Priority { get; }
 
-        /// <summary>
-        ///     Attaches to the specified binding.
-        /// </summary>
-        /// <param name="binding">The binding to attach to.</param>
         public bool Attach(IDataBinding binding)
         {
             if (Interlocked.Exchange(ref _state, Attaching) != Available)
@@ -78,9 +65,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             }
         }
 
-        /// <summary>
-        ///     Detaches this instance from its associated binding.
-        /// </summary>
         public void Detach(IDataBinding binding)
         {
             if (_state == Available)
@@ -96,9 +80,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             }
         }
 
-        /// <summary>
-        ///     Creates a new binding behavior that is a copy of the current instance.
-        /// </summary>
         public IBindingBehavior Clone()
         {
             return CloneInternal();
@@ -108,17 +89,11 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the associated binding.
-        /// </summary>
         protected IDataBinding Binding
         {
             get { return _binding; }
         }
 
-        /// <summary>
-        /// Gets the value that indicates that current behavior is attached to a binding.
-        /// </summary>
         protected bool IsAttached
         {
             get { return _state == Attached; }
@@ -128,19 +103,10 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Methods
 
-        /// <summary>
-        ///     Attaches to the specified binding.
-        /// </summary>
         protected abstract bool OnAttached();
 
-        /// <summary>
-        ///     Detaches this instance from its associated binding.
-        /// </summary>
         protected abstract void OnDetached();
 
-        /// <summary>
-        ///     Creates a new binding behavior that is a copy of the current instance.
-        /// </summary>
         protected abstract IBindingBehavior CloneInternal();
 
         #endregion

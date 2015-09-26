@@ -40,9 +40,6 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberVisitor" /> class.
-        /// </summary>
         public BindingMemberVisitor()
         {
             _members = new List<KeyValuePair<string, BindingMemberExpressionNode>>();
@@ -79,11 +76,6 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Implementation of IExpressionVisitor
 
-        /// <summary>
-        ///     Dispatches the expression.
-        /// </summary>
-        /// <param name="node">The expression to visit.</param>
-        /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
         public IExpressionNode Visit(IExpressionNode node)
         {
             var lamdaNode = node as ILambdaExpressionNode;
@@ -104,9 +96,6 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Methods
 
-        /// <summary>
-        /// Clears all values.
-        /// </summary>
         public void Clear()
         {
             _members.Clear();

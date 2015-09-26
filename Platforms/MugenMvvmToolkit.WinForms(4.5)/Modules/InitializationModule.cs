@@ -32,9 +32,6 @@ using MugenMvvmToolkit.WinForms.Infrastructure.Presenters;
 
 namespace MugenMvvmToolkit.WinForms.Modules
 {
-    /// <summary>
-    ///     Represents the class that is used to initialize the IOC adapter.
-    /// </summary>
     public class InitializationModule : InitializationModuleBase
     {
         #region Constructors
@@ -44,16 +41,10 @@ namespace MugenMvvmToolkit.WinForms.Modules
             ServiceProvider.ItemsSourceDecorator = new BindingListItemsSourceDecorator();
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="InitializationModule" /> class.
-        /// </summary>
         public InitializationModule()
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="InitializationModule" /> class.
-        /// </summary>
         protected InitializationModule(LoadMode mode = LoadMode.All, int priority = InitializationModulePriority)
             : base(mode, priority)
         {
@@ -63,19 +54,12 @@ namespace MugenMvvmToolkit.WinForms.Modules
 
         #region Properties
 
-        /// <summary>
-        ///     Indicates that module should use the <see cref="SynchronousThreadManager"/> as thread manager dependency.
-        /// </summary>
         public bool UseSimpleThreadManager { get; set; }
 
         #endregion
 
         #region Overrides of InitializationModuleBase
 
-        /// <summary>
-        ///     Gets the <see cref="IMessagePresenter" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IMessagePresenter" />.</returns>
         protected override BindingInfo<IMessagePresenter> GetMessagePresenter()
         {
             if (Context.Platform.Platform == PlatformType.WinForms)
@@ -83,10 +67,6 @@ namespace MugenMvvmToolkit.WinForms.Modules
             return BindingInfo<IMessagePresenter>.Empty;
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IToastPresenter" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IToastPresenter" />.</returns>
         protected override BindingInfo<IToastPresenter> GetToastPresenter()
         {
             if (Context.Platform.Platform == PlatformType.WinForms)
@@ -94,10 +74,6 @@ namespace MugenMvvmToolkit.WinForms.Modules
             return BindingInfo<IToastPresenter>.Empty;
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IThreadManager" /> which will be used in all view models by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IThreadManager" />.</returns>
         protected override BindingInfo<IThreadManager> GetThreadManager()
         {
             if (Context.Platform.Platform != PlatformType.WinForms)
@@ -117,19 +93,11 @@ namespace MugenMvvmToolkit.WinForms.Modules
             }, DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IReflectionManager" /> that will be used by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IReflectionManager" />.</returns>
         protected override BindingInfo<IReflectionManager> GetReflectionManager()
         {
             return BindingInfo<IReflectionManager>.FromType<ExpressionReflectionManagerEx>(DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IViewModelPresenter" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IViewModelPresenter" />.</returns>
         protected override BindingInfo<IViewModelPresenter> GetViewModelPresenter()
         {
             if (Context.Platform.Platform == PlatformType.WinForms)
@@ -146,10 +114,6 @@ namespace MugenMvvmToolkit.WinForms.Modules
             return BindingInfo<IViewModelPresenter>.Empty;
         }
 
-        /// <summary>
-        ///     Gets the <see cref="ITracer" /> that will be used by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="ITracer" />.</returns>
         protected override BindingInfo<ITracer> GetTracer()
         {
             return BindingInfo<ITracer>.FromType<TracerEx>(DependencyLifecycle.SingleInstance);

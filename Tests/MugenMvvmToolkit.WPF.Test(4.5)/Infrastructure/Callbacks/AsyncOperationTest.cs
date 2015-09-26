@@ -38,7 +38,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
             operation.SetResult(operationResult);
             operation.Result.ShouldEqual(operationResult);
         }
-        
+
         [TestMethod]
         public void ContinueWithActionInterfaceTest()
         {

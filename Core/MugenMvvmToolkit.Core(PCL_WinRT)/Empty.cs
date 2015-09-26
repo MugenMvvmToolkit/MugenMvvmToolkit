@@ -25,9 +25,6 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit
 {
-    /// <summary>
-    ///     Represents the empty values helper.
-    /// </summary>
     public static class Empty
     {
         #region Nested types
@@ -59,37 +56,19 @@ namespace MugenMvvmToolkit
 
         #region Fields
 
-        /// <summary>
-        ///     Gets the boxed true value.
-        /// </summary>
         public static readonly object TrueObject;
 
-        /// <summary>
-        ///     Gets the boxed false value.
-        /// </summary>
         public static readonly object FalseObject;
 
-        /// <summary>
-        ///     Gets the completed task with true result.
-        /// </summary>
         [SuppressTaskBusyHandler]
         public static readonly Task<bool> TrueTask;
 
-        /// <summary>
-        ///     Gets the completed task with false result.
-        /// </summary>
         [SuppressTaskBusyHandler]
         public static readonly Task<bool> FalseTask;
 
-        /// <summary>
-        ///     Gets the completed task.
-        /// </summary>
         [SuppressTaskBusyHandler]
         public static readonly Task Task;
 
-        /// <summary>
-        ///     Gets the empty weak reference.
-        /// </summary>
         public static readonly WeakReference WeakReference;
 
         internal static readonly ManualResetEvent CompletedEvent;
@@ -137,25 +116,16 @@ namespace MugenMvvmToolkit
 
         #region Methods
 
-        /// <summary>
-        ///     Gets the array instance.
-        /// </summary>
         public static T[] Array<T>()
         {
             return Value<T>.ArrayInstance;
         }
 
-        /// <summary>
-        ///     Gets the canceled task.
-        /// </summary>
         public static Task<T> CanceledTask<T>()
         {
             return Value<T>.CanceledTaskField;
         }
 
-        /// <summary>
-        ///     Converts a bool value to boxed value.
-        /// </summary>
         public static object BooleanToObject(bool value)
         {
             if (value)

@@ -21,21 +21,12 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Models
 {
-    /// <summary>
-    ///     Represents the information about a platform.
-    /// </summary>
     public class PlatformInfo
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the unknown platform info.
-        /// </summary>
         public static readonly PlatformInfo Unknown;
 
-        /// <summary>
-        ///     Gets the unit test platform info.
-        /// </summary>
         public static readonly PlatformInfo UnitTest;
 
         private readonly PlatformType _platform;
@@ -51,9 +42,6 @@ namespace MugenMvvmToolkit.Models
             UnitTest = new PlatformInfo(PlatformType.UnitTest, new Version(0, 0));
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="PlatformInfo" /> class.
-        /// </summary>
         public PlatformInfo(PlatformType platform, Version version)
         {
             Should.NotBeNull(platform, "platform");
@@ -66,18 +54,12 @@ namespace MugenMvvmToolkit.Models
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
         [NotNull]
         public PlatformType Platform
         {
             get { return _platform; }
         }
 
-        /// <summary>
-        ///     Gets the current platform version.
-        /// </summary>
         [NotNull]
         public Version Version
         {

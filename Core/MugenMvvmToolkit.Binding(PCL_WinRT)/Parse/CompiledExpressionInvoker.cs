@@ -169,9 +169,6 @@ namespace MugenMvvmToolkit.Binding.Parse
             Should.BeSupported(ReferenceEqualsMethod != null, "ReferenceEqualsMethod");
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="CompiledExpressionInvoker" /> class.
-        /// </summary>
         public CompiledExpressionInvoker([NotNull] IExpressionNode node, bool isEmpty)
         {
             Should.NotBeNull(node, "node");
@@ -189,9 +186,9 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {ExpressionNodeType.Index, expressionNode => BuildIndex((IIndexExpressionNode) expressionNode)},
                 {ExpressionNodeType.Member, expressionNode => BuildMemberExpression((IMemberExpressionNode) expressionNode)},
                 {ExpressionNodeType.MethodCall, expressionNode => BuildMethodCall((IMethodCallExpressionNode) expressionNode)},
-                {ExpressionNodeType.Unary, expressionNode => BuildUnary((IUnaryExressionNode) expressionNode)},    
+                {ExpressionNodeType.Unary, expressionNode => BuildUnary((IUnaryExressionNode) expressionNode)},
                 {ExpressionNodeType.BindingMember, expressionNode => BuildBindingMember((BindingMemberExpressionNode) expressionNode)},
-                {ExpressionNodeType.Lambda, expressionNode => BuildLambdaExpression((ILambdaExpressionNode) expressionNode)}                
+                {ExpressionNodeType.Lambda, expressionNode => BuildLambdaExpression((ILambdaExpressionNode) expressionNode)}
             };
             _unaryToExpressionMapping = new Dictionary<TokenType, Func<Expression, Expression>>
             {
@@ -231,9 +228,6 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Properties
 
-        /// <summary>
-        ///     Indicates that the CompiledExpressionInvoker supports coalesce expression.
-        /// </summary>
         public static bool SupportCoalesceExpression { get; set; }
 
         protected Dictionary<ExpressionNodeType, Func<IExpressionNode, Expression>> NodeToExpressionMapping

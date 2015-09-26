@@ -24,9 +24,6 @@ using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Models
 {
-    /// <summary>
-    ///     Represents the weak parent observer.
-    /// </summary>
     internal sealed class ParentObserver : EventListenerList
     {
         #region Fields
@@ -50,18 +47,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Models
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the source element.
-        /// </summary>
         [CanBeNull]
         public Element Source
         {
             get { return (Element)_view.Target; }
         }
 
-        /// <summary>
-        ///     Gets or sets the parent of current element.
-        /// </summary>
         [CanBeNull]
         public object Parent
         {
@@ -83,9 +74,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Models
 
         #region Methods
 
-        /// <summary>
-        ///     Gets or adds an instance of <see cref="ParentObserver" />.
-        /// </summary>
         public static ParentObserver GetOrAdd(Element element)
         {
             return ServiceProvider

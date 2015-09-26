@@ -26,9 +26,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the binding context manager.
-    /// </summary>
     public class BindingContextManager : IBindingContextManager
     {
         #region Nested types
@@ -271,10 +268,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IBindingContext" /> for the specified item.
-        /// </summary>
-        /// <returns>An instnace of <see cref="IBindingContext" />.</returns>
         [NotNull]
         protected virtual IBindingContext CreateBindingContext([NotNull] object item)
         {
@@ -284,9 +277,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return new BindingContextSource(item, member);
         }
 
-        /// <summary>
-        ///     Tries to get explicit data context member.
-        /// </summary>
         protected virtual IBindingMemberInfo GetExplicitDataContextMember(object source)
         {
             IBindingMemberInfo member = BindingServiceProvider
@@ -310,9 +300,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IBindingContextManager
 
-        /// <summary>
-        ///     Gets a value indicating whether the item has binding context.
-        /// </summary>
         public bool HasBindingContext(object item)
         {
             Should.NotBeNull(item, "item");
@@ -321,9 +308,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return ServiceProvider.AttachedValueProvider.Contains(item, ContextMemberPath);
         }
 
-        /// <summary>
-        ///     Gets the binding context for the specified item.
-        /// </summary>
         public IBindingContext GetBindingContext(object item)
         {
             Should.NotBeNull(item, "item");

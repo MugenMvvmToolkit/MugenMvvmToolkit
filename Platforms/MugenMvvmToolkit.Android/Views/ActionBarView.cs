@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ActionBarView.cs">
@@ -73,17 +73,11 @@ namespace MugenMvvmToolkit.Android.Views
             Serializer = new XmlSerializer(typeof(ActionBarTemplate), string.Empty);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ActionBarView" /> class.
-        /// </summary>
         private ActionBarView(IntPtr javaReference, JniHandleOwnership transfer)
             : base(javaReference, transfer)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ActionBarView" /> class.
-        /// </summary>
         public ActionBarView(Context context, IAttributeSet attrs)
             : base(context, attrs)
         {

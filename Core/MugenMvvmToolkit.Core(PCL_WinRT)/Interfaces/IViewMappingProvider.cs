@@ -23,43 +23,14 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Interfaces
 {
-    /// <summary>
-    ///     Represents the interface to provide view mappings.
-    /// </summary>
     public interface IViewMappingProvider
     {
-        /// <summary>
-        ///     Gets the series instances of <see cref="IViewMappingItem" />.
-        /// </summary>
         [NotNull]
         IEnumerable<IViewMappingItem> ViewMappings { get; }
 
-        /// <summary>
-        ///     Finds the series of <see cref="IViewMappingItem" /> for the specified type of view.
-        /// </summary>
-        /// <param name="viewType">The specified type of view.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the type cannot be found; false to return null. Specifying
-        ///     false also suppresses some other exception conditions, but not all of them.
-        /// </param>
-        /// <returns>
-        ///     The series of <see cref="IViewMappingItem" />.
-        /// </returns>
         [NotNull]
         IList<IViewMappingItem> FindMappingsForView([NotNull] Type viewType, bool throwOnError);
 
-        /// <summary>
-        ///     Finds the <see cref="IViewMappingItem" /> for the specified type of view model.
-        /// </summary>
-        /// <param name="viewModelType">The specified type of view model.</param>
-        /// <param name="viewName">The specified name of view, if any.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the type cannot be found; false to return null. Specifying
-        ///     false also suppresses some other exception conditions, but not all of them.
-        /// </param>
-        /// <returns>
-        ///     An instance of <see cref="IViewMappingItem" />.
-        /// </returns>
         IViewMappingItem FindMappingForViewModel([NotNull] Type viewModelType, [CanBeNull] string viewName,
             bool throwOnError);
     }

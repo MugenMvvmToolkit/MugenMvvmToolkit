@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="NavigationService.cs">
@@ -138,9 +138,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigationService" /> class.
-        /// </summary>
         public NavigationService()
         {
             if (Build.VERSION.SdkInt >= BuildVersionCodes.IceCreamSandwich)
@@ -155,9 +152,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         #region Methods
 
-        /// <summary>
-        ///     Invokes the <see cref="Navigating" /> event.
-        /// </summary>
         protected virtual bool RaiseNavigating(NavigatingCancelEventArgs args)
         {
             var handler = Navigating;
@@ -169,9 +163,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             return true;
         }
 
-        /// <summary>
-        ///     Invokes the <see cref="Navigated" /> event.
-        /// </summary>
         protected virtual void RaiseNavigated(object content, NavigationMode mode, string parameter)
         {
             var handler = Navigated;
@@ -186,9 +177,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             return intent.GetStringExtra(ParameterString);
         }
 
-        /// <summary>
-        ///     Starts an activity.
-        /// </summary>
         protected virtual void StartActivity(Context context, Intent intent, IDataContext dataContext)
         {
             context.StartActivity(intent);
@@ -198,33 +186,21 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         #region Implementation of INavigationService
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate back.
-        /// </summary>
         public virtual bool CanGoBack
         {
             get { return PlatformExtensions.CurrentActivity != null; }
         }
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate forward.
-        /// </summary>
         public virtual bool CanGoForward
         {
             get { return false; }
         }
 
-        /// <summary>
-        ///     The current content.
-        /// </summary>
         public virtual object CurrentContent
         {
             get { return PlatformExtensions.CurrentActivity; }
         }
 
-        /// <summary>
-        ///     Navigates back.
-        /// </summary>
         public virtual void GoBack()
         {
             var currentActivity = PlatformExtensions.CurrentActivity;
@@ -232,17 +208,11 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 currentActivity.OnBackPressed();
         }
 
-        /// <summary>
-        ///     Navigates forward.
-        /// </summary>
         public virtual void GoForward()
         {
             Should.MethodBeSupported(false, "GoForward()");
         }
 
-        /// <summary>
-        ///     Raised as part of the activity lifecycle when an activity is going into the background.
-        /// </summary>
         public virtual void OnPauseActivity(Activity activity, IDataContext context = null)
         {
             Should.NotBeNull(activity, "activity");
@@ -252,9 +222,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             RaiseNavigated(null, NavigationMode.New, null);
         }
 
-        /// <summary>
-        ///     Called when activity will start interacting with the user.
-        /// </summary>
         public virtual void OnResumeActivity(Activity activity, IDataContext context = null)
         {
             Should.NotBeNull(activity, "activity");
@@ -274,25 +241,16 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             }
         }
 
-        /// <summary>
-        ///     Called when the activity had been stopped, but is now again being displayed to the user.
-        /// </summary>
         public virtual void OnStartActivity(Activity activity, IDataContext context = null)
         {
             OnResumeActivity(activity);
         }
 
-        /// <summary>
-        ///     Called when the activity is starting.
-        /// </summary>
         public virtual void OnCreateActivity(Activity activity, IDataContext context = null)
         {
             OnStartActivity(activity);
         }
 
-        /// <summary>
-        ///     Call this when your activity is done and should be closed.
-        /// </summary>
         public virtual bool OnFinishActivity(Activity activity, bool isBackNavigation, IDataContext context = null)
         {
             Should.NotBeNull(activity, "activity");
@@ -307,9 +265,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             return true;
         }
 
-        /// <summary>
-        ///     Gets a navigation parameter from event args.
-        /// </summary>
         public virtual string GetParameterFromArgs(EventArgs args)
         {
             Should.NotBeNull(args, "args");
@@ -324,9 +279,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             return cancelArgs.Parameter;
         }
 
-        /// <summary>
-        ///     Navigates using cancel event args.
-        /// </summary>
         public virtual bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
         {
             Should.NotBeNull(args, "args");
@@ -343,22 +295,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             return activity.IsFinishing;
         }
 
-        /// <summary>
-        ///     Displays the content located at the specified <see cref="IViewMappingItem" />.
-        /// </summary>
-        /// <param name="source">
-        ///     The <c>IViewPageMappingItem</c> of the content to display.
-        /// </param>
-        /// <param name="parameter">
-        ///     A <see cref="T:System.Object" /> that contains data to be used for processing during
-        ///     navigation.
-        /// </param>
-        /// <param name="dataContext">
-        ///     The specified <see cref="IDataContext" />.
-        /// </param>
-        /// <returns>
-        ///     <c>true</c> if the content was successfully displayed; otherwise, <c>false</c>.
-        /// </returns>
         public virtual bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, "source");
@@ -391,17 +327,11 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             return true;
         }
 
-        /// <summary>
-        ///     Determines whether the specified command <c>CloseCommand</c> can be execute.
-        /// </summary>
         public virtual bool CanClose(IViewModel viewModel, IDataContext dataContext)
         {
             return true;
         }
 
-        /// <summary>
-        ///     Tries to close view-model page.
-        /// </summary>
         public virtual bool TryClose(IViewModel viewModel, IDataContext dataContext)
         {
             Should.NotBeNull(viewModel, "viewModel");
@@ -416,14 +346,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             return message.Finished;
         }
 
-        /// <summary>
-        ///     Raised prior to navigation.
-        /// </summary>
         public virtual event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
 
-        /// <summary>
-        ///     Raised after navigation.
-        /// </summary>
         public virtual event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
 
         #endregion

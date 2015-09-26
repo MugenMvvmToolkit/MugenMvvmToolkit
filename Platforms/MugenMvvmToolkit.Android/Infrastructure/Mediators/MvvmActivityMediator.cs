@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="MvvmActivityMediator.cs">
@@ -33,7 +33,6 @@ using MugenMvvmToolkit.Android.Interfaces.Mediators;
 using MugenMvvmToolkit.Android.Interfaces.Navigation;
 using MugenMvvmToolkit.Android.Views;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -51,14 +50,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         {
             #region Fields
 
-            /// <summary>
-            ///     Gets the empty instance of message.
-            /// </summary>
             public static readonly FinishActivityMessage Instance;
 
-            /// <summary>
-            ///     Gets the current view model to finish, if any.
-            /// </summary>
             public readonly IViewModel ViewModel;
 
             #endregion
@@ -70,9 +63,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 Instance = new FinishActivityMessage();
             }
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="FinishActivityMessage" /> class.
-            /// </summary>
             public FinishActivityMessage(IViewModel viewModel)
             {
                 ViewModel = viewModel;
@@ -86,9 +76,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
             #region Methods
 
-            /// <summary>
-            ///     Gets or sets the value that indicates that activity was closed.
-            /// </summary>
             public bool Finished { get; set; }
 
             #endregion
@@ -98,7 +85,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         #region Fields
 
-        private Dictionary<string, object> _dictionary;
         private BindableMenuInflater _menuInflater;
         private BindableLayoutInflater _layoutInflater;
         private IMenu _menu;
@@ -112,9 +98,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="MvvmActivityMediator" /> class.
-        /// </summary>
         public MvvmActivityMediator([NotNull] Activity target)
             : base(target)
         {
@@ -125,9 +108,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         #region Implementation of IMvvmActivityMediator
 
-        /// <summary>
-        ///     Gets the current activity metadata.
-        /// </summary>
         public virtual IDictionary<string, object> Metadata
         {
             get
@@ -141,25 +121,16 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IMvvmActivityMediator.Activity" />.
-        /// </summary>
         Activity IMvvmActivityMediator.Activity
         {
             get { return Target; }
         }
 
-        /// <summary>
-        /// Gets the current bundle.
-        /// </summary>
         public virtual Bundle Bundle
         {
             get { return _bundle; }
         }
 
-        /// <summary>
-        ///     Called when the activity has detected the user's press of the back key.
-        /// </summary>
         public virtual void OnBackPressed(Action baseOnBackPressed)
         {
             var handler = BackPressing;
@@ -175,9 +146,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             _isBackNavigation = false;
         }
 
-        /// <summary>
-        ///     Called when the activity is starting.
-        /// </summary>
         public virtual void OnCreate(int? viewId, Bundle savedInstanceState, Action<Bundle> baseOnCreate)
         {
             AndroidBootstrapperBase.EnsureInitialized();
@@ -199,9 +167,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 Target.SetContentView(viewId.Value);
         }
 
-        /// <summary>
-        ///     Initialize the contents of the Activity's standard options menu.
-        /// </summary>
         public virtual bool OnCreateOptionsMenu(IMenu menu, Func<IMenu, bool> baseOnCreateOptionsMenu)
         {
             var optionsMenu = Target.FindViewById<OptionsMenu>(Resource.Id.OptionsMenu);
@@ -213,9 +178,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             return baseOnCreateOptionsMenu(menu);
         }
 
-        /// <summary>
-        ///     Called after <c>OnCreate(Android.OS.Bundle)</c> or after <c>OnRestart</c> when the activity had been stopped, but is now again being displayed to the user.
-        /// </summary>
         public override void OnSaveInstanceState(Bundle outState, Action<Bundle> baseOnSaveInstanceState)
         {
             var handler = SaveInstanceState;
@@ -224,9 +186,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
         }
 
-        /// <summary>
-        ///     Tries to restore instance context.
-        /// </summary>
         protected override void RestoreContext(Activity target, object dataContext)
         {
             base.RestoreContext(target, dataContext);
@@ -243,9 +202,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             }
         }
 
-        /// <summary>
-        ///     Perform any final cleanup before an activity is destroyed.
-        /// </summary>
         public override void OnDestroy(Action baseOnDestroy)
         {
             if (Tracer.TraceInformation)
@@ -295,9 +251,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         }
 
 
-        /// <summary>
-        ///     Gets the current preference manager.
-        /// </summary>
         protected override PreferenceManager PreferenceManager
         {
             get
@@ -309,10 +262,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             }
         }
 
-        /// <summary>
-        ///     Called as part of the activity lifecycle when an activity is going into
-        ///     the background, but has not (yet) been killed.
-        /// </summary>
         public override void OnPause(Action baseOnPause)
         {
             var service = Get<INavigationService>();
@@ -323,9 +272,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             base.OnPause(baseOnPause);
         }
 
-        /// <summary>
-        ///     Called after <c>OnStop</c> when the current activity is being re-displayed to the user (the user has navigated back to it).
-        /// </summary>
         public virtual void OnRestart(Action baseOnRestart)
         {
             baseOnRestart();
@@ -334,9 +280,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 handler(Target, EventArgs.Empty);
         }
 
-        /// <summary>
-        ///     Called after <c>OnRestoreInstanceState(Android.OS.Bundle)</c>, <c>OnRestart</c>, or <c>OnPause</c>, for your activity to start interacting with the user.
-        /// </summary>
         public override void OnResume(Action baseOnResume)
         {
             base.OnResume(baseOnResume);
@@ -349,9 +292,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 handler(Target, EventArgs.Empty);
         }
 
-        /// <summary>
-        ///     Called after <c>OnCreate(Android.OS.Bundle)</c> or after <c>OnRestart</c> when the activity had been stopped, but is now again being displayed to the user.
-        /// </summary>
         public virtual void OnStart(Action baseOnStart)
         {
             baseOnStart();
@@ -364,9 +304,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 handler(Target, EventArgs.Empty);
         }
 
-        /// <summary>
-        ///     Called when you are no longer visible to the user.
-        /// </summary>
         public virtual void OnStop(Action baseOnStop)
         {
             baseOnStop();
@@ -375,10 +312,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 handler(Target, EventArgs.Empty);
         }
 
-        /// <summary>
-        ///     Set the activity content from a layout resource.
-        /// </summary>
-        /// <param name="layoutResId">Resource ID to be inflated.</param>
         public virtual void SetContentView(int layoutResId)
         {
             _view = Target.LayoutInflater.Inflate(layoutResId, null);
@@ -388,9 +321,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             PlatformExtensions.NotifyActivityAttached(Target, _view);
         }
 
-        /// <summary>
-        ///     Returns a <c>MenuInflater</c> with this context.
-        /// </summary>
         public virtual MenuInflater GetMenuInflater(MenuInflater baseMenuInflater)
         {
             if (_menuInflater == null)
@@ -400,9 +330,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             return _menuInflater ?? baseMenuInflater;
         }
 
-        /// <summary>
-        ///     Returns a <c>LayoutInflater</c> with this context.
-        /// </summary>
         public LayoutInflater GetLayoutInflater(LayoutInflater baseLayoutInflater)
         {
             if (_layoutInflater == null)
@@ -414,9 +341,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             return _layoutInflater ?? baseLayoutInflater;
         }
 
-        /// <summary>
-        ///     Call this when your activity is done and should be closed.
-        /// </summary>
         public virtual void Finish(Action baseFinish)
         {
             if (!_ignoreFinishNavigation)
@@ -429,9 +353,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             baseFinish();
         }
 
-        /// <summary>
-        ///     Called by the system when the device configuration changes while your activity is running.
-        /// </summary>
         public virtual void OnConfigurationChanged(Configuration newConfig, Action<Configuration> baseOnConfigurationChanged)
         {
             baseOnConfigurationChanged(newConfig);
@@ -440,9 +361,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 handler(Target, new ValueEventArgs<Configuration>(newConfig));
         }
 
-        /// <summary>
-        ///     Called when activity start-up is complete (after <c>OnStart</c> and <c>OnRestoreInstanceState</c> have been called).
-        /// </summary>
         public virtual void OnPostCreate(Bundle savedInstanceState, Action<Bundle> baseOnPostCreate)
         {
             var handler = PostCreate;
@@ -451,9 +369,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             baseOnPostCreate(savedInstanceState);
         }
 
-        /// <summary>
-        ///     This hook is called whenever an item in your options menu is selected.
-        /// </summary>
         public virtual bool OnOptionsItemSelected(IMenuItem item, Func<IMenuItem, bool> baseOnOptionsItemSelected)
         {
             var optionsItemSelected = OptionsItemSelected;
@@ -462,9 +377,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             return optionsItemSelected(item) || baseOnOptionsItemSelected(item);
         }
 
-        /// <summary>
-        ///     Inflates the given XML resource and adds the preference hierarchy to the current preference hierarchy.
-        /// </summary>
         public virtual void AddPreferencesFromResource(Action<int> baseAddPreferencesFromResource, int preferencesResId)
         {
             var activity = Target as PreferenceActivity;
@@ -499,64 +411,28 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             }
         }
 
-        /// <summary>
-        ///     This hook is called whenever an item in your options menu is selected.
-        /// </summary>
         public virtual Func<IMenuItem, bool> OptionsItemSelected { get; set; }
 
-        /// <summary>
-        ///     Called by the system when the device configuration changes while your activity is running.
-        /// </summary>
         public virtual event EventHandler<Activity, ValueEventArgs<Configuration>> ConfigurationChanged;
 
-        /// <summary>
-        ///     Called when activity start-up is complete (after <c>OnStart</c> and <c>OnRestoreInstanceState</c> have been called).
-        /// </summary>
         public virtual event EventHandler<Activity, ValueEventArgs<Bundle>> PostCreate;
 
-        /// <summary>
-        /// Occurs when the activity has detected the user's press of the back key.
-        /// </summary>
         public virtual event EventHandler<Activity, CancelEventArgs> BackPressing;
 
-        /// <summary>
-        ///     Occurred on created activity.
-        /// </summary>
         public virtual event EventHandler<Activity, ValueEventArgs<Bundle>> Created;
 
-        /// <summary>
-        ///     Occurred on started activity.
-        /// </summary>
         public virtual event EventHandler<Activity, EventArgs> Started;
 
-        /// <summary>
-        ///     Occurred on paused activity.
-        /// </summary>
         public virtual event EventHandler<Activity, EventArgs> Paused;
 
-        /// <summary>
-        ///     Occurred on save activity state.
-        /// </summary>
         public virtual event EventHandler<Activity, ValueEventArgs<Bundle>> SaveInstanceState;
 
-        /// <summary>
-        ///     Occurred on stoped activity.
-        /// </summary>
         public virtual event EventHandler<Activity, EventArgs> Stoped;
 
-        /// <summary>
-        ///     Occurred on restarted activity.
-        /// </summary>
         public virtual event EventHandler<Activity, EventArgs> Restarted;
 
-        /// <summary>
-        ///     Occurred on resume activity.
-        /// </summary>
         public virtual event EventHandler<Activity, EventArgs> Resume;
 
-        /// <summary>
-        ///     Occurred on destroyed activity.
-        /// </summary>
         public virtual event EventHandler<Activity, EventArgs> Destroyed;
 
         #endregion

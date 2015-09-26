@@ -22,25 +22,10 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Parse
 {
-    /// <summary>
-    ///     Represents the data binding parser inteface.
-    /// </summary>
     public interface IBindingParser
     {
-        /// <summary>
-        ///     Gets the collection of <see cref="IBindingParserHandler" />.
-        /// </summary>
         IList<IBindingParserHandler> Handlers { get; }
 
-        /// <summary>
-        ///     Parses a string to the set of instances of <see cref="IDataContext" /> that allows to create a series of instances
-        ///     of <see cref="IDataBinding" />.
-        /// </summary>
-        /// <param name="bindingExpression">The specified binding expression.</param>
-        /// <param name="context">The specified context.</param>
-        /// <param name="target">The specified binding target.</param>
-        /// <param name="sources">The specified sources, if any.</param>
-        /// <returns>A set of instances of <see cref="IDataContext" />.</returns>
         [NotNull]
         IList<IDataContext> Parse([NotNull] string bindingExpression, [NotNull] IDataContext context,
             [NotNull] object target, [CanBeNull] IList<object> sources);

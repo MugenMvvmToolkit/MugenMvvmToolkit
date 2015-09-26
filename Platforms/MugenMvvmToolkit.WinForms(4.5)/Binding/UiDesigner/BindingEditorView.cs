@@ -31,9 +31,6 @@ using MugenMvvmToolkit.WinForms.Binding.Parse.Nodes;
 
 namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
 {
-    /// <summary>
-    ///     Represents the data binding editor.
-    /// </summary>
     public partial class BindingEditorView : Form, IXmlHandler
     {
         #region Fields
@@ -74,9 +71,6 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
             UnknownAttachedMemberColor = Color.FromArgb(0, 0, 39);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingEditorView" /> class.
-        /// </summary>
         public BindingEditorView()
         {
             MvvmApplication.InitializeDesignTimeManager();
@@ -93,9 +87,6 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
             controlsTreeView.ExpandAll();
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingEditorView" /> class.
-        /// </summary>
         public BindingEditorView(string xmlText)
             : this()
         {

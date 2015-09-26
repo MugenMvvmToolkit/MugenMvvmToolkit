@@ -27,9 +27,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the observer that uses the several path members to observe.
-    /// </summary>
     public sealed class MultiPathObserver : ObserverBase, IEventListener, IHasWeakReference
     {
         #region Nested types
@@ -167,9 +164,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="MultiPathObserver" /> class.
-        /// </summary>
         public MultiPathObserver([NotNull] object source, [NotNull] IBindingPath path, bool ignoreAttachedMembers)
             : base(source, path)
         {
@@ -183,17 +177,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Overrides of ObserverBase
 
-        /// <summary>
-        ///     Indicates that current observer dependes on <see cref="ObserverBase.ValueChanged" /> subscribers.
-        /// </summary>
         protected override bool DependsOnSubscribers
         {
             get { return false; }
         }
 
-        /// <summary>
-        ///     Updates the current values.
-        /// </summary>
         protected override IBindingPathMembers UpdateInternal(IBindingPathMembers oldPath, bool hasSubscribers)
         {
             object source = GetActualSource();
@@ -205,7 +193,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             IBindingMemberProvider memberProvider = BindingServiceProvider.MemberProvider;
             IList<string> items = Path.Parts;
 
-            //Trying to get member using full path with dot, example BindingErrorProvider.Errors or ErrorProvider.Errors.                
+            //Trying to get member using full path with dot, example BindingErrorProvider.Errors or ErrorProvider.Errors.
             if (items.Count == 2)
             {
                 var pathMember = memberProvider.GetBindingMember(source.GetType(), Path.Path, _ignoreAttachedMembers, false);
@@ -245,17 +233,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 : UnsetBindingPathMembers.Instance;
         }
 
-        /// <summary>
-        ///     Creates the source event listener.
-        /// </summary>
         protected override IEventListener CreateSourceListener()
         {
             return this;
         }
 
-        /// <summary>
-        ///     Releases the current observers.
-        /// </summary>
         protected override void ClearObserversInternal()
         {
             for (int index = 0; index < _listeners.Count; index++)

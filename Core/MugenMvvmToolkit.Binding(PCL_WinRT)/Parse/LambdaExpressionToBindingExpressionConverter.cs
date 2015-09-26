@@ -31,9 +31,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Parse
 {
-    /// <summary>
-    ///     Represents the class that allows to convert a lambda expression to binding expression.
-    /// </summary>
     public sealed class LambdaExpressionToBindingExpressionConverter : ExpressionVisitor, IBuilderSyntaxContext
     {
         #region Nested types
@@ -116,9 +113,6 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Methods
 
-        /// <summary>
-        ///     Converts a <see cref="LambdaExpression" /> to a binding expression.
-        /// </summary>
         public static void Convert(Func<LambdaExpression> expression, IBindingToSyntax syntax)
         {
             Should.NotBeNull(expression, "expression");
@@ -144,9 +138,6 @@ namespace MugenMvvmToolkit.Binding.Parse
                 callbacks[i].Invoke(syntax);
         }
 
-        /// <summary>
-        ///     Converts a <see cref="LambdaExpression" /> to a binding expression.
-        /// </summary>
         public static void Convert(LambdaExpression expression, IBindingToSyntax syntax)
         {
             Should.NotBeNull(expression, "expression");
@@ -155,9 +146,6 @@ namespace MugenMvvmToolkit.Binding.Parse
                 callbacks[i].Invoke(syntax);
         }
 
-        /// <summary>
-        ///     Converts a <see cref="LambdaExpression" /> to a binding expression.
-        /// </summary>
         public static Func<IDataContext, object> ConvertParameter(Func<LambdaExpression> expression, IBuilderSyntax syntax)
         {
             Should.NotBeNull(expression, "expression");
@@ -326,9 +314,6 @@ namespace MugenMvvmToolkit.Binding.Parse
             get { return ContextExpression; }
         }
 
-        /// <summary>
-        ///     Gets or adds parameter expression.
-        /// </summary>
         public Expression GetOrAddParameterExpression(string prefix, string path, Expression expression, Func<IDataContext, string, IObserver> createSource)
         {
             var key = prefix + path;
@@ -347,9 +332,6 @@ namespace MugenMvvmToolkit.Binding.Parse
             return parameter;
         }
 
-        /// <summary>
-        ///     Adds the delegate callback that will be called when creating binding.
-        /// </summary>
         public void AddBuildCallback(Action<IBindingToSyntax> callback)
         {
             _callbacks.Add(callback);

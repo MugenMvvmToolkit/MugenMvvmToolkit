@@ -34,9 +34,6 @@ using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Mediators
 {
-    /// <summary>
-    ///     Represents the base mediator class for dialog view.
-    /// </summary>
     public abstract class WindowViewMediatorBase<TView> : IWindowViewMediator
         where TView : class
     {
@@ -56,9 +53,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="WindowViewMediatorBase{TView}" /> class.
-        /// </summary>
         protected WindowViewMediatorBase([NotNull] IViewModel viewModel,
             [NotNull] IThreadManager threadManager, [NotNull] IViewManager viewManager,
             [NotNull] IWrapperManager wrapperManager,
@@ -83,43 +77,25 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the view object.
-        /// </summary>
         public TView View { get; private set; }
 
-        /// <summary>
-        ///     Gets the value that indicates that curren view model is closing.
-        /// </summary>
         protected bool IsClosing { get; private set; }
 
-        /// <summary>
-        ///     Gets the <see cref="IViewManager" />.
-        /// </summary>
         protected IViewManager ViewManager
         {
             get { return _viewManager; }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IThreadManager" />.
-        /// </summary>
         protected IThreadManager ThreadManager
         {
             get { return _threadManager; }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IOperationCallbackManager" />.
-        /// </summary>
         protected IOperationCallbackManager OperationCallbackManager
         {
             get { return _operationCallbackManager; }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IWrapperManager" />.
-        /// </summary>
         protected IWrapperManager WrapperManager
         {
             get { return _wrapperManager; }
@@ -129,35 +105,21 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         #region Implementation of IWindowViewMediator
 
-        /// <summary>
-        ///     Gets a value that indicates whether the dialog is visible. true if the dialog is visible; otherwise, false.
-        /// </summary>
         public bool IsOpen
         {
             get { return _isOpen; }
         }
 
-        /// <summary>
-        ///     Gets the view object.
-        /// </summary>
         object IWindowViewMediator.View
         {
             get { return View; }
         }
 
-        /// <summary>
-        ///     Gets the underlying view model.
-        /// </summary>
         public virtual IViewModel ViewModel
         {
             get { return _viewModel; }
         }
 
-        /// <summary>
-        ///     Shows the specified <see cref="IViewModel" />.
-        /// </summary>
-        /// <param name="callback">The specified callback, if any.</param>
-        /// <param name="context">The specified context.</param>
         public Task ShowAsync(IOperationCallback callback, IDataContext context)
         {
             ViewModel.NotBeDisposed();
@@ -173,11 +135,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             return tcs.Task;
         }
 
-        /// <summary>
-        ///     Tries to close view-model.
-        /// </summary>
-        /// <param name="parameter">The specified parameter, if any.</param>
-        /// <returns>An instance of task with result.</returns>
         public Task<bool> CloseAsync(object parameter)
         {
             if (!IsOpen)
@@ -207,9 +164,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 });
         }
 
-        /// <summary>
-        ///     Updates the current view, for example android platform uses this API to update view after recreate a dialog fragment.
-        /// </summary>
         public void UpdateView(object view, bool isOpen, IDataContext context)
         {
             if (ReferenceEquals(View, view))
@@ -237,49 +191,24 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         #region Methods
 
-        /// <summary>
-        ///     Shows the view in the specified mode.
-        /// </summary>
         protected abstract void ShowView([NotNull] TView view, bool isDialog, IDataContext context);
 
-        /// <summary>
-        ///     Initializes the specified view.
-        /// </summary>
         protected abstract void InitializeView([NotNull] TView view, IDataContext context);
 
-        /// <summary>
-        ///     Clears the event subscribtions from the specified view.
-        /// </summary>
-        /// <param name="view">The specified window-view to dispose.</param>
         protected abstract void CleanupView([NotNull] TView view);
 
-        /// <summary>
-        ///     Closes the view.
-        /// </summary>
         protected abstract void CloseView([NotNull] TView view);
 
-        /// <summary>
-        ///     Occurs when view model is showed.
-        /// </summary>
         protected virtual void OnShown([NotNull] IDataContext context)
         {
             RaiseNavigated(context, NavigationMode.New);
         }
 
-        /// <summary>
-        ///     Occurs when view model is closing.
-        /// </summary>
-        /// <returns>
-        ///     If <c>true</c> - close, otherwise <c>false</c>.
-        /// </returns>
         protected virtual Task<bool> OnClosing(object parameter)
         {
             return ViewModel.TryCloseAsync(parameter, CreateCloseContext());
         }
 
-        /// <summary>
-        ///     Occurs when view model is closed.
-        /// </summary>
         protected virtual void OnClosed(object parameter, INavigationContext context)
         {
             var navigableViewModel = ViewModel as INavigableViewModel;
@@ -291,16 +220,10 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 navigableViewModel.OnNavigatedTo(context);
         }
 
-        /// <summary>
-        ///     Occured on update the current view using the <see cref="IWindowViewMediator.UpdateView"/> method.
-        /// </summary>
         protected virtual void OnViewUpdated(TView view, IDataContext context)
         {
         }
 
-        /// <summary>
-        ///     Occurred on closing view.
-        /// </summary>
         protected void OnViewClosing(object sender, CancelEventArgs e)
         {
             try
@@ -321,9 +244,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             }
         }
 
-        /// <summary>
-        ///     Occured when view is closed.
-        /// </summary>
         protected void OnViewClosed(object sender, EventArgs e)
         {
             if (!IsClosing)

@@ -24,50 +24,23 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces
 {
-    /// <summary>
-    ///     Represents the base interface that is used to start MVVM application.
-    /// </summary>
     public interface IMvvmApplication
     {
-        /// <summary>
-        ///     Gets a value indicating whether this instance is initialized.
-        /// </summary>
         bool IsInitialized { get; }
 
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
         [NotNull]
         PlatformInfo Platform { get; }
 
-        /// <summary>
-        ///     Gets or sets the load mode of current <see cref="IMvvmApplication" />.
-        /// </summary>
         LoadMode Mode { get; }
 
-        /// <summary>
-        ///     Gets the current <see cref="IIocContainer" />.
-        /// </summary>
         IIocContainer IocContainer { get; }
 
-        /// <summary>
-        ///     Gets the current application context.
-        /// </summary>
         IDataContext Context { get; }
 
-        /// <summary>
-        ///     Gets the default view model settings.
-        /// </summary>
         IViewModelSettings ViewModelSettings { get; }
 
-        /// <summary>
-        ///     Initializes the current application.
-        /// </summary>
         void Initialize(PlatformInfo platform, IIocContainer iocContainer, IList<Assembly> assemblies, IDataContext context);
 
-        /// <summary>
-        ///     Gets the type of start view model.
-        /// </summary>
         [NotNull]
         Type GetStartViewModelType();
     }

@@ -28,9 +28,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the instance of cache.
-        /// </summary>
         public static readonly TypeCache<TType> Instance;
 
         private readonly HashSet<Assembly> _cachedAssemblies;
@@ -101,9 +98,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             return type;
         }
 
-        /// <summary>
-        ///     Adds the assembly to scan.
-        /// </summary>
         public void AddAssembly(Assembly assembly)
         {
             lock (_locker)
@@ -116,9 +110,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Adds the assembly type.
-        /// </summary>
         public void AddType(Type type, string alias = null)
         {
             lock (_locker)

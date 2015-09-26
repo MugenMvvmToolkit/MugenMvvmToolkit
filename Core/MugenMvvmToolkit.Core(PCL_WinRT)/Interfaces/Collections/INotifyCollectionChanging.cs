@@ -22,14 +22,8 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces.Collections
 {
-    /// <summary>
-    ///     Notifies listeners of dynamic changes, such as when items get added and removed or the whole list is refreshed.
-    /// </summary>
     public interface INotifyCollectionChanging : INotifyCollectionChanged, INotifyPropertyChanged
     {
-        /// <summary>
-        ///     Occurs before the collection changes.
-        /// </summary>
         event NotifyCollectionChangingEventHandler CollectionChanging;
     }
 }

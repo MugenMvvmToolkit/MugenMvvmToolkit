@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="IActivityView.cs">
@@ -27,20 +27,11 @@ namespace MugenMvvmToolkit.Android.Interfaces.Views
 {
     public interface IActivityView : IView
     {
-        /// <summary>
-        ///     Gets the current <see cref="IMvvmActivityMediator" />.
-        /// </summary>
         [NotNull]
         IMvvmActivityMediator Mediator { get; }
 
-        /// <summary>
-        ///     Gets or sets the data context of the current view.
-        /// </summary>
         object DataContext { get; set; }
 
-        /// <summary>
-        ///     Occurs when the DataContext property changed.
-        /// </summary>
         event EventHandler<Activity, EventArgs> DataContextChanged;
     }
 }

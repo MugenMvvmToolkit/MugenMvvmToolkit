@@ -26,16 +26,10 @@ using MugenMvvmToolkit.Interfaces;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the reflection access provider that uses the <see cref="Expression" />.
-    /// </summary>
     public class ExpressionReflectionManager : IReflectionManager
     {
         #region Nested types
 
-        /// <summary>
-        /// Represents the key cache comparer.
-        /// </summary>
         protected sealed class MethodDelegateCacheKeyComparer : IEqualityComparer<MethodDelegateCacheKey>
         {
             #region Fields
@@ -59,25 +53,12 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Implementation of IEqualityComparer<in MethodDelegateCacheKey>
 
-            /// <summary>
-            /// Determines whether the specified objects are equal.
-            /// </summary>
-            /// <returns>
-            /// true if the specified objects are equal; otherwise, false.
-            /// </returns>
             public bool Equals(MethodDelegateCacheKey x, MethodDelegateCacheKey y)
             {
                 return x.DelegateType.Equals(y.DelegateType) &&
                        (ReferenceEquals(x.Method, y.Method) || x.Method.Equals(y.Method));
             }
 
-            /// <summary>
-            /// Returns a hash code for the specified object.
-            /// </summary>
-            /// <returns>
-            /// A hash code for the specified object.
-            /// </returns>
-            /// <param name="obj">The <see cref="T:System.Object"/> for which a hash code is to be returned.</param><exception cref="T:System.ArgumentNullException">The type of <paramref name="obj"/> is a reference type and <paramref name="obj"/> is null.</exception>
             public int GetHashCode(MethodDelegateCacheKey obj)
             {
                 unchecked
@@ -89,9 +70,6 @@ namespace MugenMvvmToolkit.Infrastructure
             #endregion
         }
 
-        /// <summary>
-        /// Represents the key cache structure.
-        /// </summary>
         [StructLayout(LayoutKind.Auto)]
         protected struct MethodDelegateCacheKey
         {
@@ -104,9 +82,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Constructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="MethodDelegateCacheKey" /> class.
-            /// </summary>
             public MethodDelegateCacheKey(MethodInfo method, Type delegateType)
             {
                 Method = method;
@@ -153,9 +128,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        /// Gets or sets the delegate that allows to create an instance of <see cref="LambdaExpression"/>.
-        /// </summary>
         public static Func<Type, Expression, IEnumerable<ParameterExpression>, LambdaExpression> CreateLambdaExpressionByType
         {
             get { return _createLambdaExpressionByType; }
@@ -166,9 +138,6 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        /// Gets or sets the delegate that allows to create an instance of <see cref="LambdaExpression"/>.
-        /// </summary>
         public static Func<Expression, ParameterExpression[], LambdaExpression> CreateLambdaExpression
         {
             get { return _createLambdaExpression; }
@@ -183,18 +152,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of IReflectionProvider
 
-        /// <summary>
-        ///    Tries to creates a delegate of the specified type that represents the specified static or instance method, with the specified first argument.
-        /// </summary>
-        /// <returns>
-        ///     A delegate of the specified type that represents the specified static method of the specified class.
-        /// </returns>
-        /// <param name="delegateType">The <see cref="T:System.Type" /> of delegate to create. </param>
-        /// <param name="target">
-        ///     The <see cref="T:System.Type" /> representing the class that implements <paramref name="method" />
-        ///     .
-        /// </param>
-        /// <param name="method">The name of the static method that the delegate is to represent. </param>
         public virtual Delegate TryCreateDelegate(Type delegateType, object target, MethodInfo method)
         {
             MethodInfo result;
@@ -220,15 +177,6 @@ namespace MugenMvvmToolkit.Infrastructure
 #endif
         }
 
-        /// <summary>
-        ///     Gets a delegate to create an object using a <see cref="ConstructorInfo" />.
-        /// </summary>
-        /// <param name="constructor">
-        ///     The specified <see cref="ConstructorInfo" />.
-        /// </param>
-        /// <returns>
-        ///     An instance of <see cref="Func{TParams,TResult}" />
-        /// </returns>
         public virtual Func<object[], object> GetActivatorDelegate(ConstructorInfo constructor)
         {
             Should.NotBeNull(constructor, "constructor");
@@ -247,15 +195,6 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets a delegate to call the specified <see cref="MethodInfo" />.
-        /// </summary>
-        /// <param name="method">
-        ///     The specified <see cref="MethodInfo" />
-        /// </param>
-        /// <returns>
-        ///     An instance of <see cref="Func{TOwner,TParams,TResult}" />
-        /// </returns>
         public virtual Func<object, object[], object> GetMethodDelegate(MethodInfo method)
         {
             Should.NotBeNull(method, "method");
@@ -271,16 +210,6 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets a delegate to call the specified <see cref="MethodInfo" />.
-        /// </summary>
-        /// <param name="delegateType">The type of delegate.</param>
-        /// <param name="method">
-        ///     The specified <see cref="MethodInfo" />
-        /// </param>
-        /// <returns>
-        ///     An instance of delegate.
-        /// </returns>
         public virtual Delegate GetMethodDelegate(Type delegateType, MethodInfo method)
         {
             Should.NotBeNull(delegateType, "delegateType");
@@ -332,13 +261,6 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets a delegate to get a value in the specified <see cref="MemberInfo" />
-        /// </summary>
-        /// <typeparam name="TType">Type of the value.</typeparam>
-        /// <param name="member">
-        ///     The specified <see cref="MemberInfo" />.
-        /// </param>
         public virtual Func<object, TType> GetMemberGetter<TType>(MemberInfo member)
         {
             Should.NotBeNull(member, "member");
@@ -365,17 +287,6 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets a delegate to set specified value in the specified <see cref="MemberInfo" /> in a value type target, can be
-        ///     used with reference type.
-        /// </summary>
-        /// <typeparam name="TType">Type of the value.</typeparam>
-        /// <param name="member">
-        ///     The specified <see cref="MemberInfo" />.
-        /// </param>
-        /// <returns>
-        ///     An instance of <see cref="Action{TOwner,TType}" />
-        /// </returns>
         public virtual Action<object, TType> GetMemberSetter<TType>(MemberInfo member)
         {
             Should.NotBeNull(member, "member");
@@ -439,9 +350,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        /// Tries to create method delegate.
-        /// </summary>
         protected static MethodInfo TryCreateMethodDelegate(Type eventHandlerType, MethodInfo method)
         {
             if (!typeof(Delegate).IsAssignableFrom(eventHandlerType))
@@ -549,7 +457,7 @@ namespace MugenMvvmToolkit.Infrastructure
             parameterExpression = Expression.Parameter(typeof(object[]), "args");
             var argsExp = new Expression[paramsInfo.Length];
 
-            //pick each arg from the params array 
+            //pick each arg from the params array
             //and create a typed expression of them
             for (int i = 0; i < paramsInfo.Length; i++)
             {

@@ -31,9 +31,6 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes the <see cref="ChangesCanceledEventArgs" />.
-        /// </summary>
         public ChangesCanceledEventArgs([NotNull]object entity)
         {
             Should.NotBeNull(entity, "entity");
@@ -57,9 +54,6 @@ namespace MugenMvvmToolkit.Models.EventArg
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes the <see cref="ChangesCanceledEventArgs{TEntity}" />.
-        /// </summary>
         public ChangesCanceledEventArgs([NotNull]TEntity entity)
             : base(entity)
         {

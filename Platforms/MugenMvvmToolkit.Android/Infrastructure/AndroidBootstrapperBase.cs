@@ -37,18 +37,12 @@ using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Android.Infrastructure
 {
-    /// <summary>
-    ///     Represents the base class that is used to start MVVM application.
-    /// </summary>
     public abstract class AndroidBootstrapperBase : BootstrapperBase, IComparer<string>
     {
         private readonly PlatformInfo _platform;
 
         #region Nested Types
 
-        /// <summary>
-        ///     Represents the default implementation of <see cref="IMvvmApplication"/>.
-        /// </summary>
         protected sealed class DefaultApp : MvvmApplication
         {
             #region Fields
@@ -60,9 +54,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
             #region Constructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="DefaultApp" /> class.
-            /// </summary>
             public DefaultApp(Type startViewModelType, IViewModelSettings viewModelSettings = null, LoadMode mode = LoadMode.Runtime)
                 : base(mode)
             {
@@ -113,9 +104,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="AndroidBootstrapperBase" /> class.
-        /// </summary>
         public AndroidBootstrapperBase(PlatformInfo platform = null)
         {
             _platform = platform ?? PlatformExtensions.GetPlatformInfo();
@@ -125,18 +113,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the collection of view assemblies.
-        /// </summary>
         public static IList<Assembly> ViewAssemblies { get; protected set; }
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Makes sure that the application is initialized.
-        /// </summary>
         public static void EnsureInitialized()
         {
             if (Interlocked.CompareExchange(ref _appStateGlobal, InitializedStateGlobal, EmptyState) != EmptyState)
@@ -152,15 +134,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure
                 .OrderByDescending(attribute => attribute.Priority)
                 .FirstOrDefault();
             if (bootstrapperAttribute == null)
-                throw new InvalidOperationException(@"The BootstrapperAttribute was not found. 
+                throw new InvalidOperationException(@"The BootstrapperAttribute was not found.
 You must specify the type of application bootstrapper using BootstrapperAttribute, for example [assembly:Bootstrapper(typeof(MyBootstrapperType))]");
             var instance = (AndroidBootstrapperBase)Activator.CreateInstance(bootstrapperAttribute.BootstrapperType);
             instance.Initialize();
         }
 
-        /// <summary>
-        ///     Initializes the current bootstrapper.
-        /// </summary>
         protected override void InitializeInternal()
         {
             if (Interlocked.Exchange(ref _appStateGlobal, InitializedStateLocal) == InitializedStateLocal)
@@ -171,9 +150,6 @@ You must specify the type of application bootstrapper using BootstrapperAttribut
                 GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
         }
 
-        /// <summary>
-        ///     Starts the current bootstrapper.
-        /// </summary>
         public virtual void Start()
         {
             Initialize();
@@ -186,9 +162,6 @@ You must specify the type of application bootstrapper using BootstrapperAttribut
                .ShowAsync((model, result) => model.Dispose(), null, ctx);
         }
 
-        /// <summary>
-        ///     Gets the application assemblies.
-        /// </summary>
         [NotNull]
         protected virtual ICollection<Assembly> GetAssemblies()
         {

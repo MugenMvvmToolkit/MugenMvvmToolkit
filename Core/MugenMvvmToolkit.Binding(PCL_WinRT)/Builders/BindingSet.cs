@@ -27,9 +27,6 @@ using MugenMvvmToolkit.Binding.Interfaces.Syntax;
 
 namespace MugenMvvmToolkit.Binding.Builders
 {
-    /// <summary>
-    ///     Represents the binding set that allows to configure multiple bindings for a target.
-    /// </summary>
     public class BindingSet : IDisposable
     {
         #region Fields
@@ -47,9 +44,6 @@ namespace MugenMvvmToolkit.Binding.Builders
             OrderByTargetPathDelegate = OrderByTargetPath;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingSet" /> class.
-        /// </summary>
         public BindingSet()
         {
             _builders = new List<IBindingBuilder>();
@@ -59,45 +53,21 @@ namespace MugenMvvmToolkit.Binding.Builders
 
         #region Methods
 
-        /// <summary>
-        ///     Creates a binding using a string expression.
-        /// </summary>
-        /// <param name="target">The specified binding target.</param>
-        /// <param name="targetPath">The target member path.</param>
-        /// <param name="bindingExpression">The specified expression.</param>
         public void BindFromExpression([NotNull]object target, string targetPath, [NotNull]string bindingExpression)
         {
             BindFromExpression(target, targetPath, bindingExpression, null);
         }
 
-        /// <summary>
-        ///     Creates a binding using a string expression.
-        /// </summary>
-        /// <param name="target">The specified binding target.</param>
-        /// <param name="targetPath">The target member path.</param>
-        /// <param name="bindingExpression">The specified expression.</param>
-        /// <param name="sources">The specified sources, if any.</param>
         public void BindFromExpression([NotNull]object target, string targetPath, [NotNull]string bindingExpression, params object[] sources)
         {
             BindFromExpression(target, targetPath + " " + bindingExpression + ";", sources);
         }
 
-        /// <summary>
-        ///     Creates a binding using a string expression.
-        /// </summary>
-        /// <param name="target">The specified binding target.</param>
-        /// <param name="bindingExpression">The specified expression.</param>
         public void BindFromExpression([NotNull]object target, [NotNull]string bindingExpression)
         {
             BindFromExpression(target, bindingExpression, sources: null);
         }
 
-        /// <summary>
-        ///     Creates a binding using a string expression.
-        /// </summary>
-        /// <param name="target">The specified binding target.</param>
-        /// <param name="bindingExpression">The specified expression.</param>
-        /// <param name="sources">The specified sources, if any.</param>
         public void BindFromExpression([NotNull]object target, [NotNull]string bindingExpression, params object[] sources)
         {
             var builders = BindingServiceProvider.BindingProvider.CreateBuildersFromString(target, bindingExpression, sources);
@@ -105,38 +75,23 @@ namespace MugenMvvmToolkit.Binding.Builders
                 AddBuilder(builders[index]);
         }
 
-        /// <summary>
-        ///     Creates a binding builder.
-        /// </summary>
-        /// <returns>The fluent syntax.</returns>
         public IBindingToSyntax<TLocalTarget> Bind<TLocalTarget>([NotNull]TLocalTarget target) where TLocalTarget : class
         {
             return GetBuilder().Bind(target);
         }
 
-        /// <summary>
-        ///     Creates a binding builder.
-        /// </summary>
-        /// <returns>The fluent syntax.</returns>
         public IBindingToSyntax<TLocalTarget> Bind<TLocalTarget>([NotNull]TLocalTarget target,
             [NotNull] string targetPath) where TLocalTarget : class
         {
             return GetBuilder().Bind(target, targetPath);
         }
 
-        /// <summary>
-        ///     Creates a binding builder.
-        /// </summary>
-        /// <returns>The fluent syntax.</returns>
         public IBindingToSyntax<TLocalTarget> Bind<TLocalTarget>([NotNull]TLocalTarget target,
             [NotNull] Func<Expression<Func<TLocalTarget, object>>> targetPath) where TLocalTarget : class
         {
             return GetBuilder().Bind(target, targetPath);
         }
 
-        /// <summary>
-        ///     Applies all bindings to the target.
-        /// </summary>
         public void Apply()
         {
             if (_builders.Count == 0)
@@ -149,9 +104,6 @@ namespace MugenMvvmToolkit.Binding.Builders
             }
         }
 
-        /// <summary>
-        ///     Applies all bindings to the target and returns the collection of bindings.
-        /// </summary>
         [NotNull]
         public IList<IDataBinding> ApplyWithBindings()
         {
@@ -202,36 +154,21 @@ namespace MugenMvvmToolkit.Binding.Builders
         #endregion
     }
 
-    /// <summary>
-    ///     Represents the binding set that allows to configure multiple bindings for a target.
-    /// </summary>
     public class BindingSet<TSource> : BindingSet
     {
         #region Methods
 
-        /// <summary>
-        ///     Creates a binding builder.
-        /// </summary>
-        /// <returns>The fluent syntax.</returns>
         public new IBindingToSyntax<TLocalTarget, TSource> Bind<TLocalTarget>([NotNull]TLocalTarget target) where TLocalTarget : class
         {
             return GetBuilder().Bind<TLocalTarget, TSource>(target);
         }
 
-        /// <summary>
-        ///     Creates a binding builder.
-        /// </summary>
-        /// <returns>The fluent syntax.</returns>
         public new IBindingToSyntax<TLocalTarget, TSource> Bind<TLocalTarget>([NotNull]TLocalTarget target,
             [NotNull] string targetPath) where TLocalTarget : class
         {
             return GetBuilder().Bind<TLocalTarget, TSource>(target, targetPath);
         }
 
-        /// <summary>
-        ///     Creates a binding builder.
-        /// </summary>
-        /// <returns>The fluent syntax.</returns>
         public new IBindingToSyntax<TLocalTarget, TSource> Bind<TLocalTarget>([NotNull]TLocalTarget target,
             [NotNull] Func<Expression<Func<TLocalTarget, object>>> targetPath) where TLocalTarget : class
         {
@@ -241,9 +178,6 @@ namespace MugenMvvmToolkit.Binding.Builders
         #endregion
     }
 
-    /// <summary>
-    ///     Represents the binding set that allows to configure multiple bindings for a target.
-    /// </summary>
     public class BindingSet<TTarget, TSource> : BindingSet<TSource> where TTarget : class
     {
         #region Fields
@@ -254,9 +188,6 @@ namespace MugenMvvmToolkit.Binding.Builders
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingSet{TTarget,TSource}" /> class.
-        /// </summary>
         public BindingSet([CanBeNull]TTarget target)
         {
             _target = target;
@@ -266,9 +197,6 @@ namespace MugenMvvmToolkit.Binding.Builders
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the binding target.
-        /// </summary>
         [CanBeNull]
         public TTarget Target
         {
@@ -280,37 +208,21 @@ namespace MugenMvvmToolkit.Binding.Builders
 
         #region Methods
 
-        /// <summary>
-        ///     Creates a binding using a string expression.
-        /// </summary>
-        /// <param name="bindingExpression">The specified expression.</param>
         public void BindFromExpression([NotNull]string bindingExpression)
         {
             BindFromExpression(_target, bindingExpression);
         }
 
-        /// <summary>
-        ///     Creates a binding builder.
-        /// </summary>
-        /// <returns>The fluent syntax.</returns>
         public IBindingToSyntax<TTarget, TSource> Bind()
         {
             return Bind(_target);
         }
 
-        /// <summary>
-        ///     Creates a binding builder.
-        /// </summary>
-        /// <returns>The fluent syntax.</returns>
         public IBindingToSyntax<TTarget, TSource> Bind([NotNull] string targetPath)
         {
             return Bind(_target, targetPath);
         }
 
-        /// <summary>
-        ///     Creates a binding builder.
-        /// </summary>
-        /// <returns>The fluent syntax.</returns>
         public IBindingToSyntax<TTarget, TSource> Bind([NotNull] Func<Expression<Func<TTarget, object>>> targetPath)
         {
             return Bind(_target, targetPath);

@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ParentObserver.cs">
@@ -23,9 +23,6 @@ using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Binding.Models
 {
-    /// <summary>
-    ///     Represents the weak parent observer.
-    /// </summary>
     internal sealed class ParentObserver : EventListenerList
     {
         #region Fields
@@ -49,18 +46,12 @@ namespace MugenMvvmToolkit.iOS.Binding.Models
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the source element.
-        /// </summary>
         [CanBeNull]
         public UIView Source
         {
             get { return (UIView)_view.Target; }
         }
 
-        /// <summary>
-        ///     Gets or sets the parent of current element.
-        /// </summary>
         [CanBeNull]
         public object Parent
         {
@@ -76,9 +67,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Models
 
         #region Methods
 
-        /// <summary>
-        ///     Gets or adds an instance of <see cref="ParentObserver" />.
-        /// </summary>
         public static ParentObserver GetOrAdd([NotNull] UIView view)
         {
             return ServiceProvider
@@ -86,18 +74,12 @@ namespace MugenMvvmToolkit.iOS.Binding.Models
                 .GetOrAdd(view, Key, (v, o) => new ParentObserver(v), null);
         }
 
-        /// <summary>
-        ///     Raises the parent changed event.
-        /// </summary>
         public static void Raise(UIView view, bool recursively)
         {
             if (view.IsAlive())
                 GetOrAdd(view).Raise(recursively);
         }
 
-        /// <summary>
-        ///     Raises the parent changed event.
-        /// </summary>
         public void Raise(bool recursively = true)
         {
             UIView view;

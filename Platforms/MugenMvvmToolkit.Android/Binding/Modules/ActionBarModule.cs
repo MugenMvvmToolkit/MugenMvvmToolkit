@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ActionBarModule.cs">
@@ -410,9 +410,6 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ActionBarModule" /> class.
-        /// </summary>
         public ActionBarModule()
             : base(true, priority: P)
         {
@@ -912,9 +909,6 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         #region Overrides of ModuleBase
 
-        /// <summary>
-        ///     Loads the current module.
-        /// </summary>
         protected override bool LoadInternal()
         {
 #if !APPCOMPAT
@@ -930,9 +924,6 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             return true;
         }
 
-        /// <summary>
-        ///     Unloads the current module.
-        /// </summary>
         protected override void UnloadInternal()
         {
         }

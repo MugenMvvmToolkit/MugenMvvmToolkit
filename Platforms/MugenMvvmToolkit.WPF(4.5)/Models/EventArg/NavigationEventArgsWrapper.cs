@@ -34,9 +34,6 @@ namespace MugenMvvmToolkit.WPF.Models.EventArg
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigatingCancelEventArgsWrapper" /> class.
-        /// </summary>
         public NavigationEventArgsWrapper([NotNull] NavigationEventArgs args, NavigationMode mode)
         {
             Should.NotBeNull(args, "args");
@@ -48,9 +45,6 @@ namespace MugenMvvmToolkit.WPF.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the original args.
-        /// </summary>
         public NavigationEventArgs Args
         {
             get { return _args; }
@@ -60,17 +54,11 @@ namespace MugenMvvmToolkit.WPF.Models.EventArg
 
         #region Overrides of NavigationEventArgsBase
 
-        /// <summary>
-        ///     Gets the content of the target being navigated to.
-        /// </summary>
         public override object Content
         {
             get { return _args.Content; }
         }
 
-        /// <summary>
-        ///     Gets a value that indicates the type of navigation that is occurring.
-        /// </summary>
         public override NavigationMode Mode
         {
             get { return _mode; }

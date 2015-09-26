@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="BindableLayoutInflaterProxy.cs">
@@ -34,9 +34,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindableLayoutInflaterProxy" /> class.
-        /// </summary>
         public BindableLayoutInflaterProxy(BindableLayoutInflater layoutInflater)
             : base(layoutInflater.ViewFactory, layoutInflater.Context)
         {

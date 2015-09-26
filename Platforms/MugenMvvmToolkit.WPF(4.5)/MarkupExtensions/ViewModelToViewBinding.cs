@@ -31,26 +31,16 @@ using MugenMvvmToolkit.WinPhone.Binding.Converters;
 namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
 #endif
 {
-    /// <summary>
-    ///     Represents the binding that allows to convert a view model to view.
-    /// </summary>
     public sealed class ViewModelToViewBinding : System.Windows.Data.Binding
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewModelToViewBinding" /> class.
-        /// </summary>
         public ViewModelToViewBinding()
         {
             Initialize();
         }
 
 #if !WINDOWSCOMMON
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewModelToViewBinding" /> class with an initial path.
-        /// </summary>
-        /// <param name="path">The initial <see cref="P:System.Windows.Data.Binding.Path" /> for the binding.</param>
         public ViewModelToViewBinding(string path)
             : base(path)
         {
@@ -62,27 +52,18 @@ namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
 
         #region Properties
 
-        /// <summary>
-        /// Gets or sets the default value that indicates that view converter should always create new view.
-        /// </summary>
         public bool? AlwaysCreateNewView
         {
             get { return Converter.AlwaysCreateNewView; }
             set { Converter.AlwaysCreateNewView = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the name of view.
-        /// </summary>
         public string ViewName
         {
             get { return Converter.ViewName; }
             set { Converter.ViewName = value; }
         }
 
-        /// <summary>
-        /// Gets the converter.
-        /// </summary>
         public new ViewModelToViewConverter Converter
         {
             get { return (ViewModelToViewConverter)base.Converter; }

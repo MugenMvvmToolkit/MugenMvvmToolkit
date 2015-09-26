@@ -40,9 +40,6 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
 
         #region Overrides of Tracer
 
-        /// <summary>
-        ///     Writes an informational message to the trace listeners.
-        /// </summary>
         protected override void TraceInternal(TraceLevel level, string message)
         {
             switch (level)

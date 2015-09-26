@@ -27,9 +27,6 @@ using MugenMvvmToolkit.Binding.Models.EventArg;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
-    /// <summary>
-    ///     Represents the binding behavior that allows to wait before updating the binding.
-    /// </summary>
     public sealed class DelayBindingBehavior : BindingBehaviorBase
     {
         #region Nested types
@@ -103,14 +100,8 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Fields
 
-        /// <summary>
-        ///     Gets the id of source behavior.
-        /// </summary>
         public static readonly Guid IdSourceDelayBindingBehavior;
 
-        /// <summary>
-        ///     Gets the id of target behavior.
-        /// </summary>
         public static readonly Guid IdTargetDelayBindingBehavior;
 
 #if PCL_WINRT
@@ -139,13 +130,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             CallbackDelegate = Callback;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DelayBindingBehavior" /> class.
-        /// </summary>
-        /// <param name="delay">
-        ///     The amount of time, in milliseconds, to wait before updating the binding.
-        /// </param>
-        /// <param name="isTarget">If <c>true</c> wait before update target, otherwise <c>false</c> wait before update source.</param>
         public DelayBindingBehavior(uint delay, bool isTarget)
         {
             _isTarget = isTarget;
@@ -156,17 +140,11 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the amount of time, in milliseconds, to wait before updating the binding.
-        /// </summary>
         public int Delay
         {
             get { return _delay; }
         }
 
-        /// <summary>
-        ///     If <c>true</c> wait before update target, otherwise <c>false</c> wait before update source.
-        /// </summary>
         public bool IsTarget
         {
             get { return _isTarget; }
@@ -176,9 +154,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Overrides of BindingBehaviorBase
 
-        /// <summary>
-        ///     Gets the id of behavior. Each <see cref="IDataBinding" /> can have only one instance with the same id.
-        /// </summary>
         public override Guid Id
         {
             get
@@ -189,17 +164,11 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             }
         }
 
-        /// <summary>
-        ///     Gets the behavior priority.
-        /// </summary>
         public override int Priority
         {
             get { return 0; }
         }
 
-        /// <summary>
-        ///     Attaches to the specified binding.
-        /// </summary>
         protected override bool OnAttached()
         {
             if (_isTarget)
@@ -210,9 +179,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             return true;
         }
 
-        /// <summary>
-        ///     Detaches this instance from its associated binding.
-        /// </summary>
         protected override void OnDetached()
         {
             _timer.Dispose();
@@ -222,9 +188,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 Binding.SourceAccessor.ValueChanging -= OnValueChanging;
         }
 
-        /// <summary>
-        ///     Creates a new binding behavior that is a copy of the current instance.
-        /// </summary>
         protected override IBindingBehavior CloneInternal()
         {
             return new DelayBindingBehavior((uint)Delay, _isTarget);

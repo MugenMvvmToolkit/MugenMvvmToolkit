@@ -33,9 +33,6 @@ using MugenMvvmToolkit.Models.IoC;
 
 namespace MugenMvvmToolkit
 {
-    /// <summary>
-    ///     Represents the Autofac ioc adapter.
-    /// </summary>
     public class AutofacContainer : IIocContainer
     {
         #region Nested types
@@ -90,17 +87,11 @@ namespace MugenMvvmToolkit
 
         #region Constructor
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="AutofacContainer" /> class.
-        /// </summary>
         public AutofacContainer()
             : this(new ContainerBuilder())
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="AutofacContainer" /> class.
-        /// </summary>
         public AutofacContainer(ContainerBuilder containerBuilder)
         {
             Should.NotBeNull(containerBuilder, "containerBuilder");
@@ -114,9 +105,6 @@ namespace MugenMvvmToolkit
             _id = Interlocked.Increment(ref _idCounter);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="AutofacContainer" /> class.
-        /// </summary>
         private AutofacContainer(ILifetimeScope container, IIocContainer parent)
         {
             Should.NotBeNull(container, "container");
@@ -137,15 +125,8 @@ namespace MugenMvvmToolkit
 
         #region Properties
 
-        /// <summary>
-        ///     true to throw an exception if the token is not valid;
-        ///     Specifying false also suppresses some other exception conditions, but not all of them.
-        /// </summary>
         public bool ThrowOnUnbind { get; set; }
 
-        /// <summary>
-        ///     Gets the original ioc container.
-        /// </summary>
         public ILifetimeScope Container
         {
             get { return _container; }
@@ -155,9 +136,6 @@ namespace MugenMvvmToolkit
 
         #region Methods
 
-        /// <summary>
-        ///     Converts parameters.
-        /// </summary>
         protected IList<Parameter> ConvertParameters(IList<IIocParameter> parameters)
         {
             if (parameters == null || parameters.Count == 0)
@@ -170,9 +148,6 @@ namespace MugenMvvmToolkit
             return list;
         }
 
-        /// <summary>
-        ///     Converts parameter.
-        /// </summary>
         protected virtual Parameter ConvertParameter(IIocParameter parameter)
         {
             if (parameter == null)
@@ -185,9 +160,6 @@ namespace MugenMvvmToolkit
             return null;
         }
 
-        /// <summary>
-        ///     Sets the lifecycle.
-        /// </summary>
         protected virtual void SetLifetimeScope(DependencyLifecycle lifecycle, RegistrationData data)
         {
             if (lifecycle == DependencyLifecycle.SingleInstance)
@@ -228,49 +200,27 @@ namespace MugenMvvmToolkit
 
         #region Implementation of IIocContainer
 
-        /// <summary>
-        ///     Gets the id of <see cref="IIocContainer" />.
-        /// </summary>
         public int Id
         {
             get { return _id; }
         }
 
-        /// <summary>
-        ///     Gets the parent ioc adapter.
-        /// </summary>
         public IIocContainer Parent
         {
             get { return _parent; }
         }
 
-        /// <summary>
-        ///     Gets the original ioc container.
-        /// </summary>
         object IIocContainer.Container
         {
             get { return _container; }
         }
 
-        /// <summary>
-        ///     Creates a child ioc adapter.
-        /// </summary>
-        /// <returns>
-        ///     An instance of <see cref="IIocContainer" />.
-        /// </returns>
         public IIocContainer CreateChild()
         {
             this.NotBeDisposed();
             return new AutofacContainer(_container.BeginLifetimeScope(), this) { ThrowOnUnbind = ThrowOnUnbind };
         }
 
-        /// <summary>
-        ///     Gets an instance of the specified service.
-        /// </summary>
-        /// <param name="service">The specified service type.</param>
-        /// <param name="name">The specified binding name.</param>
-        /// <param name="parameters">The specified parameters.</param>
-        /// <returns>An instance of the service.</returns>
         public object Get(Type service, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
@@ -280,13 +230,6 @@ namespace MugenMvvmToolkit
             return _container.ResolveNamed(name, service, ConvertParameters(parameters));
         }
 
-        /// <summary>
-        ///     Gets all instances of the specified service.
-        /// </summary>
-        /// <param name="service">Specified service type.</param>
-        /// <param name="name">The specified binding name.</param>
-        /// <param name="parameters">The specified parameters.</param>
-        /// <returns>An instance of the service.</returns>
         public IEnumerable<object> GetAll(Type service, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
@@ -298,9 +241,6 @@ namespace MugenMvvmToolkit
                 .ResolveNamed(name, typeof(IEnumerable<>).MakeGenericType(service), ConvertParameters(parameters));
         }
 
-        /// <summary>
-        ///     Indicates that the service should be bound to the specified constant value.
-        /// </summary>
         public void BindToConstant(Type service, object constValue, string name = null)
         {
             this.NotBeDisposed();
@@ -313,15 +253,6 @@ namespace MugenMvvmToolkit
             builder.Update(_container.ComponentRegistry);
         }
 
-        /// <summary>
-        ///     Indicates that the service should be bound to the specified method.
-        /// </summary>
-        /// <param name="service">The specified service type.</param>
-        /// <param name="methodBindingDelegate">The specified factory delegate.</param>
-        /// <param name="lifecycle">
-        ///     The specified <see cref="DependencyLifecycle" />
-        /// </param>
-        /// <param name="name">The specified binding name.</param>
         public void BindToMethod(Type service, Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
@@ -337,15 +268,6 @@ namespace MugenMvvmToolkit
             builder.Update(_container.ComponentRegistry);
         }
 
-        /// <summary>
-        ///     Indicates that the service should be bound to the specified type.
-        /// </summary>
-        /// <param name="service">The specified service type.</param>
-        /// <param name="typeTo">The specified to type</param>
-        /// <param name="name">The specified binding name.</param>
-        /// <param name="dependencyLifecycle">
-        ///     The specified <see cref="DependencyLifecycle" />
-        /// </param>
         public void Bind(Type service, Type typeTo, DependencyLifecycle dependencyLifecycle, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
@@ -371,24 +293,12 @@ namespace MugenMvvmToolkit
             builder.Update(_container.ComponentRegistry);
         }
 
-        /// <summary>
-        ///     Unregisters all bindings with specified conditions for the specified service.
-        /// </summary>
-        /// <param name="service">The specified service type.</param>
         public void Unbind(Type service)
         {
             Should.MethodBeSupported(!ThrowOnUnbind, "Unbind(Type service)");
             Tracer.Error("Unbind call on Autofac container type " + service);
         }
 
-        /// <summary>
-        ///     Determines whether the specified request can be resolved.
-        /// </summary>
-        /// <param name="service">The specified service type.</param>
-        /// <param name="name">The specified binding name.</param>
-        /// <returns>
-        ///     <c>True</c> if the specified service has been resolved; otherwise, <c>false</c>.
-        /// </returns>
         public bool CanResolve(Type service, string name = null)
         {
             Should.NotBeNull(service, "service");
@@ -399,25 +309,11 @@ namespace MugenMvvmToolkit
             return _container.IsRegisteredWithName(name, service);
         }
 
-        /// <summary>
-        ///     Gets the service object of the specified type.
-        /// </summary>
-        /// <returns>
-        ///     A service object of type <paramref name="serviceType" />.
-        ///     -or-
-        ///     null if there is no service object of type <paramref name="serviceType" />.
-        /// </returns>
-        /// <param name="serviceType">
-        ///     An object that specifies the type of service object to get.
-        /// </param>
         object IServiceProvider.GetService(Type serviceType)
         {
             return Get(serviceType);
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         public void Dispose()
         {
             if (IsDisposed)
@@ -432,14 +328,8 @@ namespace MugenMvvmToolkit
             }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether this instance is disposed.
-        /// </summary>
         public bool IsDisposed { get; private set; }
 
-        /// <summary>
-        ///     Occurs when the object is disposed by a call to the Dispose method.
-        /// </summary>
         public event EventHandler<IDisposableObject, EventArgs> Disposed;
 
         #endregion

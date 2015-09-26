@@ -33,9 +33,6 @@ namespace MugenMvvmToolkit.WPF.Models.EventArg
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigatingCancelEventArgsWrapper" /> class.
-        /// </summary>
         public NavigatingCancelEventArgsWrapper([NotNull] NavigatingCancelEventArgs args)
         {
             Should.NotBeNull(args, "args");
@@ -46,9 +43,6 @@ namespace MugenMvvmToolkit.WPF.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the original args.
-        /// </summary>
         public NavigatingCancelEventArgs Args
         {
             get { return _args; }
@@ -58,29 +52,17 @@ namespace MugenMvvmToolkit.WPF.Models.EventArg
 
         #region Overrides of NavigatingCancelEventArgsBase
 
-        /// <summary>
-        ///     Specifies whether a pending navigation should be canceled.
-        /// </summary>
-        /// <returns>
-        ///     true to cancel the pending cancelable navigation; false to continue with navigation.
-        /// </returns>
         public override bool Cancel
         {
             get { return _args.Cancel; }
             set { _args.Cancel = value; }
         }
 
-        /// <summary>
-        ///     Gets a value that indicates the type of navigation that is occurring.
-        /// </summary>
         public override NavigationMode NavigationMode
         {
             get { return _args.NavigationMode.ToNavigationMode(); }
         }
 
-        /// <summary>
-        ///     Gets a value that indicates whether you can cancel the navigation.
-        /// </summary>
         public override bool IsCancelable
         {
             get { return true; }

@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="WindowViewMediator.cs">
@@ -40,16 +40,10 @@ using MugenMvvmToolkit.Android.Interfaces.Views;
 namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 #endif
 {
-    /// <summary>
-    ///     Represents the mediator class for dialog view.
-    /// </summary>
     public class WindowViewMediator : WindowViewMediatorBase<IWindowView>
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="WindowViewMediatorBase{TView}" /> class.
-        /// </summary>
         public WindowViewMediator([NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
             [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IOperationCallbackManager callbackManager)
             : base(viewModel, threadManager, viewManager, wrapperManager, callbackManager)
@@ -60,9 +54,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         #region Overrides of WindowViewMediatorBase<IWindowView>
 
-        /// <summary>
-        ///     Shows the view in the specified mode.
-        /// </summary>
         protected override void ShowView(IWindowView view, bool isDialog, IDataContext context)
         {
             var navigationProvider = ViewModel.GetIocContainer(true).Get<INavigationProvider>();
@@ -85,17 +76,11 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             fragmentManager.ExecutePendingTransactions();
         }
 
-        /// <summary>
-        ///     Closes the view.
-        /// </summary>
         protected override void CloseView(IWindowView view)
         {
             view.Dismiss();
         }
 
-        /// <summary>
-        ///     Initializes the specified view.
-        /// </summary>
         protected override void InitializeView(IWindowView windowView, IDataContext context)
         {
             windowView.Mediator.Closing += OnViewClosing;
@@ -103,10 +88,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             windowView.Mediator.Destroyed += WindowViewOnDestroyed;
         }
 
-        /// <summary>
-        ///     Clears the event subscribtions from the specified view.
-        /// </summary>
-        /// <param name="windowView">The specified window-view to dispose.</param>
         protected override void CleanupView(IWindowView windowView)
         {
             windowView.Mediator.Closing -= OnViewClosing;

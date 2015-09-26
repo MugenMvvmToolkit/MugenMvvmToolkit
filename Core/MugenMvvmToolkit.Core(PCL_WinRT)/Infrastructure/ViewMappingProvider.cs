@@ -29,9 +29,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the implementation of <see cref="IViewMappingProvider"/> to provide view mappings.
-    /// </summary>
     public class ViewMappingProvider : IViewMappingProvider
     {
         #region Fields
@@ -46,17 +43,11 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewMappingProvider" /> class.
-        /// </summary>
         public ViewMappingProvider([NotNull] IEnumerable<Assembly> assemblies)
             : this(assemblies, null, null)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewMappingProvider" /> class.
-        /// </summary>
         public ViewMappingProvider([NotNull] IEnumerable<Assembly> assemblies, IList<string> viewPostfix, IList<string> viewModelPostfix)
         {
             Should.NotBeNull(assemblies, "assemblies");
@@ -75,17 +66,11 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        /// Gets the view postfixes.
-        /// </summary>
         protected IList<string> ViewPostfix
         {
             get { return _viewPostfix; }
         }
 
-        /// <summary>
-        /// Gets the view model postfixes.
-        /// </summary>
         protected IList<string> ViewModelPostfix
         {
             get { return _viewModelPostfix; }
@@ -95,9 +80,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Adds the view mapping to internal collection.
-        /// </summary>
         public void AddMapping(IViewMappingItem mappingItem)
         {
             AddMapping(mappingItem, false, true);
@@ -135,9 +117,6 @@ namespace MugenMvvmToolkit.Infrastructure
         }
 
 
-        /// <summary>
-        /// Initializes view mappings.
-        /// </summary>
         protected virtual void InitializeMapping(IEnumerable<Type> types)
         {
             var vTypes = new Dictionary<string, HashSet<Type>>();
@@ -255,26 +234,11 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Defines the method that determines whether the type is view type.
-        /// </summary>
         protected virtual bool IsViewType(Type type)
         {
             return true;
         }
 
-        /// <summary>
-        ///     Creates an <see cref="Uri" /> for the specified type of view.
-        /// </summary>
-        /// <param name="viewType">The specified type of view.</param>
-        /// <param name="viewModelType">The specified type of view model.</param>
-        /// <param name="url">The specified url value.</param>
-        /// <param name="uriKind">
-        ///     The specified <see cref="UriKind" />.
-        /// </param>
-        /// <returns>
-        ///     An instance of <see cref="Uri" />.
-        /// </returns>
         protected virtual Uri GetUri(Type viewType, Type viewModelType, string url, UriKind uriKind)
         {
             if (!string.IsNullOrEmpty(url))
@@ -359,9 +323,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of INavigableViewMappingProvider
 
-        /// <summary>
-        ///     Gets a series instances of <see cref="IViewMappingItem" />.
-        /// </summary>
         public IEnumerable<IViewMappingItem> ViewMappings
         {
             get
@@ -371,17 +332,6 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Finds the series of <see cref="IViewMappingItem" /> for the specified type of view.
-        /// </summary>
-        /// <param name="viewType">The specified type of view.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the type cannot be found; false to return null. Specifying
-        ///     false also suppresses some other exception conditions, but not all of them.
-        /// </param>
-        /// <returns>
-        ///     The series of <see cref="IViewMappingItem" />.
-        /// </returns>
         public IList<IViewMappingItem> FindMappingsForView(Type viewType, bool throwOnError)
         {
             Should.NotBeNull(viewType, "viewType");
@@ -394,18 +344,6 @@ namespace MugenMvvmToolkit.Infrastructure
             return item.ToArrayEx();
         }
 
-        /// <summary>
-        ///     Finds the <see cref="IViewMappingItem" /> for the specified type of view model.
-        /// </summary>
-        /// <param name="viewModelType">The specified type of view model.</param>
-        /// <param name="viewName">The specified name of view, if any.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the type cannot be found; false to return null. Specifying
-        ///     false also suppresses some other exception conditions, but not all of them.
-        /// </param>
-        /// <returns>
-        ///     An instance of <see cref="IViewMappingItem" />.
-        /// </returns>
         public IViewMappingItem FindMappingForViewModel(Type viewModelType, string viewName, bool throwOnError)
         {
             Should.BeOfType<IViewModel>(viewModelType, "viewModelType");

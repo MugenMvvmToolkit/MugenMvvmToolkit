@@ -32,9 +32,6 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes the <see cref="NavigatedEventArgs" />.
-        /// </summary>
         public NavigatedEventArgs([NotNull]INavigationContext context)
         {
             Should.NotBeNull(context, "context");
@@ -45,9 +42,6 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the current <see cref="INavigationContext" />.
-        /// </summary>
         [NotNull]
         public INavigationContext Context
         {

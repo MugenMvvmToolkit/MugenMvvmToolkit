@@ -27,10 +27,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Parse
 {
-    /// <summary>
-    ///     Represents the class that adds ability to use some macros like $self, $this, $context, $args, $arg, $GetErrors() in bindings.
-    ///     This class also updates some string literals.
-    /// </summary>
     public sealed class DefaultBindingParserHandler : IBindingParserHandler, IExpressionVisitor
     {
         #region Fields
@@ -57,9 +53,6 @@ namespace MugenMvvmToolkit.Binding.Parse
             };
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DefaultBindingParserHandler" /> class.
-        /// </summary>
         public DefaultBindingParserHandler()
         {
             _errorPathNames = new Dictionary<Guid, string[]>();
@@ -69,35 +62,16 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Implementation of interfaces
 
-        /// <summary>
-        ///     Prepares a string for the binding.
-        /// </summary>
-        /// <param name="bindingExpression">The specified binding expression.</param>
-        /// <param name="context">The specified context.</param>
-        /// <returns>An instance of <see cref="string" />.</returns>
         public void Handle(ref string bindingExpression, IDataContext context)
         {
             foreach (var replaceKeyword in ReplaceKeywords)
                 bindingExpression = bindingExpression.Replace(replaceKeyword.Key, replaceKeyword.Value);
         }
 
-        /// <summary>
-        ///     Prepares a target path for the binding.
-        /// </summary>
-        /// <param name="targetPath">The specified target path.</param>
-        /// <param name="context">The specified context.</param>
-        /// <returns>An instance of <see cref="string" />.</returns>
         public void HandleTargetPath(ref string targetPath, IDataContext context)
         {
         }
 
-        /// <summary>
-        ///     Prepares an <see cref="IExpressionNode" /> for the binding.
-        /// </summary>
-        /// <param name="expression">The specified binding expression.</param>
-        /// <param name="isPrimaryExpression">If <c>true</c> it's main binding expression; otherwise parameter expression.</param>
-        /// <param name="context">The specified context.</param>
-        /// <returns>An instance of delegate to update binding.</returns>
         public Action<IDataContext> Handle(ref IExpressionNode expression, bool isPrimaryExpression, IDataContext context)
         {
             if (expression == null)
@@ -115,11 +89,6 @@ namespace MugenMvvmToolkit.Binding.Parse
             }
         }
 
-        /// <summary>
-        ///     Dispatches the expression.
-        /// </summary>
-        /// <param name="node">The expression to visit.</param>
-        /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
         IExpressionNode IExpressionVisitor.Visit(IExpressionNode node)
         {
             var methodCallExpressionNode = node as IMethodCallExpressionNode;

@@ -49,21 +49,12 @@ namespace MugenMvvmToolkit.Test.TestModels
             set { _isAlive = value; }
         }
 
-        /// <summary>
-        ///     Gets the path.
-        /// </summary>
         public IBindingPath Path { get; set; }
 
         public bool IsTrackChangesEnabled { get; set; }
 
-        /// <summary>
-        ///     Gets the source value.
-        /// </summary>
         public object Source { get; set; }
 
-        /// <summary>
-        ///     Gets the source object include the path members.
-        /// </summary>
         IBindingPathMembers IObserver.GetPathMembers(bool throwOnError)
         {
             if (GetPathMembers != null)
@@ -75,31 +66,16 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         public event EventHandler<IObserver, ValueChangedEventArgs> ValueChanged;
 
-        /// <summary>
-        ///     Updates the current values.
-        /// </summary>
         void IObserver.Update()
         {
             Update();
         }
 
-        /// <summary>
-        ///     Determines whether the current source is valid.
-        /// </summary>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the source is not valid; false to return false.
-        /// </param>
-        /// <returns>
-        ///     If <c>true</c> current source is valid, otherwise <c>false</c>.
-        /// </returns>
         bool IObserver.Validate(bool throwOnError)
         {
             return IsValid(throwOnError);
         }
 
-        /// <summary>
-        ///     Gets the actual source object.
-        /// </summary>
         object IObserver.GetActualSource(bool throwOnError)
         {
             return GetActualSource(throwOnError);

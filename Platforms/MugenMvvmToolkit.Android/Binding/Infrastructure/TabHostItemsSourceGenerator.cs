@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="TabHostItemsSourceGenerator.cs">
@@ -321,9 +321,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         #region Implementation of IItemsSourceGeneratorEx
 
-        /// <summary>
-        ///     Gets or sets the selected item.
-        /// </summary>
         public object SelectedItem
         {
             get { return TabHost.GetBindingMemberValue(AttachedMembers.TabHost.SelectedItem); }

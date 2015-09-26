@@ -21,9 +21,6 @@ using MugenMvvmToolkit.Binding.Interfaces.Syntax;
 
 namespace MugenMvvmToolkit.Binding.Builders
 {
-    /// <summary>
-    ///     Used to define a basic binding syntax builder.
-    /// </summary>
     public sealed class SyntaxBuilder<TTarget, TSource> : IBindingModeInfoBehaviorSyntax<TSource>,
         IBindingToSyntax<TTarget, TSource>, IBindingInfoBehaviorSyntax<TSource>
         where TTarget : class
@@ -36,9 +33,6 @@ namespace MugenMvvmToolkit.Binding.Builders
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="SyntaxBuilder{TTarget, TSource}" /> class.
-        /// </summary>
         public SyntaxBuilder(IBindingBuilder builder)
         {
             Should.NotBeNull(builder, "builder");
@@ -49,9 +43,6 @@ namespace MugenMvvmToolkit.Binding.Builders
 
         #region Implementation of IBuilderSyntax
 
-        /// <summary>
-        ///     Gets the current <see cref="IBindingBuilder" />.
-        /// </summary>
         public IBindingBuilder Builder
         {
             get { return _builder; }

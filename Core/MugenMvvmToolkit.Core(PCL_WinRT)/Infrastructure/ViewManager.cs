@@ -29,9 +29,6 @@ using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the provider that allows to create a view for a view model
-    /// </summary>
     public class ViewManager : IViewManager
     {
         #region Fields
@@ -54,9 +51,6 @@ namespace MugenMvvmToolkit.Infrastructure
             SetDataContext = (o, o1) => ReflectionExtensions.SetDataContext(o, o1);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewManager" /> class.
-        /// </summary>
         public ViewManager([NotNull] IThreadManager threadManager,
             [NotNull] IViewMappingProvider viewMappingProvider, [NotNull] IWrapperManager wrapperManager)
         {
@@ -72,9 +66,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the delegate that allows to get data context of view.
-        /// </summary>
         [NotNull]
         public static Func<object, object> GetDataContext
         {
@@ -86,9 +77,6 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the delegate that allows to set data context of view.
-        /// </summary>
         [NotNull]
         public static Action<object, object> SetDataContext
         {
@@ -100,55 +88,28 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the default value that indicates that view manager should always create new view.
-        /// </summary>
         public static bool AlwaysCreateNewView { get; set; }
 
-        /// <summary>
-        ///     Gets or sets property that is responsible for auto dispose view when the view model disposed.
-        /// </summary>
         public static bool DisposeView { get; set; }
 
-        /// <summary>
-        ///     Gets or sets property that is responsible for clear view data context when the view model disposing.
-        /// </summary>
         public static bool ClearDataContext { get; set; }
 
-        /// <summary>
-        ///     Occurs when view is created.
-        /// </summary>
         public static Action<IViewManager, IViewModel, object, IDataContext> ViewCreated { get; set; }
 
-        /// <summary>
-        ///     Occurs when view is initialized.
-        /// </summary>
         public static Action<IViewManager, IViewModel, object, IDataContext> ViewInitialized { get; set; }
 
-        /// <summary>
-        ///     Occurs when view is cleared.
-        /// </summary>
         public static Action<IViewManager, IViewModel, object, IDataContext> ViewCleared { get; set; }
 
-        /// <summary>
-        ///     Gets the thread manager.
-        /// </summary>
         protected IThreadManager ThreadManager
         {
             get { return _threadManager; }
         }
 
-        /// <summary>
-        ///     Gets the view mapping provider.
-        /// </summary>
         protected IViewMappingProvider ViewMappingProvider
         {
             get { return _viewMappingProvider; }
         }
 
-        /// <summary>
-        ///     Gets the wrapper manager.
-        /// </summary>
         protected IWrapperManager WrapperManager
         {
             get { return _wrapperManager; }
@@ -158,14 +119,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of IViewManager
 
-        /// <summary>
-        ///     Gets an instance of view object for the specified view model.
-        /// </summary>
-        /// <param name="viewModel">The view model which is now initialized.</param>
-        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
-        /// <returns>
-        ///     An instance of view object.
-        /// </returns>
         public Task<object> GetViewAsync(IViewModel viewModel, IDataContext context = null)
         {
             Should.NotBeNull(viewModel, "viewModel");
@@ -183,14 +136,6 @@ namespace MugenMvvmToolkit.Infrastructure
             return tcs.Task;
         }
 
-        /// <summary>
-        ///     Gets an instance of view object for the specified view model.
-        /// </summary>
-        /// <param name="viewMapping">The view mapping to create view.</param>
-        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
-        /// <returns>
-        ///     An instance of view object.
-        /// </returns>
         public Task<object> GetViewAsync(IViewMappingItem viewMapping, IDataContext context = null)
         {
             Should.NotBeNull(viewMapping, "viewMapping");
@@ -208,12 +153,6 @@ namespace MugenMvvmToolkit.Infrastructure
             return tcs.Task;
         }
 
-        /// <summary>
-        ///     Configures the specified view for the specified view-model.
-        /// </summary>
-        /// <param name="viewModel">The specified view model.</param>
-        /// <param name="view">The specified view.</param>
-        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
         public Task InitializeViewAsync(IViewModel viewModel, object view, IDataContext context = null)
         {
             var tcs = new TaskCompletionSource<object>();
@@ -239,11 +178,6 @@ namespace MugenMvvmToolkit.Infrastructure
             return tcs.Task;
         }
 
-        /// <summary>
-        ///     Clears view in the specified view-model
-        /// </summary>
-        /// <param name="viewModel">The specified view model.</param>
-        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
         public Task CleanupViewAsync(IViewModel viewModel, IDataContext context = null)
         {
             Should.NotBeNull(viewModel, "viewModel");
@@ -265,9 +199,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Gets an instance of view object for the specified view model.
-        /// </summary>
         public static object GetOrCreateView([CanBeNull] IViewModel vm, bool? alwaysCreateNewView = null,
             IDataContext context = null)
         {
@@ -289,14 +220,6 @@ namespace MugenMvvmToolkit.Infrastructure
             return view;
         }
 
-        /// <summary>
-        ///     Gets an instance of view object for the specified view model.
-        /// </summary>
-        /// <param name="viewModel">The view model which is now initialized.</param>
-        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
-        /// <returns>
-        ///     An instance of view object.
-        /// </returns>
         protected virtual object GetView([NotNull] IViewModel viewModel, [NotNull] IDataContext context)
         {
             string viewBindingName = viewModel.GetViewName(context);
@@ -305,14 +228,6 @@ namespace MugenMvvmToolkit.Infrastructure
             return GetView(mappingItem, context);
         }
 
-        /// <summary>
-        ///     Gets an instance of view object for the specified view model.
-        /// </summary>
-        /// <param name="viewMapping">The view mapping to create view.</param>
-        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
-        /// <returns>
-        ///     An instance of view object.
-        /// </returns>
         protected virtual object GetView([NotNull] IViewMappingItem viewMapping, [NotNull] IDataContext context)
         {
             object viewObj = ServiceProvider.Get(viewMapping.ViewType);
@@ -323,12 +238,6 @@ namespace MugenMvvmToolkit.Infrastructure
             return viewObj;
         }
 
-        /// <summary>
-        ///     Configures the specified view for the specified view-model.
-        /// </summary>
-        /// <param name="viewModel">The specified view model.</param>
-        /// <param name="view">The specified view.</param>
-        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
         protected virtual void InitializeView([NotNull] IViewModel viewModel, [CanBeNull] object view,
             [NotNull] IDataContext context)
         {
@@ -343,12 +252,6 @@ namespace MugenMvvmToolkit.Infrastructure
             viewProperty.SetValueEx(viewModel, view);
         }
 
-        /// <summary>
-        ///     Clears view in the specified view-model
-        /// </summary>
-        /// <param name="viewModel">The specified view model.</param>
-        /// <param name="view">The specified view.</param>
-        /// <param name="context">The specified <see cref="IDataContext" />, if any.</param>
         protected virtual void CleanupView([NotNull] IViewModel viewModel, [NotNull] object view,
             [NotNull] IDataContext context)
         {

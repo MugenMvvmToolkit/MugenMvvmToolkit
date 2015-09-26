@@ -34,17 +34,11 @@ using MugenMvvmToolkit.Models;
 // ReSharper disable once CheckNamespace
 namespace MugenMvvmToolkit.Binding.Extensions.Syntax
 {
-    /// <summary>
-    ///     Represents the binding syntax extnensions.
-    /// </summary>
     [BindingSyntaxExtensions]
     public static class BindingSyntaxEx
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the provide expression method name.
-        /// </summary>
         public const string ProvideExpressionMethodName = "ProvideExpression";
 
         private const string ResourceMethodName = "Resource";
@@ -80,65 +74,41 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
 
         #region Methods
 
-        /// <summary>
-        ///     Gets the current data context.
-        /// </summary>
         public static T DataContext<T>()
         {
             throw BindingExceptionManager.MethodNotSupportedBindingExpression();
         }
 
-        /// <summary>
-        ///     Gets a relative element by type.
-        /// </summary>
         public static T Relative<T>()
         {
             throw BindingExceptionManager.MethodNotSupportedBindingExpression();
         }
 
-        /// <summary>
-        ///     Gets a relative element by type and level.
-        /// </summary>
         public static T Relative<T>(uint level)
         {
             throw BindingExceptionManager.MethodNotSupportedBindingExpression();
         }
 
-        /// <summary>
-        ///     Gest an element by element id.
-        /// </summary>
         public static T Element<T>(object elementId)
         {
             throw BindingExceptionManager.MethodNotSupportedBindingExpression();
         }
 
-        /// <summary>
-        ///     Gets the self item.
-        /// </summary>
         public static T Self<T>()
         {
             throw BindingExceptionManager.MethodNotSupportedBindingExpression();
         }
 
-        /// <summary>
-        ///     Gets the root element.
-        /// </summary>
         public static T Root<T>()
         {
             throw BindingExceptionManager.MethodNotSupportedBindingExpression();
         }
 
-        /// <summary>
-        ///     Gets the binding source item.
-        /// </summary>
         public static T Source<T>()
         {
             throw BindingExceptionManager.MethodNotSupportedBindingExpression();
         }
 
-        /// <summary>
-        ///     Gets a resource object by name.
-        /// </summary>
         public static T Resource<T>(string name)
         {
             return (T)BindingServiceProvider
@@ -147,9 +117,6 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                 .Value;
         }
 
-        /// <summary>
-        ///     Gets a resource object by name.
-        /// </summary>
         public static T Resource<T>(string name, Expression<Func<T>> member)
         {
             var value = BindingServiceProvider
@@ -161,26 +128,17 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
 #pragma warning restore 618
         }
 
-        /// <summary>
-        ///     Invokes a resource method by name.
-        /// </summary>
         public static T ResourceMethod<T>(string name, params object[] args)
         {
             return (T)ResourceMethodImpl(name, Empty.Array<Type>(), MugenMvvmToolkit.Models.DataContext.Empty, args);
         }
 
-        /// <summary>
-        ///     Gets a member value by name.
-        /// </summary>
         [BindingSyntaxMember]
         public static T Member<T>(this object target, string member)
         {
             return target.GetBindingMemberValue<object, T>(member);
         }
 
-        /// <summary>
-        ///     Gets a member value by name.
-        /// </summary>
         [BindingSyntaxMember]
         public static TValue Member<TSource, TValue>(this TSource target, BindingMemberDescriptor<TSource, TValue> member)
             where TSource : class
@@ -188,17 +146,11 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
             return target.GetBindingMemberValue(member);
         }
 
-        /// <summary>
-        ///     Gets the current event args, if any.
-        /// </summary>
         public static T EventArgs<T>()
         {
             throw BindingExceptionManager.MethodNotSupportedBindingExpression();
         }
 
-        /// <summary>
-        ///     Gets the errors for the specified members.
-        /// </summary>
         public static IEnumerable<object> GetErrors(params object[] args)
         {
             throw BindingExceptionManager.MethodNotSupportedBindingExpression();

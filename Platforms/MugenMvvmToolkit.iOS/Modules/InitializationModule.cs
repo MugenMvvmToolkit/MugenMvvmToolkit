@@ -33,9 +33,6 @@ using MugenMvvmToolkit.Modules;
 
 namespace MugenMvvmToolkit.iOS.Modules
 {
-    /// <summary>
-    ///     Represents the class that is used to initialize the IOC adapter.
-    /// </summary>
     public class InitializationModule : InitializationModuleBase
     {
         #region Cosntructors
@@ -46,16 +43,10 @@ namespace MugenMvvmToolkit.iOS.Modules
                 ServiceProvider.AttachedValueProvider = new AttachedValueProvider();
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="InitializationModule" /> class.
-        /// </summary>
         public InitializationModule()
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="InitializationModule" /> class.
-        /// </summary>
         protected InitializationModule(LoadMode mode = LoadMode.All, int priority = InitializationModulePriority)
             : base(mode, priority)
         {
@@ -65,9 +56,6 @@ namespace MugenMvvmToolkit.iOS.Modules
 
         #region Overrides of InitializationModuleBase
 
-        /// <summary>
-        ///     Loads the current module.
-        /// </summary>
         protected override bool LoadInternal()
         {
             var load = base.LoadInternal();
@@ -81,19 +69,11 @@ namespace MugenMvvmToolkit.iOS.Modules
             return load;
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IApplicationStateManager" /> that will be used in all view models by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IApplicationStateManager" />.</returns>
         protected virtual BindingInfo<IApplicationStateManager> GetApplicationStateManager()
         {
             return BindingInfo<IApplicationStateManager>.FromType<ApplicationStateManager>(DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IViewModelPresenter" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IViewModelPresenter" />.</returns>
         protected override BindingInfo<IViewModelPresenter> GetViewModelPresenter()
         {
             return BindingInfo<IViewModelPresenter>.FromMethod((container, list) =>
@@ -108,55 +88,31 @@ namespace MugenMvvmToolkit.iOS.Modules
             }, DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IMessagePresenter" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IMessagePresenter" />.</returns>
         protected override BindingInfo<IMessagePresenter> GetMessagePresenter()
         {
             return BindingInfo<IMessagePresenter>.FromType<MessagePresenter>(DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IThreadManager" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IThreadManager" />.</returns>
         protected override BindingInfo<IThreadManager> GetThreadManager()
         {
             return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(SynchronizationContext.Current), DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="INavigationProvider" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="INavigationProvider" />.</returns>
         protected override BindingInfo<INavigationProvider> GetNavigationProvider()
         {
             return BindingInfo<INavigationProvider>.FromType<NavigationProvider>(DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IToastPresenter" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IToastPresenter" />.</returns>
         protected override BindingInfo<IToastPresenter> GetToastPresenter()
         {
             return BindingInfo<IToastPresenter>.FromType<ToastPresenter>(DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IOperationCallbackFactory" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IOperationCallbackFactory" />.</returns>
         protected override BindingInfo<IOperationCallbackFactory> GetOperationCallbackFactory()
         {
             return BindingInfo<IOperationCallbackFactory>.FromType<SerializableOperationCallbackFactory>(DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IAttachedValueProvider" /> that will be used by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IAttachedValueProvider" />.</returns>
         protected override BindingInfo<IAttachedValueProvider> GetAttachedValueProvider()
         {
             return BindingInfo<IAttachedValueProvider>.FromType<AttachedValueProvider>(DependencyLifecycle.SingleInstance);

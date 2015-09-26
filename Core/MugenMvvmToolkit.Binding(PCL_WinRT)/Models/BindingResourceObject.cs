@@ -22,9 +22,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
-    /// <summary>
-    ///     Represents the binding expression object.
-    /// </summary>
     public class BindingResourceObject : ISourceValue
     {
         #region Fields
@@ -36,18 +33,12 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingResourceObject" /> class.
-        /// </summary>
         public BindingResourceObject(WeakReference value)
         {
             _isWeak = true;
             _value = value ?? Empty.WeakReference;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingResourceObject" /> class.
-        /// </summary>
         public BindingResourceObject(object value, bool isWeak = false)
         {
             _isWeak = isWeak;
@@ -58,14 +49,6 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Implementation of ISourceValue
 
-        /// <summary>
-        ///     Gets an indication whether the object referenced by the current <see cref="ISourceValue" /> object has
-        ///     been garbage collected.
-        /// </summary>
-        /// <returns>
-        ///     true if the object referenced by the current <see cref="ISourceValue" /> object has not been garbage
-        ///     collected and is still accessible; otherwise, false.
-        /// </returns>
         bool ISourceValue.IsAlive
         {
             get
@@ -76,9 +59,6 @@ namespace MugenMvvmToolkit.Binding.Models
             }
         }
 
-        /// <summary>
-        ///     Gets the value.
-        /// </summary>
         public object Value
         {
             get
@@ -99,9 +79,6 @@ namespace MugenMvvmToolkit.Binding.Models
             }
         }
 
-        /// <summary>
-        ///     Occurs when the <see cref="Value"/>  property changed.
-        /// </summary>
         public event EventHandler<ISourceValue, EventArgs> ValueChanged;
 
         #endregion

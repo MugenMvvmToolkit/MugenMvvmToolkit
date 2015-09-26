@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="NavigatingCancelEventArgs.cs">
@@ -22,17 +22,10 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Android.Models.EventArg
 {
-    /// <summary>
-    ///     Provides event data for the OnNavigatingFrom callback that can be used to cancel a navigation request from
-    ///     origination.
-    /// </summary>
     public class NavigatingCancelEventArgs : NavigatingCancelEventArgsBase
     {
         #region Fields
 
-        /// <summary>
-        /// Gets the non cancelable instance of <see cref="NavigatingCancelEventArgs"/>.
-        /// </summary>
         public static readonly NavigatingCancelEventArgs NonCancelableEventArgs;
 
         private readonly bool _isCancelable;
@@ -55,20 +48,12 @@ namespace MugenMvvmToolkit.Android.Models.EventArg
             _isCancelable = false;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigatingCancelEventArgs" /> class with the
-        ///     <see cref="P:System.ComponentModel.CancelEventArgs.Cancel" /> property set to false.
-        /// </summary>
         public NavigatingCancelEventArgs(NavigationMode navigationMode)
         {
             _navigationMode = navigationMode;
             _isCancelable = true;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigatingCancelEventArgs" /> class with the
-        ///     <see cref="P:System.ComponentModel.CancelEventArgs.Cancel" /> property set to false.
-        /// </summary>
         public NavigatingCancelEventArgs(IViewMappingItem mapping, NavigationMode navigationMode, string parameter)
         {
             _mapping = mapping;
@@ -81,17 +66,11 @@ namespace MugenMvvmToolkit.Android.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the mapping item to navigate.
-        /// </summary>
         public IViewMappingItem Mapping
         {
             get { return _mapping; }
         }
 
-        /// <summary>
-        ///     Gets any Parameter object passed to the target page for the navigation.
-        /// </summary>
         public string Parameter
         {
             get { return _parameter; }
@@ -101,25 +80,13 @@ namespace MugenMvvmToolkit.Android.Models.EventArg
 
         #region Overrides of NavigatingCancelEventArgsBase
 
-        /// <summary>
-        ///     Specifies whether a pending navigation should be canceled.
-        /// </summary>
-        /// <returns>
-        ///     true to cancel the pending cancelable navigation; false to continue with navigation.
-        /// </returns>
         public override bool Cancel { get; set; }
 
-        /// <summary>
-        ///     Gets a value that indicates the type of navigation that is occurring.
-        /// </summary>
         public override NavigationMode NavigationMode
         {
             get { return _navigationMode; }
         }
 
-        /// <summary>
-        ///     Gets a value that indicates whether you can cancel the navigation.
-        /// </summary>
         public override bool IsCancelable
         {
             get { return _isCancelable; }

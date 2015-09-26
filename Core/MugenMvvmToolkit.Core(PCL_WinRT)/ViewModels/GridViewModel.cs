@@ -31,10 +31,6 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.ViewModels
 {
-    /// <summary>
-    ///     Represents the base class for view models that have a collection of any objects.
-    /// </summary>
-    /// <typeparam name="T">The type of model.</typeparam>
     [BaseViewModel(Priority = 7)]
     public class GridViewModel<T> : ViewModelBase, IGridViewModel<T> where T : class
     {
@@ -55,9 +51,6 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="GridViewModel{T}" /> class.
-        /// </summary>
         public GridViewModel()
         {
             _weakPropertyHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, (model, o, arg3) => model.OnSelectedItemPropertyChanged(o, arg3));
@@ -69,67 +62,43 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Propreties
 
-        /// <summary>
-        ///     Gets the filterable items source.
-        /// </summary>
         protected FilterableNotifiableCollection<T> FilterableItemsSource
         {
             get { return _filterableItemsSource; }
         }
 
-        /// <summary>
-        ///     Gets or sets the value that indicates that the current view model will change the IsSelected property in <see cref="ISelectable" /> model.
-        /// </summary>
         public bool UpdateSelectedStateOnChange { get; set; }
 
         #endregion
 
         #region Implementation of IGridViewModel
 
-        /// <summary>
-        ///     Gets the type of model.
-        /// </summary>
         Type IGridViewModel.ModelType
         {
             get { return typeof(T); }
         }
 
-        /// <summary>
-        ///     Gets the original collection of items source without the filter.
-        /// </summary>
         IList IGridViewModel.OriginalItemsSource
         {
             get { return (IList)OriginalItemsSource; }
         }
 
-        /// <summary>
-        ///     Gets the collection of objects.
-        /// </summary>
         IEnumerable IGridViewModel.ItemsSource
         {
             get { return ItemsSource; }
         }
 
-        /// <summary>
-        ///     Gets or sets the selected item.
-        /// </summary>
         object IGridViewModel.SelectedItem
         {
             get { return SelectedItem; }
             set { SelectedItem = (T)value; }
         }
 
-        /// <summary>
-        ///     Gets or sets the filter.
-        /// </summary>
         FilterDelegate<object> IGridViewModel.Filter
         {
             set { Filter = value; }
         }
 
-        /// <summary>
-        ///     Gets or sets the filter.
-        /// </summary>
         public virtual FilterDelegate<T> Filter
         {
             get { return _filter; }
@@ -142,34 +111,21 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        /// <summary>
-        ///     Updates the current <see cref="IGridViewModel.ItemsSource" />.
-        /// </summary>
-        /// <param name="value">The new item source value.</param>
         void IGridViewModel.UpdateItemsSource(IEnumerable value)
         {
             UpdateItemsSource((IEnumerable<T>)value);
         }
 
-        /// <summary>
-        ///     Gets the original collection of items source without the filter.
-        /// </summary>
         public virtual IList<T> OriginalItemsSource
         {
             get { return FilterableItemsSource.SourceCollection; }
         }
 
-        /// <summary>
-        ///     Gets or sets the collection of objects.
-        /// </summary>
         public virtual IList<T> ItemsSource
         {
             get { return _itemsSource; }
         }
 
-        /// <summary>
-        ///     Gets or sets the selected item.
-        /// </summary>
         public virtual T SelectedItem
         {
             get { return _selectedItem; }
@@ -209,20 +165,12 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        /// <summary>
-        ///     Updates the current <see cref="IGridViewModel{T}.ItemsSource" />.
-        /// </summary>
-        /// <param name="value">The new items source value.</param>
         public void UpdateItemsSource(IEnumerable<T> value)
         {
             EnsureNotDisposed();
             UpdateItemsSourceInternal(value);
         }
 
-        /// <summary>
-        ///     Sets the original collection of items.
-        /// </summary>
-        /// <param name="originalItemsSource">The source collection.</param>
         public void SetOriginalItemsSource<TItemsSource>(TItemsSource originalItemsSource)
             where TItemsSource : IList<T>, INotifyCollectionChanged, IList
         {
@@ -254,60 +202,35 @@ namespace MugenMvvmToolkit.ViewModels
             OnPropertyChanged("OriginalItemsSource");
         }
 
-        /// <summary>
-        ///     Updates the filter state.
-        /// </summary>
         public void UpdateFilter()
         {
             UpdateFilterInternal();
         }
 
-        /// <summary>
-        ///     Occurs when the <c>SelectedItem</c> property changed.
-        /// </summary>
         event EventHandler<IGridViewModel, SelectedItemChangedEventArgs> IGridViewModel.SelectedItemChanged
         {
             add { _selectedItemChangedNonGeneric += value; }
             remove { _selectedItemChangedNonGeneric -= value; }
         }
 
-        /// <summary>
-        ///     Occurs when the <c>ItemsSource</c> property changed.
-        /// </summary>
         event EventHandler<IGridViewModel, ItemsSourceChangedEventArgs> IGridViewModel.ItemsSourceChanged
         {
             add { _itemsSourceChangedNonGeneric += value; }
             remove { _itemsSourceChangedNonGeneric -= value; }
         }
 
-        /// <summary>
-        ///     Occurs when the <c>SelectedItem</c> property changed.
-        /// </summary>
         public virtual event EventHandler<IGridViewModel, SelectedItemChangedEventArgs<T>> SelectedItemChanged;
 
-        /// <summary>
-        ///     Occurs when the <c>ItemsSource</c> property changed.
-        /// </summary>
         public virtual event EventHandler<IGridViewModel, ItemsSourceChangedEventArgs<T>> ItemsSourceChanged;
 
-        /// <summary>
-        ///     Occurs before the collection changes.
-        /// </summary>
         public virtual event NotifyCollectionChangingEventHandler CollectionChanging;
 
-        /// <summary>
-        ///     Occurs when the collection changes.
-        /// </summary>
         public virtual event NotifyCollectionChangedEventHandler CollectionChanged;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Updates the current <see cref="IGridViewModel{T}.ItemsSource" />.
-        /// </summary>
-        /// <param name="value">The new items source value.</param>
         protected virtual void UpdateItemsSourceInternal(IEnumerable<T> value)
         {
             value = OnItemsSourceChanging(value);
@@ -330,9 +253,6 @@ namespace MugenMvvmToolkit.ViewModels
             OnPropertyChanged("OriginalItemsSource");
         }
 
-        /// <summary>
-        ///     Updates the filter state.
-        /// </summary>
         protected virtual void UpdateFilterInternal()
         {
             FilterDelegate<T> filter = Filter;
@@ -344,48 +264,24 @@ namespace MugenMvvmToolkit.ViewModels
                 SelectedItem = null;
         }
 
-        /// <summary>
-        ///     Occurs when the <c>SelectedItem</c> property changing.
-        /// </summary>
-        /// <param name="newValue">The new value.</param>
-        /// <returns>The value to set as selected item.</returns>
         protected virtual T OnSelectedItemChanging(T newValue)
         {
             return newValue;
         }
 
-        /// <summary>
-        ///     Occurs when the <c>SelectedItem</c> property changed.
-        /// </summary>
-        /// <param name="oldValue">The old value.</param>
-        /// <param name="newValue">The new value.</param>
         protected virtual void OnSelectedItemChanged(T oldValue, T newValue)
         {
         }
 
-        /// <summary>
-        ///     Occurs when the <c>ItemsSource</c> property changing.
-        /// </summary>
-        /// <param name="data">The new item source data.</param>
-        /// <returns>
-        ///     An instance of <see cref="IEnumerable{T}" />.
-        /// </returns>
         protected virtual IEnumerable<T> OnItemsSourceChanging(IEnumerable<T> data)
         {
             return data;
         }
 
-        /// <summary>
-        ///     Occurs when the <c>ItemsSource</c> property changed.
-        /// </summary>
-        /// <param name="data">The new item source data.</param>
         protected virtual void OnItemsSourceChanged(IEnumerable<T> data)
         {
         }
 
-        /// <summary>
-        ///     Invokes the <c>SelectedItemChanged</c> event.
-        /// </summary>
         protected virtual void RaiseSelectedItemChanged(T oldValue, T newValue)
         {
             if (SelectedItemChanged == null && _selectedItemChangedNonGeneric == null)
@@ -402,9 +298,6 @@ namespace MugenMvvmToolkit.ViewModels
             });
         }
 
-        /// <summary>
-        ///     Invokes the event <c>ItemsSourceChanged</c>.
-        /// </summary>
         protected virtual void RaiseItemsSourceChanged(IEnumerable<T> data)
         {
             if (ItemsSourceChanged == null && _itemsSourceChangedNonGeneric == null)
@@ -421,23 +314,14 @@ namespace MugenMvvmToolkit.ViewModels
             });
         }
 
-        /// <summary>
-        ///     Occurs when selected item property changed.
-        /// </summary>
         protected virtual void OnSelectedItemPropertyChanged(object sender, PropertyChangedEventArgs args)
         {
         }
 
-        /// <summary>
-        ///     Occurs when collection changing.
-        /// </summary>
         protected virtual void OnCollectionChanging(object sender, NotifyCollectionChangingEventArgs args)
         {
         }
 
-        /// <summary>
-        ///     Occurs when collection changed
-        /// </summary>
         protected virtual void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
         }
@@ -473,9 +357,6 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Overrides of ViewModelBase
 
-        /// <summary>
-        ///     Occurs after current view model disposed, use for clear resource and event listeners(Internal only).
-        /// </summary>
         internal override void OnDisposeInternal(bool disposing)
         {
             if (disposing)

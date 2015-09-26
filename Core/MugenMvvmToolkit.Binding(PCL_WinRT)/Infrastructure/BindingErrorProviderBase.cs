@@ -28,9 +28,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the class that provides a user interface for indicating that a control on a form has an error associated with it.
-    /// </summary>
     public class BindingErrorProviderBase : IBindingErrorProvider
     {
         #region Nested types
@@ -97,18 +94,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IBindingErrorProvider
 
-        /// <summary>
-        ///     Gets the validation errors for a specified property or for the entire entity.
-        /// </summary>
-        /// <param name="target">The binding target object.</param>
-        /// <param name="key">
-        ///     The name of the key to retrieve validation errors for; or null or
-        ///     <see cref="F:System.String.Empty" />, to retrieve entity-level errors.
-        /// </param>
-        /// <param name="context">The specified context, if any.</param>
-        /// <returns>
-        ///     The validation errors for the property or entity.
-        /// </returns>
         public IList<object> GetErrors(object target, string key, IDataContext context)
         {
             Should.NotBeNull(target, "target");
@@ -123,13 +108,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return Empty.Array<object>();
         }
 
-        /// <summary>
-        ///     Sets errors for binding target.
-        /// </summary>
-        /// <param name="target">The binding target object.</param>
-        /// <param name="senderKey">The source of the errors.</param>
-        /// <param name="errors">The collection of errors</param>
-        /// <param name="context">The specified context, if any.</param>
         public void SetErrors(object target, string senderKey, IList<object> errors, IDataContext context)
         {
             Should.NotBeNull(target, "target");
@@ -176,21 +154,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 .GetOrAdd(target, ErrorsKey, (o, o1) => new ErrorsDictionary(), null);
         }
 
-        /// <summary>
-        ///     Sets errors for binding target.
-        /// </summary>
-        /// <param name="target">The binding target object.</param>
-        /// <param name="errors">The collection of errors</param>
-        /// <param name="context">The specified context, if any.</param>
         protected virtual void SetErrors([NotNull] object target, [NotNull] IList<object> errors, [NotNull] IDataContext context)
         {
         }
 
-        /// <summary>
-        ///     Clears the errors for binding target.
-        /// </summary>
-        /// <param name="target">The binding target object.</param>
-        /// <param name="context">The specified context, if any.</param>
         protected virtual void ClearErrors([NotNull] object target, [NotNull] IDataContext context)
         {
         }

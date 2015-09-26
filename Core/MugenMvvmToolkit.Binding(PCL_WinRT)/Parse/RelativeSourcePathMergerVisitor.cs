@@ -23,18 +23,10 @@ using MugenMvvmToolkit.Binding.Parse.Nodes;
 
 namespace MugenMvvmToolkit.Binding.Parse
 {
-    /// <summary>
-    ///    Represents the expression visitor that allows to merge relative source path: 
-    ///    {Relative ControlType}.Test.Value to {Relative ControlType, Path=Test.Value}, $Relative(Type, Level).Value to {Relative ControlType, Level=Level, Path=Value}
-    ///    {Element Name}.Value to {Element Name, Path=Value}, $Element(Name).Value to {Element Name, Path=Value} $args to $GetEventArgs()
-    /// </summary>
     public class RelativeSourcePathMergerVisitor : IExpressionVisitor
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets an instance of <see cref="RelativeSourcePathMergerVisitor" />.
-        /// </summary>
         public static readonly RelativeSourcePathMergerVisitor Instance;
 
         private static readonly ICollection<string> DefaultElementSourceAliases;
@@ -97,11 +89,6 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Implementation of IExpressionVisitor
 
-        /// <summary>
-        ///     Dispatches the expression.
-        /// </summary>
-        /// <param name="node">The expression to visit.</param>
-        /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
         public IExpressionNode Visit(IExpressionNode node)
         {
             var member = node as IMemberExpressionNode;

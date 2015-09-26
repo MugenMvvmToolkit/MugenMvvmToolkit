@@ -25,20 +25,11 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces
 {
-    /// <summary>
-    ///     Represents the interface that allows to subscribe to events using weak references.
-    /// </summary>
     public interface IWeakEventManager
     {
-        /// <summary>
-        ///     Attempts to subscribe to the event.
-        /// </summary>
         [CanBeNull]
         IDisposable TrySubscribe([NotNull] object target, [NotNull] EventInfo eventInfo, [NotNull] IEventListener listener, IDataContext context = null);
 
-        /// <summary>
-        ///     Subscribes to the property changed event.
-        /// </summary>
         [NotNull]
         IDisposable Subscribe([NotNull] INotifyPropertyChanged propertyChanged, [NotNull] string propertyName,
             [NotNull] IEventListener listener, IDataContext context = null);

@@ -32,9 +32,6 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingExceptionEventArgs" /> class.
-        /// </summary>
         public BindingExceptionEventArgs(BindingAction action, [NotNull] Exception exception, [NotNull] Exception originalException)
             : base(action, false)
         {
@@ -48,18 +45,12 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the current <see cref="Exception" />.
-        /// </summary>
         [NotNull]
         public Exception Exception
         {
             get { return _exception; }
         }
 
-        /// <summary>
-        ///     Gets the current <see cref="Exception" />.
-        /// </summary>
         [NotNull]
         public Exception OriginalException
         {

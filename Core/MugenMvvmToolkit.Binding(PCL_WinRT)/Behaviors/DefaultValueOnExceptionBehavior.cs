@@ -28,9 +28,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the id of behavior.
-        /// </summary>
         public static readonly Guid IdDefaultValuesOnExceptionBehavior;
 
         private readonly object _value;
@@ -44,9 +41,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             IdDefaultValuesOnExceptionBehavior = new Guid("BB266907-520E-4461-9D95-A549326049DA");
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DefaultValueOnExceptionBehavior" /> class.
-        /// </summary>
         public DefaultValueOnExceptionBehavior(object value)
         {
             _value = value;
@@ -56,9 +50,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the default value to set.
-        /// </summary>
         public object Value
         {
             get { return _value; }
@@ -108,42 +99,27 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Overrides of BindingBehaviorBase
 
-        /// <summary>
-        ///     Gets the id of behavior. Each <see cref="IDataBinding" /> can have only one instance with the same id.
-        /// </summary>
         public override Guid Id
         {
             get { return IdDefaultValuesOnExceptionBehavior; }
         }
 
-        /// <summary>
-        ///     Gets the behavior priority.
-        /// </summary>
         public override int Priority
         {
             get { return 0; }
         }
 
-        /// <summary>
-        ///     Attaches to the specified binding.
-        /// </summary>
         protected override bool OnAttached()
         {
             Binding.BindingException += OnBindingException;
             return true;
         }
 
-        /// <summary>
-        ///     Detaches this instance from its associated binding.
-        /// </summary>
         protected override void OnDetached()
         {
             Binding.BindingException -= OnBindingException;
         }
 
-        /// <summary>
-        ///     Creates a new binding behavior that is a copy of the current instance.
-        /// </summary>
         protected override IBindingBehavior CloneInternal()
         {
             return new DefaultValueOnExceptionBehavior(_value);

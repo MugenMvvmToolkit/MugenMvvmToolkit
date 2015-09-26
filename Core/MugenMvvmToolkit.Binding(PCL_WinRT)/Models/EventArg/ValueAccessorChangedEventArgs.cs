@@ -35,9 +35,6 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ValueAccessorChangedEventArgs" /> class.
-        /// </summary>
         public ValueAccessorChangedEventArgs(IDataContext context, object penultimateValue,
             IBindingMemberInfo lastMember, object oldValue, object newValue)
             : base(oldValue, newValue)
@@ -53,27 +50,18 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the <see cref="IDataContext" />.
-        /// </summary>
         [NotNull]
         public IDataContext Context
         {
             get { return _context; }
         }
 
-        /// <summary>
-        ///     Gets the penultimate value.
-        /// </summary>
         [CanBeNull]
         public object PenultimateValue
         {
             get { return _penultimateValue; }
         }
 
-        /// <summary>
-        ///     Gets the last member.
-        /// </summary>
         [NotNull]
         public IBindingMemberInfo LastMember
         {

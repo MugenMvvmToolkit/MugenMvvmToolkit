@@ -22,24 +22,12 @@ using MugenMvvmToolkit.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Silverlight.Interfaces.Views
 {
-    /// <summary>
-    ///     Represent the base interface for child windows view.
-    /// </summary>
     public interface IWindowView : IView
     {
-        /// <summary>
-        ///     Shows dialog as a window.
-        /// </summary>
         void Show();
 
-        /// <summary>
-        ///     Closes the dialog.
-        /// </summary>
         void Close();
 
-        /// <summary>
-        ///     Occurred on closing.
-        /// </summary>
         event EventHandler<CancelEventArgs> Closing;
     }
 }

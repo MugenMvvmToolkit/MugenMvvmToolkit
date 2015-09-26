@@ -25,10 +25,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the class that provides a user interface for indicating that a control on a form has an error associated
-    ///     with it using the <see cref="ErrorProvider" /> component.
-    /// </summary>
     public class BindingErrorProvider : BindingErrorProviderBase
     {
         #region Fields
@@ -39,12 +35,6 @@ namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
 
         #region Overrides of BindingErrorProviderBase
 
-        /// <summary>
-        ///     Sets errors for binding target.
-        /// </summary>
-        /// <param name="target">The binding target object.</param>
-        /// <param name="errors">The collection of errors</param>
-        /// <param name="context">The specified context, if any.</param>
         protected override sealed void SetErrors(object target, IList<object> errors, IDataContext context)
         {
             base.SetErrors(target, errors, context);
@@ -77,11 +67,6 @@ namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
             SetErrors(control, errorProvider, errors, context);
         }
 
-        /// <summary>
-        ///     Clears the errors for binding target.
-        /// </summary>
-        /// <param name="target">The binding target object.</param>
-        /// <param name="context">The specified context, if any.</param>
         protected override sealed void ClearErrors(object target, IDataContext context)
         {
             base.SetErrors(target, Empty.Array<object>(), context);
@@ -102,18 +87,12 @@ namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Sets errors for control.
-        /// </summary>
         protected virtual void SetErrors([NotNull] Control target, [NotNull] ErrorProvider errorProvider,
             [NotNull] IList<object> errors, [NotNull] IDataContext context)
         {
             errorProvider.SetError(target, errors.Count == 0 ? null : string.Join(Environment.NewLine, errors));
         }
 
-        /// <summary>
-        ///     Gets an instance of <see cref="ErrorProvider" /> for the specified <see cref="Control" />.
-        /// </summary>
         [CanBeNull]
         protected virtual ErrorProvider GetErrorProvider(Control rootControl)
         {

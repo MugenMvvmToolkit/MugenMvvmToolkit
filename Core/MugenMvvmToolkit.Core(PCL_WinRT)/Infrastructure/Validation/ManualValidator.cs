@@ -25,39 +25,20 @@ using System.Threading.Tasks;
 
 namespace MugenMvvmToolkit.Infrastructure.Validation
 {
-    /// <summary>
-    ///     Represents a simple validator that does not have validation logic, the user sets all the errors.
-    /// </summary>
     public class ManualValidator<T> : ValidatorBase<T>
     {
         #region Methods
 
-        /// <summary>
-        ///     Sets errors for a property
-        /// </summary>
-        /// <typeparam name="TModel">The type of the model.</typeparam>
-        /// <param name="memberExpresssion">The expression for the property</param>
-        /// <param name="errors">The collection of errors</param>
         public void SetErrors<TModel>(Func<Expression<Func<TModel, object>>> memberExpresssion, params object[] errors)
         {
             UpdateErrors(memberExpresssion.GetMemberName(), errors, false);
         }
 
-        /// <summary>
-        ///     Sets errors for a property
-        /// </summary>
-        /// <param name="memberExpresssion">The expression for the member</param>
-        /// <param name="errors">The collection of errors</param>
         public void SetErrors(Func<Expression<Func<T, object>>> memberExpresssion, params object[] errors)
         {
             UpdateErrors(memberExpresssion.GetMemberName(), errors, false);
         }
 
-        /// <summary>
-        ///     Set errors for a property.
-        /// </summary>
-        /// <param name="propertyName">The name of the property</param>
-        /// <param name="errors">The collection of errors</param>
         public void SetErrors(string propertyName, params object[] errors)
         {
             UpdateErrors(propertyName, errors, false);
@@ -67,19 +48,11 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         #region Overrides of ValidatorBase
 
-        /// <summary>
-        ///     Updates information about errors in the specified property.
-        /// </summary>
-        /// <returns> The result of validation.</returns>
         protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(string propertyName, CancellationToken token)
         {
             return DoNothingResult;
         }
 
-        /// <summary>
-        ///     Updates information about all errors.
-        /// </summary>
-        /// <returns>The result of validation.</returns>
         protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(CancellationToken token)
         {
             return DoNothingResult;
@@ -88,9 +61,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         #endregion
     }
 
-    /// <summary>
-    ///     Represents a simple validator that does not have validation logic, the user sets all the errors.
-    /// </summary>
     public class ManualValidator : ManualValidator<object>
     {
     }

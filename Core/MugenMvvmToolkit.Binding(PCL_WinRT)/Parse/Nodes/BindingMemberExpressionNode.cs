@@ -46,9 +46,6 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
             _index = index;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberExpressionNode" /> class.
-        /// </summary>
         public BindingMemberExpressionNode([NotNull] IRelativeSourceExpressionNode relativeSource,
             [NotNull] string paramName, int index)
             : this(paramName, index)
@@ -58,9 +55,6 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
             _path = relativeSource.Path;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberExpressionNode" /> class.
-        /// </summary>
         public BindingMemberExpressionNode([NotNull] string path, [NotNull] string paramName, int index)
             : this(paramName, index)
         {
@@ -68,9 +62,6 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
             _path = path;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberExpressionNode" /> class.
-        /// </summary>
         public BindingMemberExpressionNode([NotNull] string resourceName, [NotNull] string path,
             [NotNull] string paramName, int index)
             : this(paramName, index)
@@ -125,22 +116,12 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Overrides of ExpressionNode
 
-        /// <summary>
-        ///     Dispatches to the specific visit method for this node type.
-        /// </summary>
-        /// <param name="visitor">The visitor to visit this node with.</param>
         protected override void AcceptInternal(IExpressionVisitor visitor)
         {
             if (RelativeSourceExpression != null)
                 _relativeSourceExpression = AcceptWithCheck(visitor, RelativeSourceExpression, true);
         }
 
-        /// <summary>
-        ///     Creates a new object that is a copy of the current instance.
-        /// </summary>
-        /// <returns>
-        ///     A new object that is a copy of this instance.
-        /// </returns>
         protected override IExpressionNode CloneInternal()
         {
             if (IsRelativeSource)
@@ -148,12 +129,6 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
             return new BindingMemberExpressionNode(Path, ParameterName, Index);
         }
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>
-        ///     A string that represents the current object.
-        /// </returns>
         public override string ToString()
         {
             return ParameterName;

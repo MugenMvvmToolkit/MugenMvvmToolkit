@@ -41,9 +41,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ThreadManager" /> class.
-        /// </summary>
         public ThreadManager(Dispatcher dispatcher)
         {
             Should.NotBeNull(dispatcher, "dispatcher");
@@ -54,9 +51,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the current dispatcher.
-        /// </summary>
         public Dispatcher Dispatcher
         {
             get { return _dispatcher; }
@@ -66,23 +60,11 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #region Implementation of IThreadManager
 
-        /// <summary>
-        ///     Determines whether the calling thread is the UI thread.
-        /// </summary>
-        /// <returns><c>true</c> if the calling thread is the UI thread; otherwise, <c>false</c>.</returns>
         public bool IsUiThread
         {
             get { return Dispatcher.CheckAccess(); }
         }
 
-        /// <summary>
-        ///     Invokes an action on the UI thread.
-        /// </summary>
-        /// <param name="action">
-        ///     The specified <see cref="System.Action" />.
-        /// </param>
-        /// <param name="priority">The specified <see cref="OperationPriority" /> to invoke the action.</param>
-        /// <param name="cancellationToken">An object that indicates whether to cancel the operation.</param>
         public void InvokeOnUiThreadAsync(Action action, OperationPriority priority = OperationPriority.Normal,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -105,14 +87,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 #endif
         }
 
-        /// <summary>
-        ///     Invokes an action on the UI thread synchronous.
-        /// </summary>
-        /// <param name="action">
-        ///     The specified <see cref="System.Action" />.
-        /// </param>
-        /// <param name="priority">The specified <see cref="OperationPriority" /> to invoke the action.</param>
-        /// <param name="cancellationToken">An object that indicates whether to cancel the operation.</param>
         public void InvokeOnUiThread(Action action, OperationPriority priority = OperationPriority.Normal,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -139,14 +113,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 #endif
         }
 
-        /// <summary>
-        ///     Invokes an action asynchronous.
-        /// </summary>
-        /// <param name="action">
-        ///     The specified <see cref="System.Action" />.
-        /// </param>
-        /// <param name="priority">The specified <see cref="OperationPriority" /> to invoke the action.</param>
-        /// <param name="cancellationToken">An object that indicates whether to cancel the operation.</param>
         public void InvokeAsync(Action action, OperationPriority priority = OperationPriority.Normal,
             CancellationToken cancellationToken = default(CancellationToken))
         {

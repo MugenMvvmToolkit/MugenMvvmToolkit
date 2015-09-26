@@ -32,32 +32,20 @@ using MugenMvvmToolkit.WinPhone.Interfaces;
 
 namespace MugenMvvmToolkit.WinPhone.AppBar
 {
-    /// <summary>
-    ///     Represents a bindable Application Bar in Windows Phone applications.
-    /// </summary>
     [ContentProperty("Buttons")]
     public class BindableApplicationBar : DependencyObject, IBindableApplicationBar
     {
         #region Attached properties
 
-        /// <summary>
-        ///     Gets or sets the bindable application bar.
-        /// </summary>
         public static readonly DependencyProperty ApplicationBarProperty =
             DependencyProperty.RegisterAttached("ApplicationBar", typeof(IBindableApplicationBar),
                 typeof(BindableApplicationBar), new PropertyMetadata(OnApplicationBarChanged));
 
-        /// <summary>
-        ///     Sets the bindable application bar.
-        /// </summary>
         public static void SetApplicationBar(UIElement element, IBindableApplicationBar value)
         {
             element.SetValue(ApplicationBarProperty, value);
         }
 
-        /// <summary>
-        ///     Gets the bindable application bar.
-        /// </summary>
         public static IBindableApplicationBar GetApplicationBar(UIElement element)
         {
             return (IBindableApplicationBar)element.GetValue(ApplicationBarProperty);
@@ -81,84 +69,51 @@ namespace MugenMvvmToolkit.WinPhone.AppBar
 
         #region Fields
 
-        /// <summary>
-        ///     Identifies the <see cref="IsVisible" /> dependency property.
-        /// </summary>
         public static readonly DependencyProperty IsVisibleProperty =
             DependencyProperty.Register("IsVisible", typeof(bool), typeof(BindableApplicationBar),
                 new PropertyMetadata(true,
                     (o, args) => ((BindableApplicationBar)o)._applicationBar.IsVisible = (bool)args.NewValue));
 
-        /// <summary>
-        ///     Identifies the <see cref="Opacity" /> dependency property.
-        /// </summary>
         public static readonly DependencyProperty OpacityProperty =
             DependencyProperty.Register("Opacity", typeof(double), typeof(BindableApplicationBar),
                 new PropertyMetadata(1d,
                     (o, args) => ((BindableApplicationBar)o)._applicationBar.Opacity = (double)args.NewValue));
 
-        /// <summary>
-        ///     Identifies the <see cref="IsMenuEnabled" /> dependency property.
-        /// </summary>
         public static readonly DependencyProperty IsMenuEnabledProperty =
             DependencyProperty.Register("IsMenuEnabled", typeof(bool), typeof(BindableApplicationBar),
                 new PropertyMetadata(true,
                     (o, args) => ((BindableApplicationBar)o)._applicationBar.IsMenuEnabled = (bool)args.NewValue));
 
-        /// <summary>
-        ///     Identifies the <see cref="BackgroundColor" /> dependency property.
-        /// </summary>
         public static readonly DependencyProperty BackgroundColorProperty =
             DependencyProperty.Register("BackgroundColor", typeof(Color), typeof(BindableApplicationBar),
                 new PropertyMetadata(
                     (o, args) => ((BindableApplicationBar)o)._applicationBar.BackgroundColor = (Color)args.NewValue));
 
-        /// <summary>
-        ///     Identifies the <see cref="ForegroundColor" /> dependency property.
-        /// </summary>
         public static readonly DependencyProperty ForegroundColorProperty =
             DependencyProperty.Register("ForegroundColor", typeof(Color), typeof(BindableApplicationBar),
                 new PropertyMetadata(
                     (o, args) => ((BindableApplicationBar)o)._applicationBar.ForegroundColor = (Color)args.NewValue));
 
-        /// <summary>
-        ///     Identifies the <see cref="Mode" /> dependency property.
-        /// </summary>
         public static readonly DependencyProperty ModeProperty =
             DependencyProperty.Register("Mode", typeof(ApplicationBarMode), typeof(BindableApplicationBar),
                 new PropertyMetadata(ApplicationBarMode.Default,
                     (o, args) => ((BindableApplicationBar)o)._applicationBar.Mode = (ApplicationBarMode)args.NewValue));
 
-        /// <summary>
-        ///     Identifies the <see cref="ButtonItemsSource" /> dependency property.
-        /// </summary>
         public static readonly DependencyProperty ButtonItemsSourceProperty =
             DependencyProperty.Register("ButtonItemsSource", typeof(IEnumerable), typeof(BindableApplicationBar),
                 new PropertyMetadata(OnButtonItemsSourceChanged));
 
-        /// <summary>
-        ///     Identifies the <see cref="MenuItemsSource" /> dependency property.
-        /// </summary>
         public static readonly DependencyProperty MenuItemsSourceProperty =
             DependencyProperty.Register("MenuItemsSource", typeof(IEnumerable), typeof(BindableApplicationBar),
                 new PropertyMetadata(OnMenuItemsSourceChanged));
 
-        /// <summary>
-        ///     Identifies the <see cref="DataContext" /> dependency property.
-        /// </summary>
         public static readonly DependencyProperty DataContextProperty =
             DependencyProperty.Register("DataContext", typeof(object), typeof(BindableApplicationBar), new PropertyMetadata(default(object)));
 
-        /// <summary>
-        ///     Identifies the <see cref="ButtonItemTemplate" /> dependency property.
-        /// </summary>
         public static readonly DependencyProperty ButtonItemTemplateProperty =
             DependencyProperty.Register("ButtonItemTemplate", typeof(DataTemplate), typeof(BindableApplicationBar),
                 new PropertyMetadata(OnButtonItemTemplateChanged));
 
-        /// <summary>
-        ///     Identifies the <see cref="MenuItemTemplate" /> dependency property.
-        /// </summary>
         public static readonly DependencyProperty MenuItemTemplateProperty =
             DependencyProperty.Register("MenuItemTemplate", typeof(DataTemplate), typeof(BindableApplicationBar),
                 new PropertyMetadata(OnMenuItemTemplateChanged));
@@ -176,9 +131,6 @@ namespace MugenMvvmToolkit.WinPhone.AppBar
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindableApplicationBar" /> class.
-        /// </summary>
         public BindableApplicationBar()
         {
             _applicationBar = new ApplicationBar();
@@ -197,197 +149,103 @@ namespace MugenMvvmToolkit.WinPhone.AppBar
 
         #region Implementation of IBindableApplicationBar
 
-        /// <summary>
-        ///     Gets or sets the data context for a <see cref="IBindableApplicationBarItem" /> when it participates in data
-        ///     binding.
-        /// </summary>
         public object DataContext
         {
             get { return GetValue(DataContextProperty); }
             set { SetValue(DataContextProperty, value); }
         }
 
-        /// <summary>
-        ///     Gets or sets the ButtonTemplate property.
-        ///     This dependency property indicates the template for a button items that is used together with the
-        ///     <see cref="IBindableApplicationBar.ButtonItemsSource" /> collection to create the application bar buttons.
-        /// </summary>
         public DataTemplate ButtonItemTemplate
         {
             get { return (DataTemplate)GetValue(ButtonItemTemplateProperty); }
             set { SetValue(ButtonItemTemplateProperty, value); }
         }
 
-        /// <summary>
-        ///     Gets or sets the MenuItemTemplate property.
-        ///     This dependency property indicates the template for a <see cref="BindableApplicationBarMenuItem" /> that is used
-        ///     together with the <see cref="IBindableApplicationBar.MenuItemsSource" /> collection to create the application bar
-        ///     MenuItems.
-        /// </summary>
         public DataTemplate MenuItemTemplate
         {
             get { return (DataTemplate)GetValue(MenuItemTemplateProperty); }
             set { SetValue(MenuItemTemplateProperty, value); }
         }
 
-        /// <summary>
-        ///     Gets or sets a value that indicates whether the Application Bar is visible.
-        /// </summary>
-        /// <returns>
-        ///     true if the Application Bar is visible; otherwise, false.
-        /// </returns>
         public bool IsVisible
         {
             get { return (bool)GetValue(IsVisibleProperty); }
             set { SetValue(IsVisibleProperty, value); }
         }
 
-        /// <summary>
-        ///     Gets or sets the opacity of the Application Bar.
-        /// </summary>
-        /// <returns>
-        ///     The opacity of the Application Bar.
-        /// </returns>
         public double Opacity
         {
             get { return (double)GetValue(OpacityProperty); }
             set { SetValue(OpacityProperty, value); }
         }
 
-        /// <summary>
-        ///     Gets or sets a value that indicates whether the user can open the menu.
-        /// </summary>
-        /// <returns>
-        ///     true if the menu is enabled; otherwise, false.
-        /// </returns>
         public bool IsMenuEnabled
         {
             get { return (bool)GetValue(IsMenuEnabledProperty); }
             set { SetValue(IsMenuEnabledProperty, value); }
         }
 
-        /// <summary>
-        ///     Gets or sets the background color of the Application Bar.
-        /// </summary>
-        /// <returns>
-        ///     The background color of the Application Bar.
-        /// </returns>
         public Color BackgroundColor
         {
             get { return (Color)GetValue(BackgroundColorProperty); }
             set { SetValue(BackgroundColorProperty, value); }
         }
 
-        /// <summary>
-        ///     Gets or sets the foreground color of the Application Bar.
-        /// </summary>
-        /// <returns>
-        ///     The foreground color of the Application Bar.
-        /// </returns>
         public Color ForegroundColor
         {
             get { return (Color)GetValue(ForegroundColorProperty); }
             set { SetValue(ForegroundColorProperty, value); }
         }
 
-        /// <summary>
-        ///     Gets or sets the size of the Application Bar.
-        /// </summary>
-        /// <returns>
-        ///     One of the enumeration values that indicates the size of the Application Bar.
-        /// </returns>
         public ApplicationBarMode Mode
         {
             get { return (ApplicationBarMode)GetValue(ModeProperty); }
             set { SetValue(ModeProperty, value); }
         }
 
-        /// <summary>
-        ///     Gets or sets the list of the buttons that appear on the Application Bar.
-        /// </summary>
         public IEnumerable ButtonItemsSource
         {
             get { return (IEnumerable)GetValue(ButtonItemsSourceProperty); }
             set { SetValue(ButtonItemsSourceProperty, value); }
         }
 
-        /// <summary>
-        ///     Gets or sets the list of the menu items that appear on the Application Bar.
-        /// </summary>
         public IEnumerable MenuItemsSource
         {
             get { return (IEnumerable)GetValue(MenuItemsSourceProperty); }
             set { SetValue(MenuItemsSourceProperty, value); }
         }
 
-        /// <summary>
-        ///     Gets the distance that the Application Bar extends into a page when the
-        ///     <see cref="P:Microsoft.Phone.Shell.IApplicationBar.Mode" /> property is set to
-        ///     <see cref="F:Microsoft.Phone.Shell.ApplicationBarMode.Default" />.
-        /// </summary>
-        /// <returns>
-        ///     The distance that the Application Bar extends into a page.
-        /// </returns>
         public double DefaultSize
         {
             get { return _applicationBar.DefaultSize; }
         }
 
-        /// <summary>
-        ///     Gets the distance that the Application Bar extends into a page when the
-        ///     <see cref="P:Microsoft.Phone.Shell.IApplicationBar.Mode" /> property is set to
-        ///     <see cref="F:Microsoft.Phone.Shell.ApplicationBarMode.Minimized" />.
-        /// </summary>
-        /// <returns>
-        ///     The distance that the Application Bar extends into a page.
-        /// </returns>
         public double MiniSize
         {
             get { return _applicationBar.MiniSize; }
         }
 
-        /// <summary>
-        ///     Gets the list of the buttons that appear on the Application Bar.
-        /// </summary>
-        /// <returns>
-        ///     The Application Bar buttons.
-        /// </returns>
         public IList Buttons
         {
             get { return _buttons; }
         }
 
-        /// <summary>
-        ///     Gets the list of the menu items that appear on the Application Bar.
-        /// </summary>
-        /// <returns>
-        ///     The list of menu items.
-        /// </returns>
         public IList MenuItems
         {
             get { return _menuItems; }
         }
 
-        /// <summary>
-        ///     Gets the original application bar.
-        /// </summary>
         public IApplicationBar OriginalApplicationBar
         {
             get { return _applicationBar; }
         }
 
-        /// <summary>
-        ///     Occurs when the user opens or closes the menu.
-        /// </summary>
         public event EventHandler<ApplicationBarStateChangedEventArgs> StateChanged
         {
             add { _applicationBar.StateChanged += value; }
             remove { _applicationBar.StateChanged -= value; }
         }
 
-        /// <summary>
-        ///     Attaches to the specified target.
-        /// </summary>
         public void Attach(object target)
         {
             Should.NotBeNull(target, "target");
@@ -397,9 +255,6 @@ namespace MugenMvvmToolkit.WinPhone.AppBar
                 BindingOperations.SetBinding(this, DataContextProperty, new System.Windows.Data.Binding("DataContext") { Source = _page });
         }
 
-        /// <summary>
-        ///     Detaches this instance from its associated object.
-        /// </summary>
         public void Detach()
         {
             _page.ApplicationBar = null;

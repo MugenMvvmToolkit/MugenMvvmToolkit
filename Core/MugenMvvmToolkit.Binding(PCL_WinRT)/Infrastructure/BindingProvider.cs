@@ -36,9 +36,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the binding provider that allows to create the data bindings.
-    /// </summary>
     public class BindingProvider : IBindingProvider
     {
         #region Fields
@@ -58,9 +55,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingProvider" /> class.
-        /// </summary>
         static BindingProvider()
         {
             CreateInvalidaDataBindingDelegate = CreateInvalidaDataBinding;
@@ -70,9 +64,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             BehaviorComparer = new DelegateComparer<IBindingBehavior>((behavior, bindingBehavior) => bindingBehavior.Priority.CompareTo(behavior.Priority));
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingProvider" /> class.
-        /// </summary>
         public BindingProvider(IBindingParser parser = null)
         {
             _parser = parser ?? new BindingParser();
@@ -87,17 +78,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IBindingProvider
 
-        /// <summary>
-        ///     Gets the default behaviors.
-        /// </summary>
         public ICollection<IBindingBehavior> DefaultBehaviors
         {
             get { return _defaultBehaviors; }
         }
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IBindingParser" />.
-        /// </summary>
         public IBindingParser Parser
         {
             get { return _parser; }
@@ -108,21 +93,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Occurs when binding starts initialization.
-        /// </summary>
         public event Action<IBindingProvider, IDataContext> BindingInitializing;
 
-        /// <summary>
-        ///     Occurs when binding ends initialization.
-        /// </summary>
         public event Action<IBindingProvider, IDataBinding> BindingInitialized;
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IBindingBuilder" />.
-        /// </summary>
-        /// <param name="context">The specified context.</param>
-        /// <returns>An instance of <see cref="IBindingBuilder" />.</returns>
         public IBindingBuilder CreateBuilder(IDataContext context = null)
         {
             context = context.ToNonReadOnly();
@@ -131,11 +105,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return new BindingBuilder(context);
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IDataBinding" />.
-        /// </summary>
-        /// <param name="context">The specified context.</param>
-        /// <returns>An instance of <see cref="IDataBinding" />.</returns>
         public IDataBinding CreateBinding(IDataContext context)
         {
             try
@@ -148,13 +117,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Creates a series of instances of <see cref="IBindingBuilder" />.
-        /// </summary>
-        /// <param name="target">The specified binding target.</param>
-        /// <param name="bindingExpression">The specified binding expression.</param>
-        /// <param name="sources">The specified sources, if any.</param>
-        /// <returns>An instance of <see cref="IBindingBuilder" />.</returns>
         public IList<IBindingBuilder> CreateBuildersFromString(object target, string bindingExpression, IList<object> sources = null)
         {
             Should.NotBeNull(target, "target");
@@ -183,13 +145,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Creates a series of instances of <see cref="IDataBinding" />.
-        /// </summary>
-        /// <param name="target">The specified binding target.</param>
-        /// <param name="bindingExpression">The specified binding expression.</param>
-        /// <param name="sources">The specified sources, if any.</param>
-        /// <returns>An instance of <see cref="IDataBinding" />.</returns>
         public IList<IDataBinding> CreateBindingsFromString(object target, string bindingExpression, IList<object> sources = null)
         {
             Should.NotBeNull(target, "target");
@@ -215,12 +170,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Builds an instance of <see cref="IDataBinding" />.
-        /// </summary>
-        /// <returns>
-        ///     The builded <see cref="IDataBinding" />.
-        /// </returns>
         protected IDataBinding BuildBinding([NotNull] IDataContext context)
         {
             try
@@ -246,10 +195,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Creates the data binding.
-        /// </summary>
-        /// <returns>An instance of <see cref="IDataBinding" /></returns>
         [NotNull]
         protected virtual IDataBinding CreateBinding([NotNull] IDataContext context, out object target, out IBindingPath targetPath)
         {
@@ -274,9 +219,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return binding;
         }
 
-        /// <summary>
-        ///     Creates the binding target.
-        /// </summary>
         [NotNull]
         protected virtual IObserver GetBindingTarget([NotNull] IDataContext context, out object target, out IBindingPath targetPath)
         {
@@ -286,9 +228,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return BindingServiceProvider.ObserverProvider.Observe(src ?? target, targetPath, false);
         }
 
-        /// <summary>
-        /// Adds the behaviors to the specified binding.
-        /// </summary>
         protected virtual void AddBehaviors(IDataBinding binding, IDataContext context)
         {
             List<IBindingBehavior> behaviors = context.GetData(BindingBuilderConstants.Behaviors);

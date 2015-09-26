@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="XmlPropertySetter.cs">
@@ -40,9 +40,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="XmlPropertySetter{TWrapper,TTarget}" /> class.
-        /// </summary>
         public XmlPropertySetter([NotNull]TTarget target, [NotNull] Context context, [NotNull] BindingSet bindingSet)
         {
             Should.NotBeNull(target, "target");

@@ -21,19 +21,10 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces
 {
-    /// <summary>
-    ///     Represents the binding context manager.
-    /// </summary>
     public interface IBindingContextManager
     {
-        /// <summary>
-        ///     Gets a value indicating whether the item has binding context.
-        /// </summary>
         bool HasBindingContext([NotNull] object item);
 
-        /// <summary>
-        ///     Gets the binding context for the specified item.
-        /// </summary>
         [NotNull]
         IBindingContext GetBindingContext([NotNull] object item);
     }

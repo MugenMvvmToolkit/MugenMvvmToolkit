@@ -20,18 +20,8 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces
 {
-    /// <summary>
-    ///     Represents the interface that provides methods for transiting one state to another state.
-    /// </summary>
     public interface IStateTransitionManager
     {
-        /// <summary>
-        ///     Changes state from one state to another state.
-        /// </summary>
-        /// <param name="from">The specified state from.</param>
-        /// <param name="to">The specified state to.</param>
-        /// <param name="validateState">The flag indicating that state will be validated before assigned.</param>
-        /// <returns>An instance of state, if any.</returns>
         EntityState ChangeState(EntityState from, EntityState to, bool validateState);
     }
 }

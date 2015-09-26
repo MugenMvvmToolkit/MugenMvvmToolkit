@@ -21,14 +21,8 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Parse
 {
-    /// <summary>
-    ///     Represents the node expression invoker.
-    /// </summary>
     public interface IExpressionInvoker
     {
-        /// <summary>
-        ///     Invokes an expression using specified context and source values.
-        /// </summary>
         object Invoke(IDataContext context, IList<object> sourceValues);
     }
 }

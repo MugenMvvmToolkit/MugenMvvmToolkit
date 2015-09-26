@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ModalViewMediator.cs">
@@ -42,9 +42,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ModalViewMediator" /> class.
-        /// </summary>
         public ModalViewMediator([NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
             [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IOperationCallbackManager operationCallbackManager)
             : base(viewModel, threadManager, viewManager, wrapperManager, operationCallbackManager)
@@ -76,9 +73,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators
 
         #region Overrides of WindowViewMediatorBase<IModalView>
 
-        /// <summary>
-        ///     Shows the view in the specified mode.
-        /// </summary>
         protected override void ShowView(IModalView view, bool isDialog, IDataContext context)
         {
             var page = (Page)ViewModel
@@ -93,9 +87,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators
             page.Navigation.PushModalAsync(view.GetUnderlyingView<Page>(), animated);
         }
 
-        /// <summary>
-        ///     Initializes the specified view.
-        /// </summary>
         protected override void InitializeView(IModalView view, IDataContext context)
         {
             var page = view.GetUnderlyingView<Page>();
@@ -103,10 +94,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators
             XamarinFormsExtensions.BackButtonPressed += _backButtonHandler;
         }
 
-        /// <summary>
-        ///     Clears the event subscribtions from the specified view.
-        /// </summary>
-        /// <param name="view">The specified window-view to dispose.</param>
         protected override void CleanupView(IModalView view)
         {
             var page = view.GetUnderlyingView<Page>();
@@ -114,9 +101,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators
             XamarinFormsExtensions.BackButtonPressed -= _backButtonHandler;
         }
 
-        /// <summary>
-        ///     Closes the view.
-        /// </summary>
         protected override void CloseView(IModalView view)
         {
             var page = view.GetUnderlyingView<Page>();

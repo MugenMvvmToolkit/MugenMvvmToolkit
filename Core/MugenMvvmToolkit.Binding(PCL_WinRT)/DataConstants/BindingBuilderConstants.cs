@@ -26,9 +26,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.DataConstants
 {
-    /// <summary>
-    ///     Contains the binding builder constants.
-    /// </summary>
     public static class BindingBuilderConstants
     {
         #region Fields

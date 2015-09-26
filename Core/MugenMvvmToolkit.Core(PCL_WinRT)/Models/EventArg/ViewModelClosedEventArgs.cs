@@ -33,9 +33,6 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewModelClosedEventArgs" /> class.
-        /// </summary>
         public ViewModelClosedEventArgs([NotNull] IViewModel viewModel, [CanBeNull] object parameter)
         {
             Should.NotBeNull(viewModel, "viewModel");
@@ -47,17 +44,11 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the <see cref="IViewModel" />.
-        /// </summary>
         public IViewModel ViewModel
         {
             get { return _viewModel; }
         }
 
-        /// <summary>
-        ///     The specified close parameter if any.
-        /// </summary>
         [CanBeNull]
         public object Parameter
         {

@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ToastPresenter.cs">
@@ -57,9 +57,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
 
         #region Properties
 
-        /// <summary>
-        /// Gets or sets the factory to create toasts.
-        /// </summary>
         [CanBeNull]
         public static Func<object, UIView, float, ToastPosition, IDataContext, TaskCompletionSource<object>, ToastView> Factory { get; set; }
 
@@ -67,9 +64,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
 
         #region Implementation of IToastPresenter
 
-        /// <summary>
-        ///     Shows the specified message.
-        /// </summary>
         public Task ShowAsync(object content, float duration, ToastPosition position = ToastPosition.Bottom,
             IDataContext context = null)
         {

@@ -23,9 +23,6 @@ using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Binding.Parse.Nodes
 {
-    /// <summary>
-    ///     Represents an expression that has a constant value.
-    /// </summary>
     public class ConstantExpressionNode : ExpressionNode, IConstantExpressionNode
     {
         #region Fields
@@ -37,9 +34,6 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ConstantExpressionNode" /> class.
-        /// </summary>
         public ConstantExpressionNode(object value, Type type = null)
             : base(ExpressionNodeType.Constant)
         {
@@ -53,17 +47,11 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Implementation of IConstantExpressionNode
 
-        /// <summary>
-        ///     Gets the value of the constant expression.
-        /// </summary>
         public object Value
         {
             get { return _value; }
         }
 
-        /// <summary>
-        ///     Gets the type of the value.
-        /// </summary>
         public Type Type
         {
             get { return _type; }
@@ -73,30 +61,15 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Overrides of ExpressionNode
 
-        /// <summary>
-        ///     Calls the visitor on the expression.
-        /// </summary>
         protected override void AcceptInternal(IExpressionVisitor visitor)
         {
         }
 
-        /// <summary>
-        ///     Creates a new object that is a copy of the current instance.
-        /// </summary>
-        /// <returns>
-        ///     A new object that is a copy of this instance.
-        /// </returns>
         protected override IExpressionNode CloneInternal()
         {
             return new ConstantExpressionNode(Value, Type);
         }
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>
-        ///     A string that represents the current object.
-        /// </returns>
         public override string ToString()
         {
             if (Value == null)

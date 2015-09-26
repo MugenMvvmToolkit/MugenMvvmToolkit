@@ -34,9 +34,6 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.ViewModels
 {
-    /// <summary>
-    ///     Represents the view model that can contains a collection of other <see cref="IViewModel" />.
-    /// </summary>
     [BaseViewModel(Priority = 4)]
     public class MultiViewModel : CloseableViewModel, IMultiViewModel
     {
@@ -74,9 +71,6 @@ namespace MugenMvvmToolkit.ViewModels
             SelectedIndex = DataConstant.Create(() => SelectedIndex);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="MultiViewModel" /> class.
-        /// </summary>
         public MultiViewModel()
         {
             var collection = new SynchronizedNotifiableCollection<IViewModel>();
@@ -92,15 +86,8 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Implementation of IMultiViewModel
 
-        /// <summary>
-        ///     Gets or sets the value.
-        ///     If <c>true</c> the view-model will disposed view model when it closed.
-        /// </summary>
         public bool DisposeViewModelOnRemove { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the selected view-model.
-        /// </summary>
         public virtual IViewModel SelectedItem
         {
             get { return _selectedItem; }
@@ -115,21 +102,11 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        /// <summary>
-        ///     Gets the collection of <see cref="IViewModel" />s.
-        /// </summary>
         public IList<IViewModel> ItemsSource
         {
             get { return _itemsSource; }
         }
 
-        /// <summary>
-        ///     Adds the specified <see cref="IViewModel" /> to <see cref="IMultiViewModel.ItemsSource" />.
-        /// </summary>
-        /// <param name="viewModel">
-        ///     The specified <see cref="IViewModel" />.
-        /// </param>
-        /// <param name="setSelected">Sets the specified <see cref="IViewModel"/> as selected view model.</param>
         public virtual void AddViewModel(IViewModel viewModel, bool setSelected = true)
         {
             EnsureNotDisposed();
@@ -140,13 +117,6 @@ namespace MugenMvvmToolkit.ViewModels
                 SelectedItem = viewModel;
         }
 
-        /// <summary>
-        ///     Removes the specified <see cref="IViewModel" /> from <see cref="IMultiViewModel.ItemsSource" />.
-        /// </summary>
-        /// <param name="viewModel">
-        ///     The specified <see cref="IViewModel" />.
-        /// </param>
-        /// <param name="parameter">The specified parameter, if any.</param>
         public virtual Task<bool> RemoveViewModelAsync(IViewModel viewModel, object parameter = null)
         {
             EnsureNotDisposed();
@@ -165,9 +135,6 @@ namespace MugenMvvmToolkit.ViewModels
             return result;
         }
 
-        /// <summary>
-        ///     Clears all view models from <see cref="IMultiViewModel.ItemsSource" />.
-        /// </summary>
         public virtual void Clear()
         {
             EnsureNotDisposed();
@@ -187,28 +154,16 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        /// <summary>
-        ///     Occurs when the <c>SelectedItem</c> property changed.
-        /// </summary>
         public virtual event EventHandler<IMultiViewModel, SelectedItemChangedEventArgs<IViewModel>> SelectedItemChanged;
 
-        /// <summary>
-        ///     Occurs when a view model is added.
-        /// </summary>
         public virtual event EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> ViewModelAdded;
 
-        /// <summary>
-        ///     Occurs when a view model is removed.
-        /// </summary>
         public virtual event EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> ViewModelRemoved;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Preserves the view models state.
-        /// </summary>
         public void PreserveViewModels([NotNull] IDataContext context)
         {
             Should.NotBeNull(context, "context");
@@ -227,9 +182,6 @@ namespace MugenMvvmToolkit.ViewModels
                 context.AddOrUpdate(ViewModelState, states);
         }
 
-        /// <summary>
-        ///     Restores the view models from state context.
-        /// </summary>
         public void RestoreViewModels([NotNull] IDataContext context)
         {
             Should.NotBeNull(context, "context");
@@ -249,23 +201,14 @@ namespace MugenMvvmToolkit.ViewModels
             context.Remove(SelectedIndex);
         }
 
-        /// <summary>
-        ///     Occurs when the <c>SelectedItem</c> property is changed.
-        /// </summary>
         protected virtual void OnSelectedItemChanged(IViewModel oldValue, IViewModel newValue)
         {
         }
 
-        /// <summary>
-        ///     Occurs when a view model is added.
-        /// </summary>
         protected virtual void OnViewModelAdded(IViewModel viewModel)
         {
         }
 
-        /// <summary>
-        ///     Occurs when a view model is removed.
-        /// </summary>
         protected virtual void OnViewModelRemoved(IViewModel viewModel)
         {
         }
@@ -461,12 +404,6 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Overrides of ViewModelBase
 
-        /// <summary>
-        ///     Occurs when view model is closing.
-        /// </summary>
-        /// <returns>
-        ///     If <c>true</c> - close, otherwise <c>false</c>.
-        /// </returns>
         protected override Task<bool> OnClosing(object parameter)
         {
             if (ItemsSource.Count == 0)
@@ -474,9 +411,6 @@ namespace MugenMvvmToolkit.ViewModels
             return Task.Factory.StartNew(function: OnClosingInternal, state: parameter);
         }
 
-        /// <summary>
-        ///     Occurs after current view model disposed, use for clear resource and event listeners(Internal only).
-        /// </summary>
         internal override void OnDisposeInternal(bool disposing)
         {
             if (disposing)

@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ModalViewMediator.cs">
@@ -54,9 +54,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
             NodoAction = () => { };
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ModalViewMediator" /> class.
-        /// </summary>
         public ModalViewMediator([NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
             [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IOperationCallbackManager operationCallbackManager,
              [NotNull] IViewMappingProvider viewMappingProvider,
@@ -101,9 +98,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
 
         #region Overrides of WindowViewMediatorBase<IModalView>
 
-        /// <summary>
-        ///     Shows the view in the specified mode.
-        /// </summary>
         protected override void ShowView(IModalView view, bool isDialog, IDataContext context)
         {
             var parentController = (UIViewController)ViewModel
@@ -127,24 +121,14 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
             toShow.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
         }
 
-        /// <summary>
-        ///     Initializes the specified view.
-        /// </summary>
         protected override void InitializeView(IModalView view, IDataContext context)
         {
         }
 
-        /// <summary>
-        ///     Clears the event subscribtions from the specified view.
-        /// </summary>
-        /// <param name="view">The specified window-view to dispose.</param>
         protected override void CleanupView(IModalView view)
         {
         }
 
-        /// <summary>
-        ///     Closes the view.
-        /// </summary>
         protected override void CloseView(IModalView view)
         {
             var controller = view.GetUnderlyingView<UIViewController>();
@@ -163,9 +147,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
                 });
         }
 
-        /// <summary>
-        ///     Occured on update the current view using the <see cref="IWindowViewMediator.UpdateView" /> method.
-        /// </summary>
         protected override void OnViewUpdated(IModalView view, IDataContext context)
         {
             if (!(view is IModalNavSupportView))

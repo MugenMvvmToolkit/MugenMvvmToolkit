@@ -20,14 +20,8 @@ using System.ComponentModel;
 
 namespace MugenMvvmToolkit.Interfaces.Models
 {
-    /// <summary>
-    ///     Represents the model that can be selected.
-    /// </summary>
     public interface ISelectable : INotifyPropertyChanged
     {
-        /// <summary>
-        ///     Gets or sets the property that indicates that current model is selected.
-        /// </summary>
         bool IsSelected { get; set; }
     }
 }

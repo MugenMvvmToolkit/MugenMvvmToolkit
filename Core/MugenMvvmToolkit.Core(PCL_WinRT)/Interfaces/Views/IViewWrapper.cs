@@ -20,14 +20,8 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Interfaces.Views
 {
-    /// <summary>
-    ///     Represents the wrapper of view object.
-    /// </summary>
     public interface IViewWrapper : IView
     {
-        /// <summary>
-        ///     Gets the view object.
-        /// </summary>
         [NotNull]
         object View { get; }
     }

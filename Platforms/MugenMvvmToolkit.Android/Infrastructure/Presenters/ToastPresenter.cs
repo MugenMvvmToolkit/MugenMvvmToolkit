@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ToastPresenter.cs">
@@ -40,9 +40,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
 #endif
 
 {
-    /// <summary>
-    ///     Provides functionality to present a timed message.
-    /// </summary>
     public class ToastPresenter : IToastPresenter
     {
         #region Nested types
@@ -154,18 +151,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
         #region Constructors
 
 #if XAMARIN_FORMS
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ToastPresenter" /> class.
-        /// </summary>
         public ToastPresenter([NotNull] IThreadManager threadManager)
         {
             Should.NotBeNull(threadManager, "threadManager");
             _threadManager = threadManager;
         }
 #else
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ToastPresenter" /> class.
-        /// </summary>
         public ToastPresenter([NotNull] INavigationProvider navigationProvider,
             [NotNull] IThreadManager threadManager)
         {
@@ -179,9 +170,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
 
         #region Implementation of IToastPresenter
 
-        /// <summary>
-        ///     Shows the specified message.
-        /// </summary>
         public Task ShowAsync(object content, float duration, ToastPosition position = ToastPosition.Bottom,
             IDataContext context = null)
         {
@@ -198,9 +186,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
 
         #region Methods
 
-        /// <summary>
-        ///     Shows the specified message.
-        /// </summary>
         protected virtual void ShowInternal(object content, float duration, ToastPosition position, IDataContext context,
             TaskCompletionSource<object> tcs)
         {

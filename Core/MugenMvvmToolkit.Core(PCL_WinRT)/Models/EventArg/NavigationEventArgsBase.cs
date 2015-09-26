@@ -22,14 +22,8 @@ namespace MugenMvvmToolkit.Models.EventArg
 {
     public abstract class NavigationEventArgsBase : EventArgs
     {
-        /// <summary>
-        ///     Gets the content of the target being navigated to.
-        /// </summary>
         public abstract object Content { get; }
 
-        /// <summary>
-        ///     Gets a value that indicates the type of navigation that is occurring.
-        /// </summary>
         public abstract NavigationMode Mode { get; }
     }
 }

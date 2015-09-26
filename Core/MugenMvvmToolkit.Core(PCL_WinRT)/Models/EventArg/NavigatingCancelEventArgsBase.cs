@@ -22,22 +22,10 @@ namespace MugenMvvmToolkit.Models.EventArg
 {
     public abstract class NavigatingCancelEventArgsBase : EventArgs
     {
-        /// <summary>
-        ///     Specifies whether a pending navigation should be canceled.
-        /// </summary>
-        /// <returns>
-        ///     true to cancel the pending cancelable navigation; false to continue with navigation.
-        /// </returns>
         public abstract bool Cancel { get; set; }
 
-        /// <summary>
-        ///     Gets a value that indicates the type of navigation that is occurring.
-        /// </summary>
         public abstract NavigationMode NavigationMode { get; }
 
-        /// <summary>
-        ///     Gets a value that indicates whether you can cancel the navigation.
-        /// </summary>
         public abstract bool IsCancelable { get; }
     }
 }

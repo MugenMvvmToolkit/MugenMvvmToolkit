@@ -48,9 +48,6 @@ using System.ComponentModel;
 namespace MugenMvvmToolkit.WinPhone.Infrastructure
 #endif
 {
-    /// <summary>
-    ///     Represents the base class for the design time manager.
-    /// </summary>
     public class DesignTimeManagerBase : IDesignTimeManager
     {
         #region Nested Types
@@ -93,9 +90,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DesignTimeManagerBase" /> class.
-        /// </summary>
         public DesignTimeManagerBase()
         {
             _locker = new object();
@@ -107,9 +101,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #region Implementation of IDesignTimeManager
 
-        /// <summary>
-        ///     Gets the value indicating whether the control is in design mode (running under Blend or Visual Studio).
-        /// </summary>
         public virtual bool IsDesignMode
         {
             get
@@ -121,41 +112,26 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets the load-priority.
-        /// </summary>
         public virtual int Priority
         {
             get { return _priority; }
         }
 
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
         public PlatformInfo Platform
         {
             get { return _platform; }
         }
 
-        /// <summary>
-        ///     Gets the design time <see cref="IDesignTimeManager.IocContainer" />, if any.
-        /// </summary>
         public IIocContainer IocContainer
         {
             get { return _iocContainer; }
         }
 
-        /// <summary>
-        ///     Gets the design context.
-        /// </summary>
         public IDataContext Context
         {
             get { return _context; }
         }
 
-        /// <summary>
-        ///     Initializes the current design time manager.
-        /// </summary>
         public void Initialize()
         {
             if (_isInitialized || !IsDesignMode)
@@ -190,9 +166,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Initializes the view model in design mode.
-        /// </summary>
         public void InitializeViewModel(IViewModel viewModel)
         {
             if (!IsDesignMode)
@@ -205,9 +178,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                 context.Post(state => InitializeViewModelInternal(viewModel), null);
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         public virtual void Dispose()
         {
             if (IocContainer != null)
@@ -218,10 +188,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IIocContainer" />.
-        /// </summary>
-        /// <returns>An instance of <see cref="IIocContainer" />.</returns>
         [CanBeNull]
         protected virtual IIocContainer CreateIocContainer()
         {
@@ -240,33 +206,21 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
             return null;
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IMvvmApplication" />.
-        /// </summary>
         protected virtual IMvvmApplication CreateApplication()
         {
             return new DesignApp();
         }
 
-        /// <summary>
-        ///     Gets the design context.
-        /// </summary>
         [CanBeNull]
         protected virtual IDataContext GetContext()
         {
             return DataContext.Empty;
         }
 
-        /// <summary>
-        ///     Occurs after the manager is fully loaded.
-        /// </summary>
         protected virtual void OnInitialized()
         {
         }
 
-        /// <summary>
-        ///     Initializes the view model in design mode.
-        /// </summary>
         protected virtual void InitializeViewModelInternal([NotNull] IViewModel viewModel)
         {
             if (IocContainer == null || viewModel.IsInitialized)

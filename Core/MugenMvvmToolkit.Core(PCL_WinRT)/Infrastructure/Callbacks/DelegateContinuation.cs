@@ -88,9 +88,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Implementation of IContinuation
 
-        /// <summary>
-        ///     Tries to convert current operation to an instance of <see cref="ISerializableCallback" />.
-        /// </summary>
         public ISerializableCallback ToSerializableCallback()
         {
             if (_hasCallback)
@@ -101,18 +98,12 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             return _serializableCallback;
         }
 
-        /// <summary>
-        ///     Invokes the action using the specified operation result.
-        /// </summary>
         void IActionContinuation.Invoke(IOperationResult result)
         {
             if (_action != null)
                 _action(result);
         }
 
-        /// <summary>
-        ///     Invokes the action using the specified operation result.
-        /// </summary>
         void IActionContinuation<TIn>.Invoke(IOperationResult<TIn> result)
         {
             if (_genericAction != null)
@@ -121,9 +112,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 _actionWithTarget((TTarget)result.Source, result);
         }
 
-        /// <summary>
-        ///     Invokes the function using the specified operation result.
-        /// </summary>
         TOut IFunctionContinuation<TIn, TOut>.Invoke(IOperationResult<TIn> result)
         {
             if (_genericFunc != null)
@@ -133,9 +121,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             return default(TOut);
         }
 
-        /// <summary>
-        ///     Invokes the function using the specified operation result.
-        /// </summary>
         TOut IFunctionContinuation<TOut>.Invoke(IOperationResult result)
         {
             if (_func != null)

@@ -1,4 +1,4 @@
-using MugenMvvmToolkit.Android.Binding;
+﻿using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Models;
 

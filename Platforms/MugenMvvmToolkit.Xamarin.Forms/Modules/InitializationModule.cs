@@ -32,9 +32,6 @@ using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Modules
 {
-    /// <summary>
-    ///     Represents the class that is used to initialize the IOC adapter.
-    /// </summary>
     public class InitializationModule : InitializationModuleBase
     {
         #region Cosntructors
@@ -45,16 +42,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Modules
                 ServiceProvider.AttachedValueProvider = new AttachedValueProvider();
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="InitializationModule" /> class.
-        /// </summary>
         public InitializationModule()
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="InitializationModule" /> class.
-        /// </summary>
         protected InitializationModule(LoadMode mode = LoadMode.All, int priority = InitializationModulePriority)
             : base(mode, priority)
         {
@@ -64,19 +55,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Modules
 
         #region Overrides of InitializationModuleBase
 
-        /// <summary>
-        ///     Gets the <see cref="IOperationCallbackFactory" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IOperationCallbackFactory" />.</returns>
         protected override BindingInfo<IOperationCallbackFactory> GetOperationCallbackFactory()
         {
             return BindingInfo<IOperationCallbackFactory>.FromType<SerializableOperationCallbackFactory>(DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IViewModelPresenter" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IViewModelPresenter" />.</returns>
         protected override BindingInfo<IViewModelPresenter> GetViewModelPresenter()
         {
             return BindingInfo<IViewModelPresenter>.FromMethod((container, list) =>
@@ -92,38 +75,22 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Modules
             }, DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IViewMappingProvider" /> that will be used by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IViewMappingProvider" />.</returns>
         protected override BindingInfo<IViewMappingProvider> GetViewMappingProvider()
         {
             var assemblies = Context.Assemblies;
             return BindingInfo<IViewMappingProvider>.FromMethod((adapter, list) => new ViewMappingProviderEx(assemblies), DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IThreadManager" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IThreadManager" />.</returns>
         protected override BindingInfo<IThreadManager> GetThreadManager()
         {
             return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(SynchronizationContext.Current), DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="INavigationProvider" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="INavigationProvider" />.</returns>
         protected override BindingInfo<INavigationProvider> GetNavigationProvider()
         {
             return BindingInfo<INavigationProvider>.FromType<NavigationProvider>(DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IAttachedValueProvider" /> that will be used by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IAttachedValueProvider" />.</returns>
         protected override BindingInfo<IAttachedValueProvider> GetAttachedValueProvider()
         {
             return BindingInfo<IAttachedValueProvider>.FromType<AttachedValueProvider>(DependencyLifecycle.SingleInstance);

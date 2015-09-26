@@ -22,21 +22,10 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Interfaces.Models
 {
-    /// <summary>
-    ///     Represents an interface for suspend notifications.
-    /// </summary>
     public interface ISuspendNotifications : INotifyPropertyChanged
     {
-        /// <summary>
-        ///     Gets a value indicating whether change notifications are suspended. <c>True</c> if notifications are suspended,
-        ///     otherwise, <c>false</c>.
-        /// </summary>
         bool IsNotificationsSuspended { get; }
 
-        /// <summary>
-        ///     Suspends the change notifications until the returned <see cref="IDisposable" /> is disposed.
-        /// </summary>
-        /// <returns>An instance of token.</returns>
         [NotNull]
         IDisposable SuspendNotifications();
     }

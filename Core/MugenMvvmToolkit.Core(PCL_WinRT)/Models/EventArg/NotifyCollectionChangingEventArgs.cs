@@ -23,9 +23,6 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Models.EventArg
 {
-    /// <summary>
-    ///     Provides data for the CollectionChanging event.
-    /// </summary>
     public class NotifyCollectionChangingEventArgs : CancelEventArgs
     {
         #region Fields
@@ -36,9 +33,6 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NotifyCollectionChangingEventArgs" /> class.
-        /// </summary>
         public NotifyCollectionChangingEventArgs([NotNull] NotifyCollectionChangedEventArgs changedEventArgs)
         {
             Should.NotBeNull(changedEventArgs, "changedEventArgs");
@@ -49,50 +43,32 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the underlying <see cref="NotifyCollectionChangedEventArgs" />.
-        /// </summary>
         [NotNull]
         public NotifyCollectionChangedEventArgs ChangedEventArgs
         {
             get { return _changedEventArgs; }
         }
 
-        /// <summary>
-        ///     The action that caused the event.
-        /// </summary>
         public NotifyCollectionChangedAction Action
         {
             get { return ChangedEventArgs.Action; }
         }
 
-        /// <summary>
-        ///     The items affected by the change.
-        /// </summary>
         public IList NewItems
         {
             get { return ChangedEventArgs.NewItems; }
         }
 
-        /// <summary>
-        ///     The old items affected by the change (for Replace events).
-        /// </summary>
         public IList OldItems
         {
             get { return ChangedEventArgs.OldItems; }
         }
 
-        /// <summary>
-        ///     The index where the change occurred.
-        /// </summary>
         public int NewStartingIndex
         {
             get { return ChangedEventArgs.NewStartingIndex; }
         }
 
-        /// <summary>
-        ///     The old index where the change occurred (for Move events).
-        /// </summary>
         public int OldStartingIndex
         {
             get { return ChangedEventArgs.OldStartingIndex; }

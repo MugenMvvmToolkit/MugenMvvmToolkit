@@ -35,16 +35,10 @@ using MugenMvvmToolkit.Silverlight.Binding.Converters;
 namespace MugenMvvmToolkit.Silverlight.Modules
 #endif
 {
-    /// <summary>
-    /// Represents the module that creates view data templates for view models.
-    /// </summary>
     public class ViewModelDataTemplateModule : ModuleBase
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ModuleBase" /> class.
-        /// </summary>
         public ViewModelDataTemplateModule()
             : base(true, LoadMode.Design | LoadMode.Runtime, int.MinValue)
         {
@@ -75,9 +69,6 @@ namespace MugenMvvmToolkit.Silverlight.Modules
 
         #region Overrides of ModuleBase
 
-        /// <summary>
-        ///     Loads the current module.
-        /// </summary>
         protected override bool LoadInternal()
         {
             Application application = Application.Current;
@@ -103,9 +94,6 @@ namespace MugenMvvmToolkit.Silverlight.Modules
             return true;
         }
 
-        /// <summary>
-        ///     Unloads the current module.
-        /// </summary>
         protected override void UnloadInternal()
         {
         }

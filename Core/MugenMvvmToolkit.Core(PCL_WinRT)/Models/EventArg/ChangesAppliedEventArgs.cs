@@ -33,9 +33,6 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes the <see cref="ChangesAppliedEventArgs" />.
-        /// </summary>
         public ChangesAppliedEventArgs([NotNull]IList<IEntityStateEntry> changes)
         {
             Should.NotBeNull(changes, "changes");
@@ -46,9 +43,6 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the applied changes.
-        /// </summary>
         [NotNull]
         public IList<IEntityStateEntry> Changes
         {

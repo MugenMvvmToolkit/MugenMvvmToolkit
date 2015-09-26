@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="BindableMenuInflater.cs">
@@ -45,9 +45,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             Serializer = new XmlSerializer(typeof (MenuTemplate), string.Empty);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindableMenuInflater" /> class.
-        /// </summary>
         public BindableMenuInflater([NotNull] Context context)
             : base(context)
         {
@@ -55,9 +52,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             _context = context;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindableMenuInflater" /> class.
-        /// </summary>
         protected BindableMenuInflater(IntPtr javaReference, JniHandleOwnership transfer)
             : base(javaReference, transfer)
         {
@@ -76,14 +70,8 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         #region Implementation of IBindableMenuInflater
 
-        /// <summary>
-        ///     Gets or sets underlying menu inflater, if any.
-        /// </summary>
         public virtual MenuInflater NestedMenuInflater { get; set; }
 
-        /// <summary>
-        ///     Inflate a menu hierarchy from the specified XML resource.
-        /// </summary>
         public virtual void Inflate(int menuRes, IMenu menu, object parent)
         {
             using (XmlReader reader = _context.Resources.GetLayout(menuRes))

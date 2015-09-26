@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="BindableLayoutInflater.cs">
@@ -46,17 +46,11 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindableLayoutInflater" /> class.
-        /// </summary>
         public BindableLayoutInflater(IViewFactory factory, LayoutInflater original)
             : this(factory, original, original.Context)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindableLayoutInflater" /> class.
-        /// </summary>
         public BindableLayoutInflater(IViewFactory factory, Context context)
             : base(context)
         {
@@ -66,9 +60,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             Initialize();
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindableLayoutInflater" /> class.
-        /// </summary>
         protected BindableLayoutInflater(IntPtr javaReference, JniHandleOwnership transfer)
             : base(javaReference, transfer)
         {
@@ -76,9 +67,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             Initialize();
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindableLayoutInflater" /> class.
-        /// </summary>
         protected BindableLayoutInflater([NotNull] IViewFactory factory, LayoutInflater original, Context newContext)
             : base(original, newContext)
         {
@@ -92,15 +80,9 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the nested factory.
-        /// </summary>
         [CanBeNull]
         public virtual IFactory NestedFactory { get; set; }
 
-        /// <summary>
-        ///     Gets the view factory.
-        /// </summary>
         [NotNull]
         public virtual IViewFactory ViewFactory
         {
@@ -112,9 +94,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets the list of view names that should be ignored.
-        /// </summary>
         public HashSet<string> IgnoreViewTypes
         {
             get { return _ignoreViewTypes; }
@@ -124,10 +103,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         #region Overrides of LayoutInflater
 
-        /// <summary>
-        ///     Create a copy of the existing LayoutInflater object, with the copy
-        ///     pointing to a different Context than the original.
-        /// </summary>
         public override LayoutInflater CloneInContext(Context newContext)
         {
             return new BindableLayoutInflater(ViewFactory, this, newContext);
@@ -142,9 +117,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             return OnCreateViewInternal(name, context, attrs);
         }
 
-        /// <summary>
-        ///     Initializes the current inflater.
-        /// </summary>
         protected virtual void Initialize()
         {
             try
@@ -157,9 +129,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     This routine is responsible for creating the correct subclass of View given the xml element name.
-        /// </summary>
         protected virtual View OnCreateViewInternal(string name, Context context, IAttributeSet attrs)
         {
             if (_ignoreViewTypes.Contains(name))

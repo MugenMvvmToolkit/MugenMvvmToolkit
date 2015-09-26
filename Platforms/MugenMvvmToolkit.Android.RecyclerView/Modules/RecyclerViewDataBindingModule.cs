@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="RecyclerViewDataBindingModule.cs">
@@ -30,9 +30,6 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Modules
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RecyclerViewDataBindingModule" /> class.
-        /// </summary>
         public RecyclerViewDataBindingModule()
             : base(true)
         {
@@ -58,9 +55,6 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Modules
 
         #region Overrides of ModuleBase
 
-        /// <summary>
-        ///     Loads the current module.
-        /// </summary>
         protected override bool LoadInternal()
         {
             BindingServiceProvider.MemberProvider.Register(
@@ -70,9 +64,6 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Modules
             return true;
         }
 
-        /// <summary>
-        ///     Unloads the current module.
-        /// </summary>
         protected override void UnloadInternal()
         {
         }

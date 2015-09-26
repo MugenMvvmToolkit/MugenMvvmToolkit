@@ -23,9 +23,6 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Defines methods to support the comparison of objects for equality.
-    /// </summary>
     [DataContract(Namespace = ApplicationSettings.DataContractNamespace), Serializable]
     public class CompositeEqualityComparer : IEqualityComparer<object>, IEqualityComparer
     {
@@ -123,9 +120,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="CompositeEqualityComparer" /> class.
-        /// </summary>
         public CompositeEqualityComparer()
         {
             _locker = new object();
@@ -136,9 +130,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Adds the a comparer for the specified type.
-        /// </summary>
         public CompositeEqualityComparer AddComparer<T>([NotNull] IEqualityComparer<T> comparer, bool exactlySameType = false)
         {
             var comparerWrapper = new ComparerWrapper<T>(comparer, exactlySameType);
@@ -150,9 +141,6 @@ namespace MugenMvvmToolkit.Infrastructure
             return this;
         }
 
-        /// <summary>
-        ///     Adds the a comparer for the specified type.
-        /// </summary>
         public CompositeEqualityComparer AddComparer<T>([NotNull] Func<T, T, bool> equalsDel, [NotNull] Func<T, int> getHashDel, bool exactlySameType = false)
         {
             var comparerWrapper = new ComparerWrapper<T>(equalsDel, getHashDel, exactlySameType);
@@ -168,9 +156,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of IEqualityComparer<in object>
 
-        /// <summary>
-        ///     Returns a hash code for the specified entity.
-        /// </summary>
         public int GetHashCode(object obj)
         {
             IComparerWrapper[] comparers = _comparers;
@@ -183,9 +168,6 @@ namespace MugenMvvmToolkit.Infrastructure
             return ReferenceEqualityComparer.Instance.GetHashCode(obj);
         }
 
-        /// <summary>
-        ///     Determines whether the specified entities are equal.
-        /// </summary>
         public new bool Equals(object x, object y)
         {
             IComparerWrapper[] comparers = _comparers;

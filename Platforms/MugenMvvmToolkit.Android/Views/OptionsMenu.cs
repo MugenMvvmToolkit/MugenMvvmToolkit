@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="OptionsMenu.cs">
@@ -43,17 +43,11 @@ namespace MugenMvvmToolkit.Android.Views
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OptionsMenu" /> class.
-        /// </summary>
         private OptionsMenu(IntPtr javaReference, JniHandleOwnership transfer)
             : base(javaReference, transfer)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OptionsMenu" /> class.
-        /// </summary>
         public OptionsMenu(Context context, IAttributeSet attrs)
             : base(context, attrs)
         {

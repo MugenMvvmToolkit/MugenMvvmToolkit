@@ -25,9 +25,6 @@ using MugenMvvmToolkit.Interfaces.Callbacks;
 
 namespace MugenMvvmToolkit.Infrastructure.Callbacks
 {
-    /// <summary>
-    ///     Represents the async operation.
-    /// </summary>
     public class AsyncOperation<TResult> : IAsyncOperation<TResult>, IAsyncOperationInternal, IActionContinuation,
                                            IActionContinuation<TResult>
     {
@@ -43,9 +40,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="AsyncOperation{TResult}" /> class.
-        /// </summary>
         public AsyncOperation()
         {
             _continuations = new List<IAsyncOperationInternal>(2);
@@ -55,9 +49,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Methods
 
-        /// <summary>
-        ///     Tries to sets the result of the specified operation.
-        /// </summary>
         public static bool TrySetResult(IAsyncOperation operation, IOperationResult result)
         {
             var operationInternal = operation as IAsyncOperationInternal;
@@ -66,18 +57,12 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             return operationInternal.SetResult(result, false);
         }
 
-        /// <summary>
-        ///     Sets the result of this operation.
-        /// </summary>
         public void SetResult([NotNull] IOperationResult<TResult> result)
         {
             Should.NotBeNull(result, "result");
             ((IAsyncOperationInternal)this).SetResult(result, true);
         }
 
-        /// <summary>
-        ///     Tries to sets the result of this operation.
-        /// </summary>
         public bool TrySetResult([NotNull] IOperationResult<TResult> result)
         {
             Should.NotBeNull(result, "result");
@@ -182,25 +167,16 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Implementation of IContinuation
 
-        /// <summary>
-        ///     Tries to convert current operation to an instance of <see cref="ISerializableCallback" />.
-        /// </summary>
         public virtual ISerializableCallback ToSerializableCallback()
         {
             return ToSerializableCallbackInternal();
         }
 
-        /// <summary>
-        ///     Invokes the action using the specified operation result.
-        /// </summary>
         void IActionContinuation.Invoke(IOperationResult result)
         {
             ((IAsyncOperationInternal)this).SetResult(result, true);
         }
 
-        /// <summary>
-        ///     Invokes the action using the specified operation result.
-        /// </summary>
         void IActionContinuation<TResult>.Invoke(IOperationResult<TResult> result)
         {
             SetResult(result);
@@ -221,7 +197,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             Invoke(result);
             lock (_continuations)
             {
-                // Ensure that all concurrent adds have completed. 
+                // Ensure that all concurrent adds have completed.
             }
 
             for (int i = 0; i < _continuations.Count; i++)
@@ -234,17 +210,11 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Implementation of IAsyncOperation
 
-        /// <summary>
-        ///     Gets whether the operation has completed.
-        /// </summary>
         public bool IsCompleted
         {
             get { return _result != null; }
         }
 
-        /// <summary>
-        ///     Gets the operation result.
-        /// </summary>
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public IOperationResult<TResult> Result
         {
@@ -255,69 +225,45 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             }
         }
 
-        /// <summary>
-        ///     Gets the operation result.
-        /// </summary>
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         IOperationResult IAsyncOperation.Result
         {
             get { return Result; }
         }
 
-        /// <summary>
-        ///     Waits for the operation to complete execution.
-        /// </summary>
         public void Wait()
         {
             InitializeHandle();
             _waitHandle.WaitOne();
         }
 
-        /// <summary>
-        ///     Waits for the operation to complete execution.
-        /// </summary>
         public bool Wait(int millisecondsTimeout)
         {
             InitializeHandle();
             return _waitHandle.WaitOne(millisecondsTimeout);
         }
 
-        /// <summary>
-        ///     Creates a continuation that executes when the target operation completes.
-        /// </summary>
         public IAsyncOperation ContinueWith(IActionContinuation continuationAction)
         {
             return AddContinuation(new AsyncOperationImpl<object, object>(continuationAction));
         }
 
-        /// <summary>
-        ///     Creates a continuation that executes when the target operation completes.
-        /// </summary>
         public IAsyncOperation<T> ContinueWith<T>(IFunctionContinuation<T> continuationFunction)
         {
             return AddContinuation(new AsyncOperationImpl<T, object>(continuationFunction));
         }
 
-        /// <summary>
-        ///     Creates a continuation that executes when the target operation completes.
-        /// </summary>
         public IAsyncOperation ContinueWith(IActionContinuation<TResult> continuationAction)
         {
             return AddContinuation(new AsyncOperationImpl<TResult, object>(continuationAction));
         }
 
-        /// <summary>
-        ///     Creates a continuation that executes when the target operation completes.
-        /// </summary>
         public IAsyncOperation<TNewResult> ContinueWith<TNewResult>(
             IFunctionContinuation<TResult, TNewResult> continuationFunction)
         {
             return AddContinuation(new AsyncOperationImpl<TNewResult, TResult>(continuationFunction));
         }
 
-        /// <summary>
-        ///     Converts the current <see cref="IAsyncOperation{TResult}" /> to the <see cref="IOperationCallback" />.
-        /// </summary>
         public virtual IOperationCallback ToOperationCallback()
         {
             return new AsyncOperationCallback(this);

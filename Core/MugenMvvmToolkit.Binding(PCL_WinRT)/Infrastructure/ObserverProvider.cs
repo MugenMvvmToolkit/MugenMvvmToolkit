@@ -21,16 +21,10 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the observer provider that allows to create an observer.
-    /// </summary>
     public class ObserverProvider : IObserverProvider
     {
         #region Implementation of IObserverProvider
 
-        /// <summary>
-        ///     Attempts to track the value change using the binding path.
-        /// </summary>
         public virtual IObserver Observe(object target, IBindingPath path, bool ignoreAttachedMembers)
         {
             Should.NotBeNull(target, "target");

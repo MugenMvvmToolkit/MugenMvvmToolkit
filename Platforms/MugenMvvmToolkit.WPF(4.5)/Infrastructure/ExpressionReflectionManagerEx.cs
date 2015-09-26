@@ -35,9 +35,6 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
 namespace MugenMvvmToolkit.WinPhone.Infrastructure
 #endif
 {
-    /// <summary>
-    ///     Represents the reflection access provider that uses the <see cref="Expression" />.
-    /// </summary>
     public class ExpressionReflectionManagerEx : ExpressionReflectionManager
     {
         #region Fields
@@ -57,19 +54,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #region Overrides of ExpressionReflectionProvider
 
-        /// <summary>
-        ///     Tries to creates a delegate of the specified type that represents the specified static or instance method, with the
-        ///     specified first argument.
-        /// </summary>
-        /// <returns>
-        ///     A delegate of the specified type that represents the specified static method of the specified class.
-        /// </returns>
-        /// <param name="delegateType">The <see cref="T:System.Type" /> of delegate to create. </param>
-        /// <param name="target">
-        ///     The <see cref="T:System.Type" /> representing the class that implements <paramref name="method" />
-        ///     .
-        /// </param>
-        /// <param name="method">The name of the static method that the delegate is to represent. </param>
         public override Delegate TryCreateDelegate(Type delegateType, object target, MethodInfo method)
         {
             Func<object, Delegate> value;
@@ -115,9 +99,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Unbox or cast specified type.
-        /// </summary>
         private static void UnboxOrCast(ILGenerator il, Type type)
         {
             Type elementType = null;
@@ -128,9 +109,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
             il.Emit(elementType.IsValueType ? OpCodes.Unbox_Any : OpCodes.Castclass, elementType);
         }
 
-        /// <summary>
-        ///     Creates dynamic method with skip visibility.
-        /// </summary>
         private static DynamicMethod CreateDynamicMethod(Type type, Type[] inputValue, Type outputValue)
         {
             if (type == null)

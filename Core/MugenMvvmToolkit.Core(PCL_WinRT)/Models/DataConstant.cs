@@ -26,9 +26,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Models
 {
-    /// <summary>
-    ///     Identifies a piece of data that could be requested from an <see cref="IDataContext" />.
-    /// </summary>
     [Serializable, DataContract(Namespace = ApplicationSettings.DataContractNamespace)]
     public class DataConstant : StringConstantBase<DataConstant>
     {
@@ -41,9 +38,6 @@ namespace MugenMvvmToolkit.Models
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DataConstant" /> class.
-        /// </summary>
         protected internal DataConstant([NotNull] string id, bool notNull = false)
             : base(id)
         {
@@ -54,9 +48,6 @@ namespace MugenMvvmToolkit.Models
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the value that indicates that the constant value cannot be null.
-        /// </summary>
         [DataMember(Name = "nn")]
         public bool NotNull
         {
@@ -68,35 +59,23 @@ namespace MugenMvvmToolkit.Models
 
         #region Methods
 
-        /// <summary>
-        ///     Validates the specifed value.
-        /// </summary>
         public virtual void Validate(object value)
         {
             if (NotNull && ReferenceEquals(value, null))
                 throw ExceptionManager.DataConstantCannotBeNull(this);
         }
 
-        /// <summary>
-        ///     Creates a new instance of the <see cref="DataConstant{T}" /> class.
-        /// </summary>
         public static DataConstant Create(Expression<Func<DataConstant>> getConstant)
         {
             return CreateInternal<object>(getConstant, false);
         }
 
-        /// <summary>
-        ///     Creates a new instance of the <see cref="DataConstant{T}" /> class.
-        /// </summary>
         public static DataConstant<T> Create<T>(Expression<Func<DataConstant<T>>> getConstant)
             where T : struct
         {
             return CreateInternal<T>(getConstant, false);
         }
 
-        /// <summary>
-        ///     Creates a new instance of the <see cref="DataConstant{T}" /> class.
-        /// </summary>
         public static DataConstant<T> Create<T>(Expression<Func<DataConstant<T>>> getConstant, bool notNull)
             where T : class
         {
@@ -114,9 +93,6 @@ namespace MugenMvvmToolkit.Models
         #endregion
     }
 
-    /// <summary>
-    ///     Identifies a piece of data that could be requested from an <see cref="IDataContext" />.
-    /// </summary>
     public class DataConstant<T> : IEquatable<DataConstant<T>>
     {
         #region Fields
@@ -141,17 +117,11 @@ namespace MugenMvvmToolkit.Models
                 IsStructType = false;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DataConstant{T}" /> class.
-        /// </summary>
         public DataConstant([NotNull] string id, bool notNull = false)
             : this(new DataConstant(id, notNull))
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DataConstant{T}" /> class.
-        /// </summary>
         public DataConstant(DataConstant constant)
         {
             Constant = constant;
@@ -161,9 +131,6 @@ namespace MugenMvvmToolkit.Models
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the non-generic data constant.
-        /// </summary>
         [NotNull]
         public DataConstant Constant { get; protected set; }
 
@@ -171,17 +138,11 @@ namespace MugenMvvmToolkit.Models
 
         #region Methods
 
-        /// <summary>
-        ///     Converts the specified <see cref="DataConstant{T}" /> to <see cref="DataConstantValue" />
-        /// </summary>
         public DataConstantValue ToValue(T value)
         {
             return DataConstantValue.Create(this, value);
         }
 
-        /// <summary>
-        ///     Validates the specifed value.
-        /// </summary>
         public virtual void Validate(T value)
         {
             if (IsStructType || !Constant.NotNull)
@@ -209,12 +170,6 @@ namespace MugenMvvmToolkit.Models
 
         #region Overrides of Object
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>
-        ///     A string that represents the current object.
-        /// </returns>
         public override string ToString()
         {
             return Constant.ToString();
@@ -224,13 +179,6 @@ namespace MugenMvvmToolkit.Models
 
         #region Equality members
 
-        /// <summary>
-        ///     Indicates whether the current object is equal to another object of the same type.
-        /// </summary>
-        /// <returns>
-        ///     true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
-        /// </returns>
-        /// <param name="other">An object to compare with this object.</param>
         public bool Equals(DataConstant<T> other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -238,14 +186,6 @@ namespace MugenMvvmToolkit.Models
             return Constant.Equals(other.Constant);
         }
 
-        /// <summary>
-        ///     Determines whether the specified <see cref="T:System.Object" /> is equal to the current
-        ///     <see cref="T:System.Object" />.
-        /// </summary>
-        /// <returns>
-        ///     true if the specified object  is equal to the current object; otherwise, false.
-        /// </returns>
-        /// <param name="obj">The object to compare with the current object. </param>
         public sealed override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
@@ -254,12 +194,6 @@ namespace MugenMvvmToolkit.Models
             return other != null && Equals(other);
         }
 
-        /// <summary>
-        ///     Serves as a hash function for a particular type.
-        /// </summary>
-        /// <returns>
-        ///     A hash code for the current <see cref="T:System.Object" />.
-        /// </returns>
         public sealed override int GetHashCode()
         {
             return Constant.GetHashCode();

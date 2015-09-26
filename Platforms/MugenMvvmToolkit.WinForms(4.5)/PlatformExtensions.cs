@@ -51,9 +51,6 @@ namespace MugenMvvmToolkit.WinForms
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the delegate that allows to get name from component.
-        /// </summary>
         [NotNull]
         public static Func<IComponent, string> GetComponentName
         {
@@ -65,21 +62,12 @@ namespace MugenMvvmToolkit.WinForms
 
         #region Methods
 
-        /// <summary>
-        ///     Converts a collection to the <see cref="BindingListWrapper{T}" /> collection.
-        /// </summary>
-        /// <typeparam name="T">The type of collection.</typeparam>
-        /// <param name="collection">The specified collection.</param>
-        /// <returns>An instance of <see cref="BindingListWrapper{T}" />.</returns>
         public static BindingListWrapper<T> ToBindingList<T>(this INotifiableCollection<T> collection)
         {
             Should.NotBeNull(collection, "collection");
             return new BindingListWrapper<T>(collection);
         }
 
-        /// <summary>
-        ///     Tries to get the root control.
-        /// </summary>
         public static Control GetRootControl([CanBeNull] Control target)
         {
             Control root = target;

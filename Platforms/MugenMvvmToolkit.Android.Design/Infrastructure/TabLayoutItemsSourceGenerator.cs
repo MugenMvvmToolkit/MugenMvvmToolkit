@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using Android.App;
 using Android.OS;
 using Android.Support.Design.Widget;

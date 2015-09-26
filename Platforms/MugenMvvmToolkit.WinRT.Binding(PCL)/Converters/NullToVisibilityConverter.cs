@@ -22,16 +22,10 @@ using Windows.UI.Xaml.Data;
 
 namespace MugenMvvmToolkit.WinRT.Binding.Converters
 {
-    /// <summary>
-    ///     This converts a Boolean to a Visibility.  It supports mapping the conversions.
-    /// </summary>
     public sealed class NullToVisibilityConverter : IValueConverter
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NullToVisibilityConverter" /> class.
-        /// </summary>
         public NullToVisibilityConverter(Visibility nullValue, Visibility notNullValue)
         {
             NotNullValue = notNullValue;
@@ -42,14 +36,8 @@ namespace MugenMvvmToolkit.WinRT.Binding.Converters
 
         #region Properties
 
-        /// <summary>
-        ///     Mapping for False to Visibility.
-        /// </summary>
         public Visibility NotNullValue { get; set; }
 
-        /// <summary>
-        ///     Mapping for null to Visibility.
-        /// </summary>
         public Visibility NullValue { get; set; }
 
         #endregion

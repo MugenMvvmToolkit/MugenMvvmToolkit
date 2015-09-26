@@ -31,9 +31,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
 {
-    /// <summary>
-    ///     Represents the component that provides a data binding for controls.
-    /// </summary>
     [Description("Provides a data binding for controls."), ToolboxItem(true)]
     public class Binder : Component, ISupportInitialize
     {
@@ -49,9 +46,6 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Binder" /> class.
-        /// </summary>
         public Binder()
         {
             _controlBindings = new Dictionary<object, Dictionary<string, string>>();
@@ -59,9 +53,6 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
             IgnoreControlException = true;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Binder" /> class.
-        /// </summary>
         public Binder([NotNull] IContainer container)
             : this()
         {

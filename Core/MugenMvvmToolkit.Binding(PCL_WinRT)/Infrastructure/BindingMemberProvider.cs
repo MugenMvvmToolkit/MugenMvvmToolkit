@@ -30,9 +30,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the binding member provider.
-    /// </summary>
     public class BindingMemberProvider : IBindingMemberProvider
     {
         #region Nested types
@@ -99,29 +96,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Implementation of IEqualityComparer<in CacheKey>
 
-            /// <summary>
-            ///     Determines whether the specified objects are equal.
-            /// </summary>
-            /// <returns>
-            ///     true if the specified objects are equal; otherwise, false.
-            /// </returns>
             public bool Equals(CacheKey x, CacheKey y)
             {
                 return x.IgnoreAttachedMembers == y.IgnoreAttachedMembers &&
                        x.Path.Equals(y.Path, StringComparison.Ordinal) && x.Type.Equals(y.Type);
             }
 
-            /// <summary>
-            ///     Returns a hash code for the specified object.
-            /// </summary>
-            /// <returns>
-            ///     A hash code for the specified object.
-            /// </returns>
-            /// <param name="obj">The <see cref="T:System.Object" /> for which a hash code is to be returned.</param>
-            /// <exception cref="T:System.ArgumentNullException">
-            ///     The type of <paramref name="obj" /> is a reference type and
-            ///     <paramref name="obj" /> is null.
-            /// </exception>
             public int GetHashCode(CacheKey obj)
             {
                 return obj.Hash;
@@ -143,9 +123,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberProvider" /> class.
-        /// </summary>
         public BindingMemberProvider()
         {
             _currentPaths = new HashSet<string>(StringComparer.Ordinal);
@@ -157,9 +134,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             PropertyFlags = FieldFlags;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberProvider" /> class.
-        /// </summary>
         public BindingMemberProvider([NotNull] BindingMemberProvider provider)
         {
             Should.NotBeNull(provider, "provider");
@@ -176,60 +150,31 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the binding context member.
-        /// </summary>
         public static IBindingMemberInfo BindingContextMember
         {
             get { return BindingMemberInfo.BindingContextMember; }
         }
 
-        /// <summary>
-        ///     Gets the unset member.
-        /// </summary>
         public static IBindingMemberInfo Unset
         {
             get { return BindingMemberInfo.Unset; }
         }
 
-        /// <summary>
-        ///     Gets the empty member.
-        /// </summary>
         public static IBindingMemberInfo Empty
         {
             get { return BindingMemberInfo.Empty; }
         }
 
-        /// <summary>
-        /// Gets or sets the member flags for field.
-        /// </summary>
         public MemberFlags FieldFlags { get; set; }
 
-        /// <summary>
-        /// Gets or sets the member flags for event.
-        /// </summary>
         public MemberFlags PropertyFlags { get; set; }
 
-        /// <summary>
-        /// Gets or sets the member flags for event.
-        /// </summary>
         public MemberFlags EventFlags { get; set; }
 
         #endregion
 
         #region Implementation of IBindingMemberProvider
 
-        /// <summary>
-        ///     Gets an instance of <see cref="IBindingMemberInfo" /> using the source type and binding path.
-        /// </summary>
-        /// <param name="sourceType">The specified source type.</param>
-        /// <param name="path">The specified binding path.</param>
-        /// <param name="ignoreAttachedMembers">If <c>true</c> provider ignores attached members.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the member cannot be found; false to return null. Specifying
-        ///     false also suppresses some other exception conditions, but not all of them.
-        /// </param>
-        /// <returns>The instance of <see cref="IBindingMemberInfo" />.</returns>
         public IBindingMemberInfo GetBindingMember(Type sourceType, string path, bool ignoreAttachedMembers,
             bool throwOnError)
         {
@@ -282,24 +227,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return bindingMember;
         }
 
-        /// <summary>
-        ///     Registers the specified member.
-        /// </summary>
-        /// <param name="type">The specified type.</param>
-        /// <param name="member">The specified member.</param>
-        /// <param name="rewrite"><c>true</c> rewrite exist member, <c>false</c> throw an exception.</param>
         public void Register(Type type, IBindingMemberInfo member, bool rewrite)
         {
             Register(type, member.Path, member, rewrite);
         }
 
-        /// <summary>
-        ///     Registers the specified member.
-        /// </summary>
-        /// <param name="type">The specified type.</param>
-        /// <param name="path">The path of member.</param>
-        /// <param name="member">The specified member.</param>
-        /// <param name="rewrite"><c>true</c> rewrite exist member, <c>false</c> throw an exception.</param>
         public void Register(Type type, string path, IBindingMemberInfo member, bool rewrite)
         {
             Should.NotBeNull(type, "type");
@@ -323,9 +255,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 Tracer.Info("The attached property (path: {0}, type: {1}, target type: {2}) was registered.", path, member.Type, type);
         }
 
-        /// <summary>
-        ///     Unregisters the specified member using the type and member path.
-        /// </summary>
         public bool Unregister(Type type, string path)
         {
             Should.NotBeNull(type, "type");
@@ -340,9 +269,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return removed;
         }
 
-        /// <summary>
-        ///     Unregisters the members using the type.
-        /// </summary>
         public bool Unregister(Type type)
         {
             lock (_attachedMembers)
@@ -366,9 +292,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return true;
         }
 
-        /// <summary>
-        ///     Gets the list of attached members for the specified type.
-        /// </summary>
         public ICollection<KeyValuePair<string, IBindingMemberInfo>> GetAttachedMembers(Type type)
         {
             Should.NotBeNull(type, "type");
@@ -388,12 +311,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Gets an instance of <see cref="IBindingMemberInfo" /> using the source type and binding path.
-        /// </summary>
-        /// <param name="sourceType">The specified source type.</param>
-        /// <param name="path">The specified binding path.</param>
-        /// <returns>The instance of <see cref="IBindingMemberInfo" />.</returns>
         [CanBeNull]
         protected virtual IBindingMemberInfo GetExplicitBindingMember([NotNull] Type sourceType, [NotNull] string path)
         {
@@ -485,12 +402,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         }
 
 
-        /// <summary>
-        ///     Gets an instance of <see cref="IBindingMemberInfo" /> using the source type and binding path.
-        /// </summary>
-        /// <param name="sourceType">The specified source type.</param>
-        /// <param name="path">The specified binding path.</param>
-        /// <returns>The instance of <see cref="IBindingMemberInfo" />.</returns>
         [CanBeNull]
         protected IBindingMemberInfo GetAttachedBindingMember([NotNull] Type sourceType, [NotNull] string path)
         {
@@ -498,9 +409,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return GetAttachedBindingMember(ref key);
         }
 
-        /// <summary>
-        ///     Gets an attached binding member.
-        /// </summary>
         private IBindingMemberInfo GetAttachedBindingMember(ref CacheKey key)
         {
             IBindingMemberInfo bindingMember;

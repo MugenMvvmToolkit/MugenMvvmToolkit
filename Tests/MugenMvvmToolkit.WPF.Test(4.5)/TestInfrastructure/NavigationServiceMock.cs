@@ -39,19 +39,10 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of INavigationService
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate back.
-        /// </summary>
         public bool CanGoBack { get; set; }
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate forward.
-        /// </summary>
         public bool CanGoForward { get; set; }
 
-        /// <summary>
-        ///     The current content.
-        /// </summary>
         public object CurrentContent { get; set; }
 
         void INavigationService.GoBack()

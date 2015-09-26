@@ -39,9 +39,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 #endif
 
 {
-    /// <summary>
-    ///     Manages states and the logic for transitioning between states for controls.
-    /// </summary>
     public sealed class VisualStateManager : IVisualStateManager
     {
         #region Fields
@@ -52,9 +49,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="VisualStateManager" /> class.
-        /// </summary>
         public VisualStateManager([NotNull] IThreadManager threadManager)
         {
             Should.NotBeNull(threadManager, "threadManager");
@@ -65,16 +59,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #region Implementation of IVisualStateManager
 
-        /// <summary>
-        ///     Transitions the control between two states.
-        /// </summary>
-        /// <returns>
-        ///     true if the control successfully transitioned to the new state; otherwise, false.
-        /// </returns>
-        /// <param name="view">The view to transition between states. </param>
-        /// <param name="stateName">The state to transition to.</param>
-        /// <param name="useTransitions">true to use a VisualTransition to transition between states; otherwise, false.</param>
-        /// <param name="context">The specified context.</param>
         public Task<bool> GoToStateAsync(object view, string stateName, bool useTransitions, IDataContext context)
         {
             Should.NotBeNull(view, "view");

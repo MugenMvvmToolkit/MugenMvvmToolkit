@@ -24,9 +24,6 @@ using Microsoft.Phone.Controls;
 
 namespace MugenMvvmToolkit.WinPhone.Infrastructure
 {
-    /// <summary>
-    ///     Represents the frame state manager that allows to save state of page.
-    /// </summary>
     public static class FrameStateManager
     {
         #region Nested types

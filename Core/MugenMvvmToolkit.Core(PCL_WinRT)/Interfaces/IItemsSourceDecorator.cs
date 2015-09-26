@@ -21,14 +21,8 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Interfaces
 {
-    /// <summary>
-    ///     Represnets the interface that allows to decorate items source collection.
-    /// </summary>
     public interface IItemsSourceDecorator
     {
-        /// <summary>
-        ///     Decorates items source collection.
-        /// </summary>
         [NotNull]
         IList<T> Decorate<T>([NotNull] IList<T> itemsSource);
     }

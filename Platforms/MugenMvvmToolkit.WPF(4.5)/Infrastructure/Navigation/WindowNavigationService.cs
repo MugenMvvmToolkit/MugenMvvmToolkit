@@ -33,9 +33,6 @@ using NavigationMode = System.Windows.Navigation.NavigationMode;
 
 namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
 {
-    /// <summary>
-    ///     A basic implementation of <see cref="INavigationService" /> to adapt the <see cref="NavigationWindow" />.
-    /// </summary>
     public class WindowNavigationService : INavigationService
     {
         #region Fields
@@ -48,9 +45,6 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="FrameNavigationService" /> class.
-        /// </summary>
         public WindowNavigationService([NotNull] NavigationWindow window, bool useUrlNavigation)
         {
             Should.NotBeNull(window, "window");
@@ -86,58 +80,36 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
 
         #region Implementation of INavigationService
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate back.
-        /// </summary>
         public bool CanGoBack
         {
             get { return _window.CanGoBack; }
         }
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate forward.
-        /// </summary>
         public bool CanGoForward
         {
             get { return _window.CanGoForward; }
         }
 
-        /// <summary>
-        ///     The current content.
-        /// </summary>
         public object CurrentContent
         {
             get { return _window.Content; }
         }
 
-        /// <summary>
-        ///     Navigates back.
-        /// </summary>
         public void GoBack()
         {
             _window.GoBack();
         }
 
-        /// <summary>
-        ///     Navigates forward.
-        /// </summary>
         public void GoForward()
         {
             _window.GoForward();
         }
 
-        /// <summary>
-        ///     Removes the most recent entry from the back stack.
-        /// </summary>
-        /// <returns> The entry that was removed. </returns>
         public JournalEntry RemoveBackEntry()
         {
             return _window.RemoveBackEntry();
         }
 
-        /// <summary>
-        ///     Gets a navigation parameter from event args.
-        /// </summary>
         public string GetParameterFromArgs(EventArgs args)
         {
             Should.NotBeNull(args, "args");
@@ -152,22 +124,6 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
             return cancelEventArgs.Args.ExtraData as string;
         }
 
-        /// <summary>
-        ///     Displays the content located at the specified <see cref="IViewMappingItem" />.
-        /// </summary>
-        /// <param name="source">
-        ///     The <c>IViewPageMappingItem</c> of the content to display.
-        /// </param>
-        /// <param name="parameter">
-        ///     A <see cref="T:System.Object" /> that contains data to be used for processing during
-        ///     navigation.
-        /// </param>
-        /// <param name="dataContext">
-        ///     The specified <see cref="IDataContext" />.
-        /// </param>
-        /// <returns>
-        ///     <c>true</c> if the content was successfully displayed; otherwise, <c>false</c>.
-        /// </returns>
         public bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, "source");
@@ -177,9 +133,6 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
             return result;
         }
 
-        /// <summary>
-        ///     Determines whether the specified command <c>CloseCommand</c> can be execute.
-        /// </summary>
         public bool CanClose(IViewModel viewModel, IDataContext dataContext)
         {
             Should.NotBeNull(viewModel, "viewModel");
@@ -187,9 +140,6 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
             return content != null && ViewManager.GetDataContext(content) == viewModel && CanGoBack;
         }
 
-        /// <summary>
-        ///     Navigates using cancel event args.
-        /// </summary>
         public bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
         {
             Should.NotBeNull(args, "args");
@@ -199,9 +149,6 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
             return result;
         }
 
-        /// <summary>
-        ///     Tries to close view-model page.
-        /// </summary>
         public bool TryClose(IViewModel viewModel, IDataContext dataContext)
         {
             if (CanClose(viewModel, dataContext))
@@ -212,23 +159,14 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
             return false;
         }
 
-        /// <summary>
-        ///     Raised prior to navigation.
-        /// </summary>
         public event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
 
-        /// <summary>
-        ///     Raised after navigation.
-        /// </summary>
         public event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Creates an instance of view object.
-        /// </summary>
         protected virtual object CreateView(IViewMappingItem viewMapping, object parameter)
         {
             return ServiceProvider.Get<IViewManager>().GetViewAsync(viewMapping, parameter as IDataContext).Result;

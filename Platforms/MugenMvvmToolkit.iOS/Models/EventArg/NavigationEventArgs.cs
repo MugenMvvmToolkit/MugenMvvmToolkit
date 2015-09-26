@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="NavigationEventArgs.cs">
@@ -25,9 +25,6 @@ namespace MugenMvvmToolkit.iOS.Models.EventArg
 namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
 #endif
 {
-    /// <summary>
-    ///     Provides data for navigation methods and event handlers that cannot cancel the navigation request.
-    /// </summary>
     public class NavigationEventArgs : NavigationEventArgsBase
     {
         #region Fields
@@ -40,9 +37,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigationEventArgs" /> class.
-        /// </summary>
         public NavigationEventArgs(object content, string parameter, NavigationMode navigationMode)
         {
             _content = content;
@@ -54,9 +48,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets any Parameter object passed to the target page for the navigation.
-        /// </summary>
         public string Parameter
         {
             get { return _parameter; }
@@ -66,17 +57,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
 
         #region Overrides of NavigationEventArgsBase
 
-        /// <summary>
-        ///     Gets the content of the target being navigated to.
-        /// </summary>
         public override object Content
         {
             get { return _content; }
         }
 
-        /// <summary>
-        ///     Gets a value that indicates the type of navigation that is occurring.
-        /// </summary>
         public override NavigationMode Mode
         {
             get { return _navigationMode; }

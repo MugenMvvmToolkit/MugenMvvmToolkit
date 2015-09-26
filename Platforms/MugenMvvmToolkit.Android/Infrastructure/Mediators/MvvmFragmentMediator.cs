@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="MvvmFragmentMediator.cs">
@@ -94,15 +94,14 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         private DialogInterfaceOnKeyListener _keyListener;
         private View _view;
         private bool _removed;
+#if !APPCOMPAT
         private bool _isPreferenceContext;
+#endif
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="MvvmFragmentMediator" /> class.
-        /// </summary>
         public MvvmFragmentMediator([NotNull] Fragment target)
             : base(target)
         {
@@ -113,30 +112,18 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         #region Implementation of IMvvmFragmentMediator
 
-        /// <summary>
-        ///     Gets the <see cref="Fragment" />.
-        /// </summary>
         Fragment IMvvmFragmentMediator.Fragment
         {
             get { return Target; }
         }
 
-        /// <summary>
-        ///     Gets or sets that is responsible for cache view in fragment.
-        /// </summary>
         public bool CacheFragmentView { get; set; }
 
-        /// <summary>
-        ///     Called when a fragment is first attached to its activity.
-        /// </summary>
         public virtual void OnAttach(Activity activity, Action<Activity> baseOnAttach)
         {
             baseOnAttach(activity);
         }
 
-        /// <summary>
-        ///     Initialize the contents of the Activity's standard options menu.
-        /// </summary>
         public virtual void OnCreateOptionsMenu(IMenu menu, MenuInflater inflater,
             Action<IMenu, MenuInflater> baseOnCreateOptionsMenu)
         {
@@ -150,9 +137,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             }
         }
 
-        /// <summary>
-        ///     Called to have the fragment instantiate its user interface view.
-        /// </summary>
         public virtual View OnCreateView(int? viewId, LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState, Func<LayoutInflater, ViewGroup, Bundle, View> baseOnCreateView)
         {
@@ -174,9 +158,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             return baseOnCreateView(inflater, container, savedInstanceState);
         }
 
-        /// <summary>
-        ///     Called when the target is starting.
-        /// </summary>
         public virtual void OnCreate(Bundle savedInstanceState, Action<Bundle> baseOnCreate)
         {
             if (Tracer.TraceInformation)
@@ -217,9 +198,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             }
         }
 
-        /// <summary>
-        ///     Called immediately after <c>OnCreateView(Android.Views.LayoutInflater, Android.Views.ViewGroup, Android.Views.ViewGroup)</c> has returned, but before any saved state has been restored in to the view.
-        /// </summary>
         public virtual void OnViewCreated(View view, Bundle savedInstanceState, Action<View, Bundle> baseOnViewCreated)
         {
             var dialogFragment = Target as DialogFragment;
@@ -239,9 +217,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             baseOnViewCreated(view, savedInstanceState);
         }
 
-        /// <summary>
-        ///     Called when the view previously created by <c>OnCreateView</c> has been detached from the fragment.
-        /// </summary>
         public virtual void OnDestroyView(Action baseOnDestroyView)
         {
             baseOnDestroyView();
@@ -252,9 +227,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             }
         }
 
-        /// <summary>
-        ///     Gets the current preference manager.
-        /// </summary>
         protected override PreferenceManager PreferenceManager
         {
             get
@@ -270,9 +242,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             }
         }
 
-        /// <summary>
-        ///     Called when the fragment is no longer in use.
-        /// </summary>
         public override void OnDestroy(Action baseOnDestroy)
         {
             if (Tracer.TraceInformation)
@@ -309,30 +278,22 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             Destroyed = null;
         }
 
-        /// <summary>
-        ///     Called after <c>OnCreate(Android.OS.Bundle)</c> or after <c>OnRestart</c> when the activity had been stopped, but is now again being displayed to the user.
-        /// </summary>
         public override void OnSaveInstanceState(Bundle outState, Action<Bundle> baseOnSaveInstanceState)
         {
+#if !APPCOMPAT
             if (_isPreferenceContext)
                 baseOnSaveInstanceState(outState);
             else
-                base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
+#endif
+            base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
         }
 
-        /// <summary>
-        ///     Called when the fragment is no longer attached to its activity.
-        /// </summary>
         public virtual void OnDetach(Action baseOnDetach)
         {
             baseOnDetach();
             Target.ClearBindings(false, true);
         }
 
-        /// <summary>
-        ///     Called when a fragment is being created as part of a view layout
-        ///     inflation, typically from setting the content view of an activity.
-        /// </summary>
         public virtual void OnInflate(Activity activity, IAttributeSet attrs, Bundle savedInstanceState,
             Action<Activity, IAttributeSet, Bundle> baseOnInflate)
         {
@@ -346,9 +307,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             baseOnInflate(activity, attrs, savedInstanceState);
         }
 
-        /// <summary>
-        ///     Called when the Fragment is visible to the user.
-        /// </summary>
         public virtual void OnStart(Action baseOnStart)
         {
             baseOnStart();
@@ -357,17 +315,11 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 view.RootView.ListenParentChange();
         }
 
-        /// <summary>
-        ///     Called when the Fragment is no longer started.
-        /// </summary>
         public virtual void OnStop(Action baseOnStop)
         {
             baseOnStop();
         }
 
-        /// <summary>
-        ///     This method will be invoked when the dialog is canceled.
-        /// </summary>
         public virtual void OnCancel(IDialogInterface dialog, Action<IDialogInterface> baseOnCancel)
         {
             var handler = Canceled;
@@ -376,18 +328,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             baseOnCancel(dialog);
         }
 
-        /// <summary>
-        ///     Dismiss the fragment and its dialog.
-        /// </summary>
         public virtual void Dismiss(Action baseDismiss)
         {
             if (OnClosing())
                 baseDismiss();
         }
 
-        /// <summary>
-        ///     Inflates the given XML resource and adds the preference hierarchy to the current preference hierarchy.
-        /// </summary>
         public virtual void AddPreferencesFromResource(Action<int> baseAddPreferencesFromResource, int preferencesResId)
         {
 #if APPCOMPAT
@@ -404,28 +350,16 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             InitializePreferences(fragment.PreferenceScreen, preferencesResId);
         }
 
-        /// <summary>
-        ///     Occurred on closing window.
-        /// </summary>
         public virtual event EventHandler<IWindowView, CancelEventArgs> Closing;
 
-        /// <summary>
-        ///     Occurred on closed window.
-        /// </summary>
         public virtual event EventHandler<IWindowView, EventArgs> Canceled;
 
-        /// <summary>
-        ///     Occurred on destroyed fragment.
-        /// </summary>
         public virtual event EventHandler<Fragment, EventArgs> Destroyed;
 
         #endregion
 
         #region Overrides of MediatorBase<Fragment>
 
-        /// <summary>
-        ///     Occurs when the DataContext property changed.
-        /// </summary>
         protected override void OnDataContextChanged(object oldValue, object newValue)
         {
             base.OnDataContextChanged(oldValue, newValue);

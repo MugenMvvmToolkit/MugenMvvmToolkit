@@ -20,9 +20,6 @@ using System;
 
 namespace MugenMvvmToolkit.Binding.Models.Exceptions
 {
-    /// <summary>
-    ///     Represents the parse exception.
-    /// </summary>
     public sealed class ParseException : Exception
     {
         #region Fields
@@ -33,9 +30,6 @@ namespace MugenMvvmToolkit.Binding.Models.Exceptions
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ParseException" /> class.
-        /// </summary>
         public ParseException(string message, int position)
             : base(string.Format("{0} (at index {1})", message, position.ToString()))
         {
@@ -46,9 +40,6 @@ namespace MugenMvvmToolkit.Binding.Models.Exceptions
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the error position.
-        /// </summary>
         public int Position
         {
             get { return _position; }

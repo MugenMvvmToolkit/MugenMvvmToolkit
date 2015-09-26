@@ -43,9 +43,6 @@ namespace MugenMvvmToolkit.WinPhone
         private const string StatePath = "#!~vmstate";
         private static IApplicationStateManager _applicationStateManager;
 
-        /// <summary>
-        /// Gets or sets the <see cref="IApplicationStateManager"/>.
-        /// </summary>
         [NotNull]
         public static IApplicationStateManager ApplicationStateManager
         {

@@ -35,9 +35,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Parse
 {
-    /// <summary>
-    ///     Represents the data binding parser.
-    /// </summary>
     public class BindingParser : IBindingParser
     {
         #region Fields
@@ -116,9 +113,6 @@ namespace MugenMvvmToolkit.Binding.Parse
             EmptyPathSourceDelegate = context => context.Add(BindingBuilderConstants.Sources, EmptyBindingSourceDelegates);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingParser" /> class.
-        /// </summary>
         public BindingParser()
         {
             _cache = new Dictionary<string, KeyValuePair<KeyValuePair<string, int>, Action<IDataContext>[]>[]>(StringComparer.Ordinal);
@@ -211,23 +205,11 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Implementation of IBindingParser
 
-        /// <summary>
-        ///     Gets the collection of <see cref="IBindingParserHandler" />.
-        /// </summary>
         public IList<IBindingParserHandler> Handlers
         {
             get { return _handlers; }
         }
 
-        /// <summary>
-        ///     Parses a string to the set of instances of <see cref="IDataContext" /> that allows to create a series of instances
-        ///     of <see cref="IDataBinding" />.
-        /// </summary>
-        /// <param name="bindingExpression">The specified binding expression.</param>
-        /// <param name="context">The specified context.</param>
-        /// <param name="target">The specified binding target.</param>
-        /// <param name="sources">The specified sources, if any.</param>
-        /// <returns>A set of instances of <see cref="IDataContext" />.</returns>
         public IList<IDataContext> Parse(string bindingExpression, IDataContext context, object target,
              IList<object> sources)
         {
@@ -325,25 +307,16 @@ namespace MugenMvvmToolkit.Binding.Parse
             get { return _binaryOperationAliases; }
         }
 
-        /// <summary>
-        ///     Gets the current string expression.
-        /// </summary>
         protected string Expression
         {
             get { return _expression; }
         }
 
-        /// <summary>
-        ///     Gets the current <see cref="ITokenizer" />.
-        /// </summary>
         protected ITokenizer Tokenizer
         {
             get { return _tokenizer; }
         }
 
-        /// <summary>
-        ///     Gets the external context.
-        /// </summary>
         protected IDataContext Context
         {
             get { return _context; }
@@ -375,10 +348,6 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Parsing
 
-        /// <summary>
-        ///     Parses a string to the <see cref="MugenMvvmToolkit.Models.DataContext" /> that allows to create an instance of
-        ///     <see cref="IDataBinding" />.
-        /// </summary>
         protected virtual List<KeyValuePair<string, Action<IDataContext>[]>> ParseInternal()
         {
             NextToken(true);
@@ -472,7 +441,6 @@ namespace MugenMvvmToolkit.Binding.Parse
             return expr;
         }
 
-        ///NOTE: It is possible to increase the operating speed by using another algorithm, but the current version does not involve large expressions.        
         private IExpressionNode ParseBinaryExpression(IExpressionNode left, IExpressionNode right, TokenType token, bool isInternalCall)
         {
             bool returnEmptyNode = false;
@@ -1433,17 +1401,11 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Internal
 
-        /// <summary>
-        /// Creates an instance of <see cref="IExpressionInvoker"/> to invoke the specified node expression.
-        /// </summary>
         protected virtual IExpressionInvoker CreateExpressionInvoker(IExpressionNode expressionNode, IList<KeyValuePair<string, BindingMemberExpressionNode>> members, bool isEmpty)
         {
             return new CompiledExpressionInvoker(expressionNode, isEmpty);
         }
 
-        /// <summary>
-        ///     Gets an instance of <see cref="Tokenizer" /> to parse expression.
-        /// </summary>
         protected virtual ITokenizer CreateTokenizer(string source)
         {
             _defaultTokenizer.SetSource(source);

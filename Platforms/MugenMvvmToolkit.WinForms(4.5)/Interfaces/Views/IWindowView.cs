@@ -22,30 +22,14 @@ using MugenMvvmToolkit.Interfaces.Views;
 
 namespace MugenMvvmToolkit.WinForms.Interfaces.Views
 {
-    /// <summary>
-    ///     Represent the base interface for a window view.
-    /// </summary>
     public interface IWindowView : IView
     {
-        /// <summary>
-        ///     Shows window.
-        /// </summary>
         void Show();
 
-        /// <summary>
-        ///     Shows window as dialog.
-        /// </summary>
-        /// <returns></returns>
         DialogResult ShowDialog();
 
-        /// <summary>
-        ///     Closes the dialog.
-        /// </summary>
         void Close();
 
-        /// <summary>
-        ///     Occurred on closing window.
-        /// </summary>
         event CancelEventHandler Closing;
     }
 }

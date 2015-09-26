@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="DataTemplateProvider.cs">
@@ -36,9 +36,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DataTemplateProvider" /> class.
-        /// </summary>
         public DataTemplateProvider([NotNull] object container, [NotNull] string templateIdMember,
             [NotNull] string templateSelectorMember)
         {

@@ -22,20 +22,11 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces.Callbacks
 {
-    /// <summary>
-    ///     Represents the callback manager.
-    /// </summary>
     public interface IOperationCallbackManager
     {
-        /// <summary>
-        ///     Registers the specified operation callback.
-        /// </summary>
         void Register([NotNull] OperationType operation, [NotNull] object source, [NotNull] IOperationCallback callback,
             [CanBeNull] IDataContext context);
 
-        /// <summary>
-        ///     Sets the result of operation.
-        /// </summary>
         void SetResult(object source, [NotNull] IOperationResult result);
     }
 }

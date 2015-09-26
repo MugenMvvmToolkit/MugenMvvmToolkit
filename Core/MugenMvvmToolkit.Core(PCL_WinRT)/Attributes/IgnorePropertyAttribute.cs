@@ -20,9 +20,6 @@ using System;
 
 namespace MugenMvvmToolkit.Attributes
 {
-    /// <summary>
-    ///     When applied to the member of a type, specifies that the member is not validatable.
-    /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public sealed class IgnorePropertyAttribute : Attribute
     {

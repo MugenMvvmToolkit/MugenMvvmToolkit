@@ -34,9 +34,6 @@ using MugenMvvmToolkit.Modules;
 
 namespace MugenMvvmToolkit.Binding.Modules
 {
-    /// <summary>
-    ///     Represents the binding module.
-    /// </summary>
     public class DataBindingModule : IModule
     {
         #region Nested types
@@ -169,17 +166,11 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         #region Implementation of IModule
 
-        /// <summary>
-        ///     Gets the priority.
-        /// </summary>
         public virtual int Priority
         {
             get { return ModuleBase.BindingModulePriority; }
         }
 
-        /// <summary>
-        ///     Loads the current module.
-        /// </summary>
         public bool Load(IModuleContext context)
         {
             Should.NotBeNull(context, "context");
@@ -204,9 +195,6 @@ namespace MugenMvvmToolkit.Binding.Modules
             return true;
         }
 
-        /// <summary>
-        ///     Unloads the current module.
-        /// </summary>
         public void Unload(IModuleContext context)
         {
             OnUnloaded(context);
@@ -216,31 +204,19 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         #region Methods
 
-        /// <summary>
-        ///     Checks to see whether the module can be loaded with specified context.
-        /// </summary>
         protected virtual bool CanLoad(IModuleContext context)
         {
             return true;
         }
 
-        /// <summary>
-        ///    Occurs on load the current module.
-        /// </summary>
         protected virtual void OnLoaded(IModuleContext context)
         {
         }
 
-        /// <summary>
-        ///     Occurs on unload the current module.
-        /// </summary>
         protected virtual void OnUnloaded(IModuleContext context)
         {
         }
 
-        /// <summary>
-        /// Tries to register type.
-        /// </summary>
         protected virtual void RegisterType(Type type)
         {
             if (_isLoaded)
@@ -256,81 +232,54 @@ namespace MugenMvvmToolkit.Binding.Modules
                 Tracer.Info("The {0} converter is registered.", type);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IBindingErrorProvider" /> that will be used by default.
-        /// </summary>
         [CanBeNull]
         protected virtual IBindingErrorProvider GetBindingErrorProvider(IModuleContext context)
         {
             return new BindingErrorProviderBase();
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IBindingProvider" /> that will be used by default.
-        /// </summary>
         [CanBeNull]
         protected virtual IBindingProvider GetBindingProvider(IModuleContext context)
         {
             return null;
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IBindingManager" /> that will be used by default.
-        /// </summary>
         [CanBeNull]
         protected virtual IBindingManager GetBindingManager(IModuleContext context)
         {
             return null;
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IBindingMemberProvider" /> that will be used by default.
-        /// </summary>
         [CanBeNull]
         protected virtual IBindingMemberProvider GetBindingMemberProvider(IModuleContext context)
         {
             return null;
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IObserverProvider" /> that will be used by default.
-        /// </summary>
         [CanBeNull]
         protected virtual IObserverProvider GetObserverProvider(IModuleContext context)
         {
             return null;
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IBindingContextManager" /> that will be used by default.
-        /// </summary>
         [CanBeNull]
         protected virtual IBindingContextManager GetBindingContextManager(IModuleContext context)
         {
             return null;
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IBindingResourceResolver" /> that will be used by default.
-        /// </summary>
         [CanBeNull]
         protected virtual IBindingResourceResolver GetBindingResourceResolver(IModuleContext context)
         {
             return null;
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IVisualTreeManager" /> that will be used by default.
-        /// </summary>
         [CanBeNull]
         protected virtual IVisualTreeManager GetVisualTreeManager(IModuleContext context)
         {
             return null;
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IWeakEventManager" /> that will be used by default.
-        /// </summary>
         [CanBeNull]
         protected virtual IWeakEventManager GetWeakEventManager(IModuleContext context)
         {

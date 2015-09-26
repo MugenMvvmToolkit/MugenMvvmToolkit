@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="MvvmDialogViewController.cs">
@@ -64,9 +64,6 @@ namespace MugenMvvmToolkit.iOS.Views
 
         #region Implementation of IViewControllerView
 
-        /// <summary>
-        ///     Gets the current <see cref="IMvvmViewControllerMediator" />.
-        /// </summary>
         public virtual IMvvmViewControllerMediator Mediator
         {
             get { return this.GetOrCreateMediator(ref _mediator); }

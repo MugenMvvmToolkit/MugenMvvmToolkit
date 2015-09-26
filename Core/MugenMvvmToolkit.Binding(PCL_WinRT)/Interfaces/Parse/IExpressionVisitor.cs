@@ -21,16 +21,8 @@ using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Parse
 {
-    /// <summary>
-    ///     Represents a visitor or rewriter for expression trees.
-    /// </summary>
     public interface IExpressionVisitor
     {
-        /// <summary>
-        ///     Dispatches the expression.
-        /// </summary>
-        /// <param name="node">The expression to visit.</param>
-        /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
         IExpressionNode Visit([NotNull] IExpressionNode node);
     }
 }

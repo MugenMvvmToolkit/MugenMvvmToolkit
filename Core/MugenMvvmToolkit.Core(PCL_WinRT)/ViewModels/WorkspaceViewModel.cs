@@ -25,17 +25,11 @@ using MugenMvvmToolkit.Models.Messages;
 
 namespace MugenMvvmToolkit.ViewModels
 {
-    /// <summary>
-    ///     Represents the base class for the view-model, which are displayed in the UI.
-    /// </summary>
     [BaseViewModel(Priority = 7)]
     public abstract class WorkspaceViewModel : WorkspaceViewModel<object>
     {
     }
 
-    /// <summary>
-    ///     Represents the base class for the view-model, which are displayed in the UI.
-    /// </summary>
     [BaseViewModel(Priority = 7)]
     public abstract class WorkspaceViewModel<TView> : CloseableViewModel, IWorkspaceViewModel, INavigableViewModel,
         IViewAwareViewModel<TView>
@@ -51,9 +45,6 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="WorkspaceViewModel{TView}" /> class.
-        /// </summary>
         protected WorkspaceViewModel()
         {
             _isSelected = false;
@@ -63,12 +54,6 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Implementation of interfaces
 
-        /// <summary>
-        ///     Called when a view-model becomes the active view-model in a frame.
-        /// </summary>
-        /// <param name="context">
-        ///     The specified <see cref="INavigationContext" />.
-        /// </param>
         void INavigableViewModel.OnNavigatedTo(INavigationContext context)
         {
             OnNavigatedTo(context);
@@ -76,31 +61,16 @@ namespace MugenMvvmToolkit.ViewModels
             Publish(StateChangedMessage.Empty);
         }
 
-        /// <summary>
-        ///     Called when a view-model is no longer the active view-model in a frame.
-        /// </summary>
-        /// <param name="context">
-        ///     The specified <see cref="INavigationContext" />.
-        /// </param>
         void INavigableViewModel.OnNavigatedFrom(INavigationContext context)
         {
             OnNavigatedFrom(context);
         }
 
-        /// <summary>
-        ///     Called just before a view-model is no longer the active view-model in a frame.
-        /// </summary>
-        /// <param name="context">
-        ///     The specified <see cref="INavigationContext" />.
-        /// </param>
         Task<bool> INavigableViewModel.OnNavigatingFrom(INavigationContext context)
         {
             return OnNavigatingFrom(context);
         }
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IView" />.
-        /// </summary>
         public TView View
         {
             get { return _view; }
@@ -115,9 +85,6 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the display name for the current model.
-        /// </summary>
         public virtual string DisplayName
         {
             get { return _displayName; }
@@ -129,9 +96,6 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the property that indicates that current model is selected.
-        /// </summary>
         public virtual bool IsSelected
         {
             get { return _isSelected; }
@@ -147,46 +111,19 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Methods
 
-        /// <summary>
-        ///     Called just before a view-model is no longer the active view-model in a frame.
-        /// </summary>
-        /// <param name="context">
-        ///     The specified <see cref="INavigationContext" />.
-        /// </param>
         protected virtual Task<bool> OnNavigatingFrom(INavigationContext context)
         {
             return Empty.TrueTask;
         }
 
-        /// <summary>
-        ///     Called when a view-model is no longer the active view-model in a frame.
-        /// </summary>
-        /// <param name="context">
-        ///     The specified <see cref="INavigationContext" />.
-        /// </param>
         protected virtual void OnNavigatedFrom(INavigationContext context)
         {
         }
 
-        /// <summary>
-        ///     Called when a view-model becomes the active view-model in a frame.
-        /// </summary>
-        /// <param name="context">
-        ///     The specified <see cref="INavigationContext" />.
-        /// </param>
         protected virtual void OnNavigatedTo(INavigationContext context)
         {
         }
 
-        /// <summary>
-        ///     Occurs when an <see cref="IView" /> for the current <see cref="WorkspaceViewModel{TView}" /> changed.
-        /// </summary>
-        /// <param name="oldView">
-        ///     The old value of <see cref="IView" />.
-        /// </param>
-        /// <param name="newView">
-        ///     The new value of <see cref="IView" />.
-        /// </param>
         protected virtual void OnViewChanged(TView oldView, TView newView)
         {
         }

@@ -24,9 +24,6 @@ using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the observer that uses the empty path member to observe.
-    /// </summary>
     public sealed class EmptyPathObserver : ObserverBase
     {
         #region Nested types
@@ -93,9 +90,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="EmptyPathObserver" /> class.
-        /// </summary>
         public EmptyPathObserver([NotNull] object source, [NotNull] IBindingPath path)
             : base(source, path)
         {
@@ -107,32 +101,20 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Overrides of ObserverBase
 
-        /// <summary>
-        ///     Indicates that current observer dependes on <see cref="ObserverBase.ValueChanged" /> subscribers.
-        /// </summary>
         protected override bool DependsOnSubscribers
         {
             get { return true; }
         }
 
-        /// <summary>
-        ///     Updates the current values.
-        /// </summary>
         protected override IBindingPathMembers UpdateInternal(IBindingPathMembers oldPath, bool hasSubscribers)
         {
             return _members;
         }
 
-        /// <summary>
-        ///     Releases the current observers.
-        /// </summary>
         protected override void ClearObserversInternal()
         {
         }
 
-        /// <summary>
-        ///     Creates the source event listener.
-        /// </summary>
         protected override IEventListener CreateSourceListener()
         {
             return _members;

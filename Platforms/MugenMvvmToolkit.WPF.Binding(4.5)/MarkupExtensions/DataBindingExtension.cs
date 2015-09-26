@@ -38,9 +38,6 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
 
 // ReSharper restore CheckNamespace
 {
-    /// <summary>
-    ///     Provides high-level access to the definition of a binding, which connects the properties of binding target objects.
-    /// </summary>
     public partial class DataBindingExtension : MarkupExtension
     {
         #region Fields
@@ -52,18 +49,12 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of a class derived from <see cref="DataBindingExtension" />.
-        /// </summary>
         public DataBindingExtension()
         {
             _targetMemberName = string.Empty;
         }
 
 #if WPF
-        /// <summary>
-        ///     Initializes a new instance of a class derived from <see cref="DataBindingExtension" />.
-        /// </summary>
         public DataBindingExtension(string path)
             : this()
         {
@@ -74,14 +65,6 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
 
         #region Overrides of MarkupExtension
 
-        /// <summary>
-        ///     When implemented in a derived class, returns an object that is provided as the value of the target property for
-        ///     this markup extension.
-        /// </summary>
-        /// <returns>
-        ///     The object value to set on the property where the extension is applied.
-        /// </returns>
-        /// <param name="serviceProvider">A service provider helper that can provide services for the markup extension.</param>
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
             var target = serviceProvider.GetService<IProvideValueTarget>();

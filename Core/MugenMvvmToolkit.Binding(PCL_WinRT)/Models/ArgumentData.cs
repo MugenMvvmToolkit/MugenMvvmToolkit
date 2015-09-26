@@ -30,7 +30,7 @@ namespace MugenMvvmToolkit.Binding.Models
         private readonly bool _isTypeAccess;
         private Expression _expression;
         private Type _type;
-        
+
         #endregion
 
         #region Constuctors

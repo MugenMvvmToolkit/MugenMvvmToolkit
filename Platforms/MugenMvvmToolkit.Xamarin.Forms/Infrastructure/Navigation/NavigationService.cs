@@ -70,25 +70,16 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         #region Implementation of INavigationService
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate back.
-        /// </summary>
         public bool CanGoBack
         {
             get { return CurrentContent != null; }
         }
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate forward.
-        /// </summary>
         public bool CanGoForward
         {
             get { return false; }
         }
 
-        /// <summary>
-        ///     The current content.
-        /// </summary>
         public object CurrentContent
         {
             get
@@ -99,9 +90,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             }
         }
 
-        /// <summary>
-        ///     Navigates back.
-        /// </summary>
         public void GoBack()
         {
             if (_rootPage != null)
@@ -114,17 +102,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             }
         }
 
-        /// <summary>
-        ///     Navigates forward.
-        /// </summary>
         public void GoForward()
         {
             throw new NotSupportedException();
         }
 
-        /// <summary>
-        ///     Updates the current root page.
-        /// </summary>
         public void UpdateRootPage(NavigationPage page)
         {
             if (_rootPage != null)
@@ -147,9 +129,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                 OperationPriority.Low);
         }
 
-        /// <summary>
-        ///     Gets a navigation parameter from event args.
-        /// </summary>
         public string GetParameterFromArgs(EventArgs args)
         {
             Should.NotBeNull(args, "args");
@@ -164,9 +143,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             return cancelArgs.Parameter;
         }
 
-        /// <summary>
-        ///     Navigates using cancel event args.
-        /// </summary>
         public bool Navigate(NavigatingCancelEventArgsBase args, IDataContext context)
         {
             Should.NotBeNull(args, "args");
@@ -184,22 +160,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             return Navigate(eventArgs.Mapping, eventArgs.Parameter, context);
         }
 
-        /// <summary>
-        ///     Displays the content located at the specified <see cref="IViewMappingItem" />.
-        /// </summary>
-        /// <param name="source">
-        ///     The <c>IViewPageMappingItem</c> of the content to display.
-        /// </param>
-        /// <param name="parameter">
-        ///     A <see cref="T:System.Object" /> that contains data to be used for processing during
-        ///     navigation.
-        /// </param>
-        /// <param name="dataContext">
-        ///     The specified <see cref="IDataContext" />.
-        /// </param>
-        /// <returns>
-        ///     <c>true</c> if the content was successfully displayed; otherwise, <c>false</c>.
-        /// </returns>
         public bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, "source");
@@ -229,9 +189,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             return true;
         }
 
-        /// <summary>
-        ///     Determines whether the specified command <c>CloseCommand</c> can be execute.
-        /// </summary>
         public bool CanClose(IViewModel viewModel, IDataContext dataContext)
         {
             Should.NotBeNull(viewModel, "viewModel");
@@ -246,9 +203,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             return false;
         }
 
-        /// <summary>
-        ///     Tries to close view-model page.
-        /// </summary>
         public bool TryClose(IViewModel viewModel, IDataContext dataContext)
         {
             Should.NotBeNull(viewModel, "viewModel");
@@ -276,14 +230,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             return result;
         }
 
-        /// <summary>
-        ///     Raised prior to navigation.
-        /// </summary>
         public event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
 
-        /// <summary>
-        ///     Raised after navigation.
-        /// </summary>
         public event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
 
         #endregion

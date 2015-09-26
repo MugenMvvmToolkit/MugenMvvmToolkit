@@ -33,9 +33,6 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes the <see cref="ItemsSourceChangedEventArgs" />.
-        /// </summary>
         public ItemsSourceChangedEventArgs([CanBeNull]IEnumerable value)
         {
             _value = value;
@@ -45,9 +42,6 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the new value of items source.
-        /// </summary>
         [CanBeNull]
         public IEnumerable Value
         {
@@ -61,9 +55,6 @@ namespace MugenMvvmToolkit.Models.EventArg
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes the <see cref="ItemsSourceChangedEventArgs{T}" />.
-        /// </summary>
         public ItemsSourceChangedEventArgs([CanBeNull]IEnumerable<T> value)
             : base(value)
         {
@@ -73,9 +64,6 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the new value of items source.
-        /// </summary>
         [CanBeNull]
         public new IEnumerable<T> Value
         {

@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="PlatformWrapperRegistrationModule.cs">
@@ -82,9 +82,6 @@ namespace MugenMvvmToolkit.WPF.Modules
 
         #region Overrides of WrapperRegistrationModuleBase
 
-        /// <summary>
-        ///     Registers the wrappers using <see cref="WrapperManager" /> class.
-        /// </summary>
         protected override void RegisterWrappers(WrapperManager wrapperManager)
         {
             wrapperManager.AddWrapper<IWindowView, WindowViewWrapper>(

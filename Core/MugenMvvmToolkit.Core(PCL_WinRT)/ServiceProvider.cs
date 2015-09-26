@@ -32,9 +32,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit
 {
-    /// <summary>
-    ///     Represents the service locator for MVVM infrastructure.
-    /// </summary>
     public static class ServiceProvider
     {
         #region Fields
@@ -75,27 +72,15 @@ namespace MugenMvvmToolkit
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the delegate to convert an object to <see cref="ISubscriber" />.
-        /// </summary>
         [CanBeNull]
         public static Func<object, IDataContext, ISubscriber> ObjectToSubscriberConverter { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the factory that creates an empty instance of editable entity.
-        /// </summary>
         [CanBeNull]
         public static Func<Type, object> DefaultEntityFactory { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the metadata type provider.
-        /// </summary>
         [CanBeNull]
         public static Func<Type, IEnumerable<Type>> EntityMetadataTypeProvider { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the factory that creates a instance of <see cref="WeakReference" />.
-        /// </summary>
         [NotNull]
         public static Func<object, WeakReference> WeakReferenceFactory
         {
@@ -103,9 +88,6 @@ namespace MugenMvvmToolkit
             set { _weakReferenceFactory = value ?? CreateWeakReference; }
         }
 
-        /// <summary>
-        ///     Gets or sets the factory that creates an instance of <see cref="IEventAggregator" /> for the specified item.
-        /// </summary>
         [NotNull]
         public static Func<object, IEventAggregator> InstanceEventAggregatorFactory
         {
@@ -113,15 +95,9 @@ namespace MugenMvvmToolkit
             set { _instanceEventAggregatorFactory = value ?? GetInstanceEventAggregator; }
         }
 
-        /// <summary>
-        ///     Gets or sets the default <see cref="IItemsSourceDecorator" />.
-        /// </summary>
         [CanBeNull]
         public static IItemsSourceDecorator ItemsSourceDecorator { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the root <see cref="IIocContainer" />.
-        /// </summary>
         public static IIocContainer IocContainer
         {
             get
@@ -132,9 +108,6 @@ namespace MugenMvvmToolkit
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the default <see cref="IThreadManager" />.
-        /// </summary>
         [NotNull]
         public static IThreadManager ThreadManager
         {
@@ -147,9 +120,6 @@ namespace MugenMvvmToolkit
             set { _threadManager = value; }
         }
 
-        /// <summary>
-        ///     Gets or sets the attached value provider.
-        /// </summary>
         [NotNull]
         public static IAttachedValueProvider AttachedValueProvider
         {
@@ -162,9 +132,6 @@ namespace MugenMvvmToolkit
             set { _attachedValueProvider = value; }
         }
 
-        /// <summary>
-        ///     Gets or sets the default <see cref="IReflectionManager" />.
-        /// </summary>
         [NotNull]
         public static IReflectionManager ReflectionManager
         {
@@ -177,9 +144,6 @@ namespace MugenMvvmToolkit
             set { ReflectionManagerField = value; }
         }
 
-        /// <summary>
-        ///     Gets or sets the default tracer
-        /// </summary>
         [NotNull]
         public static ITracer Tracer
         {
@@ -192,9 +156,6 @@ namespace MugenMvvmToolkit
             set { _tracer = value; }
         }
 
-        /// <summary>
-        ///     Gets or sets the default <see cref="IOperationCallbackFactory" />.
-        /// </summary>
         [NotNull]
         public static IOperationCallbackFactory OperationCallbackFactory
         {
@@ -207,9 +168,6 @@ namespace MugenMvvmToolkit
             set { _operationCallbackFactory = value; }
         }
 
-        /// <summary>
-        ///     Gets or sets the default <see cref="IValidatorProvider" />.
-        /// </summary>
         [NotNull]
         public static IValidatorProvider ValidatorProvider
         {
@@ -222,9 +180,6 @@ namespace MugenMvvmToolkit
             set { ValidatorProviderField = value; }
         }
 
-        /// <summary>
-        ///     Gets or sets the default <see cref="IDesignTimeManager" />.
-        /// </summary>
         [NotNull]
         public static IDesignTimeManager DesignTimeManager
         {
@@ -237,9 +192,6 @@ namespace MugenMvvmToolkit
             set { _designTimeManager = value; }
         }
 
-        /// <summary>
-        ///     Gets or sets the default <see cref="IViewModelProvider" />.
-        /// </summary>
         [NotNull]
         public static IViewModelProvider ViewModelProvider
         {
@@ -252,9 +204,6 @@ namespace MugenMvvmToolkit
             set { _viewModelProvider = value; }
         }
 
-        /// <summary>
-        ///     Gets or sets the default <see cref="IEventAggregator" />.
-        /// </summary>
         [NotNull]
         public static IEventAggregator EventAggregator
         {
@@ -271,9 +220,6 @@ namespace MugenMvvmToolkit
 
         #region Methods
 
-        /// <summary>
-        ///    Tries to get an instance of the specified service.
-        /// </summary>
         [Pure]
         public static bool TryGet(Type type, out object result, string name = null,
             params IIocParameter[] parameters)
@@ -282,7 +228,7 @@ namespace MugenMvvmToolkit
             if (iocContainer == null)
             {
 #if PCL_WINRT
-                result = type.GetTypeInfo().IsValueType ? Activator.CreateInstance(type) : null;                
+                result = type.GetTypeInfo().IsValueType ? Activator.CreateInstance(type) : null;
 #else
                 result = type.IsValueType ? Activator.CreateInstance(type) : null;
 #endif
@@ -291,9 +237,6 @@ namespace MugenMvvmToolkit
             return iocContainer.TryGet(type, out result, name, parameters);
         }
 
-        /// <summary>
-        ///    Tries to get an instance of the specified service.
-        /// </summary>
         [Pure]
         public static bool TryGet<T>(out T result, string name = null,
             params IIocParameter[] parameters)
@@ -307,18 +250,12 @@ namespace MugenMvvmToolkit
             return iocContainer.TryGet(out result, name, parameters);
         }
 
-        /// <summary>
-        ///     Gets or creates an instance of the specified type using that type's.
-        /// </summary>
         [Pure]
         public static T GetOrCreate<T>()
         {
             return (T)GetOrCreate(typeof(T));
         }
 
-        /// <summary>
-        ///     Gets or creates an instance of the specified type using that type's.
-        /// </summary>
         [Pure]
         public static object GetOrCreate(Type type)
         {
@@ -328,18 +265,12 @@ namespace MugenMvvmToolkit
             return iocContainer.Get(type);
         }
 
-        /// <summary>
-        ///     Gets an instance of the specified service.
-        /// </summary>
         [Pure]
         public static T Get<T>(string name = null, params IIocParameter[] parameters)
         {
             return (T)Get(typeof(T), name, parameters);
         }
 
-        /// <summary>
-        ///     Gets an instance of the specified service.
-        /// </summary>
         [Pure]
         public static object Get(Type type, string name = null, params IIocParameter[] parameters)
         {

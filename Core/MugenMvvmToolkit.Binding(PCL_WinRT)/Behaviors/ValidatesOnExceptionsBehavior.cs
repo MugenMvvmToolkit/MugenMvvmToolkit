@@ -26,23 +26,14 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
-    /// <summary>
-    ///     Represents the binding behavior that allows to validate target on a binding exception.
-    /// </summary>
     public sealed class ValidatesOnExceptionsBehavior : IBindingBehavior
     {
         #region Fields
 
         private const string Key = "@@#bexc.";
 
-        /// <summary>
-        ///     Gets the id of behavior.
-        /// </summary>
         public static readonly Guid IdValidatesOnExceptionsBehavior;
 
-        /// <summary>
-        ///     Gets the instance of a <see cref="ValidatesOnExceptionsBehavior" /> class.
-        /// </summary>
         public static readonly ValidatesOnExceptionsBehavior Instance;
 
         private static readonly EventHandler<IDataBinding, BindingEventArgs> BindingUpdatedDelegate;
@@ -69,35 +60,22 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets a value that is responsible for the selection exception for the display.
-        /// </summary>
         public static bool ShowOriginalException { get; set; }
 
         #endregion
 
         #region Implementation of IBindingBehavior
 
-        /// <summary>
-        ///     Gets the id of behavior. Each <see cref="IDataBinding" /> can have only one instance with the same id.
-        /// </summary>
         public Guid Id
         {
             get { return IdValidatesOnExceptionsBehavior; }
         }
 
-        /// <summary>
-        ///     Gets the behavior priority.
-        /// </summary>
         public int Priority
         {
             get { return 0; }
         }
 
-        /// <summary>
-        ///     Attaches to the specified binding.
-        /// </summary>
-        /// <param name="binding">The binding to attach to.</param>
         public bool Attach(IDataBinding binding)
         {
             if (BindingServiceProvider.ErrorProvider == null)
@@ -107,9 +85,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             return true;
         }
 
-        /// <summary>
-        ///     Detaches this instance from its associated binding.
-        /// </summary>
         public void Detach(IDataBinding binding)
         {
             binding.BindingException -= BindingExceptionDelegate;
@@ -123,9 +98,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             SetErrors(errorProvider, binding, Empty.Array<object>(), context);
         }
 
-        /// <summary>
-        ///     Creates a new binding behavior that is a copy of the current instance.
-        /// </summary>
         public IBindingBehavior Clone()
         {
             return this;

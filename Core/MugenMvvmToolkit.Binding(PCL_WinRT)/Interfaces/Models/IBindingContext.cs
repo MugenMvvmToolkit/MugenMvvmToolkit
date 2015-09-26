@@ -20,32 +20,17 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Models
 {
-    /// <summary>
-    ///     Represents the binding context.
-    /// </summary>
     public interface IBindingContext : ISourceValue
     {
-        /// <summary>
-        ///     Gets the source object.
-        /// </summary>
         [CanBeNull]
         object Source { get; }
 
-        /// <summary>
-        ///     Gets or sets the data context.
-        /// </summary>
         [CanBeNull]
         new object Value { get; set; }
     }
 
-    /// <summary>
-    ///     Represents the binding context holder.
-    /// </summary>
     public interface IBindingContextHolder
     {
-        /// <summary>
-        ///     Gets the current binding context.
-        /// </summary>
         [NotNull]
         IBindingContext BindingContext { get; }
     }

@@ -30,9 +30,6 @@ using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the provider that allows to creates and restores the view models.
-    /// </summary>
     public class ViewModelProvider : IViewModelProvider
     {
         #region Nested types
@@ -245,7 +242,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public object Container
             {
-                get { return IocContainer.Container; }
+                get { return IocContainer; }
             }
 
             public IIocContainer CreateChild()
@@ -363,13 +360,6 @@ namespace MugenMvvmToolkit.Infrastructure
             Tracer.TraceViewModelHandler += OnTraceViewModel;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewModelProvider" /> class.
-        /// </summary>
-        /// <param name="iocContainer">The specified <see cref="IIocContainer" /> value.</param>
-        /// <param name="bindIocContainer">
-        ///     If <c>true</c> it indicates that provider should bind IocContainer to self, when creates the view model.
-        /// </param>
         public ViewModelProvider([NotNull] IIocContainer iocContainer, bool bindIocContainer = false)
         {
             Should.NotBeNull(iocContainer, "iocContainer");
@@ -381,15 +371,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets value, if <c>true</c> it indicates that provider should bind IocContainer to self, when creates the
-        ///     view-model.
-        /// </summary>
         public bool BindIocContainer { get; set; }
 
-        /// <summary>
-        ///     Gets the <see cref="IIocContainer" />.
-        /// </summary>
         protected IIocContainer IocContainer
         {
             get { return _iocContainer; }
@@ -399,14 +382,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of IViewModelProvider
 
-        /// <summary>
-        ///     Creates an instance of the specified view model.
-        /// </summary>
-        /// <param name="getViewModel">The specified delegate to create view model.</param>
-        /// <param name="dataContext">The specified <see cref="IDataContext" />.</param>
-        /// <returns>
-        ///     An instance of <see cref="IViewModel" />.
-        /// </returns>
         public IViewModel GetViewModel(GetViewModelDelegate<IViewModel> getViewModel, IDataContext dataContext)
         {
             Should.NotBeNull(getViewModel, "getViewModel");
@@ -419,14 +394,6 @@ namespace MugenMvvmToolkit.Infrastructure
             return viewModel;
         }
 
-        /// <summary>
-        ///     Creates an instance of the specified view model.
-        /// </summary>
-        /// <param name="viewModelType">The type of view model.</param>
-        /// <param name="dataContext">The specified <see cref="IDataContext" />.</param>
-        /// <returns>
-        ///     An instance of <see cref="IViewModel" />.
-        /// </returns>
         public IViewModel GetViewModel(Type viewModelType, IDataContext dataContext)
         {
             Should.NotBeNull(viewModelType, "viewModelType");
@@ -440,24 +407,12 @@ namespace MugenMvvmToolkit.Infrastructure
             return viewModel;
         }
 
-        /// <summary>
-        ///     Initializes the specified <see cref="IViewModel" />, use this method if you have created an
-        ///     <see cref="IViewModel" />
-        ///     without using the GetViewModel method.
-        /// </summary>
-        /// <param name="viewModel">
-        ///     The specified <see cref="IViewModel" />.
-        /// </param>
-        /// <param name="dataContext">The specified <see cref="IDataContext" />.</param>
         public void InitializeViewModel(IViewModel viewModel, IDataContext dataContext)
         {
             Should.NotBeNull(viewModel, "viewModel");
             InitializeViewModel(viewModel, dataContext ?? DataContext.Empty, null);
         }
 
-        /// <summary>
-        ///     Preserves the view model state.
-        /// </summary>
         public IDataContext PreserveViewModel(IViewModel viewModel, IDataContext dataContext)
         {
             Should.NotBeNull(viewModel, "viewModel");
@@ -479,17 +434,6 @@ namespace MugenMvvmToolkit.Infrastructure
             return state;
         }
 
-        /// <summary>
-        ///     Restores the view model from state context.
-        /// </summary>
-        /// <param name="viewModelState">The specified state <see cref="IDataContext" />.</param>
-        /// <param name="throwOnError">
-        ///     <c>true</c> to throw an exception if the view model cannot be restored; <c>false</c> to return null.
-        /// </param>
-        /// <param name="dataContext">The specified <see cref="IDataContext" />.</param>
-        /// <returns>
-        ///     An instance of <see cref="IViewModel" />.
-        /// </returns>
         public IViewModel RestoreViewModel(IDataContext viewModelState, IDataContext dataContext, bool throwOnError)
         {
             try
@@ -551,9 +495,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Tries to get restored view model by id.
-        /// </summary>
         public static IViewModel TryGetViewModelById(Guid idViewModel)
         {
             lock (RestoredViewModels)
@@ -565,9 +506,6 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Preserves the view model state.
-        /// </summary>
         [NotNull]
         protected virtual IDataContext PreserveViewModelInternal(IViewModel viewModel, IDataContext dataContext)
         {
@@ -579,9 +517,6 @@ namespace MugenMvvmToolkit.Infrastructure
             return state;
         }
 
-        /// <summary>
-        ///     Restores the view model from state context.
-        /// </summary>
         [CanBeNull]
         protected virtual IViewModel RestoreViewModel([NotNull] IDataContext viewModelState, [NotNull] IDataContext dataContext)
         {
@@ -608,25 +543,16 @@ namespace MugenMvvmToolkit.Infrastructure
             return viewModel;
         }
 
-        /// <summary>
-        ///     Occurs when the view model state is preserved.
-        /// </summary>
         protected virtual void OnViewModelPreserved([NotNull] IViewModel viewModel, [NotNull] IDataContext viewModelState,
             [NotNull] IDataContext dataContext)
         {
         }
 
-        /// <summary>
-        ///     Occurs when the view model state is restored.
-        /// </summary>
         protected virtual void OnViewModelRestored([NotNull] IViewModel viewModel, [NotNull] IDataContext viewModelState,
             [NotNull] IDataContext dataContext)
         {
         }
 
-        /// <summary>
-        ///     Occurs when restoring the view model state.
-        /// </summary>
         protected virtual void OnViewModelInitializing([NotNull]IViewModel viewModel, [NotNull] IDataContext dataContext)
         {
             if (!dataContext.GetData(InitializationConstants.IsRestored))
@@ -639,9 +565,6 @@ namespace MugenMvvmToolkit.Infrastructure
                 viewModelBase.IocContainer = dataContext.GetData(InitializationConstants.IocContainer);
         }
 
-        /// <summary>
-        ///     Initializes the specified <see cref="IViewModel" />.
-        /// </summary>
         protected virtual void InitializeViewModel([NotNull] IViewModel viewModel, [NotNull] IDataContext dataContext,
             [CanBeNull] IIocContainer iocContainer)
         {
@@ -656,9 +579,6 @@ namespace MugenMvvmToolkit.Infrastructure
             MergeParameters(dataContext, viewModel.Settings.Metadata);
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IocContainer" /> using the specified <see cref="IDataContext"/>.
-        /// </summary>
         protected virtual IIocContainer CreateViewModelIocContainer([NotNull] IDataContext dataContext)
         {
             IIocContainer container = dataContext.GetData(InitializationConstants.IocContainer);

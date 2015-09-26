@@ -18,14 +18,8 @@
 
 namespace MugenMvvmToolkit.Interfaces.Models
 {
-    /// <summary>
-    ///     Represents the model that has a display name.
-    /// </summary>
     public interface IHasDisplayName
     {
-        /// <summary>
-        ///     Gets or sets the display name for the current model.
-        /// </summary>
         string DisplayName { get; set; }
     }
 }

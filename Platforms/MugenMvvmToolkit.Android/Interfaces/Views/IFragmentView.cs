@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="IFragmentView.cs">
@@ -35,20 +35,11 @@ namespace MugenMvvmToolkit.Android.Interfaces.Views
 {
     public interface IFragmentView : IView
     {
-        /// <summary>
-        ///     Gets the current <see cref="IMvvmFragmentMediator" />.
-        /// </summary>
         [NotNull]
         IMvvmFragmentMediator Mediator { get; }
 
-        /// <summary>
-        ///     Gets or sets the data context of the current view.
-        /// </summary>
         object DataContext { get; set; }
 
-        /// <summary>
-        ///     Occurs when the DataContext property changed.
-        /// </summary>
         event EventHandler<Fragment, EventArgs> DataContextChanged;
     }
 }

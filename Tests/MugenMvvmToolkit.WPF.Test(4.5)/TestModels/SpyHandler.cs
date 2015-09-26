@@ -16,11 +16,6 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         #region Implementation of IHandler<in object>
 
-        /// <summary>
-        ///     Handles the message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">Information about event.</param>
         void IHandler<object>.Handle(object sender, object message)
         {
             HandleCount++;

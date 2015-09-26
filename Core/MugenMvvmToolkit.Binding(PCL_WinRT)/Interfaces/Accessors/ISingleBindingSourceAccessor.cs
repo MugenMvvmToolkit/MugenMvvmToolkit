@@ -20,14 +20,8 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Accessors
 {
-    /// <summary>
-    ///     Represents the accessor for the binding source.
-    /// </summary>
     public interface ISingleBindingSourceAccessor : IBindingSourceAccessor
     {
-        /// <summary>
-        ///     Gets the underlying source.
-        /// </summary>
         [NotNull]
         IObserver Source { get; }
     }

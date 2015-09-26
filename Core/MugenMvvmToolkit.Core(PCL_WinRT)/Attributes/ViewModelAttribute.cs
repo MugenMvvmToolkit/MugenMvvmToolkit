@@ -23,9 +23,6 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 
 namespace MugenMvvmToolkit.Attributes
 {
-    /// <summary>
-    ///     Attribute class used to specify a specific view model to be used on the target element.
-    /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
     public class ViewModelAttribute : Attribute
     {
@@ -38,11 +35,6 @@ namespace MugenMvvmToolkit.Attributes
 
         #region Constructor
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewModelAttribute" /> class.
-        /// </summary>
-        /// <param name="viewModelType">The specified type of view model.</param>
-        /// <param name="name">The name of view mapping</param>
         public ViewModelAttribute([NotNull, ViewModelTypeRequired] Type viewModelType, string name = null)
         {
             Should.NotBeNull(viewModelType, "viewModelType");
@@ -55,28 +47,16 @@ namespace MugenMvvmToolkit.Attributes
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the url.
-        /// </summary>
         public string Uri { get; set; }
 
-        /// <summary>
-        ///     Gets the type of view model.
-        /// </summary>
         [NotNull]
         public Type ViewModelType
         {
             get { return _viewModelType; }
         }
 
-        /// <summary>
-        ///     Gets or sets the <see cref="UriKind" />.
-        /// </summary>
         public UriKind UriKind { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the name of view binding.
-        /// </summary>
         public string Name
         {
             get { return _name; }

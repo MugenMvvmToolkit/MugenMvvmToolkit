@@ -35,9 +35,6 @@ using MugenMvvmToolkit.WinForms.Interfaces.Views;
 namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
 #endif
 {
-    /// <summary>
-    ///     Represents the mediator class for dialog view.
-    /// </summary>
     public class WindowViewMediator : WindowViewMediatorBase<IWindowView>
     {
         #region Fields
@@ -49,9 +46,6 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NotifyPropertyChangedBase" /> class.
-        /// </summary>
         public WindowViewMediator([NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
             [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IOperationCallbackManager callbackManager)
             : base(viewModel, threadManager, viewManager, wrapperManager, callbackManager)
@@ -59,9 +53,6 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
         }
 
 #if WPF
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NotifyPropertyChangedBase" /> class.
-        /// </summary>
         internal WindowViewMediator([NotNull] NavigationWindow window, [NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
              [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IOperationCallbackManager callbackManager)
             : base(viewModel, threadManager, viewManager, wrapperManager, callbackManager)
@@ -75,9 +66,6 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
 
         #region Overrides of WindowViewMediatorBase<IWindowView>
 
-        /// <summary>
-        ///     Shows the view in the specified mode.
-        /// </summary>
         protected override void ShowView(IWindowView view, bool isDialog, IDataContext context)
         {
             if (isDialog)
@@ -86,35 +74,22 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
                 view.Show();
         }
 
-        /// <summary>
-        ///     Closes the view.
-        /// </summary>
         protected override void CloseView(IWindowView view)
         {
             view.Close();
         }
 
-        /// <summary>
-        ///     Initializes the specified dialog view.
-        /// </summary>
         protected override void InitializeView(IWindowView windowView, IDataContext context)
         {
             windowView.Closing += OnClosing;
         }
 
-        /// <summary>
-        ///     Clears the specified dialog view.
-        /// </summary>
-        /// <param name="windowView">The specified window-view to dispose.</param>
         protected override void CleanupView(IWindowView windowView)
         {
             windowView.Closing -= OnClosing;
         }
 
 #if WPF
-        /// <summary>
-        ///     Gets the underlying view model.
-        /// </summary>
         public override IViewModel ViewModel
         {
             get

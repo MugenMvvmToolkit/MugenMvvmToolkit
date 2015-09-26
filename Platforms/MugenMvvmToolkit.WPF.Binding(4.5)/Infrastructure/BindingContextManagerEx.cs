@@ -142,9 +142,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
                 }
             }
 
-            /// <summary>
-            ///     Occurs when the <see cref="Value"/>  property changed.
-            /// </summary>
             public event EventHandler<ISourceValue, EventArgs> ValueChanged;
 
             #endregion
@@ -180,9 +177,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 #endif
         }
 
-        /// <summary>
-        /// Gets or sets the value that indicates that context should listen the Unload event.
-        /// </summary>
         public static bool ListenUnloadEvent { get; set; }
 #endif
 
@@ -190,10 +184,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 
         #region Overrides of BindingContextManager
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IBindingContext" /> for the specified item.
-        /// </summary>
-        /// <returns>An instnace of <see cref="IBindingContext" />.</returns>
         protected override IBindingContext CreateBindingContext(object item)
         {
             var member = item as FrameworkElement;

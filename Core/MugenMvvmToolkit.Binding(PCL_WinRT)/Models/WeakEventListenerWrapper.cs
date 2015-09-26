@@ -23,17 +23,11 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
-    /// <summary>
-    ///     Represents the weak event listener container.
-    /// </summary>
     [StructLayout(LayoutKind.Auto)]
     public struct WeakEventListenerWrapper
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the empty instance of <see cref="WeakEventListenerWrapper" />.
-        /// </summary>
         public static readonly WeakEventListenerWrapper Empty;
 
         private readonly object _item;
@@ -47,10 +41,6 @@ namespace MugenMvvmToolkit.Binding.Models
             Empty = default(WeakEventListenerWrapper);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="WeakEventListenerWrapper" /> class, referencing the specified
-        ///     listener.
-        /// </summary>
         public WeakEventListenerWrapper(IEventListener listener)
         {
             if (listener.IsWeak)
@@ -63,25 +53,16 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the value that indicates that struct is empty.
-        /// </summary>
         public bool IsEmpty
         {
             get { return _item == null; }
         }
 
-        /// <summary>
-        ///     Gets the undelying object.
-        /// </summary>
         public object Source
         {
             get { return _item; }
         }
 
-        /// <summary>
-        ///     Gets the current event listener, if any.
-        /// </summary>
         [NotNull]
         public IEventListener EventListener
         {

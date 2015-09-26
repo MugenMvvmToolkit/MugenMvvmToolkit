@@ -37,9 +37,6 @@ using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Infrastructure
 {
-    /// <summary>
-    ///     Represents the base class that is used to start MVVM application.
-    /// </summary>
     public abstract class TouchBootstrapperBase : BootstrapperBase
     {
         #region Fields
@@ -64,9 +61,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="TouchBootstrapperBase" /> class.
-        /// </summary>
         protected TouchBootstrapperBase([NotNull] UIWindow window, PlatformInfo platform = null)
         {
             Should.NotBeNull(window, "window");
@@ -79,26 +73,17 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the current app window.
-        /// </summary>
         protected UIWindow Window
         {
             get { return _window; }
         }
 
-        /// <summary>
-        ///     Indicates that bootstrapper should wraps the main controller to the navigation controller, default is <c>true</c>.
-        /// </summary>
         public bool WrapToNavigationController { get; set; }
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Initializes the current bootstrapper.
-        /// </summary>
         protected override void InitializeInternal()
         {
             var application = CreateApplication();
@@ -109,9 +94,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
                 iocContainer.BindToConstant(_navigationService);
         }
 
-        /// <summary>
-        ///     Starts the current bootstrapper.
-        /// </summary>
         public virtual void Start()
         {
             Initialize();
@@ -127,18 +109,12 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
                 _window.RootViewController = (UIViewController)ViewManager.GetOrCreateView(viewModel, null, ctx);
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="INavigationService" />.
-        /// </summary>
         [CanBeNull]
         protected virtual INavigationService CreateNavigationService(UIWindow window)
         {
             return new NavigationService(window);
         }
 
-        /// <summary>
-        ///     Gets the application assemblies.
-        /// </summary>
         protected virtual ICollection<Assembly> GetAssemblies()
         {
             return new HashSet<Assembly>(AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies());

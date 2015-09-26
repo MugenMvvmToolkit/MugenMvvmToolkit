@@ -33,13 +33,6 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Collections
 {
-    /// <summary>
-    ///     Represents the collection which supports custom filter and <see cref="INotifyCollectionChanged" />,
-    ///     <see
-    ///         cref="INotifyPropertyChanged" />
-    ///     events.
-    /// </summary>
-    /// <typeparam name="T">The type of model.</typeparam>
     [DataContract(IsReference = true, Namespace = ApplicationSettings.DataContractNamespace), Serializable]
     public class FilterableNotifiableCollection<T> : SynchronizedNotifiableCollection<T>
     {
@@ -62,33 +55,21 @@ namespace MugenMvvmToolkit.Collections
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="FilterableNotifiableCollection{T}" /> class.
-        /// </summary>
         public FilterableNotifiableCollection()
             : base(new ObservableCollection<T>(), null)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="FilterableNotifiableCollection{T}" /> class.
-        /// </summary>
         public FilterableNotifiableCollection(IThreadManager threadManager)
             : base(new ObservableCollection<T>(), threadManager)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="FilterableNotifiableCollection{T}" /> class.
-        /// </summary>
         public FilterableNotifiableCollection([NotNull] IList<T> list, IThreadManager threadManager = null)
             : base(list.IsReadOnly ? new ObservableCollection<T>(list) : list, threadManager)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="FilterableNotifiableCollection{T}" /> class.
-        /// </summary>
         public FilterableNotifiableCollection([NotNull] IEnumerable<T> collection, IThreadManager threadManager = null)
             : base(new ObservableCollection<T>(collection), threadManager)
         {
@@ -98,9 +79,6 @@ namespace MugenMvvmToolkit.Collections
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the filter.
-        /// </summary>
         [XmlIgnore]
         public FilterDelegate<T> Filter
         {
@@ -119,26 +97,17 @@ namespace MugenMvvmToolkit.Collections
             }
         }
 
-        /// <summary>
-        ///     Gets the source <see cref="IList{T}" />.
-        /// </summary>
         public IList<T> SourceCollection
         {
             get { return Items; }
         }
 
-        /// <summary>
-        ///     Indicates that always need reset internal collection on any changes in original collection.
-        /// </summary>
         public bool AlwaysReset { get; set; }
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Updates a filter.
-        /// </summary>
         public void UpdateFilter()
         {
             bool shouldRaiseEvents;
@@ -150,9 +119,6 @@ namespace MugenMvvmToolkit.Collections
                 RaiseEvents();
         }
 
-        /// <summary>
-        ///     Updates a filter.
-        /// </summary>
         protected virtual void UpdateFilterInternal(out bool shouldRaiseEvents)
         {
             FilterDelegate<T> currentFilter = _filter;
@@ -170,9 +136,6 @@ namespace MugenMvvmToolkit.Collections
             shouldRaiseEvents = true;
         }
 
-        /// <summary>
-        ///     Occurs when source collection changed.
-        /// </summary>
         protected virtual void OnSourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             bool shouldRaiseEvents;
@@ -317,12 +280,6 @@ namespace MugenMvvmToolkit.Collections
 
         #region Overrides of SynchronizedNotifiableCollection<T>
 
-        /// <summary>
-        ///     Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.
-        /// </summary>
-        /// <returns>
-        ///     The number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.
-        /// </returns>
         protected override int CountInternal
         {
             get
@@ -333,9 +290,6 @@ namespace MugenMvvmToolkit.Collections
             }
         }
 
-        /// <summary>
-        ///     Initializes default values.
-        /// </summary>
         protected override void OnInitialized()
         {
             base.OnInitialized();
@@ -349,9 +303,6 @@ namespace MugenMvvmToolkit.Collections
                 _notifyCollectionChanged.CollectionChanged += OnSourceCollectionChanged;
         }
 
-        /// <summary>
-        ///     Removes all items from the collection.
-        /// </summary>
         protected override void ClearItemsInternal(out bool shouldRaiseEvents)
         {
             shouldRaiseEvents = true;
@@ -379,13 +330,6 @@ namespace MugenMvvmToolkit.Collections
             UpdateFilterInternal(out shouldRaiseEvents);
         }
 
-        /// <summary>
-        ///     Removes the item at the specified index of the collection.
-        /// </summary>
-        /// <param name="index">
-        ///     The zero-based index of the element to remove.
-        /// </param>
-        /// <param name="shouldRaiseEvents"></param>
         protected override void RemoveItemInternal(int index, out bool shouldRaiseEvents)
         {
             shouldRaiseEvents = true;
@@ -422,16 +366,6 @@ namespace MugenMvvmToolkit.Collections
             EventsTracker.AddEvent(args.ChangedEventArgs);
         }
 
-        /// <summary>
-        ///     Replaces the element at the specified index.
-        /// </summary>
-        /// <param name="index">
-        ///     The zero-based index of the element to replace.
-        /// </param>
-        /// <param name="item">
-        ///     The new value for the element at the specified index.
-        /// </param>
-        /// <param name="shouldRaiseEvents"></param>
         protected override void SetItemInternal(int index, T item, out bool shouldRaiseEvents)
         {
             shouldRaiseEvents = true;
@@ -476,17 +410,6 @@ namespace MugenMvvmToolkit.Collections
             }
         }
 
-        /// <summary>
-        ///     Inserts an item into the collection at the specified index.
-        /// </summary>
-        /// <param name="index">
-        ///     The zero-based index at which <paramref name="item" /> should be inserted.
-        /// </param>
-        /// <param name="item">
-        ///     The object to insert.
-        /// </param>
-        /// <param name="isAdd"></param>
-        /// <param name="shouldRaiseEvents"></param>
         protected override int InsertItemInternal(int index, T item, bool isAdd, out bool shouldRaiseEvents)
         {
             shouldRaiseEvents = true;
@@ -541,15 +464,6 @@ namespace MugenMvvmToolkit.Collections
             return originalIndex;
         }
 
-        /// <summary>
-        ///     Determines the index of a specific item in the <see cref="T:System.Collections.Generic.IList`1" />.
-        /// </summary>
-        /// <returns>
-        ///     The index of <paramref name="item" /> if found in the list; otherwise, -1.
-        /// </returns>
-        /// <param name="item">
-        ///     The object to locate in the <see cref="T:System.Collections.Generic.IList`1" />.
-        /// </param>
         protected override int IndexOfInternal(T item)
         {
             if (_filter == null)
@@ -557,23 +471,12 @@ namespace MugenMvvmToolkit.Collections
             return _filterCollection.IndexOfValue(item);
         }
 
-        /// <summary>
-        ///     Copies the elements of the <see cref="T:System.Collections.Generic.ICollection`1" /> to an
-        ///     <see
-        ///         cref="T:System.Array" />
-        ///     , starting at a particular <see cref="T:System.Array" /> index.
-        /// </summary>
         protected override void CopyToInternal(Array array, int index)
         {
             for (int i = index; i < CountInternal; i++)
                 array.SetValue(GetItemInternal(i), i);
         }
 
-        /// <summary>
-        ///     Gets the element at the specified index.
-        /// </summary>
-        /// <param name="index">The zero-based index of the element to replace.</param>
-        /// <returns>An instance of T.</returns>
         protected override T GetItemInternal(int index)
         {
             if (index < 0 || index > CountInternal)
@@ -584,27 +487,11 @@ namespace MugenMvvmToolkit.Collections
             return _filterCollection.GetValue(index);
         }
 
-        /// <summary>
-        ///     Determines whether the <see cref="T:System.Collections.Generic.ICollection`1" /> contains a specific value.
-        /// </summary>
-        /// <returns>
-        ///     true if <paramref name="item" /> is found in the <see cref="T:System.Collections.Generic.ICollection`1" />;
-        ///     otherwise, false.
-        /// </returns>
-        /// <param name="item">
-        ///     The object to locate in the <see cref="T:System.Collections.Generic.ICollection`1" />.
-        /// </param>
         protected override bool ContainsInternal(T item)
         {
             return IsSatisfy(item) && Items.Contains(item);
         }
 
-        /// <summary>
-        ///     Returns an enumerator that iterates through the collection.
-        /// </summary>
-        /// <returns>
-        ///     A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.
-        /// </returns>
         protected override IEnumerator<T> GetEnumeratorInternal()
         {
             if (_filter == null)
@@ -612,18 +499,12 @@ namespace MugenMvvmToolkit.Collections
             return GetValues().GetEnumerator();
         }
 
-        /// <summary>
-        ///     Raises events from queue of events.
-        /// </summary>
         protected override void RaiseEvents()
         {
             if (_isSuspendedInternal) return;
             base.RaiseEvents();
         }
 
-        /// <summary>
-        ///     Occurs before the collection changes.
-        /// </summary>
         public override event NotifyCollectionChangingEventHandler CollectionChanging
         {
             add

@@ -38,9 +38,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Binding.Modules
     {
         #region Overrides of DataBindingModule
 
-        /// <summary>
-        ///     Gets the <see cref="IBindingErrorProvider" /> that will be used by default.
-        /// </summary>
         protected override IBindingErrorProvider GetBindingErrorProvider(IModuleContext context)
         {
             return new BindingErrorProvider();

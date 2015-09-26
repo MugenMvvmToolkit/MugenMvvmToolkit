@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="IViewControllerView.cs">
@@ -24,9 +24,6 @@ namespace MugenMvvmToolkit.iOS.Interfaces.Views
 {
     public interface IViewControllerView : IView
     {
-        /// <summary>
-        ///     Gets the current <see cref="IMvvmViewControllerMediator" />.
-        /// </summary>
         [NotNull]
         IMvvmViewControllerMediator Mediator { get; }
     }

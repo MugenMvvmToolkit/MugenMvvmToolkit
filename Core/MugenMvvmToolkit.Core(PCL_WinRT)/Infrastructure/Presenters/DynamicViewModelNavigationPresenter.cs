@@ -31,9 +31,6 @@ using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Presenters
 {
-    /// <summary>
-    ///     Represents the service that allows to show a view model using <see cref="INavigationProvider" />.
-    /// </summary>
     public sealed class DynamicViewModelNavigationPresenter : IRestorableDynamicViewModelPresenter
     {
         #region Fields
@@ -45,17 +42,11 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DynamicViewModelNavigationPresenter" /> class.
-        /// </summary>
         public DynamicViewModelNavigationPresenter()
             : this(null)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DynamicViewModelNavigationPresenter" /> class.
-        /// </summary>
         public DynamicViewModelNavigationPresenter(
             Func<IViewModel, IDataContext, IViewModelPresenter, bool> canShowViewModel)
         {
@@ -66,9 +57,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the delegate that determines that presenter can handle request.
-        /// </summary>
         [NotNull]
         public static Func<IViewModel, IDataContext, IViewModelPresenter, bool> CanShowViewModelDefault
         {
@@ -97,20 +85,11 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Implementation of IDynamicViewModelPresenter
 
-        /// <summary>
-        ///     Gets the presenter priority.
-        /// </summary>
         public int Priority
         {
             get { return ViewModelPresenter.DefaultNavigationPresenterPriority; }
         }
 
-        /// <summary>
-        ///     Tries to show the specified <see cref="IViewModel" />.
-        /// </summary>
-        /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
-        /// <param name="context">The specified context.</param>
-        /// <param name="parentPresenter">The parent presenter, if any.</param>
         public INavigationOperation TryShowAsync(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)
         {
@@ -137,12 +116,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             return operation;
         }
 
-        /// <summary>
-        ///     Tries to restore the presenter state of the specified <see cref="IViewModel" />.
-        /// </summary>
-        /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
-        /// <param name="context">The specified context.</param>
-        /// <param name="parentPresenter">The parent presenter, if any.</param>
         public bool Restore(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {
             if (!CanShowViewModel(viewModel, context, parentPresenter))

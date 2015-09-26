@@ -85,16 +85,10 @@ using System.Windows.Controls;
 namespace MugenMvvmToolkit.WinPhone.Binding.Converters
 #endif
 {
-    /// <summary>
-    ///     Represents the converter that allows to convert a view model to view.
-    /// </summary>
     public class ViewModelToViewConverter : IValueConverter
     {
         #region Fields
 
-        /// <summary>
-        /// Gets an instance of <see cref="ViewModelToViewConverter"/>.
-        /// </summary>
         public static readonly ViewModelToViewConverter Instance;
 
         #endregion
@@ -106,9 +100,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Converters
             Instance = new ViewModelToViewConverter();
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ViewModelToViewConverter"/> class.
-        /// </summary>
         public ViewModelToViewConverter()
         {
             ThrowOnError = ThrowOnErrorDefault;
@@ -118,26 +109,12 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Converters
 
         #region Properties
 
-        /// <summary>
-        ///     true to throw an exception if the view cannot be found; false to return default view. 
-        ///     Specifying false also suppresses some other exception conditions, but not all of them.
-        /// </summary>
         public static bool ThrowOnErrorDefault { get; set; }
 
-        /// <summary>
-        ///     true to throw an exception if the view cannot be found; false to return default view. 
-        ///     Specifying false also suppresses some other exception conditions, but not all of them.
-        /// </summary>
         public bool ThrowOnError { get; set; }
 
-        /// <summary>
-        /// Gets or sets the default value that indicates that view converter should always create new view.
-        /// </summary>
         public bool? AlwaysCreateNewView { get; set; }
 
-        /// <summary>
-        /// Gets or sets the name of view.
-        /// </summary>
         public string ViewName { get; set; }
 
         #endregion

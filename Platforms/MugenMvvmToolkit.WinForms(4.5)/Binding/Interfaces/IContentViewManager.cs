@@ -27,20 +27,11 @@ namespace MugenMvvmToolkit.iOS.Binding.Interfaces
 #endif
 
 {
-    /// <summary>
-    ///     Represents the interface that allows to set content in the specified view.
-    /// </summary>
     public interface IContentViewManager
     {
 #if ANDROID
-        /// <summary>
-        ///     Sets the specified content.
-        /// </summary>
         bool SetContent([NotNull] object view, [CanBeNull] object content);
 #else
-        /// <summary>
-        ///     Sets the specified content.
-        /// </summary>
         void SetContent([NotNull] object view, [CanBeNull] object content);
 #endif
     }

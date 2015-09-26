@@ -21,14 +21,8 @@ using MugenMvvmToolkit.WinRT.Models;
 
 namespace MugenMvvmToolkit.WinRT.Interfaces.Views
 {
-    /// <summary>
-    ///     Represents the interface for popup view.
-    /// </summary>
     public interface IPopupView : IView
     {
-        /// <summary>
-        ///     Initializes the specified popup.
-        /// </summary>
         void InitializePopup(Popup popup, PopupSettings settings);
     }
 }

@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="BootstrapperAttribute.cs">
@@ -34,9 +34,6 @@ namespace MugenMvvmToolkit.Android.Attributes
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BootstrapperAttribute" /> class.
-        /// </summary>
         public BootstrapperAttribute([NotNull] Type bootstrapperType, int priority = 0)
         {
             Should.BeOfType<AndroidBootstrapperBase>(bootstrapperType, "bootstrapperType");
@@ -48,18 +45,12 @@ namespace MugenMvvmToolkit.Android.Attributes
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the type of bootstrapper.
-        /// </summary>
         [NotNull]
         public Type BootstrapperType
         {
             get { return _bootstrapperType; }
         }
 
-        /// <summary>
-        ///     Gets the priority.
-        /// </summary>
         public int Priority
         {
             get { return _priority; }

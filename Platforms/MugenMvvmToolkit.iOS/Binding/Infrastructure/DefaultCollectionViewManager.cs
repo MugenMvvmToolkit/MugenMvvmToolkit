@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="DefaultCollectionViewManager.cs">
@@ -49,9 +49,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         #region Implementation of ICollectionViewManager
 
-        /// <summary>
-        ///     Inserts an item to the specified index.
-        /// </summary>
         public void Insert(object view, int index, object item)
         {
             var section = view as Section;
@@ -95,9 +92,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Removes an item.
-        /// </summary>
         public void RemoveAt(object view, int index)
         {
             var section = view as Section;
@@ -137,9 +131,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             ClearItem(pair);
         }
 
-        /// <summary>
-        ///     Removes all items.
-        /// </summary>
         public void Clear(object view)
         {
             var section = view as Section;

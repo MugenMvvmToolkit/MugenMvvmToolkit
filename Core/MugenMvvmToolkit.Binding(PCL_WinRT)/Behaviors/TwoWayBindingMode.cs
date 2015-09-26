@@ -21,17 +21,10 @@ using MugenMvvmToolkit.Binding.Models.EventArg;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
-    /// <summary>
-    ///     Causes changes to either the source property or the target property to automatically update the other. This type of
-    ///     binding is appropriate for editable forms or other fully-interactive UI scenarios.
-    /// </summary>
     public sealed class TwoWayBindingMode : BindingModeBase
     {
         #region Overrides of BindingBehaviorBase
 
-        /// <summary>
-        ///     Attaches to the specified binding.
-        /// </summary>
         protected override bool OnAttached()
         {
             Binding.UpdateTarget();
@@ -42,18 +35,12 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             return true;
         }
 
-        /// <summary>
-        ///     Detaches this instance from its associated binding.
-        /// </summary>
         protected override void OnDetached()
         {
             UnsubscribeSources();
             UnsubscribeTarget();
         }
 
-        /// <summary>
-        ///     Creates a new binding behavior that is a copy of the current instance.
-        /// </summary>
         protected override IBindingBehavior CloneInternal()
         {
             return new TwoWayBindingMode();

@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="Bootstrapper.cs">
@@ -62,9 +62,6 @@ using Bootstrapper = MugenMvvmToolkit.Xamarin.Forms.Infrastructure.XamarinFormsB
 namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 #endif
 {
-    /// <summary>
-    ///     Represents the base class that is used to start MVVM application.
-    /// </summary>
     public class Bootstrapper<T> : Bootstrapper
         where T : class
     {
@@ -113,39 +110,21 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         }
 
 #if WPF || (SILVERLIGHT && !WINDOWS_PHONE)
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
-        /// </summary>
         public Bootstrapper([NotNull] Application application, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, IViewModelSettings viewModelSettings = null, PlatformInfo platform = null)
             : base(application, platform: platform)
 #elif WINFORMS
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
-        /// </summary>
         public Bootstrapper([NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, IViewModelSettings viewModelSettings = null, PlatformInfo platform = null)
             : base(true, platform)
 #elif WINDOWS_PHONE
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
-        /// </summary>
         public Bootstrapper([NotNull] PhoneApplicationFrame rootFrame, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, IViewModelSettings viewModelSettings = null, PlatformInfo platform = null)
             : base(rootFrame, platform)
 #elif WINDOWSCOMMON
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
-        /// </summary>
         public Bootstrapper([NotNull] Frame rootFrame, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, IViewModelSettings viewModelSettings = null, PlatformInfo platform = null)
             : base(rootFrame, assemblies != null, platform)
 #elif TOUCH
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
-        /// </summary>
         public Bootstrapper([NotNull] UIWindow window, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, IViewModelSettings viewModelSettings = null, PlatformInfo platform = null)
             : base(window, platform)
 #elif XAMARIN_FORMS
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Bootstrapper{TRootViewModel}" /> class.
-        /// </summary>
         public Bootstrapper([NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
             IViewModelSettings viewModelSettings = null, PlatformInfo platform = null)
             : base(platform)
@@ -161,9 +140,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         #region Overrides of BootstrapperBase
 
-        /// <summary>
-        ///     Gets the application assemblies.
-        /// </summary>
         protected override ICollection<Assembly> GetAssemblies()
         {
             var assemblies = ToHashSet(_assemblies ?? base.GetAssemblies());
@@ -202,9 +178,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             return assemblies;
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IMvvmApplication" />.
-        /// </summary>
         protected override IMvvmApplication CreateApplication()
         {
             if (_application != null)
@@ -214,10 +187,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             return new DefaultApp { Settings = _viewModelSettings };
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IIocContainer" />.
-        /// </summary>
-        /// <returns>An instance of <see cref="IIocContainer" />.</returns>
         protected override IIocContainer CreateIocContainer()
         {
             return _iocContainer;
@@ -227,9 +196,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Sets the application.
-        /// </summary>
         public void SetApplication<TApp>(TApp app)
             where TApp : class, T, IMvvmApplication
         {

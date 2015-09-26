@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ToolkitExtensions.cs">
@@ -46,9 +46,6 @@ using MugenMvvmToolkit.ViewModels;
 // ReSharper disable once CheckNamespace
 namespace MugenMvvmToolkit
 {
-    /// <summary>
-    ///     Represents the extensions method for mvvm application.
-    /// </summary>
     public static class ToolkitExtensions
     {
         #region Nested types
@@ -265,26 +262,14 @@ namespace MugenMvvmToolkit
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the default duration of <see cref="ToastDuration.Short" />.
-        /// </summary>
         public static float ShortDuration { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the default duration of <see cref="ToastDuration.Long" />.
-        /// </summary>
         public static float LongDuration { get; set; }
 
         #endregion
 
         #region Ioc adapter extensions
 
-        /// <summary>
-        ///     Gets a root container.
-        /// </summary>
-        /// <returns>
-        ///     An instance of <see cref="IIocContainer" />
-        /// </returns>
         [Pure]
         public static IIocContainer GetRoot([NotNull] this IIocContainer iocContainer)
         {
@@ -294,16 +279,6 @@ namespace MugenMvvmToolkit
             return iocContainer;
         }
 
-        /// <summary>
-        ///     Gets an instance of the specified service.
-        /// </summary>
-        /// <typeparam name="T">The specified service type.</typeparam>
-        /// <param name="iocContainer">
-        ///     The specified <see cref="IIocContainer" />.
-        /// </param>
-        /// <param name="parameters">The specified parameters.</param>
-        /// <param name="name">The specified binding name.</param>
-        /// <returns>An instance of T.</returns>
         [Pure]
         public static T Get<T>([NotNull] this IIocContainer iocContainer, string name = null,
             params IIocParameter[] parameters)
@@ -312,9 +287,6 @@ namespace MugenMvvmToolkit
             return (T)iocContainer.Get(typeof(T), name, parameters);
         }
 
-        /// <summary>
-        ///    Tries to get an instance of the specified service.
-        /// </summary>
         [Pure]
         public static bool TryGet<T>([NotNull] this IIocContainer iocContainer, out T service, string name = null,
             params IIocParameter[] parameters)
@@ -330,9 +302,6 @@ namespace MugenMvvmToolkit
             return false;
         }
 
-        /// <summary>
-        ///    Tries to get an instance of the specified service.
-        /// </summary>
         [Pure]
         public static bool TryGet([NotNull] this IIocContainer iocContainer, [NotNull] Type serviceType, out object service, string name = null,
             params IIocParameter[] parameters)
@@ -356,15 +325,6 @@ namespace MugenMvvmToolkit
             return false;
         }
 
-        /// <summary>
-        ///     Gets all instances of the specified service.
-        /// </summary>
-        /// <param name="iocContainer">
-        ///     The specified <see cref="IIocContainer" />.
-        /// </param>
-        /// <param name="name">The specified binding name.</param>
-        /// <param name="parameters">The specified parameters.</param>
-        /// <returns>An instance of the service.</returns>
         [Pure]
         public static IEnumerable<T> GetAll<T>([NotNull] this IIocContainer iocContainer, string name = null,
             params IIocParameter[] parameters)
@@ -373,19 +333,6 @@ namespace MugenMvvmToolkit
             return iocContainer.GetAll(typeof(T), name, parameters).Cast<T>();
         }
 
-        /// <summary>
-        ///     Indicates that the service should be bound to the specified type.
-        /// </summary>
-        /// <typeparam name="T">The specified service type.</typeparam>
-        /// <typeparam name="TTypeTo">The specified to type</typeparam>
-        /// <param name="iocContainer">
-        ///     The specified <see cref="IIocContainer" />.
-        /// </param>
-        /// <param name="lifecycle">
-        ///     Specified <see cref="DependencyLifecycle" />
-        /// </param>
-        /// <param name="name">The specified binding name.</param>
-        /// <param name="parameters">The specified parameters.</param>
         public static void Bind<T, TTypeTo>([NotNull] this IIocContainer iocContainer, DependencyLifecycle lifecycle,
             string name = null, params IIocParameter[] parameters)
             where TTypeTo : T
@@ -394,32 +341,12 @@ namespace MugenMvvmToolkit
             iocContainer.Bind(typeof(T), typeof(TTypeTo), lifecycle, name, parameters);
         }
 
-        /// <summary>
-        ///     Indicates that the service should be bound to the specified constant value.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="iocContainer">
-        ///     The specified <see cref="IIocContainer" />.
-        /// </param>
-        /// <param name="instance">The specified constant value.</param>
-        /// <param name="name">The specified binding name.</param>
         public static void BindToConstant<T>([NotNull] this IIocContainer iocContainer, T instance, string name = null)
         {
             Should.NotBeNull(iocContainer, "iocContainer");
             iocContainer.BindToConstant(typeof(T), instance, name);
         }
 
-        /// <summary>
-        ///     Indicates that the service should be bound to the specified method.
-        /// </summary>
-        /// <param name="iocContainer">
-        ///     The specified <see cref="IIocContainer" />.
-        /// </param>
-        /// <param name="methodBindingDelegate">The specified factory delegate.</param>
-        /// <param name="lifecycle">
-        ///     The specified <see cref="DependencyLifecycle" />
-        /// </param>
-        /// <param name="name">The specified binding name.</param>
         public static void BindToMethod<T>([NotNull] this IIocContainer iocContainer,
             [NotNull] Func<IIocContainer, IList<IIocParameter>, T> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
@@ -428,10 +355,6 @@ namespace MugenMvvmToolkit
             iocContainer.BindToMethod(typeof(T), methodBindingDelegate.AsMethodBindingDelegateObject, lifecycle, name, parameters);
         }
 
-        /// <summary>
-        ///     Indicates that the service should be bound to the specified constant value.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
         public static void BindToBindingInfo<T>(this IIocContainer iocContainer, BindingInfo<T> binding)
         {
             Should.NotBeNull(iocContainer, "iocContainer");
@@ -443,27 +366,12 @@ namespace MugenMvvmToolkit
                 binding.SetBinding(iocContainer);
         }
 
-        /// <summary>
-        ///     Unregisters all bindings with specified conditions for the specified service.
-        /// </summary>
-        /// <typeparam name="T">The specified service type.</typeparam>
-        /// <param name="iocContainer">
-        ///     The specified <see cref="IIocContainer" />.
-        /// </param>
         public static void Unbind<T>([NotNull] this IIocContainer iocContainer)
         {
             Should.NotBeNull(iocContainer, "iocContainer");
             iocContainer.Unbind(typeof(T));
         }
 
-        /// <summary>
-        ///     Determines whether the specified request can be resolved.
-        /// </summary>
-        /// <param name="iocContainer">The specified <see cref="IIocContainer" />.</param>
-        /// <param name="name">The specified binding name.</param>
-        /// <returns>
-        ///     <c>True</c> if the specified service has been resolved; otherwise, <c>false</c>.
-        /// </returns>
         [Pure]
         public static bool CanResolve<T>([NotNull] this IIocContainer iocContainer, string name = null)
         {
@@ -471,14 +379,6 @@ namespace MugenMvvmToolkit
             return iocContainer.CanResolve(typeof(T), name);
         }
 
-        /// <summary>
-        ///     Gets an instance of the specified service.
-        /// </summary>
-        /// <typeparam name="T">The specified service type.</typeparam>
-        /// <param name="serviceProvider">
-        ///     The specified <see cref="IServiceProvider" />.
-        /// </param>
-        /// <returns>An instance of T.</returns>
         [Pure]
         public static T GetService<T>([NotNull] this IServiceProvider serviceProvider)
         {
@@ -493,25 +393,12 @@ namespace MugenMvvmToolkit
 
         #region Exception extension
 
-        /// <summary>
-        ///     Flatten the exception and inner exception data.
-        /// </summary>
-        /// <param name="exception">Exception</param>
-        /// <param name="includeStackTrace">True to include stack trace at end</param>
-        /// <returns>String with Message and all InnerException messages appended together</returns>
         [Pure]
         public static string Flatten([NotNull] this Exception exception, bool includeStackTrace = false)
         {
             return exception.Flatten(string.Empty, includeStackTrace);
         }
 
-        /// <summary>
-        ///     Flatten the exception and inner exception data.
-        /// </summary>
-        /// <param name="exception">Exception</param>
-        /// <param name="message">Any string prefix to add</param>
-        /// <param name="includeStackTrace">True to include stack trace at end</param>
-        /// <returns>String with Message and all InnerException messages appended together</returns>
         [Pure]
         public static string Flatten([NotNull] this Exception exception, string message, bool includeStackTrace = false)
         {
@@ -562,17 +449,6 @@ namespace MugenMvvmToolkit
 
         #region String extensions
 
-        /// <summary>
-        ///     Returns a value indicating whether the specified <see cref="T:System.String" /> object occurs within this string.
-        ///     Not throws an exception.
-        /// </summary>
-        /// <param name="source">The specified source string.</param>
-        /// <param name="value">The string to seek. </param>
-        /// <param name="stringComparison">The specified <see cref="StringComparison" />.</param>
-        /// <returns>
-        ///     true if the <paramref name="value" /> parameter occurs within this string, or if <paramref name="value" /> is the
-        ///     empty string (""); otherwise, false.
-        /// </returns>
         [Pure]
         public static bool SafeContains([CanBeNull] this string source, [CanBeNull] string value,
             StringComparison stringComparison = StringComparison.CurrentCultureIgnoreCase)
@@ -586,14 +462,6 @@ namespace MugenMvvmToolkit
 
         #region Task extensions
 
-        /// <summary>
-        ///     Creates a <see cref="T:System.Threading.Tasks.Task`1" /> that's completed successfully with the specified result.
-        /// </summary>
-        /// <returns>
-        ///     The successfully completed task.
-        /// </returns>
-        /// <param name="result">The result to store into the completed task.</param>
-        /// <typeparam name="TResult">The type of the result returned by the task.</typeparam>
         [Pure]
         public static Task<TResult> FromResult<TResult>(TResult result)
         {
@@ -602,9 +470,6 @@ namespace MugenMvvmToolkit
             return tcs.Task;
         }
 
-        /// <summary>
-        ///     Tries to inline task callback method.
-        /// </summary>
         public static Task TryExecuteSynchronously<T>([NotNull] this Task<T> task, [NotNull] Action<Task<T>> action,
             CancellationToken token = default(CancellationToken))
         {
@@ -628,9 +493,6 @@ namespace MugenMvvmToolkit
             }
         }
 
-        /// <summary>
-        ///     Tries to inline task callback method.
-        /// </summary>
         public static Task<TResult> TryExecuteSynchronously<T, TResult>([NotNull] this Task<T> task,
             [NotNull] Func<Task<T>, TResult> action, CancellationToken token = default(CancellationToken))
         {
@@ -652,9 +514,6 @@ namespace MugenMvvmToolkit
             }
         }
 
-        /// <summary>
-        ///     Tries to inline task callback method.
-        /// </summary>
         public static Task TryExecuteSynchronously([NotNull] this Task task, [NotNull] Action<Task> action,
             CancellationToken token = default(CancellationToken))
         {
@@ -677,9 +536,6 @@ namespace MugenMvvmToolkit
             }
         }
 
-        /// <summary>
-        ///     Uses the <see cref="ITaskExceptionHandler" /> to notify abount an error.
-        /// </summary>
         public static Task WithTaskExceptionHandler([NotNull] this Task task, [NotNull] IViewModel viewModel)
         {
             Should.NotBeNull(task, "task");
@@ -687,9 +543,6 @@ namespace MugenMvvmToolkit
             return task.WithTaskExceptionHandler(viewModel, viewModel.GetIocContainer(true, false));
         }
 
-        /// <summary>
-        ///     Uses the <see cref="ITaskExceptionHandler" /> to notify abount an error.
-        /// </summary>
         public static Task WithTaskExceptionHandler([NotNull] this Task task, [NotNull] object sender,
             IIocContainer iocContainer = null)
         {
@@ -702,12 +555,6 @@ namespace MugenMvvmToolkit
             return task;
         }
 
-        /// <summary>
-        ///     Set a completion source from the given Task.
-        /// </summary>
-        /// <typeparam name="TResult">result type for completion source.</typeparam>
-        /// <param name="tcs">completion source to set</param>
-        /// <param name="task">Task to get values from.</param>
         public static void TrySetFromTask<TResult>(this TaskCompletionSource<TResult> tcs, Task task)
         {
             Should.NotBeNull(tcs, "tcs");
@@ -781,9 +628,6 @@ namespace MugenMvvmToolkit
 
         #region Collection extensions
 
-        /// <summary>
-        ///     Moves up the item in the specified <see cref="IList" />.
-        /// </summary>
         public static bool MoveUpItem([CanBeNull] this IList itemsSource, [CanBeNull] object item)
         {
             if (itemsSource == null)
@@ -796,9 +640,6 @@ namespace MugenMvvmToolkit
             return true;
         }
 
-        /// <summary>
-        ///     Moves down the item in the specified <see cref="IList" />.
-        /// </summary>
         public static bool MoveDownItem([CanBeNull] this IList itemsSource, [CanBeNull] object item)
         {
             if (itemsSource == null)
@@ -811,17 +652,11 @@ namespace MugenMvvmToolkit
             return true;
         }
 
-        /// <summary>
-        ///     Determines whether the collection can move up the item.
-        /// </summary>
         public static bool CanMoveUpItem([CanBeNull] this IList itemsSource, [CanBeNull] object item)
         {
             return itemsSource != null && itemsSource.IndexOf(item) > 0;
         }
 
-        /// <summary>
-        ///     Determines whether the collection can move down the item.
-        /// </summary>
         public static bool CanMoveDownItem([CanBeNull] this IList itemsSource, [CanBeNull] object item)
         {
             if (itemsSource == null)
@@ -830,9 +665,6 @@ namespace MugenMvvmToolkit
             return indexOf >= 0 && indexOf < itemsSource.Count - 1;
         }
 
-        /// <summary>
-        /// Determines the index of a specific item in the <see cref="IEnumerable"/>.
-        /// </summary>
         public static int IndexOf([CanBeNull]this IEnumerable enumerable, object value, IEqualityComparer<object> comparer = null)
         {
             if (enumerable == null)
@@ -862,9 +694,6 @@ namespace MugenMvvmToolkit
             return -1;
         }
 
-        /// <summary>
-        /// Returns the element at a specified index in a sequence.
-        /// </summary>
         public static object ElementAtIndex([NotNull]this IEnumerable enumerable, int index)
         {
             Should.NotBeNull(enumerable, "enumerable");
@@ -874,13 +703,6 @@ namespace MugenMvvmToolkit
             return enumerable.OfType<object>().ElementAt(index);
         }
 
-        /// <summary>
-        ///     Creates an array from a <see cref="IList{T}" />.
-        /// </summary>
-        /// <returns>
-        ///     An array that contains the elements from the input sequence.
-        /// </returns>
-        /// <param name="list">An <see cref="IList{T}" /> to create an array from.</param>
         public static T[] ToArrayEx<T>([NotNull] this IList<T> list)
         {
             Should.NotBeNull(list, "list");
@@ -892,17 +714,6 @@ namespace MugenMvvmToolkit
             return array;
         }
 
-        /// <summary>
-        ///     Creates an array from a <see cref="IList{T}" />.
-        /// </summary>
-        /// <returns>
-        ///     An array that contains the elements from the input sequence.
-        /// </returns>
-        /// <param name="list">An <see cref="IList{T}" /> to create an array from.</param>
-        /// <param name="selector">
-        ///     A transform function to apply to each source element; the second parameter of the function
-        ///     represents the index of the source element.
-        /// </param>
         public static TResult[] ToArrayEx<T, TResult>([NotNull] this IList<T> list,
             [NotNull] Func<T, TResult> selector)
         {
@@ -916,17 +727,6 @@ namespace MugenMvvmToolkit
             return array;
         }
 
-        /// <summary>
-        ///     Creates an array from a <see cref="IList{T}" />.
-        /// </summary>
-        /// <returns>
-        ///     An array that contains the elements from the input sequence.
-        /// </returns>
-        /// <param name="collection">An <see cref="ICollection{T}" /> to create an array from.</param>
-        /// <param name="selector">
-        ///     A transform function to apply to each source element; the second parameter of the function
-        ///     represents the index of the source element.
-        /// </param>
         public static TResult[] ToArrayEx<T, TResult>([NotNull] this ICollection<T> collection,
             [NotNull] Func<T, TResult> selector)
         {
@@ -941,13 +741,6 @@ namespace MugenMvvmToolkit
             return array;
         }
 
-        /// <summary>
-        ///     Creates an array from a <see cref="IList{T}" />.
-        /// </summary>
-        /// <returns>
-        ///     An array that contains the elements from the input sequence.
-        /// </returns>
-        /// <param name="collection">An <see cref="ICollection{T}" /> to create an array from.</param>
         public static T[] ToArrayEx<T>([NotNull] this ICollection<T> collection)
         {
             Should.NotBeNull(collection, "collection");
@@ -961,9 +754,6 @@ namespace MugenMvvmToolkit
             return array;
         }
 
-        /// <summary>
-        ///     Adds an item to the collection if the item is not null.
-        /// </summary>
         public static void AddIfNotNull<T>([NotNull] this ICollection<T> collection, T item)
         {
             Should.NotBeNull(collection, "collection");
@@ -971,27 +761,18 @@ namespace MugenMvvmToolkit
                 collection.Add(item);
         }
 
-        /// <summary>
-        ///     Returns <c>true</c> if and only if <paramref name="collection" /> is empty (has no elements) or null.
-        /// </summary>
         [Pure]
         public static bool IsNullOrEmpty<T>([CanBeNull] this ICollection<T> collection)
         {
             return collection == null || collection.Count == 0;
         }
 
-        /// <summary>
-        ///     Returns <c>true</c> if and only if <paramref name="enumerable" /> is empty (has no elements) or null.
-        /// </summary>
         [Pure]
         public static bool IsNullOrEmpty([CanBeNull] this IEnumerable enumerable)
         {
             return enumerable == null || enumerable.IsEmpty();
         }
 
-        /// <summary>
-        ///     Returns <c>true</c> if and only if <paramref name="enumerable" /> is empty (has no elements).
-        /// </summary>
         [Pure]
         public static bool IsEmpty([NotNull] this IEnumerable enumerable)
         {
@@ -1012,13 +793,6 @@ namespace MugenMvvmToolkit
             }
         }
 
-        /// <summary>
-        ///     Returns the number of elements in a sequence.
-        /// </summary>
-        /// <returns>
-        ///     The number of elements in the input sequence.
-        /// </returns>
-        /// <param name="source">A sequence that contains elements to be counted.</param>
         [Pure]
         public static int Count([CanBeNull] this IEnumerable source)
         {
@@ -1043,12 +817,6 @@ namespace MugenMvvmToolkit
             return num;
         }
 
-        /// <summary>
-        ///     Enumerates a collection and executes a predicate against each item
-        /// </summary>
-        /// <typeparam name="T">Type of elements</typeparam>
-        /// <param name="collection">The specified collection.</param>
-        /// <param name="action">Action to execute on each element</param>
         public static void ForEach<T>([NotNull] this IEnumerable<T> collection, [NotNull] Action<T> action)
         {
             Should.NotBeNull(collection, "collection");
@@ -1066,12 +834,6 @@ namespace MugenMvvmToolkit
             }
         }
 
-        /// <summary>
-        ///     Adds a range of IEnumerable collection to an existing Collection.
-        /// </summary>
-        /// <typeparam name="T">Type of collection</typeparam>
-        /// <param name="collection">The specified collection.</param>
-        /// <param name="items">Items to add</param>
         public static void AddRange<T>([NotNull] this ICollection<T> collection, [NotNull] IEnumerable<T> items)
         {
             Should.NotBeNull(collection, "collection");
@@ -1092,13 +854,6 @@ namespace MugenMvvmToolkit
                 collection.Add(item);
         }
 
-        /// <summary>
-        ///     Adds all items from the source into the target dictionary.
-        /// </summary>
-        /// <typeparam name="TKey">The type of the key.</typeparam>
-        /// <typeparam name="TValue">The type of the value.</typeparam>
-        /// <param name="target">The target.</param>
-        /// <param name="source">The source.</param>
         public static void AddRange<TKey, TValue>([NotNull] this IDictionary<TKey, TValue> target,
             [NotNull] IEnumerable<KeyValuePair<TKey, TValue>> source)
         {
@@ -1108,12 +863,6 @@ namespace MugenMvvmToolkit
                 target[keyValuePair.Key] = keyValuePair.Value;
         }
 
-        /// <summary>
-        ///     Removes a range of IEnumerable collection to an existing Collection.
-        /// </summary>
-        /// <typeparam name="T">Type of collection</typeparam>
-        /// <param name="collection">The specified collection.</param>
-        /// <param name="items">Items to remove</param>
         public static void RemoveRange<T>([NotNull] this ICollection<T> collection, [NotNull] IEnumerable<T> items)
         {
             Should.NotBeNull(collection, "collection");
@@ -1129,13 +878,6 @@ namespace MugenMvvmToolkit
                 collection.Remove(list[index]);
         }
 
-        /// <summary>
-        ///     Converts a collection to the <see cref="SynchronizedNotifiableCollection{T}" /> collection.
-        /// </summary>
-        /// <typeparam name="T">The type of collection.</typeparam>
-        /// <param name="collection">The specified collection.</param>
-        /// <param name="threadManager">The specified <see cref="IThreadManager" />.</param>
-        /// <returns>An instance of <see cref="SynchronizedNotifiableCollection{T}" />.</returns>
         [Pure]
         public static SynchronizedNotifiableCollection<T> ToSynchronizedCollection<T>(
             [NotNull] this IEnumerable<T> collection, [NotNull] IThreadManager threadManager = null)
@@ -1145,13 +887,6 @@ namespace MugenMvvmToolkit
                    new SynchronizedNotifiableCollection<T>(collection, threadManager);
         }
 
-        /// <summary>
-        ///     Converts a collection to the <see cref="FilterableNotifiableCollection{T}" /> collection.
-        /// </summary>
-        /// <typeparam name="T">The type of collection.</typeparam>
-        /// <param name="collection">The specified collection.</param>
-        /// <param name="threadManager">The specified <see cref="IThreadManager" />.</param>
-        /// <returns>An instance of <see cref="FilterableNotifiableCollection{T}" />.</returns>
         public static FilterableNotifiableCollection<T> ToFilterableCollection<T>(
             [NotNull] this IEnumerable<T> collection, IThreadManager threadManager = null)
         {
@@ -1164,9 +899,6 @@ namespace MugenMvvmToolkit
 
         #region Callbacks
 
-        /// <summary>
-        ///     Creates a continuation that executes when the target operation completes.
-        /// </summary>
         [NotNull]
         public static IAsyncOperation ContinueWith([NotNull] this IAsyncOperation operation, [NotNull] Action<IOperationResult> continuationAction)
         {
@@ -1175,9 +907,6 @@ namespace MugenMvvmToolkit
             return operation.ContinueWith(continuationAction: new DelegateContinuation<object, object, object>(continuationAction));
         }
 
-        /// <summary>
-        ///     Creates a continuation that executes when the target operation completes.
-        /// </summary>
         [NotNull]
         public static IAsyncOperation<TResult> ContinueWith<TResult>([NotNull] this IAsyncOperation operation,
             [NotNull] Func<IOperationResult, TResult> continuationFunction)
@@ -1187,9 +916,6 @@ namespace MugenMvvmToolkit
             return operation.ContinueWith(continuationFunction: new DelegateContinuation<object, TResult, object>(continuationFunction));
         }
 
-        /// <summary>
-        ///     Creates a continuation that executes when the target operation completes.
-        /// </summary>
         [NotNull]
         public static IAsyncOperation ContinueWith<TResult>([NotNull] this IAsyncOperation<TResult> operation, [NotNull] Action<IOperationResult<TResult>> continuationActionGeneric)
         {
@@ -1198,9 +924,6 @@ namespace MugenMvvmToolkit
             return operation.ContinueWith(continuationAction: new DelegateContinuation<TResult, object, object>(continuationActionGeneric));
         }
 
-        /// <summary>
-        ///     Creates a continuation that executes when the target operation completes.
-        /// </summary>
         [NotNull]
         public static IAsyncOperation<TNewResult> ContinueWith<TResult, TNewResult>([NotNull] this IAsyncOperation<TResult> operation,
             [NotNull] Func<IOperationResult<TResult>, TNewResult> continuationFunctionGeneric)
@@ -1210,9 +933,6 @@ namespace MugenMvvmToolkit
             return operation.ContinueWith(continuationFunction: new DelegateContinuation<TResult, TNewResult, object>(continuationFunctionGeneric));
         }
 
-        /// <summary>
-        ///     Creates a continuation that executes when the target operation completes.
-        /// </summary>
         [NotNull]
         public static IAsyncOperation ContinueWith<TSource, TResult>([NotNull] this IAsyncOperation<TResult> operation, [NotNull] Action<TSource, IOperationResult<TResult>> continuationAction)
         {
@@ -1221,9 +941,6 @@ namespace MugenMvvmToolkit
             return operation.ContinueWith(continuationAction: new DelegateContinuation<TResult, object, TSource>(continuationAction));
         }
 
-        /// <summary>
-        ///     Creates a continuation that executes when the target operation completes.
-        /// </summary>
         [NotNull]
         public static IAsyncOperation<TNewResult> ContinueWith<TSource, TResult, TNewResult>([NotNull] this IAsyncOperation<TResult> operation,
              [NotNull] Func<TSource, IOperationResult<TResult>, TNewResult> continuationFunction)
@@ -1233,9 +950,6 @@ namespace MugenMvvmToolkit
             return operation.ContinueWith(continuationFunction: new DelegateContinuation<TResult, TNewResult, TSource>(continuationFunction));
         }
 
-        /// <summary>
-        /// Converts an instance of <see cref="IAsyncOperation{TResult}"/> to an instance of <see cref="Task{TResult}"/>
-        /// </summary>
         public static Task<T> AsTask<T>([NotNull] this IAsyncOperation<T> operation)
         {
             Should.NotBeNull(operation, "operation");
@@ -1244,9 +958,6 @@ namespace MugenMvvmToolkit
             return tcs.Task;
         }
 
-        /// <summary>
-        /// Converts an instance of <see cref="IAsyncOperation{TResult}"/> to an instance of <see cref="Task{TResult}"/>
-        /// </summary>
         public static Task AsTask([NotNull] this IAsyncOperation operation)
         {
             Should.NotBeNull(operation, "operation");
@@ -1255,68 +966,34 @@ namespace MugenMvvmToolkit
             return tcs.Task;
         }
 
-        /// <summary>
-        ///     Gets an isntance of <see cref="IAsyncOperationAwaiter" />
-        /// </summary>
         public static IAsyncOperationAwaiter GetAwaiter(this IAsyncOperationAwaiter awaiter)
         {
             return awaiter;
         }
 
-        /// <summary>
-        ///     Gets an isntance of <see cref="IAsyncOperationAwaiter{TResult}" />
-        /// </summary>
         public static IAsyncOperationAwaiter<TResult> GetAwaiter<TResult>(this IAsyncOperationAwaiter<TResult> awaiter)
         {
             return awaiter;
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IAsyncOperationAwaiter" />.
-        /// </summary>
         public static IAsyncOperationAwaiter GetAwaiter([NotNull] this IAsyncOperation operation)
         {
             Should.NotBeNull(operation, "operation");
             return ServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, DataContext.Empty);
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IAsyncOperationAwaiter{TResult}" />.
-        /// </summary>
         public static IAsyncOperationAwaiter<TResult> GetAwaiter<TResult>([NotNull] this IAsyncOperation<TResult> operation)
         {
             Should.NotBeNull(operation, "operation");
             return ServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, DataContext.Empty);
         }
 
-        /// <summary>
-        ///     Configures an awaiter used to await this <see cref="IAsyncOperation" />.
-        /// </summary>
-        /// <param name="operation">The specified async operation.</param>
-        /// <param name="continueOnCapturedContext">
-        ///     true to attempt to marshal the continuation back to the original context
-        ///     captured; otherwise, false.
-        /// </param>
-        /// <returns>
-        ///     An object used to await this operation.
-        /// </returns>
         public static IAsyncOperationAwaiter ConfigureAwait([NotNull] this IAsyncOperation operation, bool continueOnCapturedContext)
         {
             Should.NotBeNull(operation, "operation");
             return ServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, new DataContext(DefaultOperationCallbackFactory.ContinueOnCapturedContextConstant.ToValue(continueOnCapturedContext)));
         }
 
-        /// <summary>
-        ///     Configures an awaiter used to await this <see cref="IAsyncOperation{TResult}" />.
-        /// </summary>
-        /// <param name="operation">The specified async operation.</param>
-        /// <param name="continueOnCapturedContext">
-        ///     true to attempt to marshal the continuation back to the original context
-        ///     captured; otherwise, false.
-        /// </param>
-        /// <returns>
-        ///     An object used to await this operation.
-        /// </returns>
         public static IAsyncOperationAwaiter<TResult> ConfigureAwait<TResult>([NotNull] this IAsyncOperation<TResult> operation, bool continueOnCapturedContext)
         {
             Should.NotBeNull(operation, "operation");
@@ -1327,30 +1004,12 @@ namespace MugenMvvmToolkit
 
         #region Extensions
 
-        /// <summary>
-        ///     Calls the event for the specified property.
-        /// </summary>
-        /// <param name="model">The specified model.</param>
-        /// <param name="expression">Specified expression with property.</param>               
-        /// <param name="executionMode">
-        ///     Specifies the execution mode for raise property changed event.
-        /// </param>
         public static void OnPropertyChanged<TModel>(this TModel model, Func<Expression<Func<TModel, object>>> expression, ExecutionMode? executionMode = null)
             where TModel : NotifyPropertyChangedBase
         {
             model.OnPropertyChanged(expression.GetMemberName(), executionMode);
         }
 
-        /// <summary>
-        ///     Sets a property with calling property change event.
-        /// </summary>
-        /// <param name="model">The specified model.</param>
-        /// <param name="field">The property field.</param>
-        /// <param name="newValue">The new property value.</param>
-        /// <param name="expression">Specified expression with property.</param>
-        /// <param name="executionMode">
-        ///     Specifies the execution mode for raise property changed event.
-        /// </param>
         public static void SetProperty<TModel, T>([NotNull] this TModel model, ref T field, T newValue, Func<Expression<Func<TModel, T>>> expression, ExecutionMode? executionMode = null)
             where TModel : NotifyPropertyChangedBase
         {
@@ -1358,14 +1017,6 @@ namespace MugenMvvmToolkit
             model.SetProperty(ref field, newValue, expression.GetMemberName(), executionMode);
         }
 
-        /// <summary>
-        ///     Calls the event for the specified property.
-        /// </summary>
-        /// <param name="model">The specified model.</param>
-        /// <param name="propName">Specified property name.</param>
-        /// <param name="executionMode">
-        ///     Specifies the execution mode for raise property changed event.
-        /// </param>
         public static void OnPropertyChanged([NotNull] this NotifyPropertyChangedBase model, string propName, ExecutionMode? executionMode = null)
         {
             Should.NotBeNull(model, "model");
@@ -1375,9 +1026,6 @@ namespace MugenMvvmToolkit
                 model.OnPropertyChanged(propName, executionMode.Value);
         }
 
-        /// <summary>
-        ///     Registers the specified validator.
-        /// </summary>
         public static void Register<T>([NotNull] this IValidatorProvider validatorProvider)
             where T : IValidator
         {
@@ -1385,9 +1033,6 @@ namespace MugenMvvmToolkit
             validatorProvider.Register(typeof(T));
         }
 
-        /// <summary>
-        ///     Unregisters the specified validator.
-        /// </summary>
         public static void Unregister<T>([NotNull] this IValidatorProvider validatorProvider)
             where T : IValidator
         {
@@ -1395,12 +1040,6 @@ namespace MugenMvvmToolkit
             validatorProvider.Unregister(typeof(T));
         }
 
-        /// <summary>
-        ///     Subscribes an instance to events.
-        /// </summary>
-        /// <param name="observable">The specified <see cref="IObservable"/></param>
-        /// <param name="action">The handler to subscribe for event publication.</param>
-        /// <param name="weakSubscribtion">If <c>true</c> use weak delegate to subscribe</param>
         [CanBeNull]
         public static ISubscriber Subscribe<TMessage>([NotNull] this IObservable observable, Action<object, TMessage> action, bool weakSubscribtion = true)
         {
@@ -1417,23 +1056,12 @@ namespace MugenMvvmToolkit
             return observable.Subscribe(subscriber) ? subscriber : null;
         }
 
-        /// <summary>
-        ///     Unsubscribes the instance from all events.
-        /// </summary>
-        /// <param name="observable">The specified <see cref="IObservable"/></param>
-        /// <param name="action">The handler to unsubscribe from event publication.</param>
         public static bool Unsubscribe<TMessage>([NotNull] this IObservable observable, Action<object, TMessage> action)
         {
             Should.NotBeNull(observable, "observable");
             return observable.Unsubscribe(new ActionSubscriber<TMessage>(action));
         }
 
-        /// <summary>
-        ///     Subscribes an instance to events.
-        /// </summary>
-        /// <param name="observable">The specified <see cref="IObservable"/></param>
-        /// <param name="instance">The instance to subscribe for event publication.</param>
-        /// <param name="context">The specified context, if any.</param>
         [CanBeNull]
         public static ISubscriber Subscribe([NotNull] this IObservable observable, [NotNull] object instance, IDataContext context = null)
         {
@@ -1447,12 +1075,6 @@ namespace MugenMvvmToolkit
             return observable.Subscribe(subscriber) ? subscriber : null;
         }
 
-        /// <summary>
-        ///     Unsubscribes the instance from all events.
-        /// </summary>
-        /// <param name="observable">The specified <see cref="IObservable"/></param>
-        /// <param name="instance">The instance to unsubscribe.</param>
-        /// <param name="context">The specified context, if any.</param>
         public static bool Unsubscribe([NotNull] this IObservable observable, [NotNull]object instance, IDataContext context = null)
         {
             Should.NotBeNull(observable, "observable");
@@ -1465,9 +1087,6 @@ namespace MugenMvvmToolkit
             return observable.Unsubscribe(subscriber);
         }
 
-        /// <summary>
-        ///     Gets or creates an instance of <see cref="WeakReference" /> for the specified item.
-        /// </summary>
         public static WeakReference GetWeakReference(object item)
         {
             var hasWeak = item as IHasWeakReference;
@@ -1476,9 +1095,6 @@ namespace MugenMvvmToolkit
             return hasWeak.WeakReference;
         }
 
-        /// <summary>
-        ///     Creates an instance an instance of <see cref="WeakReference" /> for the specified item.
-        /// </summary>
         public static WeakReference GetWeakReferenceOrDefault(object item, WeakReference defaultValue, bool checkHasWeakReference)
         {
             if (item == null)
@@ -1488,17 +1104,11 @@ namespace MugenMvvmToolkit
             return ServiceProvider.WeakReferenceFactory(item);
         }
 
-        /// <returns>
-        ///     Gets the underlying view object.
-        /// </returns>
         public static TView GetUnderlyingView<TView>([CanBeNull] this IView view)
         {
             return GetUnderlyingView<TView>(viewObj: view);
         }
 
-        /// <returns>
-        ///     Gets the underlying view object.
-        /// </returns>
         public static TView GetUnderlyingView<TView>([CanBeNull]object viewObj)
         {
             var wrapper = viewObj as IViewWrapper;
@@ -1507,9 +1117,6 @@ namespace MugenMvvmToolkit
             return (TView)wrapper.View;
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IValidatorAggregator" /> using specified instance.
-        /// </summary>
         public static IValidatorAggregator GetValidatorAggregator([NotNull] this IValidatorProvider validatorProvider,
             [NotNull] object instanceToValidate)
         {
@@ -1520,31 +1127,16 @@ namespace MugenMvvmToolkit
             return aggregator;
         }
 
-        /// <summary>
-        ///     Sets errors for a property using the <see cref="IValidatorAggregator.Validator"/>.
-        /// </summary>
-        /// <param name="aggregator">The specified validator aggregator.</param>
-        /// <param name="propertyExpresssion">The expression for the property</param>
-        /// <param name="errors">The collection of errors</param>
         public static void SetValidatorErrors<T>([NotNull] this IValidatorAggregator aggregator, Func<Expression<Func<T, object>>> propertyExpresssion, params object[] errors)
         {
             aggregator.Validator.SetErrors(propertyExpresssion, errors);
         }
 
-        /// <summary>
-        ///     Sets errors for a property using the <see cref="IValidatorAggregator.Validator"/>.
-        /// </summary>
-        /// <param name="aggregator">The specified validator aggregator.</param>
-        /// <param name="property">The property name</param>
-        /// <param name="errors">The collection of errors</param>
         public static void SetValidatorErrors([NotNull] this IValidatorAggregator aggregator, string property, params object[] errors)
         {
             aggregator.Validator.SetErrors(property, errors);
         }
 
-        /// <summary>
-        ///     Adds the specified validator.
-        /// </summary>
         public static TValidator AddValidator<TValidator>([NotNull] this IValidatorAggregator aggregator,
             [NotNull] object instanceToValidate) where TValidator : IValidator
         {
@@ -1556,38 +1148,22 @@ namespace MugenMvvmToolkit
             return validator;
         }
 
-        /// <summary>
-        ///     Clears errors for a property.
-        /// </summary>
         public static void ClearErrors<TModel>([NotNull] this IValidator validator, Func<Expression<Func<TModel, object>>> propertyExpresssion)
         {
             validator.ClearErrors(GetMemberName(propertyExpresssion));
         }
 
-        /// <summary>
-        ///     Notifies listener about an event.
-        /// </summary>
-        /// <param name="eventPublisher">The specified listener to notify.</param>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">The message instance.</param>
-        /// <param name="mode">The execution mode.</param>
         public static void Publish([NotNull] this IEventPublisher eventPublisher, [NotNull] object sender, [NotNull] object message, ExecutionMode mode)
         {
             Should.NotBeNull(eventPublisher, "eventPublisher");
             ServiceProvider.ThreadManager.Invoke(mode, eventPublisher, sender, message, (publisher, o, arg3) => publisher.Publish(o, arg3));
         }
 
-        /// <summary>
-        ///     Writes the stream contents to a byte array.
-        /// </summary>
         public static byte[] ToArray([NotNull] this Stream stream)
         {
             return stream.ToArray(0);
         }
 
-        /// <summary>
-        ///     Writes the stream contents to a byte array.
-        /// </summary>
         public static byte[] ToArray([NotNull] this Stream stream, int? position)
         {
             Should.NotBeNull(stream, "stream");
@@ -1603,9 +1179,6 @@ namespace MugenMvvmToolkit
             }
         }
 
-        /// <summary>
-        ///     Serializes data to string.
-        /// </summary>
         public static string SerializeToBase64String(this ISerializer serializer, object item)
         {
             Should.NotBeNull(serializer, "serializer");
@@ -1623,9 +1196,6 @@ namespace MugenMvvmToolkit
             }
         }
 
-        /// <summary>
-        ///     Deserializes data using string.
-        /// </summary>
         public static T Deserialize<T>(this ISerializer serializer, string stringData)
         {
             Should.NotBeNull(serializer, "serializer");
@@ -1633,26 +1203,17 @@ namespace MugenMvvmToolkit
                 return (T)serializer.Deserialize(ms);
         }
 
-        /// <summary>
-        ///     Suspends the current thread for a specified time.
-        /// </summary>
         public static void Sleep(int millisecondsTimeout)
         {
             // Set is never called, so we wait always until the timeout occurs
             Sleeper.WaitOne(millisecondsTimeout);
         }
 
-        /// <summary>
-        ///     Suspends the current thread for a specified time.
-        /// </summary>
         public static void Sleep(TimeSpan timeout)
         {
             Sleep((int)timeout.TotalMilliseconds);
         }
 
-        /// <summary>
-        ///     Shows the specified message.
-        /// </summary>
         [SuppressTaskBusyHandler]
         public static Task ShowAsync(this IToastPresenter toastPresenter, object content, ToastDuration duration, ToastPosition position = ToastPosition.Bottom, IDataContext context = null)
         {
@@ -1671,9 +1232,6 @@ namespace MugenMvvmToolkit
             return toastPresenter.ShowAsync(content, floatDuration, position, context);
         }
 
-        /// <summary>
-        /// Loads the specified modules using module context;
-        /// </summary>
         public static IList<IModule> LoadModules([NotNull] this IModuleContext context, [NotNull] IEnumerable<IModule> modules)
         {
             Should.NotBeNull(context, "context");
@@ -1699,9 +1257,6 @@ namespace MugenMvvmToolkit
                 Tracer.Info("The module '{0}' was {1}loaded.", module.GetType(), load ? null : "un");
         }
 
-        /// <summary>
-        ///     Converts the <see cref="IDataContext" /> to the <see cref="IDictionary{TKey,TValue}" />
-        /// </summary>
         public static IDictionary<object, object> ToDictionary([CanBeNull] this IDataContext context)
         {
             if (context == null)
@@ -1709,9 +1264,6 @@ namespace MugenMvvmToolkit
             return new DataContextDictionaryWrapper(context);
         }
 
-        /// <summary>
-        ///     Converts the <see cref="IDictionary{TKey,TValue}" /> to the <see cref="IDataContext" />
-        /// </summary>
         public static IDataContext ToDataContext([CanBeNull] this IEnumerable<KeyValuePair<object, object>> dictionary)
         {
             if (dictionary == null)
@@ -1724,9 +1276,6 @@ namespace MugenMvvmToolkit
             return wrapper.Context;
         }
 
-        /// <summary>
-        ///     Adds the data constant value.
-        /// </summary>
         public static void AddIfNotNull<T>([NotNull] this IDataContext context, [NotNull] DataConstant<T> data, T value)
             where T : class
         {
@@ -1736,9 +1285,6 @@ namespace MugenMvvmToolkit
                 context.Add(data, value);
         }
 
-        /// <summary>
-        ///     Gets the data using the specified data constant.
-        /// </summary>
         public static T GetData<T>([NotNull] this IDataContext context, [NotNull] DataConstant<T> dataConstant,
             bool throwIfNotFound) where T : class
         {
@@ -1750,12 +1296,6 @@ namespace MugenMvvmToolkit
             return result;
         }
 
-        /// <summary>
-        ///     Checks whether the member names are equal.
-        /// </summary>
-        /// <param name="args">The specified property changed args.</param>
-        /// <param name="getProperty">The expression to get property.</param>
-        /// <returns>If true property is equal, otherwise false.</returns>
         [Pure]
         public static bool PropertyNameEqual<T>([NotNull] this PropertyChangedEventArgs args, [NotNull] Func<Expression<Func<T, object>>> getProperty)
         {
@@ -1763,34 +1303,18 @@ namespace MugenMvvmToolkit
             return MemberNameEqual(args.PropertyName, getProperty.GetMemberName());
         }
 
-        /// <summary>
-        ///     Checks whether the member names are equal.
-        /// </summary>
-        /// <param name="args">The specified property changed args.</param>
-        /// <param name="item">The specified model.</param>
-        /// <param name="getProperty">The expression to get property.</param>
-        /// <returns>If true property is equal, otherwise false.</returns>
         [Pure]
         public static bool PropertyNameEqual<T>([NotNull] this PropertyChangedEventArgs args, T item, [NotNull] Func<Expression<Func<T, object>>> getProperty)
         {
             return args.PropertyNameEqual(getProperty);
         }
 
-        /// <summary>
-        ///     Checks whether the member names are equal.
-        /// </summary>
-        /// <param name="memberName">The specified member name.</param>
-        /// <param name="getMember">The expression to get member.</param>
-        /// <returns>If true member names is equal, otherwise false.</returns>
         [Pure]
         public static bool MemberNameEqual<T>(string memberName, [NotNull] Func<Expression<Func<T, object>>> getMember)
         {
             return MemberNameEqual(memberName, getMember.GetMemberName(), false);
         }
 
-        /// <summary>
-        ///     Checks whether the member names are equal.
-        /// </summary>
         public static bool MemberNameEqual(string changedMember, string listenedMember, bool emptyListenedMemberResult = false)
         {
             if (string.IsNullOrEmpty(changedMember) ||
@@ -1828,46 +1352,24 @@ namespace MugenMvvmToolkit
             return false;
         }
 
-        /// <summary>
-        ///     Gets member name from the specified expression.
-        /// </summary>
-        /// <returns>The member name.</returns>
         [Pure]
         public static string GetMemberName([NotNull] this Func<LambdaExpression> getLambdaExpression)
         {
             return getLambdaExpression.GetMemberInfo().Name;
         }
 
-        /// <summary>
-        ///     Gets member name from the specified expression.
-        /// </summary>
-        /// <typeparam name="T">The type of model.</typeparam>
-        /// <param name="expression">The specified expression.</param>
-        /// <returns>The member name.</returns>
         [Pure]
         public static string GetMemberName<T>([NotNull] this Func<Expression<Func<T, object>>> expression)
         {
             return GetMemberName(getLambdaExpression: expression);
         }
 
-        /// <summary>
-        ///     Gets member name from the specified expression.
-        /// </summary>
-        /// <param name="item">The specified model.</param>
-        /// <param name="expression">The specified expression.</param>
-        /// <returns>The member name.</returns>
         [Pure]
         public static string GetMemberName<T>([CanBeNull] T item, [NotNull] Func<Expression<Func<T, object>>> expression)
         {
             return GetMemberName(getLambdaExpression: expression);
         }
 
-        /// <summary>
-        ///     Sets the specified state for all items in the collection.
-        /// </summary>
-        /// <param name="collection">The specified collection.</param>
-        /// <param name="state">The state value.</param>
-        /// <param name="validateState">The flag indicating that state will be validated before assigned.</param>
         public static void SetStateForAll([NotNull] this ITrackingCollection collection, EntityState state,
             bool? validateState = null)
         {
@@ -1876,9 +1378,6 @@ namespace MugenMvvmToolkit
                 collection.UpdateState(item.Entity, state, validateState);
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether the entity has changes.
-        /// </summary>
         [Pure]
         public static bool HasChanges<T>(this IEntitySnapshot snapshot, T item, Func<Expression<Func<T, object>>> memberExpression)
         {
@@ -1888,13 +1387,6 @@ namespace MugenMvvmToolkit
             return snapshot.HasChanges(item, memberExpression.GetMemberName());
         }
 
-        /// <summary>
-        ///     Updates states of entities.
-        /// </summary>
-        /// <param name="collection">The specified collection.</param>
-        /// <param name="predicate">The specified condition.</param>
-        /// <param name="state">The specified state.</param>
-        /// <param name="validateState">The flag indicating that state will be validated before assigned.</param>
         public static void SetStateForAll([NotNull] this ITrackingCollection collection, [NotNull] Func<TrackingEntity<object>, bool> predicate, EntityState state, bool? validateState = null)
         {
             Should.NotBeNull(collection, "collection");
@@ -1906,14 +1398,6 @@ namespace MugenMvvmToolkit
             }
         }
 
-        /// <summary>
-        ///     Updates state of entity.
-        /// </summary>
-        /// <param name="collection">The specified collection.</param>
-        /// <param name="item">The item to add.</param>
-        /// <param name="validateState">The flag indicating that state will be validated before assigned.</param>
-        /// <param name="newState">The state if item is new.</param>
-        /// <param name="updateState">The state if item exist in collection.</param>
         public static bool UpdateState([NotNull] this ITrackingCollection collection, [NotNull] object item,
             EntityState newState, EntityState updateState, bool? validateState = null)
         {
@@ -1924,12 +1408,6 @@ namespace MugenMvvmToolkit
             return collection.UpdateState(item, newState, validateState);
         }
 
-        /// <summary>
-        ///     Updates state of entity.
-        /// </summary>
-        /// <param name="collection">The specified collection.</param>
-        /// <param name="item">The item to add.</param>
-        /// <param name="validateState">The flag indicating that state will be validated before assigned.</param>
         public static bool UpdateState([NotNull] this ITrackingCollection collection, [NotNull] IEntityStateEntry item,
             bool? validateState = null)
         {
@@ -1938,13 +1416,6 @@ namespace MugenMvvmToolkit
             return collection.UpdateState(item.Entity, item.State, validateState);
         }
 
-        /// <summary>
-        ///     Updates states of entities.
-        /// </summary>
-        /// <param name="collection">The specified collection.</param>
-        /// <param name="items">The range of values.</param>
-        /// <param name="state">The specified state.</param>
-        /// <param name="validateState">The flag indicating that state will be validated before assigned.</param>
         public static void UpdateStates([NotNull] this ITrackingCollection collection, [NotNull] IEnumerable items,
             EntityState state, bool? validateState = null)
         {
@@ -1953,12 +1424,6 @@ namespace MugenMvvmToolkit
                 collection.UpdateState(value, state, validateState);
         }
 
-        /// <summary>
-        ///     Updates states of entities.
-        /// </summary>
-        /// <param name="collection">The specified collection.</param>
-        /// <param name="items">Items to add</param>
-        /// <param name="validateState">The flag indicating that state will be validated before assigned.</param>
         public static void UpdateStates([NotNull] this ITrackingCollection collection,
             [NotNull] IEnumerable<IEntityStateEntry> items, bool? validateState = null)
         {
@@ -1968,11 +1433,6 @@ namespace MugenMvvmToolkit
                 collection.UpdateState(entityStateEntry, validateState);
         }
 
-        /// <summary>
-        ///     Removes the object from the tracking collection.
-        /// </summary>
-        /// <param name="collection">The specified collection</param>
-        /// <param name="entity">Object to be detached.</param>
         public static bool Detach([NotNull] this ITrackingCollection collection, [NotNull] object entity)
         {
             Should.NotBeNull(collection, "collection");
@@ -1980,144 +1440,96 @@ namespace MugenMvvmToolkit
             return collection.UpdateState(entity, EntityState.Detached, false);
         }
 
-        /// <summary>
-        ///     Whether this Entity is unchanged.
-        /// </summary>
         [Pure]
         public static bool IsUnchanged(this EntityState es)
         {
             return (es & EntityState.Unchanged) == EntityState.Unchanged;
         }
 
-        /// <summary>
-        ///     Whether this Entity has been added.
-        /// </summary>
         [Pure]
         public static bool IsAdded(this EntityState es)
         {
             return (es & EntityState.Added) == EntityState.Added;
         }
 
-        /// <summary>
-        ///     Whether this Entity has been modified.
-        /// </summary>
         [Pure]
         public static bool IsModified(this EntityState es)
         {
             return (es & EntityState.Modified) == EntityState.Modified;
         }
 
-        /// <summary>
-        ///     Whether this Entity has been detached (either not yet attached or removed via RemoveFromManager).
-        /// </summary>
         [Pure]
         public static bool IsDetached(this EntityState es)
         {
             return (es & EntityState.Detached) == EntityState.Detached;
         }
 
-        /// <summary>
-        ///     Whether this Entity has been deleted (but the change has not yet been persisted to the data source).
-        /// </summary>
         [Pure]
         public static bool IsDeleted(this EntityState es)
         {
             return (es & EntityState.Deleted) == EntityState.Deleted;
         }
 
-        /// <summary>
-        ///     Whether this Entity has been either added or modified.
-        /// </summary>
         [Pure]
         public static bool IsAddedOrModified(this EntityState es)
         {
             return es.IsAdded() || es.IsModified();
         }
 
-        /// <summary>
-        ///     Whether this Entity has been either added or modified.
-        /// </summary>
         [Pure]
         public static bool IsAddedOrModifiedOrUnchanged(this EntityState es)
         {
             return es.IsAddedOrModified() || es.IsUnchanged();
         }
 
-        /// <summary>
-        ///     Whether this Entity has been added, modified or deleted.
-        /// </summary>
         [Pure]
         public static bool IsAddedOrModifiedOrDeleted(this EntityState es)
         {
             return es.IsAddedOrModified() || es.IsDeleted();
         }
 
-        /// <summary>
-        ///     Whether this Entity has been either deleted or detached.
-        /// </summary>
         [Pure]
         public static bool IsDeletedOrDetached(this EntityState es)
         {
             return es.IsDeleted() || es.IsDetached();
         }
 
-        /// <summary>
-        ///     Whether this Entity has been either deleted or modified
-        /// </summary>
         [Pure]
         public static bool IsDeletedOrModified(this EntityState es)
         {
             return es.IsDeleted() || es.IsModified();
         }
 
-        /// <summary>
-        ///     Returns <c>true</c> if <see cref="mode"/> has Design flag.
-        /// </summary>
         [Pure]
         public static bool IsDesignMode(this LoadMode mode)
         {
             return mode.HasFlagEx(LoadMode.Design);
         }
 
-        /// <summary>
-        ///     Returns <c>true</c> if <see cref="mode"/> has UnitTest flag.
-        /// </summary>
         [Pure]
         public static bool IsUnitTestMode(this LoadMode mode)
         {
             return mode.HasFlagEx(LoadMode.UnitTest);
         }
 
-        /// <summary>
-        ///     Returns <c>true</c> if <see cref="mode"/> has Runtime flag.
-        /// </summary>
         [Pure]
         public static bool IsRuntimeMode(this LoadMode mode)
         {
             return mode.HasFlagEx(LoadMode.Runtime);
         }
 
-        /// <summary>
-        ///     Returns <c>true</c> if <see cref="mode"/> has RuntimeDebug flag.
-        /// </summary>
         [Pure]
         public static bool IsRuntimeDebugMode(this LoadMode mode)
         {
             return mode.HasFlagEx(LoadMode.RuntimeDebug);
         }
 
-        /// <summary>
-        ///     Returns <c>true</c> if <see cref="mode"/> has RuntimeRelease flag.
-        /// </summary>
         [Pure]
         public static bool IsRuntimeReleaseMode(this LoadMode mode)
         {
             return mode.HasFlagEx(LoadMode.RuntimeRelease);
         }
 
-        /// <summary>
-        /// Converts the data context to non-read only.
-        /// </summary>
         [NotNull]
         public static IDataContext ToNonReadOnly([CanBeNull] this IDataContext context)
         {
@@ -2128,9 +1540,6 @@ namespace MugenMvvmToolkit
             return context;
         }
 
-        /// <summary>
-        ///     Invokes an action using the specified execution mode.
-        /// </summary>
         public static void Invoke(this IThreadManager threadManager, ExecutionMode mode, Action invokeAction, OperationPriority priority = OperationPriority.Normal, CancellationToken token = default(CancellationToken))
         {
             switch (mode)
@@ -2154,9 +1563,6 @@ namespace MugenMvvmToolkit
             }
         }
 
-        /// <summary>
-        ///     Invokes an action using the specified execution mode.
-        /// </summary>
         public static void Invoke<TTarget, TArg>(this IThreadManager threadManager, ExecutionMode mode, TTarget target, TArg arg1, Action<TTarget, TArg> invokeAction, OperationPriority priority = OperationPriority.Normal, CancellationToken token = default(CancellationToken))
         {
             switch (mode)
@@ -2180,9 +1586,6 @@ namespace MugenMvvmToolkit
             }
         }
 
-        /// <summary>
-        ///     Invokes an action using the specified execution mode.
-        /// </summary>
         public static void Invoke<TTarget, TArg1, TArg2>(this IThreadManager threadManager, ExecutionMode mode, TTarget target, TArg1 arg1, TArg2 arg2, Action<TTarget, TArg1, TArg2> invokeAction, OperationPriority priority = OperationPriority.Normal, CancellationToken token = default(CancellationToken))
         {
             switch (mode)

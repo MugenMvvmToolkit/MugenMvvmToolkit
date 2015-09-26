@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ItemsSourcePagerAdapter.cs">
@@ -62,9 +62,6 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ItemsSourcePagerAdapter" /> class.
-        /// </summary>
         public ItemsSourcePagerAdapter([NotNull] ViewPager viewPager)
         {
             Should.NotBeNull(viewPager, "viewPager");
@@ -86,9 +83,6 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the items source.
-        /// </summary>
         public virtual IEnumerable ItemsSource
         {
             get { return _itemsSource; }

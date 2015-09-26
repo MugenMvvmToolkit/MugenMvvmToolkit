@@ -123,7 +123,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
                     (info, view) => view.Visibility != Visibility.Visible,
                     (info, view, value) => view.Visibility = value ? Visibility.Collapsed : Visibility.Visible, ObserveVisiblityMember));
 
-            //FrameworkElement            
+            //FrameworkElement
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, object>(AttachedMemberConstants.ParentExplicit, GetParentValue, SetParentValue, ObserveParentMember));
             memberProvider.Register(AttachedBindingMember
@@ -146,7 +146,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
                     (info, control, value) => control.IsEnabled = value, "IsEnabledChanged"));
 #endif
 
-            //TextBox                        
+            //TextBox
 #if WINDOWSCOMMON
             memberProvider.Register(AttachedBindingMember.CreateMember<TextBox, string>("Text",
                 (info, box) => box.Text,
@@ -264,9 +264,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
 
         #region Overrides of DataBindingModule
 
-        /// <summary>
-        ///    Occurs on load the current module.
-        /// </summary>
         protected override void OnLoaded(IModuleContext context)
         {
             if (View.BindChanged == null)
@@ -310,9 +307,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
             base.OnLoaded(context);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IBindingErrorProvider" /> that will be used by default.
-        /// </summary>
         protected override IBindingErrorProvider GetBindingErrorProvider(IModuleContext context)
         {
 #if WPF
@@ -322,9 +316,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
             return new BindingErrorProvider();
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IBindingMemberProvider" /> that will be used by default.
-        /// </summary>
         protected override IBindingMemberProvider GetBindingMemberProvider(IModuleContext context)
         {
             var provider = BindingServiceProvider.MemberProvider as BindingMemberProvider;
@@ -333,17 +324,11 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
                 : new BindingMemberProviderEx(provider);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IBindingContextManager" /> that will be used by default.
-        /// </summary>
         protected override IBindingContextManager GetBindingContextManager(IModuleContext context)
         {
             return new BindingContextManagerEx();
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IBindingResourceResolver" /> that will be used by default.
-        /// </summary>
         protected override IBindingResourceResolver GetBindingResourceResolver(IModuleContext context)
         {
             var resolver = BindingServiceProvider.ResourceResolver as BindingResourceResolver;
@@ -352,9 +337,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
                 : new BindingResourceResolverEx(resolver);
         }
 
-        /// <summary>
-        /// Tries to register type.
-        /// </summary>
         protected override void RegisterType(Type type)
         {
             base.RegisterType(type);

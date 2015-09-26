@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="FragmentExtensions.cs">
@@ -45,9 +45,6 @@ namespace MugenMvvmToolkit.Android
         #region Fields
 
 #if !APPCOMPAT
-        /// <summary>
-        ///     Gets the attached member for view.
-        /// </summary>
         public static readonly IAttachedBindingMemberInfo<View, object> FragmentViewMember;
 #endif
         private static Func<Fragment, IDataContext, IMvvmFragmentMediator> _mvvmFragmentMediatorFactory;
@@ -66,9 +63,6 @@ namespace MugenMvvmToolkit.Android
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the factory that creates an instance of <see cref="IMvvmFragmentMediator" />.
-        /// </summary>
         [NotNull]
         public static Func<Fragment, IDataContext, IMvvmFragmentMediator> MvvmFragmentMediatorFactory
         {
@@ -81,9 +75,6 @@ namespace MugenMvvmToolkit.Android
         }
 
 #if !APPCOMPAT
-        /// <summary>
-        ///     Gets or sets that is responsible for cache view in fragment.
-        /// </summary>
         public static bool CacheFragmentViewDefault { get; set; }
 #endif
         #endregion

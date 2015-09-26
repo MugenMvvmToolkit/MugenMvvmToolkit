@@ -18,19 +18,10 @@
 
 namespace MugenMvvmToolkit.Binding.Models
 {
-    /// <summary>
-    ///     Represents the actions that a binding can perform.
-    /// </summary>
     public enum BindingAction
     {
-        /// <summary>
-        ///     The binding is currently updating the source.
-        /// </summary>
         UpdateSource = 1,
 
-        /// <summary>
-        ///     The binding is currently updating the target.
-        /// </summary>
         UpdateTarget = 2,
     }
 }

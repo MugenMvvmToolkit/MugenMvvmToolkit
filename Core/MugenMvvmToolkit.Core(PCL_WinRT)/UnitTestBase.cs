@@ -30,23 +30,14 @@ using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit
 {
-    /// <summary>
-    ///     Represents the class that is used for unit tests.
-    /// </summary>
     public abstract class UnitTestBase
     {
         #region Nested Types
 
-        /// <summary>
-        ///     Represents the default unit test module.
-        /// </summary>
         public sealed class DefaultUnitTestModule : InitializationModuleBase
         {
             #region Constructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="DefaultUnitTestModule" /> class.
-            /// </summary>
             public DefaultUnitTestModule(int priority = InitializationModulePriority)
                 : base(LoadMode.UnitTest, priority)
             {
@@ -55,9 +46,6 @@ namespace MugenMvvmToolkit
             #endregion
         }
 
-        /// <summary>
-        ///     Represents the default implementation of unit test <see cref="IMvvmApplication"/>.
-        /// </summary>
         protected class UnitTestApp : MvvmApplication
         {
             #region Fields
@@ -68,9 +56,6 @@ namespace MugenMvvmToolkit
 
             #region Constructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="UnitTestApp" /> class.
-            /// </summary>
             public UnitTestApp(LoadMode mode = LoadMode.UnitTest, params IModule[] modules)
                 : base(mode)
             {
@@ -105,52 +90,34 @@ namespace MugenMvvmToolkit
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the current <see cref="IIocContainer" />.
-        /// </summary>
         protected IIocContainer IocContainer
         {
             get { return MvvmApplication.Current.IocContainer; }
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IViewModelProvider" />.
-        /// </summary>
         protected IViewModelProvider ViewModelProvider { get; set; }
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Initializes the current unit-test.
-        /// </summary>
         protected void Initialize([NotNull] IIocContainer iocContainer, params IModule[] modules)
         {
             Initialize(iocContainer, PlatformInfo.UnitTest, modules);
         }
 
-        /// <summary>
-        ///     Initializes the current unit-test.
-        /// </summary>
         protected void Initialize([NotNull] IIocContainer iocContainer, PlatformInfo platform, params IModule[] modules)
         {
             Initialize(new UnitTestApp(modules: modules), iocContainer, platform, typeof(UnitTestApp).GetAssembly(),
                 GetType().GetAssembly());
         }
 
-        /// <summary>
-        ///     Initializes the current unit-test.
-        /// </summary>
         protected void Initialize([NotNull] IMvvmApplication application, [NotNull] IIocContainer iocContainer,
             params Assembly[] assemblies)
         {
             Initialize(application, iocContainer, PlatformInfo.UnitTest, assemblies);
         }
 
-        /// <summary>
-        ///     Initializes the current unit-test.
-        /// </summary>
         protected void Initialize([NotNull] IMvvmApplication application, [NotNull] IIocContainer iocContainer,
             PlatformInfo platform, params Assembly[] assemblies)
         {
@@ -167,17 +134,6 @@ namespace MugenMvvmToolkit
             }
         }
 
-        /// <summary>
-        ///     Creates an instance of the specified view model.
-        /// </summary>
-        /// <param name="getViewModel">The specified delegate to create view model.</param>
-        /// <param name="parentViewModel">The parent view model.</param>
-        /// <param name="containerCreationMode">The value that is responsible to initialize the IocContainer.</param>
-        /// <param name="observationMode">The value that is responsible for listen messages in created view model.</param>
-        /// <param name="parameters">The specified parameters to get view-model.</param>
-        /// <returns>
-        ///     An instance of <see cref="IViewModel" />.
-        /// </returns>
         protected internal IViewModel GetViewModel([NotNull] GetViewModelDelegate<IViewModel> getViewModel,
             IViewModel parentViewModel = null, ObservationMode? observationMode = null,
             IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
@@ -186,17 +142,6 @@ namespace MugenMvvmToolkit
                 parameters);
         }
 
-        /// <summary>
-        ///     Creates an instance of the specified view model.
-        /// </summary>
-        /// <param name="getViewModelGeneric">The specified delegate to create view model.</param>
-        /// <param name="parentViewModel">The parent view model.</param>
-        /// <param name="containerCreationMode">The value that is responsible to initialize the IocContainer.</param>
-        /// <param name="observationMode">The value that is responsible for listen messages in created view model.</param>
-        /// <param name="parameters">The specified parameters to get view-model.</param>
-        /// <returns>
-        ///     An instance of <see cref="IViewModel" />.
-        /// </returns>
         protected internal T GetViewModel<T>([NotNull] GetViewModelDelegate<T> getViewModelGeneric,
             IViewModel parentViewModel = null, ObservationMode? observationMode = null,
             IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
@@ -207,17 +152,6 @@ namespace MugenMvvmToolkit
                 parameters);
         }
 
-        /// <summary>
-        ///     Creates an instance of the specified view model.
-        /// </summary>
-        /// <param name="viewModelType">The type of view model.</param>
-        /// <param name="parentViewModel">The parent view model.</param>
-        /// <param name="containerCreationMode">The value that is responsible to initialize the IocContainer.</param>
-        /// <param name="observationMode">The value that is responsible for listen messages in created view model.</param>
-        /// <param name="parameters">The specified parameters to get view-model.</param>
-        /// <returns>
-        ///     An instance of <see cref="IViewModel" />.
-        /// </returns>
         protected internal IViewModel GetViewModel([NotNull] Type viewModelType,
             IViewModel parentViewModel = null, ObservationMode? observationMode = null,
             IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
@@ -226,17 +160,6 @@ namespace MugenMvvmToolkit
                 parameters);
         }
 
-        /// <summary>
-        ///     Creates an instance of the specified view model.
-        /// </summary>
-        /// <typeparam name="T">The type of view model.</typeparam>
-        /// <param name="parentViewModel">The parent view model.</param>
-        /// <param name="containerCreationMode">The value that is responsible to initialize the IocContainer.</param>
-        /// <param name="observationMode">The value that is responsible for listen messages in created view model.</param>
-        /// <param name="parameters">The specified parameters to get view-model.</param>
-        /// <returns>
-        ///     An instance of <see cref="IViewModel" />.
-        /// </returns>
         protected internal T GetViewModel<T>(IViewModel parentViewModel = null, ObservationMode? observationMode = null,
             IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
             where T : IViewModel

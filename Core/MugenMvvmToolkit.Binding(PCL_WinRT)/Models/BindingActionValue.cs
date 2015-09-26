@@ -22,9 +22,6 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
-    /// <summary>
-    ///     Represents the dynamic binding member value.
-    /// </summary>
     public class BindingActionValue
     {
         #region Fields
@@ -36,9 +33,6 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingActionValue" /> class.
-        /// </summary>
         public BindingActionValue([NotNull] object memberSource, [NotNull] IBindingMemberInfo member)
         {
             Should.NotBeNull(memberSource, "memberSource");
@@ -51,18 +45,12 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the member source.
-        /// </summary>
         [NotNull]
         public WeakReference MemberSource
         {
             get { return _memberSource; }
         }
 
-        /// <summary>
-        ///     Gets the current member.
-        /// </summary>
         [NotNull]
         public IBindingMemberInfo Member
         {

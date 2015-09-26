@@ -23,36 +23,18 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces.Navigation
 {
-    /// <summary>
-    ///     Represents the navigation context.
-    /// </summary>
     public interface INavigationContext : IDataContext
     {
-        /// <summary>
-        ///     Gets the value of the mode parameter from the originating Navigate call.
-        /// </summary>
         NavigationMode NavigationMode { get; }
 
-        /// <summary>
-        ///     Gets the from navigate view model.
-        /// </summary>
         [CanBeNull]
         IViewModel ViewModelFrom { get; }
 
-        /// <summary>
-        ///     Gets the view model to navigate.
-        /// </summary>
         [CanBeNull]
         IViewModel ViewModelTo { get; }
 
-        /// <summary>
-        ///     Gets the navigation type.
-        /// </summary>
         NavigationType NavigationType { get; }
 
-        /// <summary>
-        ///     Gets the navigation provider that creates this context.
-        /// </summary>
         [CanBeNull]
         object NavigationProvider { get; }
     }

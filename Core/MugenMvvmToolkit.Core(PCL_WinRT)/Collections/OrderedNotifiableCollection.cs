@@ -27,53 +27,32 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Collections
 {
-    /// <summary>
-    ///     Represents the sorted synchronized observable collection, duplicate items (items that compare equal to each other)
-    ///     are allows in an OrderedNotifiableCollection.
-    /// </summary>
-    /// <typeparam name="T">The type of model.</typeparam>
     [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable]
     public class OrderedNotifiableCollection<T> : SynchronizedNotifiableCollection<T>
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OrderedNotifiableCollection{T}" /> class.
-        /// </summary>
         public OrderedNotifiableCollection()
             : base(new OrderedListInternal<T>(), null)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OrderedNotifiableCollection{T}" /> class.
-        /// </summary>
         public OrderedNotifiableCollection([NotNull] IEnumerable<T> collection, [NotNull] Comparison<T> comparison,
             IThreadManager threadManager = null)
             : base(new OrderedListInternal<T>(collection, new DelegateComparer<T>(comparison)), threadManager)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OrderedNotifiableCollection{T}" /> class.
-        /// </summary>
         public OrderedNotifiableCollection([NotNull] Comparison<T> comparison, IThreadManager threadManager = null)
             : base(new OrderedListInternal<T>(new DelegateComparer<T>(comparison)), threadManager)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OrderedNotifiableCollection{T}" /> class.
-        /// </summary>
         public OrderedNotifiableCollection(IComparer<T> comparer = null, IThreadManager threadManager = null)
             : base(new OrderedListInternal<T>(comparer), threadManager)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OrderedNotifiableCollection{T}" /> class that contains elements
-        ///     copied from the specified collection.
-        /// </summary>
         public OrderedNotifiableCollection([NotNull] IEnumerable<T> collection, IComparer<T> comparer = null,
             IThreadManager threadManager = null)
             : base(new OrderedListInternal<T>(collection, comparer), threadManager)
@@ -84,22 +63,13 @@ namespace MugenMvvmToolkit.Collections
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the comparer.
-        /// </summary>
         public IComparer<T> Comparer
         {
             get { return Items.Comparer; }
         }
 
-        /// <summary>
-        ///     Gets or sets the value that indicates that collection should check index on insert.
-        /// </summary>
         public bool ValidateOnInsert { get; set; }
 
-        /// <summary>
-        ///     Gets the internal collection.
-        /// </summary>
         private new OrderedListInternal<T> Items
         {
             get { return (OrderedListInternal<T>)base.Items; }
@@ -109,9 +79,6 @@ namespace MugenMvvmToolkit.Collections
 
         #region Overrides of SynchronizedNotifiableCollection<T>
 
-        /// <summary>
-        ///     Initializes default values.
-        /// </summary>
         protected override void OnInitialized()
         {
             base.OnInitialized();
@@ -119,16 +86,6 @@ namespace MugenMvvmToolkit.Collections
                 base.Items = new OrderedListInternal<T>(base.Items);
         }
 
-        /// <summary>
-        ///     Replaces the element at the specified index.
-        /// </summary>
-        /// <param name="index">
-        ///     The zero-based index of the element to replace.
-        /// </param>
-        /// <param name="item">
-        ///     The new value for the element at the specified index.
-        /// </param>
-        /// <param name="shouldRaiseEvents"></param>
         protected override void SetItemInternal(int index, T item, out bool shouldRaiseEvents)
         {
             shouldRaiseEvents = false;
@@ -147,17 +104,6 @@ namespace MugenMvvmToolkit.Collections
             shouldRaiseEvents = true;
         }
 
-        /// <summary>
-        ///     Inserts an item into the collection at the specified index.
-        /// </summary>
-        /// <param name="index">
-        ///     The zero-based index at which <paramref name="item" /> should be inserted.
-        /// </param>
-        /// <param name="item">
-        ///     The object to insert.
-        /// </param>
-        /// <param name="isAdd"></param>
-        /// <param name="shouldRaiseEvents"></param>
         protected override int InsertItemInternal(int index, T item, bool isAdd, out bool shouldRaiseEvents)
         {
             shouldRaiseEvents = false;

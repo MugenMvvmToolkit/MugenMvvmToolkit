@@ -109,18 +109,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
 
         #region Overrides of DataBindingModule
 
-        /// <summary>
-        ///    Occurs on load the current module.
-        /// </summary>
         protected override void OnLoaded(IModuleContext context)
         {
             base.OnLoaded(context);
             Register(BindingServiceProvider.MemberProvider);
         }
 
-        /// <summary>
-        /// Tries to register type.
-        /// </summary>
         protected override void RegisterType(Type type)
         {
             base.RegisterType(type);
@@ -137,17 +131,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
                 Tracer.Info("The {0} converter is registered.", type);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IBindingContextManager" /> that will be used by default.
-        /// </summary>
         protected override IBindingContextManager GetBindingContextManager(IModuleContext context)
         {
             return new BindingContextManagerEx();
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IBindingResourceResolver" /> that will be used by default.
-        /// </summary>
         protected override IBindingResourceResolver GetBindingResourceResolver(IModuleContext context)
         {
             var resolver = BindingServiceProvider.ResourceResolver as BindingResourceResolver;

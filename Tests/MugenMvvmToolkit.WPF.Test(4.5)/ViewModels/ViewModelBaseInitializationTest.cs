@@ -34,12 +34,6 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
             #region Implementation of IViewModel
 
-            /// <summary>
-            ///     Initializes the current view model with specified <see cref="IDataContext" />.
-            /// </summary>
-            /// <param name="context">
-            ///     The specified <see cref="IDataContext" />.
-            /// </param>
             public void InitializeViewModel(IDataContext context)
             {
                 Context = context;
@@ -65,9 +59,6 @@ namespace MugenMvvmToolkit.Test.ViewModels
         {
             #region Implementation of IHasDisplayName
 
-            /// <summary>
-            ///     Gets or sets the display name for the current model.
-            /// </summary>
             public string DisplayName { get; set; }
 
             #endregion

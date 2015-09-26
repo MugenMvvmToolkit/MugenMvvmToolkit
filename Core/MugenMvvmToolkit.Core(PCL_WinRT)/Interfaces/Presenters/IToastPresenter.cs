@@ -23,14 +23,8 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces.Presenters
 {
-    /// <summary>
-    ///     Provides functionality to present a timed message.
-    /// </summary>
     public interface IToastPresenter
     {
-        /// <summary>
-        ///     Shows the specified message.
-        /// </summary>
         [SuppressTaskBusyHandler]
         Task ShowAsync(object content, float duration, ToastPosition position = ToastPosition.Bottom,
             IDataContext context = null);

@@ -24,30 +24,14 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 
 namespace MugenMvvmToolkit.Interfaces.Presenters
 {
-    /// <summary>
-    ///     Represents the service that allows to show a view model.
-    /// </summary>
     public interface IViewModelPresenter
     {
-        /// <summary>
-        ///     Gets the collection of <see cref="IDynamicViewModelPresenter" />.
-        /// </summary>
         [NotNull]
         ICollection<IDynamicViewModelPresenter> DynamicPresenters { get; }
 
-        /// <summary>
-        ///     Shows the specified <see cref="IViewModel" />.
-        /// </summary>
-        /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
-        /// <param name="context">The specified context.</param>
         [NotNull]
         INavigationOperation ShowAsync([NotNull] IViewModel viewModel, [CanBeNull] IDataContext context);
 
-        /// <summary>
-        ///     Tries to restore the presenter state of the specified <see cref="IViewModel" />.
-        /// </summary>
-        /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
-        /// <param name="context">The specified context.</param>
         void Restore([NotNull] IViewModel viewModel, [CanBeNull] IDataContext context);
     }
 }

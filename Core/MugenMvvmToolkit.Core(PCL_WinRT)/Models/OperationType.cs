@@ -39,9 +39,6 @@ namespace MugenMvvmToolkit.Models
             PageNavigation = new OperationType("Page");
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OperationType" /> class.
-        /// </summary>
         public OperationType(string id)
             : base(id)
         {

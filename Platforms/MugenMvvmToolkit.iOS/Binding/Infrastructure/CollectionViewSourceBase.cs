@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="CollectionViewSourceBase.cs">
@@ -85,9 +85,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the factory that allows to create items source adapter.
-        /// </summary>
         [NotNull]
         public static Func<UICollectionView, IDataContext, CollectionViewSourceBase> Factory
         {

@@ -77,9 +77,6 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
 
         #region Constructors
 
-        /// <summary>
-        /// Initializes a new instance of a class derived from <see cref="T:System.Windows.Markup.MarkupExtension"/>. 
-        /// </summary>
         static DataBindingExtension()
         {
             CachedDelegates = new Dictionary<EventInfo, Delegate>();
@@ -90,26 +87,17 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the path to the binding source property.
-        /// </summary>
 #if WPF
         [System.Windows.Markup.ConstructorArgument("path")]
 #endif
         public string Path { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the path to the binding source property this property is the same as <see cref="Path"/>.
-        /// </summary>
         public string Expression
         {
             get { return Path; }
             set { Path = value; }
         }
 
-        /// <summary>
-        ///     Gets or sets a value that indicates the direction of the data flow in the binding.
-        /// </summary>
         public BindingModeCore Mode
         {
             get { return _mode; }
@@ -121,9 +109,6 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             }
         }
 
-        /// <summary>
-        ///     Gets or sets a value that determines the timing of binding source updates.
-        /// </summary>
         public UpdateSourceTriggerCore UpdateSourceTrigger
         {
             get { return _updateSourceTrigger; }
@@ -135,9 +120,6 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the converter to use.
-        /// </summary>
         public object Converter
         {
             get { return _converter; }
@@ -152,9 +134,6 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the culture in which to evaluate the converter.
-        /// </summary>
         public CultureInfo ConverterCulture
         {
             get { return _converterCulture; }
@@ -166,9 +145,6 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the parameter to pass to the Converter.
-        /// </summary>
         public object ConverterParameter
         {
             get { return _converterParameter; }
@@ -180,9 +156,6 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the parameter to pass to the command.
-        /// </summary>
         public object CommandParameter
         {
             get { return _commandParameter; }
@@ -194,9 +167,6 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             }
         }
 
-        /// <summary>
-        ///     Gets or sets a value that indicates whether to include <see cref="ValidatesOnNotifyDataErrorsBehavior"/>
-        /// </summary>
         public bool ValidatesOnNotifyDataErrors
         {
             get { return _validatesOnNotifyDataErrors; }
@@ -208,9 +178,6 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             }
         }
 
-        /// <summary>
-        ///     Gets or sets a value that indicates whether to include <see cref="ValidatesOnExceptionsBehavior"/>
-        /// </summary>
         public bool ValidatesOnExceptions
         {
             get { return _validatesOnExceptions; }
@@ -222,9 +189,6 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the value that is used in the target when the value of the source is null.
-        /// </summary>
         public object TargetNullValue
         {
             get { return _targetNullValue; }
@@ -236,9 +200,6 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the value to use when the binding is unable to return a value.
-        /// </summary>
         public object Fallback
         {
             get { return _fallback; }
@@ -250,10 +211,6 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the amount of time, in milliseconds, to wait before updating the binding source after the value on the
-        ///     target changes.
-        /// </summary>
         public int Delay
         {
             get { return (int)_delay; }
@@ -265,10 +222,6 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the amount of time, in milliseconds, to wait before updating the binding target after the value on the
-        ///     source changes.
-        /// </summary>
         public int TargetDelay
         {
             get
@@ -283,9 +236,6 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             }
         }
 
-        /// <summary>
-        ///     Gets or sets value that allows to set default value on a binding exception.
-        /// </summary>
         public object DefaultValueOnException
         {
             get { return _defaultValueOnException; }
@@ -297,9 +247,6 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             }
         }
 
-        /// <summary>
-        ///     Gets or sets a value that indicates whether to include <see cref="ValidatesOnNotifyDataErrorsBehavior"/> and <see cref="ValidatesOnExceptionsBehavior"/>.
-        /// </summary>
         public bool Validate
         {
             get { return ValidatesOnNotifyDataErrors && ValidatesOnExceptions; }
@@ -310,9 +257,6 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the property that is responsible for the automatic toggle enabled state for command.
-        /// </summary>
         public bool? ToggleEnabledState
         {
             get { return _toggleEnabledState; }

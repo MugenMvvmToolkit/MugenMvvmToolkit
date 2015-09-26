@@ -21,19 +21,10 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces.Models
 {
-    /// <summary>
-    ///     An object that notifies when it is disposed.
-    /// </summary>
     public interface IDisposableObject : IDisposable
     {
-        /// <summary>
-        ///     Gets a value indicating whether this instance is disposed.
-        /// </summary>
         bool IsDisposed { get; }
 
-        /// <summary>
-        ///     Occurs when the object is disposed by a call to the Dispose method.
-        /// </summary>
         event EventHandler<IDisposableObject, EventArgs> Disposed;
     }
 }

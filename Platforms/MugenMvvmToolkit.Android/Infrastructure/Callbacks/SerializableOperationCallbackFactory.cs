@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="SerializableOperationCallbackFactory.cs">
@@ -48,9 +48,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 #endif
 {
     //NOTE do you want to see some magic? :)
-    /// <summary>
-    ///     Rerpresets the factory that allows to create serializable callback operations.
-    /// </summary>
     public class SerializableOperationCallbackFactory : IOperationCallbackFactory
     {
         #region Nested types
@@ -325,9 +322,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             #endregion
         }
 
-        /// <summary>
-        /// Rerpresents the serializable callback that allows to restore async callback.
-        /// </summary>
         [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true)]
 #if ANDROID
         [Serializable]
@@ -641,9 +635,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             #endregion
         }
 
-        /// <summary>
-        /// Rerpresents the serializable callback that allows to restore delegate callback.
-        /// </summary>
         [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true)]
 #if ANDROID
         [Serializable]
@@ -690,9 +681,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             #region Implementation of ISerializableCallback
 
-            /// <summary>
-            ///     Invokes the callback using the specified operation result.
-            /// </summary>
             public object Invoke(IOperationResult result)
             {
                 var invokeInternal = InvokeInternal(result);
@@ -790,26 +778,17 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Implementation of IOperationCallbackFactory
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IAsyncOperationAwaiter" />.
-        /// </summary>
         public IAsyncOperationAwaiter CreateAwaiter(IAsyncOperation operation, IDataContext context)
         {
             return CreateAwaiterInternal<object>(operation, context);
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IAsyncOperationAwaiter{TResult}" />.
-        /// </summary>
         public IAsyncOperationAwaiter<TResult> CreateAwaiter<TResult>(IAsyncOperation<TResult> operation,
             IDataContext context)
         {
             return CreateAwaiterInternal<TResult>(operation, context);
         }
 
-        /// <summary>
-        ///     Tries to convert a delegate to an instance of <see cref="ISerializableCallback" />.
-        /// </summary>
         public ISerializableCallback CreateSerializableCallback(Delegate @delegate)
         {
             Should.NotBeNull(@delegate, "delegate");

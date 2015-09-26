@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="SplashScreenActivityBase.cs">
@@ -58,9 +58,6 @@ namespace MugenMvvmToolkit.Android.Views.Activities
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the current splash screen activity.
-        /// </summary>
         [CanBeNull]
         public static SplashScreenActivityBase Current { get; private set; }
 

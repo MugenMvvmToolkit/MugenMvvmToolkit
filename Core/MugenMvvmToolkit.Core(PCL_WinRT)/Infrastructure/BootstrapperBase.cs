@@ -25,9 +25,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the base class that is used to start MVVM application.
-    /// </summary>
     public abstract class BootstrapperBase
     {
         #region Fields
@@ -39,31 +36,19 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the current <see cref="BootstrapperBase" />.
-        /// </summary>
         public static BootstrapperBase Current { get; protected set; }
 
-        /// <summary>
-        ///     Gets the initialized state of the current bootstrapper.
-        /// </summary>
         public bool IsInitialized
         {
             get { return _state == InitializedState; }
         }
 
-        /// <summary>
-        ///     Gets or sets the initialization context.
-        /// </summary>
         public IDataContext InitializationContext { get; set; }
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Initializes the current bootstrapper.
-        /// </summary>
         public void Initialize()
         {
             if (Interlocked.Exchange(ref _state, InitializedState) == InitializedState)
@@ -77,27 +62,14 @@ namespace MugenMvvmToolkit.Infrastructure
             InitializeInternal();
         }
 
-        /// <summary>
-        ///     Initializes the current bootstrapper.
-        /// </summary>
         protected abstract void InitializeInternal();
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IMvvmApplication" />.
-        /// </summary>
         [NotNull]
         protected abstract IMvvmApplication CreateApplication();
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IIocContainer" />.
-        /// </summary>
-        /// <returns>An instance of <see cref="IIocContainer" />.</returns>
         [NotNull]
         protected abstract IIocContainer CreateIocContainer();
 
-        /// <summary>
-        ///     Tries to load assembly by full name.
-        /// </summary>
         protected static Assembly TryLoadAssembly(string assemblyName, ICollection<Assembly> assemblies)
         {
             try

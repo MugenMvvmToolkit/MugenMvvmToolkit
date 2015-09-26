@@ -18,16 +18,10 @@
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Syntax
 {
-    /// <summary>
-    ///     Used to define a basic binding syntax builder.
-    /// </summary>
     public interface IBindingModeSyntax : IBuilderSyntax
     {
     }
 
-    /// <summary>
-    ///     Used to define a basic binding syntax builder.
-    /// </summary>
     public interface IBindingModeSyntax<in TSource> : IBindingModeSyntax
     {
     }

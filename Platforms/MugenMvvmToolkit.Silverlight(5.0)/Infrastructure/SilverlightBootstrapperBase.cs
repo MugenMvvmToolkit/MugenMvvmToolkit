@@ -28,16 +28,10 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Silverlight.Infrastructure
 {
-    /// <summary>
-    ///     Represents the base class that is used to start MVVM application.
-    /// </summary>
     public abstract class SilverlightBootstrapperBase : BootstrapperBase
     {
         #region Fields
 
-        /// <summary>
-        /// Gets the name of binding assembly.
-        /// </summary>
         protected const string BindingAssemblyName = "MugenMvvmToolkit.Silverlight.Binding";
         private readonly Application _application;
         private readonly PlatformInfo _platform;
@@ -46,9 +40,6 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="SilverlightBootstrapperBase" /> class.
-        /// </summary>
         protected SilverlightBootstrapperBase([NotNull] Application application, bool autoStart = true, PlatformInfo platform = null)
         {
             Should.NotBeNull(application, "application");
@@ -62,14 +53,8 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Indicates that bootstrapper should call the Start method when Application.Startup is raised.
-        /// </summary>
         public bool AutoStart { get; set; }
 
-        /// <summary>
-        ///     Gets the current application.
-        /// </summary>
         protected Application Application
         {
             get { return _application; }
@@ -79,9 +64,6 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Initializes the current bootstrapper.
-        /// </summary>
         protected override void InitializeInternal()
         {
             var application = CreateApplication();
@@ -89,9 +71,6 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
             application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
         }
 
-        /// <summary>
-        ///     Starts the current bootstrapper.
-        /// </summary>
         public virtual void Start()
         {
             Initialize();
@@ -104,9 +83,6 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
             _application.RootVisual = (UIElement)ViewManager.GetOrCreateView(viewModel, false, ctx);
         }
 
-        /// <summary>
-        ///     Gets the application assemblies.
-        /// </summary>
         protected virtual ICollection<Assembly> GetAssemblies()
         {
             var listAssembly = new List<Assembly>();

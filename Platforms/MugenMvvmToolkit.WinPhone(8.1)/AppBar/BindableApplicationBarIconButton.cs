@@ -23,16 +23,10 @@ using Microsoft.Phone.Shell;
 
 namespace MugenMvvmToolkit.WinPhone.AppBar
 {
-    /// <summary>
-    ///     An bindable Application Bar button with an icon.
-    /// </summary>
     public class BindableApplicationBarIconButton : BindableApplicationBarMenuItem, IApplicationBarIconButton
     {
         #region Fields
 
-        /// <summary>
-        ///     Identifies the <see cref="IconUri" /> dependency property.
-        /// </summary>
         public static readonly DependencyProperty IconUriProperty =
             DependencyProperty.Register("IconUri", typeof (Uri), typeof (BindableApplicationBarIconButton),
                 new PropertyMetadata((o, args) =>
@@ -42,20 +36,11 @@ namespace MugenMvvmToolkit.WinPhone.AppBar
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the original application bar item.
-        /// </summary>
         public new IApplicationBarIconButton ApplicationBarItem
         {
             get { return (IApplicationBarIconButton) base.ApplicationBarItem; }
         }
 
-        /// <summary>
-        ///     The URI of the icon to use for the button.
-        /// </summary>
-        /// <returns>
-        ///     Type: <see cref="T:System.Uri" />.
-        /// </returns>
         public Uri IconUri
         {
             get { return (Uri) GetValue(IconUriProperty); }
@@ -66,9 +51,6 @@ namespace MugenMvvmToolkit.WinPhone.AppBar
 
         #region Overrides of BindableApplicationBarMenuItem
 
-        /// <summary>
-        ///     Gets the original list of items.
-        /// </summary>
         protected override IList OriginalList
         {
             get
@@ -79,9 +61,6 @@ namespace MugenMvvmToolkit.WinPhone.AppBar
             }
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IApplicationBarMenuItem" />
-        /// </summary>
         protected override IApplicationBarMenuItem CreateApplicationBarItem()
         {
             return new ApplicationBarIconButton();

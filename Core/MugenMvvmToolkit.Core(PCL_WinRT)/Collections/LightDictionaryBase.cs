@@ -27,11 +27,6 @@ using MugenMvvmToolkit.Infrastructure;
 
 namespace MugenMvvmToolkit.Collections
 {
-    /// <summary>
-    ///     Represents a collection of keys and values.
-    /// </summary>
-    /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
-    /// <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
     [DebuggerDisplay("Count = {Count}"), Serializable, DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true)]
     public abstract class LightDictionaryBase<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
     {
@@ -49,9 +44,6 @@ namespace MugenMvvmToolkit.Collections
             public TValue Value;
         }
 
-        /// <summary>
-        ///     Enumerates the elements of a <see cref="LightDictionaryBase{TKey,TValue}" />.
-        /// </summary>
         [StructLayout(LayoutKind.Auto)]
         public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>
         {
@@ -76,13 +68,6 @@ namespace MugenMvvmToolkit.Collections
 
             #region Implementation of IEnumerator<KeyValuePair<TKey, TValue>>
 
-            /// <summary>
-            ///     Gets the element at the current position of the enumerator.
-            /// </summary>
-            /// <returns>
-            ///     The element in the <see cref="T:System.Collections.Generic.Dictionary`2" /> at the current position of the
-            ///     enumerator.
-            /// </returns>
             public KeyValuePair<TKey, TValue> Current
             {
                 get { return _current; }
@@ -94,14 +79,6 @@ namespace MugenMvvmToolkit.Collections
                 get { return _current; }
             }
 
-            /// <summary>
-            ///     Advances the enumerator to the next element of the <see cref="T:System.Collections.Generic.Dictionary`2" />.
-            /// </summary>
-            /// <returns>
-            ///     true if the enumerator was successfully advanced to the next element; false if the enumerator has passed the end of
-            ///     the collection.
-            /// </returns>
-            /// <exception cref="T:System.InvalidOperationException">The collection was modified after the enumerator was created. </exception>
             public bool MoveNext()
             {
                 for (; _index < _dictionary._count; ++_index)
@@ -119,9 +96,6 @@ namespace MugenMvvmToolkit.Collections
                 return false;
             }
 
-            /// <summary>
-            ///     Releases all resources used by the <see cref="T:System.Collections.Generic.Dictionary`2.Enumerator" />.
-            /// </summary>
             public void Dispose()
             {
             }
@@ -159,18 +133,12 @@ namespace MugenMvvmToolkit.Collections
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="LightDictionaryBase{TKey,TValue}" /> class.
-        /// </summary>
         protected LightDictionaryBase(bool initialize)
         {
             if (initialize)
                 Initialize(0);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="LightDictionaryBase{TKey,TValue}" /> class.
-        /// </summary>
         protected LightDictionaryBase(int capacity)
         {
             Initialize(capacity);
@@ -187,12 +155,6 @@ namespace MugenMvvmToolkit.Collections
             set { Restore(value); }
         }
 
-        /// <summary>
-        ///     Gets the number of key/value pairs contained in the <see cref="T:System.Collections.Generic.Dictionary`2" />.
-        /// </summary>
-        /// <returns>
-        ///     The number of key/value pairs contained in the <see cref="T:System.Collections.Generic.Dictionary`2" />.
-        /// </returns>
         public int Count
         {
             get
@@ -203,15 +165,6 @@ namespace MugenMvvmToolkit.Collections
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the value associated with the specified key.
-        /// </summary>
-        /// <returns>
-        ///     The value associated with the specified key. If the specified key is not found, a get operation throws a
-        ///     <see cref="T:System.Collections.Generic.KeyNotFoundException" />, and a set operation creates a new element with
-        ///     the specified key.
-        /// </returns>
-        /// <param name="key">The key of the value to get or set.</param>
         protected internal TValue this[TKey key]
         {
             get
@@ -262,19 +215,11 @@ namespace MugenMvvmToolkit.Collections
             return GetEnumerator();
         }
 
-        /// <summary>
-        ///     Adds the specified key and value to the dictionary.
-        /// </summary>
-        /// <param name="key">The key of the element to add.</param>
-        /// <param name="value">The value of the element to add. The value can be null for reference types.</param>
         protected internal void Add(TKey key, TValue value)
         {
             Insert(key, value, true);
         }
 
-        /// <summary>
-        ///     Removes all keys and values from the <see cref="T:System.Collections.Generic.Dictionary`2" />.
-        /// </summary>
         protected internal void Clear()
         {
             if (_buckets == null)
@@ -289,27 +234,11 @@ namespace MugenMvvmToolkit.Collections
             _freeCount = 0;
         }
 
-        /// <summary>
-        ///     Determines whether the <see cref="T:System.Collections.Generic.Dictionary`2" /> contains the specified key.
-        /// </summary>
-        /// <returns>
-        ///     true if the <see cref="T:System.Collections.Generic.Dictionary`2" /> contains an element with the specified key;
-        ///     otherwise, false.
-        /// </returns>
-        /// <param name="key">The key to locate in the <see cref="T:System.Collections.Generic.Dictionary`2" />.</param>
         protected internal bool ContainsKey(TKey key)
         {
             return FindEntry(key) >= 0;
         }
 
-        /// <summary>
-        ///     Removes the value with the specified key from the <see cref="T:System.Collections.Generic.Dictionary`2" />.
-        /// </summary>
-        /// <returns>
-        ///     true if the element is successfully found and removed; otherwise, false.  This method returns false if
-        ///     <paramref name="key" /> is not found in the <see cref="T:System.Collections.Generic.Dictionary`2" />.
-        /// </returns>
-        /// <param name="key">The key of the element to remove.</param>
         protected internal bool Remove(TKey key)
         {
             if (_buckets == null)
@@ -341,19 +270,6 @@ namespace MugenMvvmToolkit.Collections
             return false;
         }
 
-        /// <summary>
-        ///     Gets the value associated with the specified key.
-        /// </summary>
-        /// <returns>
-        ///     true if the <see cref="T:System.Collections.Generic.Dictionary`2" /> contains an element with the specified key;
-        ///     otherwise, false.
-        /// </returns>
-        /// <param name="key">The key of the value to get.</param>
-        /// <param name="value">
-        ///     When this method returns, contains the value associated with the specified key, if the key is
-        ///     found; otherwise, the default value for the type of the <paramref name="value" /> parameter. This parameter is
-        ///     passed uninitialized.
-        /// </param>
         protected internal bool TryGetValue(TKey key, out TValue value)
         {
             int entry = FindEntry(key);
@@ -366,13 +282,6 @@ namespace MugenMvvmToolkit.Collections
             return false;
         }
 
-        /// <summary>
-        ///     Returns an enumerator that iterates through the <see cref="T:System.Collections.Generic.Dictionary`2" />.
-        /// </summary>
-        /// <returns>
-        ///     A <see cref="T:System.Collections.Generic.Dictionary`2.Enumerator" /> structure for the
-        ///     <see cref="T:System.Collections.Generic.Dictionary`2" />.
-        /// </returns>
         public Enumerator GetEnumerator()
         {
             if (_buckets == null)
@@ -380,12 +289,6 @@ namespace MugenMvvmToolkit.Collections
             return new Enumerator(this);
         }
 
-        /// <summary>
-        ///     Copies the elements of the <see cref="LightDictionaryBase{TKey,TValue}" /> to a new array.
-        /// </summary>
-        /// <returns>
-        ///     An array containing copies of the elements of the <see cref="LightDictionaryBase{TKey,TValue}" />.
-        /// </returns>
         public KeyValuePair<TKey, TValue>[] ToArray()
         {
             if (_buckets == null)
@@ -403,14 +306,8 @@ namespace MugenMvvmToolkit.Collections
             return result;
         }
 
-        /// <summary>
-        ///     Determines whether the specified objects are equal.
-        /// </summary>
         protected abstract bool Equals(TKey x, TKey y);
 
-        /// <summary>
-        ///     Returns a hash code for the specified object.
-        /// </summary>
         protected abstract int GetHashCode(TKey key);
 
         private int GetHashCodeInternal(TKey key)
@@ -431,9 +328,6 @@ namespace MugenMvvmToolkit.Collections
             return -1;
         }
 
-        /// <summary>
-        ///     Initialize the capacity.
-        /// </summary>
         protected void Initialize(int capacity)
         {
             int prime = PrimeNumberHelper.GetPrime(capacity);

@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="MultiBindingSourceAccessor.cs">
@@ -30,9 +30,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Accessors
 {
-    /// <summary>
-    ///     Represents the accessor for the multi binding source.
-    /// </summary>
     public sealed class MultiBindingSourceAccessor : BindingSourceAccessorBase
     {
         #region Fields
@@ -45,9 +42,6 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="MultiBindingSourceAccessor" /> class.
-        /// </summary>
         public MultiBindingSourceAccessor([NotNull] IObserver[] sources,
             [NotNull] Func<IDataContext, IList<object>, object> formatExpression, [NotNull] IDataContext context)
             : base(context, false)
@@ -62,33 +56,21 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         #region Overrides of BindingSourceAccessorBase
 
-        /// <summary>
-        ///     Gets a value indicating whether the member can be read.
-        /// </summary>
         public override bool CanRead
         {
             get { return true; }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether the property can be written to.
-        /// </summary>
         public override bool CanWrite
         {
             get { return false; }
         }
 
-        /// <summary>
-        ///     Gets the underlying sources.
-        /// </summary>
         public override IList<IObserver> Sources
         {
             get { return _sources; }
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         public override void Dispose()
         {
             _formatExpression = null;
@@ -98,27 +80,18 @@ namespace MugenMvvmToolkit.Binding.Accessors
             base.Dispose();
         }
 
-        /// <summary>
-        ///     Occurs before the value changes.
-        /// </summary>
         public override event EventHandler<IBindingSourceAccessor, ValueAccessorChangingEventArgs> ValueChanging
         {
             add { }
             remove { }
         }
 
-        /// <summary>
-        ///     Occurs when value changed.
-        /// </summary>
         public override event EventHandler<IBindingSourceAccessor, ValueAccessorChangedEventArgs> ValueChanged
         {
             add { }
             remove { }
         }
 
-        /// <summary>
-        ///     Gets the raw value from source.
-        /// </summary>
         protected override object GetRawValueInternal(IBindingMemberInfo targetMember, IDataContext context,
             bool throwOnError)
         {
@@ -136,24 +109,13 @@ namespace MugenMvvmToolkit.Binding.Accessors
             return _formatExpression(context, values);
         }
 
-        /// <summary>
-        ///     Sets the source value.
-        /// </summary>
-        /// <param name="targetAccessor">The specified accessor to get value.</param>
-        /// <param name="context">The specified operation context.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the value cannot be set.
-        /// </param>
         protected override bool SetValueInternal(IBindingSourceAccessor targetAccessor, IDataContext context,
             bool throwOnError)
         {
-            //NOTE By default multibinding doesn't support update source operation.   
+            //NOTE By default multibinding doesn't support update source operation.
             return false;
         }
 
-        /// <summary>
-        ///     Gets the source value.
-        /// </summary>
         protected override object GetValueInternal(IBindingMemberInfo targetMember, IDataContext context,
             bool throwOnError)
         {

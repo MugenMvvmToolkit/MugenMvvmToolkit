@@ -24,46 +24,21 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 
 namespace MugenMvvmToolkit.Interfaces.Mediators
 {
-    /// <summary>
-    ///     Represents the mediator interface for the dialog view.
-    /// </summary>
     public interface IWindowViewMediator
     {
-        /// <summary>
-        ///     Gets a value that indicates whether the dialog is visible. true if the dialog is visible; otherwise, false.
-        /// </summary>
         bool IsOpen { get; }
 
-        /// <summary>
-        ///     Gets the view object.
-        /// </summary>
         [CanBeNull]
         object View { get; }
 
-        /// <summary>
-        ///     Gets the underlying view model.
-        /// </summary>
         [NotNull]
         IViewModel ViewModel { get; }
 
-        /// <summary>
-        ///     Shows the specified <see cref="IViewModel" />.
-        /// </summary>
-        /// <param name="callback">The specified callback, if any.</param>
-        /// <param name="context">The specified context.</param>
         Task ShowAsync([CanBeNull] IOperationCallback callback, [CanBeNull] IDataContext context);
 
-        /// <summary>
-        ///     Tries to close view-model.
-        /// </summary>
-        /// <param name="parameter">The specified parameter, if any.</param>
-        /// <returns>An instance of task with result.</returns>
         [NotNull]
         Task<bool> CloseAsync([CanBeNull] object parameter);
 
-        /// <summary>
-        ///     Updates the current view, for example android platform uses this API to update view after recreate a dialog fragment.
-        /// </summary>
         void UpdateView([CanBeNull] object view, bool isOpen, [CanBeNull] IDataContext context);
     }
 }

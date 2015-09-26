@@ -24,9 +24,6 @@ using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the visual tree manager.
-    /// </summary>
     public class VisualTreeManager : IVisualTreeManager
     {
         #region Netsted types
@@ -131,9 +128,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IVisualTreeManager
 
-        /// <summary>
-        ///     Gets the root member, if any.
-        /// </summary>
         public virtual IBindingMemberInfo GetRootMember(Type type)
         {
             Should.NotBeNull(type, "type");
@@ -142,18 +136,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 .GetBindingMember(type, AttachedMemberConstants.RootElement, false, false) ?? RootMember;
         }
 
-        /// <summary>
-        ///     Gets the parent member, if any.
-        /// </summary>
         public virtual IBindingMemberInfo GetParentMember(Type type)
         {
             Should.NotBeNull(type, "type");
             return BindingServiceProvider.MemberProvider.GetBindingMember(type, AttachedMemberConstants.Parent, false, false);
         }
 
-        /// <summary>
-        ///     Tries to find parent.
-        /// </summary>
         public virtual object FindParent(object target)
         {
             Should.NotBeNull(target, "target");
@@ -162,9 +150,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return parentProp == null ? null : parentProp.GetValue(target, null);
         }
 
-        /// <summary>
-        ///     Tries to find element by it's name.
-        /// </summary>
         public virtual object FindByName(object target, string elementName)
         {
             Should.NotBeNull(elementName, "elementName");
@@ -184,9 +169,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return null;
         }
 
-        /// <summary>
-        ///     Tries to find relative source.
-        /// </summary>
         public virtual object FindRelativeSource(object target, string typeName, uint level)
         {
             Should.NotBeNull(target, "target");

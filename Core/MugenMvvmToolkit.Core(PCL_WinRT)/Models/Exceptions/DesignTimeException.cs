@@ -20,16 +20,10 @@ using System;
 
 namespace MugenMvvmToolkit.Models.Exceptions
 {
-    /// <summary>
-    ///     Represents the design time exception.
-    /// </summary>
     public sealed class DesignTimeException : Exception
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DesignTimeException" /> class.
-        /// </summary>
         public DesignTimeException(Exception exception)
             : base(exception.Flatten(true), exception)
         {

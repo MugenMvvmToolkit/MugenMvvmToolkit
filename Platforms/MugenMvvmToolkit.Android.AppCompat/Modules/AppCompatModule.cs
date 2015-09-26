@@ -1,4 +1,4 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="AppCompatModule.cs">
@@ -55,33 +55,21 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
         {
             #region Constructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="BindableLayoutInflater" /> class.
-            /// </summary>
             public BindableLayoutInflaterCompat(IViewFactory factory, LayoutInflater original)
                 : base(factory, original)
             {
             }
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="BindableLayoutInflater" /> class.
-            /// </summary>
             public BindableLayoutInflaterCompat(IViewFactory factory, Context context)
                 : base(factory, context)
             {
             }
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="BindableLayoutInflater" /> class.
-            /// </summary>
             private BindableLayoutInflaterCompat(IntPtr javaReference, JniHandleOwnership transfer)
                 : base(javaReference, transfer)
             {
             }
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="BindableLayoutInflater" /> class.
-            /// </summary>
             private BindableLayoutInflaterCompat([NotNull] IViewFactory factory, LayoutInflater original, Context newContext)
                 : base(factory, original, newContext)
             {
@@ -100,18 +88,11 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
 
             #region Overrides of BindableLayoutInflater
 
-            /// <summary>
-            ///     Create a copy of the existing LayoutInflater object, with the copy
-            ///     pointing to a different Context than the original.
-            /// </summary>
             public override LayoutInflater CloneInContext(Context newContext)
             {
                 return new BindableLayoutInflaterCompat(ViewFactory, this, newContext);
             }
 
-            /// <summary>
-            ///     Initializes the current inflater.
-            /// </summary>
             protected override void Initialize()
             {
                 try
@@ -266,9 +247,6 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="AppCompatModule" /> class.
-        /// </summary>
         public AppCompatModule()
             : base(true, priority: BindingModulePriority - 2)
         {
@@ -359,9 +337,6 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
 
         #region Overrides of ModuleBase
 
-        /// <summary>
-        ///     Loads the current module.
-        /// </summary>
         protected override bool LoadInternal()
         {
             PlatformExtensions.LayoutInflaterFactory = (context, dataContext, factory, inflater) =>
@@ -439,9 +414,6 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
             return true;
         }
 
-        /// <summary>
-        ///     Unloads the current module.
-        /// </summary>
         protected override void UnloadInternal()
         {
         }

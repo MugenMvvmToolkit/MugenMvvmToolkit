@@ -56,17 +56,11 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         #region Implementation of IDialogViewBase
 
-        /// <summary>
-        ///     Shows dialog as a window.
-        /// </summary>
         public void Show()
         {
             IsShow = true;
         }
 
-        /// <summary>
-        ///     Closes the dialog.
-        /// </summary>
         public void Close()
         {
             if (_closing || IsClose)
@@ -105,10 +99,6 @@ namespace MugenMvvmToolkit.Test.TestModels
 #endif
 
 
-        /// <summary>
-        ///     Shows dialog as dialog window.
-        /// </summary>
-        /// <returns></returns>
         public bool? ShowDialog()
         {
             IsShowDialog = true;

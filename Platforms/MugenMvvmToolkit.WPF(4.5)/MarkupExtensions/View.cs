@@ -61,9 +61,6 @@ namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
                 HandleMethod = typeof(BindingEventClosure).GetMethod("Handle", BindingFlags.Public | BindingFlags.Instance);
             }
 
-            /// <summary>
-            /// Initializes a new instance of the <see cref="BindingEventClosure"/> class.
-            /// </summary>
             public BindingEventClosure(DependencyProperty property)
             {
                 Should.NotBeNull(property, "property");

@@ -36,11 +36,6 @@ namespace MugenMvvmToolkit.WinForms.Collections
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingList{T}" /> class as a wrapper
-        ///     for the specified list.
-        /// </summary>
-        /// <param name="collection">The list that is wrapped by the new collection.</param>
         public BindingListWrapper(INotifiableCollection<T> collection = null)
             : base(collection ?? new SynchronizedNotifiableCollection<T>())
         {
@@ -51,9 +46,6 @@ namespace MugenMvvmToolkit.WinForms.Collections
 
         #region Properties
 
-        /// <summary>
-        /// Gets the source collection.
-        /// </summary>
         public SynchronizedNotifiableCollection<T> SourceCollection
         {
             get { return (SynchronizedNotifiableCollection<T>)Items; }
@@ -100,27 +92,18 @@ namespace MugenMvvmToolkit.WinForms.Collections
 
         #region Implementation of INotifyCollectionChanging
 
-        /// <summary>
-        ///     Occurs when the collection changes.
-        /// </summary>
         public event NotifyCollectionChangedEventHandler CollectionChanged
         {
             add { SourceCollection.CollectionChanged += value; }
             remove { SourceCollection.CollectionChanged -= value; }
         }
 
-        /// <summary>
-        ///     Occurs when a property value changes.
-        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged
         {
             add { SourceCollection.PropertyChanged += value; }
             remove { SourceCollection.PropertyChanged -= value; }
         }
 
-        /// <summary>
-        ///     Occurs before the collection changes.
-        /// </summary>
         public event NotifyCollectionChangingEventHandler CollectionChanging
         {
             add { SourceCollection.CollectionChanging += value; }
@@ -131,10 +114,6 @@ namespace MugenMvvmToolkit.WinForms.Collections
 
         #region Overrides of BindingList<T>
 
-        /// <summary>
-        ///     Raises the <see cref="E:System.ComponentModel.BindingList`1.ListChanged" /> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.ComponentModel.ListChangedEventArgs" /> that contains the event data. </param>
         protected override void OnListChanged(ListChangedEventArgs e)
         {
             if (_collectionUpdating || e.ListChangedType == ListChangedType.PropertyDescriptorAdded ||

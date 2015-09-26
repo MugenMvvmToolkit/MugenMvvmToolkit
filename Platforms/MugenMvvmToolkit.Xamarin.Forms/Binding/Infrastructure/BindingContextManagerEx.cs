@@ -32,9 +32,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Infrastructure
 
         #region Overrides of BindingContextManager
 
-        /// <summary>
-        ///     Tries to get explicit data context member.
-        /// </summary>
         protected override IBindingMemberInfo GetExplicitDataContextMember(object source)
         {
             IBindingMemberInfo member = BindingServiceProvider
