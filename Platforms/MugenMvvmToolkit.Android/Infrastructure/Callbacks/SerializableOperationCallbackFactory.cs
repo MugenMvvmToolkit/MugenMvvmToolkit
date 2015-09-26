@@ -16,6 +16,10 @@
 
 #endregion
 
+#if ANDROID || TOUCH
+extern alias mscore;
+#endif
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,8 +57,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         #region Nested types
 
         [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true)]
-#if ANDROID
-        [Serializable]
+#if ANDROID || TOUCH
+        [mscore::System.Serializable]
 #endif
         internal sealed class FieldSnapshot
         {
@@ -323,8 +327,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         }
 
         [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true)]
-#if ANDROID
-        [Serializable]
+#if ANDROID || TOUCH
+        [mscore::System.Serializable]
 #endif
         internal sealed class AwaiterSerializableCallback : ISerializableCallback
         {
@@ -636,8 +640,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         }
 
         [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true)]
-#if ANDROID
-        [Serializable]
+#if ANDROID || TOUCH
+        [mscore::System.Serializable]
 #endif
         internal sealed class DelegateSerializableCallback : ISerializableCallback
         {

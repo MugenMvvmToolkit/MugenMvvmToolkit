@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -18,8 +17,7 @@
     <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
+    <NuGetPackageImportStamp></NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -37,12 +35,13 @@
     <DefineConstants>TRACE;ANDROID;ANDROIDCORE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>
-    </DocumentationFile>
+    <DocumentationFile></DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Android" />
-    <Reference Include="mscorlib" />
+    <Reference Include="mscorlib">
+      <Aliases>global,mscore</Aliases>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections" />
     <Reference Include="System.ComponentModel" />
@@ -62,9 +61,6 @@
   <ItemGroup>
     <Compile Include="..\..\Core\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Extensions\BindingReflectionExtensionsCommon.cs">
       <Link>BindingReflectionExtensionsCommon.cs</Link>
-    </Compile>
-    <Compile Include="..\..\core\mugenmvvmtoolkit.core%28pcl_winrt%29\annotations\JetBrains.Annotations.cs">
-      <Link>Annotations\JetBrains.Annotations.cs</Link>
     </Compile>
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\AttachedValueProvider.cs">
       <Link>Infrastructure\AttachedValueProvider.cs</Link>

@@ -98,11 +98,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
                     break;
                 case MessageButton.AbortRetryIgnore:
                     if (MvvmApplication.Current.Platform.Platform == PlatformType.WinPhone)
-#if XAMARIN_FORMS
-                        throw new ArgumentOutOfRangeException("button");
-#else
                         throw ExceptionManager.EnumOutOfRange("button", button);
-#endif
 
                     messageDialog.Commands.Add(CreateUiCommand(MessageResult.Abort, tcs));
                     messageDialog.Commands.Add(CreateUiCommand(MessageResult.Retry, tcs));
