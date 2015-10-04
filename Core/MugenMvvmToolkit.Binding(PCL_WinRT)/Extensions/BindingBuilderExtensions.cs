@@ -442,6 +442,15 @@ namespace MugenMvvmToolkit.Binding
             return syntax.Builder.Build();
         }
 
+        [CanBeNull]
+        public static string TryGetDefaultBindingMember([NotNull] object instance)
+        {
+            Should.NotBeNull(instance, "instance");
+            string value;
+            instance.TryGetBindingMemberValue(DefautBindingMemberDescriptor, out value);
+            return value;
+        }
+
         public static void RegisterDefaultBindingMember<TType>([NotNull] string member)
             where TType : class
         {
