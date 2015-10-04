@@ -700,11 +700,13 @@ namespace MugenMvvmToolkit.Binding.Parse
             if (result == null)
                 return null;
             resultArgs = ConvertParameters(resultParameters, resultArgs, resultHasParams);
-            //Check first parameter null
-            if (result.IsExtensionMethod())
+            var isExtensionMethod = result.IsExtensionMethod();
+            //Check if first parameter is null
+            if (target.Expression != null || isExtensionMethod)
             {
-                var callExpression = Expression.Call(null, result, resultArgs);
-                var firstArg = resultArgs[0];
+                var callExpression = Expression.Call(isExtensionMethod ? null : target.Expression, result, resultArgs);
+                var firstArg = isExtensionMethod ? resultArgs[0] : target.Expression;
+
                 if (firstArg.Type.IsValueType() && !firstArg.Type.IsNullableType())
                     return callExpression;
                 if (result.ReturnType == typeof(void))
@@ -714,7 +716,8 @@ namespace MugenMvvmToolkit.Binding.Parse
                 return Expression.Condition(GenerateNullReferenceEqualityExpression(firstArg),
                     Expression.Constant(result.ReturnType.GetDefaultValue(), result.ReturnType), callExpression);
             }
-            return Expression.Call(target.Expression, result, resultArgs);
+            //Static method
+            return Expression.Call(null, result, resultArgs);
         }
 
         private static bool CheckParamsCompatible(int startIndex, int lastIndex, ParameterInfo[] parameters, Expression[] expressions, ref float notExactlyEqual)
