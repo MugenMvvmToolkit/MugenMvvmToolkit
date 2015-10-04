@@ -130,6 +130,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         private bool _isBack;
         private bool _isNew;
+        private bool _isPause;
         private string _parameter;
 
         private const string ParameterString = "viewmodelparameter";
@@ -198,7 +199,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         public virtual object CurrentContent
         {
-            get { return PlatformExtensions.CurrentActivity; }
+            get
+            {
+                if (_isPause)
+                    return null;
+                return PlatformExtensions.CurrentActivity;
+            }
         }
 
         public virtual void GoBack()
@@ -216,8 +222,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         public virtual void OnPauseActivity(Activity activity, IDataContext context = null)
         {
             Should.NotBeNull(activity, "activity");
-            if (_isNew || _isBack || !ReferenceEquals(activity, PlatformExtensions.CurrentActivity))
+            if (_isNew || _isBack || !ReferenceEquals(activity, CurrentContent))
                 return;
+            _isPause = true;
             RaiseNavigating(NavigatingCancelEventArgs.NonCancelableEventArgs);
             RaiseNavigated(null, NavigationMode.New, null);
         }
@@ -225,9 +232,10 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         public virtual void OnResumeActivity(Activity activity, IDataContext context = null)
         {
             Should.NotBeNull(activity, "activity");
-            if (ReferenceEquals(activity, PlatformExtensions.CurrentActivity))
+            if (ReferenceEquals(activity, CurrentContent))
                 return;
             PlatformExtensions.SetCurrentActivity(activity, false);
+            _isPause = false;
             if (_isNew)
             {
                 _isNew = false;
@@ -248,7 +256,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         public virtual void OnCreateActivity(Activity activity, IDataContext context = null)
         {
-            OnStartActivity(activity);
+            OnResumeActivity(activity);
         }
 
         public virtual bool OnFinishActivity(Activity activity, bool isBackNavigation, IDataContext context = null)
