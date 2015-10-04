@@ -235,7 +235,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             base.OnDestroy(baseOnDestroy);
             PlatformExtensions.SetCurrentActivity(Target, true);
             Target.ClearBindings(false, true);
-            Target.Dispose();
             OptionsItemSelected = null;
             ConfigurationChanged = null;
             PostCreate = null;
