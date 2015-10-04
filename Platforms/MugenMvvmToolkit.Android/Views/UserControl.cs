@@ -43,7 +43,7 @@ namespace MugenMvvmToolkit.Android.Views
 
         #region Properties
 
-        public string DisplayName { get; set; }
+        public virtual string DisplayName { get; set; }
 
         #endregion
     }

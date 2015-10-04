@@ -97,7 +97,7 @@ namespace MugenMvvmToolkit.Android.Design.Modules
                         else
                         {
                             text.Error = null;
-                            layout.SetError(args.NewValue);
+                            layout.Error = args.NewValue;
                         }
                     }, getDefaultValue: (text, info) => text.Error));
 

@@ -305,7 +305,6 @@ namespace MugenMvvmToolkit.Android
         [CanBeNull]
         public static IDataTemplateSelector DefaultDataTemplateSelector { get; set; }
 
-
         [NotNull]
         public static Func<Activity, IDataContext, IMvvmActivityMediator> MvvmActivityMediatorFactory
         {
