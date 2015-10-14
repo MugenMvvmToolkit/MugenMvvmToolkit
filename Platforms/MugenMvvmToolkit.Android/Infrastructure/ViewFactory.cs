@@ -65,7 +65,14 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             Should.NotBeNull(context, "context");
             Should.NotBeNull(attrs, "attrs");
             var view = type.CreateView(context, attrs);
-            return new ViewResult(view, GetDataContext(view, context, attrs));
+            return Initialize(view, attrs);
+        }
+
+        public virtual ViewResult Initialize(View view, IAttributeSet attrs)
+        {
+            Should.NotBeNull(view, "view");
+            Should.NotBeNull(attrs, "attrs");
+            return new ViewResult(view, GetDataContext(view, view.Context, attrs));
         }
 
         #endregion

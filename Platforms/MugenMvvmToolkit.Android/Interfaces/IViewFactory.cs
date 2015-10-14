@@ -19,6 +19,7 @@
 using System;
 using Android.Content;
 using Android.Util;
+using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Models;
 
@@ -29,5 +30,7 @@ namespace MugenMvvmToolkit.Android.Interfaces
         ViewResult Create([NotNull] string name, [NotNull] Context context, [NotNull] IAttributeSet attrs);
 
         ViewResult Create([NotNull] Type type, [NotNull] Context context, [NotNull] IAttributeSet attrs);
+
+        ViewResult Initialize(View view, [NotNull] IAttributeSet attrs);
     }
 }
