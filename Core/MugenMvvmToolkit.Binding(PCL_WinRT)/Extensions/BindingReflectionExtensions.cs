@@ -159,9 +159,8 @@ namespace MugenMvvmToolkit.Binding
             IList<ArgumentData> args, IEnumerable<Type> knownTypes, bool staticAccess)
         {
             var type = target.Type;
-            const MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance;
             var methods = new List<MethodInfo>();
-            foreach (var info in type.GetMethodsEx(flags))
+            foreach (var info in type.GetMethodsEx(MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance))
             {
                 if (info.Name == methodName && info.IsStatic == staticAccess)
                     methods.Add(info);
@@ -176,7 +175,7 @@ namespace MugenMvvmToolkit.Binding
         {
             var type = target.Type;
             var methods = new List<MethodInfo>();
-            foreach (var property in type.GetPropertiesEx(MemberFlags.Public | MemberFlags.Instance))
+            foreach (var property in type.GetPropertiesEx(MemberFlags.Public | MemberFlags.Instance | MemberFlags.Static))
             {
                 if (property.GetIndexParameters().Length == args.Count)
                 {
@@ -507,7 +506,7 @@ namespace MugenMvvmToolkit.Binding
             return null;
         }
 
-        private static MethodInfo ApplyTypeArgs(MethodInfo m, Type[] typeArgs)
+        internal static MethodInfo ApplyTypeArgs(MethodInfo m, Type[] typeArgs)
         {
             if (typeArgs == null || typeArgs.Length == 0)
             {

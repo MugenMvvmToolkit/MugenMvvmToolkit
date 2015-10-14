@@ -69,6 +69,108 @@ namespace MugenMvvmToolkit.Binding.Parse
             #endregion
         }
 
+        private sealed class MethodInvoker : Dictionary<CacheKey, Func<object[], object>>
+        {
+            #region Fields
+
+            private Type _type;
+
+            #endregion
+
+            #region Methods
+
+            public object InvokeIndex(object target, object[] args)
+            {
+                return InvokeMethodInternal(target, ReflectionExtensions.IndexerName, args, null);
+            }
+
+            public object Invoke(object target, string methodName, object[] args, Type[] typeArgs)
+            {
+                return InvokeMethodInternal(target, methodName, args, typeArgs);
+            }
+
+            private object InvokeMethodInternal(object target, string methodName, object[] args, Type[] typeArgs)
+            {
+                var type = target.GetType();
+                var argTypes = GetArgTypes(args);
+                var key = new CacheKey(argTypes);
+                Func<object[], object> result = null;
+                lock (this)
+                {
+                    if (type == _type)
+                        TryGetValue(key, out result);
+                }
+                if (result != null)
+                    return result(InsertFirstArg(args, target));
+
+                var methods = new List<MethodInfo>();
+                if (methodName == ReflectionExtensions.IndexerName)
+                {
+                    foreach (var property in type.GetPropertiesEx(MemberFlags.Public | MemberFlags.Instance))
+                    {
+                        if (property.GetIndexParameters().Length == args.Length)
+                            methods.AddIfNotNull(property.GetGetMethod(true));
+                    }
+                }
+                else
+                {
+                    foreach (var method in type.GetMethodsEx(MemberFlags.Public | MemberFlags.Instance))
+                    {
+                        try
+                        {
+                            if (method.Name == methodName)
+                                methods.AddIfNotNull(BindingReflectionExtensions.ApplyTypeArgs(method, typeArgs));
+                        }
+                        catch
+                        {
+                            ;
+                        }
+                    }
+                }
+                bool hasParams;
+                var resultIndex = TrySelectMethod(methods, argTypes, (i, types) => types, out hasParams);
+                if (resultIndex >= 0)
+                {
+                    var method = methods[resultIndex];
+                    var parameters = argTypes.Select(t => (Expression)Expression.Parameter(t)).ToList();
+                    var argExpressions = ConvertParameters(method.GetParameters(), parameters, hasParams);
+                    parameters.Insert(0, Expression.Parameter(type));
+                    var compile = Expression.Lambda(Expression.Call(parameters[0], method, argExpressions), parameters.Cast<ParameterExpression>()).Compile();
+                    var methodInfo = compile.GetType().GetMethodEx("Invoke", MemberFlags.Public | MemberFlags.Instance);
+                    if (methodInfo == null)
+                        result = compile.DynamicInvoke;
+                    else
+                    {
+                        var del = ServiceProvider.ReflectionManager.GetMethodDelegate(methodInfo);
+                        result = objects => del(compile, objects);
+                    }
+                }
+                lock (this)
+                {
+                    _type = type;
+                    this[key] = result;
+                }
+                if (result == null)
+                    throw BindingExceptionManager.InvalidBindingMember(target.GetType(), methodName);
+                return result(InsertFirstArg(args, target));
+            }
+
+            private static Type[] GetArgTypes(object[] args)
+            {
+                if (args == null || args.Length == 0)
+                    return Empty.Array<Type>();
+                var result = new Type[args.Length];
+                for (int i = 0; i < args.Length; i++)
+                {
+                    var o = args[i];
+                    result[i] = o == null ? typeof(object) : o.GetType();
+                }
+                return result;
+            }
+
+            #endregion
+        }
+
         private sealed class CacheKeyComparer : IEqualityComparer<CacheKey>
         {
             #region Fields
@@ -301,12 +403,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             }
             if (_isEmpty)
                 return expression.Invoke(new object[] { context });
-
-            var items = new object[sourceValues.Count + 1];
-            items[0] = context;
-            for (int i = 0; i < sourceValues.Count; i++)
-                items[i + 1] = sourceValues[i];
-            return expression.Invoke(items);
+            return expression.Invoke(InsertFirstArg(sourceValues, context));
         }
 
         protected virtual object InvokeDynamicMethod(string methodName, IDataContext context, IList<Type> typeArgs, object[] items)
@@ -539,7 +636,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 ExpressionReflectionManager.ConvertIfNeed(target, typeof(object), false),
                 Expression.Constant(methodCall.Method),
                 Expression.NewArrayInit(typeof(object), arrayArgs), Expression.Constant(typeArgs),
-                DataContextParameter);
+                Expression.Constant(new MethodInvoker()), DataContextParameter);
         }
 
         private Expression BuildIndex(IIndexExpressionNode indexer)
@@ -564,12 +661,12 @@ namespace MugenMvvmToolkit.Binding.Parse
             {
                 var data = args[i];
                 if (data.IsLambda || data.Expression == null)
-                    throw BindingExceptionManager.InvalidBindingMember(type, "Item[]");
+                    throw BindingExceptionManager.InvalidBindingMember(type, ReflectionExtensions.IndexerName);
                 arrayArgs[i] = ExpressionReflectionManager.ConvertIfNeed(data.Expression, typeof(object), false);
             }
             return Expression.Call(GetIndexValueDynamicMethod,
                 ExpressionReflectionManager.ConvertIfNeed(target, typeof(object), false),
-                Expression.NewArrayInit(typeof(object), arrayArgs), DataContextParameter);
+                Expression.NewArrayInit(typeof(object), arrayArgs), Expression.Constant(new MethodInvoker()), DataContextParameter);
         }
 
         [CanBeNull]
@@ -578,13 +675,8 @@ namespace MugenMvvmToolkit.Binding.Parse
             if (methods == null || methods.Count == 0)
                 return null;
 
-            MethodInfo result = null;
-            ParameterInfo[] resultParameters = null;
-            Expression[] resultArgs = null;
-            bool resultHasParams = true;
-            bool resultUseParams = true;
-            float resultNotExactlyEqual = float.MaxValue;
-            int resultUsageCount = int.MinValue;
+            var methodInfos = new List<MethodInfo>(methods.Count);
+            var methodArgs = new List<Expression[]>(methods.Count);
             for (int i = 0; i < methods.Count; i++)
             {
                 try
@@ -604,8 +696,59 @@ namespace MugenMvvmToolkit.Binding.Parse
                         expressions[index] = data.Expression;
                     }
                     var methodInfo = method.Build(args);
-                    if (methodInfo == null)
-                        continue;
+                    if (methodInfo != null)
+                    {
+                        methodInfos.Add(methodInfo);
+                        methodArgs.Add(expressions);
+                    }
+                }
+                catch
+                {
+                    ;
+                }
+            }
+
+            bool resultHasParams;
+            var resultIndex = TrySelectMethod(methodInfos, methodArgs, (i, args) => args[i].ToArrayEx(e => e.Type), out resultHasParams);
+            if (resultIndex < 0)
+                return null;
+            var result = methodInfos[resultIndex];
+            var resultArgs = methodArgs[resultIndex];
+            var resultParameters = result.GetParameters();
+
+            resultArgs = ConvertParameters(resultParameters, resultArgs, resultHasParams);
+            var isExtensionMethod = result.IsExtensionMethod();
+            //Check if first parameter is null
+            if (target.Expression != null || isExtensionMethod)
+            {
+                var callExpression = Expression.Call(isExtensionMethod ? null : target.Expression, result, resultArgs);
+                var firstArg = isExtensionMethod ? resultArgs[0] : target.Expression;
+
+                if (firstArg.Type.IsValueType() && !firstArg.Type.IsNullableType())
+                    return callExpression;
+                if (result.ReturnType == typeof(void))
+                    return Expression.Condition(GenerateNullReferenceEqualityExpression(firstArg), NullExpression,
+                        Expression.Block(callExpression, NullExpression));
+
+                return Expression.Condition(GenerateNullReferenceEqualityExpression(firstArg),
+                    Expression.Constant(result.ReturnType.GetDefaultValue(), result.ReturnType), callExpression);
+            }
+            //Static method
+            return Expression.Call(null, result, resultArgs);
+        }
+
+        private static int TrySelectMethod<TArgs>(IList<MethodInfo> methods, TArgs args, Func<int, TArgs, Type[]> getArgTypes, out bool resultHasParams)
+        {
+            int result = -1;
+            resultHasParams = true;
+            bool resultUseParams = true;
+            float resultNotExactlyEqual = float.MaxValue;
+            int resultUsageCount = int.MinValue;
+            for (int i = 0; i < methods.Count; i++)
+            {
+                try
+                {
+                    var methodInfo = methods[i];
                     var parameters = methodInfo.GetParameters();
                     bool useParams = false;
                     bool hasParams = false;
@@ -619,17 +762,18 @@ namespace MugenMvvmToolkit.Binding.Parse
 
                     float notExactlyEqual = 0;
                     bool valid = true;
-                    for (int j = 0; j < expressions.Length; j++)
+                    var argTypes = getArgTypes(i, args);
+                    for (int j = 0; j < argTypes.Length; j++)
                     {
                         //params
                         if (j > lastIndex)
                         {
-                            valid = hasParams && CheckParamsCompatible(j - 1, lastIndex, parameters, expressions, ref notExactlyEqual);
+                            valid = hasParams && CheckParamsCompatible(j - 1, lastIndex, parameters, argTypes, ref notExactlyEqual);
                             useParams = true;
                             break;
                         }
 
-                        var argType = expressions[j].Type;
+                        var argType = argTypes[j];
                         var parameterType = parameters[j].ParameterType;
                         if (parameterType.IsByRef)
                             parameterType = parameterType.GetElementType();
@@ -649,7 +793,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                         {
                             if (lastIndex == j && hasParams)
                             {
-                                valid = CheckParamsCompatible(j, lastIndex, parameters, expressions, ref notExactlyEqual);
+                                valid = CheckParamsCompatible(j, lastIndex, parameters, argTypes, ref notExactlyEqual);
                                 useParams = true;
                                 break;
                             }
@@ -684,9 +828,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                         }
                     }
 
-                    result = methodInfo;
-                    resultParameters = parameters;
-                    resultArgs = expressions;
+                    result = i;
                     resultNotExactlyEqual = notExactlyEqual;
                     resultUsageCount = usageCount;
                     resultUseParams = useParams;
@@ -697,36 +839,16 @@ namespace MugenMvvmToolkit.Binding.Parse
                     ;
                 }
             }
-            if (result == null)
-                return null;
-            resultArgs = ConvertParameters(resultParameters, resultArgs, resultHasParams);
-            var isExtensionMethod = result.IsExtensionMethod();
-            //Check if first parameter is null
-            if (target.Expression != null || isExtensionMethod)
-            {
-                var callExpression = Expression.Call(isExtensionMethod ? null : target.Expression, result, resultArgs);
-                var firstArg = isExtensionMethod ? resultArgs[0] : target.Expression;
-
-                if (firstArg.Type.IsValueType() && !firstArg.Type.IsNullableType())
-                    return callExpression;
-                if (result.ReturnType == typeof(void))
-                    return Expression.Condition(GenerateNullReferenceEqualityExpression(firstArg), NullExpression,
-                        Expression.Block(callExpression, NullExpression));
-
-                return Expression.Condition(GenerateNullReferenceEqualityExpression(firstArg),
-                    Expression.Constant(result.ReturnType.GetDefaultValue(), result.ReturnType), callExpression);
-            }
-            //Static method
-            return Expression.Call(null, result, resultArgs);
+            return result;
         }
 
-        private static bool CheckParamsCompatible(int startIndex, int lastIndex, ParameterInfo[] parameters, Expression[] expressions, ref float notExactlyEqual)
+        private static bool CheckParamsCompatible(int startIndex, int lastIndex, ParameterInfo[] parameters, Type[] types, ref float notExactlyEqual)
         {
             float weight = 0;
             var elementType = parameters[lastIndex].ParameterType.GetElementType();
-            for (int k = startIndex; k < expressions.Length; k++)
+            for (int k = startIndex; k < types.Length; k++)
             {
-                var argType = expressions[k].Type;
+                var argType = types[k];
                 if (elementType.Equals(argType))
                     continue;
                 bool boxRequired;
@@ -807,13 +929,13 @@ namespace MugenMvvmToolkit.Binding.Parse
             return type;
         }
 
-        private static Expression[] ConvertParameters(ParameterInfo[] parameters, Expression[] args, bool hasParams)
+        private static Expression[] ConvertParameters(ParameterInfo[] parameters, IList<Expression> args, bool hasParams)
         {
             var result = new Expression[parameters.Length];
             for (int i = 0; i < parameters.Length; i++)
             {
                 //optional or params
-                if (i > args.Length - 1)
+                if (i > args.Count - 1)
                 {
                     for (int j = i; j < parameters.Length; j++)
                     {
@@ -833,8 +955,8 @@ namespace MugenMvvmToolkit.Binding.Parse
                 if (i == parameters.Length - 1 && hasParams && !args[i].Type.IsCompatibleWith(parameters[i].ParameterType))
                 {
                     var arrayType = parameters[i].ParameterType.GetElementType();
-                    var arrayArgs = new Expression[args.Length - i];
-                    for (int j = i; j < args.Length; j++)
+                    var arrayArgs = new Expression[args.Count - i];
+                    for (int j = i; j < args.Count; j++)
                         arrayArgs[j - i] = ExpressionReflectionManager.ConvertIfNeed(args[j], arrayType, false);
                     result[i] = Expression.NewArrayInit(arrayType, arrayArgs);
                 }
@@ -867,15 +989,23 @@ namespace MugenMvvmToolkit.Binding.Parse
             return typeArgs;
         }
 
+        private static object[] InsertFirstArg(IList<object> src, object firstArg)
+        {
+            var items = new object[src.Count + 1];
+            items[0] = firstArg;
+            for (int i = 0; i < src.Count; i++)
+                items[i + 1] = src[i];
+            return items;
+        }
+
         private static object GetMemberValueDynamic(object target, string member)
         {
             if (target == null)
                 return null;
-            var bindingMember = BindingServiceProvider.MemberProvider.GetBindingMember(target.GetType(), member, false, true);
-            return bindingMember.GetValue(target, Empty.Array<object>());
+            return BindingServiceProvider.MemberProvider.GetBindingMember(target.GetType(), member, false, true).GetValue(target, Empty.Array<object>());
         }
 
-        private static object GetIndexValueDynamic(object target, object[] args, IDataContext context)
+        private static object GetIndexValueDynamic(object target, object[] args, MethodInvoker methodInvoker, IDataContext context)
         {
             if (target == null)
                 return null;
@@ -885,11 +1015,13 @@ namespace MugenMvvmToolkit.Binding.Parse
 
             var bindingMember = BindingServiceProvider
                 .MemberProvider
-                .GetBindingMember(target.GetType(), "Item[]", false, true);
-            return bindingMember.GetValue(target, args);
+                .GetBindingMember(target.GetType(), ReflectionExtensions.IndexerName, false, false);
+            if (bindingMember != null)
+                return bindingMember.GetValue(target, args);
+            return methodInvoker.InvokeIndex(target, args);
         }
 
-        private static object InvokeMemberDynamic(object target, string member, object[] args, IList<Type> typeArgs, IDataContext context)
+        private static object InvokeMemberDynamic(object target, string member, object[] args, Type[] typeArgs, MethodInvoker methodInvoker, IDataContext context)
         {
             if (target == null)
                 return null;
@@ -899,8 +1031,10 @@ namespace MugenMvvmToolkit.Binding.Parse
 
             var bindingMember = BindingServiceProvider
                 .MemberProvider
-                .GetBindingMember(target.GetType(), member, false, true);
-            return bindingMember.GetValue(target, args);
+                .GetBindingMember(target.GetType(), member, false, false);
+            if (bindingMember != null)
+                return bindingMember.GetValue(target, args);
+            return methodInvoker.Invoke(target, member, args, typeArgs);
         }
 
         #endregion
