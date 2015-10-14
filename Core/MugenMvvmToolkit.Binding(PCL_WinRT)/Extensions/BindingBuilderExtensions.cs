@@ -144,6 +144,62 @@ namespace MugenMvvmToolkit.Binding
             return syntax.ToSource(context => BindingExtensions.CreateBindingSource(context, sourcePath, null));
         }
 
+        public static IBindingModeInfoBehaviorSyntax<TSource> To<TSource>([NotNull] this IBindingToSyntax syntax,
+            TSource source, [NotNull] Func<Expression<Func<TSource, IBindingSyntaxContext<object, TSource>, object>>> expression)
+        {
+            return syntax.ToInternal(expression, source);
+        }
+
+        public static IBindingModeInfoBehaviorSyntax<TSource> To<TSource>([NotNull] this IBindingToSyntax syntax,
+            [NotNull] Func<Expression<Func<TSource, IBindingSyntaxContext<object, TSource>, object>>> expression)
+        {
+            return syntax.ToInternal<TSource>(expression);
+        }
+
+        public static IBindingModeInfoBehaviorSyntax<TSource> To<TTarget, TSource>(
+            [NotNull] this IBindingToSyntax<TTarget, TSource> syntax,
+            [NotNull] Func<Expression<Func<TSource, IBindingSyntaxContext<TTarget, TSource>, object>>> expression)
+            where TTarget : class
+        {
+            return syntax.ToInternal<TSource>(expression);
+        }
+
+        public static IBindingModeInfoBehaviorSyntax<TSource> To<TTarget, TSource>(
+            [NotNull] this IBindingToSyntax<TTarget> syntax, TSource source,
+            [NotNull] Func<Expression<Func<TSource, IBindingSyntaxContext<TTarget, TSource>, object>>> expression)
+            where TTarget : class
+        {
+            return syntax.ToInternal(expression, source);
+        }
+
+        public static IBindingModeInfoBehaviorSyntax<TSource> ToAction<TSource>([NotNull] this IBindingToSyntax syntax,
+            TSource source, [NotNull] Func<Expression<Action<TSource, IBindingSyntaxContext<object, TSource>>>> expression)
+        {
+            return syntax.ToInternal(expression, source);
+        }
+
+        public static IBindingModeInfoBehaviorSyntax<TSource> ToAction<TSource>([NotNull] this IBindingToSyntax syntax,
+            [NotNull] Func<Expression<Action<TSource, IBindingSyntaxContext<object, TSource>>>> expression)
+        {
+            return syntax.ToInternal<TSource>(expression);
+        }
+
+        public static IBindingModeInfoBehaviorSyntax<TSource> ToAction<TTarget, TSource>(
+            [NotNull] this IBindingToSyntax<TTarget, TSource> syntax,
+            [NotNull] Func<Expression<Action<TSource, IBindingSyntaxContext<TTarget, TSource>>>> expression)
+            where TTarget : class
+        {
+            return syntax.ToInternal<TSource>(expression);
+        }
+
+        public static IBindingModeInfoBehaviorSyntax<TSource> ToAction<TTarget, TSource>(
+            [NotNull] this IBindingToSyntax<TTarget> syntax, TSource source,
+            [NotNull] Func<Expression<Action<TSource, IBindingSyntaxContext<TTarget, TSource>>>> expression)
+            where TTarget : class
+        {
+            return syntax.ToInternal(expression, source);
+        }
+
         public static IBindingModeInfoBehaviorSyntax<TTarget> ToSelf<TTarget>([NotNull] this IBindingToSyntax<TTarget> syntax,
             [NotNull] string selfPath)
             where TTarget : class
@@ -152,51 +208,13 @@ namespace MugenMvvmToolkit.Binding
             return syntax.To((TTarget)syntax.Builder.GetData(BindingBuilderConstants.Target, true), selfPath);
         }
 
-        public static IBindingModeInfoBehaviorSyntax<TSource> To<TSource>([NotNull] this IBindingToSyntax syntax,
-            TSource source, [NotNull] Func<Expression<Func<TSource, object>>> expression)
-        {
-            return syntax.ToInternal(expression, source);
-        }
-
-        public static IBindingModeInfoBehaviorSyntax<TSource> ToAction<TSource>([NotNull] this IBindingToSyntax syntax,
-            TSource source, [NotNull] Func<Expression<Action<TSource>>> expression)
-        {
-            return syntax.ToInternal(expression, source);
-        }
-
-        public static IBindingModeInfoBehaviorSyntax<TSource> To<TSource>([NotNull] this IBindingToSyntax syntax,
-            [NotNull] Func<Expression<Func<TSource, object>>> expression)
-        {
-            return syntax.ToInternal<TSource>(expression);
-        }
-
-        public static IBindingModeInfoBehaviorSyntax<TSource> ToAction<TSource>([NotNull] this IBindingToSyntax syntax,
-            [NotNull] Func<Expression<Action<TSource>>> expression)
-        {
-            return syntax.ToInternal<TSource>(expression);
-        }
-
-        public static IBindingModeInfoBehaviorSyntax<TSource> To<TTarget, TSource>(
-            [NotNull] this IBindingToSyntax<TTarget, TSource> syntax,
-            [NotNull] Func<Expression<Func<TSource, object>>> expression)
-            where TTarget : class
-        {
-            return syntax.ToInternal<TSource>(expression);
-        }
-
-        public static IBindingModeInfoBehaviorSyntax<TSource> ToAction<TTarget, TSource>(
-            [NotNull] this IBindingToSyntax<TTarget, TSource> syntax,
-            [NotNull] Func<Expression<Action<TSource>>> expression)
-            where TTarget : class
-        {
-            return syntax.ToInternal<TSource>(expression);
-        }
-
-        public static IBindingModeInfoBehaviorSyntax<TTarget> ToSelf<TTarget>([NotNull] this IBindingToSyntax<TTarget> syntax, [NotNull] Func<Expression<Func<TTarget, object>>> expression)
+        public static IBindingModeInfoBehaviorSyntax<TTarget> ToSelf<TTarget>(
+            [NotNull] this IBindingToSyntax<TTarget> syntax,
+            [NotNull] Func<Expression<Func<TTarget, IBindingSyntaxContext<TTarget, TTarget>, object>>> expression)
             where TTarget : class
         {
             Should.NotBeNull(syntax, "syntax");
-            return syntax.To((TTarget)syntax.Builder.GetData(BindingBuilderConstants.Target, true), expression);
+            return syntax.ToInternal(expression, (TTarget)syntax.Builder.GetData(BindingBuilderConstants.Target, true));
         }
 
         #endregion
@@ -258,14 +276,14 @@ namespace MugenMvvmToolkit.Binding
 
         public static IBindingInfoBehaviorSyntax<TSource> WithCommandParameter<TSource>(
             [NotNull] this IBindingInfoSyntax<TSource> syntax,
-            [NotNull] Func<Expression<Func<TSource, object>>> expression)
+            [NotNull] Func<Expression<Func<TSource, IBindingSyntaxContext<object, TSource>, object>>> expression)
         {
             return syntax.WithParameter<TSource, object>(BindingBuilderConstants.CommandParameter, expression);
         }
 
         public static IBindingInfoBehaviorSyntax<TSource> WithCommandParameter<TSource>(
             [NotNull] this IBindingInfoSyntax syntax,
-            [NotNull] Func<Expression<Func<TSource, object>>> expression)
+            [NotNull] Func<Expression<Func<TSource, IBindingSyntaxContext<object, TSource>, object>>> expression)
         {
             return syntax.WithParameter<TSource, object>(BindingBuilderConstants.CommandParameter, expression);
         }
@@ -287,14 +305,14 @@ namespace MugenMvvmToolkit.Binding
 
         public static IBindingInfoBehaviorSyntax<TSource> WithConverter<TSource>(
             [NotNull] this IBindingInfoSyntax<TSource> syntax,
-            [NotNull] Func<Expression<Func<TSource, object>>> expression)
+            [NotNull] Func<Expression<Func<TSource, IBindingSyntaxContext<object, TSource>, object>>> expression)
         {
             return syntax.WithParameter<TSource, IBindingValueConverter>(BindingBuilderConstants.Converter, expression);
         }
 
         public static IBindingInfoBehaviorSyntax<TSource> WithConverter<TSource>(
             [NotNull] this IBindingInfoSyntax syntax,
-            [NotNull] Func<Expression<Func<TSource, object>>> expression)
+            [NotNull] Func<Expression<Func<TSource, IBindingSyntaxContext<object, TSource>, object>>> expression)
         {
             return syntax.WithParameter<TSource, IBindingValueConverter>(BindingBuilderConstants.Converter, expression);
         }
@@ -315,13 +333,13 @@ namespace MugenMvvmToolkit.Binding
 
         public static IBindingInfoBehaviorSyntax<TSource> WithConverterParameter<TSource>(
             [NotNull] this IBindingInfoSyntax<TSource> syntax,
-            [NotNull] Func<Expression<Func<TSource, object>>> expression)
+            [NotNull] Func<Expression<Func<TSource, IBindingSyntaxContext<object, TSource>, object>>> expression)
         {
             return syntax.WithParameter<TSource, object>(BindingBuilderConstants.ConverterParameter, expression);
         }
 
         public static IBindingInfoBehaviorSyntax<TSource> WithConverterParameter<TSource>(
-            [NotNull] this IBindingInfoSyntax syntax, [NotNull] Func<Expression<Func<TSource, object>>> expression)
+            [NotNull] this IBindingInfoSyntax syntax, [NotNull] Func<Expression<Func<TSource, IBindingSyntaxContext<object, TSource>, object>>> expression)
         {
             return syntax.WithParameter<TSource, object>(BindingBuilderConstants.ConverterParameter, expression);
         }
@@ -343,14 +361,14 @@ namespace MugenMvvmToolkit.Binding
 
         public static IBindingInfoBehaviorSyntax<TSource> WithConverterCulture<TSource>(
             [NotNull] this IBindingInfoSyntax<TSource> syntax,
-            [NotNull] Func<Expression<Func<TSource, object>>> expression)
+            [NotNull] Func<Expression<Func<TSource, IBindingSyntaxContext<object, TSource>, object>>> expression)
         {
             return syntax.WithParameter<TSource, CultureInfo>(BindingBuilderConstants.ConverterCulture, expression);
         }
 
         public static IBindingInfoBehaviorSyntax<TSource> WithConverterCulture<TSource>(
             [NotNull] this IBindingInfoSyntax syntax,
-            [NotNull] Func<Expression<Func<TSource, object>>> expression)
+            [NotNull] Func<Expression<Func<TSource, IBindingSyntaxContext<object, TSource>, object>>> expression)
         {
             return syntax.WithParameter<TSource, CultureInfo>(BindingBuilderConstants.ConverterCulture, expression);
         }
@@ -371,14 +389,14 @@ namespace MugenMvvmToolkit.Binding
 
         public static IBindingInfoBehaviorSyntax<TSource> WithFallback<TSource>(
             [NotNull] this IBindingInfoSyntax<TSource> syntax,
-            [NotNull] Func<Expression<Func<TSource, object>>> expression)
+            [NotNull] Func<Expression<Func<TSource, IBindingSyntaxContext<object, TSource>, object>>> expression)
         {
             return syntax.WithParameter<TSource, object>(BindingBuilderConstants.Fallback, expression);
         }
 
         public static IBindingInfoBehaviorSyntax<TSource> WithFallback<TSource>(
             [NotNull] this IBindingInfoSyntax syntax,
-            [NotNull] Func<Expression<Func<TSource, object>>> expression)
+            [NotNull] Func<Expression<Func<TSource, IBindingSyntaxContext<object, TSource>, object>>> expression)
         {
             return syntax.WithParameter<TSource, object>(BindingBuilderConstants.Fallback, expression);
         }
@@ -512,21 +530,7 @@ namespace MugenMvvmToolkit.Binding
         private static IBindingModeInfoBehaviorSyntax<TSource> ToInternal<TSource>(this IBindingToSyntax syntax,
             Func<LambdaExpression> expression, TSource source)
         {
-            syntax.Builder.AddOrUpdate(BindingBuilderConstants.Source, source);
-            LambdaExpressionToBindingExpressionConverter.Convert(expression, syntax);
-            return syntax.GetOrAddSyntaxBuilder<IBindingModeInfoBehaviorSyntax<TSource>, object, TSource>();
-        }
-
-        private static IBindingModeInfoBehaviorSyntax<TSource> ToInternal<TSource>(this IBindingToSyntax syntax,
-            LambdaExpression expression)
-        {
-            LambdaExpressionToBindingExpressionConverter.Convert(expression, syntax);
-            return syntax.GetOrAddSyntaxBuilder<IBindingModeInfoBehaviorSyntax<TSource>, object, TSource>();
-        }
-
-        private static IBindingModeInfoBehaviorSyntax<TSource> ToInternal<TSource>(this IBindingToSyntax syntax,
-            LambdaExpression expression, TSource source)
-        {
+            Should.NotBeNull(syntax, "syntax");
             syntax.Builder.AddOrUpdate(BindingBuilderConstants.Source, source);
             LambdaExpressionToBindingExpressionConverter.Convert(expression, syntax);
             return syntax.GetOrAddSyntaxBuilder<IBindingModeInfoBehaviorSyntax<TSource>, object, TSource>();

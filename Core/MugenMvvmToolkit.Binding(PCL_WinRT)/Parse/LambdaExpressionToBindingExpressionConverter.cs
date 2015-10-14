@@ -35,6 +35,44 @@ namespace MugenMvvmToolkit.Binding.Parse
     {
         #region Nested types
 
+        private sealed class ContextReplacerVisitor : ExpressionVisitor
+        {
+            #region Fields
+
+            private static readonly ContextReplacerVisitor Instance;
+
+            #endregion
+
+            #region Constructors
+
+            static ContextReplacerVisitor()
+            {
+                Instance = new ContextReplacerVisitor();
+            }
+
+            private ContextReplacerVisitor()
+            {
+            }
+
+            #endregion
+
+            #region Methods
+
+            public static Expression UpdateContextParameter(Expression expression)
+            {
+                return Instance.Visit(expression);
+            }
+
+            protected override Expression VisitParameter(ParameterExpression node)
+            {
+                if (typeof(IBindingSyntaxContext).IsAssignableFrom(node.Type))
+                    return Expression.Constant(null, node.Type);
+                return base.VisitParameter(node);
+            }
+
+            #endregion
+        }
+
         private struct ParameterCacheValue
         {
             #region Fields
@@ -220,7 +258,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         private void ConvertInternal(LambdaExpression expression)
         {
-            var multiExpression = Visit(expression.Body);
+            var multiExpression = Visit(ContextReplacerVisitor.UpdateContextParameter(expression.Body));
             if (_members.Count == 0)
                 AddBuildCallback(syntax => syntax.ToSource(context => BindingExtensions.CreateBindingSource(context, string.Empty, null)));
             else
@@ -240,7 +278,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         private ParameterCacheValue ConvertParamterInternal(LambdaExpression expression)
         {
-            var multiExpression = Visit(expression.Body);
+            var multiExpression = Visit(ContextReplacerVisitor.UpdateContextParameter(expression.Body));
             var func = Compile<object[]>(multiExpression, true);
             var members = _members.Select(pair => pair.Value).ToArray();
             var actions = _callbacks.ToArray();

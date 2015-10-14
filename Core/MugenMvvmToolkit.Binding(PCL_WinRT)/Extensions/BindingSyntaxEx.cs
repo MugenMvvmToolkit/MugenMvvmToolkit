@@ -66,7 +66,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                 MemberFlags.NonPublic | MemberFlags.Static);
             ResourceMethodInfo = typeof(BindingSyntaxEx)
                 .GetMethodsEx(MemberFlags.Public | MemberFlags.Static)
-                .First(info => info.Name == ResourceMethodName && info.GetParameters().Length == 1);
+                .First(info => info.Name == ResourceMethodName && info.GetParameters().Length == 2);
             FirstLevelBoxed = 1u;
         }
 
@@ -74,42 +74,54 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
 
         #region Methods
 
-        public static T DataContext<T>()
+        public static T DataContext<T>(this IBindingSyntaxContext context)
         {
-            throw BindingExceptionManager.MethodNotSupportedBindingExpression();
+            return MethodNotSupportedBindingExpression<T>();
         }
 
-        public static T Relative<T>()
+        public static T Relative<T>(this IBindingSyntaxContext context)
         {
-            throw BindingExceptionManager.MethodNotSupportedBindingExpression();
+            return MethodNotSupportedBindingExpression<T>();
         }
 
-        public static T Relative<T>(uint level)
+        public static T Relative<T>(this IBindingSyntaxContext context, uint level)
         {
-            throw BindingExceptionManager.MethodNotSupportedBindingExpression();
+            return MethodNotSupportedBindingExpression<T>();
         }
 
-        public static T Element<T>(object elementId)
+        public static T Element<T>(this IBindingSyntaxContext context, object elementId)
         {
-            throw BindingExceptionManager.MethodNotSupportedBindingExpression();
+            return MethodNotSupportedBindingExpression<T>();
         }
 
-        public static T Self<T>()
+        public static T Self<T>(this IBindingSyntaxContext context)
         {
-            throw BindingExceptionManager.MethodNotSupportedBindingExpression();
+            return MethodNotSupportedBindingExpression<T>();
         }
 
-        public static T Root<T>()
+        public static T Self<T, TSource>(this IBindingSyntaxContext<T, TSource> context)
+            where T : class
         {
-            throw BindingExceptionManager.MethodNotSupportedBindingExpression();
+            return MethodNotSupportedBindingExpression<T>();
         }
 
-        public static T Source<T>()
+        public static T Root<T>(this IBindingSyntaxContext context)
         {
-            throw BindingExceptionManager.MethodNotSupportedBindingExpression();
+            return MethodNotSupportedBindingExpression<T>();
         }
 
-        public static T Resource<T>(string name)
+        public static T Source<T>(this IBindingSyntaxContext context)
+        {
+            return MethodNotSupportedBindingExpression<T>();
+        }
+
+        public static T Source<TTarget, T>(this IBindingSyntaxContext<TTarget, T> context)
+            where TTarget : class
+        {
+            return MethodNotSupportedBindingExpression<T>();
+        }
+
+        public static T Resource<T>(this IBindingSyntaxContext context, string name)
         {
             return (T)BindingServiceProvider
                 .ResourceResolver
@@ -117,18 +129,16 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                 .Value;
         }
 
-        public static T Resource<T>(string name, Expression<Func<T>> member)
+        public static T Resource<T>(this IBindingSyntaxContext context, string name, Expression<Func<T>> member)
         {
             var value = BindingServiceProvider
                 .ResourceResolver
                 .ResolveObject(name, MugenMvvmToolkit.Models.DataContext.Empty, true)
                 .Value;
-#pragma warning disable 618
             return (T)BindingExtensions.GetValueFromPath(value, member.GetMemberInfo().Name);
-#pragma warning restore 618
         }
 
-        public static T ResourceMethod<T>(string name, params object[] args)
+        public static T ResourceMethod<T>(this IBindingSyntaxContext context, string name, params object[] args)
         {
             return (T)ResourceMethodImpl(name, Empty.Array<Type>(), MugenMvvmToolkit.Models.DataContext.Empty, args);
         }
@@ -146,14 +156,14 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
             return target.GetBindingMemberValue(member);
         }
 
-        public static T EventArgs<T>()
+        public static T EventArgs<T>(this IBindingSyntaxContext context)
         {
-            throw BindingExceptionManager.MethodNotSupportedBindingExpression();
+            return MethodNotSupportedBindingExpression<T>();
         }
 
-        public static IEnumerable<object> GetErrors(params object[] args)
+        public static IEnumerable<object> GetErrors(this IBindingSyntaxContext context, params object[] args)
         {
-            throw BindingExceptionManager.MethodNotSupportedBindingExpression();
+            return MethodNotSupportedBindingExpression<IEnumerable<object>>();
         }
 
         [UsedImplicitly]
@@ -173,8 +183,8 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                 if (!context.IsSameExpression())
                     return null;
                 var typeArgsEx = Expression.NewArrayInit(typeof(Type), Expression.Constant(mExp.Method.ReturnType, typeof(Type)));
-                return Expression.Convert(Expression.Call(ResourceMethodImplMethod, mExp.Arguments[0], typeArgsEx,
-                            context.ContextParameter, mExp.Arguments[1]), context.Expression.Type);
+                return Expression.Convert(Expression.Call(ResourceMethodImplMethod, mExp.Arguments[1], typeArgsEx,
+                            context.ContextParameter, mExp.Arguments[2]), context.Expression.Type);
             }
 
             if (name == "GetErrors")
@@ -184,7 +194,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                 var id = Guid.NewGuid();
                 var args = new List<Expression>();
                 var members = new List<string>();
-                var arrayExpression = mExp.Arguments[0] as NewArrayExpression;
+                var arrayExpression = mExp.Arguments[1] as NewArrayExpression;
                 if (arrayExpression != null)
                 {
                     for (int i = 0; i < arrayExpression.Expressions.Count; i++)
@@ -197,7 +207,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                     }
                 }
                 if (args.Count == 0)
-                    args.Add(Expression.Call(ResourceMethodInfo.MakeGenericMethod(typeof(object)),
+                    args.Add(Expression.Call(ResourceMethodInfo.MakeGenericMethod(typeof(object)), Expression.Constant(null, typeof(IBindingSyntaxContext)),
                         Expression.Constant(BindingServiceProvider.ResourceResolver.BindingSourceResourceName)));
                 context.AddBuildCallback(syntax =>
                 {
@@ -220,7 +230,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                 lastExpression != mExp)
                 return null;
 
-            if (name == AttachedMemberConstants.DataContext && mExp.Arguments.Count == 0)
+            if (name == AttachedMemberConstants.DataContext)
                 return context.GetOrAddParameterExpression(string.Empty, path, context.Expression,
                     (dataContext, s) => BindingExtensions.CreateBindingSource(dataContext, s, null, true));
 
@@ -239,19 +249,19 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                         resourceName = BindingServiceProvider.ResourceResolver.BindingSourceResourceName;
                         break;
                     case ResourceMethodName:
-                        mExp.Arguments[0].TryGetStaticValue(out resourceName, true);
-                        if (mExp.Arguments.Count == 2)
+                        mExp.Arguments[1].TryGetStaticValue(out resourceName, true);
+                        if (mExp.Arguments.Count == 3)
                         {
 #pragma warning disable 618
-                            LambdaExpression lambda = mExp.Arguments[1] as LambdaExpression;
+                            LambdaExpression lambda = mExp.Arguments[2] as LambdaExpression;
                             if (lambda == null)
-                                lambda = (LambdaExpression)((UnaryExpression)mExp.Arguments[1]).Operand;
+                                lambda = (LambdaExpression)((UnaryExpression)mExp.Arguments[2]).Operand;
                             path = BindingExtensions.MergePath(lambda.GetMemberInfo().Name, path);
 #pragma warning restore 618
                         }
                         break;
                     default:
-                        mExp.Arguments[0].TryGetStaticValue(out resourceName, true);
+                        mExp.Arguments[1].TryGetStaticValue(out resourceName, true);
                         break;
                 }
                 return context.GetOrAddParameterExpression("res:" + resourceName, path, context.Expression,
@@ -267,10 +277,10 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
             if (name == RelativeMethodName || name == "Element")
             {
                 object firstArg;
-                if (mExp.Arguments.Count == 0)
+                if (mExp.Arguments.Count == 1)
                     firstArg = FirstLevelBoxed;
                 else
-                    mExp.Arguments[0].TryGetStaticValue(out firstArg, true);
+                    mExp.Arguments[1].TryGetStaticValue(out firstArg, true);
                 var node = name == RelativeMethodName
                     ? RelativeSourceExpressionNode
                         .CreateRelativeSource(mExp.Method.ReturnType.AssemblyQualifiedName, (uint)firstArg, null)
@@ -312,6 +322,11 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                     return ((NotifyDataErrorsAggregatorBehavior)behavior).Errors;
             }
             return Empty.Array<object>();
+        }
+
+        private static T MethodNotSupportedBindingExpression<T>()
+        {
+            throw new NotSupportedException("This method is used exclusively for the construction of binding expression.");
         }
 
         #endregion
