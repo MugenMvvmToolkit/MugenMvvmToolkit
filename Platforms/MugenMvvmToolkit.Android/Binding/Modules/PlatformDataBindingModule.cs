@@ -224,6 +224,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         private static void Register([NotNull] IBindingMemberProvider memberProvider)
         {
             Should.NotBeNull(memberProvider, "memberProvider");
+            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.Object.StableIdProvider] = 2;
             RegisterMenuMembers(memberProvider);
             RegisterViewMembers(memberProvider);
             RegisterPreferenceMembers(memberProvider);
@@ -235,6 +236,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             BindingBuilderExtensions.RegisterDefaultBindingMember<SeekBar>(() => v => v.Progress);
 
             //Object
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.Object.StableIdProvider));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Object, ICollectionViewManager>(AttachedMembers.ViewGroup.CollectionViewManager.Path));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Object, IContentViewManager>(AttachedMembers.ViewGroup.ContentViewManager.Path));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(ItemsSourceGeneratorBase.MemberDescriptor,
@@ -292,6 +294,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ContentTemplateSelector, ContentTemplateSelectorChanged));
 
             //TabHost
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.TabHost.RestoreSelectedIndex));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.TabHost.SelectedItem, TabHostSelectedItemChanged));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ItemsSource.Override<TabHost>(), TabHostItemsSourceChanged));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ItemTemplate.Override<TabHost>(), TabHostTemplateChanged));
@@ -300,6 +303,10 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ContentTemplateSelector.Override<TabHost>(), TabHostTemplateChanged));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.TabSpec.Title, (spec, args) => spec.SetIndicator(args.NewValue)));
 
+            //AutoCompleteTextView
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.AutoCompleteTextView.ItemTemplate, (view, args) => AutoCompleteTextViewTemplateChanged(view)));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.AutoCompleteTextView.ItemTemplateSelector, (view, args) => AutoCompleteTextViewTemplateChanged(view)));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.AutoCompleteTextView.ItemsSource, AutoCompleteTextViewItemsSourceChanged));
 
             //DatePicker
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.DatePicker.SelectedDate);
@@ -352,6 +359,24 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.Toolbar.IsActionBar, ToolbarIsActionBarChanged));
                 memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.Toolbar.MenuTemplate, ToolbarMenuTemplateChanged));
             }
+        }
+
+        private static void AutoCompleteTextViewItemsSourceChanged(AutoCompleteTextView sender, AttachedMemberChangedEventArgs<IEnumerable> args)
+        {
+            var listAdapter = sender.Adapter as IItemsSourceAdapter;
+            if (listAdapter == null)
+            {
+                listAdapter = ItemsSourceAdapter.Factory(sender, sender.Context, DataContext.Empty);
+                sender.Adapter = listAdapter;
+            }
+            listAdapter.ItemsSource = args.NewValue;
+        }
+
+        private static void AutoCompleteTextViewTemplateChanged(AutoCompleteTextView sender)
+        {
+            var listAdapter = sender.Adapter as BaseAdapter;
+            if (listAdapter != null)
+                listAdapter.NotifyDataSetChanged();
         }
 
         internal static object GetAdapter(AdapterView item)
@@ -420,14 +445,14 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         {
             if (sender.GetBindingMemberValue(AttachedMembers.AdapterView.ScrollToSelectedItem).GetValueOrDefault(true))
                 sender.SetSelection(args.NewValue);
-            var adapter = GetAdapter(sender) as ItemsSourceAdapter;
+            var adapter = GetAdapter(sender) as IItemsSourceAdapter;
             if (adapter != null)
                 sender.SetBindingMemberValue(AttachedMembers.AdapterView.SelectedItem, adapter.GetRawItem(args.NewValue));
         }
 
         private static void AdapterViewSelectedItemChanged(AdapterView sender, AttachedMemberChangedEventArgs<object> args)
         {
-            var adapter = GetAdapter(sender) as ItemsSourceAdapter;
+            var adapter = GetAdapter(sender) as IItemsSourceAdapter;
             if (adapter != null)
                 sender.SetBindingMemberValue(AttachedMembers.AdapterView.SelectedItemPosition, adapter.GetPosition(args.NewValue));
         }
