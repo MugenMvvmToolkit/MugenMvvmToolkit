@@ -303,6 +303,8 @@ namespace MugenMvvmToolkit.iOS.Binding
             #region Fields
 
             public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener> AccessoryButtonTappedEvent;
+            public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener> ClickEvent;
+
             public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener> DeleteClickEvent;
             public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener> InsertClickEvent;
             public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, bool?> Moveable;
@@ -333,6 +335,7 @@ namespace MugenMvvmToolkit.iOS.Binding
                 Selected = new BindingMemberDescriptor<UIKit.UITableViewCell, bool?>("Selected");
                 Highlighted = new BindingMemberDescriptor<UIKit.UITableViewCell, bool>("Highlighted");
                 Editing = new BindingMemberDescriptor<UIKit.UITableViewCell, bool>("Editing");
+                ClickEvent = new BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener>("ClickEvent");
             }
 
             #endregion
@@ -377,6 +380,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             public static readonly BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?> ShouldHighlight;
             public static readonly BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?> Selected;
             public static readonly BindingMemberDescriptor<UIKit.UICollectionViewCell, bool> Highlighted;
+            public static readonly BindingMemberDescriptor<UIKit.UICollectionViewCell, IEventListener> ClickEvent;
 
             #endregion
 
@@ -393,6 +397,7 @@ namespace MugenMvvmToolkit.iOS.Binding
                 ShouldHighlight = new BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?>("ShouldHighlight");
                 Selected = new BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?>("Selected");
                 Highlighted = new BindingMemberDescriptor<UIKit.UICollectionViewCell, bool>("Highlighted");
+                ClickEvent = new BindingMemberDescriptor<UIKit.UICollectionViewCell, IEventListener>("ClickEvent");
             }
 
             #endregion
@@ -473,6 +478,30 @@ namespace MugenMvvmToolkit.iOS.Binding
                 ItemsSource = new BindingMemberDescriptor<UIKit.UITabBarController, IEnumerable>(AttachedMemberConstants.ItemsSource);
                 ItemTemplateSelector = new BindingMemberDescriptor<UIKit.UITabBarController, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
                 CollectionViewManager = new BindingMemberDescriptor<UIKit.UITabBarController, ICollectionViewManager>(UIView.CollectionViewManager);
+            }
+
+            #endregion
+        }
+
+        public class UISplitViewController : UIViewController
+        {
+            #region Fields
+
+            public static readonly BindingMemberDescriptor<UIKit.UISplitViewController, UIKit.UIViewController> MasterView;
+            public static readonly BindingMemberDescriptor<UIKit.UISplitViewController, UIKit.UIViewController> DetailView;
+
+            #endregion
+
+            #region Constructors
+
+            static UISplitViewController()
+            {
+                MasterView = new BindingMemberDescriptor<UIKit.UISplitViewController, UIKit.UIViewController>("MasterView");
+                DetailView = new BindingMemberDescriptor<UIKit.UISplitViewController, UIKit.UIViewController>("DetailView");
+            }
+
+            protected UISplitViewController()
+            {
             }
 
             #endregion
