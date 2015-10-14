@@ -190,7 +190,12 @@ namespace MugenMvvmToolkit.Binding.Models
             {
                 _canObserve = true;
                 _isDataContext = true;
-                _getValueAccessorSingle = o => BindingServiceProvider.ContextManager.GetBindingContext(o).Value;
+                _getValueAccessorSingle = o =>
+                {
+                    if (o == null)
+                        return null;
+                    return BindingServiceProvider.ContextManager.GetBindingContext(o).Value;
+                };
                 _setValueAccessorSingle = (o, arg) => BindingServiceProvider.ContextManager.GetBindingContext(o).Value = arg;
                 _canRead = true;
                 _canWrite = true;
