@@ -531,6 +531,270 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         }
 
         [TestMethod]
+        public void ParserShouldParseMultiExpressionWithFormatMethod3()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string format = "{0:d} - {1}";
+            const string binding = "Text $string.Format('{0:d} - {1}', SourceText1, SourceText2)";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext, target, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var dateTime = DateTime.Now;
+            expression(context, new object[] { dateTime, 2 }).ShouldEqual(string.Format(format, dateTime, 2));
+            expression(context, new object[] { dateTime, sourcePath2 }).ShouldEqual(string.Format(format, dateTime, sourcePath2));
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
+                sourcePath2);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings1()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string format = "{0} - {1}";
+            const string binding = "Text $'{SourceText1} - {SourceText2}'";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext, target, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { 1, 2 }).ShouldEqual(string.Format(format, 1, 2));
+            expression(context, new object[] { sourcePath1, sourcePath2 })
+                .ShouldEqual(string.Format(format, sourcePath1, sourcePath2));
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
+                sourcePath2);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings2()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string format = "{0:d} - {1}";
+            const string binding = "Text $'{SourceText1:d} - {SourceText2}'";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext, target, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var dateTime = DateTime.Now;
+            expression(context, new object[] { dateTime, 2 }).ShouldEqual(string.Format(format, dateTime, 2));
+            expression(context, new object[] { dateTime, sourcePath2 }).ShouldEqual(string.Format(format, dateTime, sourcePath2));
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
+                sourcePath2);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings3()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string format = "{0:d,2} - {1,2} - {0:HH:mm:ss tt zz} - {1:0,0}";
+            const string binding = "Text $'{SourceText1:d,2} - {SourceText2,2} - {SourceText1:HH:mm:ss tt zz} - {SourceText2:0,0}'";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext, target, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var dateTime = DateTime.Now;
+            const float value = 2.33333f;
+            const decimal d = 44.44440M;
+            expression(context, new object[] { dateTime, value }).ShouldEqual(string.Format(format, dateTime, value));
+            expression(context, new object[] { dateTime, d }).ShouldEqual(string.Format(format, dateTime, d));
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
+                sourcePath2);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings4()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string format = "{0} - {1} + {{test}}";
+            const string binding = "Text $'{SourceText1} - {SourceText2} + {{test}}'";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext, target, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { 1, 2 }).ShouldEqual(string.Format(format, 1, 2));
+            expression(context, new object[] { sourcePath1, sourcePath2 })
+                .ShouldEqual(string.Format(format, sourcePath1, sourcePath2));
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
+                sourcePath2);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings5()
+        {
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+            ShouldThrow(() => new BindingBuilder(bindingParser.Parse("Text ${Path,}", EmptyContext, target, null).Single()));
+            ShouldThrow(() => new BindingBuilder(bindingParser.Parse("Text ${Path:}", EmptyContext, target, null).Single()));
+            ShouldThrow(() => new BindingBuilder(bindingParser.Parse("Text ${Path:d,}", EmptyContext, target, null).Single()));
+            ShouldThrow(() => new BindingBuilder(bindingParser.Parse("Text ${Path,$}", EmptyContext, target, null).Single()));
+            ShouldThrow(() => new BindingBuilder(bindingParser.Parse("Text ${Path", EmptyContext, target, null).Single()));
+            ShouldThrow(() => new BindingBuilder(bindingParser.Parse("Text $Path}", EmptyContext, target, null).Single()));
+            ShouldThrow(() => new BindingBuilder(bindingParser.Parse("Text ${(Path", EmptyContext, target, null).Single()));
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings6()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string format = "{0:d,2} - {1,2} - {0:HH:mm:ss tt zz} - {1:0,0} - {2}";
+            const string binding = "Text $'{SourceText1:d,2} - {SourceText2,2} - {SourceText1:HH:mm:ss tt zz} - {SourceText2:0,0} - {(SourceText2 > 3 ? '1' : '2')}'";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext, target, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var dateTime = DateTime.Now;
+            const float value = 2.33333f;
+            const decimal d = 44.44440M;
+            expression(context, new object[] { dateTime, value }).ShouldEqual(string.Format(format, dateTime, value, value > 3 ? '1' : '2'));
+            expression(context, new object[] { dateTime, d }).ShouldEqual(string.Format(format, dateTime, d, d > 3 ? '1' : '2'));
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
+                sourcePath2);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings7()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string format = "{0:d,2} - {1,2} - {0:HH:mm:ss tt zz} - {1:0,0} - {2}";
+            const string binding = "Text $'{SourceText1:d,2} - {SourceText2,2}' + $' - {SourceText1:HH:mm:ss tt zz} - {SourceText2:0,0} - {(SourceText2 > 3 ? '1' : '2')}'";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext, target, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var dateTime = DateTime.Now;
+            const float value = 2.33333f;
+            const decimal d = 44.44440M;
+            expression(context, new object[] { dateTime, value }).ShouldEqual(string.Format(format, dateTime, value, value > 3 ? '1' : '2'));
+            expression(context, new object[] { dateTime, d }).ShouldEqual(string.Format(format, dateTime, d, d > 3 ? '1' : '2'));
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
+                sourcePath2);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings8()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string binding = "Text $'{SourceText1 + $'{SourceText2}'}'";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext, target, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { 1, 2 }).ShouldEqual(1 + 2.ToString());
+            expression(context, new object[] { sourcePath1, sourcePath2 }).ShouldEqual(sourcePath1 + sourcePath2);
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
+                sourcePath2);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings9()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "Value";
+            const string binding = "Text $'{SourceText1:d,2} - {$Rel(View).Value,2}' + $' - {SourceText1:HH:mm:ss tt zz} - {$Rel(View).Value + $'{($Rel(View).Value > 3 ? '1' : '2')}':0,0}'";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext, target, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var dateTime = DateTime.Now;
+            const float value = 2.33333f;
+            const decimal d = 44.44440M;
+            expression(context, new object[] { dateTime, value })
+                .ShouldEqual(string.Format("{0:d,2} - {1,2}", dateTime, value) +
+                             string.Format(" - {0:HH:mm:ss tt zz} - {1:0,0}", dateTime, value + string.Format("{0}", value > 3 ? "1" : "2")));
+            expression(context, new object[] { dateTime, d })
+                .ShouldEqual(string.Format("{0:d,2} - {1,2}", dateTime, d) +
+                             string.Format(" - {0:HH:mm:ss tt zz} - {1:0,0}", dateTime, d + string.Format("{0}", d > 3 ? "1" : "2")));
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            sources[1].Invoke(context).Path.Path.ShouldEqual(sourcePath2);
+        }
+
+        [TestMethod]
         public void ParserShouldParseMultiExpression0()
         {
             const string targetPath = "Text";
@@ -1931,6 +2195,147 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         }
 
         [TestMethod]
+        public void MethodResoultionDynamicTest0()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text $Ext.This().Method(arg1, arg2)";
+            var instance = new ExtInstance();
+            BindingServiceProvider.ResourceResolver.AddObject("Ext", instance);
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext, new object(), null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var args = new object[] { instance, 2M, 3M };
+            expression(context, args);
+            instance.Assert(() => instance.Method(2M, 3M), args);
+
+            args = new object[] { instance, 2, 3 };
+            expression(context, args);
+            instance.Assert(() => instance.Method(2, 3), args);
+
+            args = new object[] { instance, 2, 3 };
+            expression(context, args);
+            instance.Assert(() => instance.Method(2, 3), args);
+
+            args = new object[] { instance, 2M, "t" };
+            expression(context, args);
+            instance.Assert(() => instance.Method(2M, "t"), args);
+
+            args = new object[] { instance, 2, "t" };
+            expression(context, args);
+            instance.Assert(() => instance.Method(2M, "t"), args);
+
+            args = new object[] { instance, "t", 2M };
+            expression(context, args);
+            instance.Assert(() => instance.Method("t", 2M), args);
+
+            args = new object[] { instance, "t", 2 };
+            expression(context, args);
+            instance.Assert(() => instance.Method("t", 2), new object[] { instance, "t", 2M });
+        }
+
+        [TestMethod]
+        public void MethodResoultionDynamicTest1()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text $Ext.Method(arg1, arg2, arg3, arg4)";
+            var instance = new ExtInstance();
+            BindingServiceProvider.ResourceResolver.AddObject("Ext", instance);
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext, new object(), null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+
+            var args = new object[] { instance, 2, 3, "st", 3 };
+            expression(context, args);
+            instance.Assert(() => instance.Method(2, 3, "st", 3), args);
+
+            args = new object[] { instance, 2M, 3M, "st", 3 };
+            expression(context, args);
+            instance.Assert(() => instance.Method(2M, 3M, "st", 3), args);
+
+            args = new object[] { instance, 2M, "t", "st", 3 };
+            expression(context, args);
+            instance.Assert(() => instance.Method(2M, "t", "st", 3), args);
+
+            args = new object[] { instance, "t", 2M, "st", 3 };
+            expression(context, args);
+            instance.Assert(() => instance.Method("t", 2M, "st", 3), args);
+
+            args = new object[] { instance, "t", 2, "st", 3 };
+            expression(context, args);
+            instance.Assert(() => instance.Method("t", 2, "st", 3), new object[] { instance, "t", 2M, "st", 3 });
+        }
+
+        [TestMethod]
+        public void MethodResoultionDynamicTest2()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text $Ext.Method1(arg1)";
+            var instance = new ExtInstance();
+            BindingServiceProvider.ResourceResolver.AddObject("Ext", instance);
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext, new object(), null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var args = new object[] { instance, "st" };
+            expression(context, args);
+            instance.Assert(() => instance.Method1("st", 0M, "", int.MaxValue), new object[] { instance, "st", 0M, "", int.MaxValue });
+        }
+
+        [TestMethod]
+        public void MethodResoultionDynamicTest3()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text $Ext.Method2(arg1)";
+            var instance = new ExtInstance();
+            BindingServiceProvider.ResourceResolver.AddObject("Ext", instance);
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext, new object(), null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var args = new object[] { instance, 2 };
+            expression(context, args);
+            instance.Assert(() => instance.Method2(2, 1), new object[] { instance, 2, 1 });
+        }
+
+        [TestMethod]
+        public void MethodResoultionDynamicTest4()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text $Ext.Method2(arg1, arg2)";
+            var instance = new ExtInstance();
+            BindingServiceProvider.ResourceResolver.AddObject("Ext", instance);
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext, new object(), null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var array = new[] { int.MinValue, int.MaxValue };
+            var args = new object[] { instance, 2, array };
+            expression(context, args);
+            instance.Assert(() => instance.Method2(2, array), new object[] { instance, 2, int.MinValue, int.MaxValue });
+
+            args = new object[] { instance, 2, 3 };
+            expression(context, args);
+            instance.Assert(() => instance.Method2(2, 3), args);
+        }
+
+        [TestMethod]
         public void MethodResoultionTest0()
         {
             const string targetPath = "Text";
@@ -2230,6 +2635,115 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             if (observerProvider != null)
                 BindingServiceProvider.ObserverProvider = observerProvider;
             return new BindingParser();
+        }
+
+        #endregion
+    }
+
+    public class ExtInstance
+    {
+        #region Properties
+
+        public static MethodInfo LastMethod { get; private set; }
+
+        public static object[] Args { get; private set; }
+
+        #endregion
+
+        #region Methods
+
+        public void Assert(Expression<Action> expression, params object[] args)
+        {
+            var m = GetMethodInfo(expression);
+            LastMethod.ShouldEqual(m);
+            args.SequenceEqual(Args).ShouldBeTrue();
+        }
+
+        public object This()
+        {
+            return this;
+        }
+
+        private void SetMethod(Expression<Action> expression, params object[] args)
+        {
+            LastMethod = GetMethodInfo(expression);
+            var objects = new List<object> { this };
+            foreach (var o in args)
+            {
+                var array = o as Array;
+                if (array == null)
+                    objects.Add(o);
+                else
+                    objects.AddRange(array.OfType<object>());
+            }
+            Args = objects.ToArray();
+        }
+
+        private MethodInfo GetMethodInfo(LambdaExpression expression)
+        {
+            var unaryExpression = expression.Body as UnaryExpression;
+            if (unaryExpression != null)
+            {
+                var memberExpression = unaryExpression.Operand as MethodCallExpression;
+                if (memberExpression != null)
+                    return memberExpression.Method;
+            }
+            return ((MethodCallExpression)expression.Body).Method;
+        }
+
+        public void Method(decimal x1, decimal x2)
+        {
+            SetMethod(() => Method(x1, x2), x1, x2);
+        }
+
+        public void Method(int x1, int x2)
+        {
+            SetMethod(() => Method(x1, x2), x1, x2);
+        }
+
+        public void Method(object x1, object x2)
+        {
+            SetMethod(() => Method(x1, x2), x1, x2);
+        }
+
+        public void Method(decimal x1, decimal x2, params object[] items)
+        {
+            SetMethod(() => Method(x1, x2, items), x1, x2, items);
+        }
+
+        public void Method(int x1, int x2, params object[] items)
+        {
+            SetMethod(() => Method(x1, x2, items), x1, x2, items);
+        }
+
+        public void Method(object x1, object x2, params object[] items)
+        {
+            SetMethod(() => Method(x1, x2, items), x1, x2, items);
+        }
+
+        public void Method(object item, decimal x = 0, params object[] items)
+        {
+            SetMethod(() => Method(item, x, items), item, x, items);
+        }
+
+        public void Method(string item, decimal x = 0)
+        {
+            SetMethod(() => Method(item, x), item, x);
+        }
+
+        public void Method1(string item, decimal x = 0, string st = "", int v = int.MaxValue, params int[] items)
+        {
+            SetMethod(() => Method1(item, x, st, v, items), item, x, st, v, items);
+        }
+
+        public void Method2(int x, int y = 1)
+        {
+            SetMethod(() => Method2(x, y), x, y);
+        }
+
+        public void Method2(int x, params int[] items)
+        {
+            SetMethod(() => Method2(x, items), x, items);
         }
 
         #endregion
