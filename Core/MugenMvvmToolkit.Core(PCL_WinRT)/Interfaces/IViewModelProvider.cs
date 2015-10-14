@@ -21,6 +21,7 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Interfaces
 {
@@ -40,5 +41,13 @@ namespace MugenMvvmToolkit.Interfaces
 
         [Pure]
         IViewModel RestoreViewModel([CanBeNull] IDataContext viewModelState, [CanBeNull] IDataContext dataContext, bool throwOnError);
+
+        event EventHandler<IViewModelProvider, ViewModelPreservingEventArgs> Preserving;
+
+        event EventHandler<IViewModelProvider, ViewModelPreservedEventArgs> Preserved;
+
+        event EventHandler<IViewModelProvider, ViewModelRestoringEventArgs> Restoring;
+
+        event EventHandler<IViewModelProvider, ViewModelRestoredEventArgs> Restored;
     }
 }

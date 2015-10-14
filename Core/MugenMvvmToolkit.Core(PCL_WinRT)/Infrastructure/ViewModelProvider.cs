@@ -25,6 +25,7 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.ViewModels;
 
@@ -418,6 +419,14 @@ namespace MugenMvvmToolkit.Infrastructure
             Should.NotBeNull(viewModel, "viewModel");
             if (dataContext == null)
                 dataContext = DataContext.Empty;
+
+            var preserving = Preserving;
+            if (preserving != null)
+            {
+                var args = new ViewModelPreservingEventArgs(viewModel) { Context = dataContext };
+                preserving(this, args);
+                dataContext = args.Context ?? DataContext.Empty;
+            }
             IDataContext state = PreserveViewModelInternal(viewModel, dataContext);
 
             GetOrAddViewModelId(viewModel);
@@ -431,6 +440,14 @@ namespace MugenMvvmToolkit.Infrastructure
             }
 
             OnViewModelPreserved(viewModel, state, dataContext);
+
+            var preserved = Preserved;
+            if (preserved != null)
+            {
+                var args = new ViewModelPreservedEventArgs(viewModel) { Context = dataContext, State = state };
+                preserved(this, args);
+                return args.State;
+            }
             return state;
         }
 
@@ -467,12 +484,31 @@ namespace MugenMvvmToolkit.Infrastructure
                         dataContext.AddOrUpdate(InitializationConstants.ParentViewModel, parentViewModel);
                 }
 
+                var restoring = Restoring;
+                if (restoring != null)
+                {
+                    var args = new ViewModelRestoringEventArgs { Context = dataContext, ViewModelState = viewModelState };
+                    restoring(this, args);
+                    dataContext = args.Context ?? DataContext.Empty;
+                }
+
                 viewModel = RestoreViewModel(viewModelState, dataContext);
                 if (viewModel != null)
                 {
                     if (restoredParentViewModel != null && parentViewModel == null)
                         restoredParentViewModel.AddChildViewModel(viewModel);
                     OnViewModelRestored(viewModel, viewModelState, dataContext);
+
+                    var restored = Restored;
+                    if (restored != null)
+                    {
+                        var args = new ViewModelRestoredEventArgs(viewModel)
+                        {
+                            Context = dataContext,
+                            ViewModelState = viewModelState
+                        };
+                        restored(this, args);
+                    }
                     Tracer.TraceViewModel(AuditAction.Restored, viewModel);
                     if (ReferenceEquals(viewModelState, DataContext.Empty))
                         Tracer.Warn("The view model '{0}' was restored without state.", viewModel);
@@ -490,6 +526,14 @@ namespace MugenMvvmToolkit.Infrastructure
             }
             return null;
         }
+
+        public event EventHandler<IViewModelProvider, ViewModelPreservingEventArgs> Preserving;
+
+        public event EventHandler<IViewModelProvider, ViewModelPreservedEventArgs> Preserved;
+
+        public event EventHandler<IViewModelProvider, ViewModelRestoringEventArgs> Restoring;
+
+        public event EventHandler<IViewModelProvider, ViewModelRestoredEventArgs> Restored;
 
         #endregion
 
