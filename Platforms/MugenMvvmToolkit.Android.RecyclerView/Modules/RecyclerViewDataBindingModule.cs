@@ -45,7 +45,7 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Modules
             var adapter = recyclerView.GetAdapter() as ItemsSourceRecyclerAdapter;
             if (adapter == null)
             {
-                adapter = new ItemsSourceRecyclerAdapter(recyclerView);
+                adapter = new ItemsSourceRecyclerAdapter();
                 recyclerView.SetAdapter(adapter);
             }
             adapter.ItemsSource = args.NewValue;

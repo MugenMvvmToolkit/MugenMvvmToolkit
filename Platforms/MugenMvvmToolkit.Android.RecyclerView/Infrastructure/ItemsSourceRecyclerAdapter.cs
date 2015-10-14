@@ -18,12 +18,14 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using Android.App;
 using Android.Views;
 using Android.Widget;
-using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
+using MugenMvvmToolkit.Android.Interfaces;
 using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Binding;
 using Object = Java.Lang.Object;
@@ -50,32 +52,22 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
 
         #region Fields
 
-        private readonly DataTemplateProvider _itemTemplateProvider;
-        private readonly BindableLayoutInflater _layoutInflater;
-        private readonly global::Android.Support.V7.Widget.RecyclerView _recyclerView;
         private readonly NotifyCollectionChangedEventHandler _weakHandler;
-        private readonly ReflectionExtensions.IWeakEventHandler<EventArgs> _listener;
+        private List<global::Android.Support.V7.Widget.RecyclerView.AdapterDataObserver> _observers;
+        private DataTemplateProvider _itemTemplateProvider;
+        private BindableLayoutInflater _layoutInflater;
+        private global::Android.Support.V7.Widget.RecyclerView _recyclerView;
+        private ReflectionExtensions.IWeakEventHandler<EventArgs> _listener;
+        private IStableIdProvider _stableIdProvider;
         private IEnumerable _itemsSource;
 
         #endregion
 
         #region Constructors
 
-        public ItemsSourceRecyclerAdapter([NotNull] global::Android.Support.V7.Widget.RecyclerView recyclerView)
+        public ItemsSourceRecyclerAdapter()
         {
-            Should.NotBeNull(recyclerView, "recyclerView");
-            _recyclerView = recyclerView;
-            _itemTemplateProvider = new DataTemplateProvider(_recyclerView, AttachedMemberConstants.ItemTemplate,
-                AttachedMemberConstants.ItemTemplateSelector);
-            _layoutInflater = _recyclerView.Context.GetBindableLayoutInflater();
-            _weakHandler = ReflectionExtensions.MakeWeakCollectionChangedHandler(this,
-                (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));
-            var activityView = _recyclerView.Context.GetActivity() as IActivityView;
-            if (activityView != null)
-            {
-                _listener = ReflectionExtensions.CreateWeakEventHandler<ItemsSourceRecyclerAdapter, EventArgs>(this, (adapter, o, arg3) => adapter.ActivityViewOnDestroyed((Activity)o));
-                activityView.Mediator.Destroyed += _listener.Handle;
-            }
+            _weakHandler = ReflectionExtensions.MakeWeakCollectionChangedHandler(this, (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));
         }
 
         #endregion
@@ -85,6 +77,11 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
         protected global::Android.Support.V7.Widget.RecyclerView RecyclerView
         {
             get { return _recyclerView; }
+        }
+
+        protected DataTemplateProvider DataTemplateProvider
+        {
+            get { return _itemTemplateProvider; }
         }
 
         protected BindableLayoutInflater LayoutInflater
@@ -97,6 +94,8 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
             get { return _itemsSource; }
             set { SetItemsSource(value, true); }
         }
+
+        public bool ClearDataContext { get; set; }
 
         #endregion
 
@@ -169,8 +168,9 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
         {
             ((IActivityView)sender).Mediator.Destroyed -= _listener.Handle;
             SetItemsSource(null, false);
-            if (_recyclerView.IsAlive() && ReferenceEquals(_recyclerView.GetAdapter(), this))
-                _recyclerView.SetAdapter(null);
+            var recyclerView = _recyclerView;
+            if (recyclerView.IsAlive() && ReferenceEquals(recyclerView.GetAdapter(), this))
+                recyclerView.SetAdapter(null);
         }
 
         #endregion
@@ -185,6 +185,47 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
                     return 0;
                 return ItemsSource.Count();
             }
+        }
+
+        public override void OnAttachedToRecyclerView(global::Android.Support.V7.Widget.RecyclerView recyclerView)
+        {
+            _recyclerView = recyclerView;
+            _itemTemplateProvider = new DataTemplateProvider(_recyclerView, AttachedMemberConstants.ItemTemplate, AttachedMemberConstants.ItemTemplateSelector);
+            _layoutInflater = _recyclerView.Context.GetBindableLayoutInflater();
+            HasStableIds = recyclerView.TryGetBindingMemberValue(AttachedMembers.Object.StableIdProvider, out _stableIdProvider) && _stableIdProvider != null;
+            var activityView = _recyclerView.Context.GetActivity() as IActivityView;
+            if (activityView != null)
+            {
+                if (_listener == null)
+                    _listener = ReflectionExtensions.CreateWeakEventHandler<ItemsSourceRecyclerAdapter, EventArgs>(this, (adapter, o, arg3) => adapter.ActivityViewOnDestroyed((Activity)o));
+                activityView.Mediator.Destroyed += _listener.Handle;
+            }
+            //To prevent HasStableIds error.
+            if (_observers != null)
+            {
+                foreach (var observer in _observers)
+                    base.RegisterAdapterDataObserver(observer);
+                _observers = null;
+            }
+            base.OnAttachedToRecyclerView(recyclerView);
+        }
+
+        public override void OnDetachedFromRecyclerView(global::Android.Support.V7.Widget.RecyclerView recyclerView)
+        {
+            var activityView = recyclerView.Context.GetActivity() as IActivityView;
+            if (activityView != null)
+                activityView.Mediator.Destroyed -= _listener.Handle;
+            _layoutInflater = null;
+            _itemTemplateProvider = null;
+            _recyclerView = null;
+            base.OnDetachedFromRecyclerView(recyclerView);
+        }
+
+        public override long GetItemId(int position)
+        {
+            if (_stableIdProvider == null)
+                return position;
+            return _stableIdProvider.GetItemId(GetRawItem(position));
         }
 
         public override void OnBindViewHolder(global::Android.Support.V7.Widget.RecyclerView.ViewHolder holder, int position)
@@ -208,9 +249,12 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
 
         public override void OnViewRecycled(Object holder)
         {
-            var viewHolder = holder as global::Android.Support.V7.Widget.RecyclerView.ViewHolder;
-            if (viewHolder != null && viewHolder.ItemView != null)
-                viewHolder.ItemView.SetDataContext(null);
+            if (ClearDataContext)
+            {
+                var viewHolder = holder as global::Android.Support.V7.Widget.RecyclerView.ViewHolder;
+                if (viewHolder != null && viewHolder.ItemView != null)
+                    viewHolder.ItemView.SetDataContext(null);
+            }
             base.OnViewRecycled(holder);
         }
 
@@ -228,6 +272,24 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
                 Tracer.Error("The DataTemplate '{0}' is not supported by RecyclerView", template);
             }
             return _itemTemplateProvider.GetTemplateId().GetValueOrDefault(global::Android.Resource.Layout.SimpleListItem1);
+        }
+
+        public override void RegisterAdapterDataObserver(global::Android.Support.V7.Widget.RecyclerView.AdapterDataObserver observer)
+        {
+            if (_recyclerView == null)
+            {
+                if (_observers == null)
+                    _observers = new List<global::Android.Support.V7.Widget.RecyclerView.AdapterDataObserver>();
+                _observers.Add(observer);
+            }
+            else
+                base.RegisterAdapterDataObserver(observer);
+        }
+
+        public override void UnregisterAdapterDataObserver(global::Android.Support.V7.Widget.RecyclerView.AdapterDataObserver observer)
+        {
+            if (_observers == null || !_observers.Remove(observer))
+                base.UnregisterAdapterDataObserver(observer);
         }
 
         #endregion
