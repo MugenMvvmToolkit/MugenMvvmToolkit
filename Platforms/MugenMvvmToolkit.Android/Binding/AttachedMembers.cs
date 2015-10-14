@@ -20,6 +20,7 @@ using System.Collections;
 using Android.App;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
+using MugenMvvmToolkit.Android.Interfaces;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -48,16 +49,17 @@ namespace MugenMvvmToolkit.Android.Binding
 #if !APPCOMPAT
         public class Object
         {
-        #region Fields
+            #region Fields
 
             public static readonly BindingMemberDescriptor<object, object> DataContext;
             public static BindingMemberDescriptor<object, object> Parent;
             public static readonly BindingMemberDescriptor<object, object> CommandParameter;
             public static readonly BindingMemberDescriptor<object, IEnumerable<object>> Errors;
+            public static readonly BindingMemberDescriptor<object, IStableIdProvider> StableIdProvider;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             static Object()
             {
@@ -65,28 +67,30 @@ namespace MugenMvvmToolkit.Android.Binding
                 Parent = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.Parent);
                 CommandParameter = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.CommandParameter);
                 Errors = new BindingMemberDescriptor<object, IEnumerable<object>>(AttachedMemberConstants.ErrorsPropertyMember);
+                StableIdProvider = new BindingMemberDescriptor<object, IStableIdProvider>("StableIdProvider");                
             }
 
             protected Object()
             {
             }
 
-        #endregion
+            #endregion
         }
 
         public class View : Object
         {
-        #region Fields
+            #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Views.View, bool> Visible;
             public static readonly BindingMemberDescriptor<global::Android.Views.View, bool> Hidden;
             public static readonly BindingMemberDescriptor<global::Android.Views.View, int> PopupMenuTemplate;
+            public static readonly BindingMemberDescriptor<global::Android.Views.View, IPopupMenuPresenter> PopupMenuPresenter;
             public static readonly BindingMemberDescriptor<global::Android.Views.View, string> PopupMenuEvent;
             public static readonly BindingMemberDescriptor<global::Android.Views.View, string> PopupMenuPlacementTargetPath;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             static View()
             {
@@ -95,24 +99,25 @@ namespace MugenMvvmToolkit.Android.Binding
                 PopupMenuTemplate = new BindingMemberDescriptor<global::Android.Views.View, int>("PopupMenuTemplate");
                 PopupMenuEvent = new BindingMemberDescriptor<global::Android.Views.View, string>("PopupMenuEvent");
                 PopupMenuPlacementTargetPath = new BindingMemberDescriptor<global::Android.Views.View, string>("PlacementTargetPath");
+                PopupMenuPresenter = new BindingMemberDescriptor<global::Android.Views.View, IPopupMenuPresenter>("PopupMenuPresenter");
             }
 
             protected View()
             {
             }
 
-        #endregion
+            #endregion
         }
 
         public class Dialog : Object
         {
-        #region Fields
+            #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.App.Dialog, string> Title;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             static Dialog()
             {
@@ -123,12 +128,12 @@ namespace MugenMvvmToolkit.Android.Binding
             {
             }
 
-        #endregion
+            #endregion
         }
 
         public class ViewGroup : View
         {
-        #region Fields
+            #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Views.ViewGroup, object> Content;
             public static readonly BindingMemberDescriptor<global::Android.Views.ViewGroup, IContentViewManager> ContentViewManager;
@@ -142,9 +147,9 @@ namespace MugenMvvmToolkit.Android.Binding
             public static readonly BindingMemberDescriptor<global::Android.Views.ViewGroup, IDataTemplateSelector> ItemTemplateSelector;
             public static readonly BindingMemberDescriptor<global::Android.Views.ViewGroup, ICollectionViewManager> CollectionViewManager;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             protected ViewGroup()
             {
@@ -165,12 +170,12 @@ namespace MugenMvvmToolkit.Android.Binding
                 CollectionViewManager = new BindingMemberDescriptor<global::Android.Views.ViewGroup, ICollectionViewManager>("CollectionViewManager");
             }
 
-        #endregion
+            #endregion
         }
 
         public class AdapterView : ViewGroup
         {
-        #region Fields
+            #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Widget.AdapterView, int?> DropDownItemTemplate;
             public static readonly BindingMemberDescriptor<global::Android.Widget.AdapterView, IDataTemplateSelector> DropDownItemTemplateSelector;
@@ -178,9 +183,9 @@ namespace MugenMvvmToolkit.Android.Binding
             public static readonly BindingMemberDescriptor<global::Android.Widget.AdapterView, object> SelectedItem;
             public static readonly BindingMemberDescriptor<global::Android.Widget.AdapterView, bool?> ScrollToSelectedItem;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             static AdapterView()
             {
@@ -195,19 +200,19 @@ namespace MugenMvvmToolkit.Android.Binding
             {
             }
 
-        #endregion
+            #endregion
         }
 
         public class TabHost : ViewGroup
         {
-        #region Fields
+            #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Widget.TabHost, object> SelectedItem;
             public static readonly BindingMemberDescriptor<global::Android.Widget.TabHost, bool?> RestoreSelectedIndex;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             protected TabHost()
             {
@@ -219,18 +224,18 @@ namespace MugenMvvmToolkit.Android.Binding
                 RestoreSelectedIndex = new BindingMemberDescriptor<global::Android.Widget.TabHost, bool?>("RestoreSelectedIndex");
             }
 
-        #endregion
+            #endregion
         }
 
         public class TabSpec : Object
         {
-        #region Fields
+            #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Widget.TabHost.TabSpec, string> Title;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             protected TabSpec()
             {
@@ -241,18 +246,44 @@ namespace MugenMvvmToolkit.Android.Binding
                 Title = new BindingMemberDescriptor<global::Android.Widget.TabHost.TabSpec, string>("Title");
             }
 
-        #endregion
+            #endregion
+        }
+
+        public class AutoCompleteTextView : View
+        {
+            #region Fields
+
+            public static readonly BindingMemberDescriptor<global::Android.Widget.AutoCompleteTextView, int?> ItemTemplate;
+            public static readonly BindingMemberDescriptor<global::Android.Widget.AutoCompleteTextView, IDataTemplateSelector> ItemTemplateSelector;
+            public static readonly BindingMemberDescriptor<global::Android.Widget.AutoCompleteTextView, IEnumerable> ItemsSource;
+
+            #endregion
+
+            #region Constructors
+
+            static AutoCompleteTextView()
+            {
+                ItemTemplate = ViewGroup.ItemTemplate.Override<global::Android.Widget.AutoCompleteTextView>();
+                ItemTemplateSelector = ViewGroup.ItemTemplateSelector.Override<global::Android.Widget.AutoCompleteTextView>();
+                ItemsSource = ViewGroup.ItemsSource.Override<global::Android.Widget.AutoCompleteTextView>();
+            }
+
+            protected AutoCompleteTextView()
+            {
+            }
+
+            #endregion
         }
 
         public class DatePicker : View
         {
-        #region Fields
+            #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Widget.DatePicker, DateTime> SelectedDate;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             static DatePicker()
             {
@@ -263,18 +294,18 @@ namespace MugenMvvmToolkit.Android.Binding
             {
             }
 
-        #endregion
+            #endregion
         }
 
         public class TimePicker : View
         {
-        #region Fields
+            #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Widget.TimePicker, TimeSpan> SelectedTime;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             static TimePicker()
             {
@@ -285,18 +316,18 @@ namespace MugenMvvmToolkit.Android.Binding
             {
             }
 
-        #endregion
+            #endregion
         }
 
         public class ImageView : View
         {
-        #region Fields
+            #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Widget.ImageView, object> ImageSource;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             static ImageView()
             {
@@ -307,21 +338,21 @@ namespace MugenMvvmToolkit.Android.Binding
             {
             }
 
-        #endregion
+            #endregion
         }
 
         public class Menu : Object
         {
-        #region Fields
+            #region Fields
 
             public static readonly BindingMemberDescriptor<IMenu, IItemsSourceGenerator> ItemsSourceGenerator;
             public static readonly BindingMemberDescriptor<IMenu, IEnumerable> ItemsSource;
             public static readonly BindingMemberDescriptor<IMenu, bool?> Enabled;
             public static readonly BindingMemberDescriptor<IMenu, bool?> Visible;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             static Menu()
             {
@@ -335,12 +366,12 @@ namespace MugenMvvmToolkit.Android.Binding
             {
             }
 
-        #endregion
+            #endregion
         }
 
         public class MenuItem : Object
         {
-        #region Fields
+            #region Fields
 
             public static readonly BindingMemberDescriptor<IMenuItem, object> ActionView;
             public static readonly BindingMemberDescriptor<IMenuItem, IDataTemplateSelector> ActionViewTemplateSelector;
@@ -354,9 +385,9 @@ namespace MugenMvvmToolkit.Android.Binding
             public static readonly BindingMemberDescriptor<IMenuItem, string> Title;
             public static readonly BindingMemberDescriptor<IMenuItem, string> TitleCondensed;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             static MenuItem()
             {
@@ -377,19 +408,19 @@ namespace MugenMvvmToolkit.Android.Binding
             {
             }
 
-        #endregion
+            #endregion
         }
 
         public class Preference : Object
         {
-        #region Fields
+            #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Preferences.Preference, bool> Click;
             public static readonly BindingMemberDescriptor<global::Android.Preferences.Preference, IEventListener> ValueChangedEvent;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             static Preference()
             {
@@ -401,21 +432,21 @@ namespace MugenMvvmToolkit.Android.Binding
             {
             }
 
-        #endregion
+            #endregion
         }
 
         public class PreferenceGroup : Preference
         {
-        #region Fields
+            #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Preferences.PreferenceGroup, IEnumerable> ItemsSource;
             public static readonly BindingMemberDescriptor<global::Android.Preferences.PreferenceGroup, IItemsSourceGenerator> ItemsSourceGenerator;
             public static readonly BindingMemberDescriptor<global::Android.Preferences.PreferenceGroup, IDataTemplateSelector> ItemTemplateSelector;
             public static readonly BindingMemberDescriptor<global::Android.Preferences.PreferenceGroup, ICollectionViewManager> CollectionViewManager;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             static PreferenceGroup()
             {
@@ -429,18 +460,18 @@ namespace MugenMvvmToolkit.Android.Binding
             {
             }
 
-        #endregion
+            #endregion
         }
 #else
         public class View : AttachedMembers.View
         {
-            #region Fields
+        #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Views.View, bool> DrawerIsOpened;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             static View()
             {
@@ -451,21 +482,21 @@ namespace MugenMvvmToolkit.Android.Binding
             {
             }
 
-            #endregion
+        #endregion
         }
 
         public class ViewPager : AttachedMembers.ViewGroup
         {
-            #region Fields
+        #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Support.V4.View.ViewPager, object> SelectedItem;
             public static readonly BindingMemberDescriptor<global::Android.Support.V4.View.ViewPager, int> CurrentItem;
             public static readonly BindingMemberDescriptor<global::Android.Support.V4.View.ViewPager, bool?> RestoreSelectedIndex;
             public static readonly BindingMemberDescriptor<global::Android.Support.V4.View.ViewPager, Func<object, ICharSequence>> GetPageTitleDelegate;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             static ViewPager()
             {
@@ -479,19 +510,19 @@ namespace MugenMvvmToolkit.Android.Binding
             {
             }
 
-            #endregion
+        #endregion
         }
 
         public class DrawerLayout : AttachedMembers.ViewGroup
         {
-            #region Fields
+        #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Support.V4.Widget.DrawerLayout, bool> ActionBarDrawerToggleEnabled;
             public static readonly BindingMemberDescriptor<global::Android.Support.V4.Widget.DrawerLayout, object> DrawerListener;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             static DrawerLayout()
             {
@@ -503,7 +534,7 @@ namespace MugenMvvmToolkit.Android.Binding
             {
             }
 
-            #endregion
+        #endregion
         }
 #endif
         public class ActionBar : Object
