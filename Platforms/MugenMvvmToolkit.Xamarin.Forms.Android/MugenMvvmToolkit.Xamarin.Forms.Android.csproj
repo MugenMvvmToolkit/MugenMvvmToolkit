@@ -89,6 +89,9 @@
     <Compile Include="..\MugenMvvmToolkit.Android\infrastructure\presenters\ToastPresenter.cs">
       <Link>Infrastructure\Presenters\ToastPresenter.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\Infrastructure\TracerEx.cs">
+      <Link>Infrastructure\TracerEx.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.xamarin.forms.winphone\binding\modules\PlatformDataBindingModuleEx.cs">
       <Link>Binding\Modules\PlatformDataBindingModuleEx.cs</Link>
     </Compile>

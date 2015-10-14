@@ -22,6 +22,8 @@ using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.Xamarin.Forms.Modules;
 
 #if ANDROID && XAMARIN_FORMS
+using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Xamarin.Forms.Android.Infrastructure;
 using MugenMvvmToolkit.Xamarin.Forms.Android.Infrastructure.Presenters;
 namespace MugenMvvmToolkit.Xamarin.Forms.Android.Modules
 #elif TOUCH
@@ -55,6 +57,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
 
         #region Overrides of InitializationModule
 
+#if ANDROID
+        protected override BindingInfo<ITracer> GetTracer()
+        {
+            return BindingInfo<ITracer>.FromType<TracerEx>(DependencyLifecycle.SingleInstance);
+        }
+#endif
         protected override BindingInfo<IMessagePresenter> GetMessagePresenter()
         {
             return BindingInfo<IMessagePresenter>.FromType<MessagePresenter>(DependencyLifecycle.SingleInstance);

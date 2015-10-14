@@ -64,8 +64,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         public bool UseAnimations { get; set; }
 
-        public Func<Page, bool> SendBackButtonPressed { get; set; }
-
         #endregion
 
         #region Implementation of INavigationService
@@ -149,8 +147,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             if (!args.IsCancelable)
                 return false;
             var eventArgs = ((NavigatingCancelEventArgs)args);
-            if (eventArgs.IsBackButtonNavigation && SendBackButtonPressed != null)
-                return SendBackButtonPressed(CurrentContent as Page);
+            if (eventArgs.IsBackButtonNavigation && XamarinFormsExtensions.SendBackButtonPressed != null)
+                return XamarinFormsExtensions.SendBackButtonPressed(CurrentContent as Page);
             if (eventArgs.NavigationMode == NavigationMode.Back)
             {
                 GoBack();
@@ -269,7 +267,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
         {
             if (CurrentContent != page)
                 return;
-            bool isCancelable = _rootPage.Navigation.NavigationStack.Count > 1 || SendBackButtonPressed != null;
+            bool isCancelable = _rootPage.Navigation.NavigationStack.Count > 1 || XamarinFormsExtensions.SendBackButtonPressed != null;
             var eventArgs = new NavigatingCancelEventArgs(null, NavigationMode.Back, null, isCancelable, true);
             RaiseNavigating(eventArgs);
             if (!isCancelable)
