@@ -20,9 +20,7 @@ using System;
 using Foundation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.iOS.Binding.Interfaces;
 using MugenMvvmToolkit.iOS.Binding.Models;
 using MugenMvvmToolkit.iOS.Interfaces;
 using MugenMvvmToolkit.iOS.Interfaces.Views;
@@ -39,7 +37,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         private static Func<UICollectionView, IDataContext, CollectionViewSourceBase> _factory;
 
         private readonly WeakReference _collectionView;
-        private readonly IBindingMemberInfo _itemTemplateMember;
+        private readonly DataTemplateProvider _itemTemplateProvider;
         private readonly ReflectionExtensions.IWeakEventHandler<EventArgs> _listener;
 
         private UICollectionViewCell _lastCreatedCell;
@@ -65,7 +63,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         {
             Should.NotBeNull(collectionView, "collectionView");
             _collectionView = PlatformExtensions.CreateWeakReference(collectionView);
-            _itemTemplateMember = BindingServiceProvider.MemberProvider.GetBindingMember(collectionView.GetType(), itemTemplate, false, false);
+            _itemTemplateProvider = new DataTemplateProvider(collectionView, itemTemplate);
             var controllerView = collectionView.FindParent<IViewControllerView>();
             if (controllerView != null && !(controllerView is IMvvmNavigationController))
             {
@@ -109,6 +107,13 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                 if (collectionView != null)
                     SetSelectedItem(collectionView, value, true);
             }
+        }
+
+        public bool ClearDataContext { get; set; }
+
+        protected DataTemplateProvider DataTemplateProvider
+        {
+            get { return _itemTemplateProvider; }
         }
 
         [CanBeNull]
@@ -233,7 +238,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         public override void CellDisplayingEnded(UICollectionView collectionView, UICollectionViewCell cell,
             NSIndexPath indexPath)
         {
-            cell.SetDataContext(null);
+            if (ClearDataContext)
+                cell.SetDataContext(null);
             var callback = cell as IHasDisplayCallback;
             if (callback != null)
                 callback.DisplayingEnded();
@@ -241,9 +247,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public override UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
         {
-            var selector = _itemTemplateMember == null
-                ? null
-                : _itemTemplateMember.GetValue(collectionView, null) as ICollectionCellTemplateSelector;
+            var selector = _itemTemplateProvider.CollectionCellTemplateSelector;
             if (selector == null)
                 throw new NotSupportedException("The ItemTemplate is null to create UICollectionViewCell use the ItemTemplate with ICollectionCellTemplateSelector value.");
             object item = GetItemAt(indexPath);
@@ -279,6 +283,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         public override void ItemSelected(UICollectionView collectionView, NSIndexPath indexPath)
         {
             UpdateSelectedItemInternal(collectionView, GetItemAt(indexPath), true);
+            CellForItem(collectionView, indexPath).TryRaiseAttachedEvent(AttachedMembers.UICollectionViewCell.ClickEvent);
         }
 
         public override void ItemHighlighted(UICollectionView collectionView, NSIndexPath indexPath)
