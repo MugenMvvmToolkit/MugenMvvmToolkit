@@ -24,28 +24,51 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
-    public sealed class DataTemplateProvider
+    public sealed class DataTemplateProvider : IEventListener
     {
         #region Fields
 
         private readonly object _container;
-        private readonly IBindingMemberInfo _templateIdMember;
+
+        private readonly IBindingMemberInfo _templateMember;
         private readonly IBindingMemberInfo _templateSelectorMember;
+        private IResourceDataTemplateSelector _resourceSelector;
+        private int? _templateId;
+        private IDataTemplateSelector _templateSelector;
 
         #endregion
 
         #region Constructors
 
-        public DataTemplateProvider([NotNull] object container, [NotNull] string templateIdMember,
+        public DataTemplateProvider([NotNull] object container, [NotNull] string templateMember,
             [NotNull] string templateSelectorMember)
         {
             Should.NotBeNull(container, "container");
-            Should.NotBeNull(templateIdMember, "templateIdMember");
+            Should.NotBeNull(templateMember, "templateMember");
             Should.NotBeNull(templateSelectorMember, "templateSelectorMember");
             var type = container.GetType();
             _container = container;
-            _templateIdMember = BindingServiceProvider.MemberProvider.GetBindingMember(type, templateIdMember, false, false);
+            _templateMember = BindingServiceProvider.MemberProvider.GetBindingMember(type, templateMember, false, false);
             _templateSelectorMember = BindingServiceProvider.MemberProvider.GetBindingMember(type, templateSelectorMember, false, false);
+            if (_templateMember != null)
+                _templateMember.TryObserve(container, this);
+            if (_templateSelectorMember != null)
+                _templateSelectorMember.TryObserve(container, this);
+            UpdateValues();
+        }
+
+        #endregion
+
+        #region Properties
+
+        bool IEventListener.IsAlive
+        {
+            get { return true; }
+        }
+
+        bool IEventListener.IsWeak
+        {
+            get { return false; }
         }
 
         #endregion
@@ -55,35 +78,51 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         public bool TrySelectResourceTemplate(object value, out int templateId)
         {
             templateId = 0;
-            var selector = GetDataTemplateSelector() as IResourceDataTemplateSelector;
-            if (selector == null)
+            if (_resourceSelector == null)
                 return false;
-            templateId = selector.SelectTemplate(value, _container);
+            templateId = _resourceSelector.SelectTemplate(value, _container);
             return true;
         }
 
         public bool TrySelectTemplate(object value, out object template)
         {
             template = null;
-            IDataTemplateSelector selector = GetDataTemplateSelector();
-            if (selector == null)
+            if (_templateSelector == null)
                 return false;
-            template = selector.SelectTemplate(value, _container);
+            template = _templateSelector.SelectTemplate(value, _container);
             return true;
         }
 
         public IDataTemplateSelector GetDataTemplateSelector()
         {
-            if (_templateSelectorMember == null)
-                return null;
-            return _templateSelectorMember.GetValue(_container, null) as IDataTemplateSelector;
+            return _templateSelector;
         }
 
         public int? GetTemplateId()
         {
-            if (_templateIdMember == null)
-                return null;
-            return _templateIdMember.GetValue(_container, null) as int?;
+            return _templateId;
+        }
+
+        private void UpdateValues()
+        {
+            if (_templateSelectorMember != null)
+            {
+                var value = _templateSelectorMember.GetValue(_container, Empty.Array<object>());
+                _resourceSelector = value as IResourceDataTemplateSelector;
+                _templateSelector = value as IDataTemplateSelector;
+            }
+            if (_templateMember != null)
+                _templateId = _templateMember.GetValue(_container, Empty.Array<object>()) as int?;
+        }
+
+        #endregion
+
+        #region Implementation of interfaces
+
+        bool IEventListener.TryHandle(object sender, object message)
+        {
+            UpdateValues();
+            return true;
         }
 
         #endregion
