@@ -29,7 +29,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         {
             Binding.UpdateSource();
             SubscribeTarget();
-            if (!Binding.SourceAccessor.IsAllMembersAvailable())
+            if (!Binding.SourceAccessor.IsAllMembersAvailable(true))
                 SubscribeSources(OneTimeSourceHandler);
             return true;
         }
@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         private void OneTimeSourceHandler(IObserver sender, ValueChangedEventArgs args)
         {
             IDataBinding binding = Binding;
-            if (binding != null && binding.SourceAccessor.IsAllMembersAvailable() && binding.TargetAccessor.IsAllMembersAvailable())
+            if (binding != null && binding.TargetAccessor.IsAllMembersAvailable() && binding.SourceAccessor.IsAllMembersAvailable(true))
             {
                 UnsubscribeSources(OneTimeSourceHandler);
                 binding.UpdateSource();

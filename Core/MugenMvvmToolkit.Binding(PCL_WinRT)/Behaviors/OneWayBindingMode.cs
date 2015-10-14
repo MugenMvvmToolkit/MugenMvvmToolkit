@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         private void OneTimeTargetHandler(IObserver sender, ValueChangedEventArgs args)
         {
             IDataBinding binding = Binding;
-            if (binding != null && binding.SourceAccessor.IsAllMembersAvailable() && binding.TargetAccessor.IsAllMembersAvailable())
+            if (binding != null && binding.TargetAccessor.IsAllMembersAvailable() && binding.SourceAccessor.IsAllMembersAvailable())
             {
                 binding.TargetAccessor.Source.ValueChanged -= OneTimeTargetHandler;
                 binding.UpdateTarget();
