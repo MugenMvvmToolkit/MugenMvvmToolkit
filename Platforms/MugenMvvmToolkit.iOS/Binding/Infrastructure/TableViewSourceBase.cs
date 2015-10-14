@@ -22,9 +22,7 @@ using System.Runtime.InteropServices;
 using Foundation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.iOS.Binding.Interfaces;
 using MugenMvvmToolkit.iOS.Binding.Models;
 using MugenMvvmToolkit.iOS.Interfaces;
 using MugenMvvmToolkit.iOS.Interfaces.Views;
@@ -110,7 +108,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         private static Func<UITableView, IDataContext, TableViewSourceBase> _factory;
         private static readonly ConcurrentDictionary<IdentifierKey, NSString> TypeToIdentifier;
 
-        private readonly IBindingMemberInfo _itemTemplateMember;
+        private readonly DataTemplateProvider _templateProvider;
         private readonly WeakReference _tableView;
         private readonly ReflectionExtensions.IWeakEventHandler<EventArgs> _listener;
 
@@ -138,8 +136,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         {
             Should.NotBeNull(tableView, "tableView");
             _tableView = ServiceProvider.WeakReferenceFactory(tableView);
-            _itemTemplateMember = BindingServiceProvider.MemberProvider.GetBindingMember(tableView.GetType(),
-                itemTemplate, false, false);
+            _templateProvider = new DataTemplateProvider(tableView, itemTemplate);
             var controllerView = tableView.FindParent<IViewControllerView>();
             if (controllerView != null && !(controllerView is IMvvmNavigationController))
             {
@@ -198,6 +195,13 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                 if (tableView != null)
                     SetSelectedItem(tableView, value, true);
             }
+        }
+
+        public bool ClearDataContext { get; set; }
+
+        protected DataTemplateProvider DataTemplateProvider
+        {
+            get { return _templateProvider; }
         }
 
         [CanBeNull]
@@ -354,8 +358,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public override void AccessoryButtonTapped(UITableView tableView, NSIndexPath indexPath)
         {
-            tableView.CellAtEx(indexPath)
-                     .TryRaiseAttachedEvent(AttachedMembers.UITableViewCell.AccessoryButtonTappedEvent);
+            CellAt(tableView, indexPath)
+                .TryRaiseAttachedEvent(AttachedMembers.UITableViewCell.AccessoryButtonTappedEvent);
         }
 
         public override bool CanEditRow(UITableView tableView, NSIndexPath indexPath)
@@ -374,7 +378,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         public override void CommitEditingStyle(UITableView tableView, UITableViewCellEditingStyle editingStyle,
             NSIndexPath indexPath)
         {
-            var cell = tableView.CellAtEx(indexPath);
+            var cell = CellAt(tableView, indexPath);
             if (cell == null)
                 return;
             switch (editingStyle)
@@ -390,7 +394,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public override void CellDisplayingEnded(UITableView tableView, UITableViewCell cell, NSIndexPath indexPath)
         {
-            cell.SetDataContext(null);
+            if (ClearDataContext)
+                cell.SetDataContext(null);
             var callback = cell as IHasDisplayCallback;
             if (callback != null)
                 callback.DisplayingEnded();
@@ -398,9 +403,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public override nfloat GetHeightForRow(UITableView tableView, NSIndexPath indexPath)
         {
-            var selector = _itemTemplateMember == null
-                ? null
-                : _itemTemplateMember.GetValue(tableView, null) as ITableCellTemplateSelector;
+            var selector = _templateProvider.TableCellTemplateSelector;
             if (selector == null)
                 return tableView.RowHeight;
             var identifier = selector.GetIdentifier(GetItemAt(indexPath), tableView);
@@ -426,9 +429,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
             object item = GetItemAt(indexPath);
-            var selector = _itemTemplateMember == null
-                ? null
-                : _itemTemplateMember.GetValue(tableView, null) as ITableCellTemplateSelector;
+            var selector = _templateProvider.TableCellTemplateSelector;
             NSString cellIdentifier = selector == null
                 ? GetCellIdentifier(item)
                 : selector.GetIdentifier(item, tableView);
@@ -488,7 +489,9 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
         {
-            UpdateSelectedItemInternal(tableView, GetItemAt(indexPath), true);
+            var item = GetItemAt(indexPath);
+            UpdateSelectedItemInternal(tableView, item, true);
+            CellAt(tableView, indexPath).TryRaiseAttachedEvent(AttachedMembers.UITableViewCell.ClickEvent);
         }
 
         public override void RowDeselected(UITableView tableView, NSIndexPath indexPath)
