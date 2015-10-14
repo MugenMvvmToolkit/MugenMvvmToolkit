@@ -3,6 +3,7 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Test.TestInfrastructure
 {
@@ -45,6 +46,11 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         {
             throw new NotImplementedException();
         }
+
+        public event EventHandler<IViewModelProvider, ViewModelPreservingEventArgs> Preserving;
+        public event EventHandler<IViewModelProvider, ViewModelPreservedEventArgs> Preserved;
+        public event EventHandler<IViewModelProvider, ViewModelRestoringEventArgs> Restoring;
+        public event EventHandler<IViewModelProvider, ViewModelRestoredEventArgs> Restored;
 
         #endregion
     }

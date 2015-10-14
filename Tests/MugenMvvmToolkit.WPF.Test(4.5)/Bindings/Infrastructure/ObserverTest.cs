@@ -151,7 +151,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             isInvoked = false;
             model["test"] = "test";
             isInvoked.ShouldBeFalse();
-            model.OnPropertyChanged("Item[]");
+            model.OnPropertyChanged(ReflectionExtensions.IndexerName);
             isInvoked.ShouldBeTrue();
             isInvoked = false;
 
@@ -178,7 +178,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
 
             model.NestedModel["test"] = "test";
             isInvoked.ShouldBeFalse();
-            model.NestedModel.OnPropertyChanged("Item[]");
+            model.NestedModel.OnPropertyChanged(ReflectionExtensions.IndexerName);
             isInvoked.ShouldBeTrue();
             isInvoked = false;
 
@@ -200,7 +200,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             isInvoked = false;
             model["test", 0] = "test";
             isInvoked.ShouldBeFalse();
-            model.OnPropertyChanged("Item[]");
+            model.OnPropertyChanged(ReflectionExtensions.IndexerName);
             isInvoked.ShouldBeTrue();
             isInvoked = false;
 
@@ -227,7 +227,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
 
             model.NestedModel["test", 0] = "test";
             isInvoked.ShouldBeFalse();
-            model.NestedModel.OnPropertyChanged("Item[]");
+            model.NestedModel.OnPropertyChanged(ReflectionExtensions.IndexerName);
             isInvoked.ShouldBeTrue();
             isInvoked = false;
 

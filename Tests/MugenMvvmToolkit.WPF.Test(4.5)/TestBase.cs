@@ -107,6 +107,7 @@ namespace MugenMvvmToolkit.Test
                 GetFunc = GetFunc,
                 CanResolveDelegate = CanResolve
             };
+            Tracer.TraceInformation = true;
             ServiceProvider.Tracer = new ConsoleTracer();
             ViewModelProvider = new ViewModelProvider(IocContainer);
             OnInit();

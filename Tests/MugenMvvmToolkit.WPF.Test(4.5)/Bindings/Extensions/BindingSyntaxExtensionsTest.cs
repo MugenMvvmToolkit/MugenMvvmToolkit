@@ -58,7 +58,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             const string sourcePath = "IntProperty";
             var targetObj = new object();
             var builder = new BindingBuilder();
-            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => model.IntProperty);
+            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => (model, ctx) => model.IntProperty);
 
             IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
             IObserver source = sources.Single().Invoke(builder);
@@ -90,7 +90,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             const string sourcePath = "IntProperty";
             var targetObj = new BindingSourceEventNotifierModel();
             var builder = new BindingBuilder();
-            builder.Bind(targetObj, () => model => model.ObjectProperty).To<BindingSourceModel>(() => model => model.IntProperty);
+            builder.Bind(targetObj, () => model => model.ObjectProperty).To<BindingSourceModel>(() => (model, ctx) => model.IntProperty);
 
             IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
             IObserver source = sources.Single().Invoke(builder);
@@ -123,7 +123,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var targetObj = new object();
             var sourceObj = new BindingSourceModel();
             var builder = new BindingBuilder();
-            builder.Bind(targetObj, targetPath).To(sourceObj, () => model => model.IntProperty);
+            builder.Bind(targetObj, targetPath).To(sourceObj, () => (model, ctx) => model.IntProperty);
 
             IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
             IObserver source = sources.Single().Invoke(builder);
@@ -151,7 +151,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var targetObj = new BindingSourceEventNotifierModel();
             var sourceObj = new BindingSourceModel();
             var builder = new BindingBuilder();
-            builder.Bind(targetObj, () => model => model.ObjectProperty).To(sourceObj, () => model => model.IntProperty);
+            builder.Bind(targetObj, () => model => model.ObjectProperty).To(sourceObj, () => (model, ctx) => model.IntProperty);
 
             IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
             IObserver source = sources.Single().Invoke(builder);
@@ -165,7 +165,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             const string sourcePath = "IntProperty";
             var targetObj = new BindingSourceModel();
             var builder = new BindingBuilder();
-            builder.Bind(targetObj, targetPath).ToSelf(() => model => model.IntProperty);
+            builder.Bind(targetObj, targetPath).ToSelf(() => (model, ctx) => model.IntProperty);
 
             IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
             IObserver source = sources.Single().Invoke(builder);
@@ -265,7 +265,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         public void BuilderShouldUseConverter3()
         {
             var builder = new BindingBuilder();
-            builder.Bind(InverseBooleanValueConverter.Instance, "test").To("test").WithConverter(() => o => BindingSyntaxEx.Self<object>());
+            builder.Bind(InverseBooleanValueConverter.Instance, "test").To("test").WithConverter(() => (model, ctx) => ctx.Self());
             builder.GetData(BindingBuilderConstants.Converter).Invoke(builder).ShouldEqual(InverseBooleanValueConverter.Instance);
         }
 
@@ -291,7 +291,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         public void BuilderShouldUseFallback3()
         {
             var builder = new BindingBuilder();
-            builder.Bind(builder, "test").To("test").WithFallback(() => o => BindingSyntaxEx.Self<object>());
+            builder.Bind(builder, "test").To("test").WithFallback(() => (model, ctx) => ctx.Self());
             builder.GetData(BindingBuilderConstants.Fallback).Invoke(builder).ShouldEqual(builder);
         }
 
@@ -337,7 +337,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         public void BuilderShouldUseConverterCulture3()
         {
             var builder = new BindingBuilder();
-            builder.Bind(CultureInfo.InvariantCulture, "test").To("test").WithConverterCulture(() => o => BindingSyntaxEx.Self<CultureInfo>());
+            builder.Bind(CultureInfo.InvariantCulture, "test").To("test").WithConverterCulture(() => (model, ctx) => ctx.Self<CultureInfo>());
             builder.GetData(BindingBuilderConstants.ConverterCulture).Invoke(builder).ShouldEqual(CultureInfo.InvariantCulture);
         }
 
@@ -363,7 +363,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         public void BuilderShouldUseCommandParameter3()
         {
             var builder = new BindingBuilder();
-            builder.Bind(builder, "test").To("test").WithCommandParameter(() => o => BindingSyntaxEx.Self<object>());
+            builder.Bind(builder, "test").To("test").WithCommandParameter(() => (model, ctx) => ctx.Self<object>());
             builder.GetData(BindingBuilderConstants.CommandParameter).Invoke(builder).ShouldEqual(builder);
         }
 
@@ -389,7 +389,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         public void BuilderShouldUseConverterParameter3()
         {
             var builder = new BindingBuilder();
-            builder.Bind(builder, "test").To("test").WithConverterParameter(() => o => BindingSyntaxEx.Self<object>());
+            builder.Bind(builder, "test").To("test").WithConverterParameter(() => (model, ctx) => ctx.Self<object>());
             builder.GetData(BindingBuilderConstants.ConverterParameter).Invoke(builder).ShouldEqual(builder);
         }
 
@@ -407,7 +407,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         {
             var builder = new BindingBuilder();
             builder.Bind(new object(), "empty")
-                .To<BindingSourceModel>(() => model => model.IntProperty + 100 + model.NestedModel.IntProperty + int.Parse(model.NestedModel["1"]));
+                .To<BindingSourceModel>(() => (model, ctx) => model.IntProperty + 100 + model.NestedModel.IntProperty + int.Parse(model.NestedModel["1"]));
 
             var expression = builder.GetData(BindingBuilderConstants.MultiExpression);
             expression.Invoke(builder, new object[] { 10, 10, "10" }).ShouldEqual(130);
@@ -425,7 +425,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         {
             var builder = new BindingBuilder();
             builder.Bind(new object(), "empty")
-                .To<BindingSourceModel>(() => model => model.StringProperty.OfType<char>().Count(c => c == '1') + ((BindingSourceModel)model.ObjectProperty).IntProperty);
+                .To<BindingSourceModel>(() => (model, ctx) => model.StringProperty.OfType<char>().Count(c => c == '1') + ((BindingSourceModel)model.ObjectProperty).IntProperty);
 
             var expression = builder.GetData(BindingBuilderConstants.MultiExpression);
             expression.Invoke(builder, new object[] { "1", 10 }).ShouldEqual(11);
@@ -442,7 +442,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         {
             var builder = new BindingBuilder();
             builder.Bind(new object(), "empty")
-                .To<BindingSourceModel>(() => model => model.StringProperty.OfType<char>().Select(s => s == null ? 10 + 4 : 3 + 10).FirstOrDefault() == 0 ? false : true || true);
+                .To<BindingSourceModel>(() => (model, ctx) => model.StringProperty.OfType<char>().Select(s => s == null ? 10 + 4 : 3 + 10).FirstOrDefault() == 0 ? false : true || true);
 
             var expression = builder.GetData(BindingBuilderConstants.MultiExpression);
             expression.Invoke(builder, new object[] { "1" }).ShouldEqual("1".OfType<char>().Select(s => s == null ? 10 + 4 : 3 + 10).FirstOrDefault() == 0 ? false : true || true);
@@ -457,7 +457,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         public void BuilderShouldUseEventArgs1()
         {
             var builder = new BindingBuilder();
-            builder.Bind(new object(), "empty").To<BindingSourceModel>(() => model => BindingSyntaxEx.EventArgs<EventArgs>());
+            builder.Bind(new object(), "empty").To<BindingSourceModel>(() => (model, ctx) => ctx.EventArgs<EventArgs>());
 
             builder.Add(BindingConstants.CurrentEventArgs, EventArgs.Empty);
             var expression = builder.GetData(BindingBuilderConstants.MultiExpression);
@@ -468,7 +468,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         public void BuilderShouldUseEventArgs2()
         {
             var builder = new BindingBuilder();
-            builder.Bind(new object(), "empty").To<BindingSourceModel>(() => model => BindingSyntaxEx.EventArgs<EventArgs>().GetType().Name);
+            builder.Bind(new object(), "empty").To<BindingSourceModel>(() => (model, ctx) => ctx.EventArgs<EventArgs>().GetType().Name);
 
             builder.Add(BindingConstants.CurrentEventArgs, EventArgs.Empty);
             var expression = builder.GetData(BindingBuilderConstants.MultiExpression);
@@ -479,7 +479,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         public void BuilderShouldUseEventArgs3()
         {
             var builder = new BindingBuilder();
-            builder.Bind(new object(), "empty").To<BindingSourceModel>(() => model => BindingSyntaxEx.EventArgs<BindingSourceModel>().ObjectProperty);
+            builder.Bind(new object(), "empty").To<BindingSourceModel>(() => (model, ctx) => ctx.EventArgs<BindingSourceModel>().ObjectProperty);
 
             var sourceModel = new BindingSourceModel { ObjectProperty = "test" };
             builder.Add(BindingConstants.CurrentEventArgs, sourceModel);
@@ -492,7 +492,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         {
             var builder = new BindingBuilder();
             var sourceModel = new BindingSourceModel();
-            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => model => BindingSyntaxEx.Self<BindingSourceModel>());
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => (model, ctx) => ctx.Self());
 
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
@@ -507,7 +507,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         {
             var builder = new BindingBuilder();
             var sourceModel = new BindingSourceModel { ObjectProperty = "test" };
-            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => model => BindingSyntaxEx.Self<BindingSourceModel>().ObjectProperty);
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => (model, ctx) => ctx.Self<BindingSourceModel>().ObjectProperty);
 
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
@@ -524,7 +524,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             var sourceModel = new BindingSourceModel();
             BindingServiceProvider.ResourceResolver.AddObject(key, sourceModel);
-            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => model => BindingSyntaxEx.Resource<BindingSourceModel>(key));
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => (model, ctx) => ctx.Resource<BindingSourceModel>(key));
 
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
@@ -541,7 +541,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             var sourceModel = new BindingSourceModel { ObjectProperty = "test" };
             BindingServiceProvider.ResourceResolver.AddObject(key, sourceModel);
-            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => model => BindingSyntaxEx.Self<BindingSourceModel>().ObjectProperty);
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => (model, ctx) => ctx.Self<BindingSourceModel>().ObjectProperty);
 
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
@@ -558,7 +558,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             var sourceModel = new BindingSourceModel { IntProperty = int.MinValue };
             BindingServiceProvider.ResourceResolver.AddObject(key, sourceModel);
-            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => model => BindingSyntaxEx.Resource(key, () => IntProperty));
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => (model, ctx) => ctx.Resource(key, () => IntProperty));
 
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
@@ -575,7 +575,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             var sourceModel = new BindingSourceModel { NestedModel = new BindingSourceNestedModel { IntProperty = int.MinValue } };
             BindingServiceProvider.ResourceResolver.AddObject(key, sourceModel);
-            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => model => BindingSyntaxEx.Resource(key, () => NestedModel).IntProperty);
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => (model, ctx) => ctx.Resource(key, () => NestedModel).IntProperty);
 
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
@@ -590,7 +590,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         {
             var builder = new BindingBuilder();
             var sourceModel = new BindingSourceModel();
-            builder.Bind(sourceModel, "empty").To(sourceModel, () => model => BindingSyntaxEx.GetErrors());
+            builder.Bind(sourceModel, "empty").To(sourceModel, () => (model, ctx) => ctx.GetErrors());
 
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             source.Path.IsEmpty.ShouldBeTrue();
@@ -610,7 +610,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         {
             var builder = new BindingBuilder();
             var sourceModel = new BindingSourceModel();
-            builder.Bind(sourceModel, "empty").To(sourceModel, () => model => BindingSyntaxEx.GetErrors("1", "2"));
+            builder.Bind(sourceModel, "empty").To(sourceModel, () => (model, ctx) => ctx.GetErrors("1", "2"));
 
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             source.Path.IsEmpty.ShouldBeTrue();
@@ -630,7 +630,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         {
             var builder = new BindingBuilder();
             var sourceModel = new BindingSourceModel();
-            builder.Bind(sourceModel, "empty").To(sourceModel, () => model => BindingSyntaxEx.GetErrors("1", "2", model.ObjectProperty));
+            builder.Bind(sourceModel, "empty").To(sourceModel, () => (model, ctx) => ctx.GetErrors("1", "2", model.ObjectProperty));
 
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             source.Path.Path.ShouldEqual(GetMemberPath(sourceModel, model => model.ObjectProperty));
@@ -650,7 +650,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         {
             var builder = new BindingBuilder();
             var sourceModel = new BindingSourceModel();
-            builder.Bind(sourceModel, "empty").To(sourceModel, () => model => BindingSyntaxEx.GetErrors("1", "2").Concat(BindingSyntaxEx.GetErrors(model.ObjectProperty)));
+            builder.Bind(sourceModel, "empty").To(sourceModel, () => (model, ctx) => ctx.GetErrors("1", "2").Concat(ctx.GetErrors(model.ObjectProperty)));
 
 
             var sources = builder.GetData(BindingBuilderConstants.Sources).Select(func => func(builder)).ToArray();
@@ -703,7 +703,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             };
             BindingServiceProvider.VisualTreeManager = treeManagerMock;
 
-            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => model => BindingSyntaxEx.Relative<BindingSourceModel>());
+            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => (model, ctx) => ctx.Relative<BindingSourceModel>());
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
             source.Path.Path.IsEmpty().ShouldBeTrue();
@@ -750,7 +750,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             };
             BindingServiceProvider.VisualTreeManager = treeManagerMock;
 
-            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => model => BindingSyntaxEx.Relative<BindingSourceModel>(level).ObjectProperty);
+            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => (model, ctx) => ctx.Relative<BindingSourceModel>(level).ObjectProperty);
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
             source.Path.Path.ShouldEqual(GetMemberPath(targetObj, model => model.ObjectProperty));
@@ -796,7 +796,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             };
             BindingServiceProvider.VisualTreeManager = treeManagerMock;
 
-            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => model => BindingSyntaxEx.Element<BindingSourceModel>(name));
+            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => (model, ctx) => ctx.Element<BindingSourceModel>(name));
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
             source.Path.Path.IsEmpty().ShouldBeTrue();
@@ -842,7 +842,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             };
             BindingServiceProvider.VisualTreeManager = treeManagerMock;
 
-            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => model => BindingSyntaxEx.Element<BindingSourceModel>(name).ObjectProperty);
+            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => (model, ctx) => ctx.Element<BindingSourceModel>(name).ObjectProperty);
             var source = builder.GetData(BindingBuilderConstants.Sources).Single().Invoke(builder);
             builder.GetData(BindingBuilderConstants.MultiExpression).ShouldBeNull();
             source.Path.Path.ShouldEqual(GetMemberPath(targetObj, model => model.ObjectProperty));
@@ -869,7 +869,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
                 context.ShouldEqual(builder);
                 return result;
             });
-            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => model => BindingSyntaxEx.ResourceMethod<BindingSourceModel>(key, key));
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => (model, ctx) => ctx.ResourceMethod<BindingSourceModel>(key, key));
 
             var sources = builder.GetData(BindingBuilderConstants.Sources);
             sources.Count.ShouldEqual(1);
@@ -892,7 +892,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
                 context.ShouldEqual(builder);
                 return result;
             });
-            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => model => BindingSyntaxEx.ResourceMethod<BindingSourceModel>(key, key, builder).ObjectProperty);
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => (model, ctx) => ctx.ResourceMethod<BindingSourceModel>(key, key, builder).ObjectProperty);
 
             var sources = builder.GetData(BindingBuilderConstants.Sources);
             sources.Count.ShouldEqual(1);
@@ -907,7 +907,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             const string targetPath = "Text";
             var targetObj = new object();
             var builder = new BindingBuilder();
-            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => BindingSyntaxEx.DataContext<BindingSourceModel>());
+            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => (model, ctx) => ctx.DataContext<BindingSourceModel>());
 
             IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
             IObserver source = sources.Single().Invoke(builder);
@@ -924,7 +924,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             const string sourcePath = "IntProperty";
             var targetObj = new object();
             var builder = new BindingBuilder();
-            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => BindingSyntaxEx.DataContext<BindingSourceModel>().IntProperty);
+            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => (model, ctx) => ctx.DataContext<BindingSourceModel>().IntProperty);
 
             IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
             IObserver source = sources.Single().Invoke(builder);
@@ -940,7 +940,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             const string targetPath = "Text";
             var targetObj = new object();
             var builder = new BindingBuilder();
-            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => BindingSyntaxEx.Self<object>().DataContext<BindingSourceModel>());
+            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => (model, ctx) => ctx.Self<object>().DataContext<BindingSourceModel>());
 
             IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
             IObserver source = sources.Single().Invoke(builder);
@@ -954,7 +954,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             const string sourcePath = "IntProperty";
             var targetObj = new object();
             var builder = new BindingBuilder();
-            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => BindingSyntaxEx.Self<object>().DataContext<BindingSourceModel>().IntProperty);
+            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => (model, ctx) => ctx.Self<object>().DataContext<BindingSourceModel>().IntProperty);
 
             IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
             IObserver source = sources.Single().Invoke(builder);
@@ -968,7 +968,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             const string sourcePath = "IntProperty";
             var targetObj = new object();
             var builder = new BindingBuilder();
-            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => model.Member<int>(sourcePath));
+            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => (model, ctx) => model.Member<int>(sourcePath));
 
             IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
             IObserver source = sources.Single().Invoke(builder);
@@ -985,7 +985,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var targetObj = new object();
             var builder = new BindingBuilder();
             var src = new BindingSourceModel { ObjectProperty = new BindingSourceModel { StringProperty = "test" } };
-            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => model.GetObjectProperty().Member<string>("StringProperty"));
+            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => (model, ctx) => model.GetObjectProperty().Member<string>("StringProperty"));
 
             IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
             IObserver source = sources.Single().Invoke(builder);
@@ -1005,7 +1005,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var targetObj = new object();
             var builder = new BindingBuilder();
             var src = new BindingSourceModel { ObjectProperty = new BindingSourceModel { StringProperty = "test" } };
-            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => model.GetObjectProperty().Member<string>("StringProperty").Member<int>("Length"));
+            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => (model, ctx) => model.GetObjectProperty().Member<string>("StringProperty").Member<int>("Length"));
 
             IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
             IObserver source = sources.Single().Invoke(builder);
@@ -1025,7 +1025,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var targetObj = new object();
             var builder = new BindingBuilder();
             var src = new BindingSourceModel { ObjectProperty = "test" };
-            builder.Bind(targetObj, targetPath).To(src, () => model => model.Member<string>("ObjectProperty").Member<int>("Length"));
+            builder.Bind(targetObj, targetPath).To(src, () => (model, ctx) => model.Member<string>("ObjectProperty").Member<int>("Length"));
 
             IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
             IObserver source = sources.Single().Invoke(builder);
@@ -1040,7 +1040,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var targetObj = new object();
             var builder = new BindingBuilder();
             var src = new BindingSourceModel { ObjectProperty = "test" };
-            builder.Bind(targetObj, targetPath).To(src, () => model => model.Member<string>("ObjectProperty").Member<int>("Length") + 0);
+            builder.Bind(targetObj, targetPath).To(src, () => (model, ctx) => model.Member<string>("ObjectProperty").Member<int>("Length") + 0);
 
             IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
             IObserver source = sources.Single().Invoke(builder);
@@ -1058,7 +1058,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var sourcePath = new BindingMemberDescriptor<BindingSourceModel, int>("IntProperty");
             var targetObj = new object();
             var builder = new BindingBuilder();
-            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => model.Member(sourcePath));
+            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => (model, ctx) => model.Member(sourcePath));
 
             IList<Func<IDataContext, IObserver>> sources = builder.GetData(BindingBuilderConstants.Sources);
             IObserver source = sources.Single().Invoke(builder);
@@ -1077,7 +1077,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(targetObj, targetPath)
                    .To(sourcePath)
-                   .WithCommandParameter<BindingSourceModel>(() => o => o.IntProperty);
+                   .WithCommandParameter<BindingSourceModel>(() => (o, ctx) => o.IntProperty);
             var func = builder.GetData(BindingBuilderConstants.CommandParameter);
             func(EmptyContext).ShouldEqual(null);
             var sourceObj = new BindingSourceModel { IntProperty = int.MaxValue };
@@ -1095,7 +1095,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(targetObj, targetPath)
                    .To(sourceObj, sourcePath)
-                   .WithCommandParameter(() => o => o.IntProperty);
+                   .WithCommandParameter(() => (o, ctx) => o.IntProperty);
             var func = builder.GetData(BindingBuilderConstants.CommandParameter);
             func(EmptyContext).ShouldEqual(sourceObj.IntProperty);
 
@@ -1112,7 +1112,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             builder.Bind(sourceObj, targetPath)
                    .ToSelf(sourcePath)
-                   .WithCommandParameter(() => o => o.IntProperty);
+                   .WithCommandParameter(() => (o, ctx) => o.IntProperty);
             var func = builder.GetData(BindingBuilderConstants.CommandParameter);
             func(EmptyContext).ShouldEqual(sourceObj.IntProperty);
 
@@ -1126,8 +1126,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             var src = new BindingSourceModel();
             builder.Bind(new object(), "empty")
-                .To(src, () => model => model.IntProperty)
-                .WithCommandParameter(() => model => model.IntProperty + 100 + model.NestedModel.IntProperty + int.Parse(model.NestedModel["1"]));
+                .To(src, () => (model, ctx) => model.IntProperty)
+                .WithCommandParameter(() => (model, ctx) => model.IntProperty + 100 + model.NestedModel.IntProperty + int.Parse(model.NestedModel["1"]));
 
             var expression = builder.GetData(BindingBuilderConstants.CommandParameter);
             src.IntProperty = 10;
@@ -1147,8 +1147,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var src = new BindingSourceModel();
             var builder = new BindingBuilder();
             builder.Bind(new object(), "empty")
-                .To(src, () => model => model.StringProperty)
-                .WithCommandParameter(() => model => model.StringProperty.OfType<char>().Count(c => c == '1') + ((BindingSourceModel)model.ObjectProperty).IntProperty);
+                .To(src, () => (model, ctx) => model.StringProperty)
+                .WithCommandParameter(() => (model, ctx) => model.StringProperty.OfType<char>().Count(c => c == '1') + ((BindingSourceModel)model.ObjectProperty).IntProperty);
 
             var expression = builder.GetData(BindingBuilderConstants.CommandParameter);
             src.StringProperty = "1";
@@ -1164,8 +1164,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         public void BuilderShouldUseEventArgsForParameter1()
         {
             var builder = new BindingBuilder();
-            builder.Bind(new object(), "empty").To<BindingSourceModel>(() => model => model.IntProperty)
-                .WithCommandParameter(() => model => BindingSyntaxEx.EventArgs<EventArgs>());
+            builder.Bind(new object(), "empty").To<BindingSourceModel>(() => (model, ctx) => model.IntProperty)
+                .WithCommandParameter(() => (model, ctx) => ctx.EventArgs<EventArgs>());
 
             builder.Add(BindingConstants.CurrentEventArgs, EventArgs.Empty);
             var expression = builder.GetData(BindingBuilderConstants.CommandParameter);
@@ -1176,8 +1176,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         public void BuilderShouldUseEventArgsForParameter2()
         {
             var builder = new BindingBuilder();
-            builder.Bind(new object(), "empty").To<BindingSourceModel>(() => m => m.IntProperty)
-                .WithCommandParameter(() => model => BindingSyntaxEx.EventArgs<EventArgs>().GetType().Name);
+            builder.Bind(new object(), "empty").To<BindingSourceModel>(() => (m, ctx) => m.IntProperty)
+                .WithCommandParameter(() => (model, ctx) => ctx.EventArgs<EventArgs>().GetType().Name);
 
             builder.Add(BindingConstants.CurrentEventArgs, EventArgs.Empty);
             var expression = builder.GetData(BindingBuilderConstants.CommandParameter);
@@ -1189,8 +1189,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         {
             var builder = new BindingBuilder();
             var sourceModel = new BindingSourceModel();
-            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => m => m.IntProperty)
-                .WithCommandParameter(() => model => BindingSyntaxEx.Self<BindingSourceModel>());
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => (m, ctx) => m.IntProperty)
+                .WithCommandParameter(() => (model, ctx) => ctx.Self<BindingSourceModel>());
             builder.GetData(BindingBuilderConstants.CommandParameter).Invoke(builder).ShouldEqual(sourceModel);
         }
 
@@ -1199,8 +1199,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         {
             var builder = new BindingBuilder();
             var sourceModel = new BindingSourceModel { IntProperty = 20 };
-            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => m => m.IntProperty)
-                .WithCommandParameter(() => model => BindingSyntaxEx.Self<BindingSourceModel>().IntProperty);
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => (m, ctx) => m.IntProperty)
+                .WithCommandParameter(() => (model, ctx) => ctx.Self<BindingSourceModel>().IntProperty);
             builder.GetData(BindingBuilderConstants.CommandParameter).Invoke(builder).ShouldEqual(sourceModel.IntProperty);
         }
 
@@ -1211,8 +1211,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             var sourceModel = new BindingSourceModel();
             BindingServiceProvider.ResourceResolver.AddObject(key, sourceModel);
-            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => m => m.IntProperty)
-                   .WithCommandParameter(() => model => BindingSyntaxEx.Resource<BindingSourceModel>(key));
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => (m, ctx) => m.IntProperty)
+                   .WithCommandParameter(() => (model, ctx) => ctx.Resource<BindingSourceModel>(key));
             builder.GetData(BindingBuilderConstants.CommandParameter).Invoke(builder).ShouldEqual(sourceModel);
         }
 
@@ -1223,8 +1223,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var builder = new BindingBuilder();
             var sourceModel = new BindingSourceModel();
             BindingServiceProvider.ResourceResolver.AddObject(key, sourceModel);
-            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => m => m.IntProperty)
-                   .WithCommandParameter(() => model => BindingSyntaxEx.Resource<BindingSourceModel>(key).IntProperty);
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => (m, ctx) => m.IntProperty)
+                   .WithCommandParameter(() => (model, ctx) => ctx.Resource<BindingSourceModel>(key).IntProperty);
             builder.GetData(BindingBuilderConstants.CommandParameter).Invoke(builder).ShouldEqual(sourceModel.IntProperty);
         }
 
@@ -1235,8 +1235,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             {
                 var builder = new BindingBuilder();
                 var sourceModel = new BindingSourceModel();
-                builder.Bind(sourceModel, "empty").To(sourceModel, () => model => model.IntProperty)
-                    .WithCommandParameter(() => model => BindingSyntaxEx.GetErrors());
+                builder.Bind(sourceModel, "empty").To(sourceModel, () => (model, ctx) => model.IntProperty)
+                    .WithCommandParameter(() => (model, ctx) => ctx.GetErrors());
 
                 var behavior = builder.GetOrAddBehaviors().OfType<NotifyDataErrorsAggregatorBehavior>().Single();
                 behavior.ErrorPaths.IsNullOrEmpty().ShouldBeTrue();
@@ -1253,8 +1253,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         {
             var builder = new BindingBuilder();
             var sourceModel = new BindingSourceModel();
-            builder.Bind(sourceModel, "empty").To(sourceModel, () => model => model.IntProperty)
-                .WithCommandParameter(() => model => BindingSyntaxEx.GetErrors("1", "2"));
+            builder.Bind(sourceModel, "empty").To(sourceModel, () => (model, ctx) => model.IntProperty)
+                .WithCommandParameter(() => (model, ctx) => ctx.GetErrors("1", "2"));
 
             var behavior = builder.GetOrAddBehaviors().OfType<NotifyDataErrorsAggregatorBehavior>().Single();
             behavior.ErrorPaths.SequenceEqual(new[] { "1", "2" }).ShouldBeTrue();
@@ -1296,8 +1296,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             };
             BindingServiceProvider.VisualTreeManager = treeManagerMock;
 
-            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => model => model.IntProperty)
-                .WithCommandParameter(() => model => BindingSyntaxEx.Relative<BindingSourceModel>());
+            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => (model, ctx) => model.IntProperty)
+                .WithCommandParameter(() => (model, ctx) => ctx.Relative<BindingSourceModel>());
 
             var func = builder.GetData(BindingBuilderConstants.CommandParameter);
             func(builder).ShouldEqual(relativeObj);
@@ -1341,8 +1341,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             };
             BindingServiceProvider.VisualTreeManager = treeManagerMock;
 
-            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => model => model.IntProperty)
-                .WithCommandParameter(() => model => BindingSyntaxEx.Relative<BindingSourceModel>(level).ObjectProperty);
+            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => (model, ctx) => model.IntProperty)
+                .WithCommandParameter(() => (model, ctx) => ctx.Relative<BindingSourceModel>(level).ObjectProperty);
 
             var func = builder.GetData(BindingBuilderConstants.CommandParameter);
             func(builder).ShouldEqual(relativeObj.ObjectProperty);
@@ -1385,8 +1385,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             };
             BindingServiceProvider.VisualTreeManager = treeManagerMock;
 
-            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => model => model.IntProperty)
-                .WithCommandParameter(() => model => BindingSyntaxEx.Element<BindingSourceModel>(name));
+            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => (model, ctx) => model.IntProperty)
+                .WithCommandParameter(() => (model, ctx) => ctx.Element<BindingSourceModel>(name));
 
             builder.GetData(BindingBuilderConstants.CommandParameter).Invoke(builder).ShouldEqual(element);
             isInvoked.ShouldBeTrue();
@@ -1428,8 +1428,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             };
             BindingServiceProvider.VisualTreeManager = treeManagerMock;
 
-            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => model => model.IntProperty)
-                .WithCommandParameter(() => model => BindingSyntaxEx.Element<BindingSourceModel>(name).ObjectProperty);
+            builder.Bind(targetObj, "empty").To<BindingSourceModel>(() => (model, ctx) => model.IntProperty)
+                .WithCommandParameter(() => (model, ctx) => ctx.Element<BindingSourceModel>(name).ObjectProperty);
 
             builder.GetData(BindingBuilderConstants.CommandParameter).Invoke(builder).ShouldEqual(relativeObj.ObjectProperty);
             isInvoked.ShouldBeTrue();
@@ -1453,8 +1453,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
                 context.ShouldEqual(builder);
                 return result;
             });
-            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => model => model.IntProperty)
-                .WithCommandParameter(() => model => BindingSyntaxEx.ResourceMethod<BindingSourceModel>(key, key));
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => (model, ctx) => model.IntProperty)
+                .WithCommandParameter(() => (model, ctx) => ctx.ResourceMethod<BindingSourceModel>(key, key));
 
             var expression = builder.GetData(BindingBuilderConstants.CommandParameter);
             expression(builder).ShouldEqual(result);
@@ -1466,8 +1466,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             const string targetPath = "Text";
             var targetObj = new object();
             var builder = new BindingBuilder();
-            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => model.IntProperty)
-                .WithCommandParameter(() => model => BindingSyntaxEx.DataContext<BindingSourceModel>().IntProperty);
+            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => (model, ctx) => model.IntProperty)
+                .WithCommandParameter(() => (model, ctx) => ctx.DataContext<BindingSourceModel>().IntProperty);
 
             var func = builder.GetData(BindingBuilderConstants.CommandParameter);
             func(builder).ShouldBeNull();
@@ -1482,8 +1482,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             const string targetPath = "Text";
             var targetObj = new object();
             var builder = new BindingBuilder();
-            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => model => model.IntProperty)
-                .WithCommandParameter(() => model => BindingSyntaxEx.Self<object>().DataContext<BindingSourceModel>().IntProperty);
+            builder.Bind(targetObj, targetPath).To<BindingSourceModel>(() => (model, ctx) => model.IntProperty)
+                .WithCommandParameter(() => (model, ctx) => ctx.Self<object>().DataContext<BindingSourceModel>().IntProperty);
 
             var func = builder.GetData(BindingBuilderConstants.CommandParameter);
             func(builder).ShouldBeNull();
@@ -1499,8 +1499,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var targetObj = new object();
             var builder = new BindingBuilder();
             var src = new BindingSourceModel { ObjectProperty = "test" };
-            builder.Bind(targetObj, targetPath).To(src, () => model => model.IntProperty)
-                .WithCommandParameter(() => model => model.Member<string>("ObjectProperty").Member<int>("Length") + 0);
+            builder.Bind(targetObj, targetPath).To(src, () => (model, ctx) => model.IntProperty)
+                .WithCommandParameter(() => (model, ctx) => model.Member<string>("ObjectProperty").Member<int>("Length") + 0);
 
             var func = builder.GetData(BindingBuilderConstants.CommandParameter);
             func(builder).ShouldEqual(((string)src.ObjectProperty).Length);

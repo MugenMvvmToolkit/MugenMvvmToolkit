@@ -7,6 +7,7 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.ViewModels;
 using Should;
@@ -526,8 +527,14 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         }
 
         [TestMethod]
-        public void ProviderShouldRestoreViewModelState()
+        public void ProviderShouldRestorePreserveViewModelState()
         {
+            bool restoringCalled = false;
+            bool restoredCalled = false;
+            bool preservingCalled = false;
+            bool preservedCalled = false;
+            var preserveCtx = new DataContext();
+            var restoreCtx = new DataContext();
             DataConstant<string> key = "key";
             const string value = "value";
             var loadViewModel = new ViewModel();
@@ -546,11 +553,51 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             viewModel.Settings.State.Add(key, value);
             ViewModelProvider provider = GetViewModelProvider(iocContainer);
 
-            var state = provider.PreserveViewModel(viewModel, DataContext.Empty);
-            var restoreViewModel = provider.RestoreViewModel(state, DataContext.Empty, true);
+            provider.Preserving += (sender, args) =>
+            {
+                sender.ShouldEqual(provider);
+                args.Context.ShouldEqual(preserveCtx);
+                args.ViewModel.ShouldEqual(viewModel);
+                preservingCalled = true;
+            };
+            ViewModelPreservedEventArgs preservedEventArgs = null;
+            provider.Preserved += (sender, args) =>
+            {
+                sender.ShouldEqual(provider);
+                args.Context.ShouldEqual(preserveCtx);
+                args.ViewModel.ShouldEqual(viewModel);
+                preservedEventArgs = args;
+                preservedCalled = true;
+            };
+
+            var state = provider.PreserveViewModel(viewModel, preserveCtx);
+            state.ShouldEqual(preservedEventArgs.State);
+            provider.Restoring += (sender, args) =>
+            {
+                sender.ShouldEqual(provider);
+                args.Context.ShouldEqual(restoreCtx);
+                args.ViewModelState.ShouldEqual(state);
+                restoringCalled = true;
+            };
+            ViewModelRestoredEventArgs restoredEventArgs = null;
+            provider.Restored += (sender, args) =>
+            {
+                sender.ShouldEqual(provider);
+                args.Context.ShouldEqual(restoreCtx);
+                args.ViewModelState.ShouldEqual(state);
+                restoredEventArgs = args;
+                restoredCalled = true;
+            };
+
+            var restoreViewModel = provider.RestoreViewModel(state, restoreCtx, true);
+            restoreViewModel.ShouldEqual(restoredEventArgs.ViewModel);
             restoreViewModel.IocContainer.ShouldEqual(childIoc);
             restoreViewModel.ShouldEqual(loadViewModel);
             restoreViewModel.Settings.State.GetData(key).ShouldEqual(value);
+            restoringCalled.ShouldBeTrue();
+            restoredCalled.ShouldBeTrue();
+            preservingCalled.ShouldBeTrue();
+            preservedCalled.ShouldBeTrue();
         }
 
         [TestMethod]
