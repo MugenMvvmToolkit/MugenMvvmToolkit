@@ -17,7 +17,8 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp></NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -35,7 +36,8 @@
     <DefineConstants>TRACE;PCL_WINRT;CORE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Annotations\Toolkit.Annotations.cs" />
@@ -47,6 +49,10 @@
     <Compile Include="Interfaces\Models\IBusyToken.cs" />
     <Compile Include="Models\EventArg\NavigatingCancelEventArgsBase.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgsBase.cs" />
+    <Compile Include="Models\EventArg\ViewModelPreservedEventArgs.cs" />
+    <Compile Include="Models\EventArg\ViewModelPreservingEventArgs.cs" />
+    <Compile Include="Models\EventArg\ViewModelRestoredEventArgs.cs" />
+    <Compile Include="Models\EventArg\ViewModelRestoringEventArgs.cs" />
     <Compile Include="MvvmApplication.cs" />
     <Compile Include="Properties\AssemblyInfoCommon.cs" />
     <Compile Include="Attributes\DisplayNameAttribute.cs" />

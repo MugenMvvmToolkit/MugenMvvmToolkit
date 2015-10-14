@@ -20,6 +20,8 @@ namespace MugenMvvmToolkit.Binding
 {
     public static class AttachedMemberConstants
     {
+        public const string ChangedEventPostfix = "Changed";
+
         public const string DataContext = "DataContext";
 
         public const string CommandParameter = "CommandParameter";

@@ -391,7 +391,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return new BindingMemberInfo(path, true);
 
 
-            if (path.EndsWith("Changed", StringComparison.Ordinal))
+            if (path.EndsWith(AttachedMemberConstants.ChangedEventPostfix, StringComparison.Ordinal))
             {
                 var memberName = path.Substring(0, path.Length - 7);
                 var member = GetBindingMember(sourceType, memberName, false, false);

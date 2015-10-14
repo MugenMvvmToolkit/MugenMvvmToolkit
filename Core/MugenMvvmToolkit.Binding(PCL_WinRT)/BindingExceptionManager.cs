@@ -243,11 +243,6 @@ namespace MugenMvvmToolkit.Binding
                     "The source '{0}' does not contain an event with name '{1}'", source, eventName));
         }
 
-        internal static Exception MethodNotSupportedBindingExpression()
-        {
-            return new NotSupportedException("This method is used exclusively for the construction of binding expression.");
-        }
-
         #endregion
     }
 }

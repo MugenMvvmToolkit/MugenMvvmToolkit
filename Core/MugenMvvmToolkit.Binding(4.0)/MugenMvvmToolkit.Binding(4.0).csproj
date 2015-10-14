@@ -14,7 +14,8 @@
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp></NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,7 +33,8 @@
     <DefineConstants>TRACE;NET4</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
@@ -340,6 +342,9 @@
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\syntax\IBindingModeSyntax.cs">
       <Link>Interfaces\Syntax\IBindingModeSyntax.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Syntax\IBindingSyntaxContext.cs">
+      <Link>Interfaces\Syntax\IBindingSyntaxContext.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\syntax\IBindingToSyntax.cs">
       <Link>Interfaces\Syntax\IBindingToSyntax.cs</Link>
     </Compile>
@@ -442,6 +447,9 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\LambdaExpressionToBindingExpressionConverter.cs">
       <Link>Parse\LambdaExpressionToBindingExpressionConverter.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\MacrosExpressionVisitor.cs">
+      <Link>Parse\MacrosExpressionVisitor.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\parse\nodes\BinaryExpressionNode.cs">
       <Link>Parse\Nodes\BinaryExpressionNode.cs</Link>
     </Compile>
@@ -480,9 +488,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\NullConditionalOperatorVisitor.cs">
       <Link>Parse\NullConditionalOperatorVisitor.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\RelativeSourcePathMergerVisitor.cs">
-      <Link>Parse\RelativeSourcePathMergerVisitor.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\parse\Tokenizer.cs">
       <Link>Parse\Tokenizer.cs</Link>

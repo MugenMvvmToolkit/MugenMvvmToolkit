@@ -102,7 +102,7 @@ namespace MugenMvvmToolkit
             EmptyPropertyChangedArgs = new PropertyChangedEventArgs(string.Empty);
             CountChangedArgs = new PropertyChangedEventArgs("Count");
             NotificationCountChangedArgs = new PropertyChangedEventArgs("NotificationCount");
-            IndexerPropertyChangedArgs = new PropertyChangedEventArgs("Item[]");
+            IndexerPropertyChangedArgs = new PropertyChangedEventArgs(ReflectionExtensions.IndexerName);
             IsNotificationsSuspendedChangedArgs = new PropertyChangedEventArgs("IsNotificationsSuspended");
             HasChangesChangedArgs = new PropertyChangedEventArgs("HasChanges");
             SelectedItemChangedArgs = new PropertyChangedEventArgs("SelectedItem");

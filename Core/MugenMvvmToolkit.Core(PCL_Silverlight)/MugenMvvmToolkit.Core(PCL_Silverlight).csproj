@@ -16,7 +16,8 @@
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp></NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,7 +35,8 @@
     <DefineConstants>TRACE;PCL_Silverlight;CORE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Annotations\JetBrains.Annotations.cs">
@@ -528,6 +530,18 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\ViewModelClosingEventArgs.cs">
       <Link>Models\EventArg\ViewModelClosingEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\ViewModelPreservedEventArgs.cs">
+      <Link>Models\EventArg\ViewModelPreservedEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\ViewModelPreservingEventArgs.cs">
+      <Link>Models\EventArg\ViewModelPreservingEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\ViewModelRestoredEventArgs.cs">
+      <Link>Models\EventArg\ViewModelRestoredEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\ViewModelRestoringEventArgs.cs">
+      <Link>Models\EventArg\ViewModelRestoringEventArgs.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\Exceptions\DesignTimeException.cs">
       <Link>Models\Exceptions\DesignTimeException.cs</Link>

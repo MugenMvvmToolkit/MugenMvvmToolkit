@@ -67,11 +67,11 @@ namespace MugenMvvmToolkit.Binding
             };
             MemberPriorities = new Dictionary<string, int>
             {
-                {AttachedMemberConstants.DataContext, int.MaxValue - 1},
-                {AttachedMemberConstants.ItemTemplate, 1},
-                {AttachedMemberConstants.ItemTemplateSelector, 1},
-                {AttachedMemberConstants.ContentTemplate, 1},
-                {AttachedMemberConstants.ContentTemplateSelector, 1},
+                {AttachedMemberConstants.DataContext, int.MaxValue - 2},
+                {AttachedMemberConstants.ItemTemplate, 3},
+                {AttachedMemberConstants.ItemTemplateSelector, 3},
+                {AttachedMemberConstants.ContentTemplate, 3},
+                {AttachedMemberConstants.ContentTemplateSelector, 3}
             };
             FakeMemberPrefixesField = new List<string>
             {
@@ -258,7 +258,7 @@ namespace MugenMvvmToolkit.Binding
 
         private static IBindingMemberInfo FindUpdateEvent(Type type, string memberName)
         {
-            IBindingMemberInfo member = MemberProvider.GetBindingMember(type, memberName + "Changed", false, false);
+            IBindingMemberInfo member = MemberProvider.GetBindingMember(type, memberName + AttachedMemberConstants.ChangedEventPostfix, false, false);
             if (member == null || member.MemberType != BindingMemberType.Event)
                 member = MemberProvider.GetBindingMember(type, memberName + "Change", false, false);
             if (member == null || member.MemberType != BindingMemberType.Event)

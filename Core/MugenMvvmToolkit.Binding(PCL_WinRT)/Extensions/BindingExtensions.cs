@@ -501,7 +501,7 @@ namespace MugenMvvmToolkit.Binding
             for (int index = firstMemberIndex; index < path.Parts.Count; index++)
             {
                 string item = path.Parts[index];
-                if (src == null)
+                if (src == null || src.IsUnsetValue())
                     return null;
                 IBindingMemberInfo member = BindingServiceProvider
                     .MemberProvider
@@ -570,6 +570,8 @@ namespace MugenMvvmToolkit.Binding
             where TSource : class
         {
             Should.NotBeNull(source, "source");
+            if (args == null)
+                args = Empty.Array<object>();
             return BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(source.GetType(), member.Path, false, true)
@@ -682,16 +684,16 @@ namespace MugenMvvmToolkit.Binding
             return BindingExceptionManager.DuplicateLambdaParameter(parameterName);
         }
 
-        public static bool IsAllMembersAvailable(this IBindingSourceAccessor accessor)
+        public static bool IsAllMembersAvailable(this IBindingSourceAccessor accessor, bool checkLastMember = false)
         {
             Should.NotBeNull(accessor, "accessor");
             var s = accessor as ISingleBindingSourceAccessor;
             if (s != null)
-                return s.Source.GetPathMembers(false).AllMembersAvailable;
+                return s.Source.IsAllMembersAvailable(checkLastMember);
             var sources = accessor.Sources;
             for (int i = 0; i < sources.Count; i++)
             {
-                if (!sources[i].GetPathMembers(false).AllMembersAvailable)
+                if (!sources[i].IsAllMembersAvailable(checkLastMember))
                     return false;
             }
             return true;
@@ -708,6 +710,11 @@ namespace MugenMvvmToolkit.Binding
             return BindingServiceProvider
                 .ObserverProvider
                 .Observe(src, BindingServiceProvider.BindingPathFactory(path), false);
+        }
+
+        public static BindingMemberDescriptor<TSource, IEventListener> ToChangedEvent<TSource, TValue>(this BindingMemberDescriptor<TSource, TValue> member) where TSource : class
+        {
+            return new BindingMemberDescriptor<TSource, IEventListener>(member.Path + AttachedMemberConstants.ChangedEventPostfix);
         }
 
         internal static void CheckDuplicateLambdaParameter(ICollection<string> parameters)
@@ -937,6 +944,16 @@ namespace MugenMvvmToolkit.Binding
         internal static string RemoveBounds(this string st)
         {
             return st.Substring(1, st.Length - 2);
+        }
+
+        private static bool IsAllMembersAvailable(this IObserver observer, bool checkLastMember)
+        {
+            var pathMembers = observer.GetPathMembers(false);
+            if (!pathMembers.AllMembersAvailable)
+                return false;
+            if (checkLastMember)
+                return !pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, Empty.Array<object>()).IsUnsetValue();
+            return true;
         }
 
         [Pure]

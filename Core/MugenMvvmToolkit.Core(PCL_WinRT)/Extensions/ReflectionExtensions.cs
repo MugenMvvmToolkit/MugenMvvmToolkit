@@ -103,6 +103,7 @@ namespace MugenMvvmToolkit
 
         #region Fields
 
+        internal const string IndexerName = "Item[]";
         private const MemberFlags PropertyBindingFlag = MemberFlags.Instance | MemberFlags.NonPublic | MemberFlags.Public;
 
         private static readonly Action<object, PropertyChangedEventHandler> UnsubscribePropertyChangedDelegate;

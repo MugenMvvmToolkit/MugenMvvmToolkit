@@ -17,7 +17,8 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp></NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -35,7 +36,8 @@
     <DefineConstants>TRACE;PCL_WINRT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
@@ -47,6 +49,7 @@
     <Compile Include="AttachedMemberConstants.cs" />
     <Compile Include="Infrastructure\DataTemplateSelectorBase.cs" />
     <Compile Include="Interfaces\IDataTemplateSelector.cs" />
+    <Compile Include="Interfaces\Syntax\IBindingSyntaxContext.cs" />
     <Compile Include="Models\BindingMemberDescriptor.cs" />
     <Compile Include="Attributes\BindingSyntaxExtensionsAttribute.cs" />
     <Compile Include="Behaviors\BindingBehaviorBase.cs" />
@@ -183,7 +186,7 @@
     <Compile Include="Parse\Nodes\ResourceExpressionNode.cs" />
     <Compile Include="Parse\Nodes\UnaryExressionNode.cs" />
     <Compile Include="Parse\NullConditionalOperatorVisitor.cs" />
-    <Compile Include="Parse\RelativeSourcePathMergerVisitor.cs" />
+    <Compile Include="Parse\MacrosExpressionVisitor.cs" />
     <Compile Include="Parse\Tokenizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

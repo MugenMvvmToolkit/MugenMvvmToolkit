@@ -1325,7 +1325,7 @@ namespace MugenMvvmToolkit
 
             if (listenedMember[0] == '[')
             {
-                if (changedMember.Equals("Item[]", StringComparison.Ordinal))
+                if (changedMember.Equals(ReflectionExtensions.IndexerName, StringComparison.Ordinal))
                     return true;
                 if (changedMember.StartsWith("Item[", StringComparison.Ordinal))
                 {

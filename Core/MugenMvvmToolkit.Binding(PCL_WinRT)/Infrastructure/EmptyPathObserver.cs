@@ -48,7 +48,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public bool AllMembersAvailable
             {
-                get { return Ref.Target != null; }
+                get
+                {
+                    var observer = (ObserverBase)Ref.Target;
+                    if (observer == null)
+                        return false;
+                    return !observer.GetActualSource().IsUnsetValue();
+                }
             }
 
             public IList<IBindingMemberInfo> Members

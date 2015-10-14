@@ -1464,6 +1464,12 @@ namespace MugenMvvmToolkit.Binding.Parse
             return expression;
         }
 
+        protected void SetTokenizer([NotNull] ITokenizer tokenizer)
+        {
+            Should.NotBeNull(tokenizer, "tokenizer");
+            _tokenizer = tokenizer;
+        }
+
         private int GetMaxPriorityTokenIndex(List<TokenType> tokens)
         {
             if (tokens.Count == 0)
