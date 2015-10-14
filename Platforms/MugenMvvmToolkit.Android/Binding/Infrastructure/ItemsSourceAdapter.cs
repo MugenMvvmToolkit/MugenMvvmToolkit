@@ -22,21 +22,62 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using Android.App;
 using Android.Content;
+using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Java.Lang;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Android.Binding.Modules;
+using MugenMvvmToolkit.Android.Interfaces;
 using MugenMvvmToolkit.Android.Interfaces.Views;
-using MugenMvvmToolkit.Android.Views;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Interfaces.Models;
 using Object = Java.Lang.Object;
 
 namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
-    public class ItemsSourceAdapter : BaseAdapter, IItemsSourceAdapter
+    public class ItemsSourceAdapter : BaseAdapter, IItemsSourceAdapter, IFilterable
     {
+        #region Nested types
+
+        private sealed class EmptyFilter : Filter
+        {
+            #region Fields
+
+            private readonly ItemsSourceAdapter _adapter;
+
+            #endregion
+
+            #region Constructors
+
+            public EmptyFilter(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer)
+            {
+            }
+
+            public EmptyFilter(ItemsSourceAdapter adapter)
+            {
+                _adapter = adapter;
+            }
+
+            #endregion
+
+            #region Methods
+
+            protected override FilterResults PerformFiltering(ICharSequence constraint)
+            {
+                return new FilterResults { Count = _adapter.Count };
+            }
+
+            protected override void PublishResults(ICharSequence constraint, FilterResults results)
+            {
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         private static Func<object, Context, IDataContext, IItemsSourceAdapter> _factory;
@@ -48,9 +89,11 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         private readonly BindableLayoutInflater _layoutInflater;
         private readonly DataTemplateProvider _dropDownTemplateProvider;
         private readonly DataTemplateProvider _itemTemplateProvider;
+        private readonly IStableIdProvider _stableIdProvider;
 
         private Dictionary<int, int> _resourceTypeToItemType;
         private int _currentTypeIndex;
+        private Filter _filter;
 
         #endregion
 
@@ -62,14 +105,15 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         }
 
         public ItemsSourceAdapter([NotNull] object container, Context context, bool listenCollectionChanges, string dropDownItemTemplateSelectorName = null,
-            string itemTemplateSelectorName = AttachedMemberConstants.ItemTemplateSelector, string dropDownItemTemplateIdName = null,
-            string itemTemplateIdName = AttachedMemberConstants.ItemTemplate)
+            string itemTemplateSelectorName = null, string dropDownItemTemplateName = null, string itemTemplateName = null)
         {
             Should.NotBeNull(container, "container");
             _container = container;
-            _itemTemplateProvider = new DataTemplateProvider(container, itemTemplateIdName, itemTemplateSelectorName);
+            container.TryGetBindingMemberValue(AttachedMembers.Object.StableIdProvider, out _stableIdProvider);
+            _itemTemplateProvider = new DataTemplateProvider(container, itemTemplateName ?? AttachedMemberConstants.ItemTemplate,
+                itemTemplateSelectorName ?? AttachedMemberConstants.ItemTemplateSelector);
             _dropDownTemplateProvider = new DataTemplateProvider(container,
-                dropDownItemTemplateIdName ?? AttachedMembers.AdapterView.DropDownItemTemplate,
+                dropDownItemTemplateName ?? AttachedMembers.AdapterView.DropDownItemTemplate,
                 dropDownItemTemplateSelectorName ?? AttachedMembers.AdapterView.DropDownItemTemplateSelector);
             _layoutInflater = context.GetBindableLayoutInflater();
             if (listenCollectionChanges)
@@ -107,6 +151,11 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             get { return _layoutInflater; }
         }
 
+        protected DataTemplateProvider DataTemplateProvider
+        {
+            get { return _itemTemplateProvider; }
+        }
+
         #endregion
 
         #region Implementation of IItemsSourceAdapter
@@ -129,6 +178,17 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             return ItemsSource.IndexOf(value);
         }
 
+        public Filter Filter
+        {
+            get
+            {
+                if (_filter == null)
+                    _filter = new EmptyFilter(this);
+                return _filter;
+            }
+            set { _filter = value; }
+        }
+
         #endregion
 
         #region Overrides of BaseAdapter
@@ -148,6 +208,11 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 _resourceTypeToItemType[id] = type;
             }
             return type;
+        }
+
+        public override bool HasStableIds
+        {
+            get { return _stableIdProvider != null; }
         }
 
         public override int ViewTypeCount
@@ -193,15 +258,22 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         public override long GetItemId(int position)
         {
-            return position;
+            if (_stableIdProvider == null)
+                return position;
+            return _stableIdProvider.GetItemId(GetRawItem(position));
         }
 
         public override View GetView(int position, View convertView, ViewGroup parent)
         {
             if (ItemsSource == null)
                 return null;
-            return CreateView(GetRawItem(position), convertView, parent, _itemTemplateProvider,
-                global::Android.Resource.Layout.SimpleListItem1);
+            var view = CreateView(GetRawItem(position), convertView, parent, _itemTemplateProvider, global::Android.Resource.Layout.SimpleListItem1);
+            if (view != null && !ReferenceEquals(view, convertView))
+            {
+                view.ListenParentChange();
+                view.SetBindingMemberValue(AttachedMembers.Object.Parent, Container);
+            }
+            return view;
         }
 
         #endregion
@@ -270,8 +342,8 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                     textView.Text = value.ToStringSafe("(null)");
                 return textView;
             }
-            var itemView = convertView as ListItem;
-            if (itemView == null || itemView.TemplateId != templateId.Value)
+            var oldId = GetViewTemplateId(convertView);
+            if (oldId == null || oldId.Value != templateId.Value)
                 convertView = CreateView(value, parent, templateId.Value);
             convertView.SetDataContext(value);
             return convertView;
@@ -279,7 +351,9 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         protected virtual View CreateView(object value, ViewGroup parent, int templateId)
         {
-            return new ListItem(templateId, LayoutInflater);
+            var view = LayoutInflater.Inflate(templateId, parent, false);
+            view.SetTag(Resource.Id.ListTemplateId, templateId);
+            return view;
         }
 
         protected virtual void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
@@ -306,6 +380,16 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             NotifyDataSetChanged();
         }
 
+        protected virtual int? GetViewTemplateId([CanBeNull] View view)
+        {
+            if (view == null)
+                return null;
+            var tag = view.GetTag(Resource.Id.ListTemplateId);
+            if (tag == null)
+                return null;
+            return (int)tag;
+        }
+
         private bool IsSpinner()
         {
             return Container is Spinner || PlatformExtensions.IsActionBar(Container);
@@ -320,6 +404,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 PlatformDataBindingModule.SetAdapter(adapterView, null);
         }
 
-        #endregion
+        #endregion        
     }
 }
