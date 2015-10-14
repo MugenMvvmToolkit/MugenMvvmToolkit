@@ -362,7 +362,8 @@ namespace MugenMvvmToolkit.Collections
 
             Items.RemoveAt(originalIndex);
             UpdateFilterItems(originalIndex, -1);
-            _filterCollection.RemoveAt(index);
+            if (_filter != null)
+                _filterCollection.RemoveAt(index);
             EventsTracker.AddEvent(args.ChangedEventArgs);
         }
 
@@ -399,12 +400,14 @@ namespace MugenMvvmToolkit.Collections
             Items[originalIndex] = item;
             if (_filter == null || _filter(item))
             {
-                _filterCollection.Values[index] = item;
+                if (_filter != null)
+                    _filterCollection.Values[index] = item;
                 EventsTracker.AddEvent(args.ChangedEventArgs);
             }
             else
             {
-                _filterCollection.RemoveAt(index);
+                if (_filter != null)
+                    _filterCollection.RemoveAt(index);
                 EventsTracker.AddEvent(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item,
                     index));
             }
