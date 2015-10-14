@@ -21,12 +21,14 @@ using Android.Widget;
 
 namespace MugenMvvmToolkit.Android.Binding.Interfaces
 {
-    public interface IItemsSourceAdapter : ISpinnerAdapter
+    public interface IItemsSourceAdapter : ISpinnerAdapter, IListAdapter
     {
         IEnumerable ItemsSource { get; set; }
 
         int GetPosition(object value);
 
         object GetRawItem(int position);
+
+        Filter Filter { get; set; }
     }
 }
