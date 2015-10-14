@@ -24,7 +24,7 @@ using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Views
 {
-    public abstract class MvvmSplitViewController : UISplitViewController, IViewControllerView
+    public class MvvmSplitViewController : UISplitViewController, IViewControllerView
     {
         #region Fields
 
@@ -34,26 +34,26 @@ namespace MugenMvvmToolkit.iOS.Views
 
         #region Constructors
 
-        protected MvvmSplitViewController()
+        public MvvmSplitViewController()
         {
         }
 
-        protected MvvmSplitViewController(NSCoder coder)
+        public MvvmSplitViewController(NSCoder coder)
             : base(coder)
         {
         }
 
-        protected MvvmSplitViewController(NSObjectFlag t)
+        public MvvmSplitViewController(NSObjectFlag t)
             : base(t)
         {
         }
 
-        protected MvvmSplitViewController(IntPtr handle)
+        public MvvmSplitViewController(IntPtr handle)
             : base(handle)
         {
         }
 
-        protected MvvmSplitViewController(string nibName, NSBundle bundle)
+        public MvvmSplitViewController(string nibName, NSBundle bundle)
             : base(nibName, bundle)
         {
         }

@@ -170,6 +170,30 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITabBarController.SelectedItem, TabBarSelectedItemChanged, TabBarSelectedItemAttached));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITabBarController.ItemsSource, TabBarItemsSourceChanged));
 
+            //UISplitViewController
+            memberProvider.Register(AttachedBindingMember.CreateNotifiableMember(AttachedMembers.UISplitViewController.MasterView,
+                (info, controller) =>
+                {
+                    if (controller.ViewControllers.Length == 2)
+                        return controller.ViewControllers[0];
+                    return null;
+                }, (info, controller, arg3) =>
+                {
+                    UpdateMasterDetailController(controller, arg3, true);
+                    return true;
+                }));
+            memberProvider.Register(AttachedBindingMember.CreateNotifiableMember(AttachedMembers.UISplitViewController.DetailView,
+                (info, controller) =>
+                {
+                    if (controller.ViewControllers.Length == 2)
+                        return controller.ViewControllers[1];
+                    return null;
+                }, (info, controller, arg3) =>
+                {
+                    UpdateMasterDetailController(controller, arg3, false);
+                    return true;
+                }));
+
             //UIToolbar
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIView.ItemsSource.Override<UIToolbar>());
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIView.ItemsSource.Override<UIToolbar>(), ToolbarItemsSourceChanged));
@@ -187,6 +211,34 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
                     }));
         }
 
+        private static void UpdateMasterDetailController(UISplitViewController splitView, UIViewController newValue, bool isMaster)
+        {
+            if (newValue == null)
+                newValue = new UIViewController();
+            var viewControllers = splitView.ViewControllers ?? Empty.Array<UIViewController>();
+            if (viewControllers.Length == 2)
+            {
+                if (isMaster)
+                {
+                    if (!ReferenceEquals(viewControllers[0], newValue))
+                        splitView.ViewControllers = new[] { newValue, viewControllers[1] };
+                }
+                else
+                {
+                    if (!ReferenceEquals(viewControllers[1], newValue))
+                        splitView.ViewControllers = new[] { viewControllers[0], newValue };
+                }
+            }
+            else
+            {
+                splitView.ViewControllers = isMaster
+                    ? new[] { newValue, new UIViewController(), }
+                    : new[] { new UIViewController(), newValue };
+            }
+            for (int i = 0; i < viewControllers.Length; i++)
+                viewControllers[i].TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
+            newValue.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
+        }
 
         private static MvvmPickerViewModel GetOrAddPickerViewModel(UIPickerView pickerView)
         {
