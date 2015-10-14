@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="RelativeSourcePathMergerVisitor.cs">
+// <copyright file="MacrosExpressionVisitor.cs">
 // Copyright (c) 2012-2015 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -23,23 +23,21 @@ using MugenMvvmToolkit.Binding.Parse.Nodes;
 
 namespace MugenMvvmToolkit.Binding.Parse
 {
-    public class RelativeSourcePathMergerVisitor : IExpressionVisitor
+    public class MacrosExpressionVisitor : IExpressionVisitor
     {
         #region Fields
 
-        public static readonly RelativeSourcePathMergerVisitor Instance;
-
+        public static readonly MacrosExpressionVisitor Instance;
         private static readonly ICollection<string> DefaultElementSourceAliases;
-
         private static readonly ICollection<string> DefaultRelativeSourceAliases;
 
         #endregion
 
         #region Constructors
 
-        static RelativeSourcePathMergerVisitor()
+        static MacrosExpressionVisitor()
         {
-            Instance = new RelativeSourcePathMergerVisitor();
+            Instance = new MacrosExpressionVisitor();
             DefaultElementSourceAliases = new[]
             {
                 RelativeSourceExpressionNode.ElementSourceType,
@@ -54,7 +52,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             };
         }
 
-        private RelativeSourcePathMergerVisitor()
+        private MacrosExpressionVisitor()
         {
         }
 
@@ -94,13 +92,21 @@ namespace MugenMvvmToolkit.Binding.Parse
             var member = node as IMemberExpressionNode;
             if (member != null && member.Target is ResourceExpressionNode)
             {
+                //$self, $this --> $BindingServiceProvider.ResourceResolver.SelfResourceName
                 if (member.Member == "self" || member.Member == "this")
                     return new MemberExpressionNode(member.Target, BindingServiceProvider.ResourceResolver.SelfResourceName);
+                //$context --> $BindingServiceProvider.ResourceResolver.DataContextResourceName
                 if (member.Member == "context")
                     return new MemberExpressionNode(member.Target, BindingServiceProvider.ResourceResolver.DataContextResourceName);
+                //$args, $arg --> $GetEventArgs()
                 if (member.Member == "args" || member.Member == "arg")
                     return new MethodCallExpressionNode(member.Target, DefaultBindingParserHandler.GetEventArgsMethod, Empty.Array<IExpressionNode>(), Empty.Array<string>());
             }
+
+            //Format() --> string.Format()
+            var methodCallExp = node as IMethodCallExpressionNode;
+            if (methodCallExp != null && methodCallExp.Target is ResourceExpressionNode && methodCallExp.Method == "Format")
+                return new MethodCallExpressionNode(new ConstantExpressionNode(typeof(string)), methodCallExp.Method, methodCallExp.Arguments, methodCallExp.TypeArgs);
 
             var nodes = new List<IExpressionNode>();
             var members = new List<string>();

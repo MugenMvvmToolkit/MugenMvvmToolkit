@@ -179,9 +179,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _converters = new Dictionary<string, IBindingValueConverter>();
             _dynamicMethods = new Dictionary<string, IBindingResourceMethod>
             {
-                {"Format", new BindingResourceMethod(FormatImpl, typeof (string))},
                 {DefaultBindingParserHandler.GetEventArgsMethod, new BindingResourceMethod(GetEventArgs, GetEventArgsReturnType)},
-                {DefaultBindingParserHandler.GetErrorsMethod, new BindingResourceMethod(GetErrorsMethod, typeof(IList<object>))}
+                {DefaultBindingParserHandler.GetErrorsMethod, new BindingResourceMethod(GetErrorsMethod, typeof (IList<object>))}
             };
             _objects = new Dictionary<string, DynamicResourceObject>();
             _types = new Dictionary<string, Type>
@@ -274,19 +273,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 }
                 return value;
             }
-        }
-
-        private static object FormatImpl(IList<Type> typeArgs, object[] args, IDataContext arg3)
-        {
-            if (args.Length == 0)
-                return string.Empty;
-            string format = (string)args[0] ?? string.Empty;
-            if (args.Length == 1)
-                return format;
-
-            var formatItems = new object[args.Length - 1];
-            Array.Copy(args, 1, formatItems, 0, formatItems.Length);
-            return string.Format(format, formatItems);
         }
 
         private static Type GetEventArgsReturnType(IList<Type> types, IList<Type> list, IDataContext arg3)
