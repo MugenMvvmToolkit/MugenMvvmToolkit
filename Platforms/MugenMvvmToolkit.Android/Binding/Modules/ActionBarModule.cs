@@ -27,6 +27,7 @@ using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Android.Binding.Models;
 using MugenMvvmToolkit.Android.Infrastructure;
+using MugenMvvmToolkit.Android.Interfaces;
 using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
@@ -261,7 +262,6 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             private static readonly PopupMenuDismissListener DismissListener;
             private readonly View _view;
-            private readonly Type _viewType;
             private IDisposable _unsubscriber;
 
             #endregion
@@ -276,7 +276,6 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             public PopupMenuPresenter(View view)
             {
                 _view = view;
-                _viewType = _view.GetType();
             }
 
             #endregion
@@ -312,18 +311,20 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
                 var templateId = _view.GetBindingMemberValue(AttachedMembers.View.PopupMenuTemplate);
                 var path = _view.GetBindingMemberValue(AttachedMembers.View.PopupMenuPlacementTargetPath);
+                View itemView = null;
                 if (!string.IsNullOrEmpty(path))
-                {
-                    var itemView = (View)BindingExtensions.GetValueFromPath(message, path);
-                    if (itemView != null)
-                        view = itemView;
-                }
+                    itemView = (View)BindingExtensions.GetValueFromPath(message, path);
 
-                var menu = new PopupMenu(activity, view);
-                activity.MenuInflater.Inflate(templateId, menu.Menu, view);
-                menu.SetOnDismissListener(DismissListener);
-                menu.Show();
-                return true;
+                var menuPresenter = _view.GetBindingMemberValue(AttachedMembers.View.PopupMenuPresenter);
+                if (menuPresenter == null)
+                {
+                    var menu = new PopupMenu(activity, itemView ?? view);
+                    activity.MenuInflater.Inflate(templateId, menu.Menu, itemView ?? view);
+                    menu.SetOnDismissListener(DismissListener);
+                    menu.Show();
+                    return true;
+                }
+                return menuPresenter.Show(view, itemView ?? view, templateId, message, (s, menu) => MenuTemplate.Clear(menu));
             }
 
             #endregion
@@ -425,6 +426,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 #if !APPCOMPAT
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.View.PopupMenuTemplate));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.View.PopupMenuPlacementTargetPath));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.View.PopupMenuPresenter));
 #endif
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.View.PopupMenuEvent, PopupMenuEventChanged));
 
