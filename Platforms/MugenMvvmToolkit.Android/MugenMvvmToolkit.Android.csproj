@@ -18,7 +18,8 @@
     <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp></NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,7 +37,8 @@
     <DefineConstants>TRACE;ANDROID;ANDROIDCORE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Android" />
@@ -129,6 +131,8 @@
     <Compile Include="FragmentExtensions.cs" />
     <Compile Include="Infrastructure\Mediators\MvvmFragmentMediator.cs" />
     <Compile Include="Infrastructure\Mediators\WindowViewMediator.cs" />
+    <Compile Include="Interfaces\IPopupMenuPresenter.cs" />
+    <Compile Include="Interfaces\IStableIdProvider.cs" />
     <Compile Include="Interfaces\Mediators\IMvvmFragmentMediator.cs" />
     <Compile Include="Interfaces\Views\IFragmentView.cs" />
     <Compile Include="Interfaces\Views\IHasActivityDependency.cs" />
@@ -184,7 +188,6 @@
     <Compile Include="Views\Fragments\MvvmListFragment.cs" />
     <Compile Include="Views\Fragments\MvvmPreferenceFragment.cs" />
     <Compile Include="Views\Fragments\MvvmWebViewFragment.cs" />
-    <Compile Include="Views\ListItem.cs" />
     <Compile Include="Views\Activities\MvvmActivity.cs" />
     <Compile Include="Views\Activities\MvvmListActivity.cs" />
     <Compile Include="Views\Activities\MvvmTabActivity.cs" />

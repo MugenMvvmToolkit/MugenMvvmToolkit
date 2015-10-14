@@ -20,7 +20,12 @@ using System.Diagnostics;
 using Android.Util;
 using TraceLevel = MugenMvvmToolkit.Models.TraceLevel;
 
+#if XAMARIN_FORMS
+namespace MugenMvvmToolkit.Xamarin.Forms.Android.Infrastructure
+#else
 namespace MugenMvvmToolkit.Android.Infrastructure
+#endif
+
 {
     public class TracerEx : Tracer
     {

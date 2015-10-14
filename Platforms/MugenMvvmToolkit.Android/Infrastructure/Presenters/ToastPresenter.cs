@@ -139,8 +139,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
         #region Fields
 
         private const string ToastWrapperMember = "!@!ToastWrap@$2";
-        private const string DisposedEventHandler = "3w4toasthandler3w5rews";
 #if !XAMARIN_FORMS
+        private const string DisposedEventHandler = "3w4toasthandler3w5rews";
         private static readonly EventHandler<Activity, EventArgs> ActivityOnDestroyedDelegate = ActivityOnDestroyed;
         private readonly INavigationProvider _navigationProvider;
 #endif

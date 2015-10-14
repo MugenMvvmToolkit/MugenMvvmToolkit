@@ -276,7 +276,7 @@ namespace MugenMvvmToolkit.Android
                     factory = new ViewFactory();
                 if (inflater == null)
                     return new BindableLayoutInflater(factory, context);
-                return new BindableLayoutInflater(factory, inflater);
+                return new BindableLayoutInflater(factory, inflater, context);
             };
             ContentViewManagerField = new ContentViewManager();
             ContentViewManagerField.Add(new ViewContentViewManager());

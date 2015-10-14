@@ -55,8 +55,8 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
         {
             #region Constructors
 
-            public BindableLayoutInflaterCompat(IViewFactory factory, LayoutInflater original)
-                : base(factory, original)
+            public BindableLayoutInflaterCompat([NotNull] IViewFactory factory, LayoutInflater original, Context newContext)
+                : base(factory, original, newContext)
             {
             }
 
@@ -67,11 +67,6 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
 
             private BindableLayoutInflaterCompat(IntPtr javaReference, JniHandleOwnership transfer)
                 : base(javaReference, transfer)
-            {
-            }
-
-            private BindableLayoutInflaterCompat([NotNull] IViewFactory factory, LayoutInflater original, Context newContext)
-                : base(factory, original, newContext)
             {
             }
 
@@ -345,7 +340,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
                     factory = new ViewFactory();
                 if (inflater == null)
                     return new BindableLayoutInflaterCompat(factory, context);
-                return new BindableLayoutInflaterCompat(factory, inflater);
+                return new BindableLayoutInflaterCompat(factory, inflater, context);
             };
 
             IBindingMemberProvider memberProvider = BindingServiceProvider.MemberProvider;

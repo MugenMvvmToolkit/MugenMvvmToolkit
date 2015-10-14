@@ -77,8 +77,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             }
             else
             {
-                menu.SetBindingMemberValue(AttachedMembers.Menu.ItemsSourceGenerator,
-                    new MenuItemsSourceGenerator(menu, context, ItemTemplate));
+                menu.SetBindingMemberValue(AttachedMembers.Menu.ItemsSourceGenerator, new MenuItemsSourceGenerator(menu, context, ItemTemplate));
                 setter.SetBinding(() => template => template.ItemsSource, ItemsSource, true);
             }
             setter.Apply();
