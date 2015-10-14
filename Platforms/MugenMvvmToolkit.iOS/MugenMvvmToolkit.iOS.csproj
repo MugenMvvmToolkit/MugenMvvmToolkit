@@ -13,7 +13,8 @@
     <AssemblyName>MugenMvvmToolkit.iOS</AssemblyName>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp></NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,7 +37,8 @@
     <ConsolePause>false</ConsolePause>
     <CodesignKey>iPhone Developer</CodesignKey>
     <DefineConstants>TOUCH</DefineConstants>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\Core\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Extensions\BindingReflectionExtensionsCommon.cs">
@@ -97,6 +99,7 @@
       <Link>Interfaces\Navigation\INavigationService.cs</Link>
     </Compile>
     <Compile Include="Binding\Converters\BooleanToCheckmarkAccessoryConverter.cs" />
+    <Compile Include="Binding\Infrastructure\DataTemplateProvider.cs" />
     <Compile Include="Interfaces\IHasDisplayCallback.cs" />
     <Compile Include="Interfaces\Views\IViewControllerView.cs" />
     <Compile Include="LinkerInclude.cs" />

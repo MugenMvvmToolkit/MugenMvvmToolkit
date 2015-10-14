@@ -126,6 +126,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
                         }
                     }
                 }
+                viewController.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
                 _isAppeared = true;
             }
             Raise(ViewWillAppearHandler, animated);
