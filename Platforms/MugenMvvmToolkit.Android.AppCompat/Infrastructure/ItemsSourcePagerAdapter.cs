@@ -67,8 +67,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
             Should.NotBeNull(viewPager, "viewPager");
             _viewPager = viewPager;
             _fragmentManager = viewPager.GetFragmentManager();
-            _itemTemplateProvider = new DataTemplateProvider(viewPager, AttachedMemberConstants.ItemTemplate,
-                AttachedMemberConstants.ItemTemplateSelector);
+            _itemTemplateProvider = new DataTemplateProvider(viewPager, AttachedMemberConstants.ItemTemplate, AttachedMemberConstants.ItemTemplateSelector);
             _weakHandler = ReflectionExtensions.MakeWeakCollectionChangedHandler(this,
                 (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));
             var activityView = _viewPager.Context.GetActivity() as IActivityView;
@@ -87,6 +86,11 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
         {
             get { return _itemsSource; }
             set { SetItemsSource(value, true); }
+        }
+
+        protected DataTemplateProvider DataTemplateProvider
+        {
+            get { return _itemTemplateProvider; }
         }
 
         #endregion
