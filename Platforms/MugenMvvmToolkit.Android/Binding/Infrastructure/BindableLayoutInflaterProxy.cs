@@ -62,6 +62,12 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             set { _layoutInflater.NestedFactory = value; }
         }
 
+        public override IFactory2 NestedFactory2
+        {
+            get { return _layoutInflater.NestedFactory2; }
+            set { _layoutInflater.NestedFactory2 = value; }
+        }
+
         public override View Inflate(int resource, ViewGroup root)
         {
             EnsureFactoryInitialized();
@@ -89,7 +95,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         public override LayoutInflater CloneInContext(Context newContext)
         {
             EnsureFactoryInitialized();
-            var inflater = (BindableLayoutInflater) _layoutInflater.CloneInContext(newContext);
+            var inflater = (BindableLayoutInflater)_layoutInflater.CloneInContext(newContext);
             return new BindableLayoutInflaterProxy(inflater);
         }
 
@@ -105,15 +111,10 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         {
             try
             {
-                IFactory factory = Factory;
-                if (factory != null && NestedFactory == null)
-                    NestedFactory = factory;
-                if (PlatformExtensions.IsApiGreaterThan10)
-                {
-                    IFactory2 factory2 = Factory2;
-                    if (factory2 != null && _layoutInflater.Factory2 == null)
-                        _layoutInflater.Factory2 = factory2;
-                }
+                if (Factory != null && NestedFactory == null)
+                    NestedFactory = Factory;
+                if (PlatformExtensions.IsApiGreaterThan10 && Factory2 != null && NestedFactory2 == null)
+                    NestedFactory2 = Factory2;
             }
             catch (Exception e)
             {
