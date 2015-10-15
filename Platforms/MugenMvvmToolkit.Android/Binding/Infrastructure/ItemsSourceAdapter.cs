@@ -90,6 +90,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         private readonly DataTemplateProvider _dropDownTemplateProvider;
         private readonly DataTemplateProvider _itemTemplateProvider;
         private readonly IStableIdProvider _stableIdProvider;
+        private readonly int _defaultDropDownTemplate;
 
         private Dictionary<int, int> _resourceTypeToItemType;
         private int _currentTypeIndex;
@@ -124,6 +125,9 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 _listener = ReflectionExtensions.CreateWeakEventHandler<ItemsSourceAdapter, EventArgs>(this, (adapter, o, arg3) => adapter.ActivityViewOnDestroyed((Activity)o));
                 activityView.Mediator.Destroyed += _listener.Handle;
             }
+            _defaultDropDownTemplate = IsSpinner()
+                ? global::Android.Resource.Layout.SimpleDropDownItem1Line
+                : global::Android.Resource.Layout.SimpleSpinnerDropDownItem;
         }
 
         #endregion
@@ -238,17 +242,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         public override View GetDropDownView(int position, View convertView, ViewGroup parent)
         {
-            if (ItemsSource == null)
-                return null;
-            var view = CreateView(GetRawItem(position), convertView, parent, _dropDownTemplateProvider, IsSpinner()
-                ? global::Android.Resource.Layout.SimpleDropDownItem1Line
-                : global::Android.Resource.Layout.SimpleSpinnerDropDownItem);
-            if (view != null && !ReferenceEquals(view, convertView))
-            {
-                view.ListenParentChange();
-                view.SetBindingMemberValue(AttachedMembers.Object.Parent, Container);
-            }
-            return view;
+            return GetViewInternal(position, convertView, parent, _dropDownTemplateProvider, _defaultDropDownTemplate);
         }
 
         public override Object GetItem(int position)
@@ -265,15 +259,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         public override View GetView(int position, View convertView, ViewGroup parent)
         {
-            if (ItemsSource == null)
-                return null;
-            var view = CreateView(GetRawItem(position), convertView, parent, _itemTemplateProvider, global::Android.Resource.Layout.SimpleListItem1);
-            if (view != null && !ReferenceEquals(view, convertView))
-            {
-                view.ListenParentChange();
-                view.SetBindingMemberValue(AttachedMembers.Object.Parent, Container);
-            }
-            return view;
+            return GetViewInternal(position, convertView, parent, _itemTemplateProvider, global::Android.Resource.Layout.SimpleListItem1);
         }
 
         #endregion
@@ -388,6 +374,19 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             if (tag == null)
                 return null;
             return (int)tag;
+        }
+
+        private View GetViewInternal(int position, View convertView, ViewGroup parent, DataTemplateProvider provider, int defaultTemplate)
+        {
+            if (ItemsSource == null)
+                return null;
+            var view = CreateView(GetRawItem(position), convertView, parent, provider, defaultTemplate);
+            if (view != null && !ReferenceEquals(view, convertView))
+            {
+                view.ListenParentChange();
+                view.SetBindingMemberValue(AttachedMembers.Object.Parent, Container);
+            }
+            return view;
         }
 
         private bool IsSpinner()
