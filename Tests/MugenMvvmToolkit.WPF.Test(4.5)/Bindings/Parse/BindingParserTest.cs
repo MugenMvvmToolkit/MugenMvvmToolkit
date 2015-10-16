@@ -1043,6 +1043,56 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         }
 
         [TestMethod]
+        public void ParserShouldParseMultiExpressionWithOneTimeScope()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string sourcePath3 = "SourceText3";
+            const string methodName = "TestMethod";
+            const string binding = "Text $OneTime($TestMethod(SourceText1, SourceText2).IntProperty) + SourceText3";
+
+            const int firstValue = -1;
+            int executionCount = 0;
+            var target = new object();
+            var args = new object[] { "tset", 1, 3 };
+            var sourceModel = new BindingSourceModel { IntProperty = firstValue };
+
+            var provider = new BindingProvider();
+            var resolver = new BindingResourceResolver();
+            BindingServiceProvider.ResourceResolver = resolver;
+            var method = new BindingResourceMethod((list, objects, c) =>
+            {
+                ++executionCount;
+                objects[0].ShouldEqual(args[0]);
+                objects[1].ShouldEqual(args[1]);
+                return sourceModel;
+            }, typeof(BindingSourceModel));
+            resolver.AddMethod(methodName, method, true);
+            IBindingParser bindingParser = CreateBindingParser(bindingProvider: provider);
+
+
+            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext, target, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, args).ShouldEqual(firstValue + 3);
+            sourceModel.IntProperty = int.MinValue;
+            args[2] = 5;
+            expression(context, args).ShouldEqual(firstValue + 5);
+            args[2] = 6;
+            expression(context, args).ShouldEqual(firstValue + 6);
+
+            executionCount.ShouldEqual(1);
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(target, sources[2].Invoke(context), sourcePath3);
+        }
+
+        [TestMethod]
         public void ParserShouldParseMultiExpressionWithCustomMethod()
         {
             const string targetPath = "Text";

@@ -902,6 +902,35 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         }
 
         [TestMethod]
+        public void BuilderShouldUseExpressionWithOneTimeScope()
+        {
+            const string key = "key";
+            var builder = new BindingBuilder();
+            var sourceModel = new BindingSourceModel();
+            const int firstValue = -1;
+            int executionCount = 0;
+            var result = new BindingSourceModel { IntProperty = firstValue };
+            BindingServiceProvider.ResourceResolver.AddMethod<string, object, BindingSourceModel>(key, (s1, s2, context) =>
+            {
+                ++executionCount;
+                s1.ShouldEqual(key);
+                s2.ShouldEqual(builder);
+                context.ShouldEqual(builder);
+                return result;
+            });
+            builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => (model, ctx) => ctx.OneTime(ctx.ResourceMethod<BindingSourceModel>(key, key, builder).IntProperty) + 3);
+
+            var sources = builder.GetData(BindingBuilderConstants.Sources);
+            sources.Count.ShouldEqual(1);
+            sources[0].Invoke(builder).Path.Path.ShouldEqual(string.Empty);
+            var expression = builder.GetData(BindingBuilderConstants.MultiExpression);
+            expression(builder, Empty.Array<object>()).ShouldEqual(firstValue + 3);
+            sourceModel.IntProperty = int.MinValue;
+            expression(builder, Empty.Array<object>()).ShouldEqual(firstValue + 3);
+            executionCount.ShouldEqual(1);
+        }
+
+        [TestMethod]
         public void BuilderShouldUseBindingContextExtension1()
         {
             const string targetPath = "Text";

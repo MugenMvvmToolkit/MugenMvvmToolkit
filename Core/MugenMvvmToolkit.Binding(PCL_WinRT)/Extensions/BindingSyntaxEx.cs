@@ -26,6 +26,7 @@ using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces.Syntax;
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Binding.Parse;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -76,49 +77,49 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
 
         public static T DataContext<T>(this IBindingSyntaxContext context)
         {
-            return MethodNotSupportedBindingExpression<T>();
+            return MethodNotSupported<T>();
         }
 
         public static T Relative<T>(this IBindingSyntaxContext context)
         {
-            return MethodNotSupportedBindingExpression<T>();
+            return MethodNotSupported<T>();
         }
 
         public static T Relative<T>(this IBindingSyntaxContext context, uint level)
         {
-            return MethodNotSupportedBindingExpression<T>();
+            return MethodNotSupported<T>();
         }
 
         public static T Element<T>(this IBindingSyntaxContext context, object elementId)
         {
-            return MethodNotSupportedBindingExpression<T>();
+            return MethodNotSupported<T>();
         }
 
         public static T Self<T>(this IBindingSyntaxContext context)
         {
-            return MethodNotSupportedBindingExpression<T>();
+            return MethodNotSupported<T>();
         }
 
         public static T Self<T, TSource>(this IBindingSyntaxContext<T, TSource> context)
             where T : class
         {
-            return MethodNotSupportedBindingExpression<T>();
+            return MethodNotSupported<T>();
         }
 
         public static T Root<T>(this IBindingSyntaxContext context)
         {
-            return MethodNotSupportedBindingExpression<T>();
+            return MethodNotSupported<T>();
         }
 
         public static T Source<T>(this IBindingSyntaxContext context)
         {
-            return MethodNotSupportedBindingExpression<T>();
+            return MethodNotSupported<T>();
         }
 
         public static T Source<TTarget, T>(this IBindingSyntaxContext<TTarget, T> context)
             where TTarget : class
         {
-            return MethodNotSupportedBindingExpression<T>();
+            return MethodNotSupported<T>();
         }
 
         public static T Resource<T>(this IBindingSyntaxContext context, string name)
@@ -158,12 +159,17 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
 
         public static T EventArgs<T>(this IBindingSyntaxContext context)
         {
-            return MethodNotSupportedBindingExpression<T>();
+            return MethodNotSupported<T>();
         }
 
         public static IEnumerable<object> GetErrors(this IBindingSyntaxContext context, params object[] args)
         {
-            return MethodNotSupportedBindingExpression<IEnumerable<object>>();
+            return MethodNotSupported<IEnumerable<object>>();
+        }
+
+        public static T OneTime<T>(this IBindingSyntaxContext context, T value)
+        {
+            return MethodNotSupported<T>();
         }
 
         [UsedImplicitly]
@@ -185,6 +191,15 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                 var typeArgsEx = Expression.NewArrayInit(typeof(Type), Expression.Constant(mExp.Method.ReturnType, typeof(Type)));
                 return Expression.Convert(Expression.Call(ResourceMethodImplMethod, mExp.Arguments[1], typeArgsEx,
                             context.ContextParameter, mExp.Arguments[2]), context.Expression.Type);
+            }
+
+            if (name == "OneTime")
+            {
+                if (!context.IsSameExpression())
+                    return null;
+                var item = Expression.Constant(new MacrosExpressionVisitor.OneTimeImpl());
+                var parameter = Expression.Lambda(mExp.Arguments[1], Empty.Array<ParameterExpression>());
+                return Expression.Call(item, MacrosExpressionVisitor.OneTimeImpl.GetValueMethod.MakeGenericMethod(mExp.Arguments[1].Type), parameter);
             }
 
             if (name == "GetErrors")
@@ -324,7 +339,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
             return Empty.Array<object>();
         }
 
-        private static T MethodNotSupportedBindingExpression<T>()
+        private static T MethodNotSupported<T>()
         {
             throw new NotSupportedException("This method is used exclusively for the construction of binding expression.");
         }

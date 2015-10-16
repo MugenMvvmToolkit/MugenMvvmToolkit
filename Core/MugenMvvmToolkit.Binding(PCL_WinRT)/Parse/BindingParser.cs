@@ -210,8 +210,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             get { return _handlers; }
         }
 
-        public IList<IDataContext> Parse(string bindingExpression, IDataContext context, object target,
-             IList<object> sources)
+        public IList<IDataContext> Parse(string bindingExpression, IDataContext context, object target, IList<object> sources)
         {
             Should.NotBeNullOrWhitespace(bindingExpression, "bindingExpression");
             KeyValuePair<KeyValuePair<string, int>, Action<IDataContext>[]>[] bindingValues;
@@ -227,6 +226,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                         _context = context;
                         _expression = Handle(bindingExpression, context);
                         _tokenizer = CreateTokenizer(Expression);
+                        _memberVisitor.Context = context;
                         var value = ParseInternal()
                             .Select((pair, i) => new KeyValuePair<KeyValuePair<string, int>, Action<IDataContext>[]>(new KeyValuePair<string, int>(pair.Key, i), pair.Value))
                             .ToList();
@@ -245,6 +245,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                         _tokenizer = null;
                         _expression = null;
                         _context = null;
+                        _memberVisitor.Context = null;
                     }
                 }
             }

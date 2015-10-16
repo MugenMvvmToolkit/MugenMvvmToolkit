@@ -27,7 +27,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Parse
         IList<IBindingParserHandler> Handlers { get; }
 
         [NotNull]
-        IList<IDataContext> Parse([NotNull] string bindingExpression, [NotNull] IDataContext context,
+        IList<IDataContext> Parse([NotNull] string bindingExpression, [CanBeNull] IDataContext context,
             [NotNull] object target, [CanBeNull] IList<object> sources);
     }
 }

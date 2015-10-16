@@ -429,7 +429,10 @@ namespace MugenMvvmToolkit.Android
         public static BindableLayoutInflater ToBindableLayoutInflater(this LayoutInflater inflater, Context context = null)
         {
             if (context == null)
+            {
                 Should.NotBeNull(inflater, "inflater");
+                context = inflater.Context;
+            }
             var bindableInflater = inflater as BindableLayoutInflater;
             if (bindableInflater != null)
                 return bindableInflater;

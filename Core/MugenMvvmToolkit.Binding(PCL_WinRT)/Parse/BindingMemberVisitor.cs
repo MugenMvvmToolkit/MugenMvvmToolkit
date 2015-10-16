@@ -23,7 +23,8 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
-using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Interfaces.Models;
+
 
 namespace MugenMvvmToolkit.Binding.Parse
 {
@@ -47,7 +48,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             _staticNodes = new Dictionary<IExpressionNode, IExpressionNode>();
         }
 
-        private BindingMemberVisitor(BindingMemberVisitor innerVisitor, IEnumerable<string> lambdaParameters)
+        private BindingMemberVisitor(BindingMemberVisitor innerVisitor, IEnumerable<string> lambdaParameters, IDataContext context)
             : this()
         {
             _members = innerVisitor._members;
@@ -55,6 +56,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             if (innerVisitor._lamdaParameters != null)
                 _lamdaParameters.AddRange(innerVisitor._lamdaParameters);
             _lamdaParameters.AddRange(lambdaParameters);
+            Context = context;
             BindingExtensions.CheckDuplicateLambdaParameter(_lamdaParameters);
         }
 
@@ -71,6 +73,8 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             get { return _isMulti; }
         }
+
+        public IDataContext Context { get; set; }
 
         #endregion
 
@@ -143,7 +147,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         private IExpressionNode VisitLambda(ILambdaExpressionNode node)
         {
             _isMulti = true;
-            node.Expression.Accept(new BindingMemberVisitor(this, node.Parameters));
+            node.Expression.Accept(new BindingMemberVisitor(this, node.Parameters, Context));
             return node.Clone();
         }
 
@@ -155,7 +159,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
             IBindingPath path = BindingServiceProvider.BindingPathFactory(memberName);
             string firstMember = path.Parts[0];
-            Type type = BindingServiceProvider.ResourceResolver.ResolveType(firstMember, DataContext.Empty, false);
+            Type type = BindingServiceProvider.ResourceResolver.ResolveType(firstMember, Context, false);
             var resourceMember = (ResourceExpressionNode)nodes[0];
             if (resourceMember.Dynamic && type == null)
             {
@@ -171,7 +175,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {
                     var resourceObject = BindingServiceProvider
                         .ResourceResolver
-                        .ResolveObject(firstMember, DataContext.Empty, true);
+                        .ResolveObject(firstMember, Context, true);
                     var dynamicObject = resourceObject.Value as IDynamicObject;
                     if (dynamicObject == null || path.Parts.Count <= 1)
                         staticValue = new ConstantExpressionNode(resourceObject.Value);

@@ -16,15 +16,63 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Parse
 {
     public class MacrosExpressionVisitor : IExpressionVisitor
     {
+        #region Nested Types
+
+        public sealed class OneTimeImpl
+        {
+            #region Fields
+
+            private object _value;
+            private bool _initialized;
+            internal static readonly MethodInfo GetValueMethod;
+            public const string GetValueMethodName = "GetValue";
+
+            #endregion
+
+            #region Constructors
+
+            static OneTimeImpl()
+            {
+                GetValueMethod = typeof(OneTimeImpl).GetMethodEx("GetValue", MemberFlags.Public | MemberFlags.Instance);
+            }
+
+            #endregion
+
+            #region Methods
+
+            public T GetValue<T>(Func<T> getValue)
+            {
+                if (!_initialized)
+                {
+                    lock (this)
+                    {
+                        if (!_initialized)
+                        {
+                            _value = getValue();
+                            _initialized = true;
+                        }
+                    }
+                }
+                return (T)_value;
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         public static readonly MacrosExpressionVisitor Instance;
@@ -103,10 +151,20 @@ namespace MugenMvvmToolkit.Binding.Parse
                     return new MethodCallExpressionNode(member.Target, DefaultBindingParserHandler.GetEventArgsMethod, Empty.Array<IExpressionNode>(), Empty.Array<string>());
             }
 
-            //Format() --> string.Format()
             var methodCallExp = node as IMethodCallExpressionNode;
-            if (methodCallExp != null && methodCallExp.Target is ResourceExpressionNode && methodCallExp.Method == "Format")
-                return new MethodCallExpressionNode(new ConstantExpressionNode(typeof(string)), methodCallExp.Method, methodCallExp.Arguments, methodCallExp.TypeArgs);
+            if (methodCallExp != null && methodCallExp.Target is ResourceExpressionNode)
+            {
+                //$Format() --> string.Format()
+                if (methodCallExp.Method == "Format")
+                    return new MethodCallExpressionNode(new ConstantExpressionNode(typeof(string)), methodCallExp.Method, methodCallExp.Arguments, methodCallExp.TypeArgs);
+                //$OneTime(Expression) --> oneTimeImpl.GetValue(() => Expression)
+                if (methodCallExp.Method == "OneTime" && methodCallExp.Arguments.Count == 1)
+                {
+                    var item = new ConstantExpressionNode(new OneTimeImpl());
+                    IExpressionNode parameter = new LambdaExpressionNode(methodCallExp.Arguments[0], null);
+                    return new MethodCallExpressionNode(item, OneTimeImpl.GetValueMethodName, new[] { parameter }, null);
+                }
+            }
 
             var nodes = new List<IExpressionNode>();
             var members = new List<string>();
