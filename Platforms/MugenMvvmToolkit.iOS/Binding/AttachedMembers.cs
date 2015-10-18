@@ -433,6 +433,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             public static readonly BindingMemberDescriptor<UIKit.UIViewController, IItemsSourceGenerator> ToolbarItemsSourceGenerator;
             public static readonly BindingMemberDescriptor<UIKit.UIViewController, IDataTemplateSelector> ToolbarItemTemplateSelector;
+            public static readonly BindingMemberDescriptor<UIKit.UIViewController, IDataTemplateSelector> ToastTemplateSelector;
             public static readonly BindingMemberDescriptor<UIKit.UIViewController, IEnumerable> ToolbarItemsSource;
 
             #endregion
@@ -448,6 +449,7 @@ namespace MugenMvvmToolkit.iOS.Binding
                 ToolbarItemsSourceGenerator = new BindingMemberDescriptor<UIKit.UIViewController, IItemsSourceGenerator>("Toolbar" + ItemsSourceGeneratorBase.MemberDescriptor);
                 ToolbarItemTemplateSelector = new BindingMemberDescriptor<UIKit.UIViewController, IDataTemplateSelector>("ToolbarItemTemplateSelector");
                 ToolbarItemsSource = new BindingMemberDescriptor<UIKit.UIViewController, IEnumerable>("ToolbarItemsSource");
+                ToastTemplateSelector = new BindingMemberDescriptor<UIKit.UIViewController, IDataTemplateSelector>("ToastTemplateSelector");
             }
 
             #endregion

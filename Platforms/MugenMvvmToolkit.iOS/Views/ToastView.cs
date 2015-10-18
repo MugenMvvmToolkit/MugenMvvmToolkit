@@ -43,15 +43,14 @@ namespace MugenMvvmToolkit.iOS.Views
 
         #region Constructors
 
-        public ToastView(object content, UIView owner, float displayDuration, ToastPosition position,
-            TaskCompletionSource<object> tcs)
+        protected ToastView()
         {
-            Should.NotBeNull(tcs, "tcs");
+        }
+
+        public ToastView(object content, UIView owner)
+        {
             Content = content;
             Owner = owner ?? UIApplication.SharedApplication.KeyWindow;
-            DisplayDuration = displayDuration / 1000;
-            Position = position;
-            TaskCompletionSource = tcs;
             AnimationDuration = 0.2;
             ShadowEnabled = true;
             ShadowOpacity = 0.8f;
@@ -112,15 +111,15 @@ namespace MugenMvvmToolkit.iOS.Views
 
         public UIView Owner { get; protected set; }
 
+        public nfloat DisplayDuration { get; set; }
+
+        public ToastPosition Position { get; set; }
+
+        public TaskCompletionSource<object> TaskCompletionSource { get; set; }
+
         protected object Content { get; set; }
 
         protected UIView View { get; set; }
-
-        protected nfloat DisplayDuration { get; set; }
-
-        protected ToastPosition Position { get; set; }
-
-        protected TaskCompletionSource<object> TaskCompletionSource { get; set; }
 
         #endregion
 

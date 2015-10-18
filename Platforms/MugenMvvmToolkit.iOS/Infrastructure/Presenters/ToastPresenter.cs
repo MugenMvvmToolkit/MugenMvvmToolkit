@@ -20,6 +20,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
@@ -31,6 +32,7 @@ using MugenMvvmToolkit.Xamarin.Forms.iOS.Views;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.iOS.Infrastructure.Presenters
 #else
+using MugenMvvmToolkit.iOS.Binding;
 using MugenMvvmToolkit.iOS.Views;
 
 namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
@@ -38,6 +40,48 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
 {
     public class ToastPresenter : IToastPresenter
     {
+        #region Nested types
+
+        private sealed class ToastImpl : IToast
+        {
+            #region Fields
+
+            public readonly TaskCompletionSource<object> Tcs;
+            public ToastView Toast;
+
+            #endregion
+
+            #region Constructors
+
+            public ToastImpl()
+            {
+                Tcs = new TaskCompletionSource<object>();
+            }
+
+            #endregion
+
+            #region Properties
+
+            public Task CompletionTask
+            {
+                get { return Tcs.Task; }
+            }
+
+            #endregion
+
+            #region Methods
+
+            public void Close()
+            {
+                if (Toast != null)
+                    Toast.Hide();
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         private const string Key = "#currentToast";
@@ -64,27 +108,26 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
 
         #region Implementation of IToastPresenter
 
-        public Task ShowAsync(object content, float duration, ToastPosition position = ToastPosition.Bottom,
+        public IToast ShowAsync(object content, float duration, ToastPosition position = ToastPosition.Bottom,
             IDataContext context = null)
         {
-            var tcs = new TaskCompletionSource<object>();
+            var toast = new ToastImpl();
             if (_threadManager.IsUiThread)
-                Show(content, duration, position, context, tcs);
+                Show(content, duration, position, context, toast);
             else
-                _threadManager.InvokeOnUiThreadAsync(() => Show(content, duration, position, context, tcs));
-            return tcs.Task;
+                _threadManager.InvokeOnUiThreadAsync(() => Show(content, duration, position, context, toast));
+            return toast;
         }
 
         #endregion
 
         #region Methods
 
-        private void Show(object content, float duration, ToastPosition position, IDataContext context,
-            TaskCompletionSource<object> tcs)
+        private void Show(object content, float duration, ToastPosition position, IDataContext context, ToastImpl toastImpl)
         {
             UIView owner = GetOwner() ?? UIApplication.SharedApplication.KeyWindow;
-            ToastView toast = CreateToast(content, owner, duration, position, context ?? DataContext.Empty, tcs);
-            ServiceProvider.AttachedValueProvider.AddOrUpdate(owner, Key, toast,
+            toastImpl.Toast = CreateToast(content, owner, duration, position, context ?? DataContext.Empty, toastImpl.Tcs);
+            ServiceProvider.AttachedValueProvider.AddOrUpdate(owner, Key, toastImpl.Toast,
                 (item, value, currentValue, state) =>
                 {
                     currentValue.Hide();
@@ -101,10 +144,34 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
             IDataContext context, TaskCompletionSource<object> tcs)
         {
             ToastView toastView = null;
-            var factory = Factory;
-            if (factory != null)
-                toastView = factory(content, owner, duration, position, context, tcs);
-            return toastView ?? new ToastView(content, owner, duration, position, tcs);
+#if !XAMARIN_FORMS
+            var window = owner as UIWindow;
+            if (window != null)
+            {
+                UIViewController controller = window.RootViewController;
+                var navigationController = controller as MvvmNavigationController;
+                if (navigationController != null)
+                    controller = navigationController.TopViewController;
+                if (controller != null)
+                {
+                    var selector = controller.GetBindingMemberValue(AttachedMembers.UIViewController.ToastTemplateSelector);
+                    if (selector != null)
+                        toastView = (ToastView)selector.SelectTemplate(content, owner);
+                }
+            }
+#endif
+            if (toastView == null)
+            {
+                var factory = Factory;
+                if (factory != null)
+                    toastView = factory(content, owner, duration, position, context, tcs);
+            }
+            if (toastView == null)
+                toastView = new ToastView(content, owner);
+            toastView.DisplayDuration = duration / 1000;
+            toastView.Position = position;
+            toastView.TaskCompletionSource = tcs;
+            return toastView;
         }
 
         #endregion
