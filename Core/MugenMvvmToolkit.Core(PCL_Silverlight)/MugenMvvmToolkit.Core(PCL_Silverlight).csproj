@@ -384,6 +384,9 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\ISuspendNotifications.cs">
       <Link>Interfaces\Models\ISuspendNotifications.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\IToast.cs">
+      <Link>Interfaces\Models\IToast.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\IViewMappingItem.cs">
       <Link>Interfaces\Models\IViewMappingItem.cs</Link>
     </Compile>
