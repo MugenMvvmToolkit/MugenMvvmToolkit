@@ -1,5 +1,7 @@
-﻿using MugenMvvmToolkit.Android.Binding;
+﻿using Android.Views;
+using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Android.Design
@@ -7,6 +9,30 @@ namespace MugenMvvmToolkit.Android.Design
     public static class AttachedMembersDesign
     {
         #region Nested types
+
+        public class Activity : AttachedMembers.Activity
+        {
+            #region Fields
+
+            public static readonly BindingMemberDescriptor<global::Android.App.Activity, View> SnackbarHolderView;
+            public static readonly BindingMemberDescriptor<global::Android.App.Activity, IDataTemplateSelector> SnackbarTemplateSelector;
+
+            #endregion
+
+            #region Constructors
+
+            static Activity()
+            {
+                SnackbarHolderView = new BindingMemberDescriptor<global::Android.App.Activity, View>("SnackbarHolderView");
+                SnackbarTemplateSelector = new BindingMemberDescriptor<global::Android.App.Activity, IDataTemplateSelector>("SnackbarTemplateSelector");
+            }
+
+            protected Activity()
+            {
+            }
+
+            #endregion
+        }
 
         public class NavigationView : AttachedMembers.ViewGroup
         {

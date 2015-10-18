@@ -6,12 +6,15 @@ using Android.Widget;
 using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Design.Infrastructure;
+using MugenMvvmToolkit.Android.Design.Infrastructure.Presenters;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Modules;
 using Object = Java.Lang.Object;
 
@@ -100,6 +103,17 @@ namespace MugenMvvmToolkit.Android.Design.Modules
                             layout.Error = args.NewValue;
                         }
                     }, getDefaultValue: (text, info) => text.Error));
+
+            //Activity
+            provider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersDesign.Activity.SnackbarHolderView));
+            provider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersDesign.Activity.SnackbarTemplateSelector));
+
+            if (IocContainer != null)
+            {
+                IToastPresenter toastPresenter;
+                IocContainer.TryGet(out toastPresenter);
+                IocContainer.BindToConstant<IToastPresenter>(new SnackbarToastPresenter(IocContainer.Get<IThreadManager>(), toastPresenter));
+            }
 
             return true;
         }
