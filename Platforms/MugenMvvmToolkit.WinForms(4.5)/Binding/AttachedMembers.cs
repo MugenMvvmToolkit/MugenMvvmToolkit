@@ -67,6 +67,28 @@ namespace MugenMvvmToolkit.WinForms.Binding
             #endregion
         }
 
+        public class Form : Object
+        {
+            #region Fields
+
+            public static readonly BindingMemberDescriptor<System.Windows.Forms.Form, IDataTemplateSelector> ToastTemplateSelector;
+
+            #endregion
+
+            #region Constructors
+
+            static Form()
+            {
+                ToastTemplateSelector = new BindingMemberDescriptor<System.Windows.Forms.Form, IDataTemplateSelector>("ToastTemplateSelector");
+            }
+
+            protected Form()
+            {
+            }
+
+            #endregion
+        }
+
         public class Control : Object
         {
             #region Fields

@@ -74,6 +74,9 @@ namespace MugenMvvmToolkit.WinForms.Binding.Modules
             memberProvider.Register(itemTemplateMember);
             memberProvider.Register(typeof(object), AttachedMemberConstants.ItemTemplate, itemTemplateMember, true);
 
+            //Form
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.Form.ToastTemplateSelector));
+
             //Control
             var sizeChanged = memberProvider.GetBindingMember(typeof(Control), "SizeChanged", true, false);
             if (sizeChanged != null)

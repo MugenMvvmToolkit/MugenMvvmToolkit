@@ -40,18 +40,18 @@ namespace MugenMvvmToolkit.WinForms.Controls
 
         #region Constructors
 
-        public ToastMessageControl([NotNull] string message, float duration, Color backgroundColor,
-            Color foregroundColor, Color? glowColor, [NotNull] TaskCompletionSource<object> tcs)
+        protected ToastMessageControl()
+        {
+        }
+
+        public ToastMessageControl([NotNull] string message, Color backgroundColor, Color foregroundColor, Color? glowColor)
         {
             Should.NotBeNull(message, "message");
-            Should.NotBeNull(tcs, "tcs");
             _message = message;
             _backgroundColor = backgroundColor;
             _foregroundColor = foregroundColor;
             _glowColor = glowColor;
             _isTransparent = false;
-            Duration = duration;
-            TaskCompletionSource = tcs;
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             SetStyle(ControlStyles.UserPaint, true);
@@ -78,7 +78,7 @@ namespace MugenMvvmToolkit.WinForms.Controls
 
         public float Duration { get; set; }
 
-        public TaskCompletionSource<object> TaskCompletionSource { get; private set; }
+        public TaskCompletionSource<object> TaskCompletionSource { get; set; }
 
         #endregion
 
