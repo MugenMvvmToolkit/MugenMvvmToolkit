@@ -1214,8 +1214,7 @@ namespace MugenMvvmToolkit
             Sleep((int)timeout.TotalMilliseconds);
         }
 
-        [SuppressTaskBusyHandler]
-        public static Task ShowAsync(this IToastPresenter toastPresenter, object content, ToastDuration duration, ToastPosition position = ToastPosition.Bottom, IDataContext context = null)
+        public static IToast ShowAsync(this IToastPresenter toastPresenter, object content, ToastDuration duration, ToastPosition position = ToastPosition.Bottom, IDataContext context = null)
         {
             float floatDuration;
             switch (duration)

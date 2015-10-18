@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="IToastPresenter.cs">
+// <copyright file="IToast.cs">
 // Copyright (c) 2012-2015 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -16,13 +16,14 @@
 
 #endregion
 
-using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Models;
+using System.Threading.Tasks;
 
-namespace MugenMvvmToolkit.Interfaces.Presenters
+namespace MugenMvvmToolkit.Interfaces.Models
 {
-    public interface IToastPresenter
+    public interface IToast
     {
-        IToast ShowAsync(object content, float duration, ToastPosition position = ToastPosition.Bottom, IDataContext context = null);
+        Task CompletionTask { get; }
+
+        void Close();
     }
 }
