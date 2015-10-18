@@ -475,7 +475,7 @@ namespace MugenMvvmToolkit.Collections
             ExecutionMode = ApplicationSettings.SynchronizedCollectionExecutionMode;
             NotificationMode = ApplicationSettings.NotificationCollectionMode;
             _notificationCount = CountInternal;
-            BatchSize = 50;
+            BatchSize = ApplicationSettings.NotificationCollectionBatchSize;
         }
 
         protected virtual void CopyToInternal(Array array, int index)

@@ -74,6 +74,8 @@ namespace MugenMvvmToolkit
 
         public static CommandExecutionMode CommandExecutionMode { get; set; }
 
+        public static int NotificationCollectionBatchSize { get; set; }
+
 #if !NONOTIFYDATAERROR
         public static string GetAllErrorsIndexerProperty { get; set; }
 #endif
@@ -97,6 +99,7 @@ namespace MugenMvvmToolkit
             CommandCanExecuteMode = ExecutionMode.AsynchronousOnUiThread;
             CommandExecutionMode = CommandExecutionMode.CanExecuteBeforeExecute;
             IocContainerCreationMode = IocContainerCreationMode.Mixed;
+            NotificationCollectionBatchSize = 100;
         }
 
         #endregion
