@@ -67,10 +67,32 @@ namespace MugenMvvmToolkit.Android.Binding
                 Parent = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.Parent);
                 CommandParameter = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.CommandParameter);
                 Errors = new BindingMemberDescriptor<object, IEnumerable<object>>(AttachedMemberConstants.ErrorsPropertyMember);
-                StableIdProvider = new BindingMemberDescriptor<object, IStableIdProvider>("StableIdProvider");                
+                StableIdProvider = new BindingMemberDescriptor<object, IStableIdProvider>("StableIdProvider");
             }
 
             protected Object()
+            {
+            }
+
+            #endregion
+        }
+
+        public class Activity : AttachedMembers.Object
+        {
+            #region Fields
+
+            public static readonly BindingMemberDescriptor<global::Android.App.Activity, IDataTemplateSelector> ToastTemplateSelector;
+
+            #endregion
+
+            #region Constructors
+
+            static Activity()
+            {
+                ToastTemplateSelector = new BindingMemberDescriptor<global::Android.App.Activity, IDataTemplateSelector>("ToastTemplateSelector");
+            }
+
+            protected Activity()
             {
             }
 
