@@ -24,7 +24,6 @@ using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
@@ -56,7 +55,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         protected override void ShowView(IWindowView view, bool isDialog, IDataContext context)
         {
-            var navigationProvider = ViewModel.GetIocContainer(true).Get<INavigationProvider>();
             view.Cancelable = !isDialog;
             FragmentManager fragmentManager = null;
             var parentViewModel = ViewModel.GetParentViewModel();
@@ -68,8 +66,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             }
             if (fragmentManager == null)
             {
-                Should.BeOfType<Activity>(navigationProvider.CurrentContent, "CurrentContent");
-                var activity = (Activity)navigationProvider.CurrentContent;
+                var activity = PlatformExtensions.CurrentActivity;
+                Should.NotBeNull(activity, "CurrentActivity");
                 fragmentManager = activity.GetFragmentManager();
             }
             view.Show(fragmentManager, Guid.NewGuid().ToString("n"));

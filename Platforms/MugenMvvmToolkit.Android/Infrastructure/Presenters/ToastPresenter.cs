@@ -31,10 +31,8 @@ using MugenMvvmToolkit.Models;
 #if XAMARIN_FORMS && ANDROID
 namespace MugenMvvmToolkit.Xamarin.Forms.Android.Infrastructure.Presenters
 #elif ANDROID
-using Android.App;
-using MugenMvvmToolkit.Android.Interfaces.Views;
+using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Interfaces.Navigation;
 
 namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
 #endif
@@ -44,34 +42,44 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
     {
         #region Nested types
 
-        private sealed class ToastWrapper
+        protected sealed class ToastWrapper : IToast
         {
             #region Fields
 
+            private readonly TaskCompletionSource<object> _tcs;
+            private Toast _toast;
             private const int TimerInterval = 1000;
-            private readonly TaskCompletionSource<object> _task;
             private readonly IThreadManager _threadManager;
             private Timer _delayTimer;
             private Timer _showTimer;
-            private Toast _toast;
 
             #endregion
 
             #region Constructors
 
-            public ToastWrapper(Toast toast, TaskCompletionSource<object> task, IThreadManager threadManager)
+            public ToastWrapper(TaskCompletionSource<object> task, IThreadManager threadManager)
             {
-                _toast = toast;
-                _task = task;
+                _tcs = task;
                 _threadManager = threadManager;
+            }
+
+            #endregion
+
+            #region Properties
+
+            public Task CompletionTask
+            {
+                get { return _tcs.Task; }
             }
 
             #endregion
 
             #region Methods
 
-            public void Show(float duration, ToastPosition position)
+            public void Show(Toast toast, float duration, ToastPosition position)
             {
+                Should.NotBeNull(toast, "toast");
+                _toast = toast;
                 switch (position)
                 {
                     case ToastPosition.Bottom:
@@ -93,12 +101,14 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
                     _showTimer = new Timer(ShowTimerCallback, this, TimerInterval, TimerInterval);
             }
 
-            public void Complete()
+            public void Close()
             {
                 if (_delayTimer != null)
                     _delayTimer.Dispose();
                 if (_showTimer != null)
                     _showTimer.Dispose();
+                if (_toast == null)
+                    return;
                 _threadManager.Invoke(ExecutionMode.SynchronousOnUiThread, this, this, (w, wrapper) =>
                 {
                     Toast toast = w._toast;
@@ -106,9 +116,14 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
                     {
                         w._toast = null;
                         toast.Cancel();
-                        w._task.TrySetResult(null);
+                        w._tcs.TrySetResult(null);
                     }
                 }, OperationPriority.High);
+            }
+
+            public void Cancel()
+            {
+                _tcs.SetResult(null);
             }
 
             private static void ShowTimerCallback(object state)
@@ -117,7 +132,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
                 closure._threadManager.Invoke(ExecutionMode.SynchronousOnUiThread, closure, closure,
                     (w, wrapper) =>
                     {
-                        if (!w._task.Task.IsCompleted)
+                        if (!w._tcs.Task.IsCompleted)
                         {
                             Toast toast = w._toast;
                             if (toast != null)
@@ -128,7 +143,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
 
             private static void DelayTimerCallback(object state)
             {
-                ((ToastWrapper)state).Complete();
+                ((ToastWrapper)state).Close();
             }
 
             #endregion
@@ -139,94 +154,75 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
         #region Fields
 
         private const string ToastWrapperMember = "!@!ToastWrap@$2";
-#if !XAMARIN_FORMS
-        private const string DisposedEventHandler = "3w4toasthandler3w5rews";
-        private static readonly EventHandler<Activity, EventArgs> ActivityOnDestroyedDelegate = ActivityOnDestroyed;
-        private readonly INavigationProvider _navigationProvider;
-#endif
         private readonly IThreadManager _threadManager;
 
         #endregion
 
         #region Constructors
 
-#if XAMARIN_FORMS
         public ToastPresenter([NotNull] IThreadManager threadManager)
         {
             Should.NotBeNull(threadManager, "threadManager");
             _threadManager = threadManager;
         }
-#else
-        public ToastPresenter([NotNull] INavigationProvider navigationProvider,
-            [NotNull] IThreadManager threadManager)
-        {
-            Should.NotBeNull(navigationProvider, "navigationProvider");
-            Should.NotBeNull(threadManager, "threadManager");
-            _navigationProvider = navigationProvider;
-            _threadManager = threadManager;
-        }
-#endif
+
         #endregion
 
         #region Implementation of IToastPresenter
 
-        public Task ShowAsync(object content, float duration, ToastPosition position = ToastPosition.Bottom,
+        public IToast ShowAsync(object content, float duration, ToastPosition position = ToastPosition.Bottom,
             IDataContext context = null)
         {
-            var tcs = new TaskCompletionSource<object>();
+            var toast = new ToastWrapper(new TaskCompletionSource<object>(), _threadManager);
             if (_threadManager.IsUiThread)
-                ShowInternal(content, duration, position, context, tcs);
+                ShowInternal(content, duration, position, context, toast);
             else
-                _threadManager.InvokeOnUiThreadAsync(() => ShowInternal(content, duration, position, context, tcs),
+                _threadManager.InvokeOnUiThreadAsync(() => ShowInternal(content, duration, position, context, toast),
                     OperationPriority.High);
-            return tcs.Task;
+            return toast;
         }
 
         #endregion
 
         #region Methods
 
-        protected virtual void ShowInternal(object content, float duration, ToastPosition position, IDataContext context,
-            TaskCompletionSource<object> tcs)
+        protected virtual void ShowInternal(object content, float duration, ToastPosition position, IDataContext context, ToastWrapper wrapper)
         {
 #if XAMARIN_FORMS
             var ctx = global::Xamarin.Forms.Forms.Context;
 #else
-            var ctx = _navigationProvider.CurrentContent as Context;
+            var ctx = PlatformExtensions.CurrentActivity;
 #endif
             if (ctx == null)
             {
-                tcs.SetResult(null);
+                wrapper.Cancel();
                 return;
             }
-            View view = GetView(content, ctx);
-            Toast toast = view == null
-                ? Toast.MakeText(ctx, content == null ? "(null)" : content.ToString(), ToastLength.Long)
-                : new Toast(ctx) { View = view };
+            Toast toast = null;
+#if !XAMARIN_FORMS
+            var selector = ctx.GetBindingMemberValue(AttachedMembers.Activity.ToastTemplateSelector);
+            if (selector != null)
+                toast = (Toast)selector.SelectTemplate(content, ctx);
+#endif
+            if (toast == null)
+            {
+                View view = GetView(content, ctx);
+                toast = view == null
+                    ? Toast.MakeText(ctx, content == null ? "(null)" : content.ToString(), ToastLength.Long)
+                    : new Toast(ctx) { View = view };
+            }
 
-            var wrapper = new ToastWrapper(toast, tcs, _threadManager);
             ServiceProvider
                 .AttachedValueProvider
                 .AddOrUpdate(ctx, ToastWrapperMember, (c, o) =>
                 {
-                    wrapper.Show(duration, position);
+                    wrapper.Show(toast, duration, position);
                     return wrapper;
                 }, (item, value, oldValue, state) =>
                 {
-                    oldValue.Complete();
+                    oldValue.Close();
                     return value(item, state);
                 });
-
-#if !XAMARIN_FORMS
-            var activityView = ctx as IActivityView;
-            if (activityView == null)
-                return;
-            ServiceProvider.AttachedValueProvider.GetOrAdd(activityView, DisposedEventHandler, (v, o) =>
-            {
-                v.Mediator.Destroyed += ActivityOnDestroyedDelegate;
-                return DisposedEventHandler;
-            }, null);
-#endif
         }
 
         protected virtual View GetView(object content, Context ctx)
@@ -243,15 +239,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
 #endif
         }
 
-#if !XAMARIN_FORMS
-        private static void ActivityOnDestroyed(Activity sender, EventArgs eventArgs)
-        {
-            ((IActivityView)sender).Mediator.Destroyed -= ActivityOnDestroyedDelegate;
-            var wrapper = ServiceProvider.AttachedValueProvider.GetValue<ToastWrapper>(sender, ToastWrapperMember, false);
-            if (wrapper != null)
-                wrapper.Complete();
-        }
-#endif
         #endregion
     }
 }

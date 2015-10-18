@@ -120,13 +120,17 @@ namespace MugenMvvmToolkit.Android.Views
 
         public void OnAttached(Activity activity)
         {
+            var actionBar = activity.GetActionBar();
+            if (actionBar == null)
+            {
+                Tracer.Error("Cannot apply ActionBarView the ActionBar is null, activity {0}", activity.GetType().FullName);
+                return;
+            }
+
             var activityView = activity as IActivityView;
-            if (activityView == null)
-                Tracer.Warn("The IActivityView is null {0}", this);
-            else
+            if (activityView != null)
                 activityView.Mediator.Destroyed += DestroyedHandler;
 
-            var actionBar = activity.GetActionBar();
             if (_resourceId != int.MinValue)
             {
                 if (_tabContentId != int.MinValue)
