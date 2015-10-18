@@ -72,6 +72,48 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
     {
         #region Nested types
 
+        private sealed class ToastImpl : IToast
+        {
+            #region Fields
+
+            public readonly TaskCompletionSource<object> Tcs;
+            public Action CloseAction;
+
+            #endregion
+
+            #region Constructors
+
+            public ToastImpl()
+            {
+                Tcs = new TaskCompletionSource<object>();
+            }
+
+            #endregion
+
+            #region Properties
+
+            public Task CompletionTask
+            {
+                get { return Tcs.Task; }
+            }
+
+            #endregion
+
+
+            #region Methods
+
+            public void Close()
+            {
+                var closeAction = CloseAction;
+                if (closeAction == null)
+                    return;
+                CloseAction = null;
+                ServiceProvider.ThreadManager.InvokeOnUiThreadAsync(closeAction);
+            }
+
+            #endregion
+        }
+
         private sealed class EventClosure
         {
             #region Fields
@@ -85,8 +127,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
 #endif
             public DispatcherTimer Timer;
             public TaskCompletionSource<object> TaskCompletionSource;
-            public float Duration;
-            public List<EventClosure> Closures;
 
             #endregion
 
@@ -137,7 +177,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
                     Timer.Stop();
                 if (TaskCompletionSource != null)
                     TaskCompletionSource.TrySetResult(null);
-                Closures.Remove(this);
             }
 
             #endregion
@@ -152,6 +191,9 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
         private static readonly Action<Popup> RepositionMethod;
 #endif
         private const string PopupAttachedValuePath = "#%popups3w5";
+
+        public static readonly DependencyProperty ToastTemplateSelectorProperty = DependencyProperty.RegisterAttached("ToastTemplateSelector",
+            typeof(Func<object, UIElement, Popup>), typeof(ToastPresenter), new PropertyMetadata(null));
 
         #endregion
 
@@ -196,21 +238,21 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
 
         #region Implementation of IToastPresenter
 
-        public Task ShowAsync(object content, float duration, ToastPosition position = ToastPosition.Bottom, IDataContext context = null)
+        public IToast ShowAsync(object content, float duration, ToastPosition position = ToastPosition.Bottom, IDataContext context = null)
         {
-            var tcs = new TaskCompletionSource<object>();
+            var toastImpl = new ToastImpl();
             if (_threadManager.IsUiThread)
-                ShowInternal(content, duration, position, context, tcs);
+                toastImpl.CloseAction = ShowInternal(content, duration, position, context, toastImpl.Tcs);
             else
-                _threadManager.InvokeOnUiThreadAsync(() => ShowInternal(content, duration, position, context, tcs));
-            return tcs.Task;
+                _threadManager.InvokeOnUiThreadAsync(() => toastImpl.CloseAction = ShowInternal(content, duration, position, context, toastImpl.Tcs));
+            return toastImpl;
         }
 
         #endregion
 
         #region Methods
 
-        protected virtual void ShowInternal(object content, float duration, ToastPosition position, IDataContext context, TaskCompletionSource<object> tcs)
+        protected virtual Action ShowInternal(object content, float duration, ToastPosition position, IDataContext context, TaskCompletionSource<object> tcs)
         {
 #if WPF
             var placementTarget = Application.Current.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive);
@@ -220,21 +262,8 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
             var placementTarget = Window.Current;
 #endif
             if (placementTarget == null)
-                return;
-            var popups = ServiceProvider
-                .AttachedValueProvider
-                .GetOrAdd(placementTarget, PopupAttachedValuePath, (window, o) => new List<EventClosure>(), null);
-            for (int index = 0; index < popups.Count; index++)
-            {
-                var eventClosure = popups[index];
-                if (duration >= eventClosure.Duration)
-                {
-                    eventClosure.Clear();
-                    index--;
-                }
-            }
-
-            var popup = GetToastPopup(GetToastContentWrapper(GetToastContent(content)));
+                return null;
+            var popup = TryGetPopupFromTemplate(content, placementTarget) ?? GetToastPopup(GetToastContentWrapper(GetToastContent(content)));
 #if WPF
             popup.PlacementTarget = placementTarget;
 #endif
@@ -242,11 +271,14 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
             popup.IsOpen = true;
             var closure = new EventClosure(popup, position, placementTarget)
             {
-                TaskCompletionSource = tcs,
-                Duration = duration,
-                Closures = popups
+                TaskCompletionSource = tcs
             };
-            popups.Add(closure);
+            ServiceProvider.AttachedValueProvider.AddOrUpdate(placementTarget, PopupAttachedValuePath, (window, o) => (EventClosure)o,
+                (item, value, currentValue, state) =>
+                {
+                    currentValue.Clear();
+                    return value(item, state);
+                }, closure);
 #if WPF
             placementTarget.LocationChanged += closure.Handle;
 #elif WINDOWS_PHONE
@@ -263,6 +295,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
             timer.Tick += (sender, args) => TimerCallback(sender, closure);
             closure.Timer = timer;
             BeginOpenAnimation(popup, timer.Start);
+            return closure.Clear;
         }
 
         protected virtual Popup GetToastPopup(FrameworkElement content)
@@ -477,6 +510,33 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
 #endif
         }
 
+        private static Popup TryGetPopupFromTemplate(object content, object parent)
+        {
+            UIElement element;
+#if WPF || SILVERLIGHT
+            element = (UIElement) parent;
+#elif WINDOWS_PHONE
+            var frame = parent as PhoneApplicationFrame;
+            if (frame == null)
+                element = (UIElement)parent;
+            else
+                element = frame.Content as UIElement;
+#elif WINDOWSCOMMON
+            var window = ((Window)parent);
+            var frame = window.Content as Frame;
+            if (frame == null)
+                element = window.Content;
+            else
+                element = frame.Content as UIElement;
+#endif
+            if (element == null)
+                return null;
+            var templateSelector = GetToastTemplateSelector(element);
+            if (templateSelector == null)
+                return null;
+            return templateSelector(content, element);
+        }
+
         private void TimerCallback(object sender, EventClosure closure)
         {
             ((DispatcherTimer)sender).Stop();
@@ -602,6 +662,16 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
             };
         }
 #endif
+        public static void SetToastTemplateSelector(DependencyObject element, Func<object, UIElement, Popup> value)
+        {
+            element.SetValue(ToastTemplateSelectorProperty, value);
+        }
+
+        public static Func<object, UIElement, Popup> GetToastTemplateSelector(DependencyObject element)
+        {
+            return (Func<object, UIElement, Popup>)element.GetValue(ToastTemplateSelectorProperty);
+        }
+
         #endregion
     }
 }
