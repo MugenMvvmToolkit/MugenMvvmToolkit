@@ -411,10 +411,10 @@ namespace MugenMvvmToolkit.Binding.Parse
             return ParseBinaryExpression();
         }
 
-        protected virtual IExpressionNode ParseBinaryExpression(IExpressionNode expr = null)
+        protected virtual IExpressionNode ParseBinaryExpression(IExpressionNode left = null)
         {
-            if (expr == null)
-                expr = ParseUnary();
+            if (left == null)
+                left = ParseUnary();
             if (IsBinaryToken())
             {
                 TokenType token = Tokenizer.Token;
@@ -422,7 +422,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                     token = BinaryOperationAliases[Tokenizer.Value];
                 NextToken(true);
                 IExpressionNode right = ParseUnary();
-                expr = ParseBinaryExpression(expr, right, token, false);
+                left = ParseBinaryExpression(left, right, token, false);
             }
             if (Tokenizer.Token == TokenType.Question)
             {
@@ -431,15 +431,15 @@ namespace MugenMvvmToolkit.Binding.Parse
                 ValidateToken(TokenType.Colon);
                 NextToken(true);
                 IExpressionNode expr2 = ParseExpression();
-                expr = new ConditionExpressionNode(expr, expr1, expr2);
+                left = new ConditionExpressionNode(left, expr1, expr2);
             }
             if (Tokenizer.Token == TokenType.DoubleQuestion)
             {
                 NextToken(true);
-                IExpressionNode expr1 = ParseExpression();
-                expr = new BinaryExpressionNode(expr, expr1, TokenType.DoubleQuestion);
+                IExpressionNode right = ParseExpression();
+                left = new BinaryExpressionNode(left, right, TokenType.DoubleQuestion);
             }
-            return expr;
+            return left;
         }
 
         private IExpressionNode ParseBinaryExpression(IExpressionNode left, IExpressionNode right, TokenType token, bool isInternalCall)

@@ -501,7 +501,6 @@ namespace MugenMvvmToolkit.Android
             return null;
         }
 
-        [CanBeNull]
         public static Activity GetActivity([CanBeNull] this Context context)
         {
             while (true)
@@ -647,7 +646,8 @@ namespace MugenMvvmToolkit.Android
                 throw new InvalidOperationException("Operation is not valid while ItemsSource is in use.");
         }
 
-        internal static bool IsAlive([CanBeNull] this IJavaObject javaObj)
+        [AssertionMethod]
+        internal static bool IsAlive([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] this IJavaObject javaObj)
         {
             return javaObj != null && javaObj.Handle != IntPtr.Zero;
         }

@@ -146,7 +146,8 @@ namespace MugenMvvmToolkit.iOS
             }
         }
 
-        internal static bool IsAlive([CanBeNull] this INativeObject item)
+        [AssertionMethod]
+        internal static bool IsAlive([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] this INativeObject item)
         {
             return item != null && item.Handle != IntPtr.Zero;
         }

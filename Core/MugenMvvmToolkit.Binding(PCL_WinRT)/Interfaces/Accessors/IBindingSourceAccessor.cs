@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Interfaces.Models;

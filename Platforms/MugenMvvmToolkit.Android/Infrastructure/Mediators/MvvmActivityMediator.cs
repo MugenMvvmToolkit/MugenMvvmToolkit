@@ -92,6 +92,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         private bool _isBackNavigation;
         private View _view;
         private bool _ignoreFinishNavigation;
+        private bool _isStarted;
         private IDictionary<string, object> _metadata;
 
         #endregion
@@ -293,6 +294,11 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         public virtual void OnStart(Action baseOnStart)
         {
+            if (!_isStarted)
+            {
+                PlatformExtensions.NotifyActivityAttached(Target, _view);
+                _isStarted = true;
+            }
             baseOnStart();
 
             var service = Get<INavigationService>();
@@ -317,7 +323,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             Target.SetContentView(_view);
             _view = Target.FindViewById(global::Android.Resource.Id.Content) ?? _view;
             _view.RootView.ListenParentChange();
-            PlatformExtensions.NotifyActivityAttached(Target, _view);
         }
 
         public virtual MenuInflater GetMenuInflater(MenuInflater baseMenuInflater)
