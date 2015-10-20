@@ -423,7 +423,7 @@ namespace MugenMvvmToolkit.Collections
             }
         }
 
-        public void AddRange(IEnumerable collection)
+        void INotifiableCollection.AddRange(IEnumerable collection)
         {
             Should.NotBeNull(collection, "collection");
             using (SuspendNotifications())
@@ -438,20 +438,18 @@ namespace MugenMvvmToolkit.Collections
             Should.NotBeNull(collection, "collection");
             using (SuspendNotifications())
             {
-                var list = collection.ToList();
-                for (int index = 0; index < list.Count; index++)
-                    Remove(list[index]);
+                foreach (var item in collection)
+                    Remove(item);
             }
         }
 
-        public void RemoveRange(IEnumerable collection)
+        void INotifiableCollection.RemoveRange(IEnumerable collection)
         {
             Should.NotBeNull(collection, "collection");
             using (SuspendNotifications())
             {
-                var list = collection.Cast<T>().ToList();
-                for (int index = 0; index < list.Count; index++)
-                    Remove(list[index]);
+                foreach (T item in collection)
+                    Remove(item);
             }
         }
 
