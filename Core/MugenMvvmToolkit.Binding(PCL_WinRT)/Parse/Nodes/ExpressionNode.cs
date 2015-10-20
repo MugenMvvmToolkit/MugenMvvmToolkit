@@ -51,14 +51,24 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         public IExpressionNode Accept(IExpressionVisitor visitor)
         {
             Should.NotBeNull(visitor, "visitor");
-            IExpressionNode result = visitor.Visit(this);
-            if (result != this)
-                return result;
+            var isPostOrder = visitor.IsPostOrder;
+            if (!isPostOrder)
+            {
+                IExpressionNode result = visitor.Visit(this);
+                if (result != this)
+                    return result;
+            }
             try
             {
                 if (Interlocked.Exchange(ref _state, 1) == 1)
                     return this;
                 AcceptInternal(visitor);
+                if (isPostOrder)
+                {
+                    IExpressionNode result = visitor.Visit(this);
+                    if (result != this)
+                        return result;
+                }
                 return this;
             }
             finally
@@ -84,7 +94,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
             where T : IExpressionNode
         {
             IExpressionNode result = node.Accept(visitor);
-            if (result == null)
+            if (notNull && result == null)
                 throw BindingExceptionManager.ExpressionNodeCannotBeNull(GetType());
             return (T)result;
         }

@@ -76,6 +76,11 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         public IDataContext Context { get; set; }
 
+        public bool IsPostOrder
+        {
+            get { return false; }
+        }
+
         #endregion
 
         #region Implementation of IExpressionVisitor

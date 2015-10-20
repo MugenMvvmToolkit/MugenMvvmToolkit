@@ -55,6 +55,11 @@ namespace MugenMvvmToolkit.WinForms.Binding.Parse
             get { return _isInvlalid; }
         }
 
+        public bool IsPostOrder
+        {
+            get { return false; }
+        }
+
         #endregion
 
         #region Events

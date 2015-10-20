@@ -69,6 +69,15 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #endregion
 
+        #region Properties
+
+        public bool IsPostOrder
+        {
+            get { return false; }
+        }
+
+        #endregion
+
         #region Implementation of interfaces
 
         public void Handle(ref string bindingExpression, IDataContext context)
@@ -108,7 +117,6 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             if (expression == null)
                 return null;
-            //Updating relative sources.
             expression = expression.Accept(MacrosExpressionVisitor.Instance).Accept(NullConditionalOperatorVisitor.Instance);
             if (!isPrimaryExpression)
                 return null;

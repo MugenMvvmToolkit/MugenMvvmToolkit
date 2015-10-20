@@ -41,6 +41,15 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #endregion
 
+        #region Properties
+
+        public bool IsPostOrder
+        {
+            get { return false; }
+        }
+
+        #endregion
+
         #region Implementation of IExpressionVisitor
 
         IExpressionNode IExpressionVisitor.Visit(IExpressionNode node)

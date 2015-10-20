@@ -53,6 +53,11 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Implementation of IExpressionVisitor
 
+        public bool IsPostOrder
+        {
+            get { return false; }
+        }
+
         public IExpressionNode Visit(IExpressionNode node)
         {
             List<IExpressionNode> chain = null;

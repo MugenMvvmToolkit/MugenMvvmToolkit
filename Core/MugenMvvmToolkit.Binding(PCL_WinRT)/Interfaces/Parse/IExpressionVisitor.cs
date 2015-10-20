@@ -23,6 +23,8 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Parse
 {
     public interface IExpressionVisitor
     {
+        bool IsPostOrder { get; }
+
         IExpressionNode Visit([NotNull] IExpressionNode node);
     }
 }

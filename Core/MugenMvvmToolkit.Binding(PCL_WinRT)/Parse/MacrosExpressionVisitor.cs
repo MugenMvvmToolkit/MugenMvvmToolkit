@@ -130,6 +130,10 @@ namespace MugenMvvmToolkit.Binding.Parse
             }
         }
 
+        public bool IsPostOrder
+        {
+            get { return false; }
+        }
 
         #endregion
 
