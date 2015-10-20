@@ -16,6 +16,9 @@
 
 #endregion
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -25,8 +28,8 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.WinForms.Collections
 {
-    [DebuggerDisplay("Count = {SourceCollection.Count}, NotificationCount = {SourceCollection.NotificationCount}")]
-    public class BindingListWrapper<T> : BindingList<T>, IBindingList, INotifyCollectionChanging
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    public class BindingListWrapper<T> : BindingList<T>, IBindingList, INotifiableCollection<T>
     {
         #region Fields
 
@@ -46,9 +49,26 @@ namespace MugenMvvmToolkit.WinForms.Collections
 
         #region Properties
 
-        public SynchronizedNotifiableCollection<T> SourceCollection
+        public INotifiableCollection<T> SourceCollection
         {
-            get { return (SynchronizedNotifiableCollection<T>)Items; }
+            get { return (INotifiableCollection<T>)Items; }
+        }
+
+        public bool IsNotificationsSuspended
+        {
+            get { return SourceCollection.IsNotificationsSuspended; }
+        }
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                int c = 0;
+                var collection = SourceCollection as SynchronizedNotifiableCollection<T>;
+                if (collection != null)
+                    c = collection.NotificationCount;
+                return string.Format("Count = {0}, NotificationCount = {1}", SourceCollection.Count, c);
+            }
         }
 
         #endregion
@@ -88,9 +108,62 @@ namespace MugenMvvmToolkit.WinForms.Collections
             }
         }
 
+        #region Overrides of BindingList<T>
+
+        protected override void OnListChanged(ListChangedEventArgs e)
+        {
+            if (_collectionUpdating || e.ListChangedType == ListChangedType.PropertyDescriptorAdded ||
+                e.ListChangedType == ListChangedType.PropertyDescriptorChanged ||
+                e.ListChangedType == ListChangedType.PropertyDescriptorDeleted ||
+                (e.ListChangedType == ListChangedType.ItemChanged && e.PropertyDescriptor != null))
+                base.OnListChanged(e);
+        }
+
         #endregion
 
-        #region Implementation of INotifyCollectionChanging
+        #endregion
+
+        #region Implementation of interfaces
+
+        public IDisposable SuspendNotifications()
+        {
+            return SourceCollection.SuspendNotifications();
+        }
+
+        public void RaiseReset()
+        {
+            SourceCollection.RaiseReset();
+        }
+
+        public void AddRange(IEnumerable collection)
+        {
+            ((INotifiableCollection)SourceCollection).AddRange(collection);
+        }
+
+        public void RemoveRange(IEnumerable collection)
+        {
+            ((INotifiableCollection)SourceCollection).RemoveRange(collection);
+        }
+
+        public void AddRange(IEnumerable<T> collection)
+        {
+            SourceCollection.AddRange(collection);
+        }
+
+        public void RemoveRange(IEnumerable<T> collection)
+        {
+            SourceCollection.RemoveRange(collection);
+        }
+
+        public void Update(IEnumerable<T> items)
+        {
+            SourceCollection.Update(items);
+        }
+
+        public bool Replace(T oldValue, T newValue)
+        {
+            return SourceCollection.Replace(oldValue, newValue);
+        }
 
         public event NotifyCollectionChangedEventHandler CollectionChanged
         {
@@ -108,19 +181,6 @@ namespace MugenMvvmToolkit.WinForms.Collections
         {
             add { SourceCollection.CollectionChanging += value; }
             remove { SourceCollection.CollectionChanging -= value; }
-        }
-
-        #endregion
-
-        #region Overrides of BindingList<T>
-
-        protected override void OnListChanged(ListChangedEventArgs e)
-        {
-            if (_collectionUpdating || e.ListChangedType == ListChangedType.PropertyDescriptorAdded ||
-                e.ListChangedType == ListChangedType.PropertyDescriptorChanged ||
-                e.ListChangedType == ListChangedType.PropertyDescriptorDeleted ||
-                (e.ListChangedType == ListChangedType.ItemChanged && e.PropertyDescriptor != null))
-                base.OnListChanged(e);
         }
 
         #endregion
