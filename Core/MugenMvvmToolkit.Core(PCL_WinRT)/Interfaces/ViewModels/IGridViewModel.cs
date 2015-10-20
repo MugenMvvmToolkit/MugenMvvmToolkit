@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
         IList OriginalItemsSource { get; }
 
         [NotNull]
-        IEnumerable ItemsSource { get; }
+        INotifiableCollection ItemsSource { get; }
 
         object SelectedItem { get; set; }
 
@@ -58,7 +58,7 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
         new IList<T> OriginalItemsSource { get; }
 
         [NotNull]
-        new IList<T> ItemsSource { get; }
+        new INotifiableCollection<T> ItemsSource { get; }
 
         new T SelectedItem { get; set; }
 

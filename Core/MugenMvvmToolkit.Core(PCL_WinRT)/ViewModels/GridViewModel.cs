@@ -39,7 +39,7 @@ namespace MugenMvvmToolkit.ViewModels
         private readonly PropertyChangedEventHandler _weakPropertyHandler;
 
         private FilterDelegate<T> _filter;
-        private IList<T> _itemsSource;
+        private INotifiableCollection<T> _itemsSource;
         private IList<T> _originalData;
         private FilterableNotifiableCollection<T> _filterableItemsSource;
         private T _selectedItem;
@@ -83,9 +83,9 @@ namespace MugenMvvmToolkit.ViewModels
             get { return (IList)OriginalItemsSource; }
         }
 
-        IEnumerable IGridViewModel.ItemsSource
+        INotifiableCollection IGridViewModel.ItemsSource
         {
-            get { return ItemsSource; }
+            get { return (INotifiableCollection)ItemsSource; }
         }
 
         object IGridViewModel.SelectedItem
@@ -121,7 +121,7 @@ namespace MugenMvvmToolkit.ViewModels
             get { return FilterableItemsSource.SourceCollection; }
         }
 
-        public virtual IList<T> ItemsSource
+        public virtual INotifiableCollection<T> ItemsSource
         {
             get { return _itemsSource; }
         }
@@ -195,7 +195,10 @@ namespace MugenMvvmToolkit.ViewModels
                 originalItemsSource.CollectionChanged += RaiseCollectionChanged;
 
                 _originalData = originalItemsSource;
-                _itemsSource = ServiceProvider.TryDecorate(FilterableItemsSource);
+                var list = ServiceProvider.TryDecorate(FilterableItemsSource);
+                Should.BeOfType<INotifiableCollection<T>>(list, "DecoratedItemsSource");
+                Should.BeOfType<INotifiableCollection>(list, "DecoratedItemsSource");
+                _itemsSource = (INotifiableCollection<T>)list;
             }
             UpdateFilter();
             OnPropertyChanged("ItemsSource");
