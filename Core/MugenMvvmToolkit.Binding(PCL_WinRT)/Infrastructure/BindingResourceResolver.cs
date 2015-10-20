@@ -150,6 +150,45 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         }
 
+        private sealed class ConstResourceObject : ISourceValue
+        {
+            #region Fields
+
+            private readonly WeakReference _reference;
+
+            #endregion
+
+            #region Constructors
+
+            public ConstResourceObject(object value)
+            {
+                _reference = value as WeakReference ?? ToolkitExtensions.GetWeakReference(value);
+            }
+
+            #endregion
+
+            #region Implementation of ISourceValue
+
+            public bool IsAlive
+            {
+                get { return _reference.Target != null; }
+            }
+
+            public object Value
+            {
+                get { return _reference.Target; }
+            }
+
+            public event EventHandler<ISourceValue, EventArgs> ValueChanged
+            {
+                add { }
+                remove { }
+            }
+
+            #endregion
+
+        }
+
         #endregion
 
         #region Fields
@@ -313,7 +352,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             keepValue = true;
             if (SelfResourceName.Equals(name, StringComparison.Ordinal))
-                return new BindingResourceObject(target, true);
+                return new ConstResourceObject(target);
             if (DataContextResourceName.Equals(name, StringComparison.Ordinal))
             {
                 keepValue = false;
@@ -346,7 +385,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #endregion
 
-        #region Implementation of IExpressionMemberResolver
+        #region Implementation of IBindingResourceResolver
 
         public string SelfResourceName
         {
@@ -439,7 +478,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 object src;
                 if (context.TryGetData(BindingBuilderConstants.Source, out src))
-                    return new BindingResourceObject(src, true);
+                    return src as ISourceValue ?? new ConstResourceObject(src);
 
                 object target = null;
                 IDataBinding binding;
@@ -447,7 +486,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 {
                     WeakReference srcWeak;
                     if (binding.Context.TryGetData(BindingConstants.Source, out srcWeak))
-                        return new BindingResourceObject(srcWeak);
+                        return new ConstResourceObject(srcWeak);
                     target = binding.TargetAccessor.Source.GetActualSource(false);
                 }
                 if (target == null)
