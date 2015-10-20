@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Collections;
+using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -54,7 +55,7 @@ namespace MugenMvvmToolkit.ViewModels
         private static readonly DataConstant<StateList> ViewModelState;
         private static readonly DataConstant<int> SelectedIndex;
 
-        private readonly IList<IViewModel> _itemsSource;
+        private readonly INotifiableCollection<IViewModel> _itemsSource;
         private readonly EventHandler<ICloseableViewModel, ViewModelClosedEventArgs> _weakEventHandler;
         private readonly PropertyChangedEventHandler _propertyChangedWeakEventHandler;
 
@@ -74,7 +75,9 @@ namespace MugenMvvmToolkit.ViewModels
         public MultiViewModel()
         {
             var collection = new SynchronizedNotifiableCollection<IViewModel>();
-            _itemsSource = ServiceProvider.TryDecorate(collection);
+            var list = ServiceProvider.TryDecorate(collection);
+            Should.BeOfType<INotifiableCollection<IViewModel>>(list, "DecoratedItemsSource");
+            _itemsSource = (INotifiableCollection<IViewModel>)list;
             collection.AfterCollectionChanged = OnViewModelsChanged;
             _weakEventHandler = ReflectionExtensions.CreateWeakDelegate<MultiViewModel, ViewModelClosedEventArgs, EventHandler<ICloseableViewModel, ViewModelClosedEventArgs>>(this,
                 (model, o, arg3) => model.ItemsSource.Remove(arg3.ViewModel), UnsubscribeAction, handler => handler.Handle);
@@ -102,7 +105,7 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        public IList<IViewModel> ItemsSource
+        public INotifiableCollection<IViewModel> ItemsSource
         {
             get { return _itemsSource; }
         }
