@@ -20,8 +20,10 @@ using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.Xamarin.Forms.Modules;
-
+using Xamarin.Forms;
 #if ANDROID && XAMARIN_FORMS
+using Android.App;
+using Android.Content;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Xamarin.Forms.Android.Infrastructure;
 using MugenMvvmToolkit.Xamarin.Forms.Android.Infrastructure.Presenters;
@@ -31,11 +33,15 @@ using MugenMvvmToolkit.Xamarin.Forms.iOS.Infrastructure.Presenters;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.iOS.Modules
 #elif WINDOWS_PHONE
+using Microsoft.Phone.Controls;
 using MugenMvvmToolkit.Xamarin.Forms.WinPhone.Infrastructure.Presenters;
+using Application = System.Windows.Application;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Modules
 #elif WINDOWSCOMMON
+using Windows.UI.Xaml;
 using MugenMvvmToolkit.Xamarin.Forms.WinRT.Infrastructure.Presenters;
+using Frame = Windows.UI.Xaml.Controls.Frame;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
 #endif
@@ -55,6 +61,34 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
 
         #endregion
 
+        #region Methods
+
+#if ANDROID
+        private static Activity GetActivity(Context context)
+        {
+            while (true)
+            {
+                var activity = context as Activity;
+                if (activity == null)
+                {
+                    var wrapper = context as ContextWrapper;
+                    if (wrapper == null)
+                        return null;
+                    context = wrapper.BaseContext;
+                    continue;
+                }
+                return activity;
+            }
+        }
+#endif
+
+        private static bool IsLastPage(Page page)
+        {
+            return page.Navigation != null && page.Navigation.NavigationStack.Count == 1;
+        }
+
+        #endregion
+
         #region Overrides of InitializationModule
 
 #if ANDROID
@@ -63,6 +97,51 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
             return BindingInfo<ITracer>.FromType<TracerEx>(DependencyLifecycle.SingleInstance);
         }
 #endif
+        protected override bool LoadInternal()
+        {
+#if ANDROID
+            XamarinFormsExtensions.SendBackButtonPressed = page =>
+            {
+                if (!IsLastPage(page))
+                    return false;
+                var activity = GetActivity(global::Xamarin.Forms.Forms.Context);
+                if (activity == null)
+                    return false;
+                activity.OnBackPressed();
+                return true;
+            };
+#elif WINDOWSCOMMON
+            XamarinFormsExtensions.SendBackButtonPressed = page =>
+            {
+                if (!IsLastPage(page))
+                    return false;
+                var window = Window.Current;
+                if (window == null)
+                    return false;
+                var frame = window.Content as Frame;
+                if (frame == null || !frame.CanGoBack)
+                    return false;
+                frame.GoBack();
+                return true;
+            };
+#elif WINDOWS_PHONE
+            XamarinFormsExtensions.SendBackButtonPressed = page =>
+            {
+                if (!IsLastPage(page))
+                    return false;
+                var application = Application.Current;
+                if (application == null)
+                    return false;
+                var frame = application.RootVisual as PhoneApplicationFrame;
+                if (frame == null || !frame.CanGoBack)
+                    return false;
+                frame.GoBack();
+                return true;
+            };
+#endif
+            return base.LoadInternal();
+        }
+
         protected override BindingInfo<IMessagePresenter> GetMessagePresenter()
         {
             return BindingInfo<IMessagePresenter>.FromType<MessagePresenter>(DependencyLifecycle.SingleInstance);

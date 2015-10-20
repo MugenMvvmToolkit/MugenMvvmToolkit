@@ -68,17 +68,17 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         #region Implementation of INavigationService
 
-        public bool CanGoBack
+        public virtual bool CanGoBack
         {
             get { return CurrentContent != null; }
         }
 
-        public bool CanGoForward
+        public virtual bool CanGoForward
         {
             get { return false; }
         }
 
-        public object CurrentContent
+        public virtual object CurrentContent
         {
             get
             {
@@ -88,7 +88,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             }
         }
 
-        public void GoBack()
+        public virtual void GoBack()
         {
             if (_rootPage != null)
             {
@@ -100,12 +100,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             }
         }
 
-        public void GoForward()
+        public virtual void GoForward()
         {
             throw new NotSupportedException();
         }
 
-        public void UpdateRootPage(NavigationPage page)
+        public virtual void UpdateRootPage(NavigationPage page)
         {
             if (_rootPage != null)
             {
@@ -127,7 +127,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                 OperationPriority.Low);
         }
 
-        public string GetParameterFromArgs(EventArgs args)
+        public virtual string GetParameterFromArgs(EventArgs args)
         {
             Should.NotBeNull(args, "args");
             var cancelArgs = args as NavigatingCancelEventArgs;
@@ -141,14 +141,14 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             return cancelArgs.Parameter;
         }
 
-        public bool Navigate(NavigatingCancelEventArgsBase args, IDataContext context)
+        public virtual bool Navigate(NavigatingCancelEventArgsBase args, IDataContext context)
         {
             Should.NotBeNull(args, "args");
             if (!args.IsCancelable)
                 return false;
             var eventArgs = ((NavigatingCancelEventArgs)args);
-            if (eventArgs.IsBackButtonNavigation && XamarinFormsExtensions.SendBackButtonPressed != null)
-                return XamarinFormsExtensions.SendBackButtonPressed(CurrentContent as Page);
+            if (eventArgs.IsBackButtonNavigation && XamarinFormsExtensions.SendBackButtonPressed != null && XamarinFormsExtensions.SendBackButtonPressed(CurrentContent as Page))
+                return true;
             if (eventArgs.NavigationMode == NavigationMode.Back)
             {
                 GoBack();
@@ -158,7 +158,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             return Navigate(eventArgs.Mapping, eventArgs.Parameter, context);
         }
 
-        public bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
+        public virtual bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, "source");
             if (_rootPage == null)
@@ -187,7 +187,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             return true;
         }
 
-        public bool CanClose(IViewModel viewModel, IDataContext dataContext)
+        public virtual bool CanClose(IViewModel viewModel, IDataContext dataContext)
         {
             Should.NotBeNull(viewModel, "viewModel");
             var navigation = _rootPage.Navigation;
@@ -201,7 +201,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             return false;
         }
 
-        public bool TryClose(IViewModel viewModel, IDataContext dataContext)
+        public virtual bool TryClose(IViewModel viewModel, IDataContext dataContext)
         {
             Should.NotBeNull(viewModel, "viewModel");
             if (CurrentContent != null && CurrentContent.DataContext() == viewModel)
@@ -228,13 +228,29 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             return result;
         }
 
-        public event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
+        public virtual event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
 
-        public event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
+        public virtual event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
 
         #endregion
 
         #region Methods
+
+        protected bool RaiseNavigating(NavigatingCancelEventArgs args)
+        {
+            EventHandler<INavigationService, NavigatingCancelEventArgsBase> handler = Navigating;
+            if (handler == null)
+                return true;
+            handler(this, args);
+            return !args.Cancel;
+        }
+
+        protected void RaiseNavigated(object page, string parameter, NavigationMode mode)
+        {
+            var handler = Navigated;
+            if (handler != null)
+                handler(this, new Models.EventArg.NavigationEventArgs(page, parameter, mode));
+        }
 
         private void OnPopped(object sender, NavigationEventArgs args)
         {
@@ -245,22 +261,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
         private void OnPushed(object sender, NavigationEventArgs args)
         {
             RaiseNavigated(args.Page, args.Page.GetNavigationParameter() as string, NavigationMode.New);
-        }
-
-        private bool RaiseNavigating(NavigatingCancelEventArgs args)
-        {
-            EventHandler<INavigationService, NavigatingCancelEventArgsBase> handler = Navigating;
-            if (handler == null)
-                return true;
-            handler(this, args);
-            return !args.Cancel;
-        }
-
-        private void RaiseNavigated(object page, string parameter, NavigationMode mode)
-        {
-            var handler = Navigated;
-            if (handler != null)
-                handler(this, new Models.EventArg.NavigationEventArgs(page, parameter, mode));
         }
 
         private void OnBackButtonPressed(Page page, CancelEventArgs args)
