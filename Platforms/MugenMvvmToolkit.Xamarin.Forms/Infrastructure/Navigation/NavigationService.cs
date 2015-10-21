@@ -121,10 +121,16 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             }
             _rootPage = page;
 
-            var currentPage = CurrentContent as Page;
-            _threadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, currentPage,
-                (service, p) => service.RaiseNavigated(p, p.GetNavigationParameter() as string, NavigationMode.New),
-                OperationPriority.Low);
+            var currentPage = CurrentContent as Page ?? page;
+            if (currentPage != null)
+            {
+                var context = currentPage.DataContext();
+                if (context != null)
+                    currentPage.SetNavigationParameter(NavigationProvider.GenerateNavigationParameter(context.GetType(), string.Empty));
+                _threadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, currentPage,
+                    (service, p) => service.RaiseNavigated(p, p.GetNavigationParameter() as string, NavigationMode.New),
+                    OperationPriority.Low);
+            }
         }
 
         public virtual string GetParameterFromArgs(EventArgs args)

@@ -423,7 +423,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             var vmType = viewModel.GetType();
             var mappingItem = FindMappingForViewModel(vmType, viewName);
             var id = Guid.NewGuid().ToString("n");
-            var parameter = vmType.AssemblyQualifiedName + IdSeparator[0] + id;
+            var parameter = GenerateNavigationParameter(vmType, id);
 
             var tcs = new TaskCompletionSource<object>();
             CurrentNavigationTask.TryExecuteSynchronously(_ =>
@@ -462,6 +462,12 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
         #endregion
 
         #region Methods
+
+        public static string GenerateNavigationParameter([NotNull] Type vmType, string value)
+        {
+            Should.NotBeNull(vmType, "vmType");
+            return vmType.AssemblyQualifiedName + IdSeparator[0] + value;
+        }
 
         protected virtual void NavigationServiceOnNavigating(object sender, NavigatingCancelEventArgsBase args)
         {
