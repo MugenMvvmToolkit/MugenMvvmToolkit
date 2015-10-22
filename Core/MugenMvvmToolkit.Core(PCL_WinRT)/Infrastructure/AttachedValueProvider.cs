@@ -327,9 +327,9 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                     if (activityView != null)
                     {
                         var metadata = activityView.Mediator.Metadata;
+                        var key = pref.Key + pref.GetType().FullName + pref.GetHashCode();
                         lock (metadata)
                         {
-                            var key = pref.Key + pref.GetType().FullName + pref.GetHashCode();
                             if (metadata.Remove(key))
                                 return true;
                         }
@@ -444,10 +444,10 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                     if (activityView != null)
                     {
                         var metadata = activityView.Mediator.Metadata;
+                        var key = pref.Key + pref.GetType().FullName + pref.GetHashCode();
                         lock (metadata)
                         {
                             object v;
-                            var key = pref.Key + pref.GetType().FullName + pref.GetHashCode();
                             if (!metadata.TryGetValue(key, out v))
                             {
                                 if (addNew)

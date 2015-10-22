@@ -1,8 +1,11 @@
-﻿using Android.Views;
+﻿using System;
+using Android.Views;
 using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Android.Design
 {
@@ -14,7 +17,8 @@ namespace MugenMvvmToolkit.Android.Design
         {
             #region Fields
 
-            public static readonly BindingMemberDescriptor<global::Android.App.Activity, View> SnackbarHolderView;
+            public static readonly BindingMemberDescriptor<global::Android.App.Activity, View> SnackbarView;
+            public static readonly BindingMemberDescriptor<global::Android.App.Activity, Func<object, ToastPosition, IDataContext, View>> SnackbarViewSelector;
             public static readonly BindingMemberDescriptor<global::Android.App.Activity, IDataTemplateSelector> SnackbarTemplateSelector;
 
             #endregion
@@ -23,7 +27,8 @@ namespace MugenMvvmToolkit.Android.Design
 
             static Activity()
             {
-                SnackbarHolderView = new BindingMemberDescriptor<global::Android.App.Activity, View>("SnackbarHolderView");
+                SnackbarView = new BindingMemberDescriptor<global::Android.App.Activity, View>("SnackbarView");
+                SnackbarViewSelector = new BindingMemberDescriptor<global::Android.App.Activity, Func<object, ToastPosition, IDataContext, View>>("SnackbarViewSelector");
                 SnackbarTemplateSelector = new BindingMemberDescriptor<global::Android.App.Activity, IDataTemplateSelector>("SnackbarTemplateSelector");
             }
 

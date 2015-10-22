@@ -105,7 +105,8 @@ namespace MugenMvvmToolkit.Android.Design.Modules
                     }, getDefaultValue: (text, info) => text.Error));
 
             //Activity
-            provider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersDesign.Activity.SnackbarHolderView));
+            provider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersDesign.Activity.SnackbarView));
+            provider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersDesign.Activity.SnackbarViewSelector));
             provider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersDesign.Activity.SnackbarTemplateSelector));
 
             if (IocContainer != null)

@@ -64,7 +64,7 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure.Presenters
             public void Show(Snackbar snackbar, float duration)
             {
                 _snackbar = snackbar;
-                _snackbar.SetCallback(this).SetDuration((int) duration).Show();
+                _snackbar.SetCallback(this).SetDuration((int)duration).Show();
             }
 
             public override void OnDismissed(Snackbar snackbar, int evt)
@@ -116,9 +116,9 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure.Presenters
             Snackbar snackbar = null;
             var selector = activity.GetBindingMemberValue(AttachedMembersDesign.Activity.SnackbarTemplateSelector);
             if (selector != null)
-                snackbar = (Snackbar) selector.SelectTemplate(content, snackbarHolderView);
+                snackbar = (Snackbar)selector.SelectTemplate(content, snackbarHolderView);
             if (snackbar == null)
-                snackbar = Snackbar.Make(snackbarHolderView, content.ToStringSafe("(null)"), (int) duration);
+                snackbar = Snackbar.Make(snackbarHolderView, content.ToStringSafe("(null)"), (int)duration);
             toast.Show(snackbar, duration);
         }
 
@@ -131,7 +131,13 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure.Presenters
             View holder = null;
             var currentActivity = PlatformExtensions.CurrentActivity;
             if (currentActivity != null)
-                holder = currentActivity.GetBindingMemberValue(AttachedMembersDesign.Activity.SnackbarHolderView);
+            {
+                var selector = currentActivity.GetBindingMemberValue(AttachedMembersDesign.Activity.SnackbarViewSelector);
+                if (selector != null)
+                    holder = selector(content, position, context);
+                if (holder == null)
+                    holder = currentActivity.GetBindingMemberValue(AttachedMembersDesign.Activity.SnackbarView);
+            }
             if (holder == null)
                 return _defaultPresenter.ShowAsync(content, duration, position, context);
             var toastImpl = new ToastImpl();
