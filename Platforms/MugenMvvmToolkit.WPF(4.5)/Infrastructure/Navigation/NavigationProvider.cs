@@ -585,7 +585,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
                 ViewManager.InitializeViewAsync(navigationViewModel, view, context).WithTaskExceptionHandler(this);
                 return navigationViewModel;
             }
-            //Trying to get from cache.
+
             IViewModel vm = TryTakeViewModelFromCache(context, view);
             if (HasViewModel(view, vmType))
                 return (IViewModel)MugenMvvmToolkit.Infrastructure.ViewManager.GetDataContext(view);
