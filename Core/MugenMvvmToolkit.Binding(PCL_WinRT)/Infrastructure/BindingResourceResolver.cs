@@ -539,6 +539,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     _converters[name] = converter;
                 else
                     _converters.Add(name, converter);
+                if (name == "ViewModelToViewConverter")
+                    _converters["GetView"] = converter;
             }
         }
 
