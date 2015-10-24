@@ -151,7 +151,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             if (viewId.HasValue)
             {
                 _view = inflater.ToBindableLayoutInflater().Inflate(viewId.Value, container, false);
-                PlatformExtensions.FragmentViewMember.SetValue(_view, Target);
+                _view.SetBindingMemberValue(AttachedMembers.View.Fragment, Target);
                 _view.SetDataContext(DataContext);
                 return _view;
             }

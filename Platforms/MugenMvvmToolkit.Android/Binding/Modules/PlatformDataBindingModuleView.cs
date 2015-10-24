@@ -144,8 +144,8 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             #region Fields
 
             private readonly WeakEventListenerWrapper _listenerRef;
-            private int width;
-            private int height;
+            private int _width;
+            private int _height;
 
             #endregion
 
@@ -159,8 +159,8 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 : base(view, false)
             {
                 _listenerRef = handler.ToWeakWrapper();
-                height = view.Height;
-                width = view.Width;
+                _height = view.Height;
+                _width = view.Width;
             }
 
             #endregion
@@ -169,10 +169,10 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             protected override void OnGlobalLayoutChangedInternal(View view)
             {
-                if (view.Width != width || view.Height != height)
+                if (view.Width != _width || view.Height != _height)
                 {
-                    width = view.Width;
-                    height = view.Height;
+                    _width = view.Width;
+                    _height = view.Height;
                     if (!_listenerRef.EventListener.TryHandle(view, EventArgs.Empty))
                         Dispose();
                 }
@@ -227,6 +227,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         private static void RegisterViewMembers(IBindingMemberProvider memberProvider)
         {
             //View
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.View.Fragment));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.FindByNameMethod, ViewFindByNameMember));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.ParentExplicit, GetViewParentValue, SetViewParentValue, ObserveViewParent));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, bool>(AttachedMemberConstants.Focused,

@@ -20,6 +20,8 @@ using System;
 using System.Threading;
 using Android.Views;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 #if APPCOMPAT
@@ -35,7 +37,6 @@ namespace MugenMvvmToolkit.Android.AppCompat
 using Android.App;
 using MugenMvvmToolkit.Android.Infrastructure.Mediators;
 using MugenMvvmToolkit.Android.Interfaces.Mediators;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Android
 {
@@ -44,9 +45,6 @@ namespace MugenMvvmToolkit.Android
     {
         #region Fields
 
-#if !APPCOMPAT
-        public static readonly IAttachedBindingMemberInfo<View, object> FragmentViewMember;
-#endif
         private static Func<Fragment, IDataContext, IMvvmFragmentMediator> _mvvmFragmentMediatorFactory;
 
         #endregion
@@ -86,7 +84,7 @@ namespace MugenMvvmToolkit.Android
             var treeView = view;
             while (treeView != null)
             {
-                var fragment = PlatformExtensions.FragmentViewMember.GetValue(treeView, null) as Fragment;
+                var fragment = treeView.GetBindingMemberValue(AttachedMembers.View.Fragment) as Fragment;
                 if (fragment != null)
                     return fragment.ChildFragmentManager;
                 treeView = treeView.Parent as View;
