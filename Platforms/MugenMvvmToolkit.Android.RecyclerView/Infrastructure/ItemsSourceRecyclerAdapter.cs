@@ -56,6 +56,7 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
         private List<global::Android.Support.V7.Widget.RecyclerView.AdapterDataObserver> _observers;
         private DataTemplateProvider _itemTemplateProvider;
         private BindableLayoutInflater _layoutInflater;
+        private Func<LayoutInflater, ViewGroup, int, global::Android.Support.V7.Widget.RecyclerView.ViewHolder> _createViewHolderDelegate;
         private global::Android.Support.V7.Widget.RecyclerView _recyclerView;
         private ReflectionExtensions.IWeakEventHandler<EventArgs> _listener;
         private IStableIdProvider _stableIdProvider;
@@ -192,6 +193,7 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
             _recyclerView = recyclerView;
             _itemTemplateProvider = new DataTemplateProvider(_recyclerView, AttachedMemberConstants.ItemTemplate, AttachedMemberConstants.ItemTemplateSelector);
             _layoutInflater = _recyclerView.Context.GetBindableLayoutInflater();
+            _createViewHolderDelegate = _recyclerView.GetBindingMemberValue(AttachedMembersRecyclerView.RecyclerView.CreateViewHolderDelegate);
             HasStableIds = recyclerView.TryGetBindingMemberValue(AttachedMembers.Object.StableIdProvider, out _stableIdProvider) && _stableIdProvider != null;
             var activityView = _recyclerView.Context.GetActivity() as IActivityView;
             if (activityView != null)
@@ -207,6 +209,9 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
                     base.RegisterAdapterDataObserver(observer);
                 _observers = null;
             }
+            var member = BindingServiceProvider.MemberProvider.GetBindingMember(_recyclerView.GetType(), AttachedMembers.ViewGroup.DisableHierarchyListener, false, false);
+            if (member.CanWrite)
+                member.SetValue(_recyclerView, new[] { Empty.TrueObject });
             base.OnAttachedToRecyclerView(recyclerView);
         }
 
@@ -218,6 +223,7 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
             _layoutInflater = null;
             _itemTemplateProvider = null;
             _recyclerView = null;
+            _createViewHolderDelegate = null;
             base.OnDetachedFromRecyclerView(recyclerView);
         }
 
@@ -241,10 +247,20 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
                 holder.ItemView.SetDataContext(item);
         }
 
-        public override global::Android.Support.V7.Widget.RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent,
-            int viewType)
+        public override global::Android.Support.V7.Widget.RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            return new ViewHolderImpl(LayoutInflater.Inflate(viewType, parent, false));
+            var viewHolder = _createViewHolderDelegate == null
+                ? new ViewHolderImpl(_layoutInflater.Inflate(viewType, parent, false))
+                : _createViewHolderDelegate(_layoutInflater, parent, viewType);
+            var view = viewHolder.ItemView;
+            if (view != null)
+            {
+                view.SetDataContext(null);
+                if (parent != null)
+                    view.SetBindingMemberValue(AttachedMembers.Object.Parent, parent);
+                view.ListenParentChange();
+            }
+            return viewHolder;
         }
 
         public override void OnViewRecycled(Object holder)

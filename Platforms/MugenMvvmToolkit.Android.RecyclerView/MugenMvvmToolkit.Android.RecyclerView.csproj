@@ -45,8 +45,10 @@
     <Reference Include="Mono.Android" />
     <Reference Include="mscorlib" />
     <Reference Include="System" />
+    <Reference Include="System.Collections" />
     <Reference Include="System.Core" />
     <Reference Include="System.ObjectModel" />
+    <Reference Include="System.Reflection" />
     <Reference Include="System.Runtime" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml" />
@@ -63,6 +65,7 @@
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
+    <Compile Include="AttachedMembersRecyclerView.cs" />
     <Compile Include="Infrastructure\ItemsSourceRecyclerAdapter.cs" />
     <Compile Include="Modules\RecyclerViewDataBindingModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
