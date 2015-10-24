@@ -55,7 +55,7 @@ namespace MugenMvvmToolkit.Infrastructure
         int IEqualityComparer<object>.GetHashCode(object obj)
         {
             if (obj == null)
-                return 1;
+                return 0;
             return RuntimeHelpers.GetHashCode(obj);
         }
 
