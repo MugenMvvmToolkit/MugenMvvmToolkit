@@ -128,6 +128,13 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             _defaultDropDownTemplate = IsSpinner()
                 ? global::Android.Resource.Layout.SimpleDropDownItem1Line
                 : global::Android.Resource.Layout.SimpleSpinnerDropDownItem;
+            var absListView = container as AdapterView;
+            if (absListView != null)
+            {
+                var member = BindingServiceProvider.MemberProvider.GetBindingMember(absListView.GetType(), AttachedMembers.ViewGroup.DisableHierarchyListener, false, false);
+                if (member.CanWrite)
+                    member.SetValue(absListView, new[] { Empty.TrueObject });
+            }
         }
 
         #endregion
@@ -383,8 +390,8 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             var view = CreateView(GetRawItem(position), convertView, parent, provider, defaultTemplate);
             if (view != null && !ReferenceEquals(view, convertView))
             {
-                view.ListenParentChange();
                 view.SetBindingMemberValue(AttachedMembers.Object.Parent, Container);
+                view.ListenParentChange();
             }
             return view;
         }

@@ -224,7 +224,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         private static void Register([NotNull] IBindingMemberProvider memberProvider)
         {
             Should.NotBeNull(memberProvider, "memberProvider");
-            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.Object.StableIdProvider] = 2;
+            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.Object.StableIdProvider] = BindingServiceProvider.TemplateMemberPriority - 1;
             RegisterMenuMembers(memberProvider);
             RegisterViewMembers(memberProvider);
             RegisterPreferenceMembers(memberProvider);
@@ -263,6 +263,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 (activity, args) => activity.Title = args.NewValue, getDefaultValue: (activity, info) => activity.Title));
             memberProvider.Register(AttachedBindingMember.CreateMember<Activity, object>(AttachedMemberConstants.FindByNameMethod, ActivityFindByNameMember));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.Activity.ToastTemplateSelector));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.Activity.StartActivityDelegate));
 
             //RatingBar
             BindingBuilderExtensions.RegisterDefaultBindingMember<RatingBar>(() => r => r.Rating);
@@ -293,6 +294,11 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.Content, ContentMemberChanged, ContentMemberAttached));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ContentTemplate, ContentTemplateIdChanged));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ContentTemplateSelector, ContentTemplateSelectorChanged));
+
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.DisableHierarchyListener, (@group, args) =>
+            {
+                @group.SetOnHierarchyChangeListener(args.NewValue ? null : GlobalViewParentListener.Instance);
+            }));
 
             //TabHost
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.TabHost.RestoreSelectedIndex));
