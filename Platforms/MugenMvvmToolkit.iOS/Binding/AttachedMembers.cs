@@ -32,7 +32,7 @@ namespace MugenMvvmToolkit.iOS.Binding
     {
         #region Nested types
 
-        public class Object
+        public abstract class Object
         {
             #region Fields
 
@@ -45,10 +45,6 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            protected Object()
-            {
-            }
-
             static Object()
             {
                 DataContext = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.DataContext);
@@ -60,7 +56,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             #endregion
         }
 
-        public class UIView : Object
+        public abstract class UIView : Object
         {
             #region Fields
 
@@ -79,10 +75,6 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            protected UIView()
-            {
-            }
-
             static UIView()
             {
                 Content = new BindingMemberDescriptor<UIKit.UIView, object>(AttachedMemberConstants.Content);
@@ -100,7 +92,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             #endregion
         }
 
-        public class UIControl : UIView
+        public abstract class UIControl : UIView
         {
             #region Fields
 
@@ -110,10 +102,6 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            protected UIControl()
-            {
-            }
-
             static UIControl()
             {
                 ClickEvent = new BindingMemberDescriptor<UIKit.UIControl, IEventListener>("Click");
@@ -122,7 +110,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             #endregion
         }
 
-        public class UIButton : UIControl
+        public abstract class UIButton : UIControl
         {
             #region Fields
 
@@ -133,10 +121,6 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            protected UIButton()
-            {
-            }
-
             static UIButton()
             {
                 Title = new BindingMemberDescriptor<UIKit.UIButton, string>("Title");
@@ -146,7 +130,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             #endregion
         }
 
-        public class UIDatePicker : UIControl
+        public abstract class UIDatePicker : UIControl
         {
             #region Fields
 
@@ -156,10 +140,6 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            protected UIDatePicker()
-            {
-            }
-
             static UIDatePicker()
             {
                 Date = new BindingMemberDescriptor<UIKit.UIDatePicker, DateTime>("Date");
@@ -168,7 +148,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             #endregion
         }
 
-        public class UISwitch : UIControl
+        public abstract class UISwitch : UIControl
         {
             #region Fields
 
@@ -178,10 +158,6 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            protected UISwitch()
-            {
-            }
-
             static UISwitch()
             {
                 On = new BindingMemberDescriptor<UIKit.UISwitch, bool>("On");
@@ -190,7 +166,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             #endregion
         }
 
-        public class UITextField : UIControl
+        public abstract class UITextField : UIControl
         {
             #region Fields
 
@@ -200,10 +176,6 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            protected UITextField()
-            {
-            }
-
             static UITextField()
             {
                 TextChangedEvent = new BindingMemberDescriptor<UIKit.UITextField, IEventListener>("TextChanged");
@@ -212,7 +184,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             #endregion
         }
 
-        public class UITextView : UIView //UIScrollView
+        public abstract class UITextView : UIView //UIScrollView
         {
             #region Fields
 
@@ -222,10 +194,6 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            protected UITextView()
-            {
-            }
-
             static UITextView()
             {
                 TextChangedEvent = new BindingMemberDescriptor<UIKit.UITextView, IEventListener>("TextChanged");
@@ -234,7 +202,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             #endregion
         }
 
-        public class UILabel : UIView
+        public abstract class UILabel : UIView
         {
             #region Fields
 
@@ -244,10 +212,6 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            protected UILabel()
-            {
-            }
-
             static UILabel()
             {
                 TextSizeToFit = new BindingMemberDescriptor<UIKit.UILabel, string>("TextSizeToFit");
@@ -256,7 +220,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             #endregion
         }
 
-        public class UITableView : UIView //UIScrollView
+        public abstract class UITableView : UIView //UIScrollView
         {
             #region Fields
 
@@ -276,10 +240,6 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            protected UITableView()
-            {
-            }
-
             static UITableView()
             {
                 ItemTemplateSelector = new BindingMemberDescriptor<UIKit.UITableView, ITableCellTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
@@ -298,7 +258,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             #endregion
         }
 
-        public class UITableViewCell : UIView
+        public abstract class UITableViewCell : UIView
         {
             #region Fields
 
@@ -319,10 +279,6 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            protected UITableViewCell()
-            {
-            }
-
             static UITableViewCell()
             {
                 AccessoryButtonTappedEvent = new BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener>("AccessoryButtonTapped");
@@ -341,7 +297,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             #endregion
         }
 
-        public class UICollectionView : UIView //UIScrollView
+        public abstract class UICollectionView : UIView //UIScrollView
         {
             #region Fields
 
@@ -355,10 +311,6 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            protected UICollectionView()
-            {
-            }
-
             static UICollectionView()
             {
                 ItemTemplateSelector = new BindingMemberDescriptor<UIKit.UICollectionView, ICollectionCellTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
@@ -371,7 +323,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             #endregion
         }
 
-        public class UICollectionViewCell : UIView
+        public abstract class UICollectionViewCell : UIView
         {
             #region Fields
 
@@ -386,10 +338,6 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            protected UICollectionViewCell()
-            {
-            }
-
             static UICollectionViewCell()
             {
                 ShouldSelect = new BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?>("ShouldSelect");
@@ -403,7 +351,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             #endregion
         }
 
-        public class UIPickerView : UIView
+        public abstract class UIPickerView : UIView
         {
             #region Fields
 
@@ -414,10 +362,6 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            protected UIPickerView()
-            {
-            }
-
             static UIPickerView()
             {
                 SelectedItem = new BindingMemberDescriptor<UIKit.UIPickerView, object>(AttachedMemberConstants.SelectedItem);
@@ -427,7 +371,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             #endregion
         }
 
-        public class UIViewController : Object
+        public abstract class UIViewController : Object
         {
             #region Fields
 
@@ -440,10 +384,6 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            protected UIViewController()
-            {
-            }
-
             static UIViewController()
             {
                 ToolbarItemsSourceGenerator = new BindingMemberDescriptor<UIKit.UIViewController, IItemsSourceGenerator>("Toolbar" + ItemsSourceGeneratorBase.MemberDescriptor);
@@ -455,7 +395,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             #endregion
         }
 
-        public class UITabBarController : UIViewController
+        public abstract class UITabBarController : UIViewController
         {
             #region Fields
 
@@ -469,10 +409,6 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            protected UITabBarController()
-            {
-            }
-
             static UITabBarController()
             {
                 ItemsSourceGenerator = new BindingMemberDescriptor<UIKit.UITabBarController, IItemsSourceGenerator>(ItemsSourceGeneratorBase.MemberDescriptor);
@@ -485,7 +421,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             #endregion
         }
 
-        public class UISplitViewController : UIViewController
+        public abstract class UISplitViewController : UIViewController
         {
             #region Fields
 
@@ -502,14 +438,10 @@ namespace MugenMvvmToolkit.iOS.Binding
                 DetailView = new BindingMemberDescriptor<UIKit.UISplitViewController, UIKit.UIViewController>("DetailView");
             }
 
-            protected UISplitViewController()
-            {
-            }
-
             #endregion
         }
 
-        public class Element : Object
+        public abstract class Element : Object
         {
             #region Fields
 
@@ -522,10 +454,6 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             #region Constructors
 
-            protected Element()
-            {
-            }
-
             static Element()
             {
                 ItemsSource = new BindingMemberDescriptor<global::MonoTouch.Dialog.Element, IEnumerable>(AttachedMemberConstants.ItemsSource);
@@ -537,7 +465,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             #endregion
         }
 
-        public class StringElement : Element
+        public abstract class StringElement : Element
         {
             #region Fields
 
@@ -552,14 +480,10 @@ namespace MugenMvvmToolkit.iOS.Binding
                 TappedEvent = new BindingMemberDescriptor<global::MonoTouch.Dialog.StringElement, IEventListener>("Tapped");
             }
 
-            protected StringElement()
-            {
-            }
-
             #endregion
         }
 
-        public class UIBarButtonItem : AttachedMembers.Object
+        public abstract class UIBarButtonItem : AttachedMembers.Object
         {
             #region Fields
 
@@ -572,10 +496,6 @@ namespace MugenMvvmToolkit.iOS.Binding
             static UIBarButtonItem()
             {
                 ClickEvent = new BindingMemberDescriptor<UIKit.UIBarButtonItem, IEventListener>("Clicked");
-            }
-
-            protected UIBarButtonItem()
-            {
             }
 
             #endregion

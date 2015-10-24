@@ -44,7 +44,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding
     {
         #region Nested types
 
-        public class Object
+        public abstract class Object
         {
             #region Fields
 
@@ -67,39 +67,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding
                         AttachedMemberConstants.ErrorsPropertyMember);
             }
 
-            protected Object()
-            {
-            }
-
             #endregion
         }
 
 #if XAMARIN_FORMS
-        public class VisualElement : Object
-        {
-            #region Fields
-
-            public static readonly BindingMemberDescriptor<UIElementEx, bool> Visible;
-            public static readonly BindingMemberDescriptor<UIElementEx, bool> Hidden;
-
-            #endregion
-
-            #region Constructors
-
-            static VisualElement()
-            {
-                Visible = new BindingMemberDescriptor<UIElementEx, bool>("Visible");
-                Hidden = new BindingMemberDescriptor<UIElementEx, bool>("Hidden");
-            }
-
-            protected VisualElement()
-            {
-            }
-
-            #endregion
-        }
-#else
-        public class UIElement : Object
+        public abstract class VisualElement : Object
         {
         #region Fields
 
@@ -110,21 +82,35 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding
 
         #region Constructors
 
+            static VisualElement()
+            {
+                Visible = new BindingMemberDescriptor<UIElementEx, bool>("Visible");
+                Hidden = new BindingMemberDescriptor<UIElementEx, bool>("Hidden");
+            }
+
+        #endregion
+        }
+#else
+        public abstract class UIElement : Object
+        {
+            #region Fields
+
+            public static readonly BindingMemberDescriptor<UIElementEx, bool> Visible;
+            public static readonly BindingMemberDescriptor<UIElementEx, bool> Hidden;
+
+            #endregion
+
+            #region Constructors
+
             static UIElement()
             {
                 Visible = new BindingMemberDescriptor<UIElementEx, bool>("Visible");
                 Hidden = new BindingMemberDescriptor<UIElementEx, bool>("Hidden");
             }
 
-            protected UIElement()
-            {
-            }
-
-        #endregion
+            #endregion
         }
 #endif
-
-
         #endregion
     }
 }

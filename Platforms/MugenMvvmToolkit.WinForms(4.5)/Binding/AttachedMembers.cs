@@ -29,7 +29,7 @@ namespace MugenMvvmToolkit.WinForms.Binding
     {
         #region Nested types
 
-        public class Object
+        public abstract class Object
         {
             #region Fields
 
@@ -60,14 +60,10 @@ namespace MugenMvvmToolkit.WinForms.Binding
                 CollectionViewManager = new BindingMemberDescriptor<object, ICollectionViewManager>("CollectionViewManager");
             }
 
-            protected Object()
-            {
-            }
-
             #endregion
         }
 
-        public class Form : Object
+        public abstract class Form : Object
         {
             #region Fields
 
@@ -82,14 +78,10 @@ namespace MugenMvvmToolkit.WinForms.Binding
                 ToastTemplateSelector = new BindingMemberDescriptor<System.Windows.Forms.Form, IDataTemplateSelector>("ToastTemplateSelector");
             }
 
-            protected Form()
-            {
-            }
-
             #endregion
         }
 
-        public class Control : Object
+        public abstract class Control : Object
         {
             #region Fields
 
@@ -101,10 +93,6 @@ namespace MugenMvvmToolkit.WinForms.Binding
 
             #region Constructors
 
-            protected Control()
-            {
-            }
-
             static Control()
             {
                 Content = new BindingMemberDescriptor<System.Windows.Forms.Control, object>(AttachedMemberConstants.Content);
@@ -115,7 +103,7 @@ namespace MugenMvvmToolkit.WinForms.Binding
             #endregion
         }
 
-        public class TabControl : Control
+        public abstract class TabControl : Control
         {
             #region Fields
 
@@ -125,10 +113,6 @@ namespace MugenMvvmToolkit.WinForms.Binding
 
             #region Constructors
 
-            protected TabControl()
-            {
-            }
-
             static TabControl()
             {
                 SelectedItem = new BindingMemberDescriptor<System.Windows.Forms.TabControl, object>(AttachedMemberConstants.SelectedItem);
@@ -137,7 +121,7 @@ namespace MugenMvvmToolkit.WinForms.Binding
             #endregion
         }
 
-        public class ComboBox : Control
+        public abstract class ComboBox : Control
         {
             #region Fields
 
@@ -147,10 +131,6 @@ namespace MugenMvvmToolkit.WinForms.Binding
 
             #region Constructors
 
-            protected ComboBox()
-            {
-            }
-
             static ComboBox()
             {
                 SelectedItem = new BindingMemberDescriptor<System.Windows.Forms.ComboBox, object>(AttachedMemberConstants.SelectedItem);
@@ -159,7 +139,7 @@ namespace MugenMvvmToolkit.WinForms.Binding
             #endregion
         }
 
-        public class DataGridView : Control
+        public abstract class DataGridView : Control
         {
             #region Fields
 
@@ -168,10 +148,6 @@ namespace MugenMvvmToolkit.WinForms.Binding
             #endregion
 
             #region Constructors
-
-            protected DataGridView()
-            {
-            }
 
             static DataGridView()
             {

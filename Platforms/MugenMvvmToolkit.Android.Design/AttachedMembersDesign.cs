@@ -13,7 +13,7 @@ namespace MugenMvvmToolkit.Android.Design
     {
         #region Nested types
 
-        public class Activity : AttachedMembers.Activity
+        public abstract class Activity : AttachedMembers.Activity
         {
             #region Fields
 
@@ -32,14 +32,10 @@ namespace MugenMvvmToolkit.Android.Design
                 SnackbarTemplateSelector = new BindingMemberDescriptor<global::Android.App.Activity, IDataTemplateSelector>("SnackbarTemplateSelector");
             }
 
-            protected Activity()
-            {
-            }
-
             #endregion
         }
 
-        public class NavigationView : AttachedMembers.ViewGroup
+        public abstract class NavigationView : AttachedMembers.ViewGroup
         {
             #region Fields
 
@@ -54,14 +50,10 @@ namespace MugenMvvmToolkit.Android.Design
                 MenuTemplate = new BindingMemberDescriptor<global::Android.Support.Design.Widget.NavigationView, int>("MenuTemplate");
             }
 
-            protected NavigationView()
-            {
-            }
-
             #endregion
         }
 
-        public class TabLayout : AttachedMembers.ViewGroup
+        public abstract class TabLayout : AttachedMembers.ViewGroup
         {
             #region Fields
 
@@ -76,10 +68,6 @@ namespace MugenMvvmToolkit.Android.Design
             {
                 SelectedItem = new BindingMemberDescriptor<global::Android.Support.Design.Widget.TabLayout, object>(AttachedMemberConstants.SelectedItem);
                 RestoreSelectedIndex = AttachedMembers.TabHost.RestoreSelectedIndex.Override<global::Android.Support.Design.Widget.TabLayout>();
-            }
-
-            protected TabLayout()
-            {
             }
 
             #endregion
