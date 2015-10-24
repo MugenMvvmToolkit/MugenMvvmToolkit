@@ -17,6 +17,10 @@
 #endregion
 
 using System;
+using Android.Runtime;
+using Java.Lang.Ref;
+using Object = Java.Lang.Object;
+using WeakReference = System.WeakReference;
 
 namespace MugenMvvmToolkit.Android.Models
 {
@@ -25,16 +29,22 @@ namespace MugenMvvmToolkit.Android.Models
     {
         #region Fields
 
-        private readonly Java.Lang.Ref.WeakReference _nativeRef;
+        private static readonly IntPtr GetMethodId;
+        private readonly Java.Lang.Ref.WeakReference _reference;
 
         #endregion
 
         #region Constructors
 
-        public JavaObjectWeakReference(Java.Lang.Object item)
+        static JavaObjectWeakReference()
+        {
+            GetMethodId = JNIEnv.GetMethodID(Java.Lang.Class.FromType(typeof(Reference)).Handle, "get", "()Ljava/lang/Object;");
+        }
+
+        public JavaObjectWeakReference(Object item)
             : base(item, true)
         {
-            _nativeRef = new Java.Lang.Ref.WeakReference(item);
+            _reference = new Java.Lang.Ref.WeakReference(item);
         }
 
         #endregion
@@ -50,7 +60,7 @@ namespace MugenMvvmToolkit.Android.Models
         {
             get
             {
-                var target = (Java.Lang.Object)base.Target;
+                var target = (Object)base.Target;
                 if (target == null)
                     return null;
                 if (target.Handle == IntPtr.Zero)
@@ -58,7 +68,10 @@ namespace MugenMvvmToolkit.Android.Models
                     base.Target = null;
                     return null;
                 }
-                if (_nativeRef.Get() == null)
+                //_reference.Get() very slow method, use JNI directly
+                var handle = JNIEnv.CallObjectMethod(_reference.Handle, GetMethodId);
+                JNIEnv.DeleteLocalRef(handle);
+                if (handle == IntPtr.Zero)
                 {
                     base.Target = null;
                     return null;
