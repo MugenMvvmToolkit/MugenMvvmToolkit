@@ -83,7 +83,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Models
         public void Raise(bool recursively = true)
         {
             UIView view;
-            Raise(out  view);
+            Raise(out view);
             if (recursively && view != null)
                 RaiseSubViews(view);
         }
