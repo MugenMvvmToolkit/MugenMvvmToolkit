@@ -218,7 +218,7 @@ namespace MugenMvvmToolkit.iOS
                     if (tableView.DataSource != null)
                         tableView.DataSource.DisposeEx();
 
-                    // NOTE: dont dispose .Source or WeakDataSource as it usually throws
+                    // NOTE: don't dispose .Source or WeakDataSource as it usually throws
                     tableView.Source = null;
                     tableView.Delegate = null;
                     tableView.DataSource = null;

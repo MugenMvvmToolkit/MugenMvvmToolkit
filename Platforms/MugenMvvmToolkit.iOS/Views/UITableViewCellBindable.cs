@@ -22,7 +22,6 @@ using Foundation;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.iOS.Binding;
 using MugenMvvmToolkit.iOS.Binding.Infrastructure;
-using MugenMvvmToolkit.iOS.Binding.Modules;
 using MugenMvvmToolkit.iOS.Interfaces;
 using UIKit;
 
