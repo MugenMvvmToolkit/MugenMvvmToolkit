@@ -21,6 +21,7 @@ using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Runtime;
+using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Infrastructure.Mediators;
 using MugenMvvmToolkit.Android.Interfaces.Navigation;
 using MugenMvvmToolkit.Android.Interfaces.Views;
@@ -180,7 +181,14 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         protected virtual void StartActivity(Context context, Intent intent, IDataContext dataContext)
         {
-            context.StartActivity(intent);
+            var activity = context.GetActivity();
+            Action<Context, Intent, IDataContext> startAction = null;
+            if (activity != null)
+                startAction = activity.GetBindingMemberValue(AttachedMembers.Activity.StartActivityDelegate);
+            if (startAction == null)
+                context.StartActivity(intent);
+            else
+                startAction(context, intent, dataContext);
         }
 
         #endregion
