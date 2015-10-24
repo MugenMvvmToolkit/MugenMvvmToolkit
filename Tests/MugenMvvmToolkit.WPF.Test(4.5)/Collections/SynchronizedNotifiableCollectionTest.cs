@@ -72,12 +72,12 @@ namespace MugenMvvmToolkit.Test.Collections
         {
             SynchronizedNotifiableCollection<Item> collection = CreateNotifiableCollection<Item>(ExecutionMode.None,
                 ThreadManagerMock);
-            collection.Add(new Item {Id = new Guid("0C32E17E-020C-4E05-9B90-AE247B8BE703")});
+            collection.Add(new Item { Id = new Guid("0C32E17E-020C-4E05-9B90-AE247B8BE703") });
 
             collection.CollectionChanging += (sender, args) => args.Cancel = true;
             var collectionTracker = new NotifiableCollectionTracker<Item>(collection);
 
-            var item = new Item {Id = new Guid("3C39C0C0-DFBA-4683-8473-0950085478E9")};
+            var item = new Item { Id = new Guid("3C39C0C0-DFBA-4683-8473-0950085478E9") };
             collection.Add(item);
             collection.Remove(item);
             collection[0] = item;
@@ -116,7 +116,7 @@ namespace MugenMvvmToolkit.Test.Collections
         }
 
         [TestMethod]
-        public void CollectionShouldRaiseEventsUsingThreadManagerIfModeAsynchronousInUi()
+        public void CollectionShouldRaiseEventsUsingThreadManagerIfModeAsynchronousOnUi()
         {
             SynchronizedNotifiableCollection<Item> collection =
                 CreateNotifiableCollection<Item>(ExecutionMode.AsynchronousOnUiThread, ThreadManagerMock);
@@ -130,7 +130,7 @@ namespace MugenMvvmToolkit.Test.Collections
         }
 
         [TestMethod]
-        public void CollectionShouldRaiseEventsUsingThreadManagerIfModeSynchronousInUi()
+        public void CollectionShouldRaiseEventsUsingThreadManagerIfModeSynchronousOnUi()
         {
             SynchronizedNotifiableCollection<Item> collection =
                 CreateNotifiableCollection<Item>(ExecutionMode.SynchronousOnUiThread, ThreadManagerMock);
@@ -154,8 +154,8 @@ namespace MugenMvvmToolkit.Test.Collections
             using (collection.SuspendNotifications())
             {
                 var item = new Item();
-                var items = new[] {new Item(), new Item(), new Item()};
-                var items2 = new[] {new Item(), new Item(), new Item()};
+                var items = new[] { new Item(), new Item(), new Item() };
+                var items2 = new[] { new Item(), new Item(), new Item() };
                 for (int i = 0; i < count; i++)
                 {
                     collection.AddRange(items);
@@ -168,7 +168,7 @@ namespace MugenMvvmToolkit.Test.Collections
                 }
             }
             collectionTracker.AssertEquals();
-            collection.Count.ShouldEqual(count*3);
+            collection.Count.ShouldEqual(count * 3);
         }
 
         [TestMethod]

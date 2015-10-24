@@ -25,7 +25,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
 
         public Beta Beta { get; set; }
 
-        public int CountAlfa { get; set; }
+        public int CountAlpha { get; set; }
 
         public int CountBeta { get; set; }
 
@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         public void Handle(object sender, Alpha message)
         {
             Alpha = message;
-            CountAlfa++;
+            CountAlpha++;
         }
 
         #endregion
@@ -258,26 +258,26 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         [TestMethod]
         public void NotifyGenericMessageTest()
         {
-            var listenerAlfa = new GenericHandler<Alpha>();
+            var listenerAlpha = new GenericHandler<Alpha>();
             var listenerBeta = new GenericHandler<Beta>();
             IEventAggregator eventAggregator = CreateEventAggregator();
-            eventAggregator.Subscribe(listenerAlfa);
+            eventAggregator.Subscribe(listenerAlpha);
             eventAggregator.Subscribe(listenerBeta);
 
-            //Publish about alfa.
-            var alfa = new Alpha();
-            eventAggregator.Publish(eventAggregator, alfa);
-            listenerAlfa.Count.ShouldEqual(1);
-            listenerAlfa.Message.ShouldEqual(alfa);
-            listenerAlfa.Sender.ShouldEqual(eventAggregator);
+            //Publish about alpha.
+            var alpha = new Alpha();
+            eventAggregator.Publish(eventAggregator, alpha);
+            listenerAlpha.Count.ShouldEqual(1);
+            listenerAlpha.Message.ShouldEqual(alpha);
+            listenerAlpha.Sender.ShouldEqual(eventAggregator);
             listenerBeta.Count.ShouldEqual(0);
 
             //Publish about beta.
             var beta = new Beta();
             eventAggregator.Publish(eventAggregator, beta);
-            listenerAlfa.Count.ShouldEqual(2);
-            listenerAlfa.Message.ShouldEqual(beta);
-            listenerAlfa.Sender.ShouldEqual(eventAggregator);
+            listenerAlpha.Count.ShouldEqual(2);
+            listenerAlpha.Message.ShouldEqual(beta);
+            listenerAlpha.Sender.ShouldEqual(eventAggregator);
             listenerBeta.Count.ShouldEqual(1);
             listenerBeta.Message.ShouldEqual(beta);
             listenerBeta.Sender.ShouldEqual(eventAggregator);
@@ -290,17 +290,17 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             IEventAggregator eventAggregator = CreateEventAggregator();
             eventAggregator.Subscribe(listener);
 
-            //Publish about alfa.
-            var alfa = new Alpha();
-            eventAggregator.Publish(eventAggregator, alfa);
-            listener.CountAlfa.ShouldEqual(1);
-            listener.Alpha.ShouldEqual(alfa);
+            //Publish about alpha.
+            var alpha = new Alpha();
+            eventAggregator.Publish(eventAggregator, alpha);
+            listener.CountAlpha.ShouldEqual(1);
+            listener.Alpha.ShouldEqual(alpha);
             listener.CountBeta.ShouldEqual(0);
 
             //Publish about beta.
             var beta = new Beta();
             eventAggregator.Publish(eventAggregator, beta);
-            listener.CountAlfa.ShouldEqual(2);
+            listener.CountAlpha.ShouldEqual(2);
             listener.Alpha.ShouldEqual(beta);
             listener.CountBeta.ShouldEqual(1);
             listener.Beta.ShouldEqual(beta);

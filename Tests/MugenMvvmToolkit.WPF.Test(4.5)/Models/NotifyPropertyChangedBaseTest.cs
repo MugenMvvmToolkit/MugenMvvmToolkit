@@ -208,9 +208,9 @@ namespace MugenMvvmToolkit.Test.Models
             }
         }
 
-        private void BasePropertyTestInternal(Func<string> getProperty, Action<string> updateProperty, string propertyName, Action<ExecutionMode> changeRaiseInUi, bool suspend)
+        private void BasePropertyTestInternal(Func<string> getProperty, Action<string> updateProperty, string propertyName, Action<ExecutionMode> changeRaiseOnUi, bool suspend)
         {
-            changeRaiseInUi(ExecutionMode.None);
+            changeRaiseOnUi(ExecutionMode.None);
             int count = 0;
             string lastProp = null;
             const string value = "value";
@@ -234,7 +234,7 @@ namespace MugenMvvmToolkit.Test.Models
 
             //Invoke in ui thread
             updateProperty(null);
-            changeRaiseInUi(ExecutionMode.AsynchronousOnUiThread);
+            changeRaiseOnUi(ExecutionMode.AsynchronousOnUiThread);
             count = 0;
             lastProp = null;
             _threadManagerMock.InvokeOnUiThreadAsync = null;
@@ -256,7 +256,7 @@ namespace MugenMvvmToolkit.Test.Models
 
             //Invoke in ui thread synchronous
             updateProperty(null);
-            changeRaiseInUi(ExecutionMode.SynchronousOnUiThread);
+            changeRaiseOnUi(ExecutionMode.SynchronousOnUiThread);
             count = 0;
             lastProp = null;
             _threadManagerMock.InvokeOnUiThread = null;
