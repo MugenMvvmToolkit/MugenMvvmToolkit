@@ -102,10 +102,12 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
                 .GetOrAdd(element, "#ParentListener", (frameworkElement, o) => new ParentObserver(frameworkElement), null);
         }
 
-        private void OnChanged(object sender, RoutedEventArgs routedEventArgs)
+        private void OnChanged(object sender, RoutedEventArgs args)
         {
+            if (_isAttached)
+                return;
             var source = GetSource();
-            if (source != null && !_isAttached)
+            if (source != null)
                 SetParent(source, FindParent(source));
         }
 
