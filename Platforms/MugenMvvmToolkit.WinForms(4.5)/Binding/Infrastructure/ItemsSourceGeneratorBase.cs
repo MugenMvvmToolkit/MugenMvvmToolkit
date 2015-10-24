@@ -61,7 +61,7 @@ namespace MugenMvvmToolkit.Silverlight.Binding.Infrastructure
         static ItemsSourceGeneratorBase()
         {
             MemberDescriptor = new BindingMemberDescriptor<object, IItemsSourceGenerator>("ItemsSourceGenerator");
-            BindingServiceProvider.BindingMemberPriorities[MemberDescriptor] = 2;
+            BindingServiceProvider.BindingMemberPriorities[MemberDescriptor] = BindingServiceProvider.TemplateMemberPriority + 1;
         }
 
         protected ItemsSourceGeneratorBase()

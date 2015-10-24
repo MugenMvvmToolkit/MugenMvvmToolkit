@@ -153,8 +153,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
                 }));
 
             //UIViewController
-            BindingServiceProvider.BindingMemberPriorities["ToolbarItemTemplate"] = 1;
-            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UIViewController.ToolbarItemTemplateSelector] = 1;
+            BindingServiceProvider.BindingMemberPriorities["ToolbarItemTemplate"] = BindingServiceProvider.TemplateMemberPriority;
+            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UIViewController.ToolbarItemTemplateSelector] = BindingServiceProvider.TemplateMemberPriority;
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIViewController.ToolbarItemsSource, ToolbarItemsSourceChanged));
             var templateMember = AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIViewController.ToolbarItemTemplateSelector);
             memberProvider.Register(templateMember);

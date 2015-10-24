@@ -39,8 +39,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             BindingServiceProvider.ResourceResolver.AddType(typeof(UICollectionViewScrollPosition));
             BindingServiceProvider.ResourceResolver.AddType(typeof(UICollectionViewScrollDirection));
 
-            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UICollectionView.UseAnimations] = 2;
-            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UICollectionView.ScrollPosition] = 2;
+            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UICollectionView.UseAnimations] = BindingServiceProvider.TemplateMemberPriority + 1;
+            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UICollectionView.ScrollPosition] = BindingServiceProvider.TemplateMemberPriority + 1;
 
             //UICollectionView
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIView.ItemsSource.Override<UICollectionView>());

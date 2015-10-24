@@ -76,7 +76,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             ViewManager.ClearDataContext = true;
             var contextName = ToolkitExtensions.GetMemberName<BindableObject>(() => e => e.BindingContext);
             BindingServiceProvider.DataContextMemberAliases.Add(contextName);
-            BindingServiceProvider.BindingMemberPriorities[contextName] = int.MaxValue - 1;
+            BindingServiceProvider.BindingMemberPriorities[contextName] = BindingServiceProvider.DataContextMemberPriority;
         }
 
         protected XamarinFormsBootstrapperBase(PlatformInfo platform = null)

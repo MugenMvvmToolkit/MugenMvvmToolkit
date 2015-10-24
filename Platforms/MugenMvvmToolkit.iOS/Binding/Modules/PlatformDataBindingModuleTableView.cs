@@ -44,12 +44,12 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             BindingServiceProvider.ResourceResolver.AddType(typeof(UITableViewCellSeparatorStyle));
             BindingServiceProvider.ResourceResolver.AddType(typeof(UITableViewCellStyle));
 
-            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UITableView.UseAnimations] = 2;
-            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UITableView.AddAnimation] = 2;
-            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UITableView.RemoveAnimation] = 2;
-            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UITableView.ReplaceAnimation] = 2;
-            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UITableView.ScrollPosition] = 2;
-            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UITableView.CellBind] = 2;
+            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UITableView.UseAnimations] = BindingServiceProvider.TemplateMemberPriority + 1;
+            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UITableView.AddAnimation] = BindingServiceProvider.TemplateMemberPriority + 1;
+            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UITableView.RemoveAnimation] = BindingServiceProvider.TemplateMemberPriority + 1;
+            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UITableView.ReplaceAnimation] = BindingServiceProvider.TemplateMemberPriority + 1;
+            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UITableView.ScrollPosition] = BindingServiceProvider.TemplateMemberPriority + 1;
+            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UITableView.CellBind] = BindingServiceProvider.TemplateMemberPriority + 1;
 
             //UITableView
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIView.ItemsSource.Override<UITableView>());

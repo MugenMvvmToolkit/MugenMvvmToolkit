@@ -33,6 +33,9 @@ namespace MugenMvvmToolkit.Binding
     {
         #region Fields
 
+        public const int DataContextMemberPriority = int.MaxValue - 10;
+        public const int TemplateMemberPriority = 3;
+
         private static IBindingProvider _bindingProvider;
         private static IBindingManager _bindingManager;
         private static IBindingMemberProvider _memberProvider;
@@ -67,11 +70,11 @@ namespace MugenMvvmToolkit.Binding
             };
             MemberPriorities = new Dictionary<string, int>
             {
-                {AttachedMemberConstants.DataContext, int.MaxValue - 2},
-                {AttachedMemberConstants.ItemTemplate, 3},
-                {AttachedMemberConstants.ItemTemplateSelector, 3},
-                {AttachedMemberConstants.ContentTemplate, 3},
-                {AttachedMemberConstants.ContentTemplateSelector, 3}
+                {AttachedMemberConstants.DataContext, DataContextMemberPriority},
+                {AttachedMemberConstants.ItemTemplate, TemplateMemberPriority},
+                {AttachedMemberConstants.ItemTemplateSelector, TemplateMemberPriority},
+                {AttachedMemberConstants.ContentTemplate, TemplateMemberPriority},
+                {AttachedMemberConstants.ContentTemplateSelector, TemplateMemberPriority}
             };
             FakeMemberPrefixesField = new List<string>
             {
