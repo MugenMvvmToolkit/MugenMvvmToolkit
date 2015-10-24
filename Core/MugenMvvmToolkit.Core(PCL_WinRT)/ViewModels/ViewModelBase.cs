@@ -523,7 +523,6 @@ namespace MugenMvvmToolkit.ViewModels
 
         private void DisposeInternal()
         {
-            //Disposing commands, if need.
             if (Settings.DisposeCommands)
                 ReflectionExtensions.DisposeCommands(this);
 
@@ -540,7 +539,6 @@ namespace MugenMvvmToolkit.ViewModels
             if (IocContainer.TryGet(out viewManager))
                 viewManager.CleanupViewAsync(this);
 
-            //Disposing ioc adapter.
             if (Settings.DisposeIocContainer && _iocContainer != null)
                 _iocContainer.Dispose();
 
