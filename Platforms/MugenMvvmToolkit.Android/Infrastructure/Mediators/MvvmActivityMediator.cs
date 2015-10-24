@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
@@ -114,10 +115,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             get
             {
                 if (_metadata == null)
-                {
-                    Interlocked.CompareExchange(ref _metadata, new Dictionary<string, object>(StringComparer.Ordinal),
-                        null);
-                }
+                    Interlocked.CompareExchange(ref _metadata, new ConcurrentDictionary<string, object>(StringComparer.Ordinal), null);
                 return _metadata;
             }
         }

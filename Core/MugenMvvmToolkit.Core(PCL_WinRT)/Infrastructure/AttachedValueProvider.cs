@@ -326,13 +326,9 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                     var activityView = pref.Context as IActivityView;
                     if (activityView != null)
                     {
-                        var metadata = activityView.Mediator.Metadata;
                         var key = pref.Key + pref.GetType().FullName + pref.GetHashCode();
-                        lock (metadata)
-                        {
-                            if (metadata.Remove(key))
-                                return true;
-                        }
+                        if (activityView.Mediator.Metadata.Remove(key))
+                            return true;
                     }
                 }
                 catch
@@ -445,19 +441,16 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                     {
                         var metadata = activityView.Mediator.Metadata;
                         var key = pref.Key + pref.GetType().FullName + pref.GetHashCode();
-                        lock (metadata)
+                        object v;
+                        if (!metadata.TryGetValue(key, out v))
                         {
-                            object v;
-                            if (!metadata.TryGetValue(key, out v))
+                            if (addNew)
                             {
-                                if (addNew)
-                                {
-                                    v = new AttachedValueDictionary();
-                                    metadata[key] = v;
-                                }
+                                v = new AttachedValueDictionary();
+                                metadata[key] = v;
                             }
-                            return (LightDictionaryBase<string, object>)v;
                         }
+                        return (LightDictionaryBase<string, object>)v;
                     }
                 }
                 catch
