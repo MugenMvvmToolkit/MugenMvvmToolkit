@@ -60,6 +60,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             memberProvider.Register(typeof(UICollectionView), AttachedMemberConstants.ItemTemplate, itemTemplateMember, true);
 
             //UICollectionViewCell
+            memberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UICollectionViewCell.ClickEvent));
             memberProvider.Register(AttachedBindingMember
                 .CreateNotifiableMember(AttachedMembers.UICollectionViewCell.Selected, (info, cell) =>
                 {

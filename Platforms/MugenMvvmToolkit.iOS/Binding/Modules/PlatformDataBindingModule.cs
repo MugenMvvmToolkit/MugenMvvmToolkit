@@ -155,6 +155,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             //UIViewController
             BindingServiceProvider.BindingMemberPriorities["ToolbarItemTemplate"] = BindingServiceProvider.TemplateMemberPriority;
             BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UIViewController.ToolbarItemTemplateSelector] = BindingServiceProvider.TemplateMemberPriority;
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIViewController.ToastTemplateSelector));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIViewController.ToolbarItemsSource, ToolbarItemsSourceChanged));
             var templateMember = AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIViewController.ToolbarItemTemplateSelector);
             memberProvider.Register(templateMember);

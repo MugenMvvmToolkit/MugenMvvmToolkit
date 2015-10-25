@@ -141,7 +141,7 @@ namespace MugenMvvmToolkit.Android
                     if (++_gcCount < MaxGC)
                         return;
                     _gcCount = 0;
-                    Collect();
+                    ThreadPool.QueueUserWorkItem(state => Collect());
                 }
                 catch (Exception e)
                 {

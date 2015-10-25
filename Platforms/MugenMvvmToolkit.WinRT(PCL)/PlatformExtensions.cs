@@ -109,7 +109,7 @@ namespace MugenMvvmToolkit.WinRT
             var isPhone = new EasClientDeviceInformation().OperatingSystem.SafeContains("WindowsPhone", StringComparison.OrdinalIgnoreCase);
             var isWinRT10 = typeof(DependencyObject).GetMethodEx("RegisterPropertyChangedCallback", MemberFlags.Instance | MemberFlags.Public) != null;
             var version = isWinRT10 ? new Version(10, 0) : new Version(8, 1);
-            return new PlatformInfo(isPhone ? PlatformType.WinPhone : PlatformType.WinRT, version);
+            return new PlatformInfo(isPhone ? PlatformType.WinRTPhone : PlatformType.WinRT, version);
         }
 
         internal static NavigationMode ToNavigationMode(this Windows.UI.Xaml.Navigation.NavigationMode mode)

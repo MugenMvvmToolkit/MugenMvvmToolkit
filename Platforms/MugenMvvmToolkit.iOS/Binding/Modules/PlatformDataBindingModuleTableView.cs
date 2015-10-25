@@ -80,6 +80,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableViewCell.TitleForDeleteConfirmation));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableViewCell.EditingStyle));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableViewCell.ShouldHighlight));
+            memberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UITableViewCell.ClickEvent));
             memberProvider.Register(AttachedBindingMember.CreateNotifiableMember(
                 AttachedMembers.UITableViewCell.Selected, (info, cell) =>
                 {
