@@ -26,7 +26,6 @@ namespace MugenMvvmToolkit.Models
         #region Fields
 
         public static readonly PlatformInfo Unknown;
-
         public static readonly PlatformInfo UnitTest;
 
         private readonly PlatformType _platform;

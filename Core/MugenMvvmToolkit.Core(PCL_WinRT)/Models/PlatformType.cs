@@ -34,6 +34,8 @@ namespace MugenMvvmToolkit.Models
 
         public static readonly PlatformType WinRT;
 
+        public static readonly PlatformType WinRTPhone;
+
         public static readonly PlatformType WPF;
 
         public static readonly PlatformType Unknown;
@@ -48,6 +50,8 @@ namespace MugenMvvmToolkit.Models
 
         public static readonly PlatformType XamarinFormsWinRT;
 
+        public static readonly PlatformType XamarinFormsWinRTPhone;
+
         #endregion
 
         #region Constructors
@@ -60,13 +64,15 @@ namespace MugenMvvmToolkit.Models
             WinPhone = new PlatformType("WinPhone");
             WinForms = new PlatformType("WinForms");
             WinRT = new PlatformType("WinRT");
+            WinRTPhone = new PlatformType(WinRT.Id + ".Phone");
             WPF = new PlatformType("WPF");
+            XamarinFormsAndroid = new PlatformType("XamarinForms." + Android.Id);
+            XamarinFormsiOS = new PlatformType("XamarinForms." + iOS.Id);
+            XamarinFormsWinPhone = new PlatformType("XamarinForms." + WinPhone.Id);
+            XamarinFormsWinRT = new PlatformType("XamarinForms." + WinRT.Id);
+            XamarinFormsWinRTPhone = new PlatformType("XamarinForms." + WinRTPhone.Id);
             Unknown = new PlatformType("Unknown");
             UnitTest = new PlatformType("UnitTest");
-            XamarinFormsAndroid = new PlatformType("XamarinFormsAndroid");
-            XamarinFormsiOS = new PlatformType("XamarinFormsiOS");
-            XamarinFormsWinPhone = new PlatformType("XamarinFormsWinPhone");
-            XamarinFormsWinRT = new PlatformType("XamarinFormsWinRT");
         }
 
         public PlatformType(string id)
