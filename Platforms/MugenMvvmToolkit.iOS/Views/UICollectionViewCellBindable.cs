@@ -30,6 +30,12 @@ namespace MugenMvvmToolkit.iOS.Views
     [Register("UICollectionViewCellBindable")]
     public class UICollectionViewCellBindable : UICollectionViewCell, IHasDisplayCallback
     {
+        #region Fields
+
+        private WeakReference _parent;
+
+        #endregion
+
         #region Constructors
 
         public UICollectionViewCellBindable()
@@ -85,10 +91,17 @@ namespace MugenMvvmToolkit.iOS.Views
 
         private CollectionViewSourceBase GetCollectionViewSource()
         {
-            var parent = this.FindParent<UICollectionView>();
-            if (parent == null)
+            if (_parent == null)
+            {
+                var parent = this.FindParent<UICollectionView>();
+                if (parent == null)
+                    return null;
+                _parent = ServiceProvider.WeakReferenceFactory(parent);
+            }
+            var target = (UICollectionView)_parent.Target;
+            if (target == null)
                 return null;
-            return parent.Source as CollectionViewSourceBase;
+            return target.Source as CollectionViewSourceBase;
         }
 
         #endregion

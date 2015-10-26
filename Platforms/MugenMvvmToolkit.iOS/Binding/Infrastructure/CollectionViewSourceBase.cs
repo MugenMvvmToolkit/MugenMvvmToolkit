@@ -109,8 +109,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             }
         }
 
-        public bool ClearDataContext { get; set; }
-
         protected DataTemplateProvider DataTemplateProvider
         {
             get { return _itemTemplateProvider; }
@@ -238,8 +236,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         public override void CellDisplayingEnded(UICollectionView collectionView, UICollectionViewCell cell,
             NSIndexPath indexPath)
         {
-            if (ClearDataContext)
-                cell.SetDataContext(null);
+            cell.SetDataContext(null);
             var callback = cell as IHasDisplayCallback;
             if (callback != null)
                 callback.DisplayingEnded();
