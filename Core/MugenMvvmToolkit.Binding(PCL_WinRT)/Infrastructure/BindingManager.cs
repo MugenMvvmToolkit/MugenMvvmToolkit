@@ -81,7 +81,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return dataBinding.IsAssociated;
         }
 
-        public virtual IEnumerable<IDataBinding> GetBindings(object target, IDataContext context = null)
+        public virtual ICollection<IDataBinding> GetBindings(object target, IDataContext context = null)
         {
             Should.NotBeNull(target, "target");
             return ServiceProvider
@@ -90,13 +90,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 .ToArrayEx(pair => (IDataBinding)pair.Value);
         }
 
-        public virtual IEnumerable<IDataBinding> GetBindings(object target, string path, IDataContext context = null)
+        public virtual ICollection<IDataBinding> GetBindings(object target, string path, IDataContext context = null)
         {
             Should.NotBeNull(target, "target");
             object value;
             if (ServiceProvider.AttachedValueProvider.TryGetValue(target, BindPrefix + path, out value))
                 return new[] { (IDataBinding)value };
-            return Enumerable.Empty<IDataBinding>();
+            return Empty.Array<IDataBinding>();
         }
 
         public virtual void Unregister(IDataBinding binding)

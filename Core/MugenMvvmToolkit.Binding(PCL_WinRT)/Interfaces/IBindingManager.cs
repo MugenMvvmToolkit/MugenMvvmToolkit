@@ -28,9 +28,9 @@ namespace MugenMvvmToolkit.Binding.Interfaces
 
         bool IsRegistered([NotNull] IDataBinding binding);
 
-        IEnumerable<IDataBinding> GetBindings([NotNull] object target, IDataContext context = null);
+        ICollection<IDataBinding> GetBindings([NotNull] object target, IDataContext context = null);
 
-        IEnumerable<IDataBinding> GetBindings([NotNull] object target, [NotNull] string path, IDataContext context = null);
+        ICollection<IDataBinding> GetBindings([NotNull] object target, [NotNull] string path, IDataContext context = null);
 
         void Unregister(IDataBinding binding);
 
