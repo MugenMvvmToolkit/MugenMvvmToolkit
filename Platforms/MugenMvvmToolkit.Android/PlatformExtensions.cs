@@ -528,17 +528,15 @@ namespace MugenMvvmToolkit.Android
             if (obj != null && obj.Handle == IntPtr.Zero)
                 return Empty.WeakReference;
 
+            var hasWeakReference = item as IHasWeakReference;
+            if (hasWeakReference != null && !(item is IHasWeakReferenceInternal))
+                return CreateWeakReference(item, obj);
+
             WeakReference value;
             var key = RuntimeHelpers.GetHashCode(item);
             if (!WeakReferences.TryGetValue(key, out value) || !ReferenceEquals(value.Target, item))
             {
-                if (obj == null)
-                    value = new WeakReference(item, true);
-                else
-                {
-                    var weakReferenceFactory = JavaWeakReferenceFactory;
-                    value = weakReferenceFactory == null ? new JavaObjectWeakReference(obj) : weakReferenceFactory(obj);
-                }
+                value = CreateWeakReference(item, obj);
                 WeakReferences[key] = value;
             }
             return value;
@@ -671,6 +669,14 @@ namespace MugenMvvmToolkit.Android
         private static IMvvmActivityMediator MvvmActivityMediatorFactoryMethod(Activity activity, IDataContext dataContext)
         {
             return new MvvmActivityMediator(activity);
+        }
+
+        private static WeakReference CreateWeakReference(object item, Object javaItem)
+        {
+            if (javaItem == null)
+                return new WeakReference(item, true);
+            var weakReferenceFactory = JavaWeakReferenceFactory;
+            return weakReferenceFactory == null ? new JavaObjectWeakReference(javaItem) : weakReferenceFactory(javaItem);
         }
 
         #endregion
