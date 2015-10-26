@@ -197,8 +197,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             }
         }
 
-        public bool ClearDataContext { get; set; }
-
         protected DataTemplateProvider DataTemplateProvider
         {
             get { return _templateProvider; }
@@ -249,13 +247,13 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             if (path == null)
                 return;
             if (selected)
-                tableView.SelectRow(path, false, UITableViewScrollPosition.None);
+                tableView.SelectRow(path, UseAnimations, UITableViewScrollPosition.None);
             else
             {
                 try
                 {
                     //NOTE sometimes this code throw an exception on iOS 8, in this case we are using the WillDisplay method to deselect row.
-                    tableView.DeselectRow(path, false);
+                    tableView.DeselectRow(path, UseAnimations);
                 }
                 catch
                 {
@@ -328,10 +326,9 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         private static NSString GetCellIdentifier(object item, string id = null)
         {
-            if (TypeToIdentifier.Count > 100)
+            if (TypeToIdentifier.Count > 200)
                 TypeToIdentifier.Clear();
-            return TypeToIdentifier.GetOrAdd(new IdentifierKey(item == null ? typeof(object) : item.GetType(), id),
-                type => type.GetIdentifier());
+            return TypeToIdentifier.GetOrAdd(new IdentifierKey(item == null ? typeof(object) : item.GetType(), id), type => type.GetIdentifier());
         }
 
         private static void SetCellBinding(UITableView tableView, UITableViewCell cell)
@@ -394,8 +391,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public override void CellDisplayingEnded(UITableView tableView, UITableViewCell cell, NSIndexPath indexPath)
         {
-            if (ClearDataContext)
-                cell.SetDataContext(null);
+            cell.SetDataContext(null);
             var callback = cell as IHasDisplayCallback;
             if (callback != null)
                 callback.DisplayingEnded();

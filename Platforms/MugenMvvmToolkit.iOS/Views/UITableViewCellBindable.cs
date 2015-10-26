@@ -30,6 +30,12 @@ namespace MugenMvvmToolkit.iOS.Views
     [Register("UITableViewCellBindable")]
     public class UITableViewCellBindable : UITableViewCell, IHasDisplayCallback
     {
+        #region Fields
+
+        private WeakReference _parent;
+
+        #endregion
+
         #region Constructors
 
         public UITableViewCellBindable(UITableViewCellStyle style, string reuseIdentifier)
@@ -95,10 +101,17 @@ namespace MugenMvvmToolkit.iOS.Views
 
         private TableViewSourceBase GetTableViewSource()
         {
-            var parent = this.FindParent<UITableView>();
-            if (parent == null)
+            if (_parent == null)
+            {
+                var parent = this.FindParent<UITableView>();
+                if (parent == null)
+                    return null;
+                _parent = ServiceProvider.WeakReferenceFactory(parent);
+            }
+            var uiTableView = (UITableView)_parent.Target;
+            if (uiTableView == null)
                 return null;
-            return parent.Source as TableViewSourceBase;
+            return uiTableView.Source as TableViewSourceBase;
         }
 
         #endregion
