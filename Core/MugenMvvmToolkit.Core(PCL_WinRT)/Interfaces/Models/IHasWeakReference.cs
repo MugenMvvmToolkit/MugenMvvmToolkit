@@ -26,4 +26,6 @@ namespace MugenMvvmToolkit.Interfaces.Models
         [NotNull]
         WeakReference WeakReference { get; }
     }
+
+    internal interface IHasWeakReferenceInternal : IHasWeakReference { }
 }

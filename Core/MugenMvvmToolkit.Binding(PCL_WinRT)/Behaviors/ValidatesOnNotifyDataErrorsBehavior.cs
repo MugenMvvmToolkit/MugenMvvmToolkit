@@ -34,7 +34,7 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
-    public class ValidatesOnNotifyDataErrorsBehavior : BindingBehaviorBase, IEventListener, IHasWeakReference
+    public class ValidatesOnNotifyDataErrorsBehavior : BindingBehaviorBase, IEventListener, IHasWeakReferenceInternal
     {
         #region Fields
 

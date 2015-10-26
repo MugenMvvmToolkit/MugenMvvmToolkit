@@ -27,7 +27,7 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    public sealed class MultiPathObserver : ObserverBase, IEventListener, IHasWeakReference
+    public sealed class MultiPathObserver : ObserverBase, IEventListener, IHasWeakReferenceInternal
     {
         #region Nested types
 
