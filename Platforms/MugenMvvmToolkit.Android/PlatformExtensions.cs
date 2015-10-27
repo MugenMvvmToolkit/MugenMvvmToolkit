@@ -128,7 +128,7 @@ namespace MugenMvvmToolkit.Android
             #region Fields
 
             private const int MaxGC = 4;
-            private int _gcCount;
+            private static int _gcCount;
 
             #endregion
 
@@ -138,9 +138,8 @@ namespace MugenMvvmToolkit.Android
             {
                 try
                 {
-                    if (++_gcCount < MaxGC)
+                    if (Interlocked.Increment(ref _gcCount) < MaxGC)
                         return;
-                    _gcCount = 0;
                     ThreadPool.QueueUserWorkItem(state => Collect());
                 }
                 catch (Exception e)
@@ -157,9 +156,11 @@ namespace MugenMvvmToolkit.Android
 
             #region Methods
 
-            private static void Collect()
+            public static void Collect()
             {
+                Interlocked.Exchange(ref _gcCount, 0);
                 int collected = 0;
+                int total = 0;
                 foreach (var keyPair in WeakReferences)
                 {
                     if (keyPair.Value.Target == null)
@@ -168,9 +169,11 @@ namespace MugenMvvmToolkit.Android
                         WeakReferences.TryRemove(keyPair.Key, out value);
                         ++collected;
                     }
+                    else
+                        ++total;
                 }
                 if (Tracer.TraceWarning)
-                    Tracer.Warn("Collected " + collected + " weak references");
+                    Tracer.Warn("Collected " + collected + " weak references, total " + total);
             }
 
             #endregion
@@ -492,6 +495,11 @@ namespace MugenMvvmToolkit.Android
             }
         }
 
+        public static void CleanupWeakReferences()
+        {
+            WeakReferenceCollector.Collect();
+        }
+
         internal static void RemoveFromParent([CanBeNull] this View view)
         {
             if (!view.IsAlive())
@@ -538,6 +546,16 @@ namespace MugenMvvmToolkit.Android
             {
                 value = CreateWeakReference(item, obj);
                 WeakReferences[key] = value;
+                if (obj != null)
+                {
+                    var view = item as View;
+                    if (view != null)
+                    {
+                        var activityView = view.Context.GetActivity() as IActivityView;
+                        if (activityView != null)
+                            activityView.Mediator.OnDependencyItemAttached(value);
+                    }
+                }
             }
             return value;
         }

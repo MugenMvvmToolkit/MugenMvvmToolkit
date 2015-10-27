@@ -21,10 +21,11 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    public sealed class EmptyPathObserver : ObserverBase
+    public sealed class EmptyPathObserver : ObserverBase, IHasWeakReferenceInternal
     {
         #region Nested types
 
@@ -124,6 +125,28 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         protected override IEventListener CreateSourceListener()
         {
             return _members;
+        }
+
+        protected override void OnDispose()
+        {
+            try
+            {
+                _members.Ref.Target = null;
+            }
+            catch
+            {
+                ;
+            }
+            base.OnDispose();
+        }
+
+        #endregion
+
+        #region Implementation of interfaces
+
+        public WeakReference WeakReference
+        {
+            get { return _members.Ref; }
         }
 
         #endregion

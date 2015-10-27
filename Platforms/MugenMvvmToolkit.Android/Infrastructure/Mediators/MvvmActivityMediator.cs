@@ -34,6 +34,7 @@ using MugenMvvmToolkit.Android.Interfaces.Mediators;
 using MugenMvvmToolkit.Android.Interfaces.Navigation;
 using MugenMvvmToolkit.Android.Views;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -86,6 +87,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         #region Fields
 
+        private HashSet<WeakReference> _attachedViews;
         private BindableMenuInflater _menuInflater;
         private BindableLayoutInflater _layoutInflater;
         private IMenu _menu;
@@ -210,8 +212,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             if (handler != null)
                 handler(Target, EventArgs.Empty);
             _view.RemoveFromParent();
-            _view.ClearBindingsRecursively(true, true);
+            if (_attachedViews == null)
+                _view.ClearBindingsRecursively(true, true);
+            else
+                CleanupItems();
             _view = null;
+
             if (_metadata != null)
             {
                 _metadata.Clear();
@@ -247,7 +253,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             Resume = null;
             Destroyed = null;
         }
-
 
         protected override PreferenceManager PreferenceManager
         {
@@ -391,6 +396,13 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             InitializePreferences(activity.PreferenceScreen, preferencesResId);
         }
 
+        public virtual void OnDependencyItemAttached(WeakReference item)
+        {
+            if (_attachedViews == null)
+                _attachedViews = new HashSet<WeakReference>(ReferenceEqualityComparer.Instance);
+            _attachedViews.Add(item);
+        }
+
         void IHandler<FinishActivityMessage>.Handle(object sender, FinishActivityMessage message)
         {
             try
@@ -436,6 +448,31 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public virtual event EventHandler<Activity, EventArgs> Resume;
 
         public virtual event EventHandler<Activity, EventArgs> Destroyed;
+
+        #endregion
+
+        #region Methods
+
+        private void CleanupItems()
+        {
+            try
+            {
+                foreach (var weakReference in _attachedViews)
+                {
+                    var target = weakReference.Target;
+                    if (target != null)
+                    {
+                        target.ClearBindings(false, true);
+                        weakReference.Target = null;
+                    }
+                }
+                ThreadPool.QueueUserWorkItem(state => PlatformExtensions.CleanupWeakReferences());
+            }
+            catch (Exception e)
+            {
+                Tracer.Error(e.Flatten(true));
+            }
+        }
 
         #endregion
     }

@@ -148,6 +148,19 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 listener.Dispose();
         }
 
+        protected override void OnDispose()
+        {
+            try
+            {
+                _ref.Target = null;
+            }
+            catch
+            {
+                ;
+            }
+            base.OnDispose();
+        }
+
         #endregion
 
         #region Implementation of interfaces

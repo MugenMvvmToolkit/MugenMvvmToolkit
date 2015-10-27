@@ -245,6 +245,19 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _listeners.Clear();
         }
 
+        protected override void OnDispose()
+        {
+            try
+            {
+                _lastMemberListener.Reference.Target = null;
+            }
+            catch
+            {
+                ;
+            }
+            base.OnDispose();
+        }
+
         #endregion
 
         #region Methods

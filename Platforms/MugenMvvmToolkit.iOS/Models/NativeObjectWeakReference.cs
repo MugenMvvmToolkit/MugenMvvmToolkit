@@ -63,7 +63,12 @@ namespace MugenMvvmToolkit.iOS.Models
                 }
                 return target;
             }
-            set { throw new NotSupportedException(); }
+            set
+            {
+                if (value != null)
+                    throw new NotSupportedException();
+                base.Target = null;
+            }
         }
 
         #endregion

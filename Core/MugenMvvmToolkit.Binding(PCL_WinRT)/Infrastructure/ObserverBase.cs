@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             #region Fields
 
-            protected readonly WeakReference Ref;
+            public readonly WeakReference Ref;
 
             #endregion
 
