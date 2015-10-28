@@ -29,7 +29,7 @@ using MugenMvvmToolkit.Models;
 namespace MugenMvvmToolkit.WinForms.Collections
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class BindingListWrapper<T> : BindingList<T>, IBindingList, INotifiableCollection<T>
+    public class BindingListWrapper<T> : BindingList<T>, IBindingList, INotifiableCollection, INotifiableCollection<T>
     {
         #region Fields
 
