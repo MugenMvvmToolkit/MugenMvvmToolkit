@@ -128,43 +128,33 @@ namespace MugenMvvmToolkit
             if (ViewModelProvider == null)
             {
                 IViewModelProvider viewModelProvider;
-                ViewModelProvider = iocContainer.TryGet(out viewModelProvider)
-                    ? viewModelProvider
-                    : new ViewModelProvider(iocContainer);
+                ViewModelProvider = iocContainer.TryGet(out viewModelProvider) ? viewModelProvider : new ViewModelProvider(iocContainer);
             }
         }
 
         protected internal IViewModel GetViewModel([NotNull] GetViewModelDelegate<IViewModel> getViewModel,
-            IViewModel parentViewModel = null, ObservationMode? observationMode = null,
-            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
+            IViewModel parentViewModel = null, ObservationMode? observationMode = null, params DataConstantValue[] parameters)
         {
-            return ViewModelProvider.GetViewModel(getViewModel, parentViewModel, observationMode, containerCreationMode,
-                parameters);
+            return ViewModelProvider.GetViewModel(getViewModel, parentViewModel, observationMode, parameters);
         }
 
         protected internal T GetViewModel<T>([NotNull] GetViewModelDelegate<T> getViewModelGeneric,
-            IViewModel parentViewModel = null, ObservationMode? observationMode = null,
-            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
+            IViewModel parentViewModel = null, ObservationMode? observationMode = null, params DataConstantValue[] parameters)
             where T : class, IViewModel
         {
-            return ViewModelProvider.GetViewModel(getViewModelGeneric, parentViewModel, observationMode,
-                containerCreationMode,
-                parameters);
+            return ViewModelProvider.GetViewModel(getViewModelGeneric, parentViewModel, observationMode, parameters);
         }
 
         protected internal IViewModel GetViewModel([NotNull] Type viewModelType,
-            IViewModel parentViewModel = null, ObservationMode? observationMode = null,
-            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
+            IViewModel parentViewModel = null, ObservationMode? observationMode = null, params DataConstantValue[] parameters)
         {
-            return ViewModelProvider.GetViewModel(viewModelType, parentViewModel, observationMode, containerCreationMode,
-                parameters);
+            return ViewModelProvider.GetViewModel(viewModelType, parentViewModel, observationMode, parameters);
         }
 
-        protected internal T GetViewModel<T>(IViewModel parentViewModel = null, ObservationMode? observationMode = null,
-            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
+        protected internal T GetViewModel<T>(IViewModel parentViewModel = null, ObservationMode? observationMode = null, params DataConstantValue[] parameters)
             where T : IViewModel
         {
-            return ViewModelProvider.GetViewModel<T>(parentViewModel, observationMode, containerCreationMode, parameters);
+            return ViewModelProvider.GetViewModel<T>(parentViewModel, observationMode, parameters);
         }
 
         #endregion

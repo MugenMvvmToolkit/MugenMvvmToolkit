@@ -164,11 +164,9 @@ namespace MugenMvvmToolkit.ViewModels
         [Pure]
         public static IViewModel GetViewModel([NotNull] this IViewModelProvider viewModelProvider,
             [NotNull] GetViewModelDelegate<IViewModel> getViewModel, IViewModel parentViewModel = null,
-            ObservationMode? observationMode = null, IocContainerCreationMode? containerCreationMode = null,
-            params DataConstantValue[] parameters)
+            ObservationMode? observationMode = null, params DataConstantValue[] parameters)
         {
-            return GetViewModel(viewModelProvider, getViewModel,
-                MergeParameters(parentViewModel, containerCreationMode, observationMode, parameters));
+            return GetViewModel(viewModelProvider, getViewModel, MergeParameters(parentViewModel, observationMode, parameters));
         }
 
         [Pure]
@@ -184,11 +182,9 @@ namespace MugenMvvmToolkit.ViewModels
         [Pure]
         public static T GetViewModel<T>([NotNull] this IViewModelProvider viewModelProvider,
             [NotNull] GetViewModelDelegate<T> getViewModelGeneric, IViewModel parentViewModel = null,
-            ObservationMode? observationMode = null, IocContainerCreationMode? containerCreationMode = null,
-            params DataConstantValue[] parameters) where T : class, IViewModel
+            ObservationMode? observationMode = null, params DataConstantValue[] parameters) where T : class, IViewModel
         {
-            return GetViewModel(viewModelProvider, getViewModelGeneric,
-                MergeParameters(parentViewModel, containerCreationMode, observationMode, parameters));
+            return GetViewModel(viewModelProvider, getViewModelGeneric, MergeParameters(parentViewModel, observationMode, parameters));
         }
 
         [Pure]
@@ -201,12 +197,10 @@ namespace MugenMvvmToolkit.ViewModels
         }
 
         [Pure]
-        public static IViewModel GetViewModel([NotNull] this IViewModelProvider viewModelProvider,
-            [NotNull] Type viewModelType, IViewModel parentViewModel = null, ObservationMode? observationMode = null,
-            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
+        public static IViewModel GetViewModel([NotNull] this IViewModelProvider viewModelProvider, [NotNull] Type viewModelType, IViewModel parentViewModel = null, 
+            ObservationMode? observationMode = null, params DataConstantValue[] parameters)
         {
-            return GetViewModel(viewModelProvider, viewModelType,
-                MergeParameters(parentViewModel, containerCreationMode, observationMode, parameters));
+            return GetViewModel(viewModelProvider, viewModelType, MergeParameters(parentViewModel, observationMode, parameters));
         }
 
         [Pure]
@@ -218,11 +212,9 @@ namespace MugenMvvmToolkit.ViewModels
 
         [Pure]
         public static T GetViewModel<T>([NotNull] this IViewModelProvider viewModelProvider,
-            IViewModel parentViewModel = null, ObservationMode? observationMode = null,
-            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters) where T : IViewModel
+            IViewModel parentViewModel = null, ObservationMode? observationMode = null, params DataConstantValue[] parameters) where T : IViewModel
         {
-            return GetViewModel<T>(viewModelProvider,
-                MergeParameters(parentViewModel, containerCreationMode, observationMode, parameters));
+            return GetViewModel<T>(viewModelProvider, MergeParameters(parentViewModel, observationMode, parameters));
         }
 
         [CanBeNull]
@@ -272,8 +264,7 @@ namespace MugenMvvmToolkit.ViewModels
             return closeableViewModel.CloseAsync(parameter);
         }
 
-        public static IIocContainer GetIocContainer([NotNull] this IViewModel viewModel, bool useGlobalContainer,
-            bool throwOnError = true)
+        public static IIocContainer GetIocContainer([NotNull] this IViewModel viewModel, bool useGlobalContainer, bool throwOnError = true)
         {
             Should.NotBeNull(viewModel, "viewModel");
             IIocContainer iocContainer = null;
@@ -286,15 +277,12 @@ namespace MugenMvvmToolkit.ViewModels
             return iocContainer;
         }
 
-        private static DataConstantValue[] MergeParameters(IViewModel parentViewModel,
-            IocContainerCreationMode? containerCreationMode, ObservationMode? observationMode, DataConstantValue[] parameters)
+        private static DataConstantValue[] MergeParameters(IViewModel parentViewModel, ObservationMode? observationMode, DataConstantValue[] parameters)
         {
-            if (observationMode == null && containerCreationMode == null && parentViewModel == null)
+            if (observationMode == null && parentViewModel == null)
                 return parameters;
 
             var values = new List<DataConstantValue>();
-            if (containerCreationMode.HasValue)
-                values.Add(InitializationConstants.IocContainerCreationMode.ToValue(containerCreationMode.Value));
             if (observationMode.HasValue)
                 values.Add(InitializationConstants.ObservationMode.ToValue(observationMode.Value));
 

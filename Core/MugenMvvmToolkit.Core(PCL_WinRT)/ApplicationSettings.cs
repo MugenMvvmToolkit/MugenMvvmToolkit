@@ -66,8 +66,6 @@ namespace MugenMvvmToolkit
 
         public static ObservationMode ViewModelObservationMode { get; set; }
 
-        public static IocContainerCreationMode IocContainerCreationMode { get; set; }
-
         public static bool HandleTaskExceptionBusyIndicator { get; set; }
 
         public static ExecutionMode CommandCanExecuteMode { get; set; }
@@ -98,7 +96,6 @@ namespace MugenMvvmToolkit
             HandleTaskExceptionBusyIndicator = true;
             CommandCanExecuteMode = ExecutionMode.AsynchronousOnUiThread;
             CommandExecutionMode = CommandExecutionMode.CanExecuteBeforeExecute;
-            IocContainerCreationMode = IocContainerCreationMode.Mixed;
             NotificationCollectionBatchSize = 100;
         }
 

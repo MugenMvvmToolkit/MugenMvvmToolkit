@@ -33,7 +33,7 @@ using MugenMvvmToolkit.Models.Messages;
 namespace MugenMvvmToolkit.ViewModels
 {
     [BaseViewModel(Priority = 9)]
-    public abstract class ViewModelBase : NotifyPropertyChangedBase, IViewModel, IHandler<object>
+    public abstract class ViewModelBase : NotifyPropertyChangedBase, IIocContainerOwnerViewModel, IHandler<object>
     {
         #region Nested types
 
@@ -316,17 +316,20 @@ namespace MugenMvvmToolkit.ViewModels
             get { return _settings; }
         }
 
-        public IIocContainer IocContainer
+        public virtual IIocContainer IocContainer
         {
             get
             {
-                if (_iocContainer == null)
+                if (_iocContainer != null)
+                    return _iocContainer;
+                var viewModel = this.GetParentViewModel();
+                if (viewModel == null)
                     return ServiceProvider.IocContainer;
-                return _iocContainer;
+                return viewModel.GetIocContainer(true, false);
             }
-            internal set
+            protected internal set
             {
-                if (ReferenceEquals(_iocContainer, value))
+                if (Equals(_iocContainer, value))
                     return;
                 _iocContainer = value;
                 OnPropertyChanged("IocContainer");
@@ -351,7 +354,7 @@ namespace MugenMvvmToolkit.ViewModels
             context.TryGetData(InitializationConstants.IsRestored, out restored);
             if (restored)
                 Interlocked.CompareExchange(ref _state, RestoredState, InitializedState);
-            IocContainer = context.GetData(InitializationConstants.IocContainer, true);
+            IocContainer = context.GetData(InitializationConstants.IocContainer);
 
             OnInitializing(context);
             OnInitializedInternal();
@@ -459,36 +462,39 @@ namespace MugenMvvmToolkit.ViewModels
             OnHandle(sender, message);
         }
 
+        void IIocContainerOwnerViewModel.RequestOwnIocContainer()
+        {
+            OnRequestOwnIocContainer();
+        }
+
         #endregion
 
         #region Methods
 
         protected internal IViewModel GetViewModel([NotNull] GetViewModelDelegate<IViewModel> getViewModel, ObservationMode? observationMode = null,
-            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
+            params DataConstantValue[] parameters)
         {
             EnsureNotDisposed();
-            return ViewModelProvider.GetViewModel(getViewModel, this, observationMode, containerCreationMode, parameters);
+            return ViewModelProvider.GetViewModel(getViewModel, this, observationMode, parameters);
         }
 
         protected internal T GetViewModel<T>([NotNull] GetViewModelDelegate<T> getViewModelGeneric, ObservationMode? observationMode = null,
-            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters) where T : class, IViewModel
+            params DataConstantValue[] parameters) where T : class, IViewModel
         {
             EnsureNotDisposed();
-            return ViewModelProvider.GetViewModel(getViewModelGeneric, this, observationMode, containerCreationMode, parameters);
+            return ViewModelProvider.GetViewModel(getViewModelGeneric, this, observationMode, parameters);
         }
 
-        protected internal IViewModel GetViewModel([NotNull] Type viewModelType, ObservationMode? observationMode = null,
-            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters)
+        protected internal IViewModel GetViewModel([NotNull] Type viewModelType, ObservationMode? observationMode = null, params DataConstantValue[] parameters)
         {
             EnsureNotDisposed();
-            return ViewModelProvider.GetViewModel(viewModelType, this, observationMode, containerCreationMode, parameters);
+            return ViewModelProvider.GetViewModel(viewModelType, this, observationMode, parameters);
         }
 
-        protected internal T GetViewModel<T>(ObservationMode? observationMode = null,
-            IocContainerCreationMode? containerCreationMode = null, params DataConstantValue[] parameters) where T : IViewModel
+        protected internal T GetViewModel<T>(ObservationMode? observationMode = null, params DataConstantValue[] parameters) where T : IViewModel
         {
             EnsureNotDisposed();
-            return ViewModelProvider.GetViewModel<T>(this, observationMode, containerCreationMode, parameters);
+            return ViewModelProvider.GetViewModel<T>(this, observationMode, parameters);
         }
 
         protected void Publish([NotNull] object message, ExecutionMode mode = ExecutionMode.None)
@@ -539,7 +545,7 @@ namespace MugenMvvmToolkit.ViewModels
             if (IocContainer.TryGet(out viewManager))
                 viewManager.CleanupViewAsync(this);
 
-            if (Settings.DisposeIocContainer && _iocContainer != null)
+            if (Settings.DisposeIocContainer && _iocContainer != null && !ReferenceEquals(_iocContainer, ServiceProvider.IocContainer))
                 _iocContainer.Dispose();
 
             Settings.Metadata.Clear();
@@ -587,6 +593,12 @@ namespace MugenMvvmToolkit.ViewModels
         {
             if (InitializeEventAggregator(false))
                 _localEventAggregator.Publish(sender, message);
+        }
+
+        protected virtual void OnRequestOwnIocContainer()
+        {
+            if (_iocContainer == null)
+                _iocContainer = IocContainer.CreateChild();
         }
 
         protected virtual void OnHandle(object sender, object message)

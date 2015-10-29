@@ -26,7 +26,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -53,7 +52,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 return (IViewModel)_viewModelRef.Target;
             }
 
-            public void SetViewModel(IViewModel viewModel, IIocContainer container)
+            public void SetViewModel(IViewModel viewModel)
             {
                 WeakReference[] viewModels;
                 lock (this)
@@ -64,13 +63,13 @@ namespace MugenMvvmToolkit.Infrastructure
                     if (_childViewModels == null)
                         return;
                     viewModels = _childViewModels.ToArray();
-                    _childViewModels.Clear();
+                    _childViewModels = null;
                 }
                 for (int i = 0; i < viewModels.Length; i++)
                 {
                     var childVm = (IViewModel)viewModels[i].Target;
-                    if (childVm != null)
-                        OnParentUpdated(childVm, viewModel, container);
+                    if (childVm != null && !childVm.IsDisposed)
+                        OnParentUpdated(childVm, viewModel);
                 }
             }
 
@@ -88,7 +87,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 }
                 var target = (IViewModel)_viewModelRef.Target;
                 if (target != null)
-                    OnParentUpdated(viewModel, target, viewModel.IocContainer);
+                    OnParentUpdated(viewModel, target);
             }
 
             public void Clear()
@@ -100,249 +99,14 @@ namespace MugenMvvmToolkit.Infrastructure
             #endregion
         }
 
-        private sealed class ParentIocContainerWrapper : IIocContainer
-        {
-            #region Fields
-
-            private readonly object _locker;
-            private readonly ParentIocContainerWrapper _parent;
-            private List<ParentIocContainerWrapper> _children;
-            private readonly bool _isMixed;
-            private bool _parentInitialized;
-
-            private IIocContainer _iocContainer;
-            private IIocContainer _parentContainer;
-
-            #endregion
-
-            #region Constructors
-
-            private ParentIocContainerWrapper(bool isMixed, ParentIocContainerWrapper parent)
-            {
-                _locker = new object();
-                _isMixed = isMixed;
-                _parent = parent;
-            }
-
-            public ParentIocContainerWrapper(IIocContainer container, ParentIocContainerWrapper parent = null)
-                : this(false, parent)
-            {
-                _parentContainer = container.CreateChild();
-                _iocContainer = container;
-                _iocContainer.Disposed += ContainerOnDisposed;
-            }
-
-            public ParentIocContainerWrapper(IIocContainer container, IIocContainer parentContainer, ParentIocContainerWrapper parent = null)
-                : this(true, parent)
-            {
-                if (!IsContainerDisposed(parentContainer))
-                {
-                    _parentContainer = parentContainer.CreateChild();
-                    _parentInitialized = true;
-                }
-                _iocContainer = container.CreateChild();
-                if (_parentContainer == null)
-                    _parentContainer = _iocContainer;
-                _iocContainer.Disposed += ContainerOnDisposed;
-            }
-
-            #endregion
-
-            #region Methods
-
-            public void SetParentContainer(IIocContainer parentContainer)
-            {
-                if (_parentInitialized || _iocContainer.IsDisposed || IsContainerDisposed(parentContainer))
-                    return;
-                lock (_locker)
-                {
-                    if (_parentInitialized)
-                        return;
-                    _parentInitialized = true;
-                    _parentContainer = parentContainer.CreateChild();
-                    if (!_isMixed)
-                    {
-                        _iocContainer.Disposed -= ContainerOnDisposed;
-                        _iocContainer.Dispose();
-                        _iocContainer = _parentContainer;
-                        _iocContainer.Disposed += ContainerOnDisposed;
-                    }
-                }
-                if (_children == null)
-                    return;
-                for (int i = 0; i < _children.Count; i++)
-                    _children[i].SetParentContainer(_parentContainer);
-                _children = null;
-            }
-
-            private IIocContainer IocContainer
-            {
-                get
-                {
-                    if (IsContainerDisposed(_parentContainer))
-                        return _iocContainer;
-                    return _parentContainer;
-                }
-            }
-
-            private static bool IsContainerDisposed(IIocContainer container)
-            {
-                if (container == null)
-                    return true;
-                while (container != null)
-                {
-                    if (container.IsDisposed)
-                        return true;
-                    container = container.Parent;
-                }
-                return false;
-            }
-
-            private void ContainerOnDisposed(IDisposableObject sender, EventArgs args)
-            {
-                sender.Disposed -= ContainerOnDisposed;
-                Dispose();
-            }
-
-            #endregion
-
-            #region Implementation of IIocContainer
-
-            public void Dispose()
-            {
-                _iocContainer.Disposed -= ContainerOnDisposed;
-                _parentContainer.Dispose();
-                _iocContainer.Dispose();
-                var disposed = Disposed;
-                if (disposed != null)
-                    disposed(this, EventArgs.Empty);
-                Disposed = null;
-            }
-
-            public bool IsDisposed
-            {
-                get { return _iocContainer.IsDisposed; }
-            }
-
-            public event EventHandler<IDisposableObject, EventArgs> Disposed;
-
-            public object GetService(Type serviceType)
-            {
-                return IocContainer.GetService(serviceType);
-            }
-
-            public int Id
-            {
-                get { return _iocContainer.Id; }
-            }
-
-            public IIocContainer Parent
-            {
-                get { return _parent ?? IocContainer.Parent; }
-            }
-
-            public object Container
-            {
-                get { return IocContainer; }
-            }
-
-            public IIocContainer CreateChild()
-            {
-                lock (_locker)
-                {
-                    if (_parentInitialized)
-                    {
-                        if (_isMixed)
-                            return new ParentIocContainerWrapper(_iocContainer, _parentContainer, this);
-                        return _parentContainer.CreateChild();
-                    }
-
-                    if (_children == null)
-                        _children = new List<ParentIocContainerWrapper>();
-                    var child = _isMixed
-                        ? new ParentIocContainerWrapper(_iocContainer, null, this)
-                        : new ParentIocContainerWrapper(_iocContainer, this);
-                    _children.Add(child);
-                    return child;
-                }
-            }
-
-            public object Get(Type service, string name = null, params IIocParameter[] parameters)
-            {
-                return IocContainer.Get(service, name, parameters);
-            }
-
-            public IEnumerable<object> GetAll(Type service, string name = null, params IIocParameter[] parameters)
-            {
-                return IocContainer.GetAll(service, name, parameters);
-            }
-
-            public void BindToConstant(Type service, object instance, string name = null)
-            {
-                if (_isMixed && _parentInitialized)
-                {
-                    if (!IsContainerDisposed(_parentContainer))
-                        _parentContainer.BindToConstant(service, instance, name);
-                    _iocContainer.BindToConstant(service, instance, name);
-                }
-                else
-                    IocContainer.BindToConstant(service, instance, name);
-            }
-
-            public void BindToMethod(Type service,
-                Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate, DependencyLifecycle lifecycle,
-                string name = null, params IIocParameter[] parameters)
-            {
-                if (_isMixed && _parentInitialized)
-                {
-                    if (!IsContainerDisposed(_parentContainer))
-                        _parentContainer.BindToMethod(service, methodBindingDelegate, lifecycle, name, parameters);
-                    _iocContainer.BindToMethod(service, methodBindingDelegate, lifecycle, name, parameters);
-                }
-                else
-                    IocContainer.BindToMethod(service, methodBindingDelegate, lifecycle, name, parameters);
-            }
-
-            public void Bind(Type service, Type typeTo, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
-            {
-                if (_isMixed && _parentInitialized)
-                {
-                    if (!IsContainerDisposed(_parentContainer))
-                        _parentContainer.Bind(service, typeTo, lifecycle, name, parameters);
-                    _iocContainer.Bind(service, typeTo, lifecycle, name, parameters);
-                }
-                else
-                    IocContainer.Bind(service, typeTo, lifecycle, name, parameters);
-            }
-
-            public void Unbind(Type service)
-            {
-                if (_isMixed && _parentInitialized)
-                {
-                    if (!IsContainerDisposed(_parentContainer))
-                        _parentContainer.Unbind(service);
-                    _iocContainer.Unbind(service);
-                }
-                else
-                    IocContainer.Unbind(service);
-            }
-
-            public bool CanResolve(Type service, string name = null)
-            {
-                return IocContainer.CanResolve(service, name);
-            }
-
-            #endregion
-        }
-
         #endregion
 
         #region Fields
 
         protected static readonly DataConstant<string> ViewModelTypeNameConstant;
-        protected static readonly DataConstant<Guid> IdViewModelConstant;
         protected static readonly DataConstant<Guid> IdParentViewModelConstant;
-        private static readonly object IdGeneratorLocker;
+
+        private static readonly DataConstant<Guid> IdViewModelConstant;
         private static readonly Dictionary<Guid, RestoredViewModel> RestoredViewModels;
 
         private readonly IIocContainer _iocContainer;
@@ -353,7 +117,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         static ViewModelProvider()
         {
-            IdGeneratorLocker = new object();
             RestoredViewModels = new Dictionary<Guid, RestoredViewModel>();
             ViewModelTypeNameConstant = DataConstant.Create(() => ViewModelTypeNameConstant, true);
             IdViewModelConstant = DataConstant.Create(() => IdViewModelConstant);
@@ -361,18 +124,15 @@ namespace MugenMvvmToolkit.Infrastructure
             Tracer.TraceViewModelHandler += OnTraceViewModel;
         }
 
-        public ViewModelProvider([NotNull] IIocContainer iocContainer, bool bindIocContainer = false)
+        public ViewModelProvider([NotNull]IIocContainer iocContainer)
         {
             Should.NotBeNull(iocContainer, "iocContainer");
             _iocContainer = iocContainer;
-            BindIocContainer = bindIocContainer;
         }
 
         #endregion
 
         #region Properties
-
-        public bool BindIocContainer { get; set; }
 
         protected IIocContainer IocContainer
         {
@@ -383,15 +143,19 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of IViewModelProvider
 
+        public IViewModel TryGetViewModelById(Guid viewModelId)
+        {
+            return TryGetViewModelByIdInternal(viewModelId);
+        }
+
         public IViewModel GetViewModel(GetViewModelDelegate<IViewModel> getViewModel, IDataContext dataContext)
         {
             Should.NotBeNull(getViewModel, "getViewModel");
             Should.NotBeNull(dataContext, "dataContext");
             dataContext = dataContext.ToNonReadOnly();
-            IIocContainer iocContainer = CreateViewModelIocContainer(dataContext);
-            IViewModel viewModel = getViewModel(iocContainer);
+            IViewModel viewModel = getViewModel(GetIocContainer(dataContext));
             if (!viewModel.IsInitialized)
-                InitializeViewModel(viewModel, dataContext, iocContainer);
+                InitializeViewModel(viewModel, dataContext);
             return viewModel;
         }
 
@@ -399,19 +163,31 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             Should.NotBeNull(viewModelType, "viewModelType");
             Should.NotBeNull(dataContext, "dataContext");
-            string viewModelBindingName = dataContext.GetData(InitializationConstants.ViewModelBindingName);
-            IIocParameter[] parameters = dataContext.GetData(InitializationConstants.IocParameters);
-            IIocContainer iocContainer = CreateViewModelIocContainer(dataContext);
-            var viewModel = (IViewModel)iocContainer.Get(viewModelType, viewModelBindingName, parameters);
+            var viewModel = CreateViewModel(viewModelType, dataContext);
             if (!viewModel.IsInitialized)
-                InitializeViewModel(viewModel, dataContext, iocContainer);
+                InitializeViewModel(viewModel, dataContext);
             return viewModel;
         }
 
         public void InitializeViewModel(IViewModel viewModel, IDataContext dataContext)
         {
             Should.NotBeNull(viewModel, "viewModel");
-            InitializeViewModel(viewModel, dataContext ?? DataContext.Empty, null);
+            ViewModelInitializationEventArgs args = null;
+            var initializing = Initializing;
+            if (initializing != null)
+            {
+                args = new ViewModelInitializationEventArgs(viewModel, dataContext);
+                initializing(this, args);
+                dataContext = args.Context;
+            }
+            InitializeViewModelInternal(viewModel, dataContext ?? DataContext.Empty);
+            var initialized = Initialized;
+            if (initialized != null)
+            {
+                if (args == null)
+                    args = new ViewModelInitializationEventArgs(viewModel, dataContext);
+                initialized(this, args);
+            }
         }
 
         public IDataContext PreserveViewModel(IViewModel viewModel, IDataContext dataContext)
@@ -462,7 +238,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     dataContext.Merge(viewModelState);
 
                 IViewModel viewModel;
-                if (!dataContext.GetData(InitializationConstants.IgnoreRestoredViewModelCache))
+                if (!dataContext.GetData(InitializationConstants.IgnoreViewModelCache))
                 {
                     Guid id;
                     if (viewModelState.TryGetData(IdViewModelConstant, out id))
@@ -492,7 +268,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     dataContext = args.Context ?? DataContext.Empty;
                 }
 
-                viewModel = RestoreViewModel(viewModelState, dataContext);
+                viewModel = RestoreViewModelInternal(viewModelState, dataContext);
                 if (viewModel != null)
                 {
                     if (restoredParentViewModel != null && parentViewModel == null)
@@ -527,6 +303,10 @@ namespace MugenMvvmToolkit.Infrastructure
             return null;
         }
 
+        public event EventHandler<IViewModelProvider, ViewModelInitializationEventArgs> Initializing;
+
+        public event EventHandler<IViewModelProvider, ViewModelInitializationEventArgs> Initialized;
+
         public event EventHandler<IViewModelProvider, ViewModelPreservingEventArgs> Preserving;
 
         public event EventHandler<IViewModelProvider, ViewModelPreservedEventArgs> Preserved;
@@ -538,17 +318,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Methods
-
-        public static IViewModel TryGetViewModelById(Guid idViewModel)
-        {
-            lock (RestoredViewModels)
-            {
-                RestoredViewModel value;
-                if (RestoredViewModels.TryGetValue(idViewModel, out value))
-                    return value.GetViewModel();
-                return null;
-            }
-        }
 
         [NotNull]
         protected virtual IDataContext PreserveViewModelInternal(IViewModel viewModel, IDataContext dataContext)
@@ -562,7 +331,7 @@ namespace MugenMvvmToolkit.Infrastructure
         }
 
         [CanBeNull]
-        protected virtual IViewModel RestoreViewModel([NotNull] IDataContext viewModelState, [NotNull] IDataContext dataContext)
+        protected virtual IViewModel RestoreViewModelInternal([NotNull] IDataContext viewModelState, [NotNull] IDataContext dataContext)
         {
             string typeName = viewModelState.GetData(ViewModelTypeNameConstant);
             Type vmType = typeName == null
@@ -574,12 +343,11 @@ namespace MugenMvvmToolkit.Infrastructure
             dataContext.AddOrUpdate(ViewModelConstants.StateRestored, true);
             dataContext.AddOrUpdate(InitializationConstants.IsRestored, true);
 
-            IIocContainer container = CreateViewModelIocContainer(dataContext);
-            var viewModel = (IViewModel)container.Get(vmType);
+            var viewModel = CreateViewModel(vmType, dataContext);
             IDataContext vmState = viewModel.Settings.State;
             vmState.Merge(viewModelState);
 
-            InitializeViewModel(viewModel, dataContext, container);
+            InitializeViewModel(viewModel, dataContext);
 
             var hasState = viewModel as IHasState;
             if (hasState != null)
@@ -587,73 +355,67 @@ namespace MugenMvvmToolkit.Infrastructure
             return viewModel;
         }
 
-        protected virtual void OnViewModelPreserved([NotNull] IViewModel viewModel, [NotNull] IDataContext viewModelState,
-            [NotNull] IDataContext dataContext)
-        {
-        }
-
-        protected virtual void OnViewModelRestored([NotNull] IViewModel viewModel, [NotNull] IDataContext viewModelState,
-            [NotNull] IDataContext dataContext)
-        {
-        }
-
         protected virtual void OnViewModelInitializing([NotNull]IViewModel viewModel, [NotNull] IDataContext dataContext)
         {
-            if (!dataContext.GetData(InitializationConstants.IsRestored))
-                return;
-            Guid id;
-            if (viewModel.Settings.State.TryGetData(IdViewModelConstant, out id))
-                GetOrAddRestoredViewModel(id).SetViewModel(viewModel, dataContext.GetData(InitializationConstants.IocContainer));
-            var viewModelBase = viewModel as ViewModelBase;
-            if (viewModelBase != null)
-                viewModelBase.IocContainer = dataContext.GetData(InitializationConstants.IocContainer);
+            var id = GetOrAddViewModelId(viewModel);
+            GetOrAddRestoredViewModel(id).SetViewModel(viewModel);
         }
 
-        protected virtual void InitializeViewModel([NotNull] IViewModel viewModel, [NotNull] IDataContext dataContext,
-            [CanBeNull] IIocContainer iocContainer)
+        protected virtual void InitializeViewModelInternal([NotNull] IViewModel viewModel, [NotNull] IDataContext dataContext)
         {
             dataContext = dataContext.ToNonReadOnly();
-            if (iocContainer == null)
-                iocContainer = CreateViewModelIocContainer(dataContext);
-            dataContext.AddOrUpdate(InitializationConstants.IocContainer, iocContainer);
+            var parentViewModel = dataContext.GetData(InitializationConstants.ParentViewModel);
             OnViewModelInitializing(viewModel, dataContext);
-            InitializeParentViewModel(viewModel, dataContext.GetData(InitializationConstants.ParentViewModel), dataContext);
+            InitializeParentViewModel(viewModel, parentViewModel, dataContext);
             viewModel.InitializeViewModel(dataContext);
             InitializeDisplayName(viewModel);
             MergeParameters(dataContext, viewModel.Settings.Metadata);
+            if (parentViewModel != null)
+            {
+                var parentAwareViewModel = viewModel as IParentAwareViewModel;
+                if (parentAwareViewModel != null)
+                    parentAwareViewModel.SetParent(parentViewModel);
+            }
         }
 
-        protected virtual IIocContainer CreateViewModelIocContainer([NotNull] IDataContext dataContext)
+        protected virtual IViewModel TryGetViewModelByIdInternal(Guid viewModelId)
         {
-            IIocContainer container = dataContext.GetData(InitializationConstants.IocContainer);
-            if (container == null)
+            lock (RestoredViewModels)
             {
-                IocContainerCreationMode creationMode;
-                if (!dataContext.TryGetData(InitializationConstants.IocContainerCreationMode, out creationMode))
-                    creationMode = ApplicationSettings.IocContainerCreationMode;
-                IViewModel parentViewModel = dataContext.GetData(InitializationConstants.ParentViewModel);
-                var isRestored = dataContext.GetData(InitializationConstants.IsRestored);
-                switch (creationMode)
-                {
-                    case IocContainerCreationMode.ParentViewModel:
-                        if (parentViewModel != null)
-                            container = parentViewModel.IocContainer.CreateChild();
-                        else if (isRestored && dataContext.Contains(IdParentViewModelConstant))
-                            container = new ParentIocContainerWrapper(_iocContainer);
-                        break;
-                    case IocContainerCreationMode.Mixed:
-                        var parentContainer = parentViewModel == null ? null : parentViewModel.IocContainer;
-                        if (parentContainer != null || (isRestored && dataContext.Contains(IdParentViewModelConstant)))
-                            container = new ParentIocContainerWrapper(_iocContainer, parentContainer);
-                        break;
-                }
-
-                if (container == null)
-                    container = _iocContainer.CreateChild();
+                RestoredViewModel value;
+                if (RestoredViewModels.TryGetValue(viewModelId, out value))
+                    return value.GetViewModel();
+                return null;
             }
-            if (BindIocContainer)
-                container.BindToConstant(container);
-            return container;
+        }
+
+        protected virtual void OnViewModelPreserved([NotNull] IViewModel viewModel, [NotNull] IDataContext viewModelState, [NotNull] IDataContext dataContext)
+        {
+        }
+
+        protected virtual void OnViewModelRestored([NotNull] IViewModel viewModel, [NotNull] IDataContext viewModelState, [NotNull] IDataContext dataContext)
+        {
+        }
+
+        protected virtual IViewModel CreateViewModel([NotNull]Type viewModelType, [NotNull] IDataContext context)
+        {
+            string viewModelBindingName = context.GetData(InitializationConstants.ViewModelBindingName);
+            IIocParameter[] parameters = context.GetData(InitializationConstants.IocParameters);
+            return (IViewModel)GetIocContainer(context).Get(viewModelType, viewModelBindingName, parameters);
+        }
+
+        protected virtual IIocContainer GetIocContainer([NotNull]IDataContext context)
+        {
+            var iocContainer = context.GetData(InitializationConstants.IocContainer);
+            if (iocContainer != null)
+                return iocContainer;
+            IViewModel parent = null;
+            var parentViewModel = context.GetData(ViewModelConstants.ParentViewModel);
+            if (parentViewModel != null)
+                parent = parentViewModel.Target as IViewModel;
+            if (parent == null)
+                return IocContainer;
+            return parent.GetIocContainer(false) ?? IocContainer;
         }
 
         private void InitializeDisplayName(IViewModel viewModel)
@@ -672,6 +434,20 @@ namespace MugenMvvmToolkit.Infrastructure
 .Invoke();
         }
 
+        internal static Guid GetOrAddViewModelId(IViewModel viewModel)
+        {
+            lock (IdViewModelConstant)
+            {
+                Guid id;
+                if (!viewModel.Settings.State.TryGetData(IdViewModelConstant, out id))
+                {
+                    id = Guid.NewGuid();
+                    viewModel.Settings.State.Add(IdViewModelConstant, id);
+                }
+                return id;
+            }
+        }
+
         private static RestoredViewModel GetOrAddRestoredViewModel(Guid id)
         {
             lock (RestoredViewModels)
@@ -683,20 +459,6 @@ namespace MugenMvvmToolkit.Infrastructure
                     RestoredViewModels[id] = value;
                 }
                 return value;
-            }
-        }
-
-        internal static Guid GetOrAddViewModelId(IViewModel viewModel)
-        {
-            lock (IdGeneratorLocker)
-            {
-                Guid id;
-                if (!viewModel.Settings.State.TryGetData(IdViewModelConstant, out id))
-                {
-                    id = Guid.NewGuid();
-                    viewModel.Settings.State.Add(IdViewModelConstant, id);
-                }
-                return id;
             }
         }
 
@@ -725,13 +487,13 @@ namespace MugenMvvmToolkit.Infrastructure
             if (!string.IsNullOrEmpty(viewName))
                 ctxTo.AddOrUpdate(InitializationConstants.ViewName, viewName);
 
-            IocContainerCreationMode creationMode;
-            if (ctxFrom.TryGetData(InitializationConstants.IocContainerCreationMode, out creationMode))
-                ctxTo.AddOrUpdate(InitializationConstants.IocContainerCreationMode, creationMode);
-
             ObservationMode observationMode;
             if (ctxFrom.TryGetData(InitializationConstants.ObservationMode, out observationMode))
                 ctxTo.AddOrUpdate(InitializationConstants.ObservationMode, observationMode);
+
+            string bindingName;
+            if (ctxFrom.TryGetData(InitializationConstants.ViewModelBindingName, out bindingName))
+                ctxTo.AddOrUpdate(InitializationConstants.ViewModelBindingName, bindingName);
         }
 
         private static void InitializeParentViewModel(IViewModel viewModel, IViewModel parentViewModel, IDataContext context)
@@ -748,12 +510,12 @@ namespace MugenMvvmToolkit.Infrastructure
                 parentViewModel.Subscribe(viewModel);
         }
 
-        private static void OnParentUpdated(IViewModel viewModel, IViewModel parentViewModel, IIocContainer container)
+        private static void OnParentUpdated(IViewModel viewModel, IViewModel parentViewModel)
         {
             InitializeParentViewModel(viewModel, parentViewModel, viewModel.Settings.Metadata);
-            var containerWrapper = viewModel.IocContainer as ParentIocContainerWrapper;
-            if (containerWrapper != null)
-                containerWrapper.SetParentContainer(container);
+            var parentAwareViewModel = viewModel as IParentAwareViewModel;
+            if (parentAwareViewModel != null)
+                parentAwareViewModel.SetParent(parentViewModel);
         }
 
         #endregion
