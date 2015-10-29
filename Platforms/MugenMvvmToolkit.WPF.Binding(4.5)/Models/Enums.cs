@@ -33,24 +33,17 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
     public enum BindingModeCore
     {
         Default = 0,
-
         TwoWay = 1,
-
         OneWay = 2,
-
         OneTime = 3,
-
         OneWayToSource = 4,
-
         None = 5
     }
 
     public enum UpdateSourceTriggerCore
     {
         Default = 0,
-
         PropertyChanged = 1,
-
         LostFocus = 2,
     }
 }

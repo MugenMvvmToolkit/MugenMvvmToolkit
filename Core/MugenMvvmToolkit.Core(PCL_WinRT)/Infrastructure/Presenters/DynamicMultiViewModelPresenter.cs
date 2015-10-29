@@ -103,6 +103,8 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             IViewModelPresenter parentPresenter)
         {
             Should.NotBeNull(viewModel, "viewModel");
+            if (ReferenceEquals(viewModel, _multiViewModel))
+                return null;
             bool data;
             if (context.TryGetData(NavigationConstants.SuppressTabNavigation, out data) && data)
                 return null;

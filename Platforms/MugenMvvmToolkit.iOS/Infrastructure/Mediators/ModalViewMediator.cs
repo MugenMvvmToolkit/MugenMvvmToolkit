@@ -86,6 +86,9 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
         private void BindProvider(UINavigationController controller)
         {
             var navigationService = new NavigationService(controller);
+            var containerOwnerViewModel = ViewModel as IIocContainerOwnerViewModel;
+            if (containerOwnerViewModel != null)
+                containerOwnerViewModel.RequestOwnIocContainer();
             ViewModel.IocContainer.Unbind<INavigationService>();
             ViewModel.IocContainer.BindToConstant(navigationService);
 

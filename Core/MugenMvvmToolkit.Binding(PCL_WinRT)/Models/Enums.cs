@@ -21,7 +21,6 @@ namespace MugenMvvmToolkit.Binding.Models
     public enum BindingAction
     {
         UpdateSource = 1,
-
         UpdateTarget = 2,
     }
 }

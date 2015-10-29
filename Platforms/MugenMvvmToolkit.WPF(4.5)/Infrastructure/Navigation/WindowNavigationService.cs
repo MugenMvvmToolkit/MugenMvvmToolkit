@@ -50,11 +50,8 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
             Should.NotBeNull(window, "window");
             _window = window;
             _useUrlNavigation = useUrlNavigation;
-            if (useUrlNavigation)
-            {
-                _window.Navigating += OnNavigating;
-                _window.Navigated += OnNavigated;
-            }
+            _window.Navigating += OnNavigating;
+            _window.Navigated += OnNavigated;
         }
 
         #endregion

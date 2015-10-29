@@ -438,11 +438,17 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\ViewModels\IGridViewModel.cs">
       <Link>Interfaces\ViewModels\IGridViewModel.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\ViewModels\IIocContainerOwnerViewModel.cs">
+      <Link>Interfaces\ViewModels\IIocContainerOwnerViewModel.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\ViewModels\IMultiViewModel.cs">
       <Link>Interfaces\ViewModels\IMultiViewModel.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\ViewModels\INavigableViewModel.cs">
       <Link>Interfaces\ViewModels\INavigableViewModel.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\ViewModels\IParentAwareViewModel.cs">
+      <Link>Interfaces\ViewModels\IParentAwareViewModel.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\ViewModels\IValidatableViewModel.cs">
       <Link>Interfaces\ViewModels\IValidatableViewModel.cs</Link>
@@ -533,6 +539,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\ViewModelClosingEventArgs.cs">
       <Link>Models\EventArg\ViewModelClosingEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\ViewModelInitializationEventArgs.cs">
+      <Link>Models\EventArg\ViewModelInitializationEventArgs.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\ViewModelPreservedEventArgs.cs">
       <Link>Models\EventArg\ViewModelPreservedEventArgs.cs</Link>

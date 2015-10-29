@@ -48,8 +48,11 @@
     <Compile Include="Interfaces\IMvvmApplication.cs" />
     <Compile Include="Interfaces\Models\IBusyToken.cs" />
     <Compile Include="Interfaces\Models\IToast.cs" />
+    <Compile Include="Interfaces\ViewModels\IIocContainerOwnerViewModel.cs" />
+    <Compile Include="Interfaces\ViewModels\IParentAwareViewModel.cs" />
     <Compile Include="Models\EventArg\NavigatingCancelEventArgsBase.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgsBase.cs" />
+    <Compile Include="Models\EventArg\ViewModelInitializationEventArgs.cs" />
     <Compile Include="Models\EventArg\ViewModelPreservedEventArgs.cs" />
     <Compile Include="Models\EventArg\ViewModelPreservingEventArgs.cs" />
     <Compile Include="Models\EventArg\ViewModelRestoredEventArgs.cs" />

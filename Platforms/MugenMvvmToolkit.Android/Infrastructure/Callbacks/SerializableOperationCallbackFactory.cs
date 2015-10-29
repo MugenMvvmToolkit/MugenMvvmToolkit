@@ -304,7 +304,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 if (State is Guid)
                     id = (Guid)State;
 
-                var vm = ViewModelProvider.TryGetViewModelById(id);
+                var vm = ServiceProvider.ViewModelProvider.TryGetViewModelById(id);
                 if (vm != null)
                     return vm;
                 foreach (var viewModel in viewModels)

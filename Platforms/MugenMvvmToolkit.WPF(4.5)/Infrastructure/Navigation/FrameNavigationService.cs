@@ -23,6 +23,7 @@ using System.Windows.Navigation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -39,26 +40,17 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
 
         private readonly Frame _frame;
         private readonly bool _useUrlNavigation;
-        private readonly Func<Type, object> _viewFactory;
         private NavigationMode _lastMode;
 
         #endregion
 
         #region Constructors
 
-        public FrameNavigationService([NotNull] Frame frame, Func<Type, object> viewFactory)
-            : this(frame)
-        {
-            Should.NotBeNull(viewFactory, "viewFactory");
-            _useUrlNavigation = false;
-            _viewFactory = viewFactory;
-        }
-
-        public FrameNavigationService([NotNull] Frame frame)
+        public FrameNavigationService([NotNull] Frame frame, bool useUrlNavigation)
         {
             Should.NotBeNull(frame, "frame");
             _frame = frame;
-            _useUrlNavigation = true;
+            _useUrlNavigation = useUrlNavigation;
             _frame.Navigating += OnNavigating;
             _frame.Navigated += OnNavigated;
         }
@@ -173,6 +165,11 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
 
         #region Methods
 
+        protected virtual object CreateView(IViewMappingItem viewMapping, object parameter)
+        {
+            return ServiceProvider.Get<IViewManager>().GetViewAsync(viewMapping, parameter as IDataContext).Result;
+        }
+
         private void ClearNavigationStackIfNeed(IDataContext context)
         {
             if (context == null)
@@ -193,8 +190,8 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
                 return _frame.Navigate(source.Uri, parameter);
             }
             if (parameter == null)
-                return _frame.Navigate(_viewFactory(source.ViewType));
-            return _frame.Navigate(_viewFactory(source.ViewType), parameter);
+                return _frame.Navigate(CreateView(source, null));
+            return _frame.Navigate(CreateView(source, parameter), parameter);
         }
 
         private bool NavigateInternal(NavigatingCancelEventArgsBase args)

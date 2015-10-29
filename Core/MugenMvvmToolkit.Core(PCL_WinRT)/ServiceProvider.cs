@@ -198,7 +198,7 @@ namespace MugenMvvmToolkit
             get
             {
                 if (_viewModelProvider == null)
-                    _viewModelProvider = new ViewModelProvider(IocContainer);
+                    Interlocked.CompareExchange(ref _viewModelProvider, new ViewModelProvider(IocContainer), null);
                 return _viewModelProvider;
             }
             set { _viewModelProvider = value; }
