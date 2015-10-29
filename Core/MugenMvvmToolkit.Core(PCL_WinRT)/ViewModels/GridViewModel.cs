@@ -23,6 +23,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Collections;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -359,6 +360,17 @@ namespace MugenMvvmToolkit.ViewModels
         #endregion
 
         #region Overrides of ViewModelBase
+
+        public override IDisposable SuspendNotifications()
+        {
+            var baseToken = base.SuspendNotifications();
+            var collectionToken = ItemsSource.SuspendNotifications();
+            return new ActionToken(() =>
+            {
+                baseToken.Dispose();
+                collectionToken.Dispose();
+            });
+        }
 
         internal override void OnDisposeInternal(bool disposing)
         {
