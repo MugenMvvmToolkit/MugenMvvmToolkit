@@ -71,7 +71,6 @@ namespace MugenMvvmToolkit.Test.ViewModels
         [TestMethod]
         public void GetViewModelMethodShouldUseCorrectParameters()
         {
-            const IocContainerCreationMode iocContainerCreationMode = IocContainerCreationMode.ParentViewModel;
             const ObservationMode listenType = ObservationMode.Both;
             var constantValue = DataConstantValue.Create(new DataConstant<string>("test"), "test");
             bool isInvoked = false;
@@ -90,7 +89,6 @@ namespace MugenMvvmToolkit.Test.ViewModels
             {
                 context.GetData((DataConstant<string>)constantValue.DataConstant).ShouldEqual(constantValue.Value);
                 context.GetDataTest(InitializationConstants.ObservationMode).ShouldEqual(listenType);
-                context.GetDataTest(InitializationConstants.IocContainerCreationMode).ShouldEqual(iocContainerCreationMode);
                 isInvoked = true;
             };
             providerMock.GetViewModel = (@delegate, context) =>
@@ -105,20 +103,19 @@ namespace MugenMvvmToolkit.Test.ViewModels
             };
 
 
-            viewModel.GetViewModel(getViewModel: adapter => new ViewModelBaseWithContext(),
-                containerCreationMode: iocContainerCreationMode, observationMode: listenType, parameters: constantValue);
+            viewModel.GetViewModel(getViewModel: adapter => new ViewModelBaseWithContext(), observationMode: listenType, parameters: constantValue);
             isInvoked.ShouldBeTrue();
             isInvoked = false;
 
-            viewModel.GetViewModel(adapter => new ViewModelBaseWithContext(), listenType, iocContainerCreationMode, constantValue);
+            viewModel.GetViewModel(adapter => new ViewModelBaseWithContext(), listenType, constantValue);
             isInvoked.ShouldBeTrue();
             isInvoked = false;
 
-            viewModel.GetViewModel(typeof(ViewModelBaseWithContext), listenType, iocContainerCreationMode, constantValue);
+            viewModel.GetViewModel(typeof(ViewModelBaseWithContext), listenType, constantValue);
             isInvoked.ShouldBeTrue();
             isInvoked = false;
 
-            viewModel.GetViewModel<ViewModelBaseWithContext>(listenType, iocContainerCreationMode, constantValue);
+            viewModel.GetViewModel<ViewModelBaseWithContext>(listenType, constantValue);
             isInvoked.ShouldBeTrue();
         }
 
@@ -148,7 +145,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
             var testViewModel = viewModel.GetViewModel<TestViewModelBase>();
             testViewModel.ThreadManager.ShouldEqual(ThreadManager);
-            testViewModel.IocContainer.Parent.ShouldEqual(viewModel.IocContainer);
+            testViewModel.IocContainer.ShouldEqual(viewModel.IocContainer);
             testViewModel.Settings.ShouldEqual(Settings);
         }
 

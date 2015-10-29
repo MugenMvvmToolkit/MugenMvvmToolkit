@@ -47,6 +47,13 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             throw new NotImplementedException();
         }
 
+        public IViewModel TryGetViewModelById(Guid idViewModel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public event EventHandler<IViewModelProvider, ViewModelInitializationEventArgs> Initializing;
+        public event EventHandler<IViewModelProvider, ViewModelInitializationEventArgs> Initialized;
         public event EventHandler<IViewModelProvider, ViewModelPreservingEventArgs> Preserving;
         public event EventHandler<IViewModelProvider, ViewModelPreservedEventArgs> Preserved;
         public event EventHandler<IViewModelProvider, ViewModelRestoringEventArgs> Restoring;

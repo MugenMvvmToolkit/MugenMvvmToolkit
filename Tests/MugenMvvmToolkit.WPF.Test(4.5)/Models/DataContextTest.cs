@@ -20,15 +20,15 @@ namespace MugenMvvmToolkit.Test.Models
         {
             const string st = "test";
             IDataContext context = Create();
-            context.Add(InitializationConstants.IocContainerCreationMode, IocContainerCreationMode.Mixed);
+            context.Add(InitializationConstants.ObservationMode, ObservationMode.Both);
             context.Count.ShouldEqual(1);
 
             context.Add(InitializationConstants.ViewModelBindingName, st);
             context.Count.ShouldEqual(2);
 
-            IocContainerCreationMode data;
-            context.TryGetData(InitializationConstants.IocContainerCreationMode, out data).ShouldBeTrue();
-            data.ShouldEqual(IocContainerCreationMode.Mixed);
+            ObservationMode data;
+            context.TryGetData(InitializationConstants.ObservationMode, out data).ShouldBeTrue();
+            data.ShouldEqual(ObservationMode.Both);
             context.GetData(InitializationConstants.ViewModelBindingName).ShouldEqual(st);
         }
 
@@ -36,12 +36,12 @@ namespace MugenMvvmToolkit.Test.Models
         public void ContainsRemoveTest()
         {
             IDataContext context = Create();
-            context.Add(InitializationConstants.IocContainerCreationMode, IocContainerCreationMode.Mixed);
-            context.Contains(InitializationConstants.IocContainerCreationMode).ShouldBeTrue();
+            context.Add(InitializationConstants.ObservationMode, ObservationMode.Both);
+            context.Contains(InitializationConstants.ObservationMode).ShouldBeTrue();
 
-            context.Remove(InitializationConstants.IocContainerCreationMode).ShouldBeTrue();
-            context.Contains(InitializationConstants.IocContainerCreationMode).ShouldBeFalse();
-            context.Remove(InitializationConstants.IocContainerCreationMode).ShouldBeFalse();
+            context.Remove(InitializationConstants.ObservationMode).ShouldBeTrue();
+            context.Contains(InitializationConstants.ObservationMode).ShouldBeFalse();
+            context.Remove(InitializationConstants.ObservationMode).ShouldBeFalse();
         }
 
         [TestMethod]
@@ -49,7 +49,7 @@ namespace MugenMvvmToolkit.Test.Models
         {
             const string st = "test";
             IDataContext context = Create();
-            context.Add(InitializationConstants.IocContainerCreationMode, IocContainerCreationMode.Mixed);
+            context.Add(InitializationConstants.ObservationMode, ObservationMode.Both);
             context.Count.ShouldEqual(1);
 
             context.Add(InitializationConstants.ViewModelBindingName, st);
@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.Test.Models
 
             var dictionary = context.ToList().ToDictionary(constantValue => constantValue.DataConstant, value => value.Value);
             dictionary.Count.ShouldEqual(2);
-            dictionary[InitializationConstants.IocContainerCreationMode].ShouldEqual(IocContainerCreationMode.Mixed);
+            dictionary[InitializationConstants.ObservationMode].ShouldEqual(ObservationMode.Both);
             dictionary[InitializationConstants.ViewModelBindingName].ShouldEqual(st);
         }
 

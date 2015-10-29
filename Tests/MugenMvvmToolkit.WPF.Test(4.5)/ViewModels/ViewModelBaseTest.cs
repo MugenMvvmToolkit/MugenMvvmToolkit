@@ -354,6 +354,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         public void VmShouldDisposeIocContainerIfSettingsTrue()
         {
             IViewModel viewModel = GetViewModelBase();
+            ((ViewModelBase)viewModel).IocContainer = new IocContainerMock();
             viewModel.Settings.DisposeIocContainer = true;
             viewModel.Dispose();
             ((IocContainerMock)viewModel.IocContainer).IsDisposed.ShouldBeTrue();
