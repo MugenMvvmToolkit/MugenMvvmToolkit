@@ -42,6 +42,13 @@ namespace MugenMvvmToolkit.Interfaces
         [Pure]
         IViewModel RestoreViewModel([CanBeNull] IDataContext viewModelState, [CanBeNull] IDataContext dataContext, bool throwOnError);
 
+        [Pure, CanBeNull]
+        IViewModel TryGetViewModelById(Guid viewModelId);
+
+        event EventHandler<IViewModelProvider, ViewModelInitializationEventArgs> Initializing;
+
+        event EventHandler<IViewModelProvider, ViewModelInitializationEventArgs> Initialized;
+
         event EventHandler<IViewModelProvider, ViewModelPreservingEventArgs> Preserving;
 
         event EventHandler<IViewModelProvider, ViewModelPreservedEventArgs> Preserved;
