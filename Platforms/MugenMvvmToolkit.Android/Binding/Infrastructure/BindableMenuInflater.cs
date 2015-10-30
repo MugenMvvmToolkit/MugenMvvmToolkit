@@ -18,7 +18,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
 using Android.Content;
@@ -42,7 +41,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         static BindableMenuInflater()
         {
-            Serializer = new XmlSerializer(typeof (MenuTemplate), string.Empty);
+            Serializer = new XmlSerializer(typeof(MenuTemplate), string.Empty);
         }
 
         public BindableMenuInflater([NotNull] Context context)
@@ -79,21 +78,21 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 //NOTE XDocument throws an error.
                 var document = new XmlDocument();
                 document.Load(reader);
-                if (document.FirstChild != null && !IsDefaultMenu(document))
-                {
-                    using (var stringReader = new StringReader(PlatformExtensions.XmlTagsToUpper(document.InnerXml)))
-                    {
-                        var menuWrapper = (MenuTemplate) Serializer.Deserialize(stringReader);
-                        menuWrapper.Apply(menu, _context, parent);
-                    }
-                }
-                else
+                if (IsDefaultMenu(document))
                 {
                     MenuInflater menuInflater = NestedMenuInflater;
                     if (menuInflater == null)
                         base.Inflate(menuRes, menu);
                     else
                         menuInflater.Inflate(menuRes, menu);
+                }
+                else
+                {
+                    using (var stringReader = new StringReader(PlatformExtensions.XmlTagsToUpper(document.InnerXml)))
+                    {
+                        var menuWrapper = (MenuTemplate)Serializer.Deserialize(stringReader);
+                        menuWrapper.Apply(menu, _context, parent);
+                    }
                 }
             }
         }
@@ -104,13 +103,9 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         private static bool IsDefaultMenu(XmlDocument document)
         {
-            foreach (XmlAttribute attribute in document.FirstChild.Attributes.OfType<XmlAttribute>())
-            {
-                if ("http://schemas.android.com/apk/res/android".Equals(attribute.Value,
-                    StringComparison.InvariantCultureIgnoreCase))
-                    return true;
-            }
-            return false;
+            var value = document.NameTable.Get("http://schemas.android.com/apk/res/android");
+            return !string.IsNullOrEmpty(value);
+
         }
 
         #endregion
