@@ -125,7 +125,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
 
             //FrameworkElement
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<FrameworkElement, object>(AttachedMemberConstants.ParentExplicit, GetParentValue, SetParentValue, ObserveParentMember));
+                .CreateMember<FrameworkElement, object>(AttachedMemberConstants.Parent, GetParentValue, SetParentValue, ObserveParentMember));
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, object>(AttachedMemberConstants.FindByNameMethod, FindByNameMemberImpl));
 #if SILVERLIGHT || WINDOWSCOMMON || WINDOWS_PHONE

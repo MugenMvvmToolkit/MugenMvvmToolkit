@@ -73,7 +73,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
         [CanBeNull]
         public object Parent
         {
-            get { return _parent.Target as DependencyObject; }
+            get { return _parent.Target; }
             set
             {
                 if (!_isAttached)
@@ -83,8 +83,8 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
                     if (view != null)
                     {
                         RoutedEventHandler handler = OnChanged;
-                        view.Loaded += handler;
-                        view.Unloaded += handler;
+                        view.Loaded -= handler;
+                        view.Unloaded -= handler;
                     }
                 }
                 SetParent(GetSource(), value);
@@ -104,8 +104,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
 
         private void OnChanged(object sender, RoutedEventArgs args)
         {
-            if (_isAttached)
-                return;
             var source = GetSource();
             if (source != null)
                 SetParent(source, FindParent(source));
@@ -127,7 +125,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
             return source;
         }
 
-        internal static DependencyObject FindParent(FrameworkElement target)
+        internal static object FindParent(FrameworkElement target)
         {
             IBindingMemberInfo member = BindingServiceProvider
                 .MemberProvider
@@ -136,7 +134,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
             {
                 object value = member.GetValue(target, null);
                 if (value != null)
-                    return (DependencyObject)value;
+                    return value;
             }
 #if WPF
             if (target.IsLoaded)
