@@ -124,21 +124,19 @@ namespace MugenMvvmToolkit.Android.Binding.Models
                 return null;
             if (view.Id == global::Android.Resource.Id.Content)
                 return view.Context.GetActivity();
-            {
-                object parent = view.Parent;
-                if (parent != null)
-                    return parent;
-                var activity = view.Context.GetActivity();
-                if (!activity.IsAlive())
-                    return null;
-                var w = activity.Window;
-                if (!w.IsAlive())
-                    return null;
-                var d = w.DecorView;
-                if (d.IsAlive() && ReferenceEquals(view, d.RootView))
-                    return activity;
+            object parent = view.Parent;
+            if (parent != null)
+                return parent;
+            var activity = view.Context.GetActivity();
+            if (!activity.IsAlive())
                 return null;
-            }
+            var w = activity.Window;
+            if (!w.IsAlive())
+                return null;
+            var d = w.DecorView;
+            if (d.IsAlive() && ReferenceEquals(view, d.RootView))
+                return activity;
+            return null;
         }
 
         #endregion

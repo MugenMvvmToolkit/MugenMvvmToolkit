@@ -229,7 +229,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             //View
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.View.Fragment));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.FindByNameMethod, ViewFindByNameMember));
-            memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.ParentExplicit, GetViewParentValue, SetViewParentValue, ObserveViewParent));
+            memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.Parent, GetViewParentValue, SetViewParentValue, ObserveViewParent));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, bool>(AttachedMemberConstants.Focused,
                     (info, view) => view.IsFocused, (info, view, arg3) =>
                     {
