@@ -359,7 +359,11 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
 
         public object SetValue(object source, object[] args)
         {
-            object value = args[0];
+            return SetSingleValue(source, args[0]);
+        }
+
+        public object SetSingleValue(object source, object value)
+        {
             if (ReferenceEquals(value, BindingConstants.UnsetValue))
                 value = DependencyProperty.UnsetValue;
             ((DependencyObject)source).SetValue(_dependencyProperty, value);
@@ -381,7 +385,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
 #else
                 return new DependencyPropertyListener((DependencyObject)source, _dependencyProperty, listener);
 #endif
-            return _changePropertyMember.SetValue(source, new object[] { listener }) as IDisposable;
+            return _changePropertyMember.SetSingleValue(source, listener) as IDisposable;
         }
 
         #endregion

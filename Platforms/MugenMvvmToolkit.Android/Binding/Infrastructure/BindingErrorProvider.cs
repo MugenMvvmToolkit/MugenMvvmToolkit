@@ -42,7 +42,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             {
                 var member = BindingServiceProvider.MemberProvider.GetBindingMember(target.GetType(), ErrorPropertyName, false, false);
                 if (member != null && member.Type == typeof(string) && member.CanWrite)
-                    member.SetValue(target, new object[] { errors.FirstOrDefault().ToStringSafe() });
+                    member.SetSingleValue(target, errors.FirstOrDefault().ToStringSafe());
             }
             base.SetErrors(target, errors, context);
         }

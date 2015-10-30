@@ -133,7 +133,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             {
                 var member = BindingServiceProvider.MemberProvider.GetBindingMember(absListView.GetType(), AttachedMembers.ViewGroup.DisableHierarchyListener, false, false);
                 if (member.CanWrite)
-                    member.SetValue(absListView, new[] { Empty.TrueObject });
+                    member.SetSingleValue(absListView, Empty.TrueObject);
             }
         }
 

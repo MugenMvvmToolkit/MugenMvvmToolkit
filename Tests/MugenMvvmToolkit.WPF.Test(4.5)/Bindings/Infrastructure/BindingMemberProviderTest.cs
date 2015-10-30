@@ -55,6 +55,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
 
             member.SetValue(model, new object[] { int.MaxValue });
             member.GetValue(model, null).ShouldEqual(int.MaxValue);
+
+            member.SetSingleValue(model, int.MinValue);
+            member.GetValue(model, null).ShouldEqual(int.MinValue);
         }
 
         [TestMethod]
@@ -75,6 +78,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
 
             member.SetValue(model, new object[] { value });
             member.GetValue(model, null).ShouldEqual(value);
+
+            member.SetSingleValue(model, string.Empty);
+            member.GetValue(model, null).ShouldEqual(string.Empty);
         }
 
         [TestMethod]
@@ -117,6 +123,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
 
             member.GetValue(model, null).ShouldEqual(model);
             contextMock.Value.ShouldEqual(model);
+
+            member.SetSingleValue(model, null);
+            member.GetValue(model, null).ShouldBeNull();
         }
 
         [TestMethod]

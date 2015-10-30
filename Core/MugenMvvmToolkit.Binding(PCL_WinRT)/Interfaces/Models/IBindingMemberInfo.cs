@@ -47,6 +47,8 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
 
         object SetValue(object source, object[] args);
 
+        object SetSingleValue(object source, object value);
+
         [CanBeNull]
         IDisposable TryObserve(object source, [NotNull]IEventListener listener);
     }

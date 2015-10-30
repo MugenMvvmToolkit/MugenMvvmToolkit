@@ -55,6 +55,12 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             return null;
         }
 
+        public object SetSingleValue(object source, object value)
+        {
+            SetValue(source, new[] { value });
+            return null;
+        }
+
         IDisposable IBindingMemberInfo.TryObserve(object source, IEventListener listener)
         {
             return TryObserveMember(source, listener);

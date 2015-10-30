@@ -671,7 +671,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                     if (adapter == null || adapter.ItemsSource == null)
                         return;
                     if (args.NewValue == null)
-                        args.Member.SetValue(actionBar, new[] { adapter.GetRawItem(actionBar.SelectedNavigationIndex) });
+                        args.Member.SetSingleValue(actionBar, adapter.GetRawItem(actionBar.SelectedNavigationIndex));
                     else
                         actionBar.SetSelectedNavigationItem(adapter.GetPosition(args.NewValue));
                     break;
@@ -694,7 +694,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                             object ctx = actionBar.SelectedNavigationIndex < 0 ? null : actionBar.SelectedTab;
                             if (ctx != null)
                                 ctx = ctx.DataContext();
-                            args.Member.SetValue(actionBar, new[] { ctx });
+                            args.Member.SetSingleValue(actionBar, ctx);
                         }
                         else
                             tabGenerator.SelectedItem = args.NewValue;
@@ -877,7 +877,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 .MemberProvider
                 .GetBindingMember(view.GetType(), args.NewValue, false, true);
             var presenter = ServiceProvider.AttachedValueProvider.GetOrAdd(view, "!@popup", (view1, o) => new PopupMenuPresenter(view1), null);
-            var unsubscriber = member.SetValue(view, new object[] { presenter }) as IDisposable;
+            var unsubscriber = member.SetSingleValue(view, presenter) as IDisposable;
             presenter.Update(unsubscriber);
         }
 

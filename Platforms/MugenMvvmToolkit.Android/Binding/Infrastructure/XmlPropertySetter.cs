@@ -99,7 +99,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 objectToSet = value;
             }
             var member = BindingServiceProvider.MemberProvider.GetBindingMember(typeof(TTarget), propertyName, false, true);
-            member.SetValue(_target, new[] { convertAction == null ? objectToSet : convertAction(objectToSet) });
+            member.SetSingleValue(_target, convertAction == null ? objectToSet : convertAction(objectToSet));
         }
 
         public void SetProperty(Func<Expression<Func<TWrapper, object>>> propertyName, string value)
@@ -122,7 +122,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 objectToSet = value;
             }
             var member = BindingServiceProvider.MemberProvider.GetBindingMember(typeof(TTarget), propertyName, false, true);
-            member.SetValue(_target, new[] { objectToSet });
+            member.SetSingleValue(_target, objectToSet);
         }
 
         public void SetBinding(Func<Expression<Func<TWrapper, object>>> propertyName, string value, bool required)

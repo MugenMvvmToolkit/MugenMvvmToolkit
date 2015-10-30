@@ -1094,15 +1094,6 @@ namespace MugenMvvmToolkit
             return hasWeak.WeakReference;
         }
 
-        public static WeakReference GetWeakReferenceOrDefault(object item, WeakReference defaultValue, bool checkHasWeakReference)
-        {
-            if (item == null)
-                return defaultValue;
-            if (checkHasWeakReference)
-                return GetWeakReference(item);
-            return ServiceProvider.WeakReferenceFactory(item);
-        }
-
         public static TView GetUnderlyingView<TView>([CanBeNull] this IView view)
         {
             return GetUnderlyingView<TView>(viewObj: view);
@@ -1247,12 +1238,6 @@ namespace MugenMvvmToolkit
                 }
             }
             return list;
-        }
-
-        internal static void TraceModule(this IModule module, bool load)
-        {
-            if (Tracer.TraceInformation)
-                Tracer.Info("The module '{0}' was {1}loaded.", module.GetType(), load ? null : "un");
         }
 
         public static IDictionary<object, object> ToDictionary([CanBeNull] this IDataContext context)
@@ -1605,6 +1590,21 @@ namespace MugenMvvmToolkit
                     invokeAction(target, arg1, arg2);
                     break;
             }
+        }
+
+        internal static void TraceModule(this IModule module, bool load)
+        {
+            if (Tracer.TraceInformation)
+                Tracer.Info("The module '{0}' was {1}loaded.", module.GetType(), load ? null : "un");
+        }
+
+        internal static WeakReference GetWeakReferenceOrDefault(object item, WeakReference defaultValue, bool checkHasWeakReference)
+        {
+            if (item == null)
+                return defaultValue;
+            if (checkHasWeakReference)
+                return GetWeakReference(item);
+            return ServiceProvider.WeakReferenceFactory(item);
         }
 
         internal static void InvokeOnUiThreadAsync(Action action)

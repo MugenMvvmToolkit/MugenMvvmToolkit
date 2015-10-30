@@ -89,7 +89,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 object value = _value;
                 if (!pathMembers.LastMember.Type.IsInstanceOfType(value))
                     value = pathMembers.LastMember.Type.GetDefaultValue();
-                pathMembers.LastMember.SetValue(pathMembers.PenultimateValue, new[] { value });
+                pathMembers.LastMember.SetSingleValue(pathMembers.PenultimateValue, value);
             }
         }
 

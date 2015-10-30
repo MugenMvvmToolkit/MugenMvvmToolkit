@@ -393,7 +393,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         internal static void SetAdapter(AdapterView item, IAdapter adapter)
         {
-            _rawAdapterMember.SetValue(item, new object[] { adapter });
+            _rawAdapterMember.SetSingleValue(item, adapter);
         }
 
         private static void ToolbarMenuTemplateChanged(Toolbar view, AttachedMemberChangedEventArgs<int> args)

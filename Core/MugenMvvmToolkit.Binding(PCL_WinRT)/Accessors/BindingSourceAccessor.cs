@@ -205,7 +205,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
                     Tracer.Warn("The member {0} cannot be obtained on type {1}",
                         AttachedMemberConstants.Enabled, penultimateValue.GetType());
                 else
-                    member.SetValue(penultimateValue, new[] { Empty.BooleanToObject(value) });
+                    member.SetSingleValue(penultimateValue, Empty.BooleanToObject(value));
             }
 
             private object GetCommandParameterFromSource(IDataContext context)
@@ -455,7 +455,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             {
                 if (_closure != null)
                     _closure.Unsubscribe(false, _isOneTime);
-                lastMember.SetValue(penultimateValue, new[] { newValue });
+                lastMember.SetSingleValue(penultimateValue, newValue);
                 if (ValueChanged != null)
                     RaiseValueChanged(context, penultimateValue, lastMember, oldValue, newValue, args);
             }

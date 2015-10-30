@@ -219,7 +219,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     _isInvoked = false;
                     if (value.IsUnsetValue())
                         value = null;
-                    _member.SetValue(target, new[] { value });
+                    _member.SetSingleValue(target, value);
                     if (!_isInvoked)
                         OnDataContextChanged(null);
                 }

@@ -395,6 +395,18 @@ namespace MugenMvvmToolkit.Binding.Models
             return _setValueAccessor(source, args);
         }
 
+        public object SetSingleValue(object source, object value)
+        {
+            if (_isSingleParameter)
+            {
+                if (_setValueAccessorSingleAction == null)
+                    return _setValueAccessorSingle(source, value);
+                _setValueAccessorSingleAction(source, value);
+                return null;
+            }
+            return _setValueAccessor(source, new[] { value });
+        }
+
         public IDisposable TryObserve(object source, IEventListener listener)
         {
             if (_isDataContext)
@@ -405,7 +417,7 @@ namespace MugenMvvmToolkit.Binding.Models
                     return ((IDynamicObject)source).TryObserve(_path, listener);
                 return null;
             }
-            return _memberEvent.SetValue(source, new object[] { listener }) as IDisposable;
+            return _memberEvent.SetSingleValue(source, listener) as IDisposable;
         }
 
         #endregion

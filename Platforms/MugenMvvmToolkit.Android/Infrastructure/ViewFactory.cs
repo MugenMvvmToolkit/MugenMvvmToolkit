@@ -122,7 +122,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
                     .MemberProvider
                     .GetBindingMember(view.GetType(), AttachedMembers.View.PopupMenuEvent, false, false);
                 if (member != null)
-                    member.SetValue(view, new object[] { eventName });
+                    member.SetSingleValue(view, eventName);
             }
 
             strings = ReadStringAttributeValue(context, attrs, Resource.Styleable.Menu,
@@ -135,7 +135,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
                     .MemberProvider
                     .GetBindingMember(view.GetType(), AttachedMembers.View.PopupMenuPlacementTargetPath, false, false);
                 if (member != null)
-                    member.SetValue(view, new object[] { path });
+                    member.SetSingleValue(view, path);
             }
 
             return dataContext;
@@ -152,7 +152,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
                 .MemberProvider
                 .GetBindingMember(view.GetType(), attachedMemberName, false, false);
             if (member != null)
-                member.SetValue(view, new object[] { value });
+                member.SetSingleValue(view, value);
         }
 
         internal static List<string> ReadStringAttributeValue(Context context, IAttributeSet attrs, int[] groupId,

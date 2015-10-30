@@ -180,6 +180,11 @@ namespace MugenMvvmToolkit.Binding.Models
                 return SetValue((TTarget)source, args);
             }
 
+            public object SetSingleValue(object source, object value)
+            {
+                return SetValue((TTarget)source, (TType)value);
+            }
+
             IDisposable IBindingMemberInfo.TryObserve(object source, IEventListener listener)
             {
                 return TryObserve((TTarget)source, listener);
@@ -590,8 +595,7 @@ namespace MugenMvvmToolkit.Binding.Models
             return new BindingActionValue(target, bindingMemberInfo);
         }
 
-        private static IDisposable ObserveMemberChangeEvent<TTarget>(IBindingMemberInfo member, TTarget source,
-            IEventListener arg3)
+        private static IDisposable ObserveMemberChangeEvent<TTarget>(IBindingMemberInfo member, TTarget source, IEventListener arg3)
         {
             string eventName = ((IAttachedBindingMemberInternal)member).MemberChangeEventName;
             var eventMember = BindingServiceProvider.MemberProvider.GetBindingMember(source.GetType(), eventName, false, false);
@@ -600,7 +604,7 @@ namespace MugenMvvmToolkit.Binding.Models
                 Tracer.Warn("The event-member '{0}' on type '{1}' was not found", eventName, source.GetType());
                 return null;
             }
-            return (IDisposable)eventMember.SetValue(source, new object[] { arg3 });
+            return (IDisposable)eventMember.SetSingleValue(source, arg3);
         }
 
         private static T UpdateType<T>(this T member, Type type)

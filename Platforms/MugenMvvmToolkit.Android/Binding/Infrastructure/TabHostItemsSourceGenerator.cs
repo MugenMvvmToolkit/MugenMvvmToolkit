@@ -372,13 +372,13 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
                 TabChangedDelegate(this, oldValue, _currentTabContent, true, true);
                 if (_selectedItemMember != null)
-                    _selectedItemMember.SetValue(TabHost, new[] { info.Item });
+                    _selectedItemMember.SetSingleValue(TabHost, info.Item);
             }
             else
             {
                 _currentTabContent = TabHost.CurrentTabView;
                 if (_selectedItemMember != null)
-                    _selectedItemMember.SetValue(TabHost, new object[] { TabHost.CurrentTabView });
+                    _selectedItemMember.SetSingleValue(TabHost, TabHost.CurrentTabView);
             }
         }
 

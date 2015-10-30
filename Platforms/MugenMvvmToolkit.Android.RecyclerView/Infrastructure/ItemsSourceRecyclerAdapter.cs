@@ -211,7 +211,7 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
             }
             var member = BindingServiceProvider.MemberProvider.GetBindingMember(_recyclerView.GetType(), AttachedMembers.ViewGroup.DisableHierarchyListener, false, false);
             if (member.CanWrite)
-                member.SetValue(_recyclerView, new[] { Empty.TrueObject });
+                member.SetSingleValue(_recyclerView, Empty.TrueObject);
             base.OnAttachedToRecyclerView(recyclerView);
         }
 
