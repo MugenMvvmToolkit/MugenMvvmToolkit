@@ -107,7 +107,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Models
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs args)
         {
-            if (!_isAttached)
+            if (args.PropertyName == "Parent")
                 SetParent(sender, FindParent((Element)sender));
         }
 

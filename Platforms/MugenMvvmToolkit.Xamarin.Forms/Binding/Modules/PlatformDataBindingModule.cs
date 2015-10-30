@@ -48,7 +48,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
 
             //Element
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<Element, object>(AttachedMemberConstants.ParentExplicit, GetParentValue, SetParentValue, ObserveParentMember));
+                .CreateMember<Element, object>(AttachedMemberConstants.Parent, GetParentValue, SetParentValue, ObserveParentMember));
             memberProvider.Register(typeof(Element), "BindingContext", BindingMemberProvider.BindingContextMember, true);
 
             //VisualElement
