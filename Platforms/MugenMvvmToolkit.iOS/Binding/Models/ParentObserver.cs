@@ -82,8 +82,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Models
 
         public void Raise(bool recursively = true)
         {
-            UIView view;
-            Raise(out view);
+            UIView view = RaiseInternal();
             if (recursively && view != null)
                 RaiseSubViews(view);
         }
@@ -121,17 +120,18 @@ namespace MugenMvvmToolkit.iOS.Binding.Models
             return source;
         }
 
-        private void Raise(out UIView view)
+        private UIView RaiseInternal()
         {
-            view = GetSource();
+            var view = GetSource();
             if (_isAttached || view == null)
-                return;
+                return view;
 
             object parent = GetParent(view);
             if (ReferenceEquals(parent, _parent.Target))
-                return;
+                return view;
             _parent = ToolkitExtensions.GetWeakReferenceOrDefault(parent, Empty.WeakReference, false);
             Raise(view, EventArgs.Empty);
+            return view;
         }
 
         private static void RaiseSubViews(UIView view)

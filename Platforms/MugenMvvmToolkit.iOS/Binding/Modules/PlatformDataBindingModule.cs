@@ -93,7 +93,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             memberProvider.Register(typeof(object), AttachedMemberConstants.ItemTemplate, itemTemplateMember, true);
 
             //UIView
-            memberProvider.Register(AttachedBindingMember.CreateMember<UIView, object>(AttachedMemberConstants.ParentExplicit,
+            memberProvider.Register(AttachedBindingMember.CreateMember<UIView, object>(AttachedMemberConstants.Parent,
                 (info, view) => ParentObserver.GetOrAdd(view).Parent, (info, view, arg3) => ParentObserver.GetOrAdd(view).Parent = arg3, (info, view, arg3) => ParentObserver.GetOrAdd(view).AddWithUnsubscriber(arg3)));
             memberProvider.Register(AttachedBindingMember.CreateMember<UIView, object>(AttachedMemberConstants.FindByNameMethod, FindViewByName));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIView.Content, ContentChanged));
