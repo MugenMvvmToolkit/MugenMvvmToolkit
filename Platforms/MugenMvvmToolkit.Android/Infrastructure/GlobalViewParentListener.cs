@@ -16,8 +16,10 @@
 
 #endregion
 
+using System;
+using Android.Runtime;
 using Android.Views;
-using Java.Lang;
+using Object = Java.Lang.Object;
 
 namespace MugenMvvmToolkit.Android.Infrastructure
 {
@@ -34,6 +36,10 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         static GlobalViewParentListener()
         {
             Instance = new GlobalViewParentListener();
+        }
+
+        private GlobalViewParentListener(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+        {
         }
 
         private GlobalViewParentListener()
