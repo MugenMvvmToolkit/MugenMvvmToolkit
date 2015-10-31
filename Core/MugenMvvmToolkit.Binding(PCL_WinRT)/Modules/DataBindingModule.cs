@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
@@ -181,9 +182,13 @@ namespace MugenMvvmToolkit.Binding.Modules
             var assemblies = context.Assemblies;
             for (int i = 0; i < assemblies.Count; i++)
             {
-                var types = assemblies[i].SafeGetTypes(!context.Mode.IsDesignMode());
-                for (int j = 0; j < types.Count; j++)
-                    RegisterType(types[j]);
+                var assembly = assemblies[i];
+                if (CanRegisterTypes(assembly))
+                {
+                    var types = assembly.SafeGetTypes(!context.Mode.IsDesignMode());
+                    for (int j = 0; j < types.Count; j++)
+                        RegisterType(types[j]);
+                }
             }
             if (!_isLoaded)
             {
@@ -221,15 +226,31 @@ namespace MugenMvvmToolkit.Binding.Modules
         {
             if (_isLoaded)
                 return;
-            if (!typeof(IBindingValueConverter).IsAssignableFrom(type) || !type.IsPublicNonAbstractClass())
+            if ((!typeof(IBindingValueConverter).IsAssignableFrom(type) && !typeof(IDataTemplateSelector).IsAssignableFrom(type)) ||
+                !type.IsPublicNonAbstractClass())
                 return;
+
             var constructor = type.GetConstructor(Empty.Array<Type>());
             if (constructor == null || !constructor.IsPublic)
                 return;
-            var converter = (IBindingValueConverter)constructor.InvokeEx();
-            BindingServiceProvider.ResourceResolver.AddConverter(converter, null, true);
+
+            var value = constructor.InvokeEx();
+            var converter = value as IBindingValueConverter;
+            if (converter == null)
+            {
+                BindingServiceProvider.ResourceResolver.AddObject(type.Name, value, true);
+                BindingServiceProvider.ResourceResolver.AddObject(char.ToLowerInvariant(type.Name[0]) + type.Name, value, true);
+            }
+            else
+                BindingServiceProvider.ResourceResolver.AddConverter(converter, null, true);
+
             if (Tracer.TraceInformation)
-                Tracer.Info("The {0} converter is registered.", type);
+                Tracer.Info("The {0} is registered.", type);
+        }
+
+        protected virtual bool CanRegisterTypes(Assembly assembly)
+        {
+            return assembly.IsToolkitAssembly();
         }
 
         [CanBeNull]
