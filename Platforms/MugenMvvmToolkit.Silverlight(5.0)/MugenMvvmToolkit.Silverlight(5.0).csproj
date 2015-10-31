@@ -19,7 +19,8 @@
     <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp></NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <!-- This property group is only here to support building this project using the 
        MSBuild 3.5 toolset. In order to work correctly with this older toolset, it needs 
@@ -47,7 +48,8 @@
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -130,9 +132,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Modules\InitializationModule.cs">
       <Link>Modules\InitializationModule.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Modules\ViewModelDataTemplateModule.cs">
-      <Link>Modules\ViewModelDataTemplateModule.cs</Link>
     </Compile>
     <Compile Include="Infrastructure\Mediators\WindowViewMediator.cs" />
     <Compile Include="Infrastructure\Presenters\MessagePresenter.cs" />
