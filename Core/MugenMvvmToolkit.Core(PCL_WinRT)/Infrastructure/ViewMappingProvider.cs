@@ -295,7 +295,7 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 var assemblies = _assemblies;
                 _assemblies = null;
-                InitializeMapping(assemblies.SelectMany(assembly => assembly.SafeGetTypes(true)));
+                InitializeMapping(assemblies.Where(assembly => assembly.IsToolkitAssembly()).SelectMany(assembly => assembly.SafeGetTypes(true)));
             }
         }
 

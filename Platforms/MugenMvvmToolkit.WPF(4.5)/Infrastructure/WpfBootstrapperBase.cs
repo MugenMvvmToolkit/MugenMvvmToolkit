@@ -141,10 +141,10 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         protected virtual ICollection<Assembly> GetAssemblies()
         {
             var assemblies = new HashSet<Assembly>();
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 if (assemblies.Add(assembly))
-                    assemblies.AddRange(assembly.GetReferencedAssemblies().Select(Assembly.Load).SkipFrameworkAssemblies());
+                    assemblies.AddRange(assembly.GetReferencedAssemblies().Select(Assembly.Load));
             }
             TryLoadAssembly(BindingAssemblyName, assemblies);
             return assemblies;

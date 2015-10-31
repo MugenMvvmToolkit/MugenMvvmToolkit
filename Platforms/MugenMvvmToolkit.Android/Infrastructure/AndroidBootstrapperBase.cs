@@ -39,8 +39,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 {
     public abstract class AndroidBootstrapperBase : BootstrapperBase, IComparer<string>
     {
-        private readonly PlatformInfo _platform;
-
         #region Nested Types
 
         protected sealed class DefaultApp : MvvmApplication
@@ -88,6 +86,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         private const int InitializedStateGlobal = 1;
         private const int InitializedStateLocal = 2;
         private static int _appStateGlobal;
+        private readonly PlatformInfo _platform;
 
         #endregion
 
@@ -104,7 +103,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
         }
 
-        public AndroidBootstrapperBase(PlatformInfo platform = null)
+        protected AndroidBootstrapperBase(PlatformInfo platform = null)
         {
             _platform = platform ?? PlatformExtensions.GetPlatformInfo();
         }
@@ -146,8 +145,7 @@ You must specify the type of application bootstrapper using BootstrapperAttribut
                 return;
             TypeCache<View>.Initialize(null);
             var application = CreateApplication();
-            application.Initialize(_platform, CreateIocContainer(),
-                GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
+            application.Initialize(_platform, CreateIocContainer(), GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
         }
 
         public virtual void Start()
@@ -165,7 +163,16 @@ You must specify the type of application bootstrapper using BootstrapperAttribut
         [NotNull]
         protected virtual ICollection<Assembly> GetAssemblies()
         {
-            return InitalizeAssemblies();
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            if (ViewAssemblies == null)
+            {
+                //NOTE order the assemblies to keep the support libraries at the end of array.
+                ViewAssemblies = assemblies
+                    .Where(assembly => !assembly.IsNetFrameworkAssembly())
+                    .OrderBy(assembly => assembly.FullName, this)
+                    .ToArray();
+            }
+            return assemblies;
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext,
@@ -176,27 +183,6 @@ You must specify the type of application bootstrapper using BootstrapperAttribut
             var mappingProvider = container.Get<IViewMappingProvider>();
             var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
             return mappingItem == null || !typeof(Activity).IsAssignableFrom(mappingItem.ViewType);
-        }
-
-        private ICollection<Assembly> InitalizeAssemblies()
-        {
-            var assemblies = new HashSet<Assembly>();
-            var viewAssemblies = new HashSet<Assembly>();
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                if (assembly.IsToolkitAssembly())
-                {
-                    assemblies.Add(assembly);
-                    viewAssemblies.Add(assembly);
-                }
-                else if (!assembly.IsDynamic && !assembly.IsMicrosoftAssembly())
-                    viewAssemblies.Add(assembly);
-            }
-            //NOTE: to improve startup performance saving the collection of assemblies to use it later.
-            ViewAssemblies = viewAssemblies
-                .OrderBy(assembly => assembly.FullName, this)
-                .ToArray();
-            return assemblies;
         }
 
         private static bool CanShowViewModelNavigationPresenter(IViewModel viewModel, IDataContext dataContext,

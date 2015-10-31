@@ -85,15 +85,13 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
 
         protected virtual ICollection<Assembly> GetAssemblies()
         {
-            var listAssembly = new List<Assembly>();
+            var assemblies = new HashSet<Assembly>();
             foreach (AssemblyPart part in Deployment.Current.Parts)
             {
                 StreamResourceInfo info = Application.GetResourceStream(new Uri(part.Source, UriKind.Relative));
-                Assembly assembly = part.Load(info.Stream);
-                if (assembly.IsToolkitAssembly())
-                    listAssembly.Add(assembly);
+                assemblies.Add(part.Load(info.Stream));
             }
-            return listAssembly;
+            return assemblies;
         }
 
         private void ApplicationOnStartup(object sender, StartupEventArgs args)

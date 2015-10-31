@@ -104,11 +104,10 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
         protected virtual ICollection<Assembly> GetAssemblies()
         {
             var assemblies = new HashSet<Assembly>();
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 if (assemblies.Add(assembly))
-                    assemblies.AddRange(
-                        assembly.GetReferencedAssemblies().Select(Assembly.Load).SkipFrameworkAssemblies());
+                    assemblies.AddRange(assembly.GetReferencedAssemblies().Select(Assembly.Load));
             }
             return assemblies;
         }

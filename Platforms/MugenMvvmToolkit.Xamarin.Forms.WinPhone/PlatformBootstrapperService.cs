@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Parse;
 using MugenMvvmToolkit.Models;
@@ -32,6 +31,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.iOS
 #elif ANDROID
 namespace MugenMvvmToolkit.Xamarin.Forms.Android
 #elif WINDOWSCOMMON
+using MugenMvvmToolkit.Binding;
 using System.IO;
 using Windows.ApplicationModel;
 using Windows.Storage;
@@ -53,11 +53,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
         #region Methods
 
 #if WINDOWSCOMMON
-        private async System.Threading.Tasks.Task<List<Assembly>> GetAssemblyListAsync()
+        private static async System.Threading.Tasks.Task<List<Assembly>> GetAssemblyListAsync()
         {
-            var folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
+            var folder = Package.Current.InstalledLocation;
             List<Assembly> assemblies = new List<Assembly>();
-            foreach (Windows.Storage.StorageFile file in await folder.GetFilesAsync().AsTask().ConfigureAwait(false))
+            foreach (StorageFile file in await folder.GetFilesAsync().AsTask().ConfigureAwait(false))
             {
                 if (file.FileType == ".dll" || file.FileType == ".exe")
                 {
@@ -110,7 +110,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
         public ICollection<Assembly> GetAssemblies()
         {
 #if WINDOWS_PHONE
-            var listAssembly = new HashSet<Assembly>();
+            var assemblies = new HashSet<Assembly>();
             foreach (var part in System.Windows.Deployment.Current.Parts)
             {
                 string assemblyName = part.Source.Replace(".dll", string.Empty);
@@ -118,20 +118,18 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
                     continue;
                 try
                 {
-                    Assembly assembly = Assembly.Load(assemblyName);
-                    if (assembly.IsToolkitAssembly())
-                        listAssembly.Add(assembly);
+                    assemblies.Add(Assembly.Load(assemblyName));
                 }
                 catch (Exception e)
                 {
                     Tracer.Error(e.Flatten(true));
                 }
             }
-            return listAssembly;
+            return assemblies;
 #elif WINDOWSCOMMON
             return GetAssemblyListAsync().Result;
 #else
-            return new HashSet<Assembly>(AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies());
+            return AppDomain.CurrentDomain.GetAssemblies();
 #endif
         }
 

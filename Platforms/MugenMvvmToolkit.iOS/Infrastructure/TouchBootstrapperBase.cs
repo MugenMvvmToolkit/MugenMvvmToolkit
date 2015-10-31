@@ -117,7 +117,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         protected virtual ICollection<Assembly> GetAssemblies()
         {
-            return new HashSet<Assembly>(AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies());
+            return AppDomain.CurrentDomain.GetAssemblies();
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)

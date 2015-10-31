@@ -45,7 +45,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         private readonly Frame _rootFrame;
         private readonly bool _overrideAssemblies;
         private readonly PlatformInfo _platform;
-        private List<Assembly> _assemblies;
+        private HashSet<Assembly> _assemblies;
 
         #endregion
 
@@ -147,9 +147,9 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
             return mappingItem != null && typeof(Page).IsAssignableFrom(mappingItem.ViewType);
         }
 
-        private static async Task<List<Assembly>> GetAssembliesAsync()
+        private static async Task<HashSet<Assembly>> GetAssembliesAsync()
         {
-            var assemblies = new List<Assembly>();
+            var assemblies = new HashSet<Assembly>();
             var files = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFilesAsync();
             foreach (var file in files)
             {
@@ -158,9 +158,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
                     if ((file.FileType == ".dll") || (file.FileType == ".exe"))
                     {
                         var name = new AssemblyName { Name = Path.GetFileNameWithoutExtension(file.Name) };
-                        Assembly asm = Assembly.Load(name);
-                        if (asm.IsToolkitAssembly())
-                            assemblies.Add(asm);
+                        assemblies.Add(Assembly.Load(name));
                     }
 
                 }

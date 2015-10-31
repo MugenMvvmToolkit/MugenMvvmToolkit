@@ -106,7 +106,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         protected virtual ICollection<Assembly> GetAssemblies()
         {
-            var listAssembly = new List<Assembly>();
+            var assemblies = new HashSet<Assembly>();
             foreach (AssemblyPart part in Deployment.Current.Parts)
             {
                 string assemblyName = part.Source.Replace(".dll", string.Empty);
@@ -114,16 +114,14 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                     continue;
                 try
                 {
-                    Assembly assembly = Assembly.Load(assemblyName);
-                    if (assembly.IsToolkitAssembly())
-                        listAssembly.Add(assembly);
+                    assemblies.Add(Assembly.Load(assemblyName));
                 }
                 catch (Exception e)
                 {
                     Tracer.Error(e.Flatten(true));
                 }
             }
-            return listAssembly;
+            return assemblies;
         }
 
         [CanBeNull]
