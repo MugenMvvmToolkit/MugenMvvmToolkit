@@ -375,7 +375,7 @@ namespace MugenMvvmToolkit
             return assemblies.Where(IsToolkitAssemblyDelegate);
         }
 
-        public static bool IsMicrosoftAssembly(this Assembly assembly)
+        public static bool IsNetFrameworkAssembly(this Assembly assembly)
         {
             if (assembly.IsDynamic)
                 return false;

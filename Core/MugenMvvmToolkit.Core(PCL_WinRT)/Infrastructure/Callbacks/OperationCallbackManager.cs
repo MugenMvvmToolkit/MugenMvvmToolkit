@@ -107,7 +107,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             if (context == null)
                 context = DataContext.Empty;
             RegisterInternal(operation, source, callback, context);
-            Tracer.Info("Callback '{0}' was registered, source: '{1}'", operation, source);
+            if (Tracer.TraceInformation)
+                Tracer.Info("Callback '{0}' was registered, source: '{1}'", operation, source);
         }
 
         public void SetResult(object source, IOperationResult result)
@@ -115,7 +116,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             Should.NotBeNull(source, "source");
             Should.NotBeNull(result, "result");
             SetResultInternal(source, result);
-            Tracer.Info("Callback '{0}' was invoked, source: '{1}'", result.Operation, source);
+            if (Tracer.TraceInformation)
+                Tracer.Info("Callback '{0}' was invoked, source: '{1}'", result.Operation, source);
         }
 
         #endregion
@@ -188,7 +190,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             }
             if (callbacks == null)
             {
-                Tracer.Info("The callbacks for operation '{0}' was not found, source: '{1}'", id, target);
+                if (Tracer.TraceInformation)
+                    Tracer.Info("The callbacks for operation '{0}' was not found, source: '{1}'", id, target);
                 return;
             }
             foreach (IOperationCallback callback in callbacks.OfType<IOperationCallback>())

@@ -17,15 +17,13 @@
 #endregion
 
 using System;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Models;
 using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 #if SILVERLIGHT
-using System.Windows;
-using MugenMvvmToolkit.Silverlight.Modules;
 
 namespace MugenMvvmToolkit.Silverlight
 #elif WINDOWS_PHONE
+using JetBrains.Annotations;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Windows.Navigation;
@@ -54,29 +52,6 @@ namespace MugenMvvmToolkit.WinPhone
             }
             set { _applicationStateManager = value; }
         }
-
-#elif !WINDOWS_PHONE
-        #region Fields
-
-        private static Func<Type, DataTemplate> _defaultViewModelTemplateFactory =
-            ViewModelDataTemplateModule.DefaultTemplateProvider;
-
-        #endregion
-
-        #region Properties
-
-        [NotNull]
-        public static Func<Type, DataTemplate> DefaultViewModelTemplateFactory
-        {
-            get { return _defaultViewModelTemplateFactory; }
-            set
-            {
-                Should.PropertyNotBeNull(value, "DefaultViewModelTemplateFactory");
-                _defaultViewModelTemplateFactory = value;
-            }
-        }
-
-        #endregion
 #endif
         #region Methods
 

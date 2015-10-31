@@ -17,7 +17,6 @@
 #endregion
 
 using System;
-using System.Linq;
 using System.Reflection;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
@@ -122,7 +121,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
             var typeInfo = type.GetTypeInfo();
             if (!typeof(IValueConverter).GetTypeInfo().IsAssignableFrom(typeInfo) || !type.IsPublicNonAbstractClass())
                 return;
-            var constructor = typeInfo.DeclaredConstructors.FirstOrDefault(info => !info.IsStatic && info.GetParameters().Length == 0);
+            var constructor = type.GetConstructor(Empty.Array<Type>());
             if (constructor == null || !constructor.IsPublic)
                 return;
             var converter = (IValueConverter)constructor.InvokeEx();

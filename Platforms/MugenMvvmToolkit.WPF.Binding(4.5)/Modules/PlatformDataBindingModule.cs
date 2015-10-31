@@ -343,11 +343,8 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
 
             if (!typeof(IValueConverter).IsAssignableFrom(type) || !type.IsPublicNonAbstractClass())
                 return;
-#if WINDOWSCOMMON
-            var constructor = type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(info => !info.IsStatic && info.GetParameters().Length == 0);
-#else
+
             var constructor = type.GetConstructor(Empty.Array<Type>());
-#endif
             if (constructor == null || !constructor.IsPublic)
                 return;
             var converter = (IValueConverter)constructor.InvokeEx();
