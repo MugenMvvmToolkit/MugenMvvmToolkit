@@ -195,6 +195,11 @@ namespace MugenMvvmToolkit.Android
         private static readonly ConcurrentDictionary<int, WeakReference> WeakReferences;
         private static readonly ContentViewManager ContentViewManagerField;
         private static readonly object CurrentActivityLocker;
+        private static readonly ConcurrentDictionary<Type, Func<object[], object>> ViewToContextConstructor;
+        private static readonly ConcurrentDictionary<Type, Func<object[], object>> ViewToContextWithAttrsConstructor;
+        private static readonly Type[] ViewContextArgs;
+        private static readonly Type[] ViewContextWithAttrsArgs;
+
         private static Func<Activity, IDataContext, IMvvmActivityMediator> _mvvmActivityMediatorFactory;
         private static Func<Context, IDataContext, BindableMenuInflater> _menuInflaterFactory;
         private static Func<Context, IDataContext, IViewFactory, LayoutInflater, BindableLayoutInflater> _layoutInflaterFactory;
@@ -234,6 +239,10 @@ namespace MugenMvvmToolkit.Android
             _isActionBar = _isFragment;
             _activityRef = Empty.WeakReference;
             WeakReferences = new ConcurrentDictionary<int, WeakReference>(2, Empty.Array<KeyValuePair<int, WeakReference>>(), EqualityComparer<int>.Default);
+            ViewToContextConstructor = new ConcurrentDictionary<Type, Func<object[], object>>();
+            ViewToContextWithAttrsConstructor = new ConcurrentDictionary<Type, Func<object[], object>>();
+            ViewContextArgs = new[] { typeof(Context) };
+            ViewContextWithAttrsArgs = new[] { typeof(Context), typeof(IAttributeSet) };
             CurrentActivityLocker = new object();
             _mvvmFragmentMediatorFactory = MvvmFragmentMediatorFactoryMethod;
             // ReSharper disable once ObjectCreationAsStatement
@@ -603,12 +612,30 @@ namespace MugenMvvmToolkit.Android
 
         internal static View CreateView(this Type type, Context ctx)
         {
-            return (View)Activator.CreateInstance(type, ctx);
+            var func = ViewToContextConstructor.GetOrAdd(type, t =>
+            {
+                var c = t.GetConstructor(ViewContextArgs);
+                if (c == null)
+                    return null;
+                return ServiceProvider.ReflectionManager.GetActivatorDelegate(c);
+            });
+            if (func == null)
+                return (View)Activator.CreateInstance(type, ctx);
+            return (View)func(new object[] { ctx });
         }
 
-        internal static View CreateView(this Type type, Context ctx, IAttributeSet set)
+        internal static View CreateView(this Type type, Context ctx, IAttributeSet attrs)
         {
-            return (View)Activator.CreateInstance(type, ctx, set);
+            var func = ViewToContextWithAttrsConstructor.GetOrAdd(type, t =>
+            {
+                var c = t.GetConstructor(ViewContextWithAttrsArgs);
+                if (c == null)
+                    return null;
+                return ServiceProvider.ReflectionManager.GetActivatorDelegate(c);
+            });
+            if (func == null)
+                return type.CreateView(ctx);
+            return (View)func(new object[] { ctx, attrs });
         }
 
         internal static string ToStringSafe<T>(this T item, string defaultValue = null)
