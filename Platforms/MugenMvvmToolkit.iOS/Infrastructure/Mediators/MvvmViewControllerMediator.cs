@@ -122,7 +122,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
                         foreach (var controller in viewControllers)
                         {
                             controller.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
-                            controller.RestorationIdentifier = string.Empty;
+                            PlatformExtensions.SetHasState(controller, false);
                         }
                     }
                 }

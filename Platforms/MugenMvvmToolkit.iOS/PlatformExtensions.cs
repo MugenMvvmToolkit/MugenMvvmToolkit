@@ -89,6 +89,7 @@ namespace MugenMvvmToolkit.iOS
         #region Fields
 
         private const string NavParamKey = "@~`NavParam";
+        private const string NoStateKey = "@$Nst";
 
         private static readonly Dictionary<Type, int> TypeToCounters;
         private static readonly Type[] CoderParameters;
@@ -332,6 +333,25 @@ namespace MugenMvvmToolkit.iOS
                 subview.RemoveFromSuperviewEx();
         }
 
+        public static void SetHasState([NotNull]UIViewController controller, bool hasState)
+        {
+            if (hasState)
+            {
+                ServiceProvider.AttachedValueProvider.Clear(controller, NoStateKey);
+                controller.InititalizeRestorationIdentifier();
+            }
+            else
+            {
+                ServiceProvider.AttachedValueProvider.SetValue(controller, NoStateKey, NoStateKey);
+                controller.RestorationIdentifier = null;
+            }
+        }
+
+        public static bool GetHasState([NotNull] UIViewController controller)
+        {
+            return !ServiceProvider.AttachedValueProvider.Contains(controller, NoStateKey);
+        }
+
         public static void InititalizeRestorationIdentifier([NotNull] this UIView view, bool checkRestoreMethodOverload = true)
         {
             Should.NotBeNull(view, "view");
@@ -346,7 +366,7 @@ namespace MugenMvvmToolkit.iOS
         public static void InititalizeRestorationIdentifier([NotNull] this UIViewController controller, bool checkRestoreMethodOverload = true)
         {
             Should.NotBeNull(controller, "controller");
-            if (string.IsNullOrEmpty(controller.RestorationIdentifier))
+            if (string.IsNullOrEmpty(controller.RestorationIdentifier) && GetHasState(controller))
             {
                 var identifier = GenerateRestorationIdentifier(controller, checkRestoreMethodOverload);
                 if (identifier != null)
@@ -376,8 +396,7 @@ namespace MugenMvvmToolkit.iOS
                 }
                 if (checkRestoreMethodOverload && value < 0)
                 {
-                    Tracer.Warn("The item '{0}' not support the preservation of the state since it does not have overloaded methods (EncodeRestorableState, DecodeRestorableState).",
-                        type.Name);
+                    Tracer.Warn("The item '{0}' not support the preservation of the state since it does not have overloaded methods (EncodeRestorableState, DecodeRestorableState).", type.Name);
                     return null;
                 }
                 TypeToCounters[type] = value + 1;

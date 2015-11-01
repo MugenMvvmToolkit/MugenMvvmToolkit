@@ -27,6 +27,7 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Binding.Modules;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.iOS.Binding.Converters;
@@ -216,6 +217,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
         {
             if (newValue == null)
                 newValue = new UIViewController();
+            else
+                PlatformExtensions.SetHasState(newValue, false);
             var viewControllers = splitView.ViewControllers ?? Empty.Array<UIViewController>();
             if (viewControllers.Length == 2)
             {
@@ -448,7 +451,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
                     viewController.WillMoveToParentViewController(currentController);
                     currentController.AddChildViewController(viewController);
                     viewController.DidMoveToParentViewController(currentController);
-                    viewController.RestorationIdentifier = string.Empty;
+                    PlatformExtensions.SetHasState(viewController, false);
                     value = viewController.View;
                 }
             }

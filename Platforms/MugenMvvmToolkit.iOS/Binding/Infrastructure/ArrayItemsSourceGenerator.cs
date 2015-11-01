@@ -166,9 +166,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                         BindingServiceProvider.BindingProvider.CreateBindingsFromString(template, "Title DisplayName");
                     template.SetDataContext(item);
                 }
-                var controller = (UIViewController)template;
-                if (controller.RestorationIdentifier != null)
-                    controller.RestorationIdentifier = string.Empty;
+                PlatformExtensions.SetHasState((UIViewController)template, false);
             }
             return new KeyValuePair<object, TItem>(item, (TItem)template);
         }
