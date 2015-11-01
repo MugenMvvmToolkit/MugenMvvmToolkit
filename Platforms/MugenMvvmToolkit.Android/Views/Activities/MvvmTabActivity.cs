@@ -72,6 +72,15 @@ namespace MugenMvvmToolkit.Android.Views.Activities
 
         #endregion
 
+        #region Properties
+
+        protected virtual int? ViewId
+        {
+            get { return _viewId; }
+        }
+
+        #endregion
+
         #region Overrides of Activity
 
         public override MenuInflater MenuInflater
@@ -116,7 +125,7 @@ namespace MugenMvvmToolkit.Android.Views.Activities
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            Mediator.OnCreate(_viewId, savedInstanceState, base.OnCreate);
+            Mediator.OnCreate(ViewId, savedInstanceState, base.OnCreate);
         }
 
         protected override void OnDestroy()

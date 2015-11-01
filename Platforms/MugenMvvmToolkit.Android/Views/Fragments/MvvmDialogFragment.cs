@@ -83,6 +83,15 @@ namespace MugenMvvmToolkit.Android.Views.Fragments
 
         #endregion
 
+        #region Properties
+
+        protected virtual int? ViewId
+        {
+            get { return _viewId; }
+        }
+
+        #endregion
+
         #region Overrides of Fragment
 
         public override void Dismiss()
@@ -107,7 +116,7 @@ namespace MugenMvvmToolkit.Android.Views.Fragments
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            return Mediator.OnCreateView(_viewId, inflater, container, savedInstanceState, base.OnCreateView);
+            return Mediator.OnCreateView(ViewId, inflater, container, savedInstanceState, base.OnCreateView);
         }
 
         public override void OnDestroyView()
