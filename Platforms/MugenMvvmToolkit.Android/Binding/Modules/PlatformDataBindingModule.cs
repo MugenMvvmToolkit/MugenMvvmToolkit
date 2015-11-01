@@ -21,6 +21,7 @@ using System.Collections;
 using Android.App;
 using Android.Graphics;
 using Android.Graphics.Drawables;
+using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Java.Lang;
@@ -59,6 +60,10 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             static DateChangedListener()
             {
                 Instance = new DateChangedListener();
+            }
+
+            public DateChangedListener(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+            {
             }
 
             private DateChangedListener()
@@ -106,6 +111,10 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             {
                 Instance = new ContentChangeListener();
                 BindingContextChangedDelegate = BindingContextChanged;
+            }
+
+            public ContentChangeListener(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+            {
             }
 
             private ContentChangeListener()

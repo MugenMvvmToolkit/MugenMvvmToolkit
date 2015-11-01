@@ -158,6 +158,18 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
 
             #endregion
 
+            #region Constructors
+
+            private DrawerListenerImpl()
+            {
+            }
+
+            private DrawerListenerImpl(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+            {
+            }
+
+            #endregion
+
             #region Methods
 
             public static DrawerListenerImpl GetOrAdd(DrawerLayout drawer)

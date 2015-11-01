@@ -21,6 +21,7 @@ using System.Collections;
 using Android.App;
 using Android.Content;
 using Android.Graphics.Drawables;
+using Android.Runtime;
 using Android.Views;
 using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
@@ -129,6 +130,10 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             #region Constructors
 
+            public ActionBarNavigationListener(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+            {
+            }
+
             public ActionBarNavigationListener(ActionBar actionBar)
             {
                 _actionBar = actionBar;
@@ -140,6 +145,8 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             public bool OnNavigationItemSelected(int itemPosition, long itemId)
             {
+                if (_actionBar == null)
+                    return false;
 #if APPCOMPAT
                 var adapter = _actionBar.GetBindingMemberValue(AttachedMembersCompat.ActionBar.ItemsSourceAdapter);
 #else
@@ -168,6 +175,10 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             #endregion
 
             #region Constructors
+
+            public BindableActionMode(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+            {
+            }
 
             public BindableActionMode(ActionBar actionBar)
             {
@@ -209,6 +220,8 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             public bool OnCreateActionMode(ActionMode mode, IMenu menu)
             {
+                if (_actionBar == null)
+                    return false;
 #if APPCOMPAT
                 var templateId = _actionBar.GetBindingMemberValue(AttachedMembersCompat.ActionBar.ContextActionBarTemplate);
 #else
@@ -228,6 +241,8 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             public void OnDestroyActionMode(ActionMode mode)
             {
+                if (_actionBar == null)
+                    return;
 #if APPCOMPAT
                 _actionBar.SetBindingMemberValue(AttachedMembersCompat.ActionBar.ContextActionBarVisible, false);
                 Unsubscribe(_actionBar.ThemedContext.GetActivity());
@@ -246,6 +261,18 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         private sealed class PopupMenuDismissListener : Object, PopupMenu.IOnDismissListener
         {
+            #region Constructors
+
+            public PopupMenuDismissListener(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+            {
+            }
+
+            public PopupMenuDismissListener()
+            {
+            }
+
+            #endregion
+
             #region Implementation of IOnDismissListener
 
             public void OnDismiss(PopupMenu menu)
@@ -354,6 +381,10 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             #region Constructors
 
+            public ActionViewExpandedListener(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+            {
+            }
+
             public ActionViewExpandedListener(IMenuItem menuItem)
             {
                 _item = menuItem;
@@ -379,6 +410,8 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             public bool OnMenuItemActionCollapse(IMenuItem item)
             {
+                if (_item == null)
+                    return false;
                 item = _item;
                 Raise(item);
                 return true;
@@ -386,6 +419,8 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             public bool OnMenuItemActionExpand(IMenuItem item)
             {
+                if (_item == null)
+                    return false;
                 item = _item;
                 Raise(item);
                 return true;

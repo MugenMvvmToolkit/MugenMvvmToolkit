@@ -19,6 +19,7 @@
 using System;
 using System.Collections;
 using Android.Graphics.Drawables;
+using Android.Runtime;
 using Android.Views;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
@@ -45,6 +46,10 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             #region Constructors
 
+            public MenuItemOnMenuItemClickListener(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+            {
+            }
+
             public MenuItemOnMenuItemClickListener(IMenuItem menuItem)
             {
                 _item = menuItem;
@@ -56,6 +61,8 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             public bool OnMenuItemClick(IMenuItem item)
             {
+                if (_item == null)
+                    return false;
                 item = _item;
                 if (item.IsCheckable)
                     item.SetBindingMemberValue(AttachedMembers.MenuItem.IsChecked, !item.IsChecked);
