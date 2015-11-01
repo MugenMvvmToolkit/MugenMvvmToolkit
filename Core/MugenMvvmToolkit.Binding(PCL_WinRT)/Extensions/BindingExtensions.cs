@@ -560,7 +560,7 @@ namespace MugenMvvmToolkit.Binding
             return source.TryGetBindingMemberValue(member.Path, args, false, out value);
         }
 
-        public static object SetBindingMemberValue<TSource, TValue>(this TSource source, BindingMemberDescriptor<TSource, TValue> member, TValue value)
+        public static object SetBindingMemberValue<TSource, TValue>([NotNull] this TSource source, BindingMemberDescriptor<TSource, TValue> member, TValue value)
             where TSource : class
         {
             Should.NotBeNull(source, "source");
@@ -570,7 +570,7 @@ namespace MugenMvvmToolkit.Binding
                 .SetSingleValue(source, value);
         }
 
-        public static object SetBindingMemberValue<TSource, TValue>(this TSource source, BindingMemberDescriptor<TSource, TValue> member, object[] args)
+        public static object SetBindingMemberValue<TSource, TValue>([NotNull]this TSource source, BindingMemberDescriptor<TSource, TValue> member, object[] args)
             where TSource : class
         {
             Should.NotBeNull(source, "source");

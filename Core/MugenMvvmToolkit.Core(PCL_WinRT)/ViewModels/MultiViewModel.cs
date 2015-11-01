@@ -258,8 +258,7 @@ namespace MugenMvvmToolkit.ViewModels
 
                     var navigableViewModel = viewModel as INavigableViewModel;
                     if (navigableViewModel != null)
-                        navigableViewModel.OnNavigatedFrom(new NavigationContext(NavigationType.Tab, NavigationMode.Back, viewModel,
-                            SelectedItem, this));
+                        navigableViewModel.OnNavigatedFrom(new NavigationContext(NavigationType.Tab, NavigationMode.Back, viewModel, SelectedItem, this));
 
                     var selectable = viewModel as ISelectable;
                     if (selectable != null)

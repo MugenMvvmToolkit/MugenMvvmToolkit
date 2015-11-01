@@ -825,7 +825,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             var callback = _currentCallback;
             if (callback != null)
             {
-                callback.Invoke(OperationResult.CreateCancelResult<bool?>(OperationType.PageNavigation, this, context));
+                callback.Invoke(OperationResult.CreateCancelResult<bool?>(OperationType.PageNavigation, context.ViewModelTo ?? (object)this, context));
                 _currentCallback = null;
                 _navigationTargetVm = null;
             }

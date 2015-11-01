@@ -100,9 +100,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Models
             return source;
         }
 
-        private static Element FindParent(Element target)
+        private static object FindParent(Element target)
         {
-            return target.ParentView;
+            return target.Parent;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs args)
