@@ -125,13 +125,33 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             ViewModel.NotBeDisposed();
             if (IsOpen)
                 throw ExceptionManager.WindowOpened();
-            _isOpen = true;
-            if (context == null)
-                context = DataContext.Empty;
-            if (callback != null)
-                OperationCallbackManager.Register(OperationType.WindowNavigation, ViewModel, callback, context);
             var tcs = new TaskCompletionSource<object>();
-            ShowInternal(context, tcs);
+            RaiseNavigating(context, NavigationMode.New)
+                .TryExecuteSynchronously(task =>
+                {
+                    try
+                    {
+                        if (!task.Result)
+                        {
+                            tcs.TrySetCanceled();
+                            if (callback != null)
+                                callback.Invoke(OperationResult.CreateCancelResult<bool?>(OperationType.WindowNavigation, ViewModel, context));
+                            return;
+                        }
+                        if (context == null)
+                            context = DataContext.Empty;
+                        if (callback != null)
+                            OperationCallbackManager.Register(OperationType.WindowNavigation, ViewModel, callback, context);
+                        _isOpen = true;
+                        ShowInternal(context, tcs);
+                    }
+                    catch (Exception e)
+                    {
+                        tcs.TrySetException(e);
+                        if (callback != null)
+                            callback.Invoke(OperationResult.CreateErrorResult<bool?>(OperationType.WindowNavigation, ViewModel, e, context));
+                    }
+                });
             return tcs.Task;
         }
 
@@ -342,17 +362,32 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                    new NavigationContext(NavigationType.Window, NavigationMode.Back, ViewModel, ViewModel.GetParentViewModel(), this);
         }
 
+        private Task<bool> RaiseNavigating(IDataContext context, NavigationMode mode)
+        {
+            var parentViewModel = ViewModel.GetParentViewModel() as INavigableViewModel;
+            if (parentViewModel == null)
+                return Empty.TrueTask;
+            var ctx = new NavigationContext(NavigationType.Window, mode, ViewModel.GetParentViewModel(), ViewModel, this);
+            if (context != null)
+                ctx.Merge(context);
+            return parentViewModel.OnNavigatingFrom(ctx);
+        }
+
         private void RaiseNavigated(IDataContext context, NavigationMode mode)
         {
+            var viewModelFrom = ViewModel.GetParentViewModel() as INavigableViewModel;
+            var viewModelTo = ViewModel as INavigableViewModel;
+            if (viewModelFrom == null && viewModelTo == null)
+                return;
+
             var ctx = new NavigationContext(NavigationType.Window, mode, ViewModel.GetParentViewModel(), ViewModel, this);
+            if (context != null)
+                ctx.Merge(context);
 
-            var navigableViewModel = ctx.ViewModelFrom as INavigableViewModel;
-            if (navigableViewModel != null)
-                navigableViewModel.OnNavigatedFrom(ctx);
-
-            navigableViewModel = ctx.ViewModelTo as INavigableViewModel;
-            if (navigableViewModel != null)
-                navigableViewModel.OnNavigatedTo(ctx);
+            if (viewModelFrom != null)
+                viewModelFrom.OnNavigatedFrom(ctx);
+            if (viewModelTo != null)
+                viewModelTo.OnNavigatedTo(ctx);
         }
 
         #endregion
