@@ -300,7 +300,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (!typeof(IDesignTimeManager).IsAssignableFrom(type) || !type.IsPublicNonAbstractClass())
                     continue;
                 ConstructorInfo constructor = type.GetConstructor(Empty.Array<Type>());
-                if (constructor != null)
+                if (constructor != null && constructor.IsPublic)
                     managers.Add(constructor);
             }
         }

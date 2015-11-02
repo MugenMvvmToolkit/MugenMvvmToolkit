@@ -353,9 +353,9 @@ namespace MugenMvvmToolkit
                 Type moduleType = modulesToLoad[index];
                 var constructor = moduleType.GetConstructor(Empty.Array<Type>());
 #if PCL_WINRT
-                if (constructor == null || modulesToLoad.Any(type => type != moduleType && type.GetTypeInfo().IsSubclassOf(moduleType)))
+                if (constructor == null || !constructor.IsPublic || modulesToLoad.Any(type => type != moduleType && type.GetTypeInfo().IsSubclassOf(moduleType)))
 #else
-                if (constructor == null || modulesToLoad.Any(type => type != moduleType && type.IsSubclassOf(moduleType)))
+                if (constructor == null || !constructor.IsPublic || modulesToLoad.Any(type => type != moduleType && type.IsSubclassOf(moduleType)))
 #endif
                 {
                     modulesToLoad.Remove(moduleType);

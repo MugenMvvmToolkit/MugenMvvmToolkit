@@ -400,8 +400,7 @@ namespace MugenMvvmToolkit.Binding
             Should.NotBeNull(converter, "converter");
             if (type == null)
                 type = converter.GetType();
-            string name = RemoveTail(RemoveTail(RemoveTail(type.Name, "BindingValueConverter"), "ValueConverter"),
-                "Converter");
+            string name = RemoveTail(RemoveTail(RemoveTail(type.Name, "BindingValueConverter"), "ValueConverter"), "Converter");
             resolver.AddConverter(name, converter, rewrite);
             if (name != type.Name)
                 resolver.AddConverter(type.Name, converter, rewrite);

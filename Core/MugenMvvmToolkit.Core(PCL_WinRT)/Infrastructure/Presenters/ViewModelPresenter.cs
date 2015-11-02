@@ -163,7 +163,11 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             {
                 var operation = _dynamicPresenters[i].TryShowAsync(viewModel, context, this);
                 if (operation != null)
+                {
+                    if (Tracer.TraceInformation)
+                        Tracer.Info("The {0} is shown by {1}", viewModel.GetType().FullName, _dynamicPresenters[i].GetType().FullName);
                     return operation;
+                }
             }
             throw ExceptionManager.PresenterCannotShowViewModel(GetType(), viewModel.GetType());
         }

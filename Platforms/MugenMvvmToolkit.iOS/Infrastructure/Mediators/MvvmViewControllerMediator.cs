@@ -114,18 +114,23 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
                     controller.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
 
                 var tabBarController = viewController as UITabBarController;
-                if (tabBarController != null)
+                if (tabBarController == null)
                 {
+                    var splitViewController = viewController as UISplitViewController;
+                    viewControllers = splitViewController == null ? null : splitViewController.ViewControllers;
+                }
+                else
                     viewControllers = tabBarController.ViewControllers;
-                    if (viewControllers != null)
+
+                if (viewControllers != null)
+                {
+                    foreach (var controller in viewControllers)
                     {
-                        foreach (var controller in viewControllers)
-                        {
-                            controller.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
-                            PlatformExtensions.SetHasState(controller, false);
-                        }
+                        controller.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
+                        PlatformExtensions.SetHasState(controller, false);
                     }
                 }
+
                 viewController.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
                 _isAppeared = true;
             }
@@ -253,11 +258,21 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
             }
 
             var tabBarController = ViewController as UITabBarController;
-            if (tabBarController != null)
+            if (tabBarController == null)
+            {
+                var splitViewController = ViewController as UISplitViewController;
+                if (splitViewController != null)
+                {
+                    splitViewController.ViewControllers.ClearBindings(true, true);
+                    splitViewController.ViewControllers.DisposeEx();
+                }
+            }
+            else
             {
                 tabBarController.ViewControllers.ClearBindings(true, true);
                 tabBarController.ViewControllers.DisposeEx();
             }
+
             viewController.ChildViewControllers.ClearBindings(true, true);
             viewController.ChildViewControllers.DisposeEx();
             viewController.ClearBindings(true, true);
