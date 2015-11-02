@@ -341,9 +341,10 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
         {
             base.RegisterType(type);
 
+            if (BindingServiceProvider.DisableConverterAutoRegistration)
+                return;
             if (!typeof(IValueConverter).IsAssignableFrom(type) || !type.IsPublicNonAbstractClass())
                 return;
-
             var constructor = type.GetConstructor(Empty.Array<Type>());
             if (constructor == null || !constructor.IsPublic)
                 return;

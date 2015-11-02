@@ -118,6 +118,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
         {
             base.RegisterType(type);
 
+            if (BindingServiceProvider.DisableConverterAutoRegistration)
+                return;
             var typeInfo = type.GetTypeInfo();
             if (!typeof(IValueConverter).GetTypeInfo().IsAssignableFrom(typeInfo) || !type.IsPublicNonAbstractClass())
                 return;

@@ -226,8 +226,15 @@ namespace MugenMvvmToolkit.Binding.Modules
         {
             if (_isLoaded)
                 return;
-            if ((!typeof(IBindingValueConverter).IsAssignableFrom(type) && !typeof(IDataTemplateSelector).IsAssignableFrom(type)) ||
-                !type.IsPublicNonAbstractClass())
+            var isConverter = typeof(IBindingValueConverter).IsAssignableFrom(type);
+            var isTemplate = typeof(IDataTemplateSelector).IsAssignableFrom(type);
+
+            if ((!isConverter && !isTemplate) || !type.IsPublicNonAbstractClass())
+                return;
+
+            if (BindingServiceProvider.DisableConverterAutoRegistration && isConverter)
+                return;
+            if (BindingServiceProvider.DisableDataTemplateSelectorAutoRegistration && isTemplate)
                 return;
 
             var constructor = type.GetConstructor(Empty.Array<Type>());
@@ -235,14 +242,10 @@ namespace MugenMvvmToolkit.Binding.Modules
                 return;
 
             var value = constructor.InvokeEx();
-            var converter = value as IBindingValueConverter;
-            if (converter == null)
-            {
+            if (isTemplate)
                 BindingServiceProvider.ResourceResolver.AddObject(type.Name, value, true);
-                BindingServiceProvider.ResourceResolver.AddObject(char.ToLowerInvariant(type.Name[0]) + type.Name, value, true);
-            }
             else
-                BindingServiceProvider.ResourceResolver.AddConverter(converter, null, true);
+                BindingServiceProvider.ResourceResolver.AddConverter((IBindingValueConverter)value, type, true);
 
             if (Tracer.TraceInformation)
                 Tracer.Info("The {0} is registered.", type);

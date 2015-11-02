@@ -95,6 +95,10 @@ namespace MugenMvvmToolkit.Binding
 
         #region Properties
 
+        public static bool DisableConverterAutoRegistration { get; set; }
+
+        public static bool DisableDataTemplateSelectorAutoRegistration { get; set; }
+
         public static Dictionary<string, IBindingBehavior> BindingModeToBehavior
         {
             get { return BindingModeToBehaviorField; }
