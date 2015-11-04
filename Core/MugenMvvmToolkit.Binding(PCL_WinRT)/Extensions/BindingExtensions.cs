@@ -591,7 +591,7 @@ namespace MugenMvvmToolkit.Binding
                 .GetBindingMember(source.GetType(), member.Path, false, false) as INotifiableAttachedBindingMemberInfo;
             if (eventMember == null)
                 return false;
-            return eventMember.TryRaise(source, message ?? EventArgs.Empty);
+            return eventMember.Raise(source, message ?? EventArgs.Empty);
         }
 
         [BindingSyntaxMember]

@@ -35,13 +35,13 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
 
     public interface INotifiableAttachedBindingMemberInfo : IBindingMemberInfo
     {
-        bool TryRaise(object target, object message);
+        bool Raise(object target, object message);
     }
 
     public interface INotifiableAttachedBindingMemberInfo<in TTarget, TType> :
         IAttachedBindingMemberInfo<TTarget, TType>, INotifiableAttachedBindingMemberInfo
         where TTarget : class
     {
-        void Raise(TTarget target, object message);
+        bool Raise(TTarget target, object message);
     }
 }

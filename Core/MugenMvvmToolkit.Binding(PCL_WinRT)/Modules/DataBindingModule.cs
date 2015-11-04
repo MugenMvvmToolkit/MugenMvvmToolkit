@@ -406,7 +406,9 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             var registration = new DefaultAttachedMemberRegistration<object>(CommandParameterInternal, AttachedMemberConstants.CommandParameter);
             memberProvider.Register(registration.ToAttachedBindingMember<object>());
-            memberProvider.Register(AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.Parent, GetParent, SetParent, ObserveParent, ParentAttached));
+            var parentMember = AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.Parent, GetParent, SetParent, ObserveParent, ParentAttached);
+            AttachedBindingMember.TrySetRaiseAction(parentMember, (info, o, arg3) => AttachedParentMember.Raise(o, arg3));
+            memberProvider.Register(parentMember);
             memberProvider.Register(AttachedBindingMember.CreateMember<object, object>("Root", GetRootMember, null, ObserveRootMember));
 
             var errorsMember = AttachedBindingMember.CreateNotifiableMember<object, IEnumerable<object>>(AttachedMemberConstants.ErrorsPropertyMember, GetErrors, SetErrors);

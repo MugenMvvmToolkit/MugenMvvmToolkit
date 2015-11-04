@@ -49,7 +49,7 @@ namespace MugenMvvmToolkit.Binding.Models
             private static readonly Func<TTarget, object, AttachedProperty<TTarget, TType>> AttachedPropertyFactoryDelegate;
             private static readonly Func<TType, object> GetValueConverter;
 
-            internal Action<IAttachedBindingMemberInternal, TTarget, object> RaiseAction;
+            internal Action<IBindingMemberInfo, TTarget, object> RaiseAction;
 
             private readonly Func<IBindingMemberInfo, TTarget, TType> _getValueSimple;
             private readonly Func<IBindingMemberInfo, TTarget, object[], TType> _getValue;
@@ -190,15 +190,12 @@ namespace MugenMvvmToolkit.Binding.Models
                 return TryObserve((TTarget)source, listener);
             }
 
-            public bool TryRaise(object target, object message)
+            public bool Raise(object target, object message)
             {
-                if (RaiseAction == null)
-                    return false;
                 var item = target as TTarget;
                 if (item == null)
                     return false;
-                RaiseAction.Invoke(this, item, message);
-                return true;
+                return Raise(item, message);
             }
 
             public TType GetValue(TTarget source, object[] args)
@@ -245,10 +242,12 @@ namespace MugenMvvmToolkit.Binding.Models
                 return _observeMemberDelegate(this, source, listener);
             }
 
-            public void Raise(TTarget target, object message)
+            public bool Raise(TTarget target, object message)
             {
-                if (RaiseAction != null)
-                    RaiseAction(this, target, message);
+                if (RaiseAction == null)
+                    return false;
+                RaiseAction(this, target, message);
+                return true;
             }
 
             public string Id
@@ -270,9 +269,9 @@ namespace MugenMvvmToolkit.Binding.Models
 
             #region Methods
 
-            private static void RaiseAttachedProperty(IAttachedBindingMemberInternal member, TTarget target, object o)
+            private static void RaiseAttachedProperty(IBindingMemberInfo member, TTarget target, object o)
             {
-                var property = ServiceProvider.AttachedValueProvider.GetValue<AttachedProperty<TTarget, TType>>(target, member.Id, false);
+                var property = ServiceProvider.AttachedValueProvider.GetValue<AttachedProperty<TTarget, TType>>(target, ((IAttachedBindingMemberInternal)member).Id, false);
                 if (property != null)
                     property.RaiseWithMemberChanged(target, o);
             }
@@ -406,9 +405,9 @@ namespace MugenMvvmToolkit.Binding.Models
                     Raise((IAttachedBindingMemberInternal)arg1, target, EventArgs.Empty);
             }
 
-            public static void Raise(IAttachedBindingMemberInternal attachedBindingMemberInternal, TTarget target, object arg3)
+            public static void Raise(IBindingMemberInfo m, TTarget target, object arg3)
             {
-                EventListenerList.Raise(target, GetMemberPath(attachedBindingMemberInternal), arg3);
+                EventListenerList.Raise(target, GetMemberPath(((IAttachedBindingMemberInternal)m)), arg3);
             }
 
             private static string GetMemberPath(IAttachedBindingMemberInternal info)
@@ -450,7 +449,7 @@ namespace MugenMvvmToolkit.Binding.Models
                 {
                     return EventListenerList.GetOrAdd(target, ((IAttachedBindingMemberInternal)info).Id).AddWithUnsubscriber((IEventListener)arg3[0]);
                 }, null, null, BindingMemberType.Event);
-            eventMember.RaiseAction = (@internal, target, arg3) => EventListenerList.Raise(target, @internal.Id, arg3);
+            eventMember.RaiseAction = (m, target, arg3) => EventListenerList.Raise(target, ((IAttachedBindingMemberInternal)m).Id, arg3);
             return eventMember;
         }
 
@@ -580,6 +579,17 @@ namespace MugenMvvmToolkit.Binding.Models
             return CreateMember(path, getValueEx, setValue, observeMemberDelegate, memberAttachedHandler, member, memberType).UpdateType(type);
         }
 
+        public static bool TrySetRaiseAction<TTarget, TType>(IAttachedBindingMemberInfo<TTarget, TType> bindingMember,
+            [NotNull] Action<IBindingMemberInfo, TTarget, object> raiseAction) where TTarget : class
+        {
+            Should.NotBeNull(raiseAction, "raiseAction");
+            var memberInternal = bindingMember as AttachedBindingMemberInfo<TTarget, TType>;
+            if (memberInternal == null || memberInternal.RaiseAction != null)
+                return false;
+            memberInternal.RaiseAction = raiseAction;
+            return true;
+        }
+
         private static TType GetValueThrow<TTarget, TType>(IBindingMemberInfo member, TTarget source)
         {
             throw BindingExceptionManager.BindingMemberMustBeReadable(member);
@@ -601,7 +611,7 @@ namespace MugenMvvmToolkit.Binding.Models
             var eventMember = BindingServiceProvider.MemberProvider.GetBindingMember(source.GetType(), eventName, false, false);
             if (eventMember == null)
             {
-                Tracer.Warn("The event-member '{0}' on type '{1}' was not found", eventName, source.GetType());
+                Tracer.Warn("The event member '{0}' on type '{1}' was not found", eventName, source.GetType());
                 return null;
             }
             return (IDisposable)eventMember.SetSingleValue(source, arg3);
