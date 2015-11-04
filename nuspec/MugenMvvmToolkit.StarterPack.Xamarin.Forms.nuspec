@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.StarterPack.Xamarin.Forms</id>
-    <version>4.3.0</version>
+    <version>5.0.0</version>
     <title>MugenMvvmToolkit - Starter Pack Xamarin.Forms</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -43,23 +43,23 @@
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
       <group targetFramework="MonoAndroid10">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="4.3.0" />
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="5.0.0" />
       </group>
       <group targetFramework="Xamarin.iOS10">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="4.3.0" />
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="5.0.0" />
       </group>
       <group targetFramework="wp8">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="4.3.0" />
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="5.0.0" />
       </group>
       <group targetFramework="wpa81">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="4.3.0" />
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="5.0.0" />
       </group>
       <group targetFramework="win81">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="4.3.0" />
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="5.0.0" />
       </group>
       <group targetFramework="portable-net45+win+wp80+MonoAndroid10+Xamarin.iOS10">
-        <dependency id="MugenMvvmToolkit.AutofacContainer" version="4.3.0" />
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="4.3.0" />		
+        <dependency id="MugenMvvmToolkit.AutofacContainer" version="5.0.0" />
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="5.0.0" />		
       </group>
     </dependencies>
   </metadata>

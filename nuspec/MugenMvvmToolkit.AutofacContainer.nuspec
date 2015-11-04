@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.AutofacContainer</id>
-    <version>4.3.0</version>
+    <version>5.0.0</version>
     <title>MugenMvvmToolkit - Autofac</title>
     <authors>Vyacheslav Volkov</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -22,37 +22,30 @@
     <!-- PCL -->
     <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.dll" target="lib\portable-net45+win+wpa81+wp80\MugenMvvmToolkit.AutofacContainer.dll" />
     <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\portable-net45+win+wpa81+wp80\MugenMvvmToolkit.AutofacContainer.pdb" />
-    <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.xml" target="lib\portable-net45+win+wpa81+wp80\MugenMvvmToolkit.AutofacContainer.xml" />
 
     <!-- PCL SILVERLIGHT -->
     <file src="..\bin\IocContainers\Autofac\PCL_Silverlight\MugenMvvmToolkit.AutofacContainer.dll" target="lib\portable-net45+sl50+win+wp80\MugenMvvmToolkit.AutofacContainer.dll" />
-    <file src="..\bin\IocContainers\Autofac\PCL_Silverlight\MugenMvvmToolkit.AutofacContainer.xml" target="lib\portable-net45+sl50+win+wp80\MugenMvvmToolkit.AutofacContainer.xml" />
     <file src="..\bin\IocContainers\Autofac\PCL_Silverlight\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\portable-net45+sl50+win+wp80\MugenMvvmToolkit.AutofacContainer.pdb" />
 
     <!-- NET 4.0 -->
     <file src="..\bin\IocContainers\Autofac\NET4.0\MugenMvvmToolkit.AutofacContainer.dll" target="lib\net40\MugenMvvmToolkit.AutofacContainer.dll" />
     <file src="..\bin\IocContainers\Autofac\NET4.0\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\net40\MugenMvvmToolkit.AutofacContainer.pdb" />
-    <file src="..\bin\IocContainers\Autofac\NET4.0\MugenMvvmToolkit.AutofacContainer.xml" target="lib\net40\MugenMvvmToolkit.AutofacContainer.xml" />
 
     <!-- NET 4.5 -->
     <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.dll" target="lib\net45\MugenMvvmToolkit.AutofacContainer.dll" />
     <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\net45\MugenMvvmToolkit.AutofacContainer.pdb" />
-    <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.xml" target="lib\net45\MugenMvvmToolkit.AutofacContainer.xml" />
 
     <!-- WP 8 -->
     <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.dll" target="lib\wp8\MugenMvvmToolkit.AutofacContainer.dll" />
     <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\wp8\MugenMvvmToolkit.AutofacContainer.pdb" />
-    <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.xml" target="lib\wp8\MugenMvvmToolkit.AutofacContainer.xml" />
 	
 	<!-- WINRT -->
     <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.dll" target="lib\uap\MugenMvvmToolkit.AutofacContainer.dll" />
     <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\uap\MugenMvvmToolkit.AutofacContainer.pdb" />
-    <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.xml" target="lib\uap\MugenMvvmToolkit.AutofacContainer.xml" />
 
     <!-- Android -->
     <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.dll" target="lib\MonoAndroid10\MugenMvvmToolkit.AutofacContainer.dll" />
     <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\MonoAndroid10\MugenMvvmToolkit.AutofacContainer.pdb" />
-    <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.xml" target="lib\MonoAndroid10\MugenMvvmToolkit.AutofacContainer.xml" />
 
     <!-- Touch -->
     <file src="..\bin\IocContainers\Autofac\PCL\Autofac.dll" target="lib\Xamarin.iOS10\Autofac.dll" />    
@@ -60,6 +53,5 @@
 
     <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.dll" target="lib\Xamarin.iOS10\MugenMvvmToolkit.AutofacContainer.dll" />
     <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\Xamarin.iOS10\MugenMvvmToolkit.AutofacContainer.pdb" />
-    <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.xml" target="lib\Xamarin.iOS10\MugenMvvmToolkit.AutofacContainer.xml" />
   </files>
 </package>

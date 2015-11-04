@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.MugenInjectionContainer</id>
-    <version>4.3.0</version>
+    <version>5.0.0</version>
     <title>MugenMvvmToolkit - MugenInjection</title>
     <authors>Vyacheslav Volkov</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -19,21 +19,17 @@
     <!-- NET 4.0 -->
     <file src="..\bin\IocContainers\Mugen\NET4.0\MugenMvvmToolkit.MugenContainer.dll" target="lib\net40\MugenMvvmToolkit.MugenContainer.dll" />
     <file src="..\bin\IocContainers\Mugen\NET4.0\MugenMvvmToolkit.MugenContainer.pdb" target="lib\net40\MugenMvvmToolkit.MugenContainer.pdb" />
-    <file src="..\bin\IocContainers\Mugen\NET4.0\MugenMvvmToolkit.MugenContainer.xml" target="lib\net40\MugenMvvmToolkit.MugenContainer.xml" />
 
     <!-- SILVERLIGHT 5 -->
     <file src="..\bin\IocContainers\Mugen\SL5\MugenMvvmToolkit.MugenContainer.dll" target="lib\sl5\MugenMvvmToolkit.MugenContainer.dll" />
     <file src="..\bin\IocContainers\Mugen\SL5\MugenMvvmToolkit.MugenContainer.pdb" target="lib\sl5\MugenMvvmToolkit.MugenContainer.pdb" />
-    <file src="..\bin\IocContainers\Mugen\SL5\MugenMvvmToolkit.MugenContainer.xml" target="lib\sl5\MugenMvvmToolkit.MugenContainer.xml" />
 
     <!-- WINRT 8.0 -->
     <file src="..\bin\IocContainers\Mugen\WinRT\MugenMvvmToolkit.MugenContainer.dll" target="lib\win8\MugenMvvmToolkit.MugenContainer.dll" />
     <file src="..\bin\IocContainers\Mugen\WinRT\MugenMvvmToolkit.MugenContainer.pdb" target="lib\win8\MugenMvvmToolkit.MugenContainer.pdb" />
-    <file src="..\bin\IocContainers\Mugen\WinRT\MugenMvvmToolkit.MugenContainer.xml" target="lib\win8\MugenMvvmToolkit.MugenContainer.xml" />
 
     <!-- WP 8.0 -->
     <file src="..\bin\IocContainers\Mugen\WP8.0\MugenMvvmToolkit.MugenContainer.dll" target="lib\wp8\MugenMvvmToolkit.MugenContainer.dll" />
     <file src="..\bin\IocContainers\Mugen\WP8.0\MugenMvvmToolkit.MugenContainer.pdb" target="lib\wp8\MugenMvvmToolkit.MugenContainer.pdb" />
-    <file src="..\bin\IocContainers\Mugen\WP8.0\MugenMvvmToolkit.MugenContainer.xml" target="lib\wp8\MugenMvvmToolkit.MugenContainer.xml" />
   </files>
 </package>
