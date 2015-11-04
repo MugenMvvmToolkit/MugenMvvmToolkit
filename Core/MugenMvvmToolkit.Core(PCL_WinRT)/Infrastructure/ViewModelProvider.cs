@@ -491,8 +491,8 @@ namespace MugenMvvmToolkit.Infrastructure
             if (ctxFrom.TryGetData(InitializationConstants.ObservationMode, out observationMode))
                 ctxTo.AddOrUpdate(InitializationConstants.ObservationMode, observationMode);
 
-            string bindingName;
-            if (ctxFrom.TryGetData(InitializationConstants.ViewModelBindingName, out bindingName))
+            string bindingName = ctxFrom.GetData(InitializationConstants.ViewModelBindingName);
+            if (!string.IsNullOrEmpty(bindingName))
                 ctxTo.AddOrUpdate(InitializationConstants.ViewModelBindingName, bindingName);
         }
 

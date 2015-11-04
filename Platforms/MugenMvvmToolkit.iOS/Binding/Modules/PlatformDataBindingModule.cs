@@ -165,7 +165,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
                 (info, controller) => controller.Title,
                 (info, controller, arg3) => controller.Title = arg3 ?? string.Empty));
             memberProvider.Register(AttachedBindingMember.CreateMember<UIViewController, object>(AttachedMemberConstants.ParentExplicit,
-                    (info, controller) => controller.ParentViewController ?? controller.PresentingViewController, null));
+                    (info, controller) => controller.ParentViewController ?? controller.PresentingViewController ?? controller.SplitViewController, null));
 
             //UITabBarController
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UITabBarController.ItemsSource);
