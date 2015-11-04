@@ -531,8 +531,10 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
         {
             string idOperation;
             GetViewModelTypeFromParameter(NavigationService.GetParameterFromArgs(args), out idOperation);
-            return new NavigationContext(NavigationType.Page, args.NavigationMode, viewModelFrom,
-                idOperation == _currentOperationId ? _navigationTargetVm : null, this)
+            var viewModelTo = idOperation == _currentOperationId ? _navigationTargetVm : null;
+            if (viewModelTo == null && viewModelFrom != null && args.NavigationMode == NavigationMode.Back)
+                viewModelTo = viewModelFrom.GetParentViewModel();
+            return new NavigationContext(NavigationType.Page, args.NavigationMode, viewModelFrom, viewModelTo, this)
             {
                 {NavigatingCancelArgsConstant, args},
                 {OperationIdConstant, idOperation}
