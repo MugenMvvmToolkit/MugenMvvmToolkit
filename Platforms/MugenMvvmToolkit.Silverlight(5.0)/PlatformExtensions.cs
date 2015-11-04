@@ -24,6 +24,7 @@ using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 namespace MugenMvvmToolkit.Silverlight
 #elif WINDOWS_PHONE
 using JetBrains.Annotations;
+using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Windows.Navigation;
@@ -52,10 +53,20 @@ namespace MugenMvvmToolkit.WinPhone
             }
             set { _applicationStateManager = value; }
         }
+
+        public static event EventHandler<CancelEventArgs> MainPageOnBackKeyPressed;
 #endif
         #region Methods
 
 #if WINDOWS_PHONE
+        public static void HandleMainPageOnBackKeyPress(Action<CancelEventArgs> baseAction, CancelEventArgs args)
+        {
+            var eventHandler = MainPageOnBackKeyPressed;
+            if (eventHandler != null)
+                eventHandler(null, args);
+            baseAction(args);
+        }
+
         public static bool GetHandled(this NavigationEventArgs args)
         {
             if (args.Content == null)

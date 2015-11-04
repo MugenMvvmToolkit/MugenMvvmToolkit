@@ -47,12 +47,18 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
 
         #region Constructors
 
-        public FrameNavigationService(Frame frame)
+        public FrameNavigationService(Frame frame, bool isRootFrame = false)
         {
             Should.NotBeNull(frame, "frame");
             _frame = frame;
             _frame.Navigating += OnNavigating;
             _frame.Navigated += OnNavigated;
+            if (isRootFrame)
+            {
+                var backPressedEventDelegate = PlatformExtensions.SubscribeBackPressedEventDelegate;
+                if (backPressedEventDelegate != null)
+                    backPressedEventDelegate(this, (o, sender, args) => ((FrameNavigationService)o).OnBackButtonPressed(args));
+            }
         }
 
         #endregion
@@ -101,6 +107,16 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
         public bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
         {
             Should.NotBeNull(args, "args");
+            if (args is BackButtonNavigatingEventArgs)
+            {
+                var application = Application.Current;
+                if (application == null)
+                    return false;
+                RaiseNavigated(BackButtonNavigationEventArgs.Instance);
+                application.Exit();
+                return true;
+            }
+
             var result = NavigateInternal(args);
             if (result)
                 ClearNavigationStackIfNeed(dataContext);
@@ -125,14 +141,12 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
             var canClose = content != null && ViewManager.GetDataContext(content) == viewModel && CanGoBack;
             if (canClose)
                 return true;
-#if WINDOWSCOMMON
             var viewModelId = viewModel.GetViewModelId();
             for (int index = 0; index < _frame.BackStack.Count; index++)
             {
                 if (GetViewModelIdFromParameter(_frame.BackStack[index].Parameter) == viewModelId)
                     return true;
             }
-#endif
             return false;
         }
 
@@ -145,7 +159,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
                 GoBack();
                 return true;
             }
-#if WINDOWSCOMMON
             bool closed = false;
             var viewModelId = viewModel.GetViewModelId();
             for (int index = 0; index < _frame.BackStack.Count; index++)
@@ -158,9 +171,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
                 }
             }
             return closed;
-#else
-            return false;
-#endif
         }
 
         public event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
@@ -170,6 +180,29 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
         #endregion
 
         #region Methods
+
+        private void OnBackButtonPressed(object args)
+        {
+            if (CanGoBack)
+                return;
+            var backPressedHandledDelegate = PlatformExtensions.SetBackPressedHandledDelegate;
+            if (backPressedHandledDelegate == null)
+            {
+                RaiseNavigated(BackButtonNavigationEventArgs.Instance);
+                return;
+            }
+
+            var navigating = Navigating;
+            if (navigating == null)
+            {
+                RaiseNavigated(BackButtonNavigationEventArgs.Instance);
+                return;
+            }
+
+            var navArgs = new BackButtonNavigatingEventArgs();
+            navigating(this, navArgs);
+            backPressedHandledDelegate(args, navArgs.Cancel);
+        }
 
         private bool NavigateInternal(NavigatingCancelEventArgsBase args)
         {
@@ -184,7 +217,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
             return Navigate(wrapper.Args.SourcePageType, wrapper.Parameter, null);
         }
 
-#if WINDOWSCOMMON
         private static Guid GetViewModelIdFromParameter(object parameter)
         {
             var s = parameter as string;
@@ -196,32 +228,25 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
             Guid.TryParse(s, out id);
             return id;
         }
-#endif
 
         private void ClearNavigationStackIfNeed(IDataContext context)
         {
-#if WINDOWSCOMMON
             if (context == null)
                 context = DataContext.Empty;
             if (!context.GetData(NavigationConstants.ClearBackStack) || _frame.BackStack.IsReadOnly)
                 return;
             _frame.BackStack.Clear();
             context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
-#endif
         }
 
         private static string GetParameter(string parameter)
         {
-#if WINDOWSCOMMON
             if (string.IsNullOrEmpty(parameter))
                 return parameter;
             var index = parameter.IndexOf(IdSeparator[0], StringComparison.Ordinal);
             if (index < 0)
                 return parameter;
             return parameter.Substring(index + IdSeparator[0].Length);
-#else
-            return parameter;
-#endif
         }
 
         private void OnNavigated(object sender, NavigationEventArgs args)
@@ -239,8 +264,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
                 //to indicate that args is handled.
                 args.SetHandled(true);
                 //to restore state before navigate.
-                dp.Dispatcher.RunAsync(CoreDispatcherPriority.Low,
-                    () => handler(this, new NavigationEventArgsWrapper(args)));
+                dp.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () => handler(this, new NavigationEventArgsWrapper(args)));
             }
         }
 
@@ -251,9 +275,15 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
                 handler(this, new NavigatingCancelEventArgsWrapper(args, _lastParameter));
         }
 
+        private void RaiseNavigated(NavigationEventArgsBase args)
+        {
+            var handler = Navigated;
+            if (handler != null)
+                handler(this, args);
+        }
+
         private bool Navigate(Type type, string parameter, IViewModel viewModel)
         {
-#if WINDOWSCOMMON
             if (viewModel != null)
             {
                 if (parameter == null)
@@ -261,7 +291,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
                 else
                     parameter = viewModel.GetViewModelId().ToString() + IdSeparator[0] + parameter;
             }
-#endif
             _lastParameter = parameter;
             if (parameter == null)
                 return _frame.Navigate(type);

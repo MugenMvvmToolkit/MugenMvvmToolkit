@@ -172,7 +172,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         [NotNull]
         protected virtual INavigationService CreateNavigationService()
         {
-            return new NavigationService(ServiceProvider.ThreadManager);
+            return new NavigationService(ServiceProvider.ThreadManager, true);
         }
 
         private static PlatformInfo GetPlatformInfo()

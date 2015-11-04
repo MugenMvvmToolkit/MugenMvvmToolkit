@@ -41,20 +41,22 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
         #region Fields
 
         private readonly IThreadManager _threadManager;
+        private readonly bool _isRootFrame;
         private NavigationPage _rootPage;
 
         #endregion
 
         #region Constructors
 
-        public NavigationService([NotNull] IThreadManager threadManager)
+        public NavigationService([NotNull] IThreadManager threadManager, bool isRootFrame = false)
         {
             Should.NotBeNull(threadManager, "threadManager");
             _threadManager = threadManager;
+            _isRootFrame = isRootFrame;
             XamarinFormsExtensions.BackButtonPressed += ReflectionExtensions
                 .CreateWeakDelegate<NavigationService, CancelEventArgs, EventHandler<Page, CancelEventArgs>>(this,
-                    (service, o, arg3) => service.OnBackButtonPressed((Page)o, arg3),
-                    (o, handler) => XamarinFormsExtensions.BackButtonPressed -= handler, handler => handler.Handle);
+                    (service, o, arg3) => service.OnBackButtonPressed((Page)o, arg3), (o, handler) => XamarinFormsExtensions.BackButtonPressed -= handler,
+                    handler => handler.Handle);
             UseAnimations = true;
         }
 
@@ -70,7 +72,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         public virtual bool CanGoBack
         {
-            get { return CurrentContent != null; }
+            get { return _rootPage.Navigation != null && _rootPage.Navigation.NavigationStack.Count > 1; }
         }
 
         public virtual bool CanGoForward
@@ -152,9 +154,18 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             Should.NotBeNull(args, "args");
             if (!args.IsCancelable)
                 return false;
-            var eventArgs = ((NavigatingCancelEventArgs)args);
-            if (eventArgs.IsBackButtonNavigation && XamarinFormsExtensions.SendBackButtonPressed != null && XamarinFormsExtensions.SendBackButtonPressed(CurrentContent as Page))
-                return true;
+            var eventArgs = (NavigatingCancelEventArgs)args;
+            //Close button pressed.
+            if (eventArgs.IsBackButtonNavigation && XamarinFormsExtensions.SendBackButtonPressed != null)
+            {
+                var sendBackButton = XamarinFormsExtensions.SendBackButtonPressed(CurrentContent as Page);
+                if (sendBackButton != null)
+                {
+                    RaiseNavigated(null, null, NavigationMode.Back);
+                    sendBackButton();
+                    return true;
+                }
+            }
             if (eventArgs.NavigationMode == NavigationMode.Back)
             {
                 GoBack();
@@ -273,15 +284,18 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
         {
             if (CurrentContent != page)
                 return;
-            bool isCancelable = _rootPage.Navigation.NavigationStack.Count > 1 || XamarinFormsExtensions.SendBackButtonPressed != null;
-            var eventArgs = new NavigatingCancelEventArgs(null, NavigationMode.Back, null, isCancelable, true);
-            RaiseNavigating(eventArgs);
-            if (!isCancelable)
-                eventArgs.Cancel = false;
-            args.Cancel = eventArgs.Cancel;
 
-            if (!args.Cancel && _rootPage.Navigation.NavigationStack.Count == 1 &&
-                _rootPage.Navigation.NavigationStack[0] == page)
+            var isCancelable = CanGoBack || (_isRootFrame && XamarinFormsExtensions.SendBackButtonPressed != null);
+            if (isCancelable)
+            {
+                var eventArgs = new NavigatingCancelEventArgs(null, NavigationMode.Back, null, true, true);
+                RaiseNavigating(eventArgs);
+                args.Cancel = eventArgs.Cancel;
+            }
+            if (isCancelable && args.Cancel)
+                return;
+
+            if (!CanGoBack)
                 RaiseNavigated(null, null, NavigationMode.Back);
         }
 

@@ -20,7 +20,8 @@
     <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp></NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -42,7 +43,8 @@
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -140,6 +142,12 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinRT%28PCL%29\Interfaces\IApplicationStateManager.cs">
       <Link>Interfaces\IApplicationStateManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinRT%28PCL%29\Models\EventArg\BackButtonNavigatingEventArgs.cs">
+      <Link>Models\EventArg\BackButtonNavigatingEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinRT%28PCL%29\Models\EventArg\BackButtonNavigationEventArgs.cs">
+      <Link>Models\EventArg\BackButtonNavigationEventArgs.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Converters\InverseBooleanConverter.cs">
       <Link>Converters\InverseBooleanConverter.cs</Link>

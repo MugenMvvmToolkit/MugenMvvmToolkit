@@ -17,7 +17,8 @@
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp></NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -35,7 +36,8 @@
     <DefineConstants>TRACE;WINDOWSCOMMON</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
@@ -104,6 +106,8 @@
     <Compile Include="Interfaces\IApplicationStateManager.cs" />
     <Compile Include="Interfaces\Views\IPopupView.cs" />
     <Compile Include="Interfaces\Views\IWindowView.cs" />
+    <Compile Include="Models\EventArg\BackButtonNavigatingEventArgs.cs" />
+    <Compile Include="Models\EventArg\BackButtonNavigationEventArgs.cs" />
     <Compile Include="Models\PopupSettings.cs" />
     <Compile Include="Models\EventArg\NavigatingCancelEventArgsWrapper.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgsWrapper.cs" />

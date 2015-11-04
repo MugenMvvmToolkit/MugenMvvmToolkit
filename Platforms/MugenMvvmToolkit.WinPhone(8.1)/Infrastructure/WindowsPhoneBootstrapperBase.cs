@@ -127,7 +127,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         [CanBeNull]
         protected virtual INavigationService CreateNavigationService(PhoneApplicationFrame frame)
         {
-            return new FrameNavigationService(frame);
+            return new FrameNavigationService(frame, true);
         }
 
         private void OnLaunching(object sender, LaunchingEventArgs args)

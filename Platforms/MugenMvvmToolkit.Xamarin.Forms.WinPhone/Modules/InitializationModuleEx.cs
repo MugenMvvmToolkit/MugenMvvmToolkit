@@ -39,9 +39,8 @@ using Application = System.Windows.Application;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Modules
 #elif WINDOWSCOMMON
-using Windows.UI.Xaml;
 using MugenMvvmToolkit.Xamarin.Forms.WinRT.Infrastructure.Presenters;
-using Frame = Windows.UI.Xaml.Controls.Frame;
+using Application = Windows.UI.Xaml.Application;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
 #endif
@@ -103,40 +102,31 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
             XamarinFormsExtensions.SendBackButtonPressed = page =>
             {
                 if (!IsLastPage(page))
-                    return false;
+                    return null;
                 var activity = GetActivity(global::Xamarin.Forms.Forms.Context);
                 if (activity == null)
-                    return false;
-                activity.OnBackPressed();
-                return true;
+                    return null;
+                return activity.OnBackPressed;
             };
 #elif WINDOWSCOMMON
             XamarinFormsExtensions.SendBackButtonPressed = page =>
             {
                 if (!IsLastPage(page))
-                    return false;
-                var window = Window.Current;
-                if (window == null)
-                    return false;
-                var frame = window.Content as Frame;
-                if (frame == null || !frame.CanGoBack)
-                    return false;
-                frame.GoBack();
-                return true;
+                    return null;
+                var application = Application.Current;
+                if (application == null)
+                    return null;
+                return application.Exit;                
             };
 #elif WINDOWS_PHONE
             XamarinFormsExtensions.SendBackButtonPressed = page =>
             {
                 if (!IsLastPage(page))
-                    return false;
+                    return null;
                 var application = Application.Current;
                 if (application == null)
-                    return false;
-                var frame = application.RootVisual as PhoneApplicationFrame;
-                if (frame == null || !frame.CanGoBack)
-                    return false;
-                frame.GoBack();
-                return true;
+                    return null;
+                return application.Terminate;
             };
 #endif
             return base.LoadInternal();

@@ -57,9 +57,8 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
         }
 
-        protected WinRTBootstrapperBase([NotNull] Frame rootFrame, bool overrideAssemblies, PlatformInfo platform = null)
+        protected WinRTBootstrapperBase([CanBeNull] Frame rootFrame, bool overrideAssemblies, PlatformInfo platform = null)
         {
-            Should.NotBeNull(rootFrame, "rootFrame");
             _rootFrame = rootFrame;
             _overrideAssemblies = overrideAssemblies;
             _platform = platform ?? PlatformExtensions.GetPlatformInfo();
@@ -126,7 +125,9 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         [CanBeNull]
         protected virtual INavigationService CreateNavigationService(Frame frame)
         {
-            return new FrameNavigationService(frame);
+            if (frame == null)
+                return null;
+            return new FrameNavigationService(frame, true);
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)

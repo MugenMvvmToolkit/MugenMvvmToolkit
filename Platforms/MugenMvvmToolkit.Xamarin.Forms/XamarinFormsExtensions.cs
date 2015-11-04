@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms
 
         public static event EventHandler<Page, CancelEventArgs> BackButtonPressed;
 
-        public static Func<Page, bool> SendBackButtonPressed { get; set; }
+        public static Func<Page, Action> SendBackButtonPressed { get; set; }
 
         #endregion
 

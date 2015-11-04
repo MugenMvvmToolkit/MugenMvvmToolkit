@@ -34,7 +34,9 @@ using MugenMvvmToolkit.Silverlight.Models.EventArg;
 
 namespace MugenMvvmToolkit.Silverlight.Infrastructure.Navigation
 #elif WINDOWS_PHONE
+using System.ComponentModel;
 using System.Linq;
+using System.Windows;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.WinPhone.Interfaces.Navigation;
 using MugenMvvmToolkit.WinPhone.Models.EventArg;
@@ -53,6 +55,19 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         #region Constructors
 
+#if WINDOWS_PHONE
+        public FrameNavigationService([NotNull] Frame frame, bool isRootFrame)
+        {
+            Should.NotBeNull(frame, "frame");
+            _frame = frame;
+            _frame.Navigating += OnNavigating;
+            _frame.Navigated += OnNavigated;
+            if (isRootFrame)
+                PlatformExtensions.MainPageOnBackKeyPressed +=
+                    ReflectionExtensions.CreateWeakEventHandler<FrameNavigationService, CancelEventArgs>(this,
+                        (service, o, arg3) => OnBackButtonPressed(arg3), (o, handler) => PlatformExtensions.MainPageOnBackKeyPressed -= handler.Handle).Handle;
+        }
+#else
         public FrameNavigationService([NotNull] Frame frame)
         {
             Should.NotBeNull(frame, "frame");
@@ -60,7 +75,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             _frame.Navigating += OnNavigating;
             _frame.Navigated += OnNavigated;
         }
-
+#endif
         #endregion
 
         #region Methods
@@ -147,6 +162,17 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
         public bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
         {
             Should.NotBeNull(args, "args");
+#if WINDOWS_PHONE
+            if (args is BackButtonNavigatingEventArgs)
+            {
+                var application = Application.Current;
+                if (application == null)
+                    return false;
+                RaiseNavigated(BackButtonNavigationEventArgs.Instance);
+                application.Terminate();
+                return true;
+            }
+#endif
             bool result = NavigateInternal(args);
             if (result)
                 ClearNavigationStackIfNeed(dataContext);
@@ -215,6 +241,30 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             }
             return _frame.Navigate(uri);
         }
+
+#if WINDOWS_PHONE
+        private void RaiseNavigated(NavigationEventArgsBase args)
+        {
+            var navigated = Navigated;
+            if (navigated != null)
+                navigated(this, args);
+        }
+
+        private void OnBackButtonPressed(CancelEventArgs args)
+        {
+            if (CanGoBack)
+                return;
+            var navigating = Navigating;
+            if (navigating == null)
+            {
+                RaiseNavigated(BackButtonNavigationEventArgs.Instance);
+                return;
+            }
+            var navArgs = new BackButtonNavigatingEventArgs();
+            navigating(this, navArgs);
+            args.Cancel = navArgs.Cancel;
+        }
+#endif
 
         private void ClearNavigationStackIfNeed(IDataContext context)
         {

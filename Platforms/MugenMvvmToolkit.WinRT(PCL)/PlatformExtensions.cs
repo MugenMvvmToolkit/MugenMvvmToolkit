@@ -38,10 +38,57 @@ namespace MugenMvvmToolkit.WinRT
         private static IApplicationStateManager _applicationStateManager;
         private const string HandledPath = "#!~handled";
         private const string StatePath = "#!~vmstate";
+        private static PropertyInfo BackArgsHandledProperty;
+
+        #endregion
+
+        #region Constructors
+
+        static PlatformExtensions()
+        {
+            SubscribeBackPressedEventDelegate = (o, action) =>
+            {
+                try
+                {
+                    var type = Type.GetType("Windows.Phone.UI.Input.HardwareButtons, Windows, ContentType=WindowsRuntime", false);
+                    if (type == null)
+                        return;
+                    var eventInfo = type.GetEventEx("BackPressed", MemberFlags.Public | MemberFlags.Static);
+                    var handleMethod = typeof(ReflectionExtensions.IWeakEventHandler<object>).GetMethodEx("Handle", MemberFlags.Public | MemberFlags.Instance);
+                    if (eventInfo == null || handleMethod == null || eventInfo.AddMethod == null)
+                        return;
+                    object token = null;
+                    var handler = ReflectionExtensions.CreateWeakEventHandler(o, action, (o1, h) =>
+                    {
+                        if (token != null && eventInfo.RemoveMethod != null)
+                            eventInfo.RemoveMethod.Invoke(null, new[] { token });
+                    });
+                    var @delegate = handleMethod.CreateDelegate(eventInfo.EventHandlerType, handler);
+                    token = eventInfo.AddMethod.Invoke(null, new object[] { @delegate });
+                }
+                catch (Exception e)
+                {
+                    Tracer.Error(e.Flatten(false));
+                }
+            };
+            SetBackPressedHandledDelegate = (o, b) =>
+            {
+                if (BackArgsHandledProperty == null)
+                    BackArgsHandledProperty = o.GetType().GetPropertyEx("Handled", MemberFlags.Public | MemberFlags.Instance);
+                if (BackArgsHandledProperty != null)
+                    BackArgsHandledProperty.SetValue(o, Empty.BooleanToObject(b));
+            };
+        }
 
         #endregion
 
         #region Properties
+
+        [CanBeNull]
+        public static Action<object, Action<object, object, object>> SubscribeBackPressedEventDelegate { get; set; }
+
+        [CanBeNull]
+        public static Action<object, bool> SetBackPressedHandledDelegate { get; set; }
 
         [NotNull]
         public static IApplicationStateManager ApplicationStateManager
