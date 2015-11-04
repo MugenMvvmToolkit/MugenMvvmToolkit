@@ -17,6 +17,7 @@
 #endregion
 
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.UI.Popups;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -24,7 +25,6 @@ using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
 
 #if XAMARIN_FORMS
-using System;
 namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Infrastructure.Presenters
 #else
 namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
@@ -73,40 +73,39 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
         }
 
         private void ShowMessage(string messageBoxText, string caption, MessageButton button,
-            MessageResult defaultResult,
-            TaskCompletionSource<MessageResult> tcs)
+            MessageResult defaultResult, TaskCompletionSource<MessageResult> tcs)
         {
             var messageDialog = new MessageDialog(messageBoxText, caption);
             switch (button)
             {
                 case MessageButton.Ok:
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Ok, tcs));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Ok));
                     break;
                 case MessageButton.OkCancel:
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Ok, tcs));
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Cancel, tcs));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Ok));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Cancel));
                     break;
                 case MessageButton.YesNo:
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Yes, tcs));
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.No, tcs));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Yes));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.No));
                     break;
                 case MessageButton.YesNoCancel:
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Yes, tcs));
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.No, tcs));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Yes));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.No));
                     if (MvvmApplication.Current.Platform.Platform != PlatformType.WinPhone)
-                        messageDialog.Commands.Add(CreateUiCommand(MessageResult.Cancel, tcs));
+                        messageDialog.Commands.Add(CreateUiCommand(MessageResult.Cancel));
                     break;
                 case MessageButton.AbortRetryIgnore:
                     if (MvvmApplication.Current.Platform.Platform == PlatformType.WinPhone)
                         throw ExceptionManager.EnumOutOfRange("button", button);
 
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Abort, tcs));
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Retry, tcs));
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Ignore, tcs));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Abort));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Retry));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Ignore));
                     break;
                 case MessageButton.RetryCancel:
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Retry, tcs));
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Cancel, tcs));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Retry));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Cancel));
                     break;
                 default:
                     tcs.SetResult(MessageResult.None);
@@ -120,13 +119,26 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
                     break;
                 }
             }
-            messageDialog.ShowAsync();
+            var result = messageDialog.ShowAsync();
+            result.Completed = (info, status) =>
+            {
+                if (status == AsyncStatus.Canceled)
+                {
+                    tcs.TrySetCanceled();
+                    return;
+                }
+                var command = info.GetResults();
+                if (command == null || command.Id == null)
+                    tcs.TrySetResult(MessageResult.None);
+                else
+                    tcs.TrySetResult((MessageResult)command.Id);
+            };
         }
 
-        private IUICommand CreateUiCommand(MessageResult result, TaskCompletionSource<MessageResult> tcs)
+        private IUICommand CreateUiCommand(MessageResult result)
         {
             string text = GetButtonText(result);
-            return new UICommand(text, command => tcs.SetResult((MessageResult)command.Id)) { Id = result };
+            return new UICommand(text) { Id = result };
         }
 
         #endregion
