@@ -59,6 +59,31 @@ namespace MugenMvvmToolkit.WinForms.Collections
             get { return SourceCollection.IsNotificationsSuspended; }
         }
 
+        int ICollection.Count
+        {
+            get
+            {
+                var collection = SourceCollection as ICollection;
+                if (collection == null)
+                    return Count;
+                return collection.Count;
+            }
+        }
+
+        object IList.this[int index]
+        {
+            get
+            {
+                IList list = SourceCollection as IList ?? this;
+                return list[index];
+            }
+            set
+            {
+                IList list = SourceCollection as IList ?? this;
+                list[index] = value;
+            }
+        }
+
         private string DebuggerDisplay
         {
             get
@@ -183,6 +208,6 @@ namespace MugenMvvmToolkit.WinForms.Collections
             remove { SourceCollection.CollectionChanging -= value; }
         }
 
-        #endregion
+        #endregion        
     }
 }
