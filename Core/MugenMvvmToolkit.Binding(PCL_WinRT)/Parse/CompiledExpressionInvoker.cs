@@ -228,6 +228,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         private static readonly MethodInfo GetIndexValueDynamicMethod;
         private static readonly MethodInfo InvokeMemberDynamicMethod;
         private static readonly MethodInfo ReferenceEqualsMethod;
+        private static readonly MethodInfo EqualsMethod;
         private static readonly Expression EmptyObjectArrayExpression;
         private static readonly Expression NullExpression;
         private static readonly MethodInfo StringConcatMethod;
@@ -262,6 +263,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             GetIndexValueDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx("GetIndexValueDynamic", MemberFlags.Static | MemberFlags.NonPublic);
             InvokeMemberDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx("InvokeMemberDynamic", MemberFlags.Static | MemberFlags.NonPublic);
             ReferenceEqualsMethod = typeof(object).GetMethodEx("ReferenceEquals", MemberFlags.Public | MemberFlags.Static);
+            EqualsMethod = typeof(object).GetMethodEx("Equals", MemberFlags.Public | MemberFlags.Static);
             EmptyObjectArrayExpression = Expression.Constant(Empty.Array<object>(), typeof(object[]));
             SupportCoalesceExpression = true;
             Should.BeSupported(BindingMemberGetValueMethod != null, "BindingMemberGetValueMethod");
@@ -269,6 +271,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             Should.BeSupported(GetIndexValueDynamicMethod != null, "GetIndexValueDynamicMethod");
             Should.BeSupported(InvokeMemberDynamicMethod != null, "InvokeMemberDynamicMethod");
             Should.BeSupported(ReferenceEqualsMethod != null, "ReferenceEqualsMethod");
+            Should.BeSupported(EqualsMethod != null, "EqualsMethod");
         }
 
         public CompiledExpressionInvoker([NotNull] IExpressionNode node, bool isEmpty)
@@ -309,8 +312,8 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {TokenType.DoubleAmphersand, (expression, expression1) => GenerateBooleanExpression(expression, expression1, Expression.AndAlso)},
                 {TokenType.Bar, (expression, expression1) => GenerateBooleanExpression(expression, expression1, Expression.Or)},
                 {TokenType.DoubleBar, (expression, expression1) => GenerateBooleanExpression(expression, expression1, Expression.OrElse)},
-                {TokenType.DoubleEqual, (expression, expression1) => GenerateEqualityExpression(expression, expression1, Expression.Equal)},
-                {TokenType.ExclamationEqual, (expression, expression1) => GenerateEqualityExpression(expression, expression1, Expression.NotEqual)},
+                {TokenType.DoubleEqual, GenerateEqual},
+                {TokenType.ExclamationEqual, (expression, expression1) => Expression.Not(GenerateEqual(expression, expression1))},
                 {TokenType.GreaterThan, (expression, expression1) => GenerateEqualityExpression(expression, expression1, Expression.GreaterThan)},
                 {TokenType.GreaterThanEqual, (expression, expression1) => GenerateEqualityExpression(expression, expression1, Expression.GreaterThanOrEqual)},
                 {TokenType.LessThan, (expression, expression1) => GenerateEqualityExpression(expression, expression1, Expression.LessThan)},
@@ -880,21 +883,13 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         private static Expression GenerateNullReferenceEqualityExpression(Expression left)
         {
-            return Expression.Call(null, ReferenceEqualsMethod, new[]
-            {
-                ExpressionReflectionManager.ConvertIfNeed(left, typeof (object), false),
-                NullExpression
-            });
+            return Expression.Call(null, ReferenceEqualsMethod, ExpressionReflectionManager.ConvertIfNeed(left, typeof(object), false), NullExpression);
         }
 
         private static Expression GenerateStringConcat(Expression left, Expression right)
         {
-            return Expression.Call(null, StringConcatMethod,
-                new[]
-                {
-                    ExpressionReflectionManager.ConvertIfNeed(left, typeof (object), false),
-                    ExpressionReflectionManager.ConvertIfNeed(right, typeof (object), false)
-                });
+            return Expression.Call(null, StringConcatMethod, ExpressionReflectionManager.ConvertIfNeed(left, typeof(object), false),
+                ExpressionReflectionManager.ConvertIfNeed(right, typeof(object), false));
         }
 
         private static Expression GenerateEqualityExpression(Expression left, Expression right,
@@ -976,6 +971,20 @@ namespace MugenMvvmToolkit.Binding.Parse
                 left = ExpressionReflectionManager.ConvertIfNeed(left, right.Type, exactly);
             else if (right.Type.IsCompatibleWith(left.Type))
                 right = ExpressionReflectionManager.ConvertIfNeed(right, left.Type, exactly);
+        }
+
+        private static Expression GenerateEqual(Expression left, Expression right)
+        {
+            Convert(ref left, ref right, true);
+            try
+            {
+                return Expression.Equal(left, right);
+            }
+            catch
+            {
+                return Expression.Call(null, EqualsMethod, ExpressionReflectionManager.ConvertIfNeed(left, typeof(object), false),
+                    ExpressionReflectionManager.ConvertIfNeed(right, typeof(object), false));
+            }
         }
 
         private Type[] GetTypes(IList<string> types)
