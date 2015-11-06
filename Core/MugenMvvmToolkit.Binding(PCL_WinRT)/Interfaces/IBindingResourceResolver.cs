@@ -61,6 +61,12 @@ namespace MugenMvvmToolkit.Binding.Interfaces
 
         void AddObject([NotNull] string name, [NotNull] ISourceValue obj, bool rewrite = true);
 
+        void AddMethodAlias([NotNull] string bindingMethodName, [NotNull] Type type, [NotNull] string method, bool rewrite = true);
+
+        bool TryGetMethodAlias(string bindingMethodName, out Type type, out string method);
+
+        bool RemoveMethodAlias(string bindingMethodName);
+
         bool RemoveBehavior(string name);
 
         bool RemoveConverter(string name);

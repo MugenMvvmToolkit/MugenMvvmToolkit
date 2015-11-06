@@ -76,8 +76,6 @@ namespace MugenMvvmToolkit.Binding.Parse
         #region Fields
 
         public static readonly MacrosExpressionVisitor Instance;
-        private static readonly ICollection<string> DefaultElementSourceAliases;
-        private static readonly ICollection<string> DefaultRelativeSourceAliases;
 
         #endregion
 
@@ -86,18 +84,6 @@ namespace MugenMvvmToolkit.Binding.Parse
         static MacrosExpressionVisitor()
         {
             Instance = new MacrosExpressionVisitor();
-            DefaultElementSourceAliases = new[]
-            {
-                RelativeSourceExpressionNode.ElementSourceType,
-                "Element",
-                "El"
-            };
-            DefaultRelativeSourceAliases = new[]
-            {
-                RelativeSourceExpressionNode.RelativeSourceType,
-                "Relative",
-                "Rel"
-            };
         }
 
         private MacrosExpressionVisitor()
@@ -110,24 +96,12 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         private static ICollection<string> RelativeSourceAliases
         {
-            get
-            {
-                var bindingParser = BindingServiceProvider.BindingProvider.Parser as BindingParser;
-                if (bindingParser == null)
-                    return DefaultRelativeSourceAliases;
-                return bindingParser.RelativeSourceAliases;
-            }
+            get { return BindingServiceProvider.BindingProvider.Parser.RelativeSourceAliases; }
         }
 
         private static ICollection<string> ElementSourceAliases
         {
-            get
-            {
-                var bindingParser = BindingServiceProvider.BindingProvider.Parser as BindingParser;
-                if (bindingParser == null)
-                    return DefaultElementSourceAliases;
-                return bindingParser.ElementSourceAliases;
-            }
+            get { return BindingServiceProvider.BindingProvider.Parser.ElementSourceAliases; }
         }
 
         public bool IsPostOrder
@@ -158,16 +132,19 @@ namespace MugenMvvmToolkit.Binding.Parse
             var methodCallExp = node as IMethodCallExpressionNode;
             if (methodCallExp != null && methodCallExp.Target is ResourceExpressionNode)
             {
-                //$Format() --> string.Format()
-                if (methodCallExp.Method == "Format")
-                    return new MethodCallExpressionNode(new ConstantExpressionNode(typeof(string)), methodCallExp.Method, methodCallExp.Arguments, methodCallExp.TypeArgs);
                 //$OneTime(Expression) --> oneTimeImpl.GetValue(() => Expression)
                 if (methodCallExp.Method == "OneTime" && methodCallExp.Arguments.Count == 1)
                 {
                     var item = new ConstantExpressionNode(new OneTimeImpl());
                     IExpressionNode parameter = new LambdaExpressionNode(methodCallExp.Arguments[0], null);
-                    return new MethodCallExpressionNode(item, OneTimeImpl.GetValueMethodName, new[] { parameter }, null);
+                    return new MethodCallExpressionNode(item, OneTimeImpl.GetValueMethodName, new[] { parameter }, null).Accept(this);
                 }
+
+                //Alias ($Format(), $MethodName, etc) --> type.Format()
+                Type type;
+                string method;
+                if (BindingServiceProvider.ResourceResolver.TryGetMethodAlias(methodCallExp.Method, out type, out method))
+                    return new MethodCallExpressionNode(new ConstantExpressionNode(type), method, methodCallExp.Arguments, methodCallExp.TypeArgs).Accept(this);
             }
 
             var nodes = new List<IExpressionNode>();

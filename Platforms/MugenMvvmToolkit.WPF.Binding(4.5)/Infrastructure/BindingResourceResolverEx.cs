@@ -192,6 +192,13 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
             if (value != null)
                 return value;
 
+            var globalRes = GetOrAddDynamicResource(name, false);
+            if (globalRes.Value != null)
+            {
+                keepValue = false;
+                return globalRes;
+            }
+
             keepValue = true;
             var item = TryFindResource(target, name);
             if (item != null)
@@ -199,7 +206,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 
             var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
             if (rootMember != null)
-                return new XamlResourceWrapper(target, name, rootMember, GetOrAddDynamicResource(name, false));
+                return new XamlResourceWrapper(target, name, rootMember, globalRes);
             return null;
         }
 

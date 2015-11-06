@@ -199,6 +199,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private readonly Dictionary<string, DynamicResourceObject> _objects;
         private readonly Dictionary<string, Func<IDataContext, IList<object>, IBindingBehavior>> _behaviors;
         private readonly Dictionary<string, Type> _types;
+        private readonly Dictionary<string, KeyValuePair<Type, string>> _aliasToMethod;
         private string _bindingSourceResourceName;
         private string _rootElementResourceName;
         private string _selfResourceName;
@@ -222,6 +223,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 {DefaultBindingParserHandler.GetErrorsMethod, new BindingResourceMethod(GetErrorsMethod, typeof (IList<object>))}
             };
             _objects = new Dictionary<string, DynamicResourceObject>();
+            _aliasToMethod = new Dictionary<string, KeyValuePair<Type, string>>
+            {
+                {"Format", new KeyValuePair<Type, string>(typeof (string), "Format")},
+                {"Equals", new KeyValuePair<Type, string>(typeof (object), "Equals")},
+                {"ReferenceEquals", new KeyValuePair<Type, string>(typeof (object), "ReferenceEquals")}
+            };
             _types = new Dictionary<string, Type>
             {
                 {"object", typeof (Object)},
@@ -277,6 +284,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _dynamicMethods = new Dictionary<string, IBindingResourceMethod>(resolver._dynamicMethods);
             _objects = new Dictionary<string, DynamicResourceObject>(resolver._objects);
             _types = new Dictionary<string, Type>(resolver._types);
+            _aliasToMethod = new Dictionary<string, KeyValuePair<Type, string>>(resolver._aliasToMethod);
         }
 
         #endregion
@@ -586,6 +594,48 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             value.SetValue(obj, name, rewrite);
         }
 
+        public virtual void AddMethodAlias(string bindingMethodName, Type type, string method, bool rewrite)
+        {
+            Should.NotBeNull(bindingMethodName, "bindingMethodName");
+            Should.NotBeNull(type, "type");
+            Should.NotBeNullOrEmpty(method, "method");
+            var methods = type.GetMethodsEx(MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Static);
+            if (methods.Count == 0)
+                throw BindingExceptionManager.InvalidBindingMember(type, method);
+            lock (_aliasToMethod)
+            {
+                var value = new KeyValuePair<Type, string>(type, method);
+                if (rewrite)
+                    _aliasToMethod[bindingMethodName] = value;
+                else
+                    _aliasToMethod.Add(bindingMethodName, value);
+            }
+        }
+
+        public virtual bool TryGetMethodAlias(string bindingMethodName, out Type type, out string method)
+        {
+            Should.NotBeNull(bindingMethodName, "bindingMethodName");
+            lock (_aliasToMethod)
+            {
+                KeyValuePair<Type, string> pair;
+                if (_aliasToMethod.TryGetValue(bindingMethodName, out pair))
+                {
+                    type = pair.Key;
+                    method = pair.Value;
+                    return true;
+                }
+                type = null;
+                method = null;
+                return false;
+            }
+        }
+
+        public virtual bool RemoveMethodAlias(string bindingMethodName)
+        {
+            lock (_aliasToMethod)
+                return _aliasToMethod.Remove(bindingMethodName);
+        }
+
         public virtual bool RemoveBehavior(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -594,7 +644,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return _behaviors.Remove(name);
         }
 
-        public bool RemoveConverter(string name)
+        public virtual bool RemoveConverter(string name)
         {
             if (string.IsNullOrEmpty(name))
                 return false;
@@ -602,7 +652,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return _converters.Remove(name);
         }
 
-        public bool RemoveType(string name)
+        public virtual bool RemoveType(string name)
         {
             if (string.IsNullOrEmpty(name))
                 return false;
@@ -610,7 +660,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return _types.Remove(name);
         }
 
-        public bool RemoveMethod(string name)
+        public virtual bool RemoveMethod(string name)
         {
             if (string.IsNullOrEmpty(name))
                 return false;
@@ -618,7 +668,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return _dynamicMethods.Remove(name);
         }
 
-        public bool RemoveObject(string name)
+        public virtual bool RemoveObject(string name)
         {
             if (string.IsNullOrEmpty(name))
                 return false;
