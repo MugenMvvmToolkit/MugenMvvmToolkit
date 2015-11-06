@@ -18,16 +18,27 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Parse
 {
     public interface IBindingParser
     {
+        ICollection<string> ElementSourceAliases { get; }
+
+        ICollection<string> RelativeSourceAliases { get; }
+
+        IDictionary<string, TokenType> UnaryOperationAliases { get; }
+
+        IDictionary<string, TokenType> BinaryOperationAliases { get; }
+
         IList<IBindingParserHandler> Handlers { get; }
 
         [NotNull]
         IList<IDataContext> Parse([NotNull] string bindingExpression, [CanBeNull] IDataContext context,
             [NotNull] object target, [CanBeNull] IList<object> sources);
+
+        void InvalidateCache();
     }
 }

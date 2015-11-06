@@ -53,8 +53,8 @@ namespace MugenMvvmToolkit.Binding.Parse
         private static readonly HashSet<TokenType> DelimeterTokens;
         private static readonly Action<IDataContext> EmptyPathSourceDelegate;
 
-        private readonly Dictionary<string, TokenType> _binaryOperationAliases;
-        private readonly Dictionary<TokenType, int> _binaryOperationTokens;
+        private readonly IDictionary<string, TokenType> _binaryOperationAliases;
+        private readonly IDictionary<TokenType, int> _binaryOperationTokens;
         private readonly Dictionary<string, Func<BindingParser, IList<Action<IDataContext>>>> _bindingParameterToAction;
 
         private readonly Dictionary<string, KeyValuePair<KeyValuePair<string, int>, Action<IDataContext>[]>[]> _cache;
@@ -205,6 +205,26 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Implementation of IBindingParser
 
+        public ICollection<string> ElementSourceAliases
+        {
+            get { return _elementSourceAliases; }
+        }
+
+        public ICollection<string> RelativeSourceAliases
+        {
+            get { return _relativeSourceAliases; }
+        }
+
+        public IDictionary<string, TokenType> UnaryOperationAliases
+        {
+            get { return _unaryOperationAliases; }
+        }
+
+        public IDictionary<string, TokenType> BinaryOperationAliases
+        {
+            get { return _binaryOperationAliases; }
+        }
+
         public IList<IBindingParserHandler> Handlers
         {
             get { return _handlers; }
@@ -284,29 +304,15 @@ namespace MugenMvvmToolkit.Binding.Parse
             return result;
         }
 
+        public void InvalidateCache()
+        {
+            lock (_cache)
+                _cache.Clear();
+        }
+
         #endregion
 
         #region Properties
-
-        public ICollection<string> ElementSourceAliases
-        {
-            get { return _elementSourceAliases; }
-        }
-
-        public ICollection<string> RelativeSourceAliases
-        {
-            get { return _relativeSourceAliases; }
-        }
-
-        public IDictionary<string, TokenType> UnaryOperationAliases
-        {
-            get { return _unaryOperationAliases; }
-        }
-
-        public IDictionary<string, TokenType> BinaryOperationAliases
-        {
-            get { return _binaryOperationAliases; }
-        }
 
         protected string Expression
         {
