@@ -151,8 +151,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                     args.Add(new MemberExpressionNode(ResourceExpressionNode.DynamicInstance,
                         BindingServiceProvider.ResourceResolver.BindingSourceResourceName));
                 args.Insert(0, idNode);
-                return new MethodCallExpressionNode(methodCallExpressionNode.Target, methodCallExpressionNode.Method,
-                    args, methodCallExpressionNode.TypeArgs);
+                return new MethodCallExpressionNode(methodCallExpressionNode.Target, methodCallExpressionNode.Method, args, methodCallExpressionNode.TypeArgs);
             }
             return node;
         }

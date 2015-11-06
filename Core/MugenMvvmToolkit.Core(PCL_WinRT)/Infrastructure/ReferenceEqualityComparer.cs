@@ -56,7 +56,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (obj == null)
                 return 0;
-            return RuntimeHelpers.GetHashCode(obj);
+            return RuntimeHelpers.GetHashCode(obj) * 397;
         }
 
         #endregion
