@@ -69,8 +69,16 @@ namespace MugenMvvmToolkit.Android.Models
                     return null;
                 }
                 //_reference.Get() very slow method, use JNI directly
-                var handle = JNIEnv.CallObjectMethod(_reference.Handle, GetMethodId);
-                JNIEnv.DeleteLocalRef(handle);
+                IntPtr handle = IntPtr.Zero;
+                try
+                {
+                    handle = JNIEnv.CallObjectMethod(_reference.Handle, GetMethodId);
+                }
+                finally
+                {
+                    if (handle != IntPtr.Zero)
+                        JNIEnv.DeleteLocalRef(handle);
+                }
                 if (handle == IntPtr.Zero)
                 {
                     base.Target = null;
