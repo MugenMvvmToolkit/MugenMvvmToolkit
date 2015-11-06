@@ -24,6 +24,6 @@ namespace MugenMvvmToolkit.Interfaces
     public interface IItemsSourceDecorator
     {
         [NotNull]
-        IList<T> Decorate<T>([NotNull] IList<T> itemsSource);
+        IList<T> Decorate<T>([CanBeNull]object owner, [NotNull] IList<T> itemsSource);
     }
 }

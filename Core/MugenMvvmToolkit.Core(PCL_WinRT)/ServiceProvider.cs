@@ -280,12 +280,12 @@ namespace MugenMvvmToolkit
             return iocContainer.Get(type, name, parameters);
         }
 
-        internal static IList<T> TryDecorate<T>(IList<T> itemsSource)
+        internal static IList<T> TryDecorate<T>(object owner, IList<T> itemsSource)
         {
             var decorator = ItemsSourceDecorator;
             if (decorator == null)
                 return itemsSource;
-            return decorator.Decorate(itemsSource);
+            return decorator.Decorate(owner, itemsSource);
         }
 
         private static void MvvmApplicationOnInitialized(object sender, EventArgs eventArgs)

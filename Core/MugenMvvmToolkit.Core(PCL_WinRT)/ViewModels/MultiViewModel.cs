@@ -75,7 +75,7 @@ namespace MugenMvvmToolkit.ViewModels
         public MultiViewModel()
         {
             var collection = new SynchronizedNotifiableCollection<IViewModel>();
-            var list = ServiceProvider.TryDecorate(collection);
+            var list = ServiceProvider.TryDecorate(this, collection);
             Should.BeOfType<INotifiableCollection<IViewModel>>(list, "DecoratedItemsSource");
             _itemsSource = (INotifiableCollection<IViewModel>)list;
             collection.AfterCollectionChanged = OnViewModelsChanged;

@@ -17,8 +17,8 @@
 #endregion
 
 using System.Collections.Generic;
-using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.WinForms.Collections;
 
 namespace MugenMvvmToolkit.WinForms.Infrastructure
@@ -27,12 +27,12 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
     {
         #region Implementation of IItemsSourceDecorator
 
-        public IList<T> Decorate<T>(IList<T> itemsSource)
+        public IList<T> Decorate<T>(object owner, IList<T> itemsSource)
         {
-            var notifiableCollection = itemsSource as SynchronizedNotifiableCollection<T>;
-            if (notifiableCollection == null)
+            var collection = itemsSource as INotifiableCollection<T>;
+            if (collection == null)
                 return itemsSource;
-            return new BindingListWrapper<T>(notifiableCollection);
+            return new BindingListWrapper<T>(collection);
         }
 
         #endregion
