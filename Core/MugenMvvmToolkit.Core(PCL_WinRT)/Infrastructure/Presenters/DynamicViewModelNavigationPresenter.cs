@@ -43,12 +43,10 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         #region Constructors
 
         public DynamicViewModelNavigationPresenter()
-            : this(null)
         {
         }
 
-        public DynamicViewModelNavigationPresenter(
-            Func<IViewModel, IDataContext, IViewModelPresenter, bool> canShowViewModel)
+        public DynamicViewModelNavigationPresenter(Func<IViewModel, IDataContext, IViewModelPresenter, bool> canShowViewModel)
         {
             _canShowViewModel = canShowViewModel;
         }

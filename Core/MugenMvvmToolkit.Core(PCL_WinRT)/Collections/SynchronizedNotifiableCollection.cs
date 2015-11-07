@@ -486,6 +486,8 @@ namespace MugenMvvmToolkit.Collections
         protected virtual void ClearItemsInternal(out bool shouldRaiseEvents)
         {
             shouldRaiseEvents = false;
+            if (Items.Count == 0)
+                return;
             NotifyCollectionChangingEventArgs args = GetCollectionChangeArgs();
             OnCollectionChanging(args);
             if (args.Cancel)

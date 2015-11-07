@@ -319,14 +319,16 @@ namespace MugenMvvmToolkit.Collections
                 return;
             }
 
-            if (_notifyCollectionChanged != null)
+            if (_notifyCollectionChanged == null)
+            {
+                Items.Clear();
+                UpdateFilterInternal(out shouldRaiseEvents);
+            }
+            else
             {
                 using (SuspendInternal())
                     Items.Clear();
-                return;
             }
-            Items.Clear();
-            UpdateFilterInternal(out shouldRaiseEvents);
         }
 
         protected override void RemoveItemInternal(int index, out bool shouldRaiseEvents)

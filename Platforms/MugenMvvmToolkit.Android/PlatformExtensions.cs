@@ -349,8 +349,6 @@ namespace MugenMvvmToolkit.Android
             }
 
             _hasJNIException = InvokeNewWeakGlobalRef == null;
-            if (!_hasJNIException)
-                Tracer.Warn("The JniWeakReference will be used");
             // ReSharper disable once ObjectCreationAsStatement
             new WeakReferenceCollector();
         }
@@ -842,7 +840,7 @@ namespace MugenMvvmToolkit.Android
                 try
                 {
                     var envHandle = JNIEnv.Handle;
-                    var invoker = GetJniNativeInvoker(envHandle);
+                    var invoker = GetJniNativeInvoker(null);
                     var del = GetNewWeakGlobalRefDelegate(invoker);
 
                     var weakGlobalRef = InvokeNewWeakGlobalRef(del, envHandle, javaItem.Handle);
