@@ -103,9 +103,10 @@ namespace MugenMvvmToolkit.Binding.Parse
                 if (result != null)
                     return result(InsertFirstArg(args, target));
 
-                var methods = new List<MethodInfo>();
+                List<MethodInfo> methods;
                 if (methodName == ReflectionExtensions.IndexerName)
                 {
+                    methods = new List<MethodInfo>();
                     foreach (var property in type.GetPropertiesEx(MemberFlags.Public | MemberFlags.Instance))
                     {
                         if (property.GetIndexParameters().Length == args.Length)
@@ -114,6 +115,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 }
                 else
                 {
+                    methods = BindingReflectionExtensions.GetExtensionsMethods(methodName, BindingServiceProvider.ResourceResolver.GetKnownTypes());
                     foreach (var method in type.GetMethodsEx(MemberFlags.Public | MemberFlags.Instance))
                     {
                         try

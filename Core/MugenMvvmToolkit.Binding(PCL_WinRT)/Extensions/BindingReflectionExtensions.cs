@@ -575,7 +575,7 @@ namespace MugenMvvmToolkit.Binding
             return result;
         }
 
-        private static IList<MethodInfo> GetExtensionsMethods(string methodName, IEnumerable<Type> knownTypes)
+        internal static List<MethodInfo> GetExtensionsMethods(string methodName, IEnumerable<Type> knownTypes)
         {
             var list = new List<MethodInfo>();
             lock (TypeToExtensionMethods)
