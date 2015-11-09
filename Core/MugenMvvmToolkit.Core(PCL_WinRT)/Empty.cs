@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
@@ -71,6 +72,7 @@ namespace MugenMvvmToolkit
 
         public static readonly WeakReference WeakReference;
 
+        internal static readonly NotifyCollectionChangedEventArgs ResetEventArgs;
         internal static readonly ManualResetEvent CompletedEvent;
         internal static readonly PropertyChangedEventArgs CountChangedArgs;
         internal static readonly PropertyChangedEventArgs NotificationCountChangedArgs;
@@ -110,6 +112,7 @@ namespace MugenMvvmToolkit
             IsValidChangedArgs = new PropertyChangedEventArgs("IsValid");
             IsBusyChangedArgs = new PropertyChangedEventArgs("IsBusy");
             BusyMessageChangedArgs = new PropertyChangedEventArgs("BusyMessage");
+            ResetEventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
         }
 
         #endregion

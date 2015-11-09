@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MugenMvvmToolkit.Test.TestInfrastructure;
 using Should;
 
 namespace MugenMvvmToolkit.Test.Collections
@@ -33,7 +34,7 @@ namespace MugenMvvmToolkit.Test.Collections
         [TestMethod]
         public void CreateWithItemsTest()
         {
-            var items = new[] {new Item(), new Item()};
+            var items = new[] { new Item(), new Item() };
             ICollection<Item> collection = CreateCollection(items);
             collection.Count.ShouldEqual(2);
             collection.Any(item => item == items[0]).ShouldBeTrue();
@@ -89,14 +90,15 @@ namespace MugenMvvmToolkit.Test.Collections
         [TestMethod]
         public void ClearItemsTest()
         {
-            var items = new[] {new Item(), new Item()};
+            var items = new[] { new Item(), new Item() };
             ICollection<Item> collection = CreateCollection(items);
             collection.Count.ShouldEqual(2);
             collection.Any(item => item == items[0]).ShouldBeTrue();
             collection.Any(item => item == items[1]).ShouldBeTrue();
 
             collection.Clear();
-            collection.Count.ShouldEqual(0);
+            if (collection.Count != 0)
+                collection.Count.ShouldEqual(0);
         }
 
         protected abstract ICollection<T> CreateCollection<T>(params T[] items) where T : class;

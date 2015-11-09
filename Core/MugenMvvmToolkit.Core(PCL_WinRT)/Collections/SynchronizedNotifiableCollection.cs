@@ -113,7 +113,7 @@ namespace MugenMvvmToolkit.Collections
                 if (_hasResetEvent)
                     return;
                 if (Count >= _collection.BatchSize)
-                    args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+                    args = Empty.ResetEventArgs;
                 bool shouldIgnore = false;
                 switch (args.Action)
                 {
@@ -397,7 +397,7 @@ namespace MugenMvvmToolkit.Collections
         public void RaiseReset()
         {
             lock (Locker)
-                EventsTracker.AddEvent(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+                EventsTracker.AddEvent(Empty.ResetEventArgs);
             RaiseEvents();
         }
 
@@ -418,19 +418,21 @@ namespace MugenMvvmToolkit.Collections
             Should.NotBeNull(collection, "collection");
             using (SuspendNotifications())
             {
-                foreach (T item in collection)
-                    Add(item);
+                lock (Locker)
+                {
+                    foreach (T item in collection)
+                    {
+                        bool shouldRaiseEvents;
+                        InsertItemInternal(CountInternal, item, true, out shouldRaiseEvents);
+                    }
+                }
             }
         }
 
         void INotifiableCollection.AddRange(IEnumerable collection)
         {
             Should.NotBeNull(collection, "collection");
-            using (SuspendNotifications())
-            {
-                foreach (object item in collection)
-                    Add((T)item);
-            }
+            AddRange(collection.Cast<T>());
         }
 
         public void RemoveRange(IEnumerable<T> collection)
@@ -438,19 +440,23 @@ namespace MugenMvvmToolkit.Collections
             Should.NotBeNull(collection, "collection");
             using (SuspendNotifications())
             {
-                foreach (var item in collection)
-                    Remove(item);
+                lock (Locker)
+                {
+                    bool shouldRaiseEvents;
+                    foreach (var item in collection)
+                    {
+                        int index = IndexOfInternal(item);
+                        if (index >= 0)
+                            RemoveItemInternal(index, out shouldRaiseEvents);
+                    }
+                }
             }
         }
 
         void INotifiableCollection.RemoveRange(IEnumerable collection)
         {
             Should.NotBeNull(collection, "collection");
-            using (SuspendNotifications())
-            {
-                foreach (T item in collection)
-                    Remove(item);
-            }
+            RemoveRange(collection.Cast<T>());
         }
 
         public bool Replace(T oldValue, T newValue)
@@ -600,16 +606,12 @@ namespace MugenMvvmToolkit.Collections
             object oldItem, object newItem,
             int index)
         {
-            return
-                new NotifyCollectionChangingEventArgs(new NotifyCollectionChangedEventArgs(action, newItem, oldItem,
-                    index));
+            return new NotifyCollectionChangingEventArgs(new NotifyCollectionChangedEventArgs(action, newItem, oldItem, index));
         }
 
         protected static NotifyCollectionChangingEventArgs GetCollectionChangeArgs()
         {
-            return
-                new NotifyCollectionChangingEventArgs(
-                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            return new NotifyCollectionChangingEventArgs(Empty.ResetEventArgs);
         }
 
         protected internal static bool IsCompatibleObject(object value)
@@ -654,7 +656,10 @@ namespace MugenMvvmToolkit.Collections
         {
             if (Interlocked.Decrement(ref _suspendCount) != 0)
                 return;
-            RaiseEvents();
+            if (ThreadManager.IsUiThread)
+                RaiseReset();
+            else
+                RaiseEvents();
             OnPropertyChanged(Empty.IsNotificationsSuspendedChangedArgs);
         }
 
