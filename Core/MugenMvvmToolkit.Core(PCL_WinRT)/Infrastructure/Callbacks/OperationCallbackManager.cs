@@ -99,25 +99,25 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Implementation of IOperationCallbackManager
 
-        public void Register(OperationType operation, object source, IOperationCallback callback, IDataContext context)
+        public void Register(OperationType operation, object target, IOperationCallback callback, IDataContext context)
         {
             Should.NotBeNull(operation, "operation");
-            Should.NotBeNull(source, "source");
+            Should.NotBeNull(target, "target");
             Should.NotBeNull(callback, "callback");
             if (context == null)
                 context = DataContext.Empty;
-            RegisterInternal(operation, source, callback, context);
+            RegisterInternal(operation, target, callback, context);
             if (Tracer.TraceInformation)
-                Tracer.Info("Callback '{0}' was registered, source: '{1}'", operation, source);
+                Tracer.Info("Callback '{0}' was registered, target: '{1}'", operation, target);
         }
 
-        public void SetResult(object source, IOperationResult result)
+        public void SetResult(object target, IOperationResult result)
         {
-            Should.NotBeNull(source, "source");
+            Should.NotBeNull(target, "target");
             Should.NotBeNull(result, "result");
-            SetResultInternal(source, result);
+            SetResultInternal(target, result);
             if (Tracer.TraceInformation)
-                Tracer.Info("Callback '{0}' was invoked, source: '{1}'", result.Operation, source);
+                Tracer.Info("Callback '{0}' was invoked, target: '{1}'", result.Operation, target);
         }
 
         #endregion
@@ -191,7 +191,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             if (callbacks == null)
             {
                 if (Tracer.TraceInformation)
-                    Tracer.Info("The callbacks for operation '{0}' was not found, source: '{1}'", id, target);
+                    Tracer.Info("The callbacks for operation '{0}' was not found, target: '{1}'", id, target);
                 return;
             }
             foreach (IOperationCallback callback in callbacks.OfType<IOperationCallback>())
