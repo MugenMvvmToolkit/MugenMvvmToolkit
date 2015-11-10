@@ -25,8 +25,6 @@ namespace MugenMvvmToolkit.Interfaces.Models
     {
         bool BroadcastAllMessages { get; set; }
 
-        bool DisposeIocContainer { get; set; }
-
         bool DisposeCommands { get; set; }
 
         HandleMode HandleBusyMessageMode { get; set; }

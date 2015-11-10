@@ -15,7 +15,6 @@ namespace MugenMvvmToolkit.Test.Models
             settings.DefaultBusyMessage.ShouldEqual(string.Empty);
 
             settings.DisposeCommands.ShouldBeTrue();
-            settings.DisposeIocContainer.ShouldBeTrue();
             settings.HandleBusyMessageMode.ShouldEqual(HandleMode.Handle);
             settings.Metadata.ShouldNotBeNull();
             settings.State.ShouldNotBeNull();

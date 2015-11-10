@@ -25,7 +25,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             var set = new ViewModelSettingsMock
             {
                 DisposeCommands = DisposeCommands,
-                DisposeIocContainer = DisposeIocContainer,
                 HandleBusyMessageMode = HandleBusyMessageMode,
                 EventExecutionMode = EventExecutionMode,
                 DefaultBusyMessage = DefaultBusyMessage,

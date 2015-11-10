@@ -545,9 +545,6 @@ namespace MugenMvvmToolkit.ViewModels
             if (IocContainer.TryGet(out viewManager))
                 viewManager.CleanupViewAsync(this);
 
-            if (Settings.DisposeIocContainer && _iocContainer != null && !ReferenceEquals(_iocContainer, ServiceProvider.IocContainer))
-                _iocContainer.Dispose();
-
             Settings.Metadata.Clear();
             ServiceProvider.AttachedValueProvider.Clear(this);
             Tracer.TraceViewModel(AuditAction.Disposed, this);

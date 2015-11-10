@@ -351,27 +351,6 @@ namespace MugenMvvmToolkit.Test.ViewModels
         }
 
         [TestMethod]
-        public void VmShouldDisposeIocContainerIfSettingsTrue()
-        {
-            IViewModel viewModel = GetViewModelBase();
-            ((ViewModelBase)viewModel).IocContainer = new IocContainerMock();
-            viewModel.Settings.DisposeIocContainer = true;
-            viewModel.Dispose();
-            ((IocContainerMock)viewModel.IocContainer).IsDisposed.ShouldBeTrue();
-            viewModel.IsDisposed.ShouldBeTrue();
-        }
-
-        [TestMethod]
-        public void VmShouldNotDisposeIocContainerIfSettingsFalse()
-        {
-            IViewModel viewModel = GetViewModelBase();
-            viewModel.Settings.DisposeIocContainer = false;
-            viewModel.Dispose();
-            ((IocContainerMock)viewModel.IocContainer).IsDisposed.ShouldBeFalse();
-            viewModel.IsDisposed.ShouldBeTrue();
-        }
-
-        [TestMethod]
         public void VmShouldDisposeInnerCommandIfSettingsTrue()
         {
             ViewModelBase viewModel = GetViewModelBase();

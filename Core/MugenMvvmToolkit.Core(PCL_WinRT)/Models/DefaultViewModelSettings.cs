@@ -42,7 +42,6 @@ namespace MugenMvvmToolkit.Models
         public DefaultViewModelSettings()
         {
             _defaultBusyMessage = string.Empty;
-            DisposeIocContainer = true;
             DisposeCommands = true;
             HandleBusyMessageMode = HandleMode.Handle;
             EventExecutionMode = ExecutionMode.AsynchronousOnUiThread;
@@ -53,8 +52,6 @@ namespace MugenMvvmToolkit.Models
         #region Implementation of IViewModelSettings
 
         public bool BroadcastAllMessages { get; set; }
-
-        public bool DisposeIocContainer { get; set; }
 
         public bool DisposeCommands { get; set; }
 
@@ -93,7 +90,6 @@ namespace MugenMvvmToolkit.Models
             return new DefaultViewModelSettings(this, _state)
             {
                 DisposeCommands = DisposeCommands,
-                DisposeIocContainer = DisposeIocContainer,
                 HandleBusyMessageMode = HandleBusyMessageMode,
                 EventExecutionMode = EventExecutionMode,
                 DefaultBusyMessage = DefaultBusyMessage,
