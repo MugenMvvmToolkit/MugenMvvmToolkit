@@ -55,7 +55,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         public bool IsPostOrder
         {
-            get { return false; }
+            get { return true; }
         }
 
         public IExpressionNode Visit(IExpressionNode node)
