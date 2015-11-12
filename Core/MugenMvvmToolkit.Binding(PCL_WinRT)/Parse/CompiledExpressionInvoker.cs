@@ -229,10 +229,8 @@ namespace MugenMvvmToolkit.Binding.Parse
         private static readonly MethodInfo GetMemberValueDynamicMethod;
         private static readonly MethodInfo GetIndexValueDynamicMethod;
         private static readonly MethodInfo InvokeMemberDynamicMethod;
-        private static readonly MethodInfo ReferenceEqualsMethod;
         private static readonly MethodInfo EqualsMethod;
         private static readonly Expression EmptyObjectArrayExpression;
-        private static readonly Expression NullExpression;
         private static readonly MethodInfo StringConcatMethod;
         protected static readonly ParameterExpression DataContextParameter;
 
@@ -256,7 +254,6 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         static CompiledExpressionInvoker()
         {
-            NullExpression = Expression.Constant(null);
             StringConcatMethod = typeof(string).GetMethodEx("Concat", new[] { typeof(object), typeof(object) }, MemberFlags.Public | MemberFlags.Static);
             ProxyMethod = typeof(CompiledExpressionInvoker).GetMethodEx("InvokeDynamicMethod", MemberFlags.Instance | MemberFlags.NonPublic);
             DataContextParameter = Expression.Parameter(typeof(IDataContext), "dataContext");
@@ -264,7 +261,6 @@ namespace MugenMvvmToolkit.Binding.Parse
             GetMemberValueDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx("GetMemberValueDynamic", MemberFlags.Static | MemberFlags.NonPublic);
             GetIndexValueDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx("GetIndexValueDynamic", MemberFlags.Static | MemberFlags.NonPublic);
             InvokeMemberDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx("InvokeMemberDynamic", MemberFlags.Static | MemberFlags.NonPublic);
-            ReferenceEqualsMethod = typeof(object).GetMethodEx("ReferenceEquals", MemberFlags.Public | MemberFlags.Static);
             EqualsMethod = typeof(object).GetMethodEx("Equals", MemberFlags.Public | MemberFlags.Static);
             EmptyObjectArrayExpression = Expression.Constant(Empty.Array<object>(), typeof(object[]));
             SupportCoalesceExpression = true;
@@ -272,7 +268,6 @@ namespace MugenMvvmToolkit.Binding.Parse
             Should.BeSupported(GetMemberValueDynamicMethod != null, "GetMemberValueDynamicMethod");
             Should.BeSupported(GetIndexValueDynamicMethod != null, "GetIndexValueDynamicMethod");
             Should.BeSupported(InvokeMemberDynamicMethod != null, "InvokeMemberDynamicMethod");
-            Should.BeSupported(ReferenceEqualsMethod != null, "ReferenceEqualsMethod");
             Should.BeSupported(EqualsMethod != null, "EqualsMethod");
         }
 
@@ -722,24 +717,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             var resultParameters = result.GetParameters();
 
             resultArgs = ConvertParameters(resultParameters, resultArgs, resultHasParams);
-            var isExtensionMethod = result.IsExtensionMethod();
-            //Check if first parameter is null
-            if (target.Expression != null || isExtensionMethod)
-            {
-                var callExpression = Expression.Call(isExtensionMethod ? null : target.Expression, result, resultArgs);
-                var firstArg = isExtensionMethod ? resultArgs[0] : target.Expression;
-
-                if (firstArg.Type.IsValueType() && !firstArg.Type.IsNullableType())
-                    return callExpression;
-                if (result.ReturnType == typeof(void))
-                    return Expression.Condition(GenerateNullReferenceEqualityExpression(firstArg), NullExpression,
-                        Expression.Block(callExpression, NullExpression));
-
-                return Expression.Condition(GenerateNullReferenceEqualityExpression(firstArg),
-                    Expression.Constant(result.ReturnType.GetDefaultValue(), result.ReturnType), callExpression);
-            }
-            //Static method
-            return Expression.Call(null, result, resultArgs);
+            return Expression.Call(result.IsExtensionMethod() ? null : target.Expression, result, resultArgs);
         }
 
         private static int TrySelectMethod<TArgs>(IList<MethodInfo> methods, TArgs args, Func<int, TArgs, Type[]> getArgTypes, out bool resultHasParams)
@@ -881,11 +859,6 @@ namespace MugenMvvmToolkit.Binding.Parse
                 return GenerateStringConcat(left, right);
             Convert(ref left, ref right, true);
             return Expression.Add(left, right);
-        }
-
-        private static Expression GenerateNullReferenceEqualityExpression(Expression left)
-        {
-            return Expression.Call(null, ReferenceEqualsMethod, ExpressionReflectionManager.ConvertIfNeed(left, typeof(object), false), NullExpression);
         }
 
         private static Expression GenerateStringConcat(Expression left, Expression right)
