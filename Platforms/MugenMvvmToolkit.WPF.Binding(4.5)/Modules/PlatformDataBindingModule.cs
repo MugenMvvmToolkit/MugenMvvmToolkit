@@ -247,7 +247,14 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
 
         private static void OnViewCleared(IViewManager viewManager, IViewModel viewModel, object arg3, IDataContext arg4)
         {
-            ClearBindingsRecursively(arg3 as DependencyObject);
+            try
+            {
+                ClearBindingsRecursively(arg3 as DependencyObject);
+            }
+            catch (Exception e)
+            {
+                Tracer.Error(e.Flatten());
+            }
         }
 
         private static void ClearBindingsRecursively(DependencyObject item)

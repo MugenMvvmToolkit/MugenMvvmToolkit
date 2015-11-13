@@ -39,10 +39,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             #region Fields
 
-            public readonly string Path;
-            public readonly Type Type;
-            public readonly int Hash;
-            public readonly bool IgnoreAttachedMembers;
+            public string Path;
+            public Type Type;
+            public int Hash;
+            public bool IgnoreAttachedMembers;
 
             #endregion
 

@@ -24,7 +24,7 @@ using MugenMvvmToolkit.Binding.Parse.Nodes;
 
 namespace MugenMvvmToolkit.Binding.Parse
 {
-    internal sealed class NullConditionalOperatorVisitor : IExpressionVisitor
+    public sealed class NullConditionalOperatorVisitor : IExpressionVisitor
     {
         #region Fields
 

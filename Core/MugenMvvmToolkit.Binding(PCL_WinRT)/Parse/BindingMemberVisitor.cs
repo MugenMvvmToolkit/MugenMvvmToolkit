@@ -37,6 +37,9 @@ namespace MugenMvvmToolkit.Binding.Parse
         private readonly Dictionary<IExpressionNode, IExpressionNode> _staticNodes;
         private bool _isMulti;
 
+        //To reduce object creation in the TryGetMemberName method.
+        private List<IExpressionNode> _nodes;
+
         #endregion
 
         #region Constructors
@@ -111,6 +114,8 @@ namespace MugenMvvmToolkit.Binding.Parse
             _isMulti = false;
             _lamdaParameters.Clear();
             _staticNodes.Clear();
+            if (_nodes != null)
+                _nodes.Clear();
         }
 
         private IExpressionNode VisitMethodCall(IMethodCallExpressionNode methodCall)
@@ -130,15 +135,19 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         private IExpressionNode VisitExpression(IExpressionNode node)
         {
-            var nodes = new List<IExpressionNode>();
-            string memberName = node.TryGetMemberName(true, true, nodes);
+            if (_nodes == null)
+                _nodes = new List<IExpressionNode>();
+            else
+                _nodes.Clear();
+
+            string memberName = node.TryGetMemberName(true, true, _nodes);
             if (memberName == null)
             {
                 _isMulti = true;
                 return node;
             }
-            if (nodes[0] is ResourceExpressionNode)
-                return GetResourceMember(node, memberName, nodes);
+            if (_nodes[0] is ResourceExpressionNode)
+                return GetResourceMember(node, memberName, _nodes);
 
             IBindingPath path = BindingServiceProvider.BindingPathFactory(memberName);
             if (path.IsEmpty)

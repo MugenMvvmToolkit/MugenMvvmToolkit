@@ -28,7 +28,6 @@ namespace MugenMvvmToolkit.Models
         #region Fields
 
         public readonly DataConstant DataConstant;
-
         public readonly object Value;
 
         #endregion

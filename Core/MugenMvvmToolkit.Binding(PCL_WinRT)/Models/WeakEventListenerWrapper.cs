@@ -29,8 +29,7 @@ namespace MugenMvvmToolkit.Binding.Models
         #region Fields
 
         public static readonly WeakEventListenerWrapper Empty;
-
-        private readonly object _item;
+        private object _item;
 
         #endregion
 

@@ -106,9 +106,9 @@ namespace MugenMvvmToolkit.ViewModels
             return ToolkitExtensions.AddValidator<TValidator>(this, instanceToValidate);
         }
 
-        protected void SetValidatorErrors<TModel>(Func<Expression<Func<TModel, object>>> propertyExpresssion, params object[] errors)
+        protected void SetValidatorErrors<TModel>(Func<Expression<Func<TModel, object>>> expresssion, params object[] errors)
         {
-            ToolkitExtensions.SetValidatorErrors(this, propertyExpresssion, errors);
+            ToolkitExtensions.SetValidatorErrors(this, expresssion, errors);
         }
 
         protected void SetValidatorErrors(string property, params object[] errors)

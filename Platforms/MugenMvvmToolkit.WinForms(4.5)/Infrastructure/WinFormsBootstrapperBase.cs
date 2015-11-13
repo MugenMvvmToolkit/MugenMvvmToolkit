@@ -114,12 +114,20 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
 
         private static void OnViewCleared(IViewManager viewManager, IViewModel viewModel, object arg3, IDataContext arg4)
         {
-            var control = arg3 as Control;
-            if (control != null)
-                ClearBindingsRecursively(control.Controls);
-            var disposable = arg3 as IDisposable;
-            if (disposable != null)
-                disposable.Dispose();
+            try
+            {
+                var control = arg3 as Control;
+                if (control != null)
+                    ClearBindingsRecursively(control.Controls);
+                var disposable = arg3 as IDisposable;
+                if (disposable != null)
+                    disposable.Dispose();
+
+            }
+            catch(Exception e)
+            {
+                Tracer.Error(e.Flatten());
+            }
         }
 
         private static void ClearBindingsRecursively(Control.ControlCollection collection)

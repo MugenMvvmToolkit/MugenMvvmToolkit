@@ -123,9 +123,8 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             #region Fields
 
-            public readonly PropertyInfo PropertyInfo;
-
-            public readonly object Value;
+            public PropertyInfo PropertyInfo;
+            public object Value;
 
             #endregion
 

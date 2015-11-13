@@ -31,15 +31,10 @@ namespace MugenMvvmToolkit.Models.IoC
         public static readonly BindingInfo<T> Empty;
 
         public readonly T Instance;
-
         public readonly DependencyLifecycle Lifecycle;
-
         public readonly Func<IIocContainer, IList<IIocParameter>, T> MethodBindingDelegate;
-
         public readonly string Name;
-
         public readonly Type Type;
-
         public readonly IIocParameter[] Parameters;
 
         private readonly bool _notEmpty;

@@ -45,8 +45,8 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             #region Fields
 
-            public readonly int _hash;
-            public readonly Type[] _types;
+            public int Hash;
+            public Type[] Types;
 
             #endregion
 
@@ -54,14 +54,14 @@ namespace MugenMvvmToolkit.Binding.Parse
 
             public CacheKey(Type[] types)
             {
-                _types = types;
-                _hash = 0;
+                Types = types;
+                Hash = 0;
                 unchecked
                 {
                     for (int index = 0; index < types.Length; index++)
                     {
                         Type type = types[index];
-                        _hash += type == null ? 0 : type.GetHashCode();
+                        Hash += type == null ? 0 : type.GetHashCode();
                     }
                 }
             }
@@ -198,11 +198,13 @@ namespace MugenMvvmToolkit.Binding.Parse
 
             bool IEqualityComparer<CacheKey>.Equals(CacheKey x, CacheKey y)
             {
-                if (x._types.Length != y._types.Length)
+                var xTypes = x.Types;
+                var yTypes = y.Types;
+                if (xTypes.Length != yTypes.Length)
                     return false;
-                for (int i = 0; i < x._types.Length; i++)
+                for (int i = 0; i < xTypes.Length; i++)
                 {
-                    if (x._types[i] != y._types[i])
+                    if (xTypes[i] != yTypes[i])
                         return false;
                 }
                 return true;
@@ -210,7 +212,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
             int IEqualityComparer<CacheKey>.GetHashCode(CacheKey obj)
             {
-                return obj._hash;
+                return obj.Hash;
             }
 
             #endregion

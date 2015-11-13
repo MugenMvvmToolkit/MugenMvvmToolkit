@@ -75,8 +75,8 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             #region Fields
 
-            public readonly MethodInfo Method;
-            public readonly Type DelegateType;
+            public MethodInfo Method;
+            public Type DelegateType;
 
             #endregion
 

@@ -43,8 +43,8 @@ namespace MugenMvvmToolkit.Binding.Modules
         {
             #region Fields
 
-            private readonly object _attachedParent;
-            private readonly IBindingMemberInfo _parentMember;
+            private object _attachedParent;
+            private IBindingMemberInfo _parentMember;
 
             #endregion
 

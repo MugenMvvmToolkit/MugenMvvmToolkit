@@ -233,6 +233,8 @@ namespace MugenMvvmToolkit.Binding.Parse
         public IList<IDataContext> Parse(string bindingExpression, IDataContext context, object target, IList<object> sources)
         {
             Should.NotBeNullOrWhitespace(bindingExpression, "bindingExpression");
+            if (context == null)
+                context = DataContext.Empty;
             KeyValuePair<KeyValuePair<string, int>, Action<IDataContext>[]>[] bindingValues;
             lock (_cache)
             {
@@ -240,7 +242,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {
                     try
                     {
-                        if (ReferenceEquals(context, DataContext.Empty) || context == null)
+                        if (ReferenceEquals(context, DataContext.Empty))
                             context = _defaultContext;
                         context.AddOrUpdate(BindingBuilderConstants.Target, target);
                         _context = context;
@@ -258,10 +260,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                     finally
                     {
                         if (ReferenceEquals(_defaultContext, context))
-                        {
                             _defaultContext.Clear();
-                            context = DataContext.Empty;
-                        }
                         _tokenizer = null;
                         _expression = null;
                         _context = null;

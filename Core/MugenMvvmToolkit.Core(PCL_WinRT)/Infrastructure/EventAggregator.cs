@@ -35,10 +35,10 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             #region Fields
 
-            public readonly int Hash;
-            public readonly object Message;
-            public readonly object Sender;
-            public readonly ISubscriber Subscriber;
+            public int Hash;
+            public object Message;
+            public object Sender;
+            public ISubscriber Subscriber;
 
             #endregion
 

@@ -1117,9 +1117,17 @@ namespace MugenMvvmToolkit
             return aggregator;
         }
 
-        public static void SetValidatorErrors<T>([NotNull] this IValidatorAggregator aggregator, Func<Expression<Func<T, object>>> propertyExpresssion, params object[] errors)
+        public static void SetValidatorErrors<T>([NotNull] this IValidatorAggregator aggregator, Func<Expression<Func<T, object>>> expresssion, params object[] errors)
         {
-            aggregator.Validator.SetErrors(propertyExpresssion, errors);
+            Should.NotBeNull(aggregator, "aggregator");
+            aggregator.Validator.SetErrors(expresssion, errors);
+        }
+
+        public static void SetValidatorErrors<T>([NotNull] this T aggregator, Func<Expression<Func<T, object>>> expresssion, params object[] errors)
+            where T : IValidatorAggregator
+        {
+            Should.NotBeNull(aggregator, "aggregator");
+            aggregator.Validator.SetErrors(expresssion, errors);
         }
 
         public static void SetValidatorErrors([NotNull] this IValidatorAggregator aggregator, string property, params object[] errors)
@@ -1138,9 +1146,9 @@ namespace MugenMvvmToolkit
             return validator;
         }
 
-        public static void ClearErrors<TModel>([NotNull] this IValidator validator, Func<Expression<Func<TModel, object>>> propertyExpresssion)
+        public static void ClearErrors<TModel>([NotNull] this IValidator validator, Func<Expression<Func<TModel, object>>> expresssion)
         {
-            validator.ClearErrors(GetMemberName(propertyExpresssion));
+            validator.ClearErrors(GetMemberName(expresssion));
         }
 
         public static void Publish([NotNull] this IEventPublisher eventPublisher, [NotNull] object sender, [NotNull] object message, ExecutionMode mode)

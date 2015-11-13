@@ -34,8 +34,8 @@ namespace MugenMvvmToolkit.Models
         {
             #region Fields
 
-            public readonly Type HandlerType;
-            public readonly Type MessageType;
+            public Type HandlerType;
+            public Type MessageType;
 
             #endregion
 

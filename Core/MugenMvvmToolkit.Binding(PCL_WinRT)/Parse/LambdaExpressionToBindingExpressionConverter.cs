@@ -77,9 +77,9 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             #region Fields
 
-            public readonly Action<IBindingToSyntax>[] Actions;
-            public readonly Func<IDataContext, object[], object> Expression;
-            public readonly Func<IDataContext, IObserver>[] Members;
+            public Action<IBindingToSyntax>[] Actions;
+            public Func<IDataContext, object[], object> Expression;
+            public Func<IDataContext, IObserver>[] Members;
 
             #endregion
 

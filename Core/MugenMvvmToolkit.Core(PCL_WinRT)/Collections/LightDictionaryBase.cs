@@ -36,11 +36,8 @@ namespace MugenMvvmToolkit.Collections
         internal struct Entry
         {
             public int HashCode;
-
             public TKey Key;
-
             public int Next;
-
             public TValue Value;
         }
 
@@ -49,7 +46,7 @@ namespace MugenMvvmToolkit.Collections
         {
             #region Fields
 
-            private readonly LightDictionaryBase<TKey, TValue> _dictionary;
+            private LightDictionaryBase<TKey, TValue> _dictionary;
             private KeyValuePair<TKey, TValue> _current;
             private int _index;
 

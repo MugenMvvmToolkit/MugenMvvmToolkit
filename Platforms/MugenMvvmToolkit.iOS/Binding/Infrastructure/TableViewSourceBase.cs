@@ -42,7 +42,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
             public bool Equals(IdentifierKey other)
             {
-                return ItemType == other.ItemType && Id.Equals(other.Id, StringComparison.Ordinal);
+                return _itemType == other._itemType && _id.Equals(other._id, StringComparison.Ordinal);
             }
 
             public override bool Equals(object obj)
@@ -55,7 +55,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             {
                 unchecked
                 {
-                    return (ItemType.GetHashCode() * 397) ^ Id.GetHashCode();
+                    return (_itemType.GetHashCode() * 397) ^ _id.GetHashCode();
                 }
             }
 
@@ -73,8 +73,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
             #region Fields
 
-            private readonly string Id;
-            private readonly Type ItemType;
+            private string _id;
+            private Type _itemType;
 
             #endregion
 
@@ -82,8 +82,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
             public IdentifierKey(Type itemType, string id)
             {
-                Id = id ?? "";
-                ItemType = itemType;
+                _id = id ?? "";
+                _itemType = itemType;
             }
 
             #endregion
@@ -92,7 +92,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
             public NSString GetIdentifier()
             {
-                return new NSString("$TableViewSourceBase_" + Id + "_" + ItemType.FullName);
+                return new NSString("$TableViewSourceBase_" + _id + "_" + _itemType.FullName);
             }
 
             #endregion

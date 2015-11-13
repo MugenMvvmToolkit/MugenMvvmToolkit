@@ -44,6 +44,11 @@ namespace MugenMvvmToolkit.Android.Models
 
         #region Properties
 
+        public bool IsEmpty
+        {
+            get { return _view == null; }
+        }
+
         [NotNull]
         public View View
         {
