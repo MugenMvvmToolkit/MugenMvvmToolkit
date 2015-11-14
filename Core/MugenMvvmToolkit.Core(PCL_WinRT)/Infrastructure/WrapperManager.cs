@@ -31,7 +31,7 @@ using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    public class WrapperManager : IWrapperManager
+    public class WrapperManager : IConfigurableWrapperManager
     {
         #region Nested types
 
@@ -107,17 +107,9 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        public void AddWrapper<TWrapper, TImplementation>(Func<Type, IDataContext, bool> condition = null, Func<object, IDataContext, TWrapper> wrapperFactory = null)
-            where TWrapper : class
-            where TImplementation : class, TWrapper
+        public void AddWrapper(Type wrapperType, Type implementation, Func<Type, IDataContext, bool> condition = null, Func<object, IDataContext, object> wrapperFactory = null)
         {
-            AddWrapper(typeof(TImplementation), condition, wrapperFactory);
-        }
-
-        public void AddWrapper<TWrapper>([NotNull] Type implementation,
-            Func<Type, IDataContext, bool> condition = null, Func<object, IDataContext, TWrapper> wrapperFactory = null)
-            where TWrapper : class
-        {
+            Should.NotBeNull(wrapperType, "wrapperType");
             Should.NotBeNull(implementation, "implementation");
 #if PCL_WINRT
             TypeInfo typeInfo = implementation.GetTypeInfo();
@@ -128,12 +120,26 @@ namespace MugenMvvmToolkit.Infrastructure
 
                 throw ExceptionManager.WrapperTypeShouldBeNonAbstract(implementation);
             List<WrapperRegistration> list;
-            if (!_registrations.TryGetValue(typeof(TWrapper), out list))
+            if (!_registrations.TryGetValue(wrapperType, out list))
             {
                 list = new List<WrapperRegistration>();
-                _registrations[typeof(TWrapper)] = list;
+                _registrations[wrapperType] = list;
             }
             list.Add(new WrapperRegistration(implementation, condition ?? TrueCondition, wrapperFactory));
+        }
+
+        public void AddWrapper<TWrapper>(Type implementation,
+            Func<Type, IDataContext, bool> condition = null, Func<object, IDataContext, TWrapper> wrapperFactory = null)
+            where TWrapper : class
+        {
+            AddWrapper(typeof(TWrapper), implementation, condition, wrapperFactory);
+        }
+
+        public void AddWrapper<TWrapper, TImplementation>(Func<Type, IDataContext, bool> condition = null, Func<object, IDataContext, TWrapper> wrapperFactory = null)
+            where TWrapper : class
+            where TImplementation : class, TWrapper
+        {
+            AddWrapper(typeof(TImplementation), condition, wrapperFactory);
         }
 
         public void Clear<TWrapper>()

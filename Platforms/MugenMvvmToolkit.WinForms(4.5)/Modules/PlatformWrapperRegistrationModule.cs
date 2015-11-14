@@ -19,7 +19,7 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Modules;
 using MugenMvvmToolkit.WinForms.Interfaces.Views;
@@ -88,7 +88,7 @@ namespace MugenMvvmToolkit.WinForms.Modules
 
         #region Overrides of WrapperRegistrationModuleBase
 
-        protected override void RegisterWrappers(WrapperManager wrapperManager)
+        protected override void RegisterWrappers(IConfigurableWrapperManager wrapperManager)
         {
             wrapperManager.AddWrapper<IWindowView, FormViewWrapper>(
                 (type, context) => typeof(Form).IsAssignableFrom(type),

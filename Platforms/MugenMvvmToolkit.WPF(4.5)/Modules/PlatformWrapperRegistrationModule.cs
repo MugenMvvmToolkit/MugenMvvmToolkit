@@ -18,7 +18,7 @@
 
 using System.ComponentModel;
 using System.Windows;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Modules;
 using MugenMvvmToolkit.WPF.Interfaces.Views;
@@ -82,7 +82,7 @@ namespace MugenMvvmToolkit.WPF.Modules
 
         #region Overrides of WrapperRegistrationModuleBase
 
-        protected override void RegisterWrappers(WrapperManager wrapperManager)
+        protected override void RegisterWrappers(IConfigurableWrapperManager wrapperManager)
         {
             wrapperManager.AddWrapper<IWindowView, WindowViewWrapper>(
                 (type, context) => typeof (Window).IsAssignableFrom(type),

@@ -29,4 +29,20 @@ namespace MugenMvvmToolkit.Interfaces
         [NotNull]
         object Wrap([NotNull] object item, [NotNull] Type wrapperType, [CanBeNull] IDataContext dataContext);
     }
+
+    public interface IConfigurableWrapperManager : IWrapperManager
+    {
+        void AddWrapper([NotNull] Type wrapperType, [NotNull] Type implementation,
+            Func<Type, IDataContext, bool> condition = null, Func<object, IDataContext, object> wrapperFactory = null);
+
+        void AddWrapper<TWrapper>([NotNull] Type implementation,
+            Func<Type, IDataContext, bool> condition = null, Func<object, IDataContext, TWrapper> wrapperFactory = null)
+            where TWrapper : class;
+
+        void AddWrapper<TWrapper, TImplementation>(Func<Type, IDataContext, bool> condition = null, Func<object, IDataContext, TWrapper> wrapperFactory = null)
+            where TWrapper : class
+            where TImplementation : class, TWrapper;
+
+        void Clear<TWrapper>();
+    }
 }

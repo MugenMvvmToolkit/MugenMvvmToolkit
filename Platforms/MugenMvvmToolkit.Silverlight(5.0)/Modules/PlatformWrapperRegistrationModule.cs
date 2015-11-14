@@ -19,7 +19,7 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Controls;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Modules;
 using MugenMvvmToolkit.Silverlight.Interfaces.Views;
@@ -78,7 +78,7 @@ namespace MugenMvvmToolkit.Silverlight.Modules
 
         #region Overrides of WrapperRegistrationModuleBase
 
-        protected override void RegisterWrappers(WrapperManager wrapperManager)
+        protected override void RegisterWrappers(IConfigurableWrapperManager wrapperManager)
         {
             wrapperManager.AddWrapper<IWindowView, WindowViewWrapper>(
                 (type, context) => typeof (ChildWindow).IsAssignableFrom(type),

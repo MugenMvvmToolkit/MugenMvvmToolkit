@@ -28,7 +28,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Animation;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
@@ -440,7 +440,7 @@ namespace MugenMvvmToolkit.WinRT.Modules
 
         #region Overrides of WrapperRegistrationModuleBase
 
-        protected override void RegisterWrappers(WrapperManager wrapperManager)
+        protected override void RegisterWrappers(IConfigurableWrapperManager wrapperManager)
         {
             wrapperManager.AddWrapper<IWindowView, ContentDialogWrapper>(IsContentDialog,
                 (o, context) => new ContentDialogWrapper((FrameworkElement)o));

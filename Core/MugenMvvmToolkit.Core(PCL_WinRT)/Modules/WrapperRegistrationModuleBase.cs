@@ -16,7 +16,6 @@
 
 #endregion
 
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 
@@ -40,19 +39,19 @@ namespace MugenMvvmToolkit.Modules
 
         #region Overrides of ModuleBase
 
-        protected override sealed bool LoadInternal()
+        protected sealed override bool LoadInternal()
         {
             IWrapperManager wrapperManager;
             IocContainer.TryGet(out wrapperManager);
-            var manager = wrapperManager as WrapperManager;
+            var manager = wrapperManager as IConfigurableWrapperManager;
             if (manager == null)
-                Tracer.Warn("The WrapperManager is not registered, the '{0}' is ignored", GetType().FullName);
+                Tracer.Warn("The IConfigurableWrapperManager is not registered, the '{0}' is ignored", GetType().FullName);
             else
                 RegisterWrappers(manager);
             return true;
         }
 
-        protected override sealed void UnloadInternal()
+        protected sealed override void UnloadInternal()
         {
         }
 
@@ -60,7 +59,7 @@ namespace MugenMvvmToolkit.Modules
 
         #region Methods
 
-        protected abstract void RegisterWrappers(WrapperManager wrapperManager);
+        protected abstract void RegisterWrappers(IConfigurableWrapperManager wrapperManager);
 
         #endregion
     }
