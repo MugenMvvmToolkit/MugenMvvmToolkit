@@ -89,13 +89,14 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         private HashSet<WeakReference> _attachedViews;
         private BindableMenuInflater _menuInflater;
-        private BindableLayoutInflater _layoutInflater;
+        private LayoutInflater _layoutInflater;
         private IMenu _menu;
         private Bundle _bundle;
         private bool _isBackNavigation;
         private View _view;
         private bool _ignoreFinishNavigation;
         private bool _isStarted;
+        private bool _isCreated;
         private IDictionary<string, object> _metadata;
 
         #endregion
@@ -156,6 +157,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             OnCreate(savedInstanceState);
 
             baseOnCreate(savedInstanceState);
+            _isCreated = true;
 
             var service = Get<INavigationService>();
             service.OnCreateActivity(Target);
@@ -339,12 +341,10 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         public LayoutInflater GetLayoutInflater(LayoutInflater baseLayoutInflater)
         {
+            if (!_isCreated)
+                return baseLayoutInflater;
             if (_layoutInflater == null)
-            {
-                _layoutInflater = PlatformExtensions.LayoutInflaterFactory(Target, MugenMvvmToolkit.Models.DataContext.Empty, Get<IViewFactory>(), baseLayoutInflater);
-                if (_layoutInflater != null)
-                    _layoutInflater = new BindableLayoutInflaterProxy(_layoutInflater);
-            }
+                _layoutInflater = PlatformExtensions.LayoutInflaterFactory(Target, null, null, baseLayoutInflater);
             return _layoutInflater ?? baseLayoutInflater;
         }
 

@@ -55,7 +55,7 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
         private readonly NotifyCollectionChangedEventHandler _weakHandler;
         private List<global::Android.Support.V7.Widget.RecyclerView.AdapterDataObserver> _observers;
         private DataTemplateProvider _itemTemplateProvider;
-        private BindableLayoutInflater _layoutInflater;
+        private LayoutInflater _layoutInflater;
         private Func<LayoutInflater, ViewGroup, int, global::Android.Support.V7.Widget.RecyclerView.ViewHolder> _createViewHolderDelegate;
         private global::Android.Support.V7.Widget.RecyclerView _recyclerView;
         private ReflectionExtensions.IWeakEventHandler<EventArgs> _listener;
@@ -85,7 +85,7 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
             get { return _itemTemplateProvider; }
         }
 
-        protected BindableLayoutInflater LayoutInflater
+        protected LayoutInflater LayoutInflater
         {
             get { return _layoutInflater; }
         }

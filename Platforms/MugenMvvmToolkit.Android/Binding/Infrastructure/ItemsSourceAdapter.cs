@@ -86,7 +86,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         private readonly object _container;
         private readonly NotifyCollectionChangedEventHandler _weakHandler;
         private readonly ReflectionExtensions.IWeakEventHandler<EventArgs> _listener;
-        private readonly BindableLayoutInflater _layoutInflater;
+        private readonly LayoutInflater _layoutInflater;
         private readonly DataTemplateProvider _dropDownTemplateProvider;
         private readonly DataTemplateProvider _itemTemplateProvider;
         private readonly IStableIdProvider _stableIdProvider;
@@ -157,7 +157,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             get { return _container; }
         }
 
-        protected BindableLayoutInflater LayoutInflater
+        protected LayoutInflater LayoutInflater
         {
             get { return _layoutInflater; }
         }

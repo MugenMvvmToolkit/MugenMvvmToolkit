@@ -201,8 +201,8 @@ namespace MugenMvvmToolkit.Android
         {
             #region Fields
 
-            public readonly int Hash;
-            private readonly object _item;
+            public int Hash;
+            private object _item;
 
             #endregion
 
@@ -274,7 +274,7 @@ namespace MugenMvvmToolkit.Android
 
         private static Func<Activity, IDataContext, IMvvmActivityMediator> _mvvmActivityMediatorFactory;
         private static Func<Context, IDataContext, BindableMenuInflater> _menuInflaterFactory;
-        private static Func<Context, IDataContext, IViewFactory, LayoutInflater, BindableLayoutInflater> _layoutInflaterFactory;
+        private static Func<Context, IDataContext, IViewFactory, LayoutInflater, LayoutInflater> _layoutInflaterFactory;
         private static Func<object, Context, object, int?, IDataTemplateSelector, object> _getContentViewDelegete;
         private static Action<object, object> _setContentViewDelegete;
         private static Func<object, bool> _isFragment;
@@ -300,11 +300,13 @@ namespace MugenMvvmToolkit.Android
             _menuInflaterFactory = (context, dataContext) => new BindableMenuInflater(context);
             _layoutInflaterFactory = (context, dataContext, factory, inflater) =>
             {
-                if (factory == null && !ServiceProvider.TryGet(out factory))
-                    factory = new ViewFactory();
                 if (inflater == null)
-                    return new BindableLayoutInflater(factory, context);
-                return new BindableLayoutInflater(factory, inflater, context);
+                {
+                    Tracer.Error("The bindable inflater cannot be created without the original inflater");
+                    return null;
+                }
+                LayoutInflaterFactoryWrapper.SetFactory(inflater, factory);
+                return inflater;
             };
             ContentViewManagerField = new ContentViewManager();
             ContentViewManagerField.Add(new ViewContentViewManager());
@@ -389,7 +391,7 @@ namespace MugenMvvmToolkit.Android
         }
 
         [NotNull]
-        public static Func<Context, IDataContext, IViewFactory, LayoutInflater, BindableLayoutInflater> LayoutInflaterFactory
+        public static Func<Context, IDataContext, IViewFactory, LayoutInflater, LayoutInflater> LayoutInflaterFactory
         {
             get { return _layoutInflaterFactory; }
             set
@@ -494,26 +496,23 @@ namespace MugenMvvmToolkit.Android
         }
 
         [NotNull]
-        public static BindableLayoutInflater ToBindableLayoutInflater(this LayoutInflater inflater, Context context = null)
+        public static LayoutInflater ToBindableLayoutInflater(this LayoutInflater inflater, Context context = null)
         {
             if (context == null)
             {
                 Should.NotBeNull(inflater, "inflater");
                 context = inflater.Context;
             }
-            var bindableInflater = inflater as BindableLayoutInflater;
-            if (bindableInflater != null)
-                return bindableInflater;
-            return LayoutInflaterFactory(context, DataContext.Empty, null, inflater);
+            return LayoutInflaterFactory(context, null, null, inflater);
         }
 
         [NotNull]
-        public static BindableLayoutInflater GetBindableLayoutInflater([NotNull] this Context context)
+        public static LayoutInflater GetBindableLayoutInflater([NotNull] this Context context)
         {
             Should.NotBeNull(context, "context");
             var activity = context.GetActivity();
             if (activity == null)
-                return LayoutInflaterFactory(context, DataContext.Empty, null, null);
+                return LayoutInflaterFactory(context, null, null, null);
             return activity.LayoutInflater.ToBindableLayoutInflater(context);
         }
 

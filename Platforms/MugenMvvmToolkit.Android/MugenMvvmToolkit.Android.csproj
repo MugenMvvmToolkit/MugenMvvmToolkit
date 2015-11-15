@@ -115,8 +115,7 @@
     <Compile Include="Attributes\BootstrapperAttribute.cs" />
     <Compile Include="Attributes\TypeNameAliasAttribute.cs" />
     <Compile Include="Binding\Infrastructure\ActionBarTabItemsSourceGenerator.cs" />
-    <Compile Include="Binding\Infrastructure\BindableLayoutInflater.cs" />
-    <Compile Include="Binding\Infrastructure\BindableLayoutInflaterProxy.cs" />
+    <Compile Include="Binding\Infrastructure\LayoutInflaterFactoryWrapper.cs" />
     <Compile Include="Binding\Infrastructure\PreferenceItemsSourceGenerator.cs" />
     <Compile Include="Binding\Infrastructure\ResourceDataTemplateSelectorBase.cs" />
     <Compile Include="Binding\Infrastructure\ViewContentViewManager.cs" />

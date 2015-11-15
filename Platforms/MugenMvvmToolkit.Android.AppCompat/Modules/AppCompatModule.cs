@@ -17,7 +17,6 @@
 #endregion
 
 using System;
-using System.Collections;
 using Android.App;
 using Android.Content;
 using Android.Content.Res;
@@ -27,14 +26,9 @@ using Android.Support.V4.View;
 using Android.Support.V4.Widget;
 using Android.Support.V7.App;
 using Android.Support.V7.Widget;
-using Android.Util;
 using Android.Views;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.AppCompat.Infrastructure;
 using MugenMvvmToolkit.Android.Binding;
-using MugenMvvmToolkit.Android.Binding.Infrastructure;
-using MugenMvvmToolkit.Android.Infrastructure;
-using MugenMvvmToolkit.Android.Interfaces;
 using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
@@ -50,60 +44,6 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
     public class AppCompatModule : ModuleBase
     {
         #region Nested types
-
-        private sealed class BindableLayoutInflaterCompat : BindableLayoutInflater, ILayoutInflaterFactory
-        {
-            #region Constructors
-
-            public BindableLayoutInflaterCompat([NotNull] IViewFactory factory, LayoutInflater original, Context newContext)
-                : base(factory, original, newContext)
-            {
-            }
-
-            public BindableLayoutInflaterCompat(IViewFactory factory, Context context)
-                : base(factory, context)
-            {
-            }
-
-            private BindableLayoutInflaterCompat(IntPtr javaReference, JniHandleOwnership transfer)
-                : base(javaReference, transfer)
-            {
-            }
-
-            #endregion
-
-            #region Implementation of ILayoutInflaterFactory
-
-            public View OnCreateView(View parent, string name, Context context, IAttributeSet attrs)
-            {
-                return OnCreateViewInternal(name, context, attrs);
-            }
-
-            #endregion
-
-            #region Overrides of BindableLayoutInflater
-
-            public override LayoutInflater CloneInContext(Context newContext)
-            {
-                return new BindableLayoutInflaterCompat(ViewFactory, this, newContext);
-            }
-
-            protected override void Initialize()
-            {
-                try
-                {
-                    //Trying to set appcompat factory.
-                    LayoutInflaterCompat.SetFactory(this, this);
-                }
-                catch (Exception e)
-                {
-                    base.Initialize();
-                    Tracer.Error(e.Flatten(false));
-                }
-            }
-
-            #endregion
-        }
 
         private sealed class DrawerInitializer : IEventListener
         {
@@ -346,15 +286,6 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
 
         protected override bool LoadInternal()
         {
-            PlatformExtensions.LayoutInflaterFactory = (context, dataContext, factory, inflater) =>
-            {
-                if (factory == null && !ServiceProvider.TryGet(out factory))
-                    factory = new ViewFactory();
-                if (inflater == null)
-                    return new BindableLayoutInflaterCompat(factory, context);
-                return new BindableLayoutInflaterCompat(factory, inflater, context);
-            };
-
             IBindingMemberProvider memberProvider = BindingServiceProvider.MemberProvider;
 
             //View

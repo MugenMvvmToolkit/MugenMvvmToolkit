@@ -19,6 +19,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Android.Runtime;
+using Java.Lang;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Attributes;
 
@@ -120,6 +122,20 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         {
             if (!typeof(TType).IsAssignableFrom(type))
                 return;
+            if (typeof(IJavaObject).IsAssignableFrom(type))
+            {
+                try
+                {
+                    var name = Class.FromType(type).Name;
+                    _fullNameCache[name] = type;
+                    _ignoreCaseFullNameCache[name] = type;
+                }
+                catch
+                {
+                    return;
+                }
+            }
+
             foreach (var attribute in type.GetCustomAttributes<TypeNameAliasAttribute>(false))
             {
                 _nameCache[attribute.Alias] = type;
