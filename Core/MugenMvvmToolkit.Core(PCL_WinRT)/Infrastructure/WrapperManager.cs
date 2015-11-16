@@ -67,7 +67,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Fields
 
-        public static readonly DataConstant<object> ItemToWrapConstant;
+        protected static readonly DataConstant<object> ItemToWrapConstant;
         private static readonly Func<Type, IDataContext, bool> TrueCondition;
         private readonly Dictionary<Type, List<WrapperRegistration>> _registrations;
         private readonly IViewModelProvider _viewModelProvider;
