@@ -18,33 +18,17 @@
 
 using System;
 using Android.Runtime;
-using Java.Lang.Ref;
-using Object = Java.Lang.Object;
-using WeakReference = System.WeakReference;
 
 namespace MugenMvvmToolkit.Android.Models
 {
     //see https://bugzilla.xamarin.com/show_bug.cgi?id=16343
     internal sealed class JavaObjectWeakReference : WeakReference
     {
-        #region Fields
-
-        private static readonly IntPtr GetMethodId;
-        private readonly Java.Lang.Ref.WeakReference _reference;
-
-        #endregion
-
         #region Constructors
 
-        static JavaObjectWeakReference()
-        {
-            GetMethodId = JNIEnv.GetMethodID(Java.Lang.Class.FromType(typeof(Reference)).Handle, "get", "()Ljava/lang/Object;");
-        }
-
-        public JavaObjectWeakReference(Object item)
+        public JavaObjectWeakReference(IJavaObject item)
             : base(item, true)
         {
-            _reference = new Java.Lang.Ref.WeakReference(item);
         }
 
         #endregion
@@ -60,7 +44,7 @@ namespace MugenMvvmToolkit.Android.Models
         {
             get
             {
-                var target = (Object)base.Target;
+                var target = (IJavaObject)base.Target;
                 if (target == null)
                     return null;
                 if (target.Handle == IntPtr.Zero)
@@ -68,14 +52,6 @@ namespace MugenMvvmToolkit.Android.Models
                     base.Target = null;
                     return null;
                 }
-                //_reference.Get() very slow method, use JNI directly
-                IntPtr handle = JNIEnv.CallObjectMethod(_reference.Handle, GetMethodId);
-                if (handle == IntPtr.Zero)
-                {
-                    base.Target = null;
-                    return null;
-                }
-                JNIEnv.DeleteLocalRef(handle);
                 return target;
             }
             set

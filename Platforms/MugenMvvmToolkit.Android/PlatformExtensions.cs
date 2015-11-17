@@ -324,7 +324,6 @@ namespace MugenMvvmToolkit.Android
             CurrentActivityLocker = new object();
             _mvvmFragmentMediatorFactory = MvvmFragmentMediatorFactoryMethod;
 
-            _useJniWeakReference = true;
             //Until Android 2.2 (Froyo), weak global references were not implemented.
             if (Build.VERSION.SdkInt >= BuildVersionCodes.Froyo)
             {
@@ -850,10 +849,7 @@ namespace MugenMvvmToolkit.Android
                     _hasJNIException = true;
                 }
             }
-            var o = javaItem as Object;
-            if (o == null)
-                return new WeakReference(javaItem, true);
-            return new JavaObjectWeakReference(o);
+            return new JavaObjectWeakReference(javaItem);
         }
 
         private static WeakReference CreateWeakReference(object item, Object javaItem)
