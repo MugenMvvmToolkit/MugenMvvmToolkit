@@ -434,6 +434,8 @@ namespace MugenMvvmToolkit.ViewModels
             try
             {
                 GC.SuppressFinalize(this);
+                if (Settings.DisposeCommands)
+                    ReflectionExtensions.DisposeCommands(this);
                 OnDisposeInternal(true);
                 OnDispose(true);
                 var handler = Disposed;
@@ -529,9 +531,6 @@ namespace MugenMvvmToolkit.ViewModels
 
         private void DisposeInternal()
         {
-            if (Settings.DisposeCommands)
-                ReflectionExtensions.DisposeCommands(this);
-
             this.ClearBusy();
             ClearPropertyChangedSubscribers();
             if (InitializeEventAggregator(false))
