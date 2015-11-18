@@ -34,7 +34,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Android
 using MugenMvvmToolkit.Binding;
 using System.IO;
 using Windows.ApplicationModel;
-using Windows.Storage;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
 #endif
@@ -53,17 +52,24 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
         #region Methods
 
 #if WINDOWSCOMMON
-        private static async System.Threading.Tasks.Task<List<Assembly>> GetAssemblyListAsync()
+        private static async System.Threading.Tasks.Task<HashSet<Assembly>> GetAssemblyListAsync()
         {
-            var folder = Package.Current.InstalledLocation;
-            List<Assembly> assemblies = new List<Assembly>();
-            foreach (StorageFile file in await folder.GetFilesAsync().AsTask().ConfigureAwait(false))
+            var assemblies = new HashSet<Assembly>();
+            var files = await Package.Current.InstalledLocation.GetFilesAsync().AsTask().ConfigureAwait(false);
+            foreach (var file in files)
             {
-                if (file.FileType == ".dll" || file.FileType == ".exe")
+                try
                 {
-                    AssemblyName name = new AssemblyName { Name = Path.GetFileNameWithoutExtension(file.Name) };
-                    Assembly asm = Assembly.Load(name);
-                    assemblies.Add(asm);
+                    if ((file.FileType == ".dll") || (file.FileType == ".exe"))
+                    {
+                        var name = new AssemblyName { Name = Path.GetFileNameWithoutExtension(file.Name) };
+                        assemblies.Add(Assembly.Load(name));
+                    }
+
+                }
+                catch
+                {
+                    ;
                 }
             }
             return assemblies;
