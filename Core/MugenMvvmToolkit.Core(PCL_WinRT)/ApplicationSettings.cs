@@ -29,7 +29,7 @@ namespace MugenMvvmToolkit
         #region Fields
 
         public const string DataContractNamespace = "http://schemas.mugenmvvmtoolkit.com";
-        public const string AssemblyVersion = "5.0.0.0";
+        public const string AssemblyVersion = "5.1.0.0";
         public const string AssemblyCopyright = "Copyright (c) 2012-2015 Vyacheslav Volkov";
         public const string AssemblyCompany = "Vyacheslav Volkov";
 
