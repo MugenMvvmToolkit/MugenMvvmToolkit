@@ -152,7 +152,6 @@ namespace MugenMvvmToolkit.WinRT
 
         internal static PlatformInfo GetPlatformInfo()
         {
-            //NOTE: not a good solution but I do not know of another.
             var isPhone = new EasClientDeviceInformation().OperatingSystem.SafeContains("WindowsPhone", StringComparison.OrdinalIgnoreCase);
             var isWinRT10 = typeof(DependencyObject).GetMethodEx("RegisterPropertyChangedCallback", MemberFlags.Instance | MemberFlags.Public) != null;
             var version = isWinRT10 ? new Version(10, 0) : new Version(8, 1);

@@ -222,7 +222,14 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         private static void OnViewCleared(IViewManager viewManager, IViewModel viewModel, object arg3, IDataContext arg4)
         {
-            XamarinFormsExtensions.ClearBindingsRecursively(arg3 as BindableObject, true, true);
+            try
+            {
+                XamarinFormsExtensions.ClearBindingsRecursively(arg3 as BindableObject, true, true);
+            }
+            catch (Exception e)
+            {
+                Tracer.Error(e.Flatten(true));
+            }
         }
 
         #endregion

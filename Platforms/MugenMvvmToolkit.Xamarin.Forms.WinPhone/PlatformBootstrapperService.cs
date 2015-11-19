@@ -34,6 +34,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Android
 using MugenMvvmToolkit.Binding;
 using System.IO;
 using Windows.ApplicationModel;
+using Windows.Security.ExchangeActiveSyncProvisioning;
+using Windows.UI.Xaml;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
 #endif
@@ -104,13 +106,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
             Version.TryParse(global::Android.OS.Build.VERSION.Release, out result);
             return new PlatformInfo(PlatformType.XamarinFormsAndroid, result);
 #elif WINDOWSCOMMON
-            //NOTE: not a good solution but I do not know of another.
-            var type = Type.GetType("Windows.Phone.ApplicationModel.ApplicationProfile, Windows, ContentType=WindowsRuntime", false);
-            if (type == null)
-                return new PlatformInfo(PlatformType.XamarinFormsWinRT, new Version(8, 1));
-            return new PlatformInfo(PlatformType.XamarinFormsWinRTPhone, new Version(8, 1));
+            var isPhone = new EasClientDeviceInformation().OperatingSystem.SafeContains("WindowsPhone", StringComparison.OrdinalIgnoreCase);
+            var isWinRT10 = typeof(DependencyObject).GetMethodEx("RegisterPropertyChangedCallback", MemberFlags.Instance | MemberFlags.Public) != null;
+            var version = isWinRT10 ? new Version(10, 0) : new Version(8, 1);
+            return new PlatformInfo(isPhone ? PlatformType.XamarinFormsWinRTPhone : PlatformType.XamarinFormsWinRT, version);
 #endif
-
         }
 
         public ICollection<Assembly> GetAssemblies()
