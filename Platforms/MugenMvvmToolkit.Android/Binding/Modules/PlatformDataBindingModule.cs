@@ -286,9 +286,10 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 .CreateAutoProperty(AttachedMembers.AdapterView.DropDownItemTemplate, ViewGroupTemplateChanged));
             memberProvider.Register(AttachedBindingMember
                 .CreateAutoProperty(AttachedMembers.AdapterView.DropDownItemTemplateSelector, ViewGroupTemplateChanged));
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.AdapterView.SelectedItem, AdapterViewSelectedItemChanged, AdapterViewSelectedMemberAttached));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.AdapterView.SelectedItem, AdapterViewSelectedItemChanged,
+                AdapterViewSelectedItemMemberAttached));
             var selectedItemPosMember = AttachedBindingMember.CreateAutoProperty(AttachedMembers.AdapterView.SelectedItemPosition,
-                    AdapterViewSelectedItemPositionChanged, AdapterViewSelectedMemberAttached, (view, info) => view.SelectedItemPosition);
+                AdapterViewSelectedItemPositionChanged, AdapterViewSelectedItemPositionMemberAttached, (view, info) => view.SelectedItemPosition);
             memberProvider.Register(selectedItemPosMember);
             memberProvider.Register(typeof(AdapterView), "SelectedIndex", selectedItemPosMember, true);
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.AdapterView.ScrollToSelectedItem));
@@ -473,7 +474,14 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 sender.SetBindingMemberValue(AttachedMembers.AdapterView.SelectedItemPosition, adapter.GetPosition(args.NewValue));
         }
 
-        private static void AdapterViewSelectedMemberAttached(AdapterView adapterView, MemberAttachedEventArgs arg)
+        private static void AdapterViewSelectedItemMemberAttached(AdapterView adapterView, MemberAttachedEventArgs arg)
+        {
+            //to invoke the AdapterViewSelectedItemPositionMemberAttached method.
+            int value;
+            adapterView.TryGetBindingMemberValue(AttachedMembers.AdapterView.SelectedItemPosition, out value);
+        }
+
+        private static void AdapterViewSelectedItemPositionMemberAttached(AdapterView adapterView, MemberAttachedEventArgs arg)
         {
             if (adapterView is ListView)
                 adapterView.ItemClick += (sender, args) => SetSelectedIndexAdapterView((AdapterView)sender, args.Position);
