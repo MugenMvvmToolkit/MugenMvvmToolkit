@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.StarterPack.Xamarin.Forms</id>
-    <version>5.0.1</version>
+    <version>5.1.0</version>
     <title>MugenMvvmToolkit - Starter Pack Xamarin.Forms</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -16,7 +16,7 @@
       - Xamarin.Android
       - Xamarin.iOS
       - Xamarin.Forms
-      - WinRT XAML framework for Windows 8 Store apps
+      - WinRT XAML framework for Windows Store apps
       The MVVM framework includes the following features that differs this project from other frameworks:
       - Deep integration with each platform.
       - Supports state preservation and restoration for mobile platforms.
@@ -43,23 +43,23 @@
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
       <group targetFramework="MonoAndroid10">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="5.0.1" />
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="5.1.0" />
       </group>
       <group targetFramework="Xamarin.iOS10">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="5.0.1" />
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="5.1.0" />
       </group>
       <group targetFramework="wp8">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="5.0.1" />
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="5.1.0" />
       </group>
       <group targetFramework="wpa81">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="5.0.1" />
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="5.1.0" />
       </group>
       <group targetFramework="win81">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="5.0.1" />
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="5.1.0" />
       </group>
       <group targetFramework="portable-net45+win+wp80+MonoAndroid10+Xamarin.iOS10">
-        <dependency id="MugenMvvmToolkit.AutofacContainer" version="5.0.1" />
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="5.0.1" />		
+        <dependency id="MugenMvvmToolkit.AutofacContainer" version="5.1.0" />
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="5.1.0" />		
       </group>
     </dependencies>
   </metadata>
