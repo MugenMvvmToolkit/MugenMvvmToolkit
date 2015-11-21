@@ -25,7 +25,6 @@ using Android.Views;
 using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.DataConstants;
 using MugenMvvmToolkit.Android.Interfaces;
-using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Android.Models;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -73,9 +72,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         {
             Should.NotBeNull(view, "view");
             Should.NotBeNull(attrs, "attrs");
-            var activityView = view.Context.GetActivity() as IActivityView;
-            if (activityView != null)
-                activityView.Mediator.OnDependencyItemAttached(ServiceProvider.WeakReferenceFactory(view));
             return new ViewResult(view, GetDataContext(view, view.Context, attrs));
         }
 

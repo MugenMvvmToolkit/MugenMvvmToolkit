@@ -21,7 +21,6 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -50,7 +49,6 @@ using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-using Object = Java.Lang.Object;
 using WeakReference = System.WeakReference;
 
 namespace MugenMvvmToolkit.Android
@@ -128,7 +126,7 @@ namespace MugenMvvmToolkit.Android
         {
             #region Fields
 
-            private const int MaxGC = 4;
+            private const int GCInterval = 4;
             private static int _gcCount;
 
             #endregion
@@ -139,7 +137,7 @@ namespace MugenMvvmToolkit.Android
             {
                 try
                 {
-                    if (Interlocked.Increment(ref _gcCount) < MaxGC)
+                    if (Interlocked.Increment(ref _gcCount) < GCInterval)
                         return;
                     ThreadPool.QueueUserWorkItem(state => Collect());
                 }
@@ -162,11 +160,11 @@ namespace MugenMvvmToolkit.Android
                 Interlocked.Exchange(ref _gcCount, 0);
                 int collected = 0;
                 int total = 0;
+                WeakReference value;
                 foreach (var keyPair in WeakReferences)
                 {
                     if (keyPair.Value.Target == null)
                     {
-                        WeakReference value;
                         WeakReferences.TryRemove(keyPair.Key, out value);
                         ++collected;
                     }
@@ -180,72 +178,36 @@ namespace MugenMvvmToolkit.Android
             #endregion
         }
 
-        private sealed class WeakKeyEqualityComparer : IEqualityComparer<WeakKey>
+        private sealed class WeakReferenceKeyEqualityComparer : IEqualityComparer<object>
         {
-            #region Implementation of IEqualityComparer<WeakKey>
-
-            public bool Equals(WeakKey x, WeakKey y)
-            {
-                return ReferenceEquals(x.GetItem(), y.GetItem());
-            }
-
-            public int GetHashCode(WeakKey obj)
-            {
-                return obj.Hash;
-            }
-
-            #endregion
-        }
-
-        private struct WeakKey
-        {
-            #region Fields
-
-            public int Hash;
-            private object _item;
-
-            #endregion
-
-            #region Constructors
-
-            public WeakKey(object item)
-            {
-                _item = item;
-                Hash = RuntimeHelpers.GetHashCode(item) * 397;
-            }
-
-            private WeakKey(WeakReference reference, int hash)
-            {
-                _item = reference;
-                Hash = hash;
-            }
-
-            #endregion
-
             #region Methods
 
-            public object GetItem()
+            private static object GetItem(object obj)
             {
-                var weakReference = _item as WeakReference;
-                if (weakReference == null)
-                    return _item;
-                return weakReference.Target;
-            }
-
-            public WeakKey ToWeak(WeakReference reference)
-            {
-                return new WeakKey(reference, Hash);
-            }
-
-            public override string ToString()
-            {
-                var item = GetItem();
-                if (item == null)
-                    return Hash.ToString();
-                return item.ToString();
+                var reference = obj as WeakReference;
+                if (reference == null)
+                    return obj;
+                return reference.Target;
             }
 
             #endregion
+
+            #region Implementation of IEqualityComparer<object>
+
+            bool IEqualityComparer<object>.Equals(object x, object y)
+            {
+                return ReferenceEquals(x, y) || ReferenceEquals(GetItem(x), GetItem(y));
+            }
+
+            int IEqualityComparer<object>.GetHashCode(object obj)
+            {
+                if (obj is WeakReference)
+                    return obj.GetHashCode();
+                return RuntimeHelpers.GetHashCode(obj);
+            }
+
+            #endregion
+
         }
 
         #endregion
@@ -259,18 +221,15 @@ namespace MugenMvvmToolkit.Android
         internal static readonly bool IsApiGreaterThanOrEqualTo21;
         internal static readonly bool IsApiGreaterThanOrEqualTo14;
         internal static readonly bool IsApiGreaterThanOrEqualTo17;
-
         //NOTE ConditionalWeakTable invokes finalizer for value, even if the key object is still alive https://bugzilla.xamarin.com/show_bug.cgi?id=21620
-        private static readonly ConcurrentDictionary<WeakKey, WeakReference> WeakReferences;
+        public static readonly ConcurrentDictionary<object, WeakReference> WeakReferences;
+
         private static readonly ContentViewManager ContentViewManagerField;
         private static readonly object CurrentActivityLocker;
         private static readonly ConcurrentDictionary<Type, Func<object[], object>> ViewToContextConstructor;
         private static readonly ConcurrentDictionary<Type, Func<object[], object>> ViewToContextWithAttrsConstructor;
         private static readonly Type[] ViewContextArgs;
         private static readonly Type[] ViewContextWithAttrsArgs;
-        private static readonly Func<object, object> GetJniNativeInvoker;
-        private static readonly Func<object, object> GetNewWeakGlobalRefDelegate;
-        private static readonly Func<object, IntPtr, IntPtr, IntPtr> InvokeNewWeakGlobalRef;
 
         private static Func<Activity, IDataContext, IMvvmActivityMediator> _mvvmActivityMediatorFactory;
         private static Func<Context, IDataContext, BindableMenuInflater> _menuInflaterFactory;
@@ -280,10 +239,6 @@ namespace MugenMvvmToolkit.Android
         private static Func<object, bool> _isFragment;
         private static Func<object, bool> _isActionBar;
         private static WeakReference _activityRef;
-        private static bool _useJniWeakReference;
-
-        //If any exception using default JavaObjectWeakReference impl.
-        private static bool _hasJNIException;
 
         #endregion
 
@@ -316,7 +271,7 @@ namespace MugenMvvmToolkit.Android
             _isFragment = o => false;
             _isActionBar = _isFragment;
             _activityRef = Empty.WeakReference;
-            WeakReferences = new ConcurrentDictionary<WeakKey, WeakReference>(2, Empty.Array<KeyValuePair<WeakKey, WeakReference>>(), new WeakKeyEqualityComparer());
+            WeakReferences = new ConcurrentDictionary<object, WeakReference>(3, Empty.Array<KeyValuePair<object, WeakReference>>(), new WeakReferenceKeyEqualityComparer());
             ViewToContextConstructor = new ConcurrentDictionary<Type, Func<object[], object>>();
             ViewToContextWithAttrsConstructor = new ConcurrentDictionary<Type, Func<object[], object>>();
             ViewContextArgs = new[] { typeof(Context) };
@@ -324,32 +279,6 @@ namespace MugenMvvmToolkit.Android
             CurrentActivityLocker = new object();
             _mvvmFragmentMediatorFactory = MvvmFragmentMediatorFactoryMethod;
 
-            //Until Android 2.2 (Froyo), weak global references were not implemented.
-            if (Build.VERSION.SdkInt >= BuildVersionCodes.Froyo)
-            {
-                try
-                {
-                    var property = typeof(JNIEnv).GetProperty("Env", BindingFlags.Static | BindingFlags.NonPublic);
-                    if (property != null)
-                    {
-                        GetJniNativeInvoker = ServiceProvider.ReflectionManager.GetMemberGetter<object>(property);
-                        property = property.PropertyType.GetProperty("NewWeakGlobalRef", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                        if (property != null)
-                        {
-                            GetNewWeakGlobalRefDelegate = ServiceProvider.ReflectionManager.GetMemberGetter<object>(property);
-                            var method = property.PropertyType.GetMethod("Invoke", BindingFlags.Public | BindingFlags.Instance);
-                            if (method != null)
-                                InvokeNewWeakGlobalRef = (Func<object, IntPtr, IntPtr, IntPtr>)ServiceProvider.ReflectionManager.GetMethodDelegate(typeof(Func<object, IntPtr, IntPtr, IntPtr>), method);
-                        }
-                    }
-                }
-                catch
-                {
-                    ;
-                }
-            }
-
-            _hasJNIException = InvokeNewWeakGlobalRef == null;
             // ReSharper disable once ObjectCreationAsStatement
             new WeakReferenceCollector();
         }
@@ -357,9 +286,6 @@ namespace MugenMvvmToolkit.Android
         #endregion
 
         #region Properties
-
-        [CanBeNull]
-        public static Func<IJavaObject, WeakReference> JavaWeakReferenceFactory { get; set; }
 
         [CanBeNull]
         public static Func<View, string, Context, IAttributeSet, View> ViewCreated { get; set; }
@@ -447,12 +373,6 @@ namespace MugenMvvmToolkit.Android
         public static Activity CurrentActivity
         {
             get { return (Activity)_activityRef.Target; }
-        }
-
-        public static bool UseJNIWeakReference
-        {
-            get { return _useJniWeakReference && !_hasJNIException; }
-            set { _useJniWeakReference = value; }
         }
 
         public static event EventHandler CurrentActivityChanged;
@@ -649,31 +569,18 @@ namespace MugenMvvmToolkit.Android
         {
             if (item == null)
                 return Empty.WeakReference;
-            var obj = item as Object;
+            var obj = item as IJavaObject;
             if (obj != null && obj.Handle == IntPtr.Zero)
                 return Empty.WeakReference;
 
             var hasWeakReference = item as IHasWeakReference;
             if (hasWeakReference != null && !(item is IHasWeakReferenceInternal))
-                return CreateWeakReference(item, obj);
-
-
-            var key = new WeakKey(item);
+                return CreateWeakReference(item, obj, false);
             WeakReference value;
-            if (!WeakReferences.TryGetValue(key, out value))
+            if (!WeakReferences.TryGetValue(item, out value))
             {
-                value = CreateWeakReference(item, obj);
-                WeakReferences[key.ToWeak(value)] = value;
-                if (obj != null)
-                {
-                    var view = item as View;
-                    if (view != null)
-                    {
-                        var activityView = view.Context.GetActivity() as IActivityView;
-                        if (activityView != null)
-                            activityView.Mediator.OnDependencyItemAttached(value);
-                    }
-                }
+                value = CreateWeakReference(item, obj, true);
+                WeakReferences[value] = value;
             }
             return value;
         }
@@ -824,39 +731,17 @@ namespace MugenMvvmToolkit.Android
             return new MvvmActivityMediator(activity);
         }
 
-        private static WeakReference CreateJavaWeakReferenceDefault(IJavaObject javaItem)
-        {
-            var weakReferenceFactory = JavaWeakReferenceFactory;
-            if (weakReferenceFactory != null)
-            {
-                var weak = weakReferenceFactory(javaItem);
-                if (weak != null)
-                    return weak;
-            }
-            if (UseJNIWeakReference)
-            {
-                try
-                {
-                    var envHandle = JNIEnv.Handle;
-                    var invoker = GetJniNativeInvoker(null);
-                    var del = GetNewWeakGlobalRefDelegate(invoker);
-
-                    var weakGlobalRef = InvokeNewWeakGlobalRef(del, envHandle, javaItem.Handle);
-                    return new JNIWeakReference(javaItem, weakGlobalRef);
-                }
-                catch
-                {
-                    _hasJNIException = true;
-                }
-            }
-            return new JavaObjectWeakReference(javaItem);
-        }
-
-        private static WeakReference CreateWeakReference(object item, Object javaItem)
+        private static WeakReference CreateWeakReference(object item, IJavaObject javaItem, bool isWeakTable)
         {
             if (javaItem == null)
+            {
+                if (isWeakTable)
+                    return new WeakReferenceWeakTable(item);
                 return new WeakReference(item, true);
-            return CreateJavaWeakReferenceDefault(javaItem);
+            }
+            if (isWeakTable)
+                return new JavaObjectWeakReferenceWeakTable(javaItem);
+            return new JavaObjectWeakReference(javaItem);
         }
 
         #endregion

@@ -148,7 +148,7 @@
     <Compile Include="Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs" />
     <Compile Include="Infrastructure\GlobalViewParentListener.cs" />
     <Compile Include="Binding\Modules\ActionBarModule.cs" />
-    <Compile Include="Models\JNIWeakReference.cs" />
+    <Compile Include="Models\WeakReferenceWeakTable.cs" />
     <Compile Include="Modules\FragmentInitializationModule.cs" />
     <Compile Include="Modules\InitializationModule.cs" />
     <Compile Include="Infrastructure\Mediators\MediatorBase.cs" />

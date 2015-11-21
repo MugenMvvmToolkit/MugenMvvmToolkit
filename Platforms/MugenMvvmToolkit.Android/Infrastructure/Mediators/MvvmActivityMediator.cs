@@ -87,7 +87,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         #region Fields
 
-        private HashSet<WeakReference> _attachedViews;
         private BindableMenuInflater _menuInflater;
         private LayoutInflater _layoutInflater;
         private IMenu _menu;
@@ -214,10 +213,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             if (handler != null)
                 handler(Target, EventArgs.Empty);
             _view.RemoveFromParent();
-            if (_attachedViews == null)
-                _view.ClearBindingsRecursively(true, true);
-            else
-                CleanupItems();
+            _view.ClearBindingsRecursively(true, true);
+            ThreadPool.QueueUserWorkItem(state => PlatformExtensions.CleanupWeakReferences());
             _view = null;
 
             if (_metadata != null)
@@ -396,13 +393,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             InitializePreferences(activity.PreferenceScreen, preferencesResId);
         }
 
-        public virtual void OnDependencyItemAttached(WeakReference item)
-        {
-            if (_attachedViews == null)
-                _attachedViews = new HashSet<WeakReference>(ReferenceEqualityComparer.Instance);
-            _attachedViews.Add(item);
-        }
-
         void IHandler<FinishActivityMessage>.Handle(object sender, FinishActivityMessage message)
         {
             try
@@ -448,31 +438,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public virtual event EventHandler<Activity, EventArgs> Resume;
 
         public virtual event EventHandler<Activity, EventArgs> Destroyed;
-
-        #endregion
-
-        #region Methods
-
-        private void CleanupItems()
-        {
-            try
-            {
-                foreach (var weakReference in _attachedViews)
-                {
-                    var target = weakReference.Target;
-                    if (target != null)
-                    {
-                        target.ClearBindings(false, true);
-                        weakReference.Target = null;
-                    }
-                }
-                ThreadPool.QueueUserWorkItem(state => PlatformExtensions.CleanupWeakReferences());
-            }
-            catch (Exception e)
-            {
-                Tracer.Error(e.Flatten(true));
-            }
-        }
 
         #endregion
     }

@@ -17,17 +17,18 @@
 #endregion
 
 using System;
+using System.Runtime.CompilerServices;
 using Android.Runtime;
 
 namespace MugenMvvmToolkit.Android.Models
 {
     //see https://bugzilla.xamarin.com/show_bug.cgi?id=16343
-    internal sealed class JavaObjectWeakReference : WeakReference
+    internal class JavaObjectWeakReference : WeakReference
     {
         #region Constructors
 
         public JavaObjectWeakReference(IJavaObject item)
-            : base(item, true)
+            : base(item)
         {
         }
 
@@ -60,6 +61,34 @@ namespace MugenMvvmToolkit.Android.Models
                     throw new NotSupportedException();
                 base.Target = null;
             }
+        }
+
+        #endregion
+    }
+
+    internal sealed class JavaObjectWeakReferenceWeakTable : JavaObjectWeakReference
+    {
+        #region Fields
+
+        private readonly int _hash;
+
+        #endregion
+
+        #region Constructors
+
+        public JavaObjectWeakReferenceWeakTable(IJavaObject item)
+            : base(item)
+        {
+            _hash = RuntimeHelpers.GetHashCode(item);
+        }
+
+        #endregion
+
+        #region Overrides of WeakReference
+
+        public override int GetHashCode()
+        {
+            return _hash;
         }
 
         #endregion

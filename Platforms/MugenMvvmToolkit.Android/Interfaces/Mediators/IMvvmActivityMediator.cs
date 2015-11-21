@@ -79,8 +79,6 @@ namespace MugenMvvmToolkit.Android.Interfaces.Mediators
 
         void AddPreferencesFromResource(Action<int> baseAddPreferencesFromResource, int preferencesResId);
 
-        void OnDependencyItemAttached([NotNull] WeakReference item);
-
         Func<IMenuItem, bool> OptionsItemSelected { get; set; }
 
         event EventHandler<Activity, ValueEventArgs<Configuration>> ConfigurationChanged;
