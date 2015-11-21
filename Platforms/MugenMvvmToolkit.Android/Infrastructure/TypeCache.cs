@@ -92,10 +92,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             }
             if (type == null)
             {
-                var message = string.Format("The type with name '{0}' was not found.", typeName);
                 if (throwOnError)
-                    throw new ArgumentException(message, "typeName");
-                Tracer.Warn(message);
+                    throw new ArgumentException("The type with name '" + typeName + "' was not found.", "typeName");
             }
             return type;
         }

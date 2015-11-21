@@ -545,12 +545,19 @@ namespace MugenMvvmToolkit
                 Type type = item.GetType();
                 if (!TypesToCommandsProperties.TryGetValue(type, out list))
                 {
-                    list = type
-                        .GetPropertiesEx(PropertyBindingFlag)
-                        .Where(c => typeof(ICommand).IsAssignableFrom(c.PropertyType) && c.CanRead &&
-                                    c.GetIndexParameters().Length == 0)
-                        .Select(ServiceProvider.ReflectionManager.GetMemberGetter<ICommand>)
-                        .ToArray();
+                    List<Func<object, ICommand>> items = null;
+                    foreach (var p in type.GetPropertiesEx(PropertyBindingFlag))
+                    {
+                        if (typeof(ICommand).IsAssignableFrom(p.PropertyType) && p.CanRead &&
+                            p.GetIndexParameters().Length == 0)
+                        {
+                            var func = ServiceProvider.ReflectionManager.GetMemberGetter<ICommand>(p);
+                            if (items == null)
+                                items = new List<Func<object, ICommand>>();
+                            items.Add(func);
+                        }
+                    }
+                    list = items == null ? Empty.Array<Func<object, ICommand>>() : items.ToArray();
                     TypesToCommandsProperties[type] = list;
                 }
             }
@@ -563,7 +570,7 @@ namespace MugenMvvmToolkit
                     if (disposable != null)
                         disposable.Dispose();
                 }
-                catch (MemberAccessException)
+                catch (Exception)
                 {
                     //To avoid method access exception.
                 }

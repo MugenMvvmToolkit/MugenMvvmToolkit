@@ -163,7 +163,7 @@ namespace MugenMvvmToolkit.Android
                 WeakReference value;
                 foreach (var keyPair in WeakReferences)
                 {
-                    if (keyPair.Value.Target == null)
+                    if (GetTarget(keyPair.Value) == null)
                     {
                         WeakReferences.TryRemove(keyPair.Key, out value);
                         ++collected;
@@ -171,8 +171,35 @@ namespace MugenMvvmToolkit.Android
                     else
                         ++total;
                 }
-                if (Tracer.TraceWarning)
-                    Tracer.Warn("Collected " + collected + " weak references, total " + total);
+                if (Tracer.TraceInformation)
+                    Tracer.Info("Collected " + collected + " weak references, total " + total);
+            }
+
+            private static object GetTarget(WeakReference reference)
+            {
+                var target = reference.Target;
+                if (AggressiveViewCleanup && target != null)
+                {
+                    try
+                    {
+                        var view = target as View;
+                        if (view != null)
+                        {
+                            var activityView = view.Context.GetActivity() as IActivityView;
+                            if (activityView != null && activityView.Mediator.IsDestroyed)
+                            {
+                                reference.Target = null;
+                                view.ClearBindings(false, true);
+                                return null;
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        ;
+                    }
+                }
+                return target;
             }
 
             #endregion
@@ -278,6 +305,7 @@ namespace MugenMvvmToolkit.Android
             ViewContextWithAttrsArgs = new[] { typeof(Context), typeof(IAttributeSet) };
             CurrentActivityLocker = new object();
             _mvvmFragmentMediatorFactory = MvvmFragmentMediatorFactoryMethod;
+            AggressiveViewCleanup = true;
 
             // ReSharper disable once ObjectCreationAsStatement
             new WeakReferenceCollector();
@@ -374,6 +402,8 @@ namespace MugenMvvmToolkit.Android
         {
             get { return (Activity)_activityRef.Target; }
         }
+
+        public static bool AggressiveViewCleanup { get; set; }
 
         public static event EventHandler CurrentActivityChanged;
 

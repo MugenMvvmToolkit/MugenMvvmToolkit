@@ -154,6 +154,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public virtual Delegate TryCreateDelegate(Type delegateType, object target, MethodInfo method)
         {
+            Should.NotBeNull(delegateType, "delegateType");
+            Should.NotBeNull(method, "method");
             MethodInfo result;
             lock (CachedDelegates)
             {
@@ -213,7 +215,6 @@ namespace MugenMvvmToolkit.Infrastructure
         public virtual Delegate GetMethodDelegate(Type delegateType, MethodInfo method)
         {
             Should.NotBeNull(delegateType, "delegateType");
-            Should.BeOfType<Delegate>(delegateType, "delegateType");
             Should.NotBeNull(method, "method");
             lock (InvokeMethodCacheDelegate)
             {
@@ -222,6 +223,9 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (!InvokeMethodCacheDelegate.TryGetValue(cacheKey, out value))
                 {
                     MethodInfo delegateMethod = delegateType.GetMethodEx("Invoke");
+                    if (delegateMethod == null)
+                        throw new ArgumentException(string.Empty, "delegateType");
+
                     var delegateParams = delegateMethod.GetParameters().ToList();
                     ParameterInfo[] methodParams = method.GetParameters();
                     var expressions = new List<Expression>();
