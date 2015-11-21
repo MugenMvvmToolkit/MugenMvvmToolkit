@@ -48,6 +48,10 @@ namespace MugenMvvmToolkit.Binding.Models
             private const string IsAttachedHandlerInvokedMember = ".attached";
             private static readonly Func<TTarget, object, AttachedProperty<TTarget, TType>> AttachedPropertyFactoryDelegate;
             private static readonly Func<TType, object> GetValueConverter;
+            private static readonly Func<IBindingMemberInfo, TTarget, IEventListener, IDisposable> ObserveAttachedDelegate;
+            private static readonly Func<IBindingMemberInfo, TTarget, TType> GetAttachedValueDelegate;
+            private static readonly Action<IBindingMemberInfo, TTarget, TType> SetAttachedValueDelegate;
+            private static readonly Action<IBindingMemberInfo, TTarget, object> RaiseAttachedPropertyDelegate;
 
             internal Action<IBindingMemberInfo, TTarget, object> RaiseAction;
 
@@ -81,6 +85,10 @@ namespace MugenMvvmToolkit.Binding.Models
             static AttachedBindingMemberInfo()
             {
                 AttachedPropertyFactoryDelegate = AttachedPropertyFactory;
+                GetAttachedValueDelegate = GetAttachedValue;
+                SetAttachedValueDelegate = SetAttachedValue;
+                RaiseAttachedPropertyDelegate = RaiseAttachedProperty;
+                ObserveAttachedDelegate = ObserveAttached;
                 //NOTE Hack to avoid boxing for boolean types.
                 if (typeof(bool) == typeof(TType))
                     GetValueConverter = (Func<TType, object>)(object)BooleanToObjectConverter;
@@ -91,13 +99,13 @@ namespace MugenMvvmToolkit.Binding.Models
             public AttachedBindingMemberInfo(string path, Type type,
                 Action<TTarget, MemberAttachedEventArgs> memberAttachedHandler,
                 Action<TTarget, AttachedMemberChangedEventArgs<TType>> memberChangedHandler, Func<TTarget, IBindingMemberInfo, TType> getDefaultValue, TType defaultValue, BindingMemberType memberType = null)
-                : this(path, type, memberAttachedHandler, ObserveAttached, null, GetAttachedValue, null, SetAttachedValue, null, memberType)
+                : this(path, type, memberAttachedHandler, ObserveAttachedDelegate, null, GetAttachedValueDelegate, null, SetAttachedValueDelegate, null, memberType)
             {
                 _memberChangedHandler = memberChangedHandler;
                 _getDefaultValue = getDefaultValue;
                 _defaultValue = defaultValue;
                 _isAttachedProperty = true;
-                RaiseAction = RaiseAttachedProperty;
+                RaiseAction = RaiseAttachedPropertyDelegate;
             }
 
             public AttachedBindingMemberInfo(string path, Type type,
@@ -283,8 +291,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
             private static void SetAttachedValue(IBindingMemberInfo member, TTarget source, TType value)
             {
-                GetAttachedProperty((IAttachedBindingMemberInternal)member, source)
-                    .SetValue(source, value, Empty.Array<object>());
+                GetAttachedProperty((IAttachedBindingMemberInternal)member, source).SetValue(source, value, null);
             }
 
             private static TType GetAttachedValue(IBindingMemberInfo member, TTarget source)
@@ -315,17 +322,26 @@ namespace MugenMvvmToolkit.Binding.Models
 
             private void RaiseAttached(TTarget source)
             {
+                if (_isAttachedProperty)
+                {
+                    GetAttachedProperty(this, source).RaiseAttached(_memberAttachedHandler, source, this);
+                    return;
+                }
+                var path = Id + IsAttachedHandlerInvokedMember;
                 var id = ServiceProvider
                     .AttachedValueProvider
-                    .GetValue<object>(source, Id + IsAttachedHandlerInvokedMember, false);
+                    .GetValue<object>(source, path, false);
                 if (id != null)
                     return;
                 id = new object();
                 var attachId = ServiceProvider
                     .AttachedValueProvider
-                    .GetOrAdd(source, Id + IsAttachedHandlerInvokedMember, (o, o1) => o1, id);
+                    .GetOrAdd(source, path, (o, o1) => o1, id);
                 if (ReferenceEquals(id, attachId))
+                {
+                    ServiceProvider.AttachedValueProvider.SetValue(source, path, Empty.TrueObject);
                     _memberAttachedHandler(source, new MemberAttachedEventArgs(this));
+                }
             }
 
             private TType GetDefaultValue(TTarget source)
@@ -345,10 +361,17 @@ namespace MugenMvvmToolkit.Binding.Models
 
             public AttachedBindingMemberInfo<TTarget, TType> Member;
             public TType Value;
+            private int _attachedState;
 
             #endregion
 
             #region Methods
+
+            public void RaiseAttached(Action<TTarget, MemberAttachedEventArgs> handler, TTarget target, IBindingMemberInfo bindingMember)
+            {
+                if (_attachedState == 0 && Interlocked.Exchange(ref _attachedState, 1) == 0)
+                    handler(target, new MemberAttachedEventArgs(bindingMember));
+            }
 
             public void SetValue(TTarget source, TType value, object[] args)
             {
