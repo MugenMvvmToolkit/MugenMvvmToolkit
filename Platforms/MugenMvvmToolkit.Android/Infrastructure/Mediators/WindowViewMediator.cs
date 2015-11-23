@@ -19,14 +19,12 @@
 using System;
 using Android.App;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.ViewModels;
 #if APPCOMPAT
 using MugenMvvmToolkit.Android.AppCompat.Interfaces.Views;
 using Fragment = Android.Support.V4.App.Fragment;
@@ -56,22 +54,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         protected override void ShowView(IWindowView view, bool isDialog, IDataContext context)
         {
             view.Cancelable = !isDialog;
-            FragmentManager fragmentManager = null;
-            var parentViewModel = ViewModel.GetParentViewModel();
-            if (parentViewModel != null)
-            {
-                var fragment = parentViewModel.Settings.Metadata.GetData(ViewModelConstants.View) as Fragment;
-                if (fragment != null)
-                    fragmentManager = fragment.ChildFragmentManager;
-            }
-            if (fragmentManager == null)
-            {
-                var activity = PlatformExtensions.CurrentActivity;
-                Should.NotBeNull(activity, "CurrentActivity");
-                fragmentManager = activity.GetFragmentManager();
-            }
-            view.Show(fragmentManager, Guid.NewGuid().ToString("n"));
-            fragmentManager.ExecutePendingTransactions();
+            view.Show(PlatformExtensions.CurrentActivity.GetFragmentManager(), Guid.NewGuid().ToString("n"));
         }
 
         protected override void CloseView(IWindowView view)
