@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
@@ -368,7 +367,6 @@ namespace MugenMvvmToolkit.Infrastructure
             OnViewModelInitializing(viewModel, dataContext);
             InitializeParentViewModel(viewModel, parentViewModel, dataContext);
             viewModel.InitializeViewModel(dataContext);
-            InitializeDisplayName(viewModel);
             MergeParameters(dataContext, viewModel.Settings.Metadata);
             if (parentViewModel != null)
             {
@@ -416,22 +414,6 @@ namespace MugenMvvmToolkit.Infrastructure
             if (parent == null)
                 return IocContainer;
             return parent.GetIocContainer(false) ?? IocContainer;
-        }
-
-        private void InitializeDisplayName(IViewModel viewModel)
-        {
-            IIocContainer iocContainer = viewModel.GetIocContainer(true, false) ?? IocContainer;
-            var hasDisplayName = viewModel as IHasDisplayName;
-            IDisplayNameProvider displayNameProvider;
-            if (hasDisplayName != null && string.IsNullOrEmpty(hasDisplayName.DisplayName)
-                && iocContainer.TryGet(out displayNameProvider))
-                hasDisplayName.DisplayName = displayNameProvider
-#if PCL_WINRT
-.GetDisplayNameAccessor(viewModel.GetType().GetTypeInfo())
-#else
-.GetDisplayNameAccessor(viewModel.GetType())
-#endif
-.Invoke();
         }
 
         internal static Guid GetOrAddViewModelId(IViewModel viewModel)

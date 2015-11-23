@@ -20,6 +20,6 @@ namespace MugenMvvmToolkit.Interfaces.Models
 {
     public interface IHasDisplayName
     {
-        string DisplayName { get; set; }
+        string DisplayName { get; }
     }
 }
