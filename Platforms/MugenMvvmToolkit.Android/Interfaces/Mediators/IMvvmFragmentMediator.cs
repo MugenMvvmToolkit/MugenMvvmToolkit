@@ -40,6 +40,8 @@ namespace MugenMvvmToolkit.Android.Interfaces.Mediators
     {
         Fragment Fragment { get; }
 
+        bool IsDestroyed { get; }
+
         object DataContext { get; set; }
 
         bool CacheFragmentView { get; set; }

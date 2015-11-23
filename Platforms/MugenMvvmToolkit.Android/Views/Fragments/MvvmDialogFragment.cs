@@ -171,7 +171,7 @@ namespace MugenMvvmToolkit.Android.Views.Fragments
 
         public override void OnCancel(IDialogInterface dialog)
         {
-            Mediator.OnCancel(dialog, base.OnDismiss);
+            Mediator.OnCancel(dialog, base.OnCancel);
         }
 
         #endregion
