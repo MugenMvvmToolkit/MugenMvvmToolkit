@@ -476,26 +476,22 @@ namespace MugenMvvmToolkit.ViewModels
         protected internal IViewModel GetViewModel([NotNull] GetViewModelDelegate<IViewModel> getViewModel, ObservationMode? observationMode = null,
             params DataConstantValue[] parameters)
         {
-            EnsureNotDisposed();
             return ViewModelProvider.GetViewModel(getViewModel, this, observationMode, parameters);
         }
 
         protected internal T GetViewModel<T>([NotNull] GetViewModelDelegate<T> getViewModelGeneric, ObservationMode? observationMode = null,
             params DataConstantValue[] parameters) where T : class, IViewModel
         {
-            EnsureNotDisposed();
             return ViewModelProvider.GetViewModel(getViewModelGeneric, this, observationMode, parameters);
         }
 
         protected internal IViewModel GetViewModel([NotNull] Type viewModelType, ObservationMode? observationMode = null, params DataConstantValue[] parameters)
         {
-            EnsureNotDisposed();
             return ViewModelProvider.GetViewModel(viewModelType, this, observationMode, parameters);
         }
 
         protected internal T GetViewModel<T>(ObservationMode? observationMode = null, params DataConstantValue[] parameters) where T : IViewModel
         {
-            EnsureNotDisposed();
             return ViewModelProvider.GetViewModel<T>(this, observationMode, parameters);
         }
 

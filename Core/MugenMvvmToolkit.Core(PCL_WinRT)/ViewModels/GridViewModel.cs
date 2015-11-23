@@ -168,7 +168,6 @@ namespace MugenMvvmToolkit.ViewModels
 
         public void UpdateItemsSource(IEnumerable<T> value)
         {
-            EnsureNotDisposed();
             UpdateItemsSourceInternal(value);
         }
 

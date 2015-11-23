@@ -20,7 +20,6 @@ using System.Threading.Tasks;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models.Messages;
 
 namespace MugenMvvmToolkit.ViewModels

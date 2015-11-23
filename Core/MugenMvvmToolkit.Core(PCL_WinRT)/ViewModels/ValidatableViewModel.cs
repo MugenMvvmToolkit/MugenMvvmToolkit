@@ -458,7 +458,6 @@ namespace MugenMvvmToolkit.ViewModels
         [SuppressTaskBusyHandler]
         public Task ValidateAsync()
         {
-            EnsureNotDisposed();
             Task task;
             lock (_locker)
                 task = ValidateInternal();

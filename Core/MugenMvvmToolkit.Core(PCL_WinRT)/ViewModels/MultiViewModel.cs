@@ -140,7 +140,6 @@ namespace MugenMvvmToolkit.ViewModels
 
         public virtual void Clear()
         {
-            EnsureNotDisposed();
             if (ItemsSource.Count == 0)
                 return;
             try
