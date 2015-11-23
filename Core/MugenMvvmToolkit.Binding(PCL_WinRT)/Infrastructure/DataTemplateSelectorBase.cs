@@ -45,7 +45,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IDataTemplateSelector
 
-        public object SelectTemplate(object item, object container)
+        object IDataTemplateSelector.SelectTemplate(object item, object container)
         {
             TTemplate template = SelectTemplate((TSource)item, container);
             if (template != null && CanInitialize(template, container))
