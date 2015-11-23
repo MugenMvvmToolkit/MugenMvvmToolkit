@@ -178,9 +178,7 @@ namespace MugenMvvmToolkit.Infrastructure
                                             &&
                                             info.GetParameters()
                                                 .Select(parameterInfo => parameterInfo.ParameterType)
-                                                .SequenceEqual(
-                                                    method.GetParameters()
-                                                        .Select(parameterInfo => parameterInfo.ParameterType)));
+                                                .SequenceEqual(method.GetParameters().Select(parameterInfo => parameterInfo.ParameterType)));
             var eventInfo = member as EventInfo;
             if (eventInfo != null)
 #if PCL_WINRT

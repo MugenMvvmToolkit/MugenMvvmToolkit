@@ -200,7 +200,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         private void RegisterInternal(CallbackDictionary callbacks, string id, IOperationCallback callback)
         {
-            //Only for debug callback
+            //Only for debug
             if (AlwaysSerializeCallback && callback.IsSerializable)
             {
                 var stream = _serializer.Serialize(callback);

@@ -735,15 +735,17 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
                     navigableViewModel.OnNavigatedFrom(context);
             }
 
-            var closeableViewModel = vmTo as ICloseableViewModel;
-            if (closeableViewModel != null && !(closeableViewModel.CloseCommand is CloseCommandWrapper))
+            if (vmTo != null)
             {
-                closeableViewModel.Closed += _closeViewModelHandler;
-                closeableViewModel.CloseCommand = new CloseCommandWrapper(closeableViewModel.CloseCommand, this, closeableViewModel);
+                var closeableViewModel = vmTo as ICloseableViewModel;
+                if (closeableViewModel != null && !(closeableViewModel.CloseCommand is CloseCommandWrapper))
+                {
+                    closeableViewModel.Closed += _closeViewModelHandler;
+                    closeableViewModel.CloseCommand = new CloseCommandWrapper(closeableViewModel.CloseCommand, this, closeableViewModel);
+                }
+                OnNavigatedTo(vmTo, context);
             }
 
-            if (vmTo != null)
-                OnNavigatedTo(vmTo, context);
             RaiseNavigated(context);
             if (vmFrom != null && TryCompleteOperationCallback(vmFrom, context))
                 OnViewModelClosed(vmFrom, context, this, false);
@@ -766,15 +768,15 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         private void CloseableViewModelOnClosed(ICloseableViewModel sender, ViewModelClosedEventArgs e)
         {
-            _threadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, NavigationService, e,
-                (provider, service, args) =>
+            _threadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, e,
+                (provider, args) =>
                 {
                     if (ReferenceEquals(provider._closingViewModel, args.ViewModel))
                         return;
                     try
                     {
                         provider._closedFromViewModel = true;
-                        if (service.TryClose(args.ViewModel, args.Parameter as IDataContext))
+                        if (provider.NavigationService.TryClose(args.ViewModel, args.Parameter as IDataContext))
                             OnViewModelClosed(args.ViewModel, args.Parameter, provider, true);
                     }
                     finally

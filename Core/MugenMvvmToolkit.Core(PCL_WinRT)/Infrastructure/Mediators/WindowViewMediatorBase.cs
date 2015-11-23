@@ -192,12 +192,12 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             if (view != null)
             {
                 view = _wrapperManager.Wrap(view, typeof(TView), context);
-                if (ReferenceEquals(View, view))
+                if (ReferenceEquals(oldView, view))
                     return;
             }
             _isOpen = isOpen;
-            if (View != null)
-                CleanupView(View);
+            if (oldView != null)
+                CleanupView(oldView);
             View = (TView)view;
             if (View != null)
                 InitializeView(View, context);
@@ -296,7 +296,10 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                             @base.OnShown(dataContext);
                             cs.TrySetResult(null);
                         }, OperationPriority.Low);
-                    ShowView(View, isDialog, context);
+                    ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, isDialog, context, (@base, b, arg3) =>
+                    {
+                        @base.ShowView(@base.View, b, arg3);
+                    }, OperationPriority.High);
                 }, ViewModel.DisposeCancellationToken);
         }
 

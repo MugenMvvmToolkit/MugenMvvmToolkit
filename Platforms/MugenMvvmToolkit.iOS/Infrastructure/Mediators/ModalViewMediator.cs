@@ -23,7 +23,6 @@ using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
-using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
