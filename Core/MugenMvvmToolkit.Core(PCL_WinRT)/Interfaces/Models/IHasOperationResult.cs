@@ -20,6 +20,6 @@ namespace MugenMvvmToolkit.Interfaces.Models
 {
     public interface IHasOperationResult
     {
-        bool? OperationResult { get; set; }
+        bool? OperationResult { get; }
     }
 }

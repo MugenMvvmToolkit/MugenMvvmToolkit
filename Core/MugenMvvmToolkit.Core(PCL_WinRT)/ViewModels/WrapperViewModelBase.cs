@@ -43,9 +43,8 @@ namespace MugenMvvmToolkit.ViewModels
         private string _displayName;
         private TViewModel _viewModel;
         private ICommand _closeCommand;
-
-        private bool _isSelected;
         private bool? _operationResult;
+        private bool _isSelected;
 
         #endregion
 
@@ -165,11 +164,7 @@ namespace MugenMvvmToolkit.ViewModels
             {
                 if (DisplayName == value)
                     return;
-                var hasDisplayName = ViewModel as IHasDisplayName;
-                if (hasDisplayName == null)
-                    _displayName = value;
-                else
-                    hasDisplayName.DisplayName = value;
+                _displayName = value;
                 OnPropertyChanged("DisplayName");
             }
         }
@@ -183,15 +178,11 @@ namespace MugenMvvmToolkit.ViewModels
                     return _operationResult;
                 return hasOperationResult.OperationResult;
             }
-            set
+            protected set
             {
                 if (OperationResult == value)
                     return;
-                var hasOperationResult = ViewModel as IHasOperationResult;
-                if (hasOperationResult == null)
-                    _operationResult = value;
-                else
-                    hasOperationResult.OperationResult = value;
+                _operationResult = value;
                 OnPropertyChanged("OperationResult");
             }
         }
