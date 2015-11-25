@@ -25,6 +25,7 @@ using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Infrastructure;
 
 namespace MugenMvvmToolkit.Binding
@@ -89,6 +90,7 @@ namespace MugenMvvmToolkit.Binding
             MvvmApplication.InitializeDesignTimeManager();
             ViewManager.GetDataContext = BindingExtensions.DataContext;
             ViewManager.SetDataContext = BindingExtensions.SetDataContext;
+            BindingExceptionHandler = BindingExceptionHandlerImpl;
         }
 
         #endregion
@@ -243,9 +245,19 @@ namespace MugenMvvmToolkit.Binding
             set { _bindingCultureInfo = value ?? (() => CultureInfo.CurrentCulture); }
         }
 
+        [CanBeNull]
+        public static Action<IDataBinding, BindingEventArgs> BindingExceptionHandler { get; set; }
+
         #endregion
 
         #region Methods
+
+        public static void RaiseBindingException(IDataBinding binding, BindingEventArgs args)
+        {
+            var exceptionHandler = BindingExceptionHandler;
+            if (exceptionHandler != null)
+                exceptionHandler(binding, args);
+        }
 
         internal static void SetDefaultValues()
         {
@@ -271,6 +283,12 @@ namespace MugenMvvmToolkit.Binding
             if (member == null || member.MemberType != BindingMemberType.Event)
                 return null;
             return member;
+        }
+
+        private static void BindingExceptionHandlerImpl(IDataBinding dataBinding, BindingEventArgs bindingEventArgs)
+        {
+            if (bindingEventArgs.Exception != null)
+                Tracer.Error(bindingEventArgs.Exception.Message);
         }
 
         #endregion
