@@ -61,8 +61,10 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Methods
 
-        private void OnBindingException(object sender, BindingExceptionEventArgs args)
+        private void OnBindingException(object sender, BindingEventArgs args)
         {
+            if (args.Exception == null)
+                return;
             var dataBinding = sender as IDataBinding;
             if (dataBinding != null && args.Action == BindingAction.UpdateSource)
                 SetDefaultValue(dataBinding);
@@ -111,13 +113,13 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         protected override bool OnAttached()
         {
-            Binding.BindingException += OnBindingException;
+            Binding.BindingUpdated += OnBindingException;
             return true;
         }
 
         protected override void OnDetached()
         {
-            Binding.BindingException -= OnBindingException;
+            Binding.BindingUpdated -= OnBindingException;
         }
 
         protected override IBindingBehavior CloneInternal()

@@ -156,7 +156,6 @@
     <Compile Include="Models\Enums.cs" />
     <Compile Include="Models\EventArg\AttachedMemberChangedEventArgs.cs" />
     <Compile Include="Models\EventArg\BindingEventArgs.cs" />
-    <Compile Include="Models\EventArg\BindingExceptionEventArgs.cs" />
     <Compile Include="Models\EventArg\MemberAttachedEventArgs.cs" />
     <Compile Include="Models\EventArg\ValueAccessorChangedEventArgs.cs" />
     <Compile Include="Models\EventArg\ValueAccessorChangingEventArgs.cs" />

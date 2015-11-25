@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Binding.Models.EventArg
 {
@@ -25,15 +26,14 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
         #region Fields
 
         public static BindingEventArgs SourceTrueArgs = new BindingEventArgs(BindingAction.UpdateSource, true);
-
         public static BindingEventArgs SourceFalseArgs = new BindingEventArgs(BindingAction.UpdateSource, false);
-
         public static BindingEventArgs TargetTrueArgs = new BindingEventArgs(BindingAction.UpdateTarget, true);
-
         public static BindingEventArgs TargetFalseArgs = new BindingEventArgs(BindingAction.UpdateTarget, false);
 
         private readonly BindingAction _action;
         private readonly bool _result;
+        private readonly Exception _exception;
+        private readonly Exception _originalException;
 
         #endregion
 
@@ -43,6 +43,15 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
         {
             _action = action;
             _result = result;
+        }
+
+        public BindingEventArgs(BindingAction action, [NotNull] Exception exception, [NotNull] Exception originalException)
+            : this(action, false)
+        {
+            Should.NotBeNull(exception, "exception");
+            Should.NotBeNull(originalException, "originalException");
+            _exception = exception;
+            _originalException = originalException;
         }
 
         #endregion
@@ -58,6 +67,19 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
         {
             get { return _result; }
         }
+
+        [CanBeNull]
+        public Exception Exception
+        {
+            get { return _exception; }
+        }
+
+        [CanBeNull]
+        public Exception OriginalException
+        {
+            get { return _originalException; }
+        }
+
 
         #endregion
     }

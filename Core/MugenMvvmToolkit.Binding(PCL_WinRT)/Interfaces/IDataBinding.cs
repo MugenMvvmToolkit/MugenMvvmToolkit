@@ -49,7 +49,5 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         bool Validate();
 
         event EventHandler<IDataBinding, BindingEventArgs> BindingUpdated;
-
-        event EventHandler<IDataBinding, BindingExceptionEventArgs> BindingException;
     }
 }

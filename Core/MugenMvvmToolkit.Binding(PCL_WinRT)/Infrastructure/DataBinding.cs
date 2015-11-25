@@ -183,15 +183,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             OnDispose();
             BindingServiceProvider.BindingManager.Unregister(this);
             BindingUpdated = null;
-            BindingException = null;
             ((ICollection<IBindingBehavior>)this).Clear();
             _sourceAccessor.Dispose();
             _targetAccessor.Dispose();
         }
 
         public event EventHandler<IDataBinding, BindingEventArgs> BindingUpdated;
-
-        public event EventHandler<IDataBinding, BindingExceptionEventArgs> BindingException;
 
         #endregion
 
@@ -212,9 +209,15 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         protected void RaiseBindingException(Exception exception, Exception originalException, BindingAction action)
         {
-            Tracer.Error(exception.Message);
-            var handler = BindingException;
-            if (handler != null) handler(this, new BindingExceptionEventArgs(action, exception, originalException));
+            BindingEventArgs args = null;
+            var handler = BindingUpdated;
+            if (handler != null)
+            {
+                args = new BindingEventArgs(action, exception, originalException);
+                handler(this, args);
+            }
+            if (BindingServiceProvider.BindingExceptionHandler != null)
+                BindingServiceProvider.RaiseBindingException(this, args ?? new BindingEventArgs(action, exception, originalException));
         }
 
         protected void RaiseBindingUpdated(BindingEventArgs args)

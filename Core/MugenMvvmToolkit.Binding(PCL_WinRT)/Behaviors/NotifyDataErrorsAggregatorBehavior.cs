@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         {
             if (base.OnAttached())
             {
-                Binding.BindingException += OnBindingException;
+                Binding.BindingUpdated += OnBindingException;
                 return true;
             }
             return false;
@@ -65,7 +65,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         protected override void OnDetached()
         {
-            Binding.BindingException -= OnBindingException;
+            Binding.BindingUpdated -= OnBindingException;
             base.OnDetached();
         }
 
@@ -100,8 +100,10 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Methods
 
-        private void OnBindingException(IDataBinding sender, BindingExceptionEventArgs args)
+        private void OnBindingException(IDataBinding sender, BindingEventArgs args)
         {
+            if (args.Exception == null || args.OriginalException == null)
+                return;
             UpdateErrors(new object[]
             {
                 ValidatesOnExceptionsBehavior.ShowOriginalException

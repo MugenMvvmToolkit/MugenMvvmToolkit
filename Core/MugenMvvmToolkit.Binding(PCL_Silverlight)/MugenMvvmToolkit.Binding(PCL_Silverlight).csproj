@@ -375,9 +375,6 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\EventArg\BindingEventArgs.cs">
       <Link>Models\EventArg\BindingEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\EventArg\BindingExceptionEventArgs.cs">
-      <Link>Models\EventArg\BindingExceptionEventArgs.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\EventArg\MemberAttachedEventArgs.cs">
       <Link>Models\EventArg\MemberAttachedEventArgs.cs</Link>
     </Compile>

@@ -31,13 +31,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         #region Fields
 
         private const string Key = "@@#bexc.";
-
         public static readonly Guid IdValidatesOnExceptionsBehavior;
-
         public static readonly ValidatesOnExceptionsBehavior Instance;
-
         private static readonly EventHandler<IDataBinding, BindingEventArgs> BindingUpdatedDelegate;
-        private static readonly EventHandler<IDataBinding, BindingExceptionEventArgs> BindingExceptionDelegate;
 
         #endregion
 
@@ -49,7 +45,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             ShowOriginalException = true;
             Instance = new ValidatesOnExceptionsBehavior();
             BindingUpdatedDelegate = OnBindingUpdated;
-            BindingExceptionDelegate = OnBindingException;
         }
 
         private ValidatesOnExceptionsBehavior()
@@ -80,14 +75,12 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         {
             if (BindingServiceProvider.ErrorProvider == null)
                 return false;
-            binding.BindingException += BindingExceptionDelegate;
             binding.BindingUpdated += BindingUpdatedDelegate;
             return true;
         }
 
         public void Detach(IDataBinding binding)
         {
-            binding.BindingException -= BindingExceptionDelegate;
             binding.BindingUpdated -= BindingUpdatedDelegate;
             var errorProvider = BindingServiceProvider.ErrorProvider;
             if (errorProvider == null)
@@ -107,19 +100,21 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Methods
 
-        private static void OnBindingException(IDataBinding sender, BindingExceptionEventArgs args)
-        {
-            IBindingErrorProvider errorProvider = BindingServiceProvider.ErrorProvider;
-            if (errorProvider != null)
-                SetErrors(errorProvider, sender,
-                    new object[] { ShowOriginalException ? args.OriginalException.Message : args.Exception.Message }, null);
-        }
-
         private static void OnBindingUpdated(IDataBinding sender, BindingEventArgs args)
         {
-            IBindingErrorProvider errorProvider = BindingServiceProvider.ErrorProvider;
-            if (errorProvider != null)
-                SetErrors(errorProvider, sender, Empty.Array<object>(), null);
+            if (args.Exception == null)
+            {
+                IBindingErrorProvider errorProvider = BindingServiceProvider.ErrorProvider;
+                if (errorProvider != null)
+                    SetErrors(errorProvider, sender, Empty.Array<object>(), null);
+            }
+            else
+            {
+                IBindingErrorProvider errorProvider = BindingServiceProvider.ErrorProvider;
+                if (errorProvider != null)
+                    SetErrors(errorProvider, sender,
+                        new object[] { ShowOriginalException ? args.OriginalException.Message : args.Exception.Message }, null);
+            }
         }
 
         private static void SetErrors(IBindingErrorProvider errorProvider, IDataBinding sender, object[] errors, IDataContext context)
