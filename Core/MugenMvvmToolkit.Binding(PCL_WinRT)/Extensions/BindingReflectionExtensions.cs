@@ -559,6 +559,8 @@ namespace MugenMvvmToolkit.Binding
 
         internal static object[] GetIndexerValues(string path, IList<ParameterInfo> parameters = null, Type castType = null)
         {
+            if (!path.StartsWith("["))
+                return Empty.Array<object>();
             var args = path
                 .RemoveBounds()
                 .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries);
