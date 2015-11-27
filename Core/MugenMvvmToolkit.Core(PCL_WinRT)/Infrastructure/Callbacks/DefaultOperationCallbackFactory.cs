@@ -19,6 +19,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
@@ -117,18 +118,11 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Fields
 
-        public static readonly DataConstant<bool> ContinueOnCapturedContextConstant;
-
         private static DefaultOperationCallbackFactory _factory;
 
         #endregion
 
         #region Constructors
-
-        static DefaultOperationCallbackFactory()
-        {
-            ContinueOnCapturedContextConstant = DataConstant.Create(() => ContinueOnCapturedContextConstant);
-        }
 
         private DefaultOperationCallbackFactory()
         {
@@ -177,7 +171,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             if (context == null)
                 context = DataContext.Empty;
             bool continueOnCapturedContext;
-            if (!context.TryGetData(ContinueOnCapturedContextConstant, out continueOnCapturedContext))
+            if (!context.TryGetData(OpeartionCallbackConstants.ContinueOnCapturedContext, out continueOnCapturedContext))
                 continueOnCapturedContext = true;
             return new AsyncOperationAwaiter<TResult>(operation, continueOnCapturedContext);
         }
