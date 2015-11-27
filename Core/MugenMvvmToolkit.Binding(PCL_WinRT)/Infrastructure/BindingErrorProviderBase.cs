@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Collections;
@@ -76,7 +77,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Fields
 
-        public static readonly DataConstant<bool> ClearErrorsConstant;
         private static readonly BindingMemberDescriptor<object, object> ErrorsDescriptor;
         private const string ErrorsKey = "@#@er";
 
@@ -87,7 +87,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         static BindingErrorProviderBase()
         {
             ErrorsDescriptor = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.ErrorsPropertyMember);
-            ClearErrorsConstant = DataConstant.Create(() => ClearErrorsConstant);
         }
 
         #endregion
@@ -115,7 +114,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (context == null)
                 context = DataContext.Empty;
             var dict = GetOrAddErrorsDictionary(target);
-            if (context.GetData(ClearErrorsConstant) && (dict.Count == 0 || (dict.Count == 1 && dict.ContainsKey(senderKey))))
+            if (context.GetData(BindingConstants.ClearErrors) && (dict.Count == 0 || (dict.Count == 1 && dict.ContainsKey(senderKey))))
             {
                 ServiceProvider.AttachedValueProvider.Clear(target, ErrorsKey);
                 ClearErrors(target, context);

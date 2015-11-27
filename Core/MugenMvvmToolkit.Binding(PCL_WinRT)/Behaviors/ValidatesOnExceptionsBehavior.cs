@@ -17,7 +17,7 @@
 #endregion
 
 using System;
-using MugenMvvmToolkit.Binding.Infrastructure;
+using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
@@ -87,7 +87,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 return;
 
             var context = new DataContext(binding.Context);
-            context.AddOrUpdate(BindingErrorProviderBase.ClearErrorsConstant, true);
+            context.AddOrUpdate(BindingConstants.ClearErrors, true);
             SetErrors(errorProvider, binding, Empty.Array<object>(), context);
         }
 

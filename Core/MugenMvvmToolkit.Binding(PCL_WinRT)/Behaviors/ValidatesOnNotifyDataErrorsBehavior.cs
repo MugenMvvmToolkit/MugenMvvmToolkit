@@ -22,7 +22,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Infrastructure;
+using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -123,7 +123,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 // Ensure that all concurrent adds have completed.
             }
             var context = new DataContext(Binding.Context);
-            context.AddOrUpdate(BindingErrorProviderBase.ClearErrorsConstant, true);
+            context.AddOrUpdate(BindingConstants.ClearErrors, true);
             UpdateErrors(Empty.Array<object>(), context);
         }
 

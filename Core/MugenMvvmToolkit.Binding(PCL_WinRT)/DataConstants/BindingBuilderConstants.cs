@@ -31,37 +31,21 @@ namespace MugenMvvmToolkit.Binding.DataConstants
         #region Fields
 
         public static readonly DataConstant<IList<object>> RawSources;
-
         public static readonly DataConstant<object> Source;
-
         public static readonly DataConstant<Func<IDataContext, IDataBinding>> BuildDelegate;
-
         public static readonly DataConstant<object> Target;
-
         public static readonly DataConstant<ISourceValue> TargetSource;
-
         public static readonly DataConstant<IBindingPath> TargetPath;
-
         public static readonly DataConstant<IList<Func<IDataContext, IObserver>>> Sources;
-
         public static readonly DataConstant<Func<IDataContext, IList<object>, object>> MultiExpression;
-
         public static readonly DataConstant<List<IBindingBehavior>> Behaviors;
-
         public static readonly DataConstant<Func<IDataContext, IBindingValueConverter>> Converter;
-
         public static readonly DataConstant<Func<IDataContext, object>> ConverterParameter;
-
         public static readonly DataConstant<Func<IDataContext, CultureInfo>> ConverterCulture;
-
         public static readonly DataConstant<Func<IDataContext, object>> CommandParameter;
-
         public static readonly DataConstant<Func<IDataContext, object>> Fallback;
-
         public static readonly DataConstant<object> TargetNullValue;
-
         public static readonly DataConstant<bool> ToggleEnabledState;
-
         public static readonly DataConstant NoCache;
 
         #endregion
