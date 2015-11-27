@@ -22,6 +22,6 @@ namespace MugenMvvmToolkit.Interfaces
 {
     public interface IStateTransitionManager
     {
-        EntityState ChangeState(EntityState from, EntityState to, bool validateState);
+        EntityState ChangeState(object item, EntityState from, EntityState to);
     }
 }
