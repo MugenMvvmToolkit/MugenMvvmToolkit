@@ -37,6 +37,9 @@ namespace MugenMvvmToolkit.Models
 
         #region Constructors
 
+        //Only for serialization
+        protected StringConstantBase() { }
+
         protected StringConstantBase(string id)
         {
             Should.NotBeNull(id, "id");
@@ -47,7 +50,7 @@ namespace MugenMvvmToolkit.Models
 
         #region Properties
 
-        [DataMember]
+        [DataMember(Name = "i")]
         public string Id
         {
             get { return _id; }

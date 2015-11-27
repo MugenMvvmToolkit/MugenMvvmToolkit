@@ -34,6 +34,9 @@ namespace MugenMvvmToolkit.Models
 
         #region Constructors
 
+        //Only for serialization
+        internal EntityStateEntry() { }
+
         public EntityStateEntry(EntityState state, object entity)
         {
             Should.NotBeNull(entity, "entity");

@@ -22,7 +22,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Models
 {
@@ -37,6 +36,9 @@ namespace MugenMvvmToolkit.Models
         #endregion
 
         #region Constructors
+
+        //Only for serialization
+        internal DataConstant() { }
 
         protected internal DataConstant([NotNull] string id, bool notNull = false)
             : base(id)

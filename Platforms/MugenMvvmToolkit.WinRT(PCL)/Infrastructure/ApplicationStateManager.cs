@@ -56,6 +56,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
 
             [IgnoreDataMember]
             private byte[] _bytes;
+
             [IgnoreDataMember]
             private IDataContext _context;
 
@@ -63,7 +64,10 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
 
             #region Constructors
 
-            public LazySerializableContainer(ISerializer serializer, IDataContext context, IViewModel viewModel)
+            //Only for serialization
+            internal LazySerializableContainer() { }
+
+            public LazySerializableContainer(ISerializer serializer, IDataContext context)
             {
                 _serializer = serializer;
                 _context = context;
@@ -73,7 +77,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
 
             #region Properties
 
-            [DataMember]
+            [DataMember(Name = "b")]
             internal byte[] Bytes
             {
                 get
@@ -246,7 +250,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         protected virtual void PreserveViewModel([NotNull] IViewModel viewModel, [NotNull] FrameworkElement element,
              [NotNull] IDictionary<string, object> state, [NotNull] object args, [NotNull] IDataContext context)
         {
-            state[VmStateKey] = new LazySerializableContainer(_serializer, _viewModelProvider.PreserveViewModel(viewModel, context), viewModel);
+            state[VmStateKey] = new LazySerializableContainer(_serializer, _viewModelProvider.PreserveViewModel(viewModel, context));
         }
 
         #endregion

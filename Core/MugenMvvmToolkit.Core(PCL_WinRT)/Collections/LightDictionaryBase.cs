@@ -145,7 +145,7 @@ namespace MugenMvvmToolkit.Collections
 
         #region Properties
 
-        [DataMember]
+        [DataMember(Name = "vi")]
         internal KeyValuePair<TKey, TValue>[] ValuesInternal
         {
             get { return ToArray(); }

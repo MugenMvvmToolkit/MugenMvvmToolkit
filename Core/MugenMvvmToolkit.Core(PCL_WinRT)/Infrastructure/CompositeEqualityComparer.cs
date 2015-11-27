@@ -49,6 +49,9 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Constructors
 
+            //Only for serialization
+            internal ComparerWrapper() { }
+
             public ComparerWrapper([NotNull] IEqualityComparer<T> comparer, bool exactlySameType)
             {
                 Should.NotBeNull(comparer, "comparer");

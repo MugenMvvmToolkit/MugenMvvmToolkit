@@ -38,6 +38,9 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Constructors
 
+        //Only for serialization
+        internal AsyncOperationCallback() { }
+
         public AsyncOperationCallback(IAsyncOperationInternal asyncOperation)
         {
             Should.NotBeNull(asyncOperation, "asyncOperation");
@@ -48,7 +51,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Properties
 
-        [DataMember]
+        [DataMember(Name = "c")]
         internal ISerializableCallback Callback
         {
             get

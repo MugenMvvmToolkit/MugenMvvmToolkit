@@ -28,24 +28,27 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
     {
         #region Fields
 
-        [DataMember(EmitDefaultValue = false)]
+        [DataMember(Name = "c", EmitDefaultValue = false)]
         internal List<object> Callbacks;
 
-        [DataMember(EmitDefaultValue = false)]
+        [DataMember(Name = "if", EmitDefaultValue = false)]
         internal bool IsFunc;
 
-        [DataMember(EmitDefaultValue = false)]
+        [DataMember(Name = "mc", EmitDefaultValue = false)]
         internal ISerializableCallback MainCallback;
 
-        [DataMember(EmitDefaultValue = false)]
+        [DataMember(Name = "it", EmitDefaultValue = false)]
         internal string InputType;
 
-        [DataMember(EmitDefaultValue = false)]
+        [DataMember(Name = "ot", EmitDefaultValue = false)]
         internal string OutputType;
 
         #endregion
 
         #region Constructors
+
+        //Only for serialization
+        internal AsyncOperationSerializableCallback() { }
 
         public AsyncOperationSerializableCallback(ISerializableCallback mainCallback, string inputType,
             string outputType, bool isFunc, List<object> callbacks)
