@@ -55,13 +55,10 @@ namespace MugenMvvmToolkit.Modules
             IocContainer.BindToBindingInfo(GetOperationCallbackManager());
             IocContainer.BindToBindingInfo(GetTaskExceptionHandler());
             IocContainer.BindToBindingInfo(GetOperationCallbackFactory());
-            IOperationCallbackFactory callbackFactory;
-            if (IocContainer.TryGet(out callbackFactory))
-                ServiceProvider.OperationCallbackFactory = callbackFactory;
+            IocContainer.BindToBindingInfo(GetOperationCallbackStateManager());
             IocContainer.BindToBindingInfo(GetViewMappingProvider());
             IocContainer.BindToBindingInfo(GetViewManager());
             IocContainer.BindToBindingInfo(GetDisplayNameProvider());
-            IocContainer.BindToBindingInfo(GetVisualStateManager());
             IocContainer.BindToBindingInfo(GetViewModelProvider());
             IocContainer.BindToBindingInfo(GetMessagePresenter());
             IocContainer.BindToBindingInfo(GetToastPresenter());
@@ -74,6 +71,7 @@ namespace MugenMvvmToolkit.Modules
             IocContainer.BindToBindingInfo(GetReflectionManager());
             IocContainer.BindToBindingInfo(GetNavigationCachePolicy());
             IocContainer.BindToBindingInfo(GetNavigationProvider());
+            IocContainer.BindToBindingInfo(GetItemsSourceDecorator());
             return true;
         }
 
@@ -85,6 +83,16 @@ namespace MugenMvvmToolkit.Modules
 
         #region Methods
 
+        protected virtual BindingInfo<IItemsSourceDecorator> GetItemsSourceDecorator()
+        {
+            return BindingInfo<IItemsSourceDecorator>.Empty;
+        }
+
+        protected virtual BindingInfo<IOperationCallbackStateManager> GetOperationCallbackStateManager()
+        {
+            return BindingInfo<IOperationCallbackStateManager>.Empty;
+        }
+
         protected virtual BindingInfo<IAttachedValueProvider> GetAttachedValueProvider()
         {
             return BindingInfo<IAttachedValueProvider>.FromType<AttachedValueProviderDefault>(DependencyLifecycle.SingleInstance);
@@ -93,11 +101,6 @@ namespace MugenMvvmToolkit.Modules
         protected virtual BindingInfo<IReflectionManager> GetReflectionManager()
         {
             return BindingInfo<IReflectionManager>.FromMethod((container, list) => ServiceProvider.ReflectionManagerField ?? new ExpressionReflectionManager(), DependencyLifecycle.SingleInstance);
-        }
-
-        protected virtual BindingInfo<IVisualStateManager> GetVisualStateManager()
-        {
-            return BindingInfo<IVisualStateManager>.Empty;
         }
 
         protected virtual BindingInfo<IDisplayNameProvider> GetDisplayNameProvider()

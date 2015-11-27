@@ -124,11 +124,8 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         {
             var context = new NavigationContext(NavigationType.Tab, NavigationMode.Back, args.Value,
                 MultiViewModel.SelectedItem, MultiViewModel);
-            bool? result = null;
-            var hasOperationResult = args.Value as IHasOperationResult;
-            if (hasOperationResult != null)
-                result = hasOperationResult.OperationResult;
-            CallbackManager.SetResult(args.Value, OperationResult.CreateResult(OperationType.TabNavigation, args.Value, result, context));
+            var result = ViewModelExtensions.GetOperationResult(args.Value);
+            CallbackManager.SetResult(OperationResult.CreateResult(OperationType.TabNavigation, args.Value, result, context));
         }
 
         #endregion

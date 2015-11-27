@@ -98,31 +98,29 @@ namespace MugenMvvmToolkit.Models
 
         public void InvalidateProperties(ExecutionMode? executionMode = null)
         {
-            OnPropertyChanged(Empty.EmptyPropertyChangedArgs,
-                executionMode.GetValueOrDefault(PropertyChangeExecutionMode));
+            OnPropertyChanged(Empty.EmptyPropertyChangedArgs, executionMode.GetValueOrDefault(PropertyChangeExecutionMode));
         }
 
-        [NotifyPropertyChangedInvocator("propName")]
-        protected internal void OnPropertyChanged([CallerMemberName] string propName = "")
+        [NotifyPropertyChangedInvocator("propertyName")]
+        protected internal void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
-            OnPropertyChanged(propName, PropertyChangeExecutionMode);
+            OnPropertyChanged(propertyName, PropertyChangeExecutionMode);
         }
 
-        [NotifyPropertyChangedInvocator("propName")]
-        protected internal void OnPropertyChanged(string propName, ExecutionMode executionMode)
+        [NotifyPropertyChangedInvocator("propertyName")]
+        protected internal void OnPropertyChanged(string propertyName, ExecutionMode executionMode)
         {
             if (PropertyChanged != null)
-                OnPropertyChanged(string.IsNullOrEmpty(propName) ? Empty.EmptyPropertyChangedArgs : new PropertyChangedEventArgs(propName), executionMode);
+                OnPropertyChanged(string.IsNullOrEmpty(propertyName) ? Empty.EmptyPropertyChangedArgs : new PropertyChangedEventArgs(propertyName), executionMode);
         }
 
-        [NotifyPropertyChangedInvocator("propName")]
-        protected internal void SetProperty<T>(ref T field, T newValue, [CallerMemberName] string propName = "",
-            ExecutionMode? executionMode = null)
+        [NotifyPropertyChangedInvocator("propertyName")]
+        protected internal void SetProperty<T>(ref T field, T newValue, [CallerMemberName] string propertyName = "", ExecutionMode? executionMode = null)
         {
             if (!EqualityComparer<T>.Default.Equals(field, newValue))
             {
                 field = newValue;
-                OnPropertyChanged(propName, executionMode.GetValueOrDefault(PropertyChangeExecutionMode));
+                OnPropertyChanged(propertyName, executionMode.GetValueOrDefault(PropertyChangeExecutionMode));
             }
         }
 

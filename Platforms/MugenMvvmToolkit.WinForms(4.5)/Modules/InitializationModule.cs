@@ -36,15 +36,6 @@ namespace MugenMvvmToolkit.WinForms.Modules
     {
         #region Constructors
 
-        static InitializationModule()
-        {
-            ServiceProvider.ItemsSourceDecorator = new BindingListItemsSourceDecorator();
-        }
-
-        public InitializationModule()
-        {
-        }
-
         protected InitializationModule(LoadMode mode = LoadMode.All, int priority = InitializationModulePriority)
             : base(mode, priority)
         {
@@ -59,6 +50,11 @@ namespace MugenMvvmToolkit.WinForms.Modules
         #endregion
 
         #region Overrides of InitializationModuleBase
+
+        protected override BindingInfo<IItemsSourceDecorator> GetItemsSourceDecorator()
+        {
+            return BindingInfo<IItemsSourceDecorator>.FromType<BindingListItemsSourceDecorator>(DependencyLifecycle.SingleInstance);
+        }
 
         protected override BindingInfo<IMessagePresenter> GetMessagePresenter()
         {

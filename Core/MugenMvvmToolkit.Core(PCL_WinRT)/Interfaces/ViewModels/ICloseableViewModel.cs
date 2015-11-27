@@ -18,7 +18,6 @@
 
 using System.Threading.Tasks;
 using System.Windows.Input;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 
@@ -28,7 +27,6 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
     {
         ICommand CloseCommand { get; set; }
 
-        [NotNull]
         Task<bool> CloseAsync(object parameter = null);
 
         event EventHandler<ICloseableViewModel, ViewModelClosingEventArgs> Closing;

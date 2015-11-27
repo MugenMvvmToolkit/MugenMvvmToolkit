@@ -172,9 +172,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                     }
                     catch (Exception e)
                     {
-                        OperationCallbackManager.SetResult(ViewModel,
-                            OperationResult.CreateErrorResult<bool?>(OperationType.WindowNavigation, ViewModel, e,
-                                CreateCloseContext()));
+                        OperationCallbackManager.SetResult(OperationResult.CreateErrorResult<bool?>(OperationType.WindowNavigation, ViewModel, e, CreateCloseContext()));
                         throw;
                     }
                     finally
@@ -336,12 +334,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             INavigationContext context = CreateCloseContext();
             OnClosed(_closeParameter, context);
 
-            bool? result = null;
-            var operationResult = ViewModel as IHasOperationResult;
-            if (operationResult != null)
-                result = operationResult.OperationResult;
-            OperationCallbackManager.SetResult(ViewModel,
-                OperationResult.CreateResult(OperationType.WindowNavigation, ViewModel, result, context));
+            var result = ViewModelExtensions.GetOperationResult(ViewModel);
+            OperationCallbackManager.SetResult(OperationResult.CreateResult(OperationType.WindowNavigation, ViewModel, result, context));
 
             _closeParameter = null;
             _shouldClose = false;

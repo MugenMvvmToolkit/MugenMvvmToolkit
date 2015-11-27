@@ -162,7 +162,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             Should.NotBeNull(entity, "entity");
             if (Tracer.TraceInformation)
-                Tracer.Info("The state snapshot of entity {0} was created", entity.GetType());
+                Tracer.Info("The state snapshot for the '{0}' was created", entity.GetType());
             return new EntitySnapshot(entity, GetPropertiesInternal(entity));
         }
 

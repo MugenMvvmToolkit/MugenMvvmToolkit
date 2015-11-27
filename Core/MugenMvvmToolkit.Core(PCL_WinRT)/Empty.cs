@@ -21,7 +21,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
-using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit
@@ -58,18 +57,10 @@ namespace MugenMvvmToolkit
         #region Fields
 
         public static readonly object TrueObject;
-
         public static readonly object FalseObject;
-
-        [SuppressTaskBusyHandler]
         public static readonly Task<bool> TrueTask;
-
-        [SuppressTaskBusyHandler]
         public static readonly Task<bool> FalseTask;
-
-        [SuppressTaskBusyHandler]
         public static readonly Task Task;
-
         public static readonly WeakReference WeakReference;
 
         internal static readonly NotifyCollectionChangedEventArgs ResetEventArgs;

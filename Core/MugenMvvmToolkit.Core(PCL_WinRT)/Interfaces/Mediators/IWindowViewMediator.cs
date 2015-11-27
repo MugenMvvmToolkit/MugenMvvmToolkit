@@ -36,7 +36,6 @@ namespace MugenMvvmToolkit.Interfaces.Mediators
 
         Task ShowAsync([CanBeNull] IOperationCallback callback, [CanBeNull] IDataContext context);
 
-        [NotNull]
         Task<bool> CloseAsync([CanBeNull] object parameter);
 
         void UpdateView([CanBeNull] object view, bool isOpen, [CanBeNull] IDataContext context);

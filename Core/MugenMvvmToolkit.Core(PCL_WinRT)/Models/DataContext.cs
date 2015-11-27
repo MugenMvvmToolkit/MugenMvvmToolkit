@@ -169,6 +169,13 @@ namespace MugenMvvmToolkit.Models
             Add(dataConstant, value);
         }
 
+        private static T Convert<T>(object item)
+        {
+            if (item is T)
+                return (T)item;
+            return (T)ReflectionExtensions.Convert(item, typeof(T));
+        }
+
         #endregion
 
         #region Implementation of IDataContext
@@ -198,7 +205,7 @@ namespace MugenMvvmToolkit.Models
             object value;
             if (!TryGetValue(dataConstant, out value))
                 return default(T);
-            return (T)value;
+            return Convert<T>(value);
         }
 
         public bool TryGetData<T>(DataConstant<T> dataConstant, out T data)
@@ -206,7 +213,7 @@ namespace MugenMvvmToolkit.Models
             object value;
             if (TryGetValue(dataConstant, out value))
             {
-                data = (T)value;
+                data = Convert<T>(value);
                 return true;
             }
             data = default(T);

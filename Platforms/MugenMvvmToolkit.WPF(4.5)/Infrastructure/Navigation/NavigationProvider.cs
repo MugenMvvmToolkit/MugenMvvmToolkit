@@ -867,12 +867,9 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         private void CompleteOperationCallback(IViewModel viewModel, IDataContext context)
         {
-            bool? result = null;
-            var hasOperationResult = viewModel as IHasOperationResult;
-            if (hasOperationResult != null)
-                result = hasOperationResult.OperationResult;
+            var result = ViewModelExtensions.GetOperationResult(viewModel);
             var operationResult = OperationResult.CreateResult(OperationType.PageNavigation, viewModel, result, context);
-            CallbackManager.SetResult(viewModel, operationResult);
+            CallbackManager.SetResult(operationResult);
         }
 
         private void ClearCacheIfNeed(IDataContext context, IViewModel viewModelTo)

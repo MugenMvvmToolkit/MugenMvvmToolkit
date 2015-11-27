@@ -48,10 +48,8 @@ namespace MugenMvvmToolkit.Interfaces.Validation
         [NotNull, Pure]
         IDictionary<string, IList<object>> GetErrors();
 
-        [NotNull]
         Task ValidateAsync([CanBeNull] string propertyName);
 
-        [NotNull]
         Task ValidateAsync();
 
         void CancelValidation();

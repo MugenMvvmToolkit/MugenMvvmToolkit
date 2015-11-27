@@ -17,8 +17,6 @@
 #endregion
 
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
@@ -26,7 +24,6 @@ namespace MugenMvvmToolkit.Interfaces.Presenters
 {
     public interface IMessagePresenter
     {
-        [SuppressTaskBusyHandler, NotNull]
         Task<MessageResult> ShowAsync(string message, string caption = "",
             MessageButton button = MessageButton.Ok,
             MessageImage icon = MessageImage.None, MessageResult defaultResult = MessageResult.None, IDataContext context = null);

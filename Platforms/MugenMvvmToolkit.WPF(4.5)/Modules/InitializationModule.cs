@@ -106,11 +106,6 @@ namespace MugenMvvmToolkit.WinPhone.Modules
             return false;
         }
 
-        protected override BindingInfo<IVisualStateManager> GetVisualStateManager()
-        {
-            return BindingInfo<IVisualStateManager>.FromType<VisualStateManager>(DependencyLifecycle.SingleInstance);
-        }
-
         protected override BindingInfo<IMessagePresenter> GetMessagePresenter()
         {
 #if WPF
