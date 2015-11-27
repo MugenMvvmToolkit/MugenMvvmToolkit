@@ -45,6 +45,7 @@
     <Compile Include="Infrastructure\Callbacks\NavigationOperation.cs" />
     <Compile Include="Infrastructure\CompositeEqualityComparer.cs" />
     <Compile Include="Interfaces\Callbacks\INavigationOperation.cs" />
+    <Compile Include="Interfaces\Callbacks\IOperationCallbackStateManager.cs" />
     <Compile Include="Interfaces\IMvvmApplication.cs" />
     <Compile Include="Interfaces\Models\IBusyToken.cs" />
     <Compile Include="Interfaces\Models\IToast.cs" />
@@ -110,7 +111,6 @@
     <Compile Include="Infrastructure\PrimeNumberHelper.cs" />
     <Compile Include="Infrastructure\ReferenceEqualityComparer.cs" />
     <Compile Include="Infrastructure\Serializer.cs" />
-    <Compile Include="Infrastructure\StateTransitionManager.cs" />
     <Compile Include="Infrastructure\SynchronousThreadManager.cs" />
     <Compile Include="Infrastructure\Validation\ManualValidator.cs" />
     <Compile Include="Infrastructure\Validation\ValidatableViewModelValidator.cs" />
@@ -153,7 +153,6 @@
     <Compile Include="Interfaces\IViewManager.cs" />
     <Compile Include="Interfaces\IViewMappingProvider.cs" />
     <Compile Include="Interfaces\IViewModelProvider.cs" />
-    <Compile Include="Interfaces\IVisualStateManager.cs" />
     <Compile Include="Interfaces\IWrapperManager.cs" />
     <Compile Include="Interfaces\Mediators\IWindowViewMediator.cs" />
     <Compile Include="Interfaces\Models\IDataContext.cs" />

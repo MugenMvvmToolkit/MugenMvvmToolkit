@@ -98,6 +98,9 @@ namespace MugenMvvmToolkit
         [CanBeNull]
         public static IItemsSourceDecorator ItemsSourceDecorator { get; set; }
 
+        [CanBeNull]
+        public static IOperationCallbackStateManager OperationCallbackStateManager { get; set; }
+
         public static IIocContainer IocContainer
         {
             get
@@ -305,6 +308,19 @@ namespace MugenMvvmToolkit
             TryInitialize(iocContainer, ref ValidatorProviderField);
             TryInitialize(iocContainer, ref _viewModelProvider);
             TryInitialize(iocContainer, ref EventAggregatorField);
+
+            if (OperationCallbackStateManager == null)
+            {
+                IOperationCallbackStateManager stateManager = null;
+                TryInitialize(iocContainer, ref stateManager);
+                OperationCallbackStateManager = stateManager;
+            }
+            if (ItemsSourceDecorator == null)
+            {
+                IItemsSourceDecorator decorator = null;
+                TryInitialize(iocContainer, ref decorator);
+                ItemsSourceDecorator = decorator;
+            }
         }
 
         private static void TryInitialize<TService>(IIocContainer iocContainer, ref TService service)

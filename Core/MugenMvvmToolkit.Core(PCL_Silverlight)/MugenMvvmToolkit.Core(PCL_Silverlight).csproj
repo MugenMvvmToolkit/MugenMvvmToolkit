@@ -189,9 +189,6 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Serializer.cs">
       <Link>Infrastructure\Serializer.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\StateTransitionManager.cs">
-      <Link>Infrastructure\StateTransitionManager.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\SynchronousThreadManager.cs">
       <Link>Infrastructure\SynchronousThreadManager.cs</Link>
     </Compile>
@@ -251,6 +248,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Callbacks\IOperationCallbackManager.cs">
       <Link>Interfaces\Callbacks\IOperationCallbackManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Callbacks\IOperationCallbackStateManager.cs">
+      <Link>Interfaces\Callbacks\IOperationCallbackStateManager.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Callbacks\IOperationResult.cs">
       <Link>Interfaces\Callbacks\IOperationResult.cs</Link>
@@ -323,9 +323,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IViewModelProvider.cs">
       <Link>Interfaces\IViewModelProvider.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IVisualStateManager.cs">
-      <Link>Interfaces\IVisualStateManager.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IWrapperManager.cs">
       <Link>Interfaces\IWrapperManager.cs</Link>

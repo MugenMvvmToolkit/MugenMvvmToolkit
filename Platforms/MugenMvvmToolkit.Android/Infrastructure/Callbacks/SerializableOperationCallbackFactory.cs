@@ -28,6 +28,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -56,7 +57,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
     {
         #region Nested types
 
-        [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true)]
+        [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true, Name = "socffs")]
 #if ANDROID || TOUCH
         [mscore::System.Serializable]
 #endif
@@ -119,20 +120,20 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                             return true;
                         }
                         var builder = createMethod.Invoke(null, Empty.Array<object>());
-                        field.SetValueEx(target, builder);
+                        SetValue(field, target, builder);
                         startMethod.MakeGenericMethod(typeof(IAsyncStateMachine))
                                    .Invoke(builder, new[] { target });
                         break;
                     case AwaiterField:
                         var awaiterType = typeof(SerializableAwaiter<>).MakeGenericType(Type.GetType(awaiterResultType, true));
                         var instance = Activator.CreateInstance(awaiterType, result);
-                        field.SetValueEx(target, instance);
+                        SetValue(field, target, instance);
                         break;
                     case AsyncOperationField:
                         var opType = typeof(AsyncOperation<>).MakeGenericType(Type.GetType(awaiterResultType, true));
                         var opInstance = (IAsyncOperation)Activator.CreateInstance(opType);
                         AsyncOperation<object>.TrySetResult(opInstance, result);
-                        field.SetValueEx(target, opInstance);
+                        SetValue(field, target, opInstance);
                         break;
                     case AnonymousClass:
                         var anonType = Type.GetType(TypeName, true);
@@ -144,12 +145,12 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                                 snapshot.Restore(anonType, anonClass, items, viewModels, awaiterResultType, result);
                             items[anonType] = anonClass;
                         }
-                        field.SetValueEx(target, anonClass);
+                        SetValue(field, target, anonClass);
                         break;
                     case NavigationOperationField:
                         var operation = new NavigationOperation();
                         operation.SetResult(OperationResult.Convert<bool>(result));
-                        field.SetValueEx(target, operation);
+                        SetValue(field, target, operation);
                         break;
                     case NonSerializableField:
                         object service;
@@ -170,22 +171,22 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                         }
                         else
                         {
-                            var restoreValueState = ApplicationSettings.RestoreValueState;
-                            service = restoreValueState == null ? State : restoreValueState(State, items, viewModels);
+                            var stateManager = ServiceProvider.OperationCallbackStateManager;
+                            service = stateManager == null ? State : stateManager.RestoreValue(State, field, items, viewModels, result, DataContext.Empty);
                         }
-                        field.SetValueEx(target, service);
+                        SetValue(field, target, service);
                         break;
                     case SerializableField:
-                        field.SetValueEx(target, IsType ? Type.GetType((string)State, false) : State);
+                        SetValue(field, target, IsType ? Type.GetType((string)State, false) : State);
                         break;
                     case ViewModelField:
-                        var viewModel = FindViewModel(viewModels);
+                        var viewModel = RestoreViewModel(viewModels, items, result);
                         if (viewModel == null)
                         {
                             TraceError(field, targetType);
                             return false;
                         }
-                        field.SetValueEx(target, viewModel);
+                        SetValue(field, target, viewModel);
                         break;
                 }
                 return true;
@@ -212,18 +213,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 if (isStateMachine && value is IAsyncOperationAwaiter)
                     return new FieldSnapshot { Name = field.Name, FieldType = AwaiterField };
 
-                var viewModel = value as IViewModel;
-                if (viewModel != null)
-                {
-                    return new FieldSnapshot
-                    {
-                        Name = field.Name,
-                        FieldType = ViewModelField,
-                        TypeName = value.GetType().AssemblyQualifiedName,
-                        State = viewModel.GetViewModelId()
-                    };
-                }
-
                 //NavigationOperation
                 if (value is INavigationOperation)
                 {
@@ -244,10 +233,10 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                         IsType = true
                     };
 
-                var saveValueState = ApplicationSettings.SaveValueState;
-                if (saveValueState != null)
+                var stateManager = ServiceProvider.OperationCallbackStateManager;
+                if (stateManager != null)
                 {
-                    var valueState = saveValueState(value);
+                    var valueState = stateManager.SaveValue(value, field, asyncOperation, DataContext.Empty);
                     if (valueState != null)
                         return new FieldSnapshot
                         {
@@ -255,6 +244,18 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                             State = valueState,
                             FieldType = NonSerializableField
                         };
+                }
+
+                var viewModel = value as IViewModel;
+                if (viewModel != null)
+                {
+                    return new FieldSnapshot
+                    {
+                        Name = field.Name,
+                        FieldType = ViewModelField,
+                        TypeName = value.GetType().AssemblyQualifiedName,
+                        State = viewModel.GetViewModelId()
+                    };
                 }
 
                 if (field.FieldType.IsSerializable() || value is string)
@@ -297,16 +298,24 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 };
             }
 
-            private IViewModel FindViewModel(ICollection<IViewModel> viewModels)
+            private IViewModel RestoreViewModel(ICollection<IViewModel> viewModels, Dictionary<Type, object> items, IOperationResult result)
             {
                 Guid id = Guid.Empty;
                 var vmType = Type.GetType(TypeName, true);
-                if (State is Guid)
-                    id = (Guid)State;
-
+                if (State != null)
+                    Guid.TryParse(State.ToString(), out id);
                 var vm = ServiceProvider.ViewModelProvider.TryGetViewModelById(id);
                 if (vm != null)
                     return vm;
+
+                var stateManager = ServiceProvider.OperationCallbackStateManager;
+                if (stateManager != null)
+                {
+                    vm = stateManager.RestoreViewModelValue(vmType, id, items, viewModels, result, DataContext.Empty);
+                    if (vm != null)
+                        return vm;
+                }
+
                 foreach (var viewModel in viewModels)
                 {
                     if (viewModel.GetViewModelId() == id)
@@ -323,6 +332,12 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 Tracer.Error("The field '{0}' cannot be restored on type '{1}'", fieldSt, stateMachineType);
             }
 
+            private static void SetValue(FieldInfo field, object target, object value)
+            {
+                value = ReflectionExtensions.Convert(value, field.FieldType);
+                field.SetValueEx(target, value);
+            }
+
             #endregion
         }
 
@@ -333,6 +348,9 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         internal sealed class AwaiterSerializableCallback : ISerializableCallback
         {
             #region Constructors
+
+            //Only for serialization
+            internal AwaiterSerializableCallback() { }
 
             public AwaiterSerializableCallback(Action continuation, IAsyncStateMachine stateMachine, string awaiterResultType, bool isUiThread, IAsyncOperation asyncOperation)
             {
@@ -345,16 +363,16 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             #region Properties
 
-            [DataMember(EmitDefaultValue = false)]
+            [DataMember(Name = "art", EmitDefaultValue = false)]
             public string AwaiterResultType { get; set; }
 
-            [DataMember(EmitDefaultValue = false)]
+            [DataMember(Name = "smt", EmitDefaultValue = false)]
             public string StateMachineType { get; set; }
 
-            [DataMember(EmitDefaultValue = false)]
+            [DataMember(Name = "fs", EmitDefaultValue = false)]
             public List<FieldSnapshot> FieldSnapshots { get; set; }
 
-            [DataMember(EmitDefaultValue = false)]
+            [DataMember(Name = "iut", EmitDefaultValue = false)]
             public bool IsUiThread { get; set; }
 
             #endregion
@@ -647,27 +665,30 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         {
             #region Fields
 
-            [DataMember(EmitDefaultValue = false)]
+            [DataMember(Name = "tt", EmitDefaultValue = false)]
             internal string TargetType;
 
-            [DataMember(EmitDefaultValue = false)]
+            [DataMember(Name = "fps", EmitDefaultValue = false)]
             internal bool FirstParameterSource;
 
-            [DataMember(EmitDefaultValue = false)]
+            [DataMember(Name = "is", EmitDefaultValue = false)]
             internal bool IsStatic;
 
-            [DataMember(EmitDefaultValue = false)]
+            [DataMember(Name = "t", EmitDefaultValue = false)]
             internal object Target;
 
-            [DataMember(EmitDefaultValue = false)]
+            [DataMember(Name = "mn", EmitDefaultValue = false)]
             internal string MethodName;
 
-            [DataMember(EmitDefaultValue = false)]
+            [DataMember(Name = "s", EmitDefaultValue = false)]
             internal List<FieldSnapshot> Snapshots;
 
             #endregion
 
             #region Constructors
+
+            //Only for serialization
+            internal DelegateSerializableCallback() { }
 
             public DelegateSerializableCallback(string targetType, string methodName, bool firstParameterSource, bool isStatic, object target, List<FieldSnapshot> snapshots)
             {
@@ -835,7 +856,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             if (context == null)
                 context = DataContext.Empty;
             bool continueOnCapturedContext;
-            if (!context.TryGetData(DefaultOperationCallbackFactory.ContinueOnCapturedContextConstant, out continueOnCapturedContext))
+            if (!context.TryGetData(OpeartionCallbackConstants.ContinueOnCapturedContext, out continueOnCapturedContext))
                 continueOnCapturedContext = true;
             return new SerializableAwaiter<TResult>(operation, continueOnCapturedContext);
         }

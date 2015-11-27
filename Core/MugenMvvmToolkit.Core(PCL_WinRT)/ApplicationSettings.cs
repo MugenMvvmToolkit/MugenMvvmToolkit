@@ -17,9 +17,7 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit
@@ -51,12 +49,6 @@ namespace MugenMvvmToolkit
 
         [CanBeNull]
         public static Action<RelayCommandBase, EventHandler> RemoveCanExecuteChangedEvent { get; set; }
-
-        [CanBeNull]
-        public static Func<object, object> SaveValueState { get; set; }
-
-        [CanBeNull]
-        public static Func<object, IDictionary<Type, object>, ICollection<IViewModel>, object> RestoreValueState { get; set; }
 
         public static ExecutionMode SynchronizedCollectionExecutionMode { get; set; }
 
