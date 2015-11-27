@@ -115,9 +115,6 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\UriUtils.cs">
       <Link>Infrastructure\UriUtils.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\VisualStateManager.cs">
-      <Link>Infrastructure\VisualStateManager.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Interfaces\Navigation\INavigationProviderEx.cs">
       <Link>Interfaces\Navigation\INavigationProviderEx.cs</Link>
     </Compile>

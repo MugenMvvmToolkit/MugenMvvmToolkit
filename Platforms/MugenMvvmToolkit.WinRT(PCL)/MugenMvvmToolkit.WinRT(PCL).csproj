@@ -82,9 +82,6 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Presenters\ToastPresenter.cs">
       <Link>Infrastructure\Presenters\ToastPresenter.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\VisualStateManager.cs">
-      <Link>Infrastructure\VisualStateManager.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Interfaces\Navigation\INavigationProviderEx.cs">
       <Link>Interfaces\Navigation\INavigationProviderEx.cs</Link>
     </Compile>

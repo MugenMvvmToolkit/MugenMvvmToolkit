@@ -74,7 +74,6 @@
     <Compile Include="Infrastructure\Navigation\NavigationProvider.cs" />
     <Compile Include="Infrastructure\Navigation\WindowNavigationService.cs" />
     <Compile Include="Infrastructure\ThreadManager.cs" />
-    <Compile Include="Infrastructure\VisualStateManager.cs" />
     <Compile Include="Interfaces\Navigation\INavigationProviderEx.cs" />
     <Compile Include="Interfaces\Navigation\INavigationService.cs" />
     <Compile Include="Interfaces\Views\IWindowView.cs" />

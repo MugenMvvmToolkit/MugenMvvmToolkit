@@ -351,9 +351,6 @@
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestInfrastructure\ViewPageMappingProviderMock.cs">
       <Link>TestInfrastructure\ViewPageMappingProviderMock.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestInfrastructure\VisualStateManagerMock.cs">
-      <Link>TestInfrastructure\VisualStateManagerMock.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestInfrastructure\VisualTreeManagerMock.cs">
       <Link>TestInfrastructure\VisualTreeManagerMock.cs</Link>
     </Compile>
