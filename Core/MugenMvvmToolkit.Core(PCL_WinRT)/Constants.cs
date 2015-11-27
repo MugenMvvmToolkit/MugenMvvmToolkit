@@ -30,19 +30,15 @@ namespace MugenMvvmToolkit.DataConstants
         #region Fields
 
         internal static readonly DataConstant<string> ViewModelTypeName;
-
         internal static readonly DataConstant<IDataContext> ViewModelState;
+        internal static readonly DataConstant<Guid> IdParent;
 
+        public static readonly DataConstant<Guid> Id;
         public static readonly DataConstant<object> View;
-
         public static readonly DataConstant<object> StateManager;
-
         public static readonly DataConstant<WeakReference> ParentViewModel;
-
         public static readonly DataConstant<IViewModel> ViewModel;
-
         public static readonly DataConstant<bool> StateNotNeeded;
-
         public static readonly DataConstant<bool> StateRestored;
 
         #endregion
@@ -51,6 +47,8 @@ namespace MugenMvvmToolkit.DataConstants
 
         static ViewModelConstants()
         {
+            Id = DataConstant.Create(() => Id);
+            IdParent = DataConstant.Create(() => IdParent);
             View = DataConstant.Create(() => View, true);
             ViewModelTypeName = DataConstant.Create(() => ViewModelTypeName, true);
             ViewModelState = DataConstant.Create(() => ViewModelState, true);
@@ -69,21 +67,13 @@ namespace MugenMvvmToolkit.DataConstants
         #region Fields
 
         public static readonly DataConstant<IIocContainer> IocContainer;
-
         public static readonly DataConstant<IViewModel> ParentViewModel;
-
         public static readonly DataConstant<ObservationMode> ObservationMode;
-
         public static readonly DataConstant<string> ViewName;
-
         public static readonly DataConstant<string> ViewModelBindingName;
-
         public static readonly DataConstant<IIocParameter[]> IocParameters;
-
         public static readonly DataConstant<bool> IsRestored;
-
         public static readonly DataConstant<Type> ViewModelType;
-
         public static readonly DataConstant<bool> IgnoreViewModelCache;
 
         #endregion
@@ -111,19 +101,12 @@ namespace MugenMvvmToolkit.DataConstants
         #region Fields
 
         public static readonly DataConstant<bool> SuppressTabNavigation;
-
         public static readonly DataConstant<bool> SuppressWindowNavigation;
-
         public static readonly DataConstant<bool> SuppressPageNavigation;
-
         public static readonly DataConstant<IViewModel> ViewModel;
-
         public static readonly DataConstant<string> ViewName;
-
         public static readonly DataConstant<bool> IsDialog;
-
         public static readonly DataConstant<bool> ClearBackStack;
-
         public static readonly DataConstant<bool> UseAnimations;
 
         #endregion
@@ -140,6 +123,24 @@ namespace MugenMvvmToolkit.DataConstants
             IsDialog = DataConstant.Create(() => IsDialog);
             ClearBackStack = DataConstant.Create(() => ClearBackStack);
             UseAnimations = DataConstant.Create(() => UseAnimations);
+        }
+
+        #endregion
+    }
+
+    public static class OpeartionCallbackConstants
+    {
+        #region Fields
+
+        public static readonly DataConstant<bool> ContinueOnCapturedContext;
+
+        #endregion
+
+        #region Constructors
+
+        static OpeartionCallbackConstants()
+        {
+            ContinueOnCapturedContext = DataConstant.Create(() => ContinueOnCapturedContext);
         }
 
         #endregion

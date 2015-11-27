@@ -33,7 +33,7 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Nested types
 
-        private sealed class RestoredViewModel
+        private sealed class CachedViewModel
         {
             #region Fields
 
@@ -103,10 +103,7 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         protected static readonly DataConstant<string> ViewModelTypeNameConstant;
-        protected static readonly DataConstant<Guid> IdParentViewModelConstant;
-
-        private static readonly DataConstant<Guid> IdViewModelConstant;
-        private static readonly Dictionary<Guid, RestoredViewModel> RestoredViewModels;
+        private static readonly Dictionary<Guid, CachedViewModel> CachedViewModels;
 
         private readonly IIocContainer _iocContainer;
 
@@ -116,10 +113,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         static ViewModelProvider()
         {
-            RestoredViewModels = new Dictionary<Guid, RestoredViewModel>();
+            CachedViewModels = new Dictionary<Guid, CachedViewModel>();
             ViewModelTypeNameConstant = DataConstant.Create(() => ViewModelTypeNameConstant, true);
-            IdViewModelConstant = DataConstant.Create(() => IdViewModelConstant);
-            IdParentViewModelConstant = DataConstant.Create(() => IdParentViewModelConstant);
             Tracer.TraceViewModelHandler += OnTraceViewModel;
         }
 
@@ -211,7 +206,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (parentViewModel != null)
             {
                 var idParent = GetOrAddViewModelId(parentViewModel);
-                state.AddOrUpdate(IdParentViewModelConstant, idParent);
+                state.AddOrUpdate(ViewModelConstants.IdParent, idParent);
             }
 
             OnViewModelPreserved(viewModel, state, dataContext);
@@ -240,20 +235,20 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (!dataContext.GetData(InitializationConstants.IgnoreViewModelCache))
                 {
                     Guid id;
-                    if (viewModelState.TryGetData(IdViewModelConstant, out id))
+                    if (viewModelState.TryGetData(ViewModelConstants.Id, out id))
                     {
-                        viewModel = GetOrAddRestoredViewModel(id).GetViewModel();
+                        viewModel = GetOrAddCachedViewModel(id).GetViewModel();
                         if (viewModel != null)
                             return viewModel;
                     }
                 }
 
-                RestoredViewModel restoredParentViewModel = null;
+                CachedViewModel restoredParentViewModel = null;
                 IViewModel parentViewModel = null;
                 Guid idParent;
-                if (viewModelState.TryGetData(IdParentViewModelConstant, out idParent))
+                if (viewModelState.TryGetData(ViewModelConstants.IdParent, out idParent))
                 {
-                    restoredParentViewModel = GetOrAddRestoredViewModel(idParent);
+                    restoredParentViewModel = GetOrAddCachedViewModel(idParent);
                     parentViewModel = restoredParentViewModel.GetViewModel();
                     if (parentViewModel != null)
                         dataContext.AddOrUpdate(InitializationConstants.ParentViewModel, parentViewModel);
@@ -357,7 +352,7 @@ namespace MugenMvvmToolkit.Infrastructure
         protected virtual void OnViewModelInitializing([NotNull]IViewModel viewModel, [NotNull] IDataContext dataContext)
         {
             var id = GetOrAddViewModelId(viewModel);
-            GetOrAddRestoredViewModel(id).SetViewModel(viewModel);
+            GetOrAddCachedViewModel(id).SetViewModel(viewModel);
         }
 
         protected virtual void InitializeViewModelInternal([NotNull] IViewModel viewModel, [NotNull] IDataContext dataContext)
@@ -378,10 +373,10 @@ namespace MugenMvvmToolkit.Infrastructure
 
         protected virtual IViewModel TryGetViewModelByIdInternal(Guid viewModelId)
         {
-            lock (RestoredViewModels)
+            lock (CachedViewModels)
             {
-                RestoredViewModel value;
-                if (RestoredViewModels.TryGetValue(viewModelId, out value))
+                CachedViewModel value;
+                if (CachedViewModels.TryGetValue(viewModelId, out value))
                     return value.GetViewModel();
                 return null;
             }
@@ -418,27 +413,27 @@ namespace MugenMvvmToolkit.Infrastructure
 
         internal static Guid GetOrAddViewModelId(IViewModel viewModel)
         {
-            lock (IdViewModelConstant)
+            lock (ViewModelConstants.Id)
             {
                 Guid id;
-                if (!viewModel.Settings.State.TryGetData(IdViewModelConstant, out id))
+                if (!viewModel.Settings.State.TryGetData(ViewModelConstants.Id, out id))
                 {
                     id = Guid.NewGuid();
-                    viewModel.Settings.State.Add(IdViewModelConstant, id);
+                    viewModel.Settings.State.Add(ViewModelConstants.Id, id);
                 }
                 return id;
             }
         }
 
-        private static RestoredViewModel GetOrAddRestoredViewModel(Guid id)
+        private static CachedViewModel GetOrAddCachedViewModel(Guid id)
         {
-            lock (RestoredViewModels)
+            lock (CachedViewModels)
             {
-                RestoredViewModel value;
-                if (!RestoredViewModels.TryGetValue(id, out value))
+                CachedViewModel value;
+                if (!CachedViewModels.TryGetValue(id, out value))
                 {
-                    value = new RestoredViewModel();
-                    RestoredViewModels[id] = value;
+                    value = new CachedViewModel();
+                    CachedViewModels[id] = value;
                 }
                 return value;
             }
@@ -450,14 +445,14 @@ namespace MugenMvvmToolkit.Infrastructure
                 return;
 
             Guid id;
-            if (!viewModel.Settings.State.TryGetData(IdViewModelConstant, out id))
+            if (!viewModel.Settings.State.TryGetData(ViewModelConstants.Id, out id))
                 return;
 
-            RestoredViewModel value;
-            lock (RestoredViewModels)
+            CachedViewModel value;
+            lock (CachedViewModels)
             {
-                if (RestoredViewModels.TryGetValue(id, out value))
-                    RestoredViewModels.Remove(id);
+                if (CachedViewModels.TryGetValue(id, out value))
+                    CachedViewModels.Remove(id);
             }
             if (value != null && auditAction == AuditAction.Disposed)
                 value.Clear();
