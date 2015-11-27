@@ -80,7 +80,7 @@ namespace MugenMvvmToolkit.ViewModels
                 TView oldValue = _view;
                 _view = value;
                 OnViewChanged(oldValue, value);
-                OnPropertyChanged("View");
+                OnPropertyChanged();
             }
         }
 
@@ -91,7 +91,7 @@ namespace MugenMvvmToolkit.ViewModels
             {
                 if (value == _displayName) return;
                 _displayName = value;
-                OnPropertyChanged("DisplayName");
+                OnPropertyChanged();
             }
         }
 
@@ -102,7 +102,7 @@ namespace MugenMvvmToolkit.ViewModels
             {
                 if (value.Equals(_isSelected)) return;
                 _isSelected = value;
-                OnPropertyChanged("IsSelected");
+                OnPropertyChanged();
             }
         }
 

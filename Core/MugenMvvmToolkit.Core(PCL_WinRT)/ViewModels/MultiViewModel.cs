@@ -44,7 +44,7 @@ namespace MugenMvvmToolkit.ViewModels
         [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable]
         internal sealed class StateList
         {
-            [DataMember]
+            [DataMember(Name = "s")]
             public List<IDataContext> State;
         }
 
@@ -61,6 +61,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         private bool _clearing;
         private IViewModel _selectedItem;
+        private bool _disposeViewModelOnRemove;
 
         #endregion
 
@@ -89,7 +90,16 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Implementation of IMultiViewModel
 
-        public bool DisposeViewModelOnRemove { get; set; }
+        public bool DisposeViewModelOnRemove
+        {
+            get { return _disposeViewModelOnRemove; }
+            set
+            {
+                if (value == _disposeViewModelOnRemove) return;
+                _disposeViewModelOnRemove = value;
+                OnPropertyChanged();
+            }
+        }
 
         public virtual IViewModel SelectedItem
         {

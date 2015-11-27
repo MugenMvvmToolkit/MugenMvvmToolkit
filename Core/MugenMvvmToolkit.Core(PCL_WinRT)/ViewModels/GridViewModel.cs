@@ -108,7 +108,7 @@ namespace MugenMvvmToolkit.ViewModels
                 if (Equals(value, _filter)) return;
                 _filter = value;
                 UpdateFilter();
-                OnPropertyChanged("Filter");
+                OnPropertyChanged();
             }
         }
 

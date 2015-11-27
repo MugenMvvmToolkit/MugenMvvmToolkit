@@ -59,7 +59,7 @@ namespace MugenMvvmToolkit.ViewModels
                 if (Equals(_closeCommand, value))
                     return;
                 _closeCommand = value;
-                OnPropertyChanged("CloseCommand");
+                OnPropertyChanged();
             }
         }
 

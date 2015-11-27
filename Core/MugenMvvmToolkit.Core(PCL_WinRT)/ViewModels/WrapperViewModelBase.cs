@@ -105,7 +105,7 @@ namespace MugenMvvmToolkit.ViewModels
                     _closeCommand = value;
                 else
                     closeableViewModel.CloseCommand = value;
-                OnPropertyChanged("CloseCommand");
+                OnPropertyChanged();
             }
         }
 
@@ -165,25 +165,19 @@ namespace MugenMvvmToolkit.ViewModels
                 if (DisplayName == value)
                     return;
                 _displayName = value;
-                OnPropertyChanged("DisplayName");
+                OnPropertyChanged();
             }
         }
 
         public virtual bool? OperationResult
         {
-            get
-            {
-                var hasOperationResult = ViewModel as IHasOperationResult;
-                if (hasOperationResult == null)
-                    return _operationResult;
-                return hasOperationResult.OperationResult;
-            }
+            get { return ViewModelExtensions.GetOperationResult(ViewModel, _operationResult); }
             protected set
             {
                 if (OperationResult == value)
                     return;
                 _operationResult = value;
-                OnPropertyChanged("OperationResult");
+                OnPropertyChanged();
             }
         }
 
@@ -205,7 +199,7 @@ namespace MugenMvvmToolkit.ViewModels
                     _isSelected = value;
                 else
                     selectable.IsSelected = value;
-                OnPropertyChanged("IsSelected");
+                OnPropertyChanged();
             }
         }
 

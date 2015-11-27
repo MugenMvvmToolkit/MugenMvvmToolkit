@@ -23,7 +23,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
@@ -46,6 +45,14 @@ namespace MugenMvvmToolkit.ViewModels
         public static Guid GetViewModelId(this IViewModel viewModel)
         {
             return ViewModelProvider.GetOrAddViewModelId(viewModel);
+        }
+
+        public static bool? GetOperationResult(IViewModel viewModel, bool? defaultValue = null)
+        {
+            var hasOperationResult = viewModel as IHasOperationResult;
+            if (hasOperationResult == null)
+                return defaultValue;
+            return hasOperationResult.OperationResult;
         }
 
         public static string GetViewName([NotNull] this IViewModel viewModel, IDataContext context = null)
@@ -197,7 +204,7 @@ namespace MugenMvvmToolkit.ViewModels
         }
 
         [Pure]
-        public static IViewModel GetViewModel([NotNull] this IViewModelProvider viewModelProvider, [NotNull] Type viewModelType, IViewModel parentViewModel = null, 
+        public static IViewModel GetViewModel([NotNull] this IViewModelProvider viewModelProvider, [NotNull] Type viewModelType, IViewModel parentViewModel = null,
             ObservationMode? observationMode = null, params DataConstantValue[] parameters)
         {
             return GetViewModel(viewModelProvider, viewModelType, MergeParameters(parentViewModel, observationMode, parameters));
@@ -305,7 +312,6 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Validatable view model extensions
 
-        [SuppressTaskBusyHandler]
         public static Task ValidateAsync<T>([NotNull] this T validatableViewModel, [NotNull] Func<Expression<Func<T, object>>> getMember)
             where T : IValidatorAggregator
         {
@@ -313,7 +319,6 @@ namespace MugenMvvmToolkit.ViewModels
             return validatableViewModel.ValidateAsync(getMember.GetMemberName());
         }
 
-        [SuppressTaskBusyHandler]
         public static Task DisableValidationAsync<T>([NotNull] this T validatableViewModel, [NotNull] Func<Expression<Func<T, object>>> getMember)
             where T : IValidatorAggregator
         {
@@ -321,7 +326,6 @@ namespace MugenMvvmToolkit.ViewModels
             return validatableViewModel.DisableValidationAsync(getMember.GetMemberName());
         }
 
-        [SuppressTaskBusyHandler]
         public static Task DisableValidationAsync([NotNull] this IValidatorAggregator validatableViewModel,
             [NotNull] string propertyName)
         {
@@ -332,7 +336,6 @@ namespace MugenMvvmToolkit.ViewModels
             return validatableViewModel.ValidateAsync(propertyName);
         }
 
-        [SuppressTaskBusyHandler]
         public static Task EnableValidationAsync<T>([NotNull] this T validatableViewModel, [NotNull] Func<Expression<Func<T, object>>> getMember)
             where T : IValidatorAggregator
         {
@@ -340,7 +343,6 @@ namespace MugenMvvmToolkit.ViewModels
             return validatableViewModel.EnableValidationAsync(getMember.GetMemberName());
         }
 
-        [SuppressTaskBusyHandler]
         public static Task EnableValidationAsync([NotNull] this IValidatorAggregator validatableViewModel,
             [NotNull] string propertyName)
         {

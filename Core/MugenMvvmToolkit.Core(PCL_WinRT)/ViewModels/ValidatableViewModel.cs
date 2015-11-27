@@ -116,7 +116,6 @@ namespace MugenMvvmToolkit.ViewModels
             ToolkitExtensions.SetValidatorErrors(this, property, errors);
         }
 
-        [SuppressTaskBusyHandler]
         protected Task ValidateAsync<TModel>(Func<Expression<Func<TModel, object>>> getProperty)
         {
             Should.NotBeNull(getProperty, "getProperty");
@@ -246,7 +245,6 @@ namespace MugenMvvmToolkit.ViewModels
             return true;
         }
 
-        [SuppressTaskBusyHandler]
         protected virtual Task ValidateInstanceInternal(object instanceToValidate)
         {
             List<IValidator> list;
@@ -257,7 +255,6 @@ namespace MugenMvvmToolkit.ViewModels
             return ToolkitExtensions.WhenAll(list.ToArrayEx(validator => validator.ValidateAsync()));
         }
 
-        [SuppressTaskBusyHandler]
         protected virtual Task ValidateInternal(string propertyName)
         {
             var tasks = new List<Task>();
@@ -271,7 +268,6 @@ namespace MugenMvvmToolkit.ViewModels
             return ToolkitExtensions.WhenAll(tasks.ToArrayEx());
         }
 
-        [SuppressTaskBusyHandler]
         protected virtual Task ValidateInternal()
         {
             var tasks = new List<Task>();
@@ -353,7 +349,7 @@ namespace MugenMvvmToolkit.ViewModels
                 if (Equals(_createContext, value))
                     return;
                 _createContext = value;
-                OnPropertyChanged("CreateContext");
+                OnPropertyChanged();
             }
         }
 
@@ -434,7 +430,6 @@ namespace MugenMvvmToolkit.ViewModels
             return result;
         }
 
-        [SuppressTaskBusyHandler]
         public Task ValidateInstanceAsync(object instanceToValidate)
         {
             Should.NotBeNull(instanceToValidate, "instanceToValidate");
@@ -445,7 +440,6 @@ namespace MugenMvvmToolkit.ViewModels
             return task.WithTaskExceptionHandler(this);
         }
 
-        [SuppressTaskBusyHandler]
         public Task ValidateAsync(string propertyName)
         {
             Should.NotBeNull(propertyName, "propertyName");
@@ -455,7 +449,6 @@ namespace MugenMvvmToolkit.ViewModels
             return task.WithTaskExceptionHandler(this);
         }
 
-        [SuppressTaskBusyHandler]
         public Task ValidateAsync()
         {
             Task task;

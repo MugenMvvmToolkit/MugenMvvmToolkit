@@ -332,7 +332,7 @@ namespace MugenMvvmToolkit.ViewModels
                 if (Equals(_iocContainer, value))
                     return;
                 _iocContainer = value;
-                OnPropertyChanged("IocContainer");
+                OnPropertyChanged();
             }
         }
 

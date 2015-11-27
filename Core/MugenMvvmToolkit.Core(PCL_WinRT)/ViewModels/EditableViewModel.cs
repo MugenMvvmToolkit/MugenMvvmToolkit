@@ -73,7 +73,7 @@ namespace MugenMvvmToolkit.ViewModels
             {
                 if (value.Equals(_isNewRecord)) return;
                 _isNewRecord = value;
-                OnPropertyChanged("IsNewRecord");
+                OnPropertyChanged();
             }
         }
 
@@ -139,7 +139,7 @@ namespace MugenMvvmToolkit.ViewModels
                 if (ReferenceEquals(value, _entity))
                     return;
                 _entity = value;
-                OnPropertyChanged("Entity");
+                OnPropertyChanged();
             }
         }
 
