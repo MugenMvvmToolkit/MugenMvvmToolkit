@@ -154,7 +154,6 @@
     <Compile Include="TestInfrastructure\ViewModelProviderMock.cs" />
     <Compile Include="TestInfrastructure\ViewModelSettingsMock.cs" />
     <Compile Include="TestInfrastructure\ViewPageMappingProviderMock.cs" />
-    <Compile Include="TestInfrastructure\VisualStateManagerMock.cs" />
     <Compile Include="TestModels\BusyTokenMock.cs" />
     <Compile Include="TestModels\DialogViewMock.cs" />
     <Compile Include="TestModels\DisposableObject.cs" />
