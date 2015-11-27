@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -292,6 +293,17 @@ namespace MugenMvvmToolkit
         public static void SetValueEx<T>([NotNull] this MemberInfo member, object target, T value)
         {
             ServiceProvider.ReflectionManager.GetMemberSetter<T>(member).Invoke(target, value);
+        }
+
+        public static object GetDefaultValue(this Type type)
+        {
+#if PCL_WINRT
+            if (type.GetTypeInfo().IsValueType)
+#else
+            if (type.IsValueType)
+#endif
+                return Activator.CreateInstance(type);
+            return null;
         }
 
         internal static object GetDataContext(object item)
@@ -734,6 +746,23 @@ namespace MugenMvvmToolkit
                 }
                 return value;
             }
+        }
+
+        internal static object Convert(object value, Type type)
+        {
+            if (value == null)
+                return type.GetDefaultValue();
+            if (type.IsInstanceOfType(value))
+                return value;
+            if (type == typeof(Guid))
+                return Guid.Parse(value.ToString());
+#if PCL_WINRT
+            return System.Convert.ChangeType(value, type, CultureInfo.CurrentCulture);
+#else
+            if (value is IConvertible)
+                return System.Convert.ChangeType(value, type, CultureInfo.CurrentCulture);
+            return value;
+#endif
         }
 
 #if PCL_WINRT

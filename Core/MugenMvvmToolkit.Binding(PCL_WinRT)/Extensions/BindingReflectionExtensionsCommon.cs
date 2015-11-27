@@ -107,11 +107,7 @@ namespace MugenMvvmToolkit.Binding
         internal static object Convert(IBindingMemberInfo member, Type type, object value)
         {
             if (value == null)
-            {
-                if (type.IsValueType() && !type.IsNullableType())
-                    return Activator.CreateInstance(type);
-                return null;
-            }
+                return type.GetDefaultValue();
             if (type.IsInstanceOfType(value))
                 return value;
 #if PCL_WINRT
@@ -185,7 +181,7 @@ namespace MugenMvvmToolkit.Binding
             return IsNullableType(type) ? type.GetGenericArguments()[0] : type;
         }
 
-        internal static bool IsNullableType(this Type type)
+        private static bool IsNullableType(this Type type)
         {
             return type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }

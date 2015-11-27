@@ -104,11 +104,6 @@ namespace MugenMvvmToolkit.Binding
 
         #region Methods
 
-        internal static object GetDefaultValue(this Type type)
-        {
-            return type.IsValueType() ? Activator.CreateInstance(type) : null;
-        }
-
         internal static Func<object, object> GetGetPropertyAccessor(this PropertyInfo propertyInfo, MethodInfo getMethod, string path)
         {
             Should.NotBeNull(propertyInfo, "propertyInfo");
