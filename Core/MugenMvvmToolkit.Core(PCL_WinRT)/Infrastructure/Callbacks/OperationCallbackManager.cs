@@ -70,7 +70,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         private static readonly DataConstant<CallbackDictionary> CallbackConstant;
 
-        private readonly object _locker;
         private readonly ISerializer _serializer;
 
         #endregion
@@ -86,7 +85,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         {
             Should.NotBeNull(serializer, "serializer");
             _serializer = serializer;
-            _locker = new object();
         }
 
         #endregion
@@ -111,13 +109,17 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 Tracer.Info("Callback '{0}' was registered, target: '{1}'", operation, target);
         }
 
-        public void SetResult(object target, IOperationResult result)
+        public void SetResult(IOperationResult result)
         {
-            Should.NotBeNull(target, "target");
             Should.NotBeNull(result, "result");
-            SetResultInternal(target, result);
+            var invoked = SetResultInternal(result);
             if (Tracer.TraceInformation)
-                Tracer.Info("Callback '{0}' was invoked, target: '{1}'", result.Operation, target);
+            {
+                if (invoked)
+                    Tracer.Info("The callback '{0}' was invoked, source: '{1}'", result.Operation, result.Source);
+                else
+                    Tracer.Info("The callback '{0}' was not found, source: '{1}'", result.Operation.Id, result.Source);
+            }
         }
 
         #endregion
@@ -131,13 +133,10 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             var viewModel = target as IViewModel;
             if (viewModel != null && callback.IsSerializable)
             {
-                lock (_locker)
+                if (!viewModel.Settings.State.TryGetData(CallbackConstant, out callbacks))
                 {
-                    if (!viewModel.Settings.State.TryGetData(CallbackConstant, out callbacks))
-                    {
-                        callbacks = new CallbackDictionary();
-                        viewModel.Settings.State.Add(CallbackConstant, callbacks);
-                    }
+                    callbacks = new CallbackDictionary();
+                    viewModel.Settings.State.Add(CallbackConstant, callbacks);
                 }
             }
             else
@@ -147,29 +146,27 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             RegisterInternal(callbacks, operation.Id, callback);
         }
 
-        protected virtual void SetResultInternal([NotNull] object target, [NotNull] IOperationResult result)
+        protected virtual bool SetResultInternal([NotNull] IOperationResult result)
         {
             string id = result.Operation.Id;
+            var target = result.Source;
             IEnumerable<object> callbacks = null;
             var viewModel = target as IViewModel;
             if (viewModel != null)
             {
-                lock (_locker)
+                CallbackDictionary data;
+                if (viewModel.Settings.State.TryGetData(CallbackConstant, out data))
                 {
-                    CallbackDictionary data;
-                    if (viewModel.Settings.State.TryGetData(CallbackConstant, out data))
+                    lock (data)
                     {
-                        lock (data)
+                        List<object> list;
+                        if (data.TryGetValue(id, out list))
                         {
-                            List<object> list;
-                            if (data.TryGetValue(id, out list))
-                            {
-                                callbacks = list;
-                                data.Remove(id);
-                            }
-                            if (data.Count == 0)
-                                viewModel.Settings.State.Remove(CallbackConstant);
+                            callbacks = list;
+                            data.Remove(id);
                         }
+                        if (data.Count == 0)
+                            viewModel.Settings.State.Remove(CallbackConstant);
                     }
                 }
             }
@@ -189,13 +186,10 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 }
             }
             if (callbacks == null)
-            {
-                if (Tracer.TraceInformation)
-                    Tracer.Info("The callbacks for operation '{0}' was not found, target: '{1}'", id, target);
-                return;
-            }
+                return false;
             foreach (IOperationCallback callback in callbacks.OfType<IOperationCallback>())
                 callback.Invoke(result);
+            return true;
         }
 
         private void RegisterInternal(CallbackDictionary callbacks, string id, IOperationCallback callback)

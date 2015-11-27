@@ -24,9 +24,8 @@ namespace MugenMvvmToolkit.Interfaces.Callbacks
 {
     public interface IOperationCallbackManager
     {
-        void Register([NotNull] OperationType operation, [NotNull] object target, [NotNull] IOperationCallback callback,
-            [CanBeNull] IDataContext context);
+        void Register([NotNull] OperationType operation, [NotNull] object target, [NotNull] IOperationCallback callback, [CanBeNull] IDataContext context);
 
-        void SetResult(object target, [NotNull] IOperationResult result);
+        void SetResult([NotNull] IOperationResult result);
     }
 }
