@@ -30,8 +30,6 @@ namespace MugenMvvmToolkit.Interfaces.Collections
         [NotNull]
         IStateTransitionManager StateTransitionManager { get; set; }
 
-        bool ValidateState { get; set; }
-
         int Count { get; }
 
         bool HasChanges { get; }
@@ -46,13 +44,12 @@ namespace MugenMvvmToolkit.Interfaces.Collections
         IList<TEntity> Find<TEntity>([CanBeNull] Func<TrackingEntity<TEntity>, bool> predicate);
 
         [NotNull]
-        IList<IEntityStateEntry> GetChanges(
-            EntityState entityState = EntityState.Added | EntityState.Modified | EntityState.Deleted);
+        IList<IEntityStateEntry> GetChanges(EntityState entityState = EntityState.Added | EntityState.Modified | EntityState.Deleted);
 
         [Pure]
         EntityState GetState([NotNull] object value);
 
-        bool UpdateState([NotNull] object value, EntityState state, bool? validateState = null);
+        bool UpdateState([NotNull] object value, EntityState state);
 
         void Clear();
 

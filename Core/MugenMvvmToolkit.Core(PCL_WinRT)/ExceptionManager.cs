@@ -146,13 +146,6 @@ namespace MugenMvvmToolkit
                 "The dialog is closed. Before close the dialog you should show it.");
         }
 
-        internal static Exception NotConvertableState(EntityState from, EntityState to)
-        {
-            return
-                new InvalidOperationException(string.Format("The '{0}' cannot be converted to the '{1}'.",
-                    from, to));
-        }
-
         internal static Exception IntOutOfRangeCollection(string paramName)
         {
             return new ArgumentOutOfRangeException(paramName, "Index must be within the bounds of the collection.");

@@ -29,6 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Collections;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -655,7 +656,7 @@ namespace MugenMvvmToolkit
         {
             return itemsSource != null && itemsSource.IndexOf(item) > 0;
         }
-
+        
         public static bool CanMoveDownItem([CanBeNull] this IList itemsSource, [CanBeNull] object item)
         {
             if (itemsSource == null)
@@ -990,13 +991,13 @@ namespace MugenMvvmToolkit
         public static IAsyncOperationAwaiter ConfigureAwait([NotNull] this IAsyncOperation operation, bool continueOnCapturedContext)
         {
             Should.NotBeNull(operation, "operation");
-            return ServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, new DataContext(DefaultOperationCallbackFactory.ContinueOnCapturedContextConstant.ToValue(continueOnCapturedContext)));
+            return ServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, new DataContext(OpeartionCallbackConstants.ContinueOnCapturedContext.ToValue(continueOnCapturedContext)));
         }
 
         public static IAsyncOperationAwaiter<TResult> ConfigureAwait<TResult>([NotNull] this IAsyncOperation<TResult> operation, bool continueOnCapturedContext)
         {
             Should.NotBeNull(operation, "operation");
-            return ServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, new DataContext(DefaultOperationCallbackFactory.ContinueOnCapturedContextConstant.ToValue(continueOnCapturedContext)));
+            return ServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, new DataContext(OpeartionCallbackConstants.ContinueOnCapturedContext.ToValue(continueOnCapturedContext)));
         }
 
         #endregion
@@ -1016,13 +1017,13 @@ namespace MugenMvvmToolkit
             model.SetProperty(ref field, newValue, expression.GetMemberName(), executionMode);
         }
 
-        public static void OnPropertyChanged([NotNull] this NotifyPropertyChangedBase model, string propName, ExecutionMode? executionMode = null)
+        public static void OnPropertyChanged([NotNull] this NotifyPropertyChangedBase model, string propertyName, ExecutionMode? executionMode = null)
         {
             Should.NotBeNull(model, "model");
             if (executionMode == null)
-                model.OnPropertyChanged(propName);
+                model.OnPropertyChanged(propertyName);
             else
-                model.OnPropertyChanged(propName, executionMode.Value);
+                model.OnPropertyChanged(propertyName, executionMode.Value);
         }
 
         public static void Register<T>([NotNull] this IValidatorProvider validatorProvider)
@@ -1361,12 +1362,11 @@ namespace MugenMvvmToolkit
             return GetMemberName(getLambdaExpression: expression);
         }
 
-        public static void SetStateForAll([NotNull] this ITrackingCollection collection, EntityState state,
-            bool? validateState = null)
+        public static void SetStateForAll([NotNull] this ITrackingCollection collection, EntityState state)
         {
             Should.NotBeNull(collection, "collection");
             foreach (var item in collection)
-                collection.UpdateState(item.Entity, state, validateState);
+                collection.UpdateState(item.Entity, state);
         }
 
         [Pure]
@@ -1378,57 +1378,53 @@ namespace MugenMvvmToolkit
             return snapshot.HasChanges(item, memberExpression.GetMemberName());
         }
 
-        public static void SetStateForAll([NotNull] this ITrackingCollection collection, [NotNull] Func<TrackingEntity<object>, bool> predicate, EntityState state, bool? validateState = null)
+        public static void SetStateForAll([NotNull] this ITrackingCollection collection, [NotNull] Func<TrackingEntity<object>, bool> predicate, EntityState state)
         {
             Should.NotBeNull(collection, "collection");
             Should.NotBeNull(predicate, "predicate");
             foreach (var item in collection)
             {
                 if (predicate(item))
-                    collection.UpdateState(item.Entity, state, validateState);
+                    collection.UpdateState(item.Entity, state);
             }
         }
 
-        public static bool UpdateState([NotNull] this ITrackingCollection collection, [NotNull] object item,
-            EntityState newState, EntityState updateState, bool? validateState = null)
+        public static bool UpdateState([NotNull] this ITrackingCollection collection, [NotNull] object item, EntityState newState, EntityState updateState)
         {
             Should.NotBeNull(collection, "collection");
             Should.NotBeNull(item, "item");
             if (collection.Contains(item))
-                return collection.UpdateState(item, updateState, validateState);
-            return collection.UpdateState(item, newState, validateState);
+                return collection.UpdateState(item, updateState);
+            return collection.UpdateState(item, newState);
         }
 
-        public static bool UpdateState([NotNull] this ITrackingCollection collection, [NotNull] IEntityStateEntry item,
-            bool? validateState = null)
+        public static bool UpdateState([NotNull] this ITrackingCollection collection, [NotNull] IEntityStateEntry item)
         {
             Should.NotBeNull(collection, "collection");
             Should.NotBeNull(item, "item");
-            return collection.UpdateState(item.Entity, item.State, validateState);
+            return collection.UpdateState(item.Entity, item.State);
         }
 
-        public static void UpdateStates([NotNull] this ITrackingCollection collection, [NotNull] IEnumerable items,
-            EntityState state, bool? validateState = null)
+        public static void UpdateStates([NotNull] this ITrackingCollection collection, [NotNull] IEnumerable items, EntityState state)
         {
             Should.NotBeNull(items, "items");
             foreach (object value in items)
-                collection.UpdateState(value, state, validateState);
+                collection.UpdateState(value, state);
         }
 
-        public static void UpdateStates([NotNull] this ITrackingCollection collection,
-            [NotNull] IEnumerable<IEntityStateEntry> items, bool? validateState = null)
+        public static void UpdateStates([NotNull] this ITrackingCollection collection, [NotNull] IEnumerable<IEntityStateEntry> items)
         {
             Should.NotBeNull(collection, "collection");
             Should.NotBeNull(items, "items");
             foreach (IEntityStateEntry entityStateEntry in items)
-                collection.UpdateState(entityStateEntry, validateState);
+                collection.UpdateState(entityStateEntry);
         }
 
         public static bool Detach([NotNull] this ITrackingCollection collection, [NotNull] object entity)
         {
             Should.NotBeNull(collection, "collection");
             Should.NotBeNull(entity, "entity");
-            return collection.UpdateState(entity, EntityState.Detached, false);
+            return collection.UpdateState(entity, EntityState.Detached);
         }
 
         [Pure]

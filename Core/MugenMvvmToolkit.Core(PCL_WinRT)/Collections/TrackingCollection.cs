@@ -30,12 +30,10 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Collections
 {
-    [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable, KnownType(typeof(StateTransitionManager)), KnownType(typeof(CompositeEqualityComparer))]
-    public class TrackingCollection : ITrackingCollection
+    [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable, KnownType(typeof(CompositeEqualityComparer))]
+    public class TrackingCollection : ITrackingCollection, IStateTransitionManager
     {
         #region Fields
-
-        private static readonly PropertyChangedEventArgs StateTransitionManagerArgs;
 
         [DataMember]
         internal readonly Dictionary<object, EntityState> ItemsInternal;
@@ -50,21 +48,19 @@ namespace MugenMvvmToolkit.Collections
 
         #region Constructors
 
-        static TrackingCollection()
+        public TrackingCollection()
+            : this(null)
         {
-            StateTransitionManagerArgs = new PropertyChangedEventArgs("StateTransitionManager");
         }
 
-        public TrackingCollection(IEqualityComparer<object> comparer = null)
+        public TrackingCollection(IEqualityComparer<object> comparer)
             : this(null, comparer)
         {
         }
 
         public TrackingCollection(IStateTransitionManager stateTransitionManager, IEqualityComparer<object> comparer = null)
         {
-            if (stateTransitionManager == null)
-                stateTransitionManager = Infrastructure.StateTransitionManager.Instance;
-            StateTransitionManagerInternal = stateTransitionManager;
+            StateTransitionManager = stateTransitionManager;
             ItemsInternal = new Dictionary<object, EntityState>(comparer ?? ReferenceEqualityComparer.Instance);
         }
 
@@ -134,21 +130,25 @@ namespace MugenMvvmToolkit.Collections
 
         #region Implementation of ITrackingCollection
 
-        public bool ValidateState { get; set; }
-
         public int Count
         {
             get { return ItemsInternal.Count; }
         }
 
+        [IgnoreDataMember]
         public IStateTransitionManager StateTransitionManager
         {
-            get { return StateTransitionManagerInternal; }
+            get
+            {
+                if (StateTransitionManagerInternal == null)
+                    return this;
+                return StateTransitionManagerInternal;
+            }
             set
             {
-                Should.PropertyNotBeNull(value);
-                StateTransitionManagerInternal = value;
-                OnPropertyChanged(StateTransitionManagerArgs);
+                if (value != this)
+                    StateTransitionManagerInternal = value;
+                OnPropertyChanged(new PropertyChangedEventArgs("StateTransitionManager"));
             }
         }
 
@@ -225,12 +225,12 @@ namespace MugenMvvmToolkit.Collections
             }
         }
 
-        public bool UpdateState(object value, EntityState state, bool? validateState = null)
+        public bool UpdateState(object value, EntityState state)
         {
             Should.NotBeNull(value, "value");
             bool updated;
             lock (Locker)
-                updated = UpdateStateInternal(value, state, validateState.GetValueOrDefault(ValidateState));
+                updated = UpdateStateInternal(value, state);
             if (updated)
             {
                 OnPropertyChanged(Empty.HasChangesChangedArgs);
@@ -255,16 +255,51 @@ namespace MugenMvvmToolkit.Collections
 
         #endregion
 
+        #region Implementation of IStateTransitionManager
+
+        EntityState IStateTransitionManager.ChangeState(object item, EntityState @from, EntityState to)
+        {
+            switch (from)
+            {
+                case EntityState.Unchanged:
+                case EntityState.Modified:
+                case EntityState.Detached:
+                    return to;
+                case EntityState.Added:
+                    switch (to)
+                    {
+                        case EntityState.Deleted:
+                            return EntityState.Detached;
+                        case EntityState.Modified:
+                            return EntityState.Added;
+                        default:
+                            return to;
+                    }
+                case EntityState.Deleted:
+                    switch (to)
+                    {
+                        case EntityState.Added:
+                            return EntityState.Modified;
+                        default:
+                            return to;
+                    }
+                default:
+                    throw ExceptionManager.EnumOutOfRange("from", from);
+            }
+        }
+
+        #endregion
+
         #region Methods
 
-        protected virtual bool UpdateStateInternal(object value, EntityState state, bool validate)
+        protected virtual bool UpdateStateInternal(object value, EntityState state)
         {
             if (value == null)
                 return false;
             EntityState entityState;
             if (!ItemsInternal.TryGetValue(value, out entityState))
             {
-                state = StateTransitionManager.ChangeState(EntityState.Detached, state, validate);
+                state = StateTransitionManager.ChangeState(value, EntityState.Detached, state);
                 if (!state.IsDetached())
                 {
                     ItemsInternal[value] = state;
@@ -274,7 +309,7 @@ namespace MugenMvvmToolkit.Collections
                 }
                 return false;
             }
-            state = StateTransitionManager.ChangeState(entityState, state, validate);
+            state = StateTransitionManager.ChangeState(value, entityState, state);
             //To update key value
             ItemsInternal.Remove(value);
             if (entityState.IsAddedOrModifiedOrDeleted())
@@ -310,6 +345,6 @@ namespace MugenMvvmToolkit.Collections
             return new TrackingCollection(items, StateTransitionManager, ItemsInternal.Comparer);
         }
 
-        #endregion
+        #endregion        
     }
 }
