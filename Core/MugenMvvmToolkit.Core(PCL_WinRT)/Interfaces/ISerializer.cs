@@ -16,7 +16,6 @@
 
 #endregion
 
-using System;
 using System.IO;
 using JetBrains.Annotations;
 
@@ -24,10 +23,6 @@ namespace MugenMvvmToolkit.Interfaces
 {
     public interface ISerializer
     {
-        void AddKnownType([NotNull] Type type);
-
-        bool RemoveKnownType([NotNull] Type type);
-
         [NotNull]
         Stream Serialize([NotNull] object item);
 

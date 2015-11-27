@@ -30,12 +30,12 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Nested types
 
-        [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable]
+        [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true, Name = "sdc"), Serializable]
         internal sealed class DataContainer
         {
             #region Properties
 
-            [DataMember]
+            [DataMember(Name = "d")]
             public object Data { get; set; }
 
             #endregion
@@ -47,7 +47,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private readonly HashSet<Type> _knownTypes;
         private DataContractSerializer _contractSerializer;
-        private bool _isDirty;
 
         #endregion
 
@@ -61,40 +60,18 @@ namespace MugenMvvmToolkit.Infrastructure
             _knownTypes.Add(typeof(DataConstant));
             _knownTypes.Add(typeof(DataContext));
             _knownTypes.Add(typeof(Dictionary<string, object>));
-            _isDirty = true;
+            _contractSerializer = new DataContractSerializer(typeof(DataContainer), _knownTypes);
         }
 
         #endregion
 
         #region Implementation of ISerializer
 
-        public void AddKnownType(Type type)
-        {
-            lock (_knownTypes)
-            {
-                if (_knownTypes.Add(type))
-                    _isDirty = true;
-            }
-        }
-
-        public bool RemoveKnownType(Type type)
-        {
-            lock (_knownTypes)
-            {
-                if (_knownTypes.Remove(type))
-                {
-                    _isDirty = false;
-                    return true;
-                }
-            }
-            return false;
-        }
-
         public Stream Serialize(object item)
         {
             Should.NotBeNull(item, "item");
-            AddKnownType(item.GetType());
-            EnsureInitialized();
+            if (_knownTypes.Add(item.GetType()))
+                _contractSerializer = new DataContractSerializer(typeof(DataContainer), _knownTypes);
             item = new DataContainer { Data = item };
             var ms = new MemoryStream();
             _contractSerializer.WriteObject(ms, item);
@@ -104,7 +81,6 @@ namespace MugenMvvmToolkit.Infrastructure
         public object Deserialize(Stream stream)
         {
             Should.NotBeNull(stream, "stream");
-            EnsureInitialized();
             return ((DataContainer)_contractSerializer.ReadObject(stream)).Data;
         }
 
@@ -125,20 +101,6 @@ namespace MugenMvvmToolkit.Infrastructure
                     if (!type.IsAbstract && !type.IsGenericTypeDefinition && type.IsDefined(typeof(DataContractAttribute), true))
 #endif
                         _knownTypes.Add(type);
-                }
-            }
-        }
-
-        private void EnsureInitialized()
-        {
-            if (!_isDirty)
-                return;
-            lock (_knownTypes)
-            {
-                if (_isDirty)
-                {
-                    _contractSerializer = new DataContractSerializer(typeof(DataContainer), _knownTypes);
-                    _isDirty = false;
                 }
             }
         }
