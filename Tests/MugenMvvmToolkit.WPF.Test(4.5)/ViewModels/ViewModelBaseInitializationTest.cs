@@ -150,30 +150,6 @@ namespace MugenMvvmToolkit.Test.ViewModels
         }
 
         [TestMethod]
-        public void DisplayNameShouldBeInitializedIfProviderCanBeResolved()
-        {
-            const string name = "name";
-            ThreadManager.ImmediateInvokeAsync = true;
-            Settings.WithoutClone = true;
-            DisplayNameProvider.GetNameDelegate = info => name;
-            ViewModelBase viewModel = GetViewModelBase();
-
-            var testViewModel = viewModel.GetViewModel<ViewModelBaseWithDisplayName>();
-            testViewModel.DisplayName.ShouldEqual(name);
-        }
-
-        [TestMethod]
-        public void DisplayNameShouldNotBeInitializedIfProviderCannotBeResolved()
-        {
-            ThreadManager.ImmediateInvokeAsync = true;
-            CanBeResolvedTypes.Remove(typeof(IDisplayNameProvider));
-            ViewModelBase viewModel = GetViewModelBase();
-
-            var testViewModel = viewModel.GetViewModel<ViewModelBaseWithDisplayName>();
-            testViewModel.DisplayName.ShouldBeNull();
-        }
-
-        [TestMethod]
         public void InitializedEventShouldBeInvokedAfterViewModelWasInitialized()
         {
             var testViewModel = new TestViewModelBase();

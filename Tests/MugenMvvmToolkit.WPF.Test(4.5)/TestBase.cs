@@ -73,8 +73,6 @@ namespace MugenMvvmToolkit.Test
 
         protected ViewModelProvider ViewModelProvider { get; set; }
 
-        protected VisualStateManagerMock VisualStateManager { get; set; }
-
         protected OperationCallbackManagerMock OperationCallbackManager { get; set; }
 
         #endregion
@@ -93,7 +91,6 @@ namespace MugenMvvmToolkit.Test
                 typeof (IViewManager),
                 typeof (IDisplayNameProvider),
                 typeof(IViewModelProvider),
-                typeof(IVisualStateManager),
                 typeof(OperationCallbackManagerMock)
             };
             OperationCallbackManager = new OperationCallbackManagerMock();
@@ -170,8 +167,6 @@ namespace MugenMvvmToolkit.Test
                 return ViewManager;
             if (type == typeof(IDisplayNameProvider))
                 return DisplayNameProvider;
-            if (type == typeof(IVisualStateManager))
-                return VisualStateManager;
             if (type == typeof(IViewModelProvider))
                 return ViewModelProvider;
             if (type == typeof(IOperationCallbackManager))

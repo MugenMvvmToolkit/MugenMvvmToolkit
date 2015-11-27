@@ -8,7 +8,6 @@ using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Test.Infrastructure;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestModels;
 using Should;
@@ -33,42 +32,40 @@ namespace MugenMvvmToolkit.Test.Collections
             bool isInvoked = false;
             var oldState = EntityState.Unchanged;
             var newState = EntityState.Unchanged;
-            bool validate = false;
 
-            _transitionManager.ChangeState = (state, entityState, arg3) =>
+            _transitionManager.ChangeState = (item, state, entityState) =>
             {
                 isInvoked = true;
                 state.ShouldEqual(oldState);
                 entityState.ShouldEqual(newState);
-                arg3.ShouldEqual(validate);
+                target.ShouldEqual(item);
                 return entityState;
             };
             ITrackingCollection collection = Create(_transitionManager);
 
             oldState = EntityState.Detached;
             newState = EntityState.Added;
-            collection.UpdateState(target, newState, validate);
+            collection.UpdateState(target, newState);
             isInvoked.ShouldBeTrue();
 
             isInvoked = false;
             oldState = EntityState.Added;
             newState = EntityState.Modified;
-            validate = true;
-            collection.UpdateState(target, newState, validate);
+            collection.UpdateState(target, newState);
         }
 
         [TestMethod]
         public void CollectionShouldUseStateFromManager()
         {
             var target = new object();
-            _transitionManager.ChangeState = (state, entityState, arg3) => entityState;
+            _transitionManager.ChangeState = (item, state, entityState) => entityState;
             var collection = Create(_transitionManager);
 
             collection.GetState(target).ShouldEqual(EntityState.Detached);
-            collection.UpdateState(target, EntityState.Added, false);
+            collection.UpdateState(target, EntityState.Added);
             collection.GetState(target).ShouldEqual(EntityState.Added);
 
-            collection.UpdateState(target, EntityState.Unchanged, false);
+            collection.UpdateState(target, EntityState.Unchanged);
             collection.GetState(target).ShouldEqual(EntityState.Unchanged);
         }
 
@@ -76,14 +73,14 @@ namespace MugenMvvmToolkit.Test.Collections
         public void CollectionShouldRemoveObjectOnDetachState()
         {
             var target = new object();
-            _transitionManager.ChangeState = (state, entityState, arg3) => entityState;
+            _transitionManager.ChangeState = (item, state, entityState) => entityState;
             var collection = Create(_transitionManager);
 
             collection.GetState(target).ShouldEqual(EntityState.Detached);
-            collection.UpdateState(target, EntityState.Added, false);
+            collection.UpdateState(target, EntityState.Added);
             collection.GetState(target).ShouldEqual(EntityState.Added);
 
-            collection.UpdateState(target, EntityState.Detached, false);
+            collection.UpdateState(target, EntityState.Detached);
             collection.GetState(target).ShouldEqual(EntityState.Detached);
             collection.Count.ShouldEqual(0);
         }
@@ -93,7 +90,7 @@ namespace MugenMvvmToolkit.Test.Collections
         {
             const int count = 100;
             var items = new List<object>();
-            _transitionManager.ChangeState = (state, entityState, arg3) => entityState;
+            _transitionManager.ChangeState = (item, state, entityState) => entityState;
             var collection = Create(_transitionManager);
             collection.HasChanges.ShouldBeFalse();
 

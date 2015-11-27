@@ -111,7 +111,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             };
             DataBinding binding = CreateDataBinding(target, source, bindingManager);
             target.SetValue = (func, context, arg3) => { throw new TestException(); };
-            binding.BindingException += (sender, args) =>
+            binding.BindingUpdated += (sender, args) =>
             {
                 args.Action.ShouldEqual(BindingAction.UpdateTarget);
                 args.Exception.InnerException.ShouldBeType<TestException>();
@@ -140,7 +140,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
 
             DataBinding binding = CreateDataBinding(target, source, bindingManager);
             source.SetValue = (func, context, arg3) => { throw new TestException(); };
-            binding.BindingException += (sender, args) =>
+            binding.BindingUpdated += (sender, args) =>
             {
                 args.Action.ShouldEqual(BindingAction.UpdateSource);
                 args.Exception.InnerException.ShouldBeType<TestException>();

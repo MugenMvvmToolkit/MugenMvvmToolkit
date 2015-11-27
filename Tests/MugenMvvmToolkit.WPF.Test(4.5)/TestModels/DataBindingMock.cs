@@ -54,17 +54,9 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         public event EventHandler<IDataBinding, BindingEventArgs> BindingUpdated;
 
-        public event EventHandler<IDataBinding, BindingExceptionEventArgs> BindingException;
-
         #endregion
 
         #region Methods
-
-        public void RaiseBindingException(BindingExceptionEventArgs e)
-        {
-            var handler = BindingException;
-            if (handler != null) handler(this, e);
-        }
 
         public void RaiseBindingUpdated(BindingEventArgs e)
         {

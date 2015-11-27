@@ -8,17 +8,17 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
     {
         #region Properties
 
-        public Func<EntityState, EntityState, bool, EntityState> ChangeState { get; set; }
+        public Func<object, EntityState, EntityState, EntityState> ChangeState { get; set; }
 
         #endregion
 
         #region Implementation of IStateTransitionManager
 
-        EntityState IStateTransitionManager.ChangeState(EntityState @from, EntityState to, bool validateState)
+        EntityState IStateTransitionManager.ChangeState(object item, EntityState @from, EntityState to)
         {
             if (ChangeState == null)
                 return to;
-            return ChangeState(@from, to, validateState);
+            return ChangeState(item, @from, to);
         }
 
         #endregion

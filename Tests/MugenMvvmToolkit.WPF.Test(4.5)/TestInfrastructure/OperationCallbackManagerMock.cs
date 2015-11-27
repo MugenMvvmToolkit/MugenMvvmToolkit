@@ -26,12 +26,12 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
                 Register(operation, source, callback, context);
         }
 
-        void IOperationCallbackManager.SetResult(object source, IOperationResult result)
+        void IOperationCallbackManager.SetResult(IOperationResult result)
         {
             if (SetResult == null)
                 Tracer.Warn("OperationCallbackManagerMock: SetResult == null");
             else
-                SetResult(source, result);
+                SetResult(result.Source, result);
         }
 
         #endregion

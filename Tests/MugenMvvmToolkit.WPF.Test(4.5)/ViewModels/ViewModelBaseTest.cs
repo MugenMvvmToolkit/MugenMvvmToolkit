@@ -401,13 +401,11 @@ namespace MugenMvvmToolkit.Test.ViewModels
         [TestMethod]
         public void VmShouldThrowsExceptionDisposed()
         {
-            ViewModelBase viewModel = GetViewModelBase();
+            IViewModel viewModel = GetViewModelBase();
             viewModel.Dispose();
             viewModel.IsDisposed.ShouldBeTrue();
 
-            ShouldThrow<ObjectDisposedException>(() => viewModel.GetViewModel<TestViewModelBase>());
-            ShouldThrow<ObjectDisposedException>(() => viewModel.GetViewModel(typeof(TestViewModelBase)));
-            ShouldThrow<ObjectDisposedException>(() => viewModel.GetViewModel(adapter => new TestViewModelBase()));
+            ShouldThrow<ObjectDisposedException>(() => viewModel.InitializeViewModel(DataContext.Empty));
         }
 
         [TestMethod]
