@@ -21,8 +21,10 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.EventArg;
 
 // ReSharper disable once CheckNamespace
+
 namespace MugenMvvmToolkit.DataConstants
 {
     public static class ViewModelConstants
@@ -35,11 +37,10 @@ namespace MugenMvvmToolkit.DataConstants
 
         public static readonly DataConstant<Guid> Id;
         public static readonly DataConstant<object> View;
-        public static readonly DataConstant<object> StateManager;
         public static readonly DataConstant<WeakReference> ParentViewModel;
         public static readonly DataConstant<IViewModel> ViewModel;
-        public static readonly DataConstant<bool> StateNotNeeded;
         public static readonly DataConstant<bool> StateRestored;
+        public static readonly DataConstant<bool> StateNotNeeded;
 
         #endregion
 
@@ -52,7 +53,6 @@ namespace MugenMvvmToolkit.DataConstants
             View = DataConstant.Create(() => View, true);
             ViewModelTypeName = DataConstant.Create(() => ViewModelTypeName, true);
             ViewModelState = DataConstant.Create(() => ViewModelState, true);
-            StateManager = DataConstant.Create(() => StateManager, true);
             ViewModel = DataConstant.Create(() => ViewModel, true);
             ParentViewModel = DataConstant.Create(() => ParentViewModel, true);
             StateNotNeeded = DataConstant.Create(() => StateNotNeeded);
@@ -141,6 +141,30 @@ namespace MugenMvvmToolkit.DataConstants
         static OpeartionCallbackConstants()
         {
             ContinueOnCapturedContext = DataConstant.Create(() => ContinueOnCapturedContext);
+        }
+
+        #endregion
+    }
+
+    public static class NavigationProviderConstants
+    {
+        #region Fields
+
+        public static readonly DataConstant<NavigationEventArgsBase> NavigationArgs;
+        public static readonly DataConstant<NavigatingCancelEventArgsBase> NavigatingCancelArgs;
+        public static readonly DataConstant<string> OperationId;
+        public static readonly DataConstant<bool> ClearNavigationCache;
+
+        #endregion
+
+        #region Constructors
+
+        static NavigationProviderConstants()
+        {
+            NavigationArgs = DataConstant.Create(() => NavigationArgs, true);
+            NavigatingCancelArgs = DataConstant.Create(() => NavigatingCancelArgs, true);
+            ClearNavigationCache = DataConstant.Create(() => ClearNavigationCache);
+            OperationId = DataConstant.Create(() => OperationId, false);
         }
 
         #endregion

@@ -179,16 +179,16 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             return intent.GetStringExtra(ParameterString);
         }
 
-        protected virtual void StartActivity(Context context, Intent intent, IDataContext dataContext)
+        protected virtual void StartActivity(Context context, Intent intent, IViewMappingItem source, IDataContext dataContext)
         {
             var activity = context.GetActivity();
-            Action<Context, Intent, IDataContext> startAction = null;
+            Action<Context, Intent, IViewMappingItem, IDataContext> startAction = null;
             if (activity != null)
                 startAction = activity.GetBindingMemberValue(AttachedMembers.Activity.StartActivityDelegate);
             if (startAction == null)
                 context.StartActivity(intent);
             else
-                startAction(context, intent, dataContext);
+                startAction(context, intent, source, dataContext);
         }
 
         #endregion
@@ -333,13 +333,14 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 }
                 else
                     intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
-                dataContext.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
+                dataContext.AddOrUpdate(NavigationProviderConstants.ClearNavigationCache, true);
             }
+            //intent.AddFlags(ActivityFlags.ReorderToFront);
             if (parameter != null)
                 intent.PutExtra(ParameterString, parameter);
             _isNew = true;
             _parameter = parameter;
-            StartActivity(context, intent, dataContext);
+            StartActivity(context, intent, source, dataContext);
             return true;
         }
 

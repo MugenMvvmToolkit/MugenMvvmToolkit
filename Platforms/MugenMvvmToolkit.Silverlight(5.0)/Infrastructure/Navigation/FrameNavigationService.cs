@@ -279,7 +279,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
                 return;
             while (navigationService.BackStack.OfType<object>().Any())
                 navigationService.RemoveBackEntry();
-            context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
+            context.AddOrUpdate(NavigationProviderConstants.ClearNavigationCache, true);
 #endif
         }
 

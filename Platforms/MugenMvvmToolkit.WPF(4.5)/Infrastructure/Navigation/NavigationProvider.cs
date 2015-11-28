@@ -251,11 +251,6 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         #region Fields
 
-        public static readonly DataConstant<NavigationEventArgsBase> NavigationArgsConstant;
-        public static readonly DataConstant<NavigatingCancelEventArgsBase> NavigatingCancelArgsConstant;
-        public static readonly DataConstant<string> OperationIdConstant;
-        public static readonly DataConstant<bool> ClearNavigationCache;
-
         protected static readonly DataConstant<Type> ViewModelTypeConstant;
         private static readonly string[] IdSeparator = { "~n|v~" };
 
@@ -285,11 +280,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         static NavigationProvider()
         {
-            NavigationArgsConstant = DataConstant.Create(() => NavigationArgsConstant, true);
-            NavigatingCancelArgsConstant = DataConstant.Create(() => NavigatingCancelArgsConstant, true);
             ViewModelTypeConstant = DataConstant.Create(() => ViewModelTypeConstant, true);
-            ClearNavigationCache = DataConstant.Create(() => ClearNavigationCache);
-            OperationIdConstant = DataConstant.Create(() => OperationIdConstant, false);
         }
 
         public NavigationProvider([NotNull] INavigationService navigationService, [NotNull] IThreadManager threadManager,
@@ -488,7 +479,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             try
             {
                 var context = CreateContextNavigateTo(CurrentViewModel, e);
-                idOperation = context.GetData(OperationIdConstant);
+                idOperation = context.GetData(NavigationProviderConstants.OperationId);
                 IOperationCallback callback = null;
                 if (idOperation == _currentOperationId)
                 {
@@ -536,8 +527,8 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
                 viewModelTo = viewModelFrom.GetParentViewModel();
             return new NavigationContext(NavigationType.Page, args.NavigationMode, viewModelFrom, viewModelTo, this)
             {
-                {NavigatingCancelArgsConstant, args},
-                {OperationIdConstant, idOperation}
+                {NavigationProviderConstants.NavigatingCancelArgs, args},
+                {NavigationProviderConstants.OperationId, idOperation}
             };
         }
 
@@ -566,15 +557,15 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
                 if (vmType == null)
                     return new NavigationContext(NavigationType.Page, args.Mode, viewModelFrom, viewModelTo, this)
                     {
-                        {NavigationArgsConstant, args},
-                        {OperationIdConstant, idOperation}
+                        {NavigationProviderConstants.NavigationArgs, args},
+                        {NavigationProviderConstants.OperationId, idOperation}
                     };
             }
             return new NavigationContext(NavigationType.Page, args.Mode, viewModelFrom, viewModelTo, this)
             {
-                {NavigationArgsConstant, args},
+                {NavigationProviderConstants.NavigationArgs, args},
                 {ViewModelTypeConstant, vmType},
-                {OperationIdConstant, idOperation}
+                {NavigationProviderConstants.OperationId, idOperation}
             };
         }
 
@@ -874,7 +865,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         private void ClearCacheIfNeed(IDataContext context, IViewModel viewModelTo)
         {
-            if (!context.GetData(ClearNavigationCache) || CachePolicy == null)
+            if (!context.GetData(NavigationProviderConstants.ClearNavigationCache) || CachePolicy == null)
                 return;
             var viewModels = CachePolicy.Invalidate(context);
             foreach (var viewModelFrom in viewModels.Reverse())

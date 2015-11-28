@@ -178,7 +178,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
                 return;
             while (_frame.BackStack.OfType<object>().Any())
                 _frame.RemoveBackEntry();
-            context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
+            context.AddOrUpdate(NavigationProviderConstants.ClearNavigationCache, true);
         }
 
         private bool NavigateInternal(IViewMappingItem source, object parameter)

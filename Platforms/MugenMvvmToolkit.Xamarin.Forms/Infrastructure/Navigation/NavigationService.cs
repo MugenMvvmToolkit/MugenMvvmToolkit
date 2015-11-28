@@ -314,7 +314,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                         navigation.RemovePage(toRemove);
                 }
             });
-            context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
+            context.AddOrUpdate(NavigationProviderConstants.ClearNavigationCache, true);
         }
 
         #endregion

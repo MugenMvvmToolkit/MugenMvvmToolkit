@@ -336,7 +336,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             if (context.GetData(NavigationConstants.ClearBackStack) && NavigationController != null)
             {
                 NavigationController.SetViewControllers(new[] { newItem }, animated);
-                context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
+                context.AddOrUpdate(NavigationProviderConstants.ClearNavigationCache, true);
                 return true;
             }
             return false;

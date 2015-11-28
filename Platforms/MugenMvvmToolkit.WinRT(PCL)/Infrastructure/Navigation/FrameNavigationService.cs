@@ -236,7 +236,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
             if (!context.GetData(NavigationConstants.ClearBackStack) || _frame.BackStack.IsReadOnly)
                 return;
             _frame.BackStack.Clear();
-            context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
+            context.AddOrUpdate(NavigationProviderConstants.ClearNavigationCache, true);
         }
 
         private static string GetParameter(string parameter)
