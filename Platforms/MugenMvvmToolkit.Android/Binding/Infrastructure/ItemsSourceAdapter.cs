@@ -208,7 +208,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         {
             var selector = _itemTemplateProvider.GetDataTemplateSelector() as IResourceDataTemplateSelector;
             if (selector == null)
-                return base.GetItemViewType(position);
+                return 0;
             if (_resourceTypeToItemType == null)
                 _resourceTypeToItemType = new Dictionary<int, int>();
             var id = selector.SelectTemplate(GetRawItem(position), _container);
@@ -232,7 +232,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             {
                 var resourceDataTemplateSelector = _itemTemplateProvider.GetDataTemplateSelector() as IResourceDataTemplateSelector;
                 if (resourceDataTemplateSelector == null)
-                    return base.ViewTypeCount;
+                    return 1;
                 return resourceDataTemplateSelector.TemplateTypeCount;
             }
         }
