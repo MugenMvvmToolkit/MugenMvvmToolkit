@@ -213,15 +213,11 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 outState.PutString(ViewModelTypeNameKey, viewModel.GetType().AssemblyQualifiedName);
 
                 bool saved = false;
-                object currentStateManager;
-                if (!viewModel.Settings.Metadata.TryGetData(ViewModelConstants.StateManager, out currentStateManager) || currentStateManager == this)
+                bool data;
+                if (!viewModel.Settings.Metadata.TryGetData(ViewModelConstants.StateNotNeeded, out data) || !data)
                 {
-                    bool data;
-                    if (!viewModel.Settings.Metadata.TryGetData(ViewModelConstants.StateNotNeeded, out data) || !data)
-                    {
-                        PreserveViewModel(viewModel, outState);
-                        saved = true;
-                    }
+                    PreserveViewModel(viewModel, outState);
+                    saved = true;
                 }
                 if (!saved)
                     outState.PutString(IgnoreStateKey, null);

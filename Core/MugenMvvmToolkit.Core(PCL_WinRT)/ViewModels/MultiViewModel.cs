@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Collections;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -285,6 +286,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         private void RaiseViewModelAdded(IViewModel vm)
         {
+            vm.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
             OnViewModelAdded(vm);
             var handler = ViewModelAdded;
             if (handler != null) handler(this, new ValueEventArgs<IViewModel>(vm));
@@ -292,6 +294,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         private void RaiseViewModelRemoved(IViewModel vm)
         {
+            vm.Settings.Metadata.Remove(ViewModelConstants.StateNotNeeded);
             OnViewModelRemoved(vm);
             var handler = ViewModelRemoved;
             if (handler != null) handler(this, new ValueEventArgs<IViewModel>(vm));

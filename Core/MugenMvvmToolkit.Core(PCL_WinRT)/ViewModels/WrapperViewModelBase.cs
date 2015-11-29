@@ -119,8 +119,8 @@ namespace MugenMvvmToolkit.ViewModels
                     throw ExceptionManager.ObjectInitialized("ViewModel", viewModel);
                 _viewModel = (TViewModel)viewModel;
             }
-            //to track state
-            _viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateManager, ViewModelConstants.StateManager);
+            //It indicates that wrapper is responsible for the view model state.
+            _viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
             ViewModel.PropertyChanged += ViewModelOnPropertyChanged;
             var closeableViewModel = ViewModel as ICloseableViewModel;
             if (closeableViewModel == null)
@@ -250,12 +250,8 @@ namespace MugenMvvmToolkit.ViewModels
 
         void IHasState.SaveState(IDataContext state)
         {
-            object data;
-            if (ViewModel != null && (!ViewModel.Settings.Metadata.TryGetData(ViewModelConstants.StateManager, out data) || ReferenceEquals(data, ViewModelConstants.StateManager)))
-            {
-                state.AddOrUpdate(ViewModelConstants.ViewModelTypeName, ViewModel.GetType().AssemblyQualifiedName);
-                state.AddOrUpdate(ViewModelConstants.ViewModelState, ViewModelProvider.PreserveViewModel(ViewModel, DataContext.Empty));
-            }
+            state.AddOrUpdate(ViewModelConstants.ViewModelTypeName, ViewModel.GetType().AssemblyQualifiedName);
+            state.AddOrUpdate(ViewModelConstants.ViewModelState, ViewModelProvider.PreserveViewModel(ViewModel, DataContext.Empty));
             OnSaveState(state);
         }
 
@@ -350,6 +346,7 @@ namespace MugenMvvmToolkit.ViewModels
                         closeableViewModel.Closed -= ViewModelOnClosed;
                     }
                     _viewModel.PropertyChanged -= ViewModelOnPropertyChanged;
+                    _viewModel.Settings.Metadata.Remove(ViewModelConstants.StateNotNeeded);
                     _viewModel = null;
                     OnPropertyChanged("ViewModel");
                 }

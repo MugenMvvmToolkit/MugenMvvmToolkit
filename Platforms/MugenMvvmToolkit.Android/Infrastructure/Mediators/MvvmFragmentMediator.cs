@@ -167,11 +167,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
             var viewModel = DataContext as IViewModel;
             if (viewModel != null)
-            {
-                if (!viewModel.Settings.Metadata.Contains(ViewModelConstants.StateNotNeeded) && !viewModel.Settings.Metadata.Contains(ViewModelConstants.StateManager))
-                    viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateManager, this);
                 viewModel.Settings.Metadata.AddOrUpdate(PlatformExtensions.FragmentConstant, Target);
-            }
             else if (DataContext == null)
             {
                 if (savedInstanceState != null && savedInstanceState.ContainsKey(IgnoreStateKey))
@@ -264,14 +260,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
             var viewModel = DataContext as IViewModel;
             if (viewModel != null)
-            {
                 viewModel.Settings.Metadata.Remove(PlatformExtensions.FragmentConstant);
-                object stateManager;
-                if (viewModel.Settings.Metadata.TryGetData(ViewModelConstants.StateManager, out stateManager) &&
-                    stateManager == this)
-                    viewModel.Settings.Metadata.Remove(ViewModelConstants.StateManager);
-            }
-
             base.OnDestroy(baseOnDestroy);
             Closing = null;
             Canceled = null;
