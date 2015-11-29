@@ -153,7 +153,9 @@ namespace MugenMvvmToolkit.DataConstants
         public static readonly DataConstant<NavigationEventArgsBase> NavigationArgs;
         public static readonly DataConstant<NavigatingCancelEventArgsBase> NavigatingCancelArgs;
         public static readonly DataConstant<string> OperationId;
-        public static readonly DataConstant<bool> ClearNavigationCache;
+        public static readonly DataConstant<bool> BringToFront;
+        public static readonly DataConstant<bool> InvalidateCache;
+        public static readonly DataConstant<bool> InvalidateAllCache;
 
         #endregion
 
@@ -163,8 +165,10 @@ namespace MugenMvvmToolkit.DataConstants
         {
             NavigationArgs = DataConstant.Create(() => NavigationArgs, true);
             NavigatingCancelArgs = DataConstant.Create(() => NavigatingCancelArgs, true);
-            ClearNavigationCache = DataConstant.Create(() => ClearNavigationCache);
             OperationId = DataConstant.Create(() => OperationId, false);
+            BringToFront = DataConstant.Create(() => BringToFront);
+            InvalidateCache = DataConstant.Create(() => InvalidateCache);
+            InvalidateAllCache = DataConstant.Create(() => InvalidateAllCache);
         }
 
         #endregion

@@ -80,7 +80,7 @@ namespace MugenMvvmToolkit.Android.Binding
             #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.App.Activity, IDataTemplateSelector> ToastTemplateSelector;
-            public static readonly BindingMemberDescriptor<global::Android.App.Activity, Action<Context, Intent, IDataContext>> StartActivityDelegate;
+            public static readonly BindingMemberDescriptor<global::Android.App.Activity, Action<Context, Intent, IViewMappingItem, IDataContext>> StartActivityDelegate;
             #endregion
 
             #region Constructors
@@ -88,7 +88,7 @@ namespace MugenMvvmToolkit.Android.Binding
             static Activity()
             {
                 ToastTemplateSelector = new BindingMemberDescriptor<global::Android.App.Activity, IDataTemplateSelector>("ToastTemplateSelector");
-                StartActivityDelegate = new BindingMemberDescriptor<global::Android.App.Activity, Action<Context, Intent, IDataContext>>("StartActivityDelegate");
+                StartActivityDelegate = new BindingMemberDescriptor<global::Android.App.Activity, Action<Context, Intent, IViewMappingItem, IDataContext>>("StartActivityDelegate");
             }
 
             #endregion

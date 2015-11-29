@@ -252,6 +252,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
         #region Fields
 
         protected static readonly DataConstant<Type> ViewModelTypeConstant;
+        private static readonly DataConstant<object> IsNavigatedConstant;
         private static readonly string[] IdSeparator = { "~n|v~" };
 
         private readonly IViewMappingProvider _mappingProvider;
@@ -281,6 +282,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
         static NavigationProvider()
         {
             ViewModelTypeConstant = DataConstant.Create(() => ViewModelTypeConstant, true);
+            IsNavigatedConstant = DataConstant.Create(() => IsNavigatedConstant, false);
         }
 
         public NavigationProvider([NotNull] INavigationService navigationService, [NotNull] IThreadManager threadManager,
@@ -403,12 +405,16 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             IViewModel viewModel = context.GetData(NavigationConstants.ViewModel);
             if (viewModel == null)
                 throw new InvalidOperationException(string.Format("The '{0}' provider doesn't support the DataContext without navigation target.", GetType()));
+            context = context.ToNonReadOnly();
             if (ReferenceEquals(viewModel, CurrentViewModel))
             {
                 if (callback != null)
-                    callback.Invoke(OperationResult.CreateResult<bool?>(OperationType.PageNavigation, CurrentViewModel, true, context));
+                    CallbackManager.Register(OperationType.PageNavigation, viewModel, callback, context);
                 return Empty.Task;
             }
+            //The view model is already shown as page and we need to bring it to front
+            if (viewModel.Settings.State.Contains(IsNavigatedConstant))
+                context.AddOrUpdate(NavigationProviderConstants.BringToFront, true);
 
             string viewName = viewModel.GetViewName(context);
             var vmType = viewModel.GetType();
@@ -728,6 +734,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
             if (vmTo != null)
             {
+                vmTo.Settings.State.AddOrUpdate(IsNavigatedConstant, null);
                 var closeableViewModel = vmTo as ICloseableViewModel;
                 if (closeableViewModel != null && !(closeableViewModel.CloseCommand is CloseCommandWrapper))
                 {
@@ -779,6 +786,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         private static bool OnViewModelClosed(IViewModel viewModel, object parameter, NavigationProvider provider, bool completeCallback)
         {
+            viewModel.Settings.State.Remove(IsNavigatedConstant);
             if (provider.CachePolicy != null)
                 provider.CachePolicy.Invalidate(viewModel, parameter as IDataContext);
             var closeableViewModel = viewModel as ICloseableViewModel;
@@ -865,8 +873,14 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         private void ClearCacheIfNeed(IDataContext context, IViewModel viewModelTo)
         {
-            if (!context.GetData(NavigationProviderConstants.ClearNavigationCache) || CachePolicy == null)
+            if (CachePolicy == null)
                 return;
+            if (!context.GetData(NavigationProviderConstants.InvalidateAllCache))
+            {
+                if (context.GetData(NavigationProviderConstants.InvalidateCache))
+                    CachePolicy.Invalidate(viewModelTo, context);
+                return;
+            }
             var viewModels = CachePolicy.Invalidate(context);
             foreach (var viewModelFrom in viewModels.Reverse())
             {

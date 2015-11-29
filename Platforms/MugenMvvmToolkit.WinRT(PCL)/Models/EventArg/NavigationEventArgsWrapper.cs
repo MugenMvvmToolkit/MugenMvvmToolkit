@@ -28,15 +28,17 @@ namespace MugenMvvmToolkit.WinRT.Models.EventArg
         #region Fields
 
         private readonly NavigationEventArgs _args;
+        private readonly bool _bringToFront;
 
         #endregion
 
         #region Constructors
 
-        public NavigationEventArgsWrapper([NotNull] NavigationEventArgs args)
+        public NavigationEventArgsWrapper([NotNull] NavigationEventArgs args, bool bringToFront)
         {
             Should.NotBeNull(args, "args");
             _args = args;
+            _bringToFront = bringToFront;
         }
 
         #endregion
@@ -59,7 +61,13 @@ namespace MugenMvvmToolkit.WinRT.Models.EventArg
 
         public override NavigationMode Mode
         {
-            get { return _args.NavigationMode.ToNavigationMode(); }
+            get
+            {
+                var mode = _args.NavigationMode.ToNavigationMode();
+                if (_bringToFront && mode == NavigationMode.New)
+                    return NavigationMode.Refresh;
+                return mode;
+            }
         }
 
         #endregion

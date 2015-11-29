@@ -42,6 +42,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
         private static readonly string[] IdSeparator = { "~n|s~" };
         private readonly Frame _frame;
         private string _lastParameter;
+        private bool _bringToFront;
 
         #endregion
 
@@ -128,9 +129,15 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
             Should.NotBeNull(source, "source");
             if (dataContext == null)
                 dataContext = DataContext.Empty;
+            dataContext.TryGetData(NavigationProviderConstants.BringToFront, out _bringToFront);
+            var bringToFront = _bringToFront;
             var result = Navigate(source.ViewType, parameter, dataContext.GetData(NavigationConstants.ViewModel));
             if (result)
+            {
+                if (bringToFront)
+                    dataContext.AddOrUpdate(NavigationProviderConstants.InvalidateCache, true);
                 ClearNavigationStackIfNeed(dataContext);
+            }
             return result;
         }
 
@@ -236,7 +243,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
             if (!context.GetData(NavigationConstants.ClearBackStack) || _frame.BackStack.IsReadOnly)
                 return;
             _frame.BackStack.Clear();
-            context.AddOrUpdate(NavigationProviderConstants.ClearNavigationCache, true);
+            context.AddOrUpdate(NavigationProviderConstants.InvalidateAllCache, true);
         }
 
         private static string GetParameter(string parameter)
@@ -251,20 +258,34 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
 
         private void OnNavigated(object sender, NavigationEventArgs args)
         {
+            var bringToFront = _bringToFront;
             _lastParameter = null;
+            _bringToFront = false;
             var handler = Navigated;
             if (handler == null)
                 return;
 
             var dp = args.Content as DependencyObject;
             if (dp == null)
-                handler(this, new NavigationEventArgsWrapper(args));
+                handler(this, new NavigationEventArgsWrapper(args, bringToFront));
             else
             {
                 //to indicate that args is handled.
                 args.SetHandled(true);
                 //to restore state before navigate.
-                dp.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () => handler(this, new NavigationEventArgsWrapper(args)));
+                dp.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () => handler(this, new NavigationEventArgsWrapper(args, bringToFront)));
+            }
+            if (!bringToFront)
+                return;
+            var id = GetViewModelIdFromParameter(args.Parameter);
+            for (int index = 0; index < _frame.BackStack.Count; index++)
+            {
+                if (GetViewModelIdFromParameter(_frame.BackStack[index].Parameter) == id)
+                {
+                    _frame.BackStack.RemoveAt(index);
+                    --index;
+                    break;
+                }
             }
         }
 
@@ -272,7 +293,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
         {
             var handler = Navigating;
             if (handler != null)
-                handler(this, new NavigatingCancelEventArgsWrapper(args, _lastParameter));
+                handler(this, new NavigatingCancelEventArgsWrapper(args, _lastParameter, _bringToFront));
         }
 
         private void RaiseNavigated(NavigationEventArgsBase args)

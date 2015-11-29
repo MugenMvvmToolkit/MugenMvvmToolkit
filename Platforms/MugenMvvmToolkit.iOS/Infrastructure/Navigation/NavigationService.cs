@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Foundation;
@@ -152,18 +153,39 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
         {
             Should.NotBeNull(source, "source");
             EnsureInitialized();
-            if (!RaiseNavigating(new NavigatingCancelEventArgs(source, NavigationMode.New, parameter)))
-                return false;
             if (dataContext == null)
                 dataContext = DataContext.Empty;
+            bool bringToFront;
+            dataContext.TryGetData(NavigationProviderConstants.BringToFront, out bringToFront);
+            if (!RaiseNavigating(new NavigatingCancelEventArgs(source, bringToFront ? NavigationMode.Refresh : NavigationMode.New, parameter)))
+                return false;
 
+            UIViewController viewController = null;
             IViewModel viewModel = dataContext.GetData(NavigationConstants.ViewModel);
-            UIViewController viewController;
-            if (viewModel == null)
-                viewController = (UIViewController)ServiceProvider.Get<IViewManager>().GetViewAsync(source, dataContext).Result;
-            else
-                viewController = (UIViewController)ViewManager.GetOrCreateView(viewModel, null, dataContext);
+            if (bringToFront && viewModel != null)
+            {
+                var viewControllers = new List<UIViewController>(NavigationController.ViewControllers);
+                for (int i = 0; i < viewControllers.Count; i++)
+                {
+                    var controller = viewControllers[i];
+                    if (controller.DataContext() == viewModel)
+                    {
+                        viewControllers.RemoveAt(i);
+                        viewController = controller;
+                        NavigationController.ViewControllers = viewControllers.ToArray();
+                        dataContext.AddOrUpdate(NavigationProviderConstants.InvalidateCache, true);
+                        break;
+                    }
+                }
+            }
 
+            if (viewController == null)
+            {
+                if (viewModel == null)
+                    viewController = (UIViewController)ServiceProvider.Get<IViewManager>().GetViewAsync(source, dataContext).Result;
+                else
+                    viewController = (UIViewController)ViewManager.GetOrCreateView(viewModel, null, dataContext);
+            }
             viewController.SetNavigationParameter(parameter);
             bool shouldNavigate = true;
             if (_window != null)
@@ -192,9 +214,14 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             }
             var view = viewController as IViewControllerView;
             if (view == null || view.Mediator.IsAppeared)
-                RaiseNavigated(viewController, NavigationMode.New, parameter);
+                RaiseNavigated(viewController, bringToFront ? NavigationMode.Refresh : NavigationMode.New, parameter);
             else
-                view.Mediator.ViewDidAppearHandler += OnViewDidAppearHandlerNew;
+            {
+                if (bringToFront)
+                    view.Mediator.ViewDidAppearHandler += OnViewDidAppearHandlerRefresh;
+                else
+                    view.Mediator.ViewDidAppearHandler += OnViewDidAppearHandlerNew;
+            }
             return true;
         }
 
@@ -336,7 +363,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             if (context.GetData(NavigationConstants.ClearBackStack) && NavigationController != null)
             {
                 NavigationController.SetViewControllers(new[] { newItem }, animated);
-                context.AddOrUpdate(NavigationProviderConstants.ClearNavigationCache, true);
+                context.AddOrUpdate(NavigationProviderConstants.InvalidateAllCache, true);
                 return true;
             }
             return false;
@@ -352,6 +379,12 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
         {
             ((IViewControllerView)sender).Mediator.ViewDidAppearHandler -= OnViewDidAppearHandlerNew;
             RaiseNavigated(sender, NavigationMode.New, sender.GetNavigationParameter() as string);
+        }
+
+        private void OnViewDidAppearHandlerRefresh(UIViewController sender, ValueEventArgs<bool> args)
+        {
+            ((IViewControllerView)sender).Mediator.ViewDidAppearHandler -= OnViewDidAppearHandlerNew;
+            RaiseNavigated(sender, NavigationMode.Refresh, sender.GetNavigationParameter() as string);
         }
 
         #endregion

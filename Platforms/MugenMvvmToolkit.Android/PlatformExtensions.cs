@@ -245,9 +245,10 @@ namespace MugenMvvmToolkit.Android
 
         internal static readonly bool IsApiGreaterThan10;
         internal static readonly bool IsApiLessThanOrEqualTo10;
-        internal static readonly bool IsApiGreaterThanOrEqualTo21;
         internal static readonly bool IsApiGreaterThanOrEqualTo14;
         internal static readonly bool IsApiGreaterThanOrEqualTo17;
+        internal static readonly bool IsApiGreaterThanOrEqualTo19;
+        internal static readonly bool IsApiGreaterThanOrEqualTo21;
         //NOTE ConditionalWeakTable invokes finalizer for value, even if the key object is still alive https://bugzilla.xamarin.com/show_bug.cgi?id=21620
         public static readonly ConcurrentDictionary<object, WeakReference> WeakReferences;
 
@@ -275,9 +276,10 @@ namespace MugenMvvmToolkit.Android
         {
             IsApiGreaterThan10 = Build.VERSION.SdkInt > BuildVersionCodes.GingerbreadMr1;
             IsApiLessThanOrEqualTo10 = !IsApiGreaterThan10;
-            IsApiGreaterThanOrEqualTo21 = Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop;
             IsApiGreaterThanOrEqualTo14 = Build.VERSION.SdkInt >= BuildVersionCodes.IceCreamSandwich;
             IsApiGreaterThanOrEqualTo17 = Build.VERSION.SdkInt >= BuildVersionCodes.JellyBeanMr1;
+            IsApiGreaterThanOrEqualTo19 = Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat;
+            IsApiGreaterThanOrEqualTo21 = Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop;
             FragmentConstant = DataConstant.Create(() => FragmentConstant, false);
             _menuInflaterFactory = (context, dataContext) => new BindableMenuInflater(context);
             _layoutInflaterFactory = (context, dataContext, factory, inflater) =>

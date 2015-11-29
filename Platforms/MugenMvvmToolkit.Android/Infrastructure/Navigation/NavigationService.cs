@@ -129,12 +129,13 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         #region Fields
 
+        private const string ParameterString = "viewmodelparameter";
+
         private bool _isBack;
         private bool _isNew;
+        private bool _isReorder;
         private bool _isPause;
         private string _parameter;
-
-        private const string ParameterString = "viewmodelparameter";
 
         #endregion
 
@@ -246,8 +247,10 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             _isPause = false;
             if (_isNew)
             {
+                var isReorder = _isReorder;
                 _isNew = false;
-                RaiseNavigated(activity, NavigationMode.New, _parameter);
+                _isReorder = false;
+                RaiseNavigated(activity, isReorder ? NavigationMode.Refresh : NavigationMode.New, _parameter);
                 _parameter = null;
             }
             else
@@ -314,10 +317,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         public virtual bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, "source");
-            if (!RaiseNavigating(new NavigatingCancelEventArgs(source, NavigationMode.New, parameter)))
-                return false;
             if (dataContext == null)
                 dataContext = DataContext.Empty;
+            bool bringToFront;
+            dataContext.TryGetData(NavigationProviderConstants.BringToFront, out bringToFront);
+            if (!RaiseNavigating(new NavigatingCancelEventArgs(source, bringToFront ? NavigationMode.Refresh : NavigationMode.New, parameter)))
+                return false;
             var activity = PlatformExtensions.CurrentActivity ?? SplashScreenActivityBase.Current;
             var context = activity ?? Application.Context;
 
@@ -333,11 +338,36 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 }
                 else
                     intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
-                dataContext.AddOrUpdate(NavigationProviderConstants.ClearNavigationCache, true);
+                dataContext.AddOrUpdate(NavigationProviderConstants.InvalidateAllCache, true);
             }
-            //intent.AddFlags(ActivityFlags.ReorderToFront);
             if (parameter != null)
                 intent.PutExtra(ParameterString, parameter);
+
+            if (bringToFront)
+            {
+                _isReorder = true;
+                //http://stackoverflow.com/questions/20695522/puzzling-behavior-with-reorder-to-front
+                //http://code.google.com/p/android/issues/detail?id=63570#c2
+                bool closed = false;
+                if (PlatformExtensions.IsApiGreaterThanOrEqualTo19)
+                {
+                    var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
+                    if (viewModel != null)
+                    {
+                        var view = viewModel.Settings.Metadata.GetData(ViewModelConstants.View);
+                        var activityView = ToolkitExtensions.GetUnderlyingView<object>(view) as Activity;
+                        if (activityView != null && activityView.IsTaskRoot)
+                        {
+                            var message = new MvvmActivityMediator.FinishActivityMessage(viewModel);
+                            ServiceProvider.EventAggregator.Publish(this, message);
+                            closed = message.Finished;
+                        }
+                    }
+                }
+                if (!closed)
+                    intent.AddFlags(ActivityFlags.ReorderToFront);
+                dataContext.AddOrUpdate(NavigationProviderConstants.InvalidateCache, true);
+            }
             _isNew = true;
             _parameter = parameter;
             StartActivity(context, intent, source, dataContext);

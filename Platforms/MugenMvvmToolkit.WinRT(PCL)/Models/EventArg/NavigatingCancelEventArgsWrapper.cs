@@ -29,16 +29,18 @@ namespace MugenMvvmToolkit.WinRT.Models.EventArg
 
         private readonly NavigatingCancelEventArgs _args;
         private readonly string _parameter;
+        private readonly bool _bringToFront;
 
         #endregion
 
         #region Constructors
 
-        public NavigatingCancelEventArgsWrapper([NotNull] NavigatingCancelEventArgs args, string parameter)
+        public NavigatingCancelEventArgsWrapper([NotNull] NavigatingCancelEventArgs args, string parameter, bool bringToFront)
         {
             Should.NotBeNull(args, "args");
             _args = args;
             _parameter = parameter;
+            _bringToFront = bringToFront;
         }
 
         #endregion
@@ -67,7 +69,13 @@ namespace MugenMvvmToolkit.WinRT.Models.EventArg
 
         public override NavigationMode NavigationMode
         {
-            get { return _args.NavigationMode.ToNavigationMode(); }
+            get
+            {
+                var mode = _args.NavigationMode.ToNavigationMode();
+                if (_bringToFront && mode == NavigationMode.New)
+                    return NavigationMode.Refresh;
+                return mode;
+            }
         }
 
         public override bool IsCancelable
