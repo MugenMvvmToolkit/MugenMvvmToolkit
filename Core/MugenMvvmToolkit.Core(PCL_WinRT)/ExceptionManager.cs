@@ -134,12 +134,6 @@ namespace MugenMvvmToolkit
             return new InvalidOperationException(CommandCannotBeExecutedString);
         }
 
-        internal static Exception WindowOpened()
-        {
-            return new InvalidOperationException(
-                "The dialog is open. Before create a new dialog you should close the previous one.");
-        }
-
         internal static Exception WindowClosed()
         {
             return new InvalidOperationException(

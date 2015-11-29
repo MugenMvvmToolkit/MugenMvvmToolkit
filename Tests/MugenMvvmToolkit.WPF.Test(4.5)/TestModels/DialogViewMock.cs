@@ -80,6 +80,15 @@ namespace MugenMvvmToolkit.Test.TestModels
             }
         }
 
+#if WPF
+        public bool Activate()
+        {
+            return true;
+        }
+#else
+        public void Activate() { }
+#endif
+
         #endregion
 
         #region Implementation of IDialogView

@@ -16,6 +16,7 @@
 
 #endregion
 
+using System;
 using System.ComponentModel;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
@@ -36,6 +37,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators
     {
         #region Fields
 
+        private readonly EventHandler<ModalPoppedEventArgs> _closedHandler;
         private readonly EventHandler<Page, CancelEventArgs> _backButtonHandler;
 
         #endregion
@@ -50,6 +52,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators
                 .CreateWeakDelegate<ModalViewMediator, CancelEventArgs, EventHandler<Page, CancelEventArgs>>(this,
                     (service, o, arg3) => service.OnBackButtonPressed((Page)o, arg3),
                     (o, handler) => XamarinFormsExtensions.BackButtonPressed -= handler, handler => handler.Handle);
+            _closedHandler = ReflectionExtensions
+                .CreateWeakDelegate<ModalViewMediator, ModalPoppedEventArgs, EventHandler<ModalPoppedEventArgs>>(this,
+                    (mediator, o, arg3) => mediator.OnModalClosed(arg3), (o, handler) => Application.Current.ModalPopped -= handler, handler => handler.Handle);
             UseAnimations = true;
         }
 
@@ -63,10 +68,16 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators
 
         #region Methods
 
-        private void OnBackButtonPressed(Page page, CancelEventArgs arg3)
+        private void OnBackButtonPressed(Page page, CancelEventArgs args)
         {
-            if (View == page)
-                OnViewClosing(page, arg3);
+            if (View.GetUnderlyingView<object>() == page)
+                OnViewClosing(page, args);
+        }
+
+        private void OnModalClosed(ModalPoppedEventArgs args)
+        {
+            if (View.GetUnderlyingView<object>() == args.Modal)
+                OnViewClosed(args.Modal, args);
         }
 
         #endregion
@@ -87,18 +98,23 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators
             page.Navigation.PushModalAsync(view.GetUnderlyingView<Page>(), animated);
         }
 
+        protected override void ActivateView(IModalView view, IDataContext context)
+        {
+            var supportActivationModalView = view as ISupportActivationModalView;
+            if (supportActivationModalView != null)
+                supportActivationModalView.Activate();
+        }
+
         protected override void InitializeView(IModalView view, IDataContext context)
         {
-            var page = view.GetUnderlyingView<Page>();
-            page.Disappearing += OnViewClosed;
             XamarinFormsExtensions.BackButtonPressed += _backButtonHandler;
+            Application.Current.ModalPopped += _closedHandler;
         }
 
         protected override void CleanupView(IModalView view)
         {
-            var page = view.GetUnderlyingView<Page>();
-            page.Disappearing -= OnViewClosed;
             XamarinFormsExtensions.BackButtonPressed -= _backButtonHandler;
+            Application.Current.ModalPopped -= _closedHandler;
         }
 
         protected override void CloseView(IModalView view)

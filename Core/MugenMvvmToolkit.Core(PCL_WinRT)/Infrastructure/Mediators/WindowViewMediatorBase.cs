@@ -124,7 +124,12 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             ViewModel.NotBeDisposed();
             if (IsOpen)
-                throw ExceptionManager.WindowOpened();
+            {
+                if (callback != null)
+                    OperationCallbackManager.Register(OperationType.WindowNavigation, ViewModel, callback, context);
+                ActivateView(View, context);
+                return Empty.Task;
+            }
             var tcs = new TaskCompletionSource<object>();
             RaiseNavigating(context, NavigationMode.New)
                 .TryExecuteSynchronously(task =>
@@ -210,6 +215,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         #region Methods
 
         protected abstract void ShowView([NotNull] TView view, bool isDialog, IDataContext context);
+
+        protected abstract void ActivateView([NotNull] TView view, IDataContext context);
 
         protected abstract void InitializeView([NotNull] TView view, IDataContext context);
 

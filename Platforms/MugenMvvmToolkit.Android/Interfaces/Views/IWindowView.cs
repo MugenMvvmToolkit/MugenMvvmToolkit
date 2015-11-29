@@ -33,5 +33,7 @@ namespace MugenMvvmToolkit.Android.Interfaces.Views
         void Show(FragmentManager manager, string tag);
 
         void Dismiss();
+
+        void Activate();
     }
 }

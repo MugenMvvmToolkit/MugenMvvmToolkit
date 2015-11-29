@@ -24,6 +24,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Interfaces.Views
     {
     }
 
+    public interface ISupportActivationModalView : IModalView
+    {
+        void Activate();
+    }
+
     public interface ITabView : IView
     {
     }

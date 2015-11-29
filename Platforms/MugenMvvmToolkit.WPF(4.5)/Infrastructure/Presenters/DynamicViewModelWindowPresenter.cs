@@ -78,9 +78,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
         #region Fields
 
         public static readonly DataConstant<IWindowViewMediator> WindowViewMediatorConstant;
-
         public static readonly DataConstant<object> RestoredViewConstant;
-
         public static readonly DataConstant<bool> IsOpenViewConstant;
 
         private readonly IThreadManager _threadManager;

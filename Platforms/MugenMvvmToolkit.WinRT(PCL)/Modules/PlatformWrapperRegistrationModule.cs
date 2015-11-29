@@ -170,6 +170,10 @@ namespace MugenMvvmToolkit.WinRT.Modules
                 }
             }
 
+            public void Activate()
+            {
+            }
+
             public event EventHandler<object, CancelEventArgs> Closing
             {
                 add { }
@@ -286,6 +290,11 @@ namespace MugenMvvmToolkit.WinRT.Modules
                 _flyout.Hide();
             }
 
+            public void Activate()
+            {
+                _flyout.Focus(FocusState.Programmatic);
+            }
+
             public event EventHandler<object, CancelEventArgs> Closing;
 
             public event EventHandler<object, EventArgs> Closed;
@@ -398,6 +407,10 @@ namespace MugenMvvmToolkit.WinRT.Modules
                     _hideMethod = _window.GetType().GetMethodEx("Hide", MemberFlags.Instance | MemberFlags.Public);
                 if (_hideMethod != null)
                     _hideMethod.InvokeEx(_window);
+            }
+
+            public void Activate()
+            {
             }
 
             public event EventHandler<object, CancelEventArgs> Closing;

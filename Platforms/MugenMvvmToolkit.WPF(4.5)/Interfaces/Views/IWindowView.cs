@@ -29,6 +29,8 @@ namespace MugenMvvmToolkit.WPF.Interfaces.Views
 
         void Close();
 
+        bool Activate();
+
         event CancelEventHandler Closing;
     }
 }

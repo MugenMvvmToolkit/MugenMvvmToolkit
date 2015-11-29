@@ -99,6 +99,10 @@ namespace MugenMvvmToolkit.Android.Views.Fragments
             Mediator.Dismiss(base.Dismiss);
         }
 
+        public virtual void Activate()
+        {
+        }
+
         public override void OnAttach(Activity activity)
         {
             Mediator.OnAttach(activity, base.OnAttach);

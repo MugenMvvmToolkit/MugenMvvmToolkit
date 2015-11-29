@@ -65,6 +65,10 @@ namespace MugenMvvmToolkit.Silverlight.Modules
                 _window.Close();
             }
 
+            public void Activate()
+            {
+            }
+
             event EventHandler<CancelEventArgs> IWindowView.Closing
             {
                 add { _window.Closing += value; }
@@ -81,8 +85,8 @@ namespace MugenMvvmToolkit.Silverlight.Modules
         protected override void RegisterWrappers(IConfigurableWrapperManager wrapperManager)
         {
             wrapperManager.AddWrapper<IWindowView, WindowViewWrapper>(
-                (type, context) => typeof (ChildWindow).IsAssignableFrom(type),
-                (o, context) => new WindowViewWrapper((ChildWindow) o));
+                (type, context) => typeof(ChildWindow).IsAssignableFrom(type),
+                (o, context) => new WindowViewWrapper((ChildWindow)o));
         }
 
         #endregion

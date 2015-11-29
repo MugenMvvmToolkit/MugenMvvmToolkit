@@ -65,6 +65,11 @@ namespace MugenMvvmToolkit.WinForms.Modules
                 _form.Close();
             }
 
+            public void Activate()
+            {
+                _form.Activate();
+            }
+
             event CancelEventHandler IWindowView.Closing
             {
                 add { _form.Closing += value; }

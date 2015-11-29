@@ -30,6 +30,8 @@ namespace MugenMvvmToolkit.WinForms.Interfaces.Views
 
         void Close();
 
+        void Activate();
+
         event CancelEventHandler Closing;
     }
 }

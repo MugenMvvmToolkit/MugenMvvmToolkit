@@ -74,6 +74,11 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
                 view.Show();
         }
 
+        protected override void ActivateView(IWindowView view, IDataContext context)
+        {
+            view.Activate();
+        }
+
         protected override void CloseView(IWindowView view)
         {
             view.Close();

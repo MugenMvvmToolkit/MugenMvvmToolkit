@@ -28,6 +28,8 @@ namespace MugenMvvmToolkit.Silverlight.Interfaces.Views
 
         void Close();
 
+        void Activate();
+
         event EventHandler<CancelEventArgs> Closing;
     }
 }

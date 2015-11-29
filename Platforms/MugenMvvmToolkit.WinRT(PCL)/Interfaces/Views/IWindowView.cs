@@ -31,6 +31,8 @@ namespace MugenMvvmToolkit.WinRT.Interfaces.Views
 
         void Close();
 
+        void Activate();
+
         event EventHandler<object, CancelEventArgs> Closing;
 
         event EventHandler<object, EventArgs> Closed;

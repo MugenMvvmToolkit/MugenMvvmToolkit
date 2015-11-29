@@ -69,6 +69,11 @@ namespace MugenMvvmToolkit.WPF.Modules
                 _window.Close();
             }
 
+            public bool Activate()
+            {
+                return _window.Activate();
+            }
+
             event CancelEventHandler IWindowView.Closing
             {
                 add { _window.Closing += value; }
@@ -85,8 +90,8 @@ namespace MugenMvvmToolkit.WPF.Modules
         protected override void RegisterWrappers(IConfigurableWrapperManager wrapperManager)
         {
             wrapperManager.AddWrapper<IWindowView, WindowViewWrapper>(
-                (type, context) => typeof (Window).IsAssignableFrom(type),
-                (o, context) => new WindowViewWrapper((Window) o));
+                (type, context) => typeof(Window).IsAssignableFrom(type),
+                (o, context) => new WindowViewWrapper((Window)o));
         }
 
         #endregion
