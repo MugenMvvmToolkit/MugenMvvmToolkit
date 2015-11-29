@@ -239,6 +239,9 @@ namespace MugenMvvmToolkit.Binding
         [CanBeNull]
         public static IBindingErrorProvider ErrorProvider { get; set; }
 
+        [CanBeNull]
+        public static Func<object, IBindingMemberInfo, string, bool> ShouldListenPropertyChanged { get; set; }
+
         public static Func<CultureInfo> BindingCultureInfo
         {
             get { return _bindingCultureInfo; }

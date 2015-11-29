@@ -184,6 +184,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     .WeakEventManager
                     .TrySubscribe(value, CollectionChangedEvent, eventListener);
 
+            if (BindingServiceProvider.ShouldListenPropertyChanged != null && !BindingServiceProvider.ShouldListenPropertyChanged(value, member, propertyName))
+                return null;
             var propertyChanged = value as INotifyPropertyChanged;
             if (propertyChanged == null)
                 return null;
