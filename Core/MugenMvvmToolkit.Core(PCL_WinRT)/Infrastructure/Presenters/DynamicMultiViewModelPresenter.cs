@@ -110,7 +110,10 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 return null;
             if (!CanShowViewModel(viewModel, context, parentPresenter))
                 return null;
-            MultiViewModel.AddViewModel(viewModel, true);
+            if (MultiViewModel.ItemsSource.Contains(viewModel))
+                MultiViewModel.SelectedItem = viewModel;
+            else
+                MultiViewModel.AddViewModel(viewModel, true);
             var operation = new NavigationOperation();
             CallbackManager.Register(OperationType.TabNavigation, viewModel, operation.ToOperationCallback(), context);
             return operation;
