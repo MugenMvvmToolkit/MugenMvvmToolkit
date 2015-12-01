@@ -30,7 +30,7 @@ namespace $rootnamespace$.Views
 
             using (var set = new BindingSet<MainViewModel>())
             {
-                set.Bind(label, () => l => l.Text).To(() => vm => vm.Text);
+                set.Bind(label, () => l => l.Text).To(() => (vm, ctx) => vm.Text);
             }
         }
 
