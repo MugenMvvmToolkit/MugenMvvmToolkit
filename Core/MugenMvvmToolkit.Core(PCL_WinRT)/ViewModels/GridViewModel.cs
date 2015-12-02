@@ -20,7 +20,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Infrastructure;
@@ -37,8 +36,6 @@ namespace MugenMvvmToolkit.ViewModels
     {
         #region Fields
 
-        private readonly PropertyChangedEventHandler _weakPropertyHandler;
-
         private FilterDelegate<T> _filter;
         private INotifiableCollection<T> _itemsSource;
         private IList<T> _originalData;
@@ -54,9 +51,8 @@ namespace MugenMvvmToolkit.ViewModels
 
         public GridViewModel()
         {
-            _weakPropertyHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, (model, o, arg3) => model.OnSelectedItemPropertyChanged(o, arg3));
             SetOriginalItemsSource(new SynchronizedNotifiableCollection<T>());
-            UpdateSelectedStateOnChange = true;
+            UpdateSelectedStateOnChange = false;
         }
 
         #endregion
@@ -146,9 +142,6 @@ namespace MugenMvvmToolkit.ViewModels
                         _selectedItem = null;
                 }
 
-                TryUpdatePropertyChanged(oldValue, false);
-                TryUpdatePropertyChanged(_selectedItem, true);
-
                 if (UpdateSelectedStateOnChange)
                 {
                     var selectable = oldValue as ISelectable;
@@ -176,30 +169,27 @@ namespace MugenMvvmToolkit.ViewModels
         {
             EnsureNotDisposed();
             Should.NotBeNull(originalItemsSource, "originalItemsSource");
-            lock (_weakPropertyHandler)
+            INotifyCollectionChanging collectionChanging;
+            if (_originalData != null)
             {
-                INotifyCollectionChanging collectionChanging;
-                if (_originalData != null)
-                {
-                    collectionChanging = _originalData as INotifyCollectionChanging;
-                    if (collectionChanging != null)
-                        collectionChanging.CollectionChanging -= RaiseCollectionChanging;
-                    ((INotifyCollectionChanged)(_originalData)).CollectionChanged -= RaiseCollectionChanged;
-                    if (_originalData.Count != 0)
-                        originalItemsSource.AddRange(_originalData);
-                }
-                _filterableItemsSource = new FilterableNotifiableCollection<T>(originalItemsSource);
-                collectionChanging = originalItemsSource as INotifyCollectionChanging;
+                collectionChanging = _originalData as INotifyCollectionChanging;
                 if (collectionChanging != null)
-                    collectionChanging.CollectionChanging += RaiseCollectionChanging;
-                originalItemsSource.CollectionChanged += RaiseCollectionChanged;
-
-                _originalData = originalItemsSource;
-                var list = ServiceProvider.TryDecorate(this, FilterableItemsSource);
-                Should.BeOfType<INotifiableCollection<T>>(list, "DecoratedItemsSource");
-                Should.BeOfType<INotifiableCollection>(list, "DecoratedItemsSource");
-                _itemsSource = (INotifiableCollection<T>)list;
+                    collectionChanging.CollectionChanging -= RaiseCollectionChanging;
+                ((INotifyCollectionChanged)(_originalData)).CollectionChanged -= RaiseCollectionChanged;
+                if (_originalData.Count != 0)
+                    originalItemsSource.AddRange(_originalData);
             }
+            _filterableItemsSource = new FilterableNotifiableCollection<T>(originalItemsSource);
+            collectionChanging = originalItemsSource as INotifyCollectionChanging;
+            if (collectionChanging != null)
+                collectionChanging.CollectionChanging += RaiseCollectionChanging;
+            originalItemsSource.CollectionChanged += RaiseCollectionChanged;
+
+            _originalData = originalItemsSource;
+            var list = ServiceProvider.TryDecorate(this, FilterableItemsSource);
+            Should.BeOfType<INotifiableCollection<T>>(list, "DecoratedItemsSource");
+            Should.BeOfType<INotifiableCollection>(list, "DecoratedItemsSource");
+            _itemsSource = (INotifiableCollection<T>)list;
             UpdateFilter();
             OnPropertyChanged("ItemsSource");
             OnPropertyChanged("OriginalItemsSource");
@@ -317,27 +307,12 @@ namespace MugenMvvmToolkit.ViewModels
             });
         }
 
-        protected virtual void OnSelectedItemPropertyChanged(object sender, PropertyChangedEventArgs args)
-        {
-        }
-
         protected virtual void OnCollectionChanging(object sender, NotifyCollectionChangingEventArgs args)
         {
         }
 
         protected virtual void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
-        }
-
-        private void TryUpdatePropertyChanged(object item, bool subcribe)
-        {
-            var notifyPropertyChanged = item as INotifyPropertyChanged;
-            if (notifyPropertyChanged == null)
-                return;
-            if (subcribe)
-                notifyPropertyChanged.PropertyChanged += _weakPropertyHandler;
-            else
-                notifyPropertyChanged.PropertyChanged -= _weakPropertyHandler;
         }
 
         private void RaiseCollectionChanging(object sender, NotifyCollectionChangingEventArgs e)
@@ -381,7 +356,6 @@ namespace MugenMvvmToolkit.ViewModels
                 ItemsSourceChanged = null;
                 CollectionChanging = null;
                 CollectionChanging = null;
-                TryUpdatePropertyChanged(SelectedItem, false);
             }
             base.OnDisposeInternal(disposing);
         }
