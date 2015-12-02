@@ -954,7 +954,7 @@ namespace MugenMvvmToolkit.Binding
             var pathMembers = observer.GetPathMembers(false);
             if (!pathMembers.AllMembersAvailable)
                 return false;
-            if (checkLastMember)
+            if (checkLastMember && pathMembers.LastMember.CanRead)
                 return !pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, Empty.Array<object>()).IsUnsetValue();
             return true;
         }
