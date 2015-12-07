@@ -25,7 +25,6 @@ using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
 using MugenMvvmToolkit.Interfaces.Models;
 
-
 namespace MugenMvvmToolkit.Binding.Parse
 {
     public class BindingMemberVisitor : IExpressionVisitor

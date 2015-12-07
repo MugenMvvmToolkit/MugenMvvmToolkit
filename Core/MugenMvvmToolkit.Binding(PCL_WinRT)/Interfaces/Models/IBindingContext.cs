@@ -31,7 +31,6 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
 
     public interface IBindingContextHolder
     {
-        [NotNull]
         IBindingContext BindingContext { get; }
     }
 }

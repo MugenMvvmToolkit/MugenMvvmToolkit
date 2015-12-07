@@ -32,8 +32,6 @@ using FragmentContentViewManager = MugenMvvmToolkit.Android.AppCompat.Infrastruc
 namespace MugenMvvmToolkit.Android.AppCompat.Modules
 #else
 using Android.App;
-using Android.Views;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Android.Binding.Modules

@@ -634,6 +634,8 @@ namespace MugenMvvmToolkit.Binding.Parse
                     throw BindingExceptionManager.InvalidBindingMember(type, methodCall.Method);
                 arrayArgs[i] = ExpressionReflectionManager.ConvertIfNeed(data.Expression, typeof(object), false);
             }
+            if (target == null)
+                throw BindingExceptionManager.InvalidBindingMember(type, methodCall.Method);
             return Expression.Call(InvokeMemberDynamicMethod,
                 ExpressionReflectionManager.ConvertIfNeed(target, typeof(object), false),
                 Expression.Constant(methodCall.Method),
