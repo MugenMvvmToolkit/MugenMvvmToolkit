@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -44,6 +45,9 @@ namespace MugenMvvmToolkit.Interfaces
 
         [Pure, CanBeNull]
         IViewModel TryGetViewModelById(Guid viewModelId);
+
+        [NotNull, Pure]
+        IList<IViewModel> GetCreatedViewModels([CanBeNull] IDataContext dataContext = null);
 
         event EventHandler<IViewModelProvider, ViewModelInitializationEventArgs> Initializing;
 

@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
@@ -140,6 +141,11 @@ namespace MugenMvvmToolkit.Infrastructure
         public IViewModel TryGetViewModelById(Guid viewModelId)
         {
             return TryGetViewModelByIdInternal(viewModelId);
+        }
+
+        public IList<IViewModel> GetCreatedViewModels(IDataContext dataContext = null)
+        {
+            return GetCreatedViewModelsInternal(dataContext ?? DataContext.Empty);
         }
 
         public IViewModel GetViewModel(GetViewModelDelegate<IViewModel> getViewModel, IDataContext dataContext)
@@ -279,7 +285,7 @@ namespace MugenMvvmToolkit.Infrastructure
                         };
                         restored(this, args);
                     }
-                    Tracer.TraceViewModel(AuditAction.Restored, viewModel);
+                    Tracer.TraceViewModel(ViewModelLifecycleType.Restored, viewModel);
                     if (ReferenceEquals(viewModelState, DataContext.Empty))
                         Tracer.Warn("The view model '{0}' was restored without state.", viewModel);
                     return viewModel;
@@ -371,6 +377,21 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
+        protected virtual IList<IViewModel> GetCreatedViewModelsInternal([NotNull]IDataContext context)
+        {
+            var result = new List<IViewModel>();
+            lock (CachedViewModels)
+            {
+                foreach (var value in CachedViewModels.Values)
+                {
+                    var viewModel = value.GetViewModel();
+                    if (viewModel != null)
+                        result.Add(viewModel);
+                }
+            }
+            return result;
+        }
+
         protected virtual IViewModel TryGetViewModelByIdInternal(Guid viewModelId)
         {
             lock (CachedViewModels)
@@ -439,14 +460,23 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        private static void OnTraceViewModel(AuditAction auditAction, IViewModel viewModel)
+        private static void OnTraceViewModel(ViewModelLifecycleType lifecycleType, IViewModel viewModel)
         {
-            if (auditAction != AuditAction.Disposed && auditAction != AuditAction.Finalized)
+            if (lifecycleType != ViewModelLifecycleType.Disposed && lifecycleType != ViewModelLifecycleType.Finalized)
                 return;
 
             Guid id;
             if (!viewModel.Settings.State.TryGetData(ViewModelConstants.Id, out id))
                 return;
+            if (lifecycleType == ViewModelLifecycleType.Finalized)
+            {
+                ThreadPool.QueueUserWorkItem(state =>
+                  {
+                      lock (CachedViewModels)
+                          CachedViewModels.Remove((Guid)state);
+                  }, id);
+                return;
+            }
 
             CachedViewModel value;
             lock (CachedViewModels)
@@ -454,7 +484,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (CachedViewModels.TryGetValue(id, out value))
                     CachedViewModels.Remove(id);
             }
-            if (value != null && auditAction == AuditAction.Disposed)
+            if (value != null)
                 value.Clear();
         }
 
