@@ -67,9 +67,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         #region Fields
 
         private const string CallbacksMember = "~~#callbacks";
-
         private static readonly DataConstant<CallbackDictionary> CallbackConstant;
-
         private readonly ISerializer _serializer;
 
         #endregion
@@ -122,6 +120,14 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             }
         }
 
+        public void SetResult(object target, Func<OperationType, object, IOperationResult> getResult)
+        {
+            Should.NotBeNull(target, "target");
+            if (getResult == null)
+                getResult = (type, o) => OperationResult.CreateCancelResult<bool?>(type, o);
+            SetResultInternal(target, getResult);
+        }
+
         #endregion
 
         #region Methods
@@ -136,7 +142,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 if (!viewModel.Settings.State.TryGetData(CallbackConstant, out callbacks))
                 {
                     callbacks = new CallbackDictionary();
-                    viewModel.Settings.State.Add(CallbackConstant, callbacks);
+                    viewModel.Settings.State.AddOrUpdate(CallbackConstant, callbacks);
                 }
             }
             else
@@ -146,50 +152,94 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             RegisterInternal(callbacks, operation.Id, callback);
         }
 
+        protected virtual void SetResultInternal([NotNull] object target, [NotNull] Func<OperationType, object, IOperationResult> getResult)
+        {
+            CallbackDictionary data;
+            List<string> l1 = null;
+            List<string> l2 = null;
+            var viewModel = target as IViewModel;
+            if (viewModel != null && viewModel.Settings.State.TryGetData(CallbackConstant, out data))
+                l1 = InvokeCallbacks(data, viewModel, getResult, vm => vm.Settings.State.Remove(CallbackConstant));
+
+            if (ServiceProvider.AttachedValueProvider.TryGetValue(target, CallbacksMember, out data))
+                l2 = InvokeCallbacks(data, target, getResult, o => ServiceProvider.AttachedValueProvider.Clear(o, CallbacksMember));
+
+            if (Tracer.TraceInformation && l1 != null || l2 != null)
+            {
+                var set = new HashSet<string>();
+                if (l1 != null)
+                    set.AddRange(l1);
+                if (l2 != null)
+                    set.AddRange(l2);
+                foreach (var s in set)
+                    Tracer.Info("The callback '{0}' was invoked, source: '{1}'", s, target);
+            }
+        }
+
         protected virtual bool SetResultInternal([NotNull] IOperationResult result)
         {
-            string id = result.Operation.Id;
             var target = result.Source;
-            IEnumerable<object> callbacks = null;
+            List<IOperationCallback> callbacks = null;
+            CallbackDictionary data;
+
             var viewModel = target as IViewModel;
-            if (viewModel != null)
-            {
-                CallbackDictionary data;
-                if (viewModel.Settings.State.TryGetData(CallbackConstant, out data))
-                {
-                    lock (data)
-                    {
-                        List<object> list;
-                        if (data.TryGetValue(id, out list))
-                        {
-                            callbacks = list;
-                            data.Remove(id);
-                        }
-                        if (data.Count == 0)
-                            viewModel.Settings.State.Remove(CallbackConstant);
-                    }
-                }
-            }
-            var attachedValue = ServiceProvider
-                .AttachedValueProvider
-                .GetValue<Dictionary<string, List<object>>>(target, CallbacksMember, false);
-            if (attachedValue != null)
-            {
-                lock (attachedValue)
-                {
-                    List<object> list;
-                    if (attachedValue.TryGetValue(id, out list))
-                    {
-                        callbacks = callbacks == null ? list : list.Concat(callbacks);
-                        attachedValue.Remove(id);
-                    }
-                }
-            }
+            if (viewModel != null && viewModel.Settings.State.TryGetData(CallbackConstant, out data))
+                InitializeCallbacks(data, result.Operation, ref callbacks, viewModel, vm => vm.Settings.State.Remove(CallbackConstant));
+
+            if (ServiceProvider.AttachedValueProvider.TryGetValue(target, CallbacksMember, out data))
+                InitializeCallbacks(data, result.Operation, ref callbacks, target, o => ServiceProvider.AttachedValueProvider.Clear(o, CallbacksMember));
+
             if (callbacks == null)
                 return false;
-            foreach (IOperationCallback callback in callbacks.OfType<IOperationCallback>())
+            foreach (var callback in callbacks)
                 callback.Invoke(result);
             return true;
+        }
+
+        private static void InitializeCallbacks<T>(CallbackDictionary dictionary, OperationType type, ref List<IOperationCallback> list, T target, Action<T> clearDictAction)
+        {
+            if (dictionary == null)
+                return;
+            List<object> value;
+            lock (dictionary)
+            {
+                if (dictionary.TryGetValue(type.Id, out value))
+                    dictionary.Remove(type.Id);
+                if (dictionary.Count == 0)
+                    clearDictAction(target);
+            }
+            if (value == null)
+                return;
+            if (list == null)
+                list = new List<IOperationCallback>();
+            lock (value)
+                list.AddRange(value.Cast<IOperationCallback>());
+        }
+
+        private static List<string> InvokeCallbacks<T>(CallbackDictionary dictionary, T target, Func<OperationType, object, IOperationResult> getResult, Action<T> clearDictAction)
+        {
+            List<string> invoked = null;
+            KeyValuePair<string, List<object>>[] keyValuePairs;
+            lock (dictionary)
+                keyValuePairs = dictionary.ToArray();
+            foreach (var pair in keyValuePairs)
+            {
+                var op = new OperationType(pair.Key);
+                var result = getResult(op, target);
+                if (result == null)
+                    continue;
+
+                List<IOperationCallback> list = null;
+                InitializeCallbacks(dictionary, op, ref list, target, clearDictAction);
+                if (list == null)
+                    continue;
+                foreach (var callback in list)
+                    callback.Invoke(result);
+                if (invoked == null)
+                    invoked = new List<string>();
+                invoked.Add(pair.Key);
+            }
+            return invoked;
         }
 
         private void RegisterInternal(CallbackDictionary callbacks, string id, IOperationCallback callback)
@@ -202,16 +252,17 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 callback = (IOperationCallback)_serializer.Deserialize(stream);
             }
 
+            List<object> list;
             lock (callbacks)
             {
-                List<object> list;
                 if (!callbacks.TryGetValue(id, out list))
                 {
                     list = new List<object>();
                     callbacks[id] = list;
                 }
-                list.Add(callback);
             }
+            lock (list)
+                list.Add(callback);
         }
 
         #endregion

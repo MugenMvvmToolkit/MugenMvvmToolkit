@@ -16,6 +16,7 @@
 
 #endregion
 
+using System;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
@@ -27,5 +28,7 @@ namespace MugenMvvmToolkit.Interfaces.Callbacks
         void Register([NotNull] OperationType operation, [NotNull] object target, [NotNull] IOperationCallback callback, [CanBeNull] IDataContext context);
 
         void SetResult([NotNull] IOperationResult result);
+
+        void SetResult([NotNull] object target, [CanBeNull] Func<OperationType, object, IOperationResult> getResult);
     }
 }
