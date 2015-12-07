@@ -129,9 +129,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         #region Fields
 
         public const int DefaultNavigationPresenterPriority = -1;
-
         public const int DefaultMultiViewModelPresenterPriority = 0;
-
         public const int DefaultWindowPresenterPriority = 1;
 
         private readonly DynamicPresentersCollection _dynamicPresenters;
@@ -159,13 +157,14 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             Should.NotBeNull(viewModel, "viewModel");
             if (context == null)
                 context = DataContext.Empty;
-            for (int i = 0; i < _dynamicPresenters.Count; i++)
+            var presenters = _dynamicPresenters.ToArrayEx();
+            for (int i = 0; i < presenters.Length; i++)
             {
-                var operation = _dynamicPresenters[i].TryShowAsync(viewModel, context, this);
+                var operation = presenters[i].TryShowAsync(viewModel, context, this);
                 if (operation != null)
                 {
                     if (Tracer.TraceInformation)
-                        Tracer.Info("The {0} is shown by {1}", viewModel.GetType().FullName, _dynamicPresenters[i].GetType().FullName);
+                        Tracer.Info("The {0} is shown by {1}", viewModel.GetType().FullName, presenters[i].GetType().FullName);
                     return operation;
                 }
             }
@@ -177,9 +176,10 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             Should.NotBeNull(viewModel, "viewModel");
             if (context == null)
                 context = DataContext.Empty;
-            for (int i = 0; i < _dynamicPresenters.Count; i++)
+            var presenters = _dynamicPresenters.ToArrayEx();
+            for (int i = 0; i < presenters.Length; i++)
             {
-                var presenter = _dynamicPresenters[i] as IRestorableDynamicViewModelPresenter;
+                var presenter = presenters[i] as IRestorableDynamicViewModelPresenter;
                 if (presenter != null && presenter.Restore(viewModel, context, this))
                     return;
             }

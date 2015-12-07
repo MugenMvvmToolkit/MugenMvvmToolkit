@@ -28,8 +28,7 @@ namespace MugenMvvmToolkit.Interfaces.Presenters
         int Priority { get; }
 
         [CanBeNull]
-        INavigationOperation TryShowAsync([NotNull] IViewModel viewModel, [NotNull] IDataContext context,
-            [CanBeNull] IViewModelPresenter parentPresenter);
+        INavigationOperation TryShowAsync([NotNull] IViewModel viewModel, [NotNull] IDataContext context, [NotNull]IViewModelPresenter parentPresenter);
     }
 
     public interface IRestorableDynamicViewModelPresenter : IDynamicViewModelPresenter
