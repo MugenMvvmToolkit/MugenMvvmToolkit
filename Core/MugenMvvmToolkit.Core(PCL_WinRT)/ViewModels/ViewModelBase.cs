@@ -238,7 +238,7 @@ namespace MugenMvvmToolkit.ViewModels
                 _settings = new DefaultViewModelSettings();
             else
                 _settings = current.ViewModelSettings.Clone();
-            Tracer.TraceViewModel(AuditAction.Created, this);
+            Tracer.TraceViewModel(ViewModelLifecycleType.Created, this);
             if (IsDesignMode)
                 ServiceProvider.DesignTimeManager.InitializeViewModel(this);
         }
@@ -366,7 +366,7 @@ namespace MugenMvvmToolkit.ViewModels
                 Initialized = null;
             }
             OnPropertyChanged("IsInitialized");
-            Tracer.TraceViewModel(AuditAction.Initialized, this);
+            Tracer.TraceViewModel(ViewModelLifecycleType.Initialized, this);
         }
 
         public virtual IBusyToken BeginBusy(object message = null)
@@ -542,7 +542,7 @@ namespace MugenMvvmToolkit.ViewModels
 
             Settings.Metadata.Clear();
             ServiceProvider.AttachedValueProvider.Clear(this);
-            Tracer.TraceViewModel(AuditAction.Disposed, this);
+            Tracer.TraceViewModel(ViewModelLifecycleType.Disposed, this);
         }
 
         private bool InitializeEventAggregator(bool required)
@@ -629,7 +629,7 @@ namespace MugenMvvmToolkit.ViewModels
         {
             OnDisposeInternal(false);
             OnDispose(false);
-            Tracer.TraceViewModel(AuditAction.Finalized, this);
+            Tracer.TraceViewModel(ViewModelLifecycleType.Finalized, this);
         }
 
         #endregion

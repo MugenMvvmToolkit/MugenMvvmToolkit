@@ -24,7 +24,7 @@ namespace MugenMvvmToolkit.Interfaces
 {
     public interface ITracer
     {
-        void TraceViewModel(AuditAction auditAction, [NotNull] IViewModel viewModel);
+        void TraceViewModel(ViewModelLifecycleType lifecycleType, [NotNull] IViewModel viewModel);
 
         void Trace(TraceLevel level, string message);
 

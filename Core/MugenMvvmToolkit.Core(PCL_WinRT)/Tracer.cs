@@ -66,12 +66,12 @@ namespace MugenMvvmToolkit
 
         #region Methods
 
-        public static void TraceViewModel(AuditAction auditAction, IViewModel viewModel)
+        public static void TraceViewModel(ViewModelLifecycleType lifecycleType, IViewModel viewModel)
         {
-            Action<AuditAction, IViewModel> handler = TraceViewModelHandler;
+            Action<ViewModelLifecycleType, IViewModel> handler = TraceViewModelHandler;
             if (handler != null)
-                handler(auditAction, viewModel);
-            ServiceProvider.Tracer.TraceViewModel(auditAction, viewModel);
+                handler(lifecycleType, viewModel);
+            ServiceProvider.Tracer.TraceViewModel(lifecycleType, viewModel);
         }
 
         public static void Info(string message)
@@ -148,24 +148,24 @@ namespace MugenMvvmToolkit
 
         #region Events
 
-        public static event Action<AuditAction, IViewModel> TraceViewModelHandler;
+        public static event Action<ViewModelLifecycleType, IViewModel> TraceViewModelHandler;
 
         #endregion
 
         #region Implementation of ITracer
 
-        void ITracer.TraceViewModel(AuditAction auditAction, IViewModel viewModel)
+        void ITracer.TraceViewModel(ViewModelLifecycleType lifecycleType, IViewModel viewModel)
         {
-            TraceLevel traceLevel = auditAction == AuditAction.Finalized ? TraceLevel.Warning : TraceLevel.Information;
+            TraceLevel traceLevel = lifecycleType == ViewModelLifecycleType.Finalized ? TraceLevel.Warning : TraceLevel.Information;
             if (!CanTrace(traceLevel))
                 return;
             var displayName = viewModel as IHasDisplayName;
             if (displayName == null)
                 Trace(traceLevel, "{0} ({1}) - {2};", viewModel.GetType(),
-                    viewModel.GetHashCode().ToString(CultureInfo.InvariantCulture), auditAction);
+                    viewModel.GetHashCode().ToString(CultureInfo.InvariantCulture), lifecycleType);
             else
                 Trace(traceLevel, "{0} (Hash - {1}; DisplayName - {2};) - {3}", viewModel.GetType(),
-                    viewModel.GetHashCode().ToString(CultureInfo.InvariantCulture), displayName.DisplayName, auditAction);
+                    viewModel.GetHashCode().ToString(CultureInfo.InvariantCulture), displayName.DisplayName, lifecycleType);
         }
 
         public void Trace(TraceLevel level, string message)

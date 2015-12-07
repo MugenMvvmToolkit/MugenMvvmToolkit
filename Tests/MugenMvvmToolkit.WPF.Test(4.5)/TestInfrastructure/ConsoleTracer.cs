@@ -11,9 +11,9 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
     {
         #region Implementation of ITracer
 
-        public void TraceViewModel(AuditAction auditAction, IViewModel viewModel)
+        public void TraceViewModel(ViewModelLifecycleType lifecycleType, IViewModel viewModel)
         {
-            Debug.WriteLine("{0}: {1}", auditAction, viewModel);
+            Debug.WriteLine("{0}: {1}", lifecycleType, viewModel);
         }
 
         public void Trace(TraceLevel level, string message)

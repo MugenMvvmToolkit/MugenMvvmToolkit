@@ -78,7 +78,7 @@ namespace MugenMvvmToolkit.Models
         HandleAndNotifySubscribers = Handle | NotifySubscribers
     }
 
-    public enum AuditAction
+    public enum ViewModelLifecycleType
     {
         Created = 1,
         Initialized = 2,
