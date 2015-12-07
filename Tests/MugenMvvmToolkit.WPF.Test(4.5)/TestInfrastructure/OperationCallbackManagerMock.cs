@@ -34,6 +34,11 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
                 SetResult(result.Source, result);
         }
 
+        void IOperationCallbackManager.SetResult(object target, Func<OperationType, object, IOperationResult> getResult)
+        {
+            throw new NotSupportedException();
+        }
+
         #endregion
     }
 }

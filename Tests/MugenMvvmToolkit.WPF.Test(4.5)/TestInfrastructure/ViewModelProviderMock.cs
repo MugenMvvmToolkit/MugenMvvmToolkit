@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -48,6 +49,11 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         }
 
         public IViewModel TryGetViewModelById(Guid idViewModel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IList<IViewModel> GetCreatedViewModels(IDataContext dataContext = null)
         {
             throw new NotImplementedException();
         }
