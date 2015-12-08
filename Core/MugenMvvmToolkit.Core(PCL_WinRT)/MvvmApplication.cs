@@ -19,12 +19,12 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit
 {
@@ -32,9 +32,7 @@ namespace MugenMvvmToolkit
     {
         #region Fields
 
-        private const int InitializedState = 1;
-        private int _state;
-
+        private bool _isInitialized;
         private readonly LoadMode _mode;
         private PlatformInfo _platform;
         private IViewModelSettings _viewModelSettings;
@@ -62,7 +60,7 @@ namespace MugenMvvmToolkit
 
         public virtual bool IsInitialized
         {
-            get { return _state == InitializedState; }
+            get { return _isInitialized; }
         }
 
         public virtual PlatformInfo Platform
@@ -105,6 +103,16 @@ namespace MugenMvvmToolkit
         public static void SetDefaultDesignTimeManager()
         {
             ServiceProvider.DesignTimeManager = DesignTimeManagerImpl.Instance;
+        }
+
+        protected virtual void StartInternal([CanBeNull] IDataContext context)
+        {
+            context = context.ToNonReadOnly();
+            context.Merge(Context);
+            IocContainer
+                .Get<IViewModelProvider>()
+                .GetViewModel(GetStartViewModelType(), context)
+                .ShowAsync((model, result) => model.Dispose(), context: context);
         }
 
         protected virtual void OnInitialize(IList<Assembly> assemblies)
@@ -156,14 +164,14 @@ namespace MugenMvvmToolkit
 
         #region Implementation of interfaces
 
-        public void Initialize(PlatformInfo platform, IIocContainer iocContainer, IList<Assembly> assemblies,
-            IDataContext context)
+        public void Initialize(PlatformInfo platform, IIocContainer iocContainer, IList<Assembly> assemblies, IDataContext context)
         {
             Should.NotBeNull(platform, "platform");
             Should.NotBeNull(iocContainer, "iocContainer");
             Should.NotBeNull(assemblies, "assemblies");
-            if (Interlocked.Exchange(ref _state, InitializedState) == InitializedState)
+            if (_isInitialized)
                 return;
+            _isInitialized = true;
             Current = this;
             _platform = platform;
             _iocContainer = iocContainer;
@@ -171,6 +179,11 @@ namespace MugenMvvmToolkit
                 Context.Merge(context);
             OnInitialize(assemblies);
             RaiseInitialized(this);
+        }
+
+        public void Start(IDataContext context = null)
+        {
+            StartInternal(context);
         }
 
         public abstract Type GetStartViewModelType();
