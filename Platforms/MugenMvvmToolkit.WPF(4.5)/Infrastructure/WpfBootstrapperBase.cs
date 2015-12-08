@@ -42,12 +42,13 @@ using MugenMvvmToolkit.WPF.Modules;
 
 namespace MugenMvvmToolkit.WPF.Infrastructure
 {
-    public abstract class WpfBootstrapperBase : BootstrapperBase
+    public abstract class WpfBootstrapperBase : BootstrapperBase, IDynamicViewModelPresenter
     {
         #region Fields
 
         protected const string BindingAssemblyName = "MugenMvvmToolkit.WPF.Binding";
         private readonly PlatformInfo _platform;
+        private NavigationWindow _rootWindow;
 
         #endregion
 
@@ -91,34 +92,20 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
 
         #endregion
 
-        #region Methods
+        #region Implementation of IDynamicViewModelPresenter
 
-        public virtual void Start()
+        int IDynamicViewModelPresenter.Priority
         {
-            Initialize();
-            var app = MvvmApplication.Current;
-            var iocContainer = app.IocContainer;
-            var ctx = new DataContext(app.Context);
-            if (!ctx.Contains(NavigationConstants.IsDialog))
-                ctx.Add(NavigationConstants.IsDialog, false);
-            var viewModelType = app.GetStartViewModelType();
+            get { return int.MaxValue; }
+        }
 
-            NavigationWindow rootWindow = null;
-            var mappingProvider = iocContainer.Get<IViewMappingProvider>();
-            IViewMappingItem mapping = mappingProvider.FindMappingForViewModel(viewModelType, ctx.GetData(NavigationConstants.ViewName), true);
-            if (typeof(Page).IsAssignableFrom(mapping.ViewType))
+        INavigationOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        {
+            parentPresenter.DynamicPresenters.Remove(this);
+            var operation = parentPresenter.ShowAsync(viewModel, context);
+            if (ShutdownOnMainViewModelClose)
             {
-                rootWindow = CreateNavigationWindow();
-                var service = CreateNavigationService(rootWindow);
-                iocContainer.BindToConstant(service);
-            }
-            var vm = iocContainer
-               .Get<IViewModelProvider>()
-               .GetViewModel(viewModelType, ctx);
-            vm.ShowAsync((model, result) =>
-            {
-                model.Dispose();
-                if (ShutdownOnMainViewModelClose)
+                operation.ContinueWith(result =>
                 {
                     Application application = Application.Current;
                     if (application != null)
@@ -126,16 +113,43 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
                         Action action = application.Shutdown;
                         application.Dispatcher.BeginInvoke(action);
                     }
-                }
-            }, context: ctx);
-            if (rootWindow != null)
+                });
+            }
+            if (_rootWindow != null)
             {
-                IWindowViewMediator mediator = new WindowViewMediator(rootWindow, vm, iocContainer.Get<IThreadManager>(),
+                var iocContainer = MvvmApplication.Current.IocContainer;
+                IWindowViewMediator mediator = new WindowViewMediator(_rootWindow, viewModel, iocContainer.Get<IThreadManager>(),
                     iocContainer.Get<IViewManager>(), iocContainer.Get<IWrapperManager>(),
                     iocContainer.Get<IOperationCallbackManager>());
-                mediator.UpdateView(new PlatformWrapperRegistrationModule.WindowViewWrapper(rootWindow), true, ctx);
-                rootWindow.Show();
+                mediator.UpdateView(new PlatformWrapperRegistrationModule.WindowViewWrapper(_rootWindow), true, context);
+                _rootWindow.Show();
             }
+            return operation;
+        }
+
+        #endregion
+
+        #region Methods
+
+        public virtual void Start(IDataContext context = null)
+        {
+            Initialize();
+            context = context.ToNonReadOnly();
+            if (!context.Contains(NavigationConstants.IsDialog))
+                context.Add(NavigationConstants.IsDialog, false);
+            var app = MvvmApplication.Current;
+            var viewModelType = app.GetStartViewModelType();
+
+            var mappingProvider = app.IocContainer.Get<IViewMappingProvider>();
+            IViewMappingItem mapping = mappingProvider.FindMappingForViewModel(viewModelType, context.GetData(NavigationConstants.ViewName), true);
+            if (typeof(Page).IsAssignableFrom(mapping.ViewType))
+            {
+                _rootWindow = CreateNavigationWindow();
+                var service = CreateNavigationService(_rootWindow);
+                app.IocContainer.BindToConstant(service);
+            }
+            app.IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
+            app.Start(context);
         }
 
         protected virtual ICollection<Assembly> GetAssemblies()

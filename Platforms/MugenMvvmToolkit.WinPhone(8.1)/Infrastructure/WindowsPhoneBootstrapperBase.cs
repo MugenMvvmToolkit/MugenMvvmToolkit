@@ -92,16 +92,10 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #region Methods
 
-        public virtual void Start()
+        public virtual void Start(IDataContext context = null)
         {
             Initialize();
-            var app = MvvmApplication.Current;
-            var ctx = new DataContext(app.Context);
-            var viewModelType = app.GetStartViewModelType();
-            var viewModel = app.IocContainer
-               .Get<IViewModelProvider>()
-               .GetViewModel(viewModelType, ctx);
-            viewModel.ShowAsync((model, result) => model.Dispose(), context: ctx);
+            MvvmApplication.Current.Start(context);
         }
 
         protected virtual ICollection<Assembly> GetAssemblies()

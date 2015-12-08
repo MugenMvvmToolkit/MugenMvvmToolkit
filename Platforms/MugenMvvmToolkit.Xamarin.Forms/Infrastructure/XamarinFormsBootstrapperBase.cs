@@ -24,8 +24,10 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
@@ -39,7 +41,7 @@ using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 {
-    public abstract class XamarinFormsBootstrapperBase : BootstrapperBase
+    public abstract class XamarinFormsBootstrapperBase : BootstrapperBase, IDynamicViewModelPresenter
     {
         #region Nested types
 
@@ -60,6 +62,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         private static IPlatformService _platformService;
         private readonly PlatformInfo _platform;
         private IViewModel _mainViewModel;
+        private bool _wrapToNavigationPage;
 
         #endregion
 
@@ -118,42 +121,62 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         #endregion
 
+        #region Implementation of IDynamicViewModelPresenter
+
+        int IDynamicViewModelPresenter.Priority
+        {
+            get { return int.MaxValue; }
+        }
+
+        INavigationOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        {
+            parentPresenter.DynamicPresenters.Remove(this);
+            _mainViewModel = viewModel;
+
+            var view = (Page)ViewManager.GetOrCreateView(_mainViewModel, true, context);
+            NavigationPage page = view as NavigationPage;
+            if (page == null && _wrapToNavigationPage)
+                page = CreateNavigationPage(view);
+            if (page != null)
+            {
+                var iocContainer = MvvmApplication.Current.IocContainer;
+                INavigationService navigationService;
+                if (!iocContainer.TryGet(out navigationService))
+                {
+                    navigationService = CreateNavigationService();
+                    iocContainer.BindToConstant(navigationService);
+                }
+                //Activating navigation provider
+                INavigationProvider provider;
+                iocContainer.TryGet(out provider);
+
+                navigationService.UpdateRootPage(page);
+                view = page;
+            }
+            Application.Current.MainPage = view;
+            return new NavigationOperation();
+        }
+
+        #endregion
+
         #region Methods
 
-        public virtual Page Start(bool wrapToNavigationPage = true)
+        public virtual void Start(bool wrapToNavigationPage = true, IDataContext context = null)
         {
             if (Current != null && !ReferenceEquals(Current, this))
-                return Current.Start(wrapToNavigationPage);
+            {
+                Current.Start(wrapToNavigationPage, context);
+                return;
+            }
+            _wrapToNavigationPage = wrapToNavigationPage;
             Initialize();
             var app = MvvmApplication.Current;
-            var iocContainer = app.IocContainer;
-            var ctx = new DataContext(app.Context);
+            app.IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
+
             if (_mainViewModel == null || _mainViewModel.IsDisposed)
-            {
-                Type viewModelType = app.GetStartViewModelType();
-                _mainViewModel = iocContainer
-                    .Get<IViewModelProvider>()
-                    .GetViewModel(viewModelType, ctx);
-            }
-
-            var view = (Page)ViewManager.GetOrCreateView(_mainViewModel, true, ctx);
-            NavigationPage page = view as NavigationPage;
-            if (page == null && wrapToNavigationPage)
-                page = CreateNavigationPage(view);
-            if (page == null)
-                return view;
-            INavigationService navigationService;
-            if (!iocContainer.TryGet(out navigationService))
-            {
-                navigationService = CreateNavigationService();
-                iocContainer.BindToConstant(navigationService);
-            }
-            //Activating navigation provider
-            INavigationProvider provider;
-            iocContainer.TryGet(out provider);
-
-            navigationService.UpdateRootPage(page);
-            return page;
+                app.Start(context);
+            else
+                _mainViewModel.ShowAsync(context);
         }
 
         protected virtual ICollection<Assembly> GetAssemblies()

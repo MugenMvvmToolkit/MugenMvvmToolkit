@@ -26,14 +26,15 @@ using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.WinForms.Infrastructure
 {
-    public abstract class WinFormsBootstrapperBase : BootstrapperBase
+    public abstract class WinFormsBootstrapperBase : BootstrapperBase, IDynamicViewModelPresenter
     {
         #region Fields
 
@@ -79,26 +80,37 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
 
         #endregion
 
-        #region Methods
+        #region Implementation of IDynamicViewModelPresenter
 
-        public virtual void Start()
+        int IDynamicViewModelPresenter.Priority
         {
-            Initialize();
-            var app = MvvmApplication.Current;
-            var ctx = new DataContext(app.Context);
-            if (!ctx.Contains(NavigationConstants.IsDialog))
-                ctx.Add(NavigationConstants.IsDialog, false);
-            app.IocContainer
-                .Get<IViewModelProvider>()
-                .GetViewModel(app.GetStartViewModelType(), ctx)
-                .ShowAsync((model, result) =>
-                {
-                    model.Dispose();
-                    if (ShutdownOnMainViewModelClose)
-                        Application.Exit();
-                }, context: ctx);
+            get { return int.MaxValue; }
+        }
+
+        INavigationOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        {
+            parentPresenter.DynamicPresenters.Remove(this);
+            var operation = parentPresenter.ShowAsync(viewModel, context);
+            if (ShutdownOnMainViewModelClose)
+                operation.ContinueWith(result => Application.Exit());
             if (AutoRunApplication)
                 Application.Run();
+            return operation;
+        }
+
+        #endregion
+
+        #region Methods
+
+        public virtual void Start(IDataContext context = null)
+        {
+            Initialize();
+            context = context.ToNonReadOnly();
+            if (!context.Contains(NavigationConstants.IsDialog))
+                context.Add(NavigationConstants.IsDialog, false);
+            var app = MvvmApplication.Current;
+            app.IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
+            app.Start(context);
         }
 
         protected virtual ICollection<Assembly> GetAssemblies()
@@ -124,7 +136,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
                     disposable.Dispose();
 
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Tracer.Error(e.Flatten());
             }

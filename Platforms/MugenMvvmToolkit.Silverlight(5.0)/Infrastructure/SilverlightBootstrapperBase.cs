@@ -23,12 +23,16 @@ using System.Windows;
 using System.Windows.Resources;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Infrastructure.Callbacks;
+using MugenMvvmToolkit.Interfaces.Callbacks;
+using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Presenters;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Silverlight.Infrastructure
 {
-    public abstract class SilverlightBootstrapperBase : BootstrapperBase
+    public abstract class SilverlightBootstrapperBase : BootstrapperBase, IDynamicViewModelPresenter
     {
         #region Fields
 
@@ -62,6 +66,22 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
 
         #endregion
 
+        #region Implementation of IDynamicViewModelPresenter
+
+        int IDynamicViewModelPresenter.Priority
+        {
+            get { return int.MaxValue; }
+        }
+
+        INavigationOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        {
+            parentPresenter.DynamicPresenters.Remove(this);
+            _application.RootVisual = (UIElement)ViewManager.GetOrCreateView(viewModel, null, context);
+            return new NavigationOperation();
+        }
+
+        #endregion
+
         #region Methods
 
         protected override void InitializeInternal()
@@ -71,16 +91,12 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
             application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
         }
 
-        public virtual void Start()
+        public virtual void Start(IDataContext context = null)
         {
             Initialize();
             var app = MvvmApplication.Current;
-            var ctx = new DataContext(app.Context);
-            var viewModelType = app.GetStartViewModelType();
-            var viewModel = app.IocContainer
-               .Get<IViewModelProvider>()
-               .GetViewModel(viewModelType, ctx);
-            _application.RootVisual = (UIElement)ViewManager.GetOrCreateView(viewModel, false, ctx);
+            app.IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
+            app.Start(context);
         }
 
         protected virtual ICollection<Assembly> GetAssemblies()

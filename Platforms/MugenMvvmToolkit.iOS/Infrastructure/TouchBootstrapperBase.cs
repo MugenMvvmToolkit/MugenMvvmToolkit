@@ -31,13 +31,15 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.iOS.Infrastructure.Navigation;
 using MugenMvvmToolkit.iOS.Interfaces.Navigation;
 using MugenMvvmToolkit.iOS.Interfaces.Views;
+using MugenMvvmToolkit.Infrastructure.Callbacks;
+using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Infrastructure
 {
-    public abstract class TouchBootstrapperBase : BootstrapperBase
+    public abstract class TouchBootstrapperBase : BootstrapperBase, IDynamicViewModelPresenter
     {
         #region Fields
 
@@ -82,6 +84,24 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         #endregion
 
+        #region Implementation of IDynamicViewModelPresenter
+
+        int IDynamicViewModelPresenter.Priority
+        {
+            get { return int.MaxValue; }
+        }
+
+        INavigationOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        {
+            parentPresenter.DynamicPresenters.Remove(this);
+            if (WrapToNavigationController)
+                return parentPresenter.ShowAsync(viewModel, context);
+            _window.RootViewController = (UIViewController)ViewManager.GetOrCreateView(viewModel, null, context);
+            return new NavigationOperation();
+        }
+
+        #endregion
+
         #region Methods
 
         protected override void InitializeInternal()
@@ -94,19 +114,12 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
                 iocContainer.BindToConstant(_navigationService);
         }
 
-        public virtual void Start()
+        public virtual void Start(IDataContext context = null)
         {
             Initialize();
             var app = MvvmApplication.Current;
-            var ctx = new DataContext(app.Context);
-            var viewModelType = app.GetStartViewModelType();
-            var viewModel = app.IocContainer
-               .Get<IViewModelProvider>()
-               .GetViewModel(viewModelType, ctx);
-            if (WrapToNavigationController)
-                viewModel.ShowAsync((model, result) => model.Dispose(), null, ctx);
-            else
-                _window.RootViewController = (UIViewController)ViewManager.GetOrCreateView(viewModel, null, ctx);
+            app.IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
+            app.Start(context);
         }
 
         [CanBeNull]

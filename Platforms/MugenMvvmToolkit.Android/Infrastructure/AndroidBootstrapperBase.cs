@@ -148,16 +148,10 @@ You must specify the type of application bootstrapper using BootstrapperAttribut
             application.Initialize(_platform, CreateIocContainer(), GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
         }
 
-        public virtual void Start()
+        public virtual void Start(IDataContext context = null)
         {
             Initialize();
-            var app = MvvmApplication.Current;
-            var ctx = new DataContext(app.Context);
-            var viewModelType = app.GetStartViewModelType();
-            app.IocContainer
-               .Get<IViewModelProvider>()
-               .GetViewModel(viewModelType, ctx)
-               .ShowAsync((model, result) => model.Dispose(), null, ctx);
+            MvvmApplication.Current.Start(context);
         }
 
         [NotNull]
