@@ -144,12 +144,6 @@ namespace MugenMvvmToolkit.WinRT
             action();
         }
 
-        internal static bool IsSerializable(this Type type)
-        {
-            var typeInfo = type.GetTypeInfo();
-            return typeInfo.IsDefined(typeof(DataContractAttribute), false) || typeInfo.IsPrimitive;
-        }
-
         internal static PlatformInfo GetPlatformInfo()
         {
             var isPhone = new EasClientDeviceInformation().OperatingSystem.SafeContains("WindowsPhone", StringComparison.OrdinalIgnoreCase);

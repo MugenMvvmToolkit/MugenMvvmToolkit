@@ -592,11 +592,6 @@ namespace MugenMvvmToolkit.Android
             return new PlatformInfo(PlatformType.Android, result);
         }
 
-        internal static bool IsSerializable(this Type type)
-        {
-            return type.IsDefined(typeof(DataContractAttribute), false) || type.IsPrimitive;
-        }
-
         internal static WeakReference CreateWeakReference(object item)
         {
             if (item == null)

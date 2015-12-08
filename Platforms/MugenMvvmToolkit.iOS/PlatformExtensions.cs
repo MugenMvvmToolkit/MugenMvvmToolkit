@@ -490,11 +490,6 @@ namespace MugenMvvmToolkit.iOS
             return new PlatformInfo(PlatformType.iOS, result);
         }
 
-        internal static bool IsSerializable(this Type type)
-        {
-            return type.IsDefined(typeof(DataContractAttribute), false) || type.IsPrimitive;
-        }
-
         internal static NSIndexPath[] CreateNSIndexPathArray(int startingPosition, int count)
         {
             var newIndexPaths = new NSIndexPath[count];

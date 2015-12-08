@@ -98,11 +98,6 @@ namespace MugenMvvmToolkit.WinPhone
             else
                 ServiceProvider.AttachedValueProvider.SetValue(content, StatePath, state);
         }
-
-        internal static bool IsSerializable(this Type type)
-        {
-            return type.IsDefined(typeof(DataContractAttribute), false) || type.IsPrimitive;
-        }
 #endif
 
         internal static PlatformInfo GetPlatformInfo()

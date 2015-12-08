@@ -115,13 +115,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms
             item.ClearBindings(clearDataContext, clearAttachedValues);
         }
 
-        internal static bool IsSerializable(this Type type)
-        {
-            var typeInfo = type.GetTypeInfo();
-            return typeInfo.IsDefined(typeof(DataContractAttribute), false) || typeInfo.IsPrimitive;
-        }
-
-
         internal static bool IsAssignableFrom([NotNull] this Type typeFrom, [NotNull] Type typeTo)
         {
             Should.NotBeNull(typeFrom, "typeFrom");
