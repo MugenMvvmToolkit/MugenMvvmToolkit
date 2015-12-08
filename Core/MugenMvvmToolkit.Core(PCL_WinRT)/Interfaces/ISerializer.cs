@@ -16,6 +16,7 @@
 
 #endregion
 
+using System;
 using System.IO;
 using JetBrains.Annotations;
 
@@ -28,5 +29,8 @@ namespace MugenMvvmToolkit.Interfaces
 
         [NotNull]
         object Deserialize([NotNull] Stream stream);
+
+        [Pure]
+        bool IsSerializable([NotNull]Type type);
     }
 }

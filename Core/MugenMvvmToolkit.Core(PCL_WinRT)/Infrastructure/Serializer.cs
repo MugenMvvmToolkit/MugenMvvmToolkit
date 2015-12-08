@@ -84,6 +84,15 @@ namespace MugenMvvmToolkit.Infrastructure
             return ((DataContainer)_contractSerializer.ReadObject(stream)).Data;
         }
 
+        public bool IsSerializable(Type type)
+        {
+#if PCL_WINRT
+            return type == typeof(string) || type.IsDefined(typeof(DataContractAttribute), false) || type.GetTypeInfo().IsPrimitive;
+#else
+            return type == typeof(string) || type.IsDefined(typeof(DataContractAttribute), false) || type.IsPrimitive;
+#endif
+        }
+
         #endregion
 
         #region Methods
