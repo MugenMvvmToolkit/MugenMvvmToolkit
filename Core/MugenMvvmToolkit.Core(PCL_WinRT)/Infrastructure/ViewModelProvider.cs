@@ -18,7 +18,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
@@ -470,11 +470,11 @@ namespace MugenMvvmToolkit.Infrastructure
                 return;
             if (lifecycleType == ViewModelLifecycleType.Finalized)
             {
-                ThreadPool.QueueUserWorkItem(state =>
-                  {
-                      lock (CachedViewModels)
+                Task.Factory.StartNew(state =>
+                {
+                    lock (CachedViewModels)
                           CachedViewModels.Remove((Guid)state);
-                  }, id);
+                }, id);
                 return;
             }
 
