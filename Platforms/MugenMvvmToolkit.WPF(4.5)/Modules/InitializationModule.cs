@@ -28,12 +28,14 @@ using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.Modules;
 #if WPF
 using MugenMvvmToolkit.WPF.Infrastructure;
+using MugenMvvmToolkit.WPF.Infrastructure.Callbacks;
 using MugenMvvmToolkit.WPF.Infrastructure.Navigation;
 using MugenMvvmToolkit.WPF.Infrastructure.Presenters;
 
 namespace MugenMvvmToolkit.WPF.Modules
 #elif SILVERLIGHT
 using MugenMvvmToolkit.Silverlight.Infrastructure;
+using MugenMvvmToolkit.Silverlight.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Silverlight.Infrastructure.Navigation;
 using MugenMvvmToolkit.Silverlight.Infrastructure.Presenters;
 
@@ -129,13 +131,12 @@ namespace MugenMvvmToolkit.WinPhone.Modules
             return BindingInfo<IReflectionManager>.FromType<ExpressionReflectionManagerEx>(DependencyLifecycle.SingleInstance);
         }
 #endif
-
-#if WINDOWS_PHONE || WINDOWSCOMMON
         protected override BindingInfo<IOperationCallbackFactory> GetOperationCallbackFactory()
         {
             return BindingInfo<IOperationCallbackFactory>.FromType<SerializableOperationCallbackFactory>(DependencyLifecycle.SingleInstance);
         }
 
+#if WINDOWS_PHONE || WINDOWSCOMMON
         protected virtual BindingInfo<IApplicationStateManager> GetApplicationStateManager()
         {
             return BindingInfo<IApplicationStateManager>.FromType<ApplicationStateManager>(DependencyLifecycle.SingleInstance);

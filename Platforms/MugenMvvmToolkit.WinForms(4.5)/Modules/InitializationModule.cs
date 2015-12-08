@@ -28,6 +28,7 @@ using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.Modules;
 using MugenMvvmToolkit.WinForms.Infrastructure;
+using MugenMvvmToolkit.WinForms.Infrastructure.Callbacks;
 using MugenMvvmToolkit.WinForms.Infrastructure.Presenters;
 
 namespace MugenMvvmToolkit.WinForms.Modules
@@ -50,6 +51,11 @@ namespace MugenMvvmToolkit.WinForms.Modules
         #endregion
 
         #region Overrides of InitializationModuleBase
+
+        protected override BindingInfo<IOperationCallbackFactory> GetOperationCallbackFactory()
+        {
+            return BindingInfo<IOperationCallbackFactory>.FromType<SerializableOperationCallbackFactory>(DependencyLifecycle.SingleInstance);
+        }
 
         protected override BindingInfo<IItemsSourceDecorator> GetItemsSourceDecorator()
         {

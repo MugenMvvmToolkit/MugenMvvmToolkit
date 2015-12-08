@@ -16,7 +16,7 @@
 
 #endregion
 
-#if ANDROID || TOUCH
+#if ANDROID || TOUCH || WPF || WINFORMS
 extern alias mscore;
 #endif
 
@@ -31,6 +31,7 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
@@ -48,8 +49,12 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Callbacks
 namespace MugenMvvmToolkit.WinPhone.Infrastructure.Callbacks
 #elif XAMARIN_FORMS
 namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Callbacks
-#else
-namespace MugenMvvmToolkit.Infrastructure.Callbacks
+#elif WPF
+namespace MugenMvvmToolkit.WPF.Infrastructure.Callbacks
+#elif WINFORMS
+namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
+#elif SILVERLIGHT
+namespace MugenMvvmToolkit.Silverlight.Infrastructure.Callbacks
 #endif
 {
     //NOTE do you want to see some magic? :)
@@ -58,7 +63,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         #region Nested types
 
         [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true, Name = "socffs")]
-#if ANDROID || TOUCH
+#if ANDROID || TOUCH || WPF || WINFORMS
         [mscore::System.Serializable]
 #endif
         internal sealed class FieldSnapshot
@@ -192,7 +197,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 return true;
             }
 
-            public static FieldSnapshot Create(FieldInfo field, object target, IAsyncOperation asyncOperation)
+            public static FieldSnapshot Create(FieldInfo field, object target, IAsyncOperation asyncOperation, ISerializer serializer)
             {
                 var isStateMachine = target is IAsyncStateMachine;
                 if (isStateMachine)
@@ -258,7 +263,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                     };
                 }
 
-                if (field.FieldType.IsSerializable() || value is string)
+                if (serializer.IsSerializable(field.FieldType) || value is string)
                     return new FieldSnapshot
                     {
                         State = value,
@@ -272,7 +277,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                     var snapshots = new List<FieldSnapshot>();
                     foreach (var anonymousField in type.GetFieldsEx(MemberFlags.Instance | MemberFlags.NonPublic | MemberFlags.Public))
                     {
-                        var snapshot = Create(anonymousField, value, asyncOperation);
+                        var snapshot = Create(anonymousField, value, asyncOperation, serializer);
                         if (snapshot != null)
                             snapshots.Add(snapshot);
                     }
@@ -342,7 +347,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         }
 
         [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true)]
-#if ANDROID || TOUCH
+#if ANDROID || TOUCH || WPF || WINFORMS
         [mscore::System.Serializable]
 #endif
         internal sealed class AwaiterSerializableCallback : ISerializableCallback
@@ -352,11 +357,12 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             //Only for serialization
             internal AwaiterSerializableCallback() { }
 
-            public AwaiterSerializableCallback(Action continuation, IAsyncStateMachine stateMachine, string awaiterResultType, bool isUiThread, IAsyncOperation asyncOperation)
+            public AwaiterSerializableCallback(Action continuation, IAsyncStateMachine stateMachine, string awaiterResultType, bool isUiThread,
+                IAsyncOperation asyncOperation, ISerializer serializer)
             {
                 IsUiThread = isUiThread;
                 AwaiterResultType = awaiterResultType;
-                Initialize(continuation, stateMachine, asyncOperation);
+                Initialize(continuation, stateMachine, asyncOperation, serializer);
             }
 
             #endregion
@@ -379,7 +385,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             #region Methods
 
-            private void Initialize(Action continuation, IAsyncStateMachine stateMachine, IAsyncOperation asyncOperation)
+            private void Initialize(Action continuation, IAsyncStateMachine stateMachine, IAsyncOperation asyncOperation, ISerializer serializer)
             {
                 const MemberFlags flags = MemberFlags.NonPublic | MemberFlags.Public | MemberFlags.Instance;
                 if (stateMachine == null)
@@ -415,7 +421,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
                 foreach (var field in type.GetFieldsEx(flags))
                 {
-                    var snapshot = FieldSnapshot.Create(field, stateMachine, asyncOperation);
+                    var snapshot = FieldSnapshot.Create(field, stateMachine, asyncOperation, serializer);
                     if (snapshot != null)
                         FieldSnapshots.Add(snapshot);
                 }
@@ -538,6 +544,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             private readonly IHasStateMachine _hasStateMachine;
             private readonly Type _resultType;
             private readonly IAsyncOperation _asyncOperation;
+            private readonly ISerializer _serializer;
             private ISerializableCallback _serializableCallback;
             private readonly SynchronizationContext _context;
             private readonly bool _isUiThread;
@@ -546,13 +553,15 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             #region Constructors
 
-            public AwaiterContinuation(Action continuation, IHasStateMachine hasStateMachine, Type resultType, bool continueOnCapturedContext, IAsyncOperation asyncOperation)
+            public AwaiterContinuation(Action continuation, IHasStateMachine hasStateMachine, Type resultType, bool continueOnCapturedContext,
+                IAsyncOperation asyncOperation, ISerializer serializer)
             {
                 Should.NotBeNull(continuation, "continuation");
                 _continuation = continuation;
                 _hasStateMachine = hasStateMachine;
                 _resultType = resultType;
                 _asyncOperation = asyncOperation;
+                _serializer = serializer;
                 if (continueOnCapturedContext)
                 {
                     _context = SynchronizationContext.Current;
@@ -567,7 +576,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             public ISerializableCallback ToSerializableCallback()
             {
                 if (_serializableCallback == null)
-                    _serializableCallback = new AwaiterSerializableCallback(_continuation, _hasStateMachine.StateMachine, _resultType.AssemblyQualifiedName, _isUiThread, _asyncOperation);
+                    _serializableCallback = new AwaiterSerializableCallback(_continuation, _hasStateMachine.StateMachine, _resultType.AssemblyQualifiedName,
+                        _isUiThread, _asyncOperation, _serializer);
                 return _serializableCallback;
             }
 
@@ -594,6 +604,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             private readonly IOperationResult _result;
             private readonly IAsyncOperation _operation;
             private readonly bool _continueOnCapturedContext;
+            private readonly ISerializer _serializer;
             private IAsyncStateMachine _stateMachine;
 
             #endregion
@@ -607,10 +618,11 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                     _result = OperationResult.Convert<TResult>(result);
             }
 
-            public SerializableAwaiter(IAsyncOperation operation, bool continueOnCapturedContext)
+            public SerializableAwaiter(IAsyncOperation operation, bool continueOnCapturedContext, ISerializer serializer)
             {
                 _operation = operation;
                 _continueOnCapturedContext = continueOnCapturedContext;
+                _serializer = serializer;
             }
 
             #endregion
@@ -619,7 +631,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             public void OnCompleted(Action continuation)
             {
-                _operation.ContinueWith(new AwaiterContinuation(continuation, this, typeof(TResult), _continueOnCapturedContext, _operation));
+                _operation.ContinueWith(new AwaiterContinuation(continuation, this, typeof(TResult), _continueOnCapturedContext, _operation, _serializer));
             }
 
             public bool IsCompleted
@@ -658,7 +670,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         }
 
         [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true)]
-#if ANDROID || TOUCH
+#if ANDROID || TOUCH || WPF || WINFORMS
         [mscore::System.Serializable]
 #endif
         internal sealed class DelegateSerializableCallback : ISerializableCallback
@@ -788,6 +800,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         #region Fields
 
         private static readonly MethodInfo GetDefaultGenericMethod;
+        private readonly ISerializer _serializer;
 
         #endregion
 
@@ -799,6 +812,12 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 .GetMethodEx("GetDefaultGeneric", MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Static);
         }
 
+        public SerializableOperationCallbackFactory(ISerializer serializer)
+        {
+            Should.NotBeNull(serializer, "serializer");
+            _serializer = serializer;
+        }
+
         #endregion
 
         #region Implementation of IOperationCallbackFactory
@@ -808,8 +827,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             return CreateAwaiterInternal<object>(operation, context);
         }
 
-        public IAsyncOperationAwaiter<TResult> CreateAwaiter<TResult>(IAsyncOperation<TResult> operation,
-            IDataContext context)
+        public IAsyncOperationAwaiter<TResult> CreateAwaiter<TResult>(IAsyncOperation<TResult> operation, IDataContext context)
         {
             return CreateAwaiterInternal<TResult>(operation, context);
         }
@@ -835,7 +853,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 var snapshots = new List<FieldSnapshot>();
                 foreach (var anonymousField in targetType.GetFieldsEx(MemberFlags.Instance | MemberFlags.NonPublic | MemberFlags.Public))
                 {
-                    var snapshot = FieldSnapshot.Create(anonymousField, target, null);
+                    var snapshot = FieldSnapshot.Create(anonymousField, target, null, _serializer);
                     if (snapshot != null)
                         snapshots.Add(snapshot);
                 }
@@ -843,14 +861,14 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                     false, null, snapshots);
             }
             return new DelegateSerializableCallback(targetType.AssemblyQualifiedName, method.Name, firstParameterSource,
-                false, targetType.IsSerializable() ? target : null, null);
+                false, _serializer.IsSerializable(targetType) ? target : null, null);
         }
 
         #endregion
 
         #region Methods
 
-        private static SerializableAwaiter<TResult> CreateAwaiterInternal<TResult>(IAsyncOperation operation, IDataContext context)
+        private SerializableAwaiter<TResult> CreateAwaiterInternal<TResult>(IAsyncOperation operation, IDataContext context)
         {
             Should.NotBeNull(operation, "operation");
             if (context == null)
@@ -858,7 +876,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             bool continueOnCapturedContext;
             if (!context.TryGetData(OpeartionCallbackConstants.ContinueOnCapturedContext, out continueOnCapturedContext))
                 continueOnCapturedContext = true;
-            return new SerializableAwaiter<TResult>(operation, continueOnCapturedContext);
+            return new SerializableAwaiter<TResult>(operation, continueOnCapturedContext, _serializer);
         }
 
 
