@@ -128,6 +128,14 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Callbacks
 {
 }
 
+namespace MugenMvvmToolkit.WPF.Infrastructure.Callbacks
+{
+}
+
+namespace MugenMvvmToolkit.Silverlight.Infrastructure.Callbacks
+{
+}
+
 namespace MugenMvvmToolkit
 {
     public static class TestExtensions
@@ -160,15 +168,6 @@ namespace MugenMvvmToolkit
             if (context.TryGetData(constant, out data))
                 return data;
             return default(T);
-        }
-
-        internal static bool IsSerializable(this Type type)
-        {
-#if NETFX_CORE
-            return type.IsDefined(typeof(DataContractAttribute), false) || type.GetTypeInfo().IsPrimitive;
-#else
-            return type.IsDefined(typeof(DataContractAttribute), false) || type.IsPrimitive;
-#endif
         }
     }
 }

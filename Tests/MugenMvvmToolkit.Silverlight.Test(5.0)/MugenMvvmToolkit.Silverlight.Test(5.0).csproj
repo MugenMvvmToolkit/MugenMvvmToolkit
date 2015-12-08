@@ -99,9 +99,6 @@
     <Reference Include="System.Xml.Serialization, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Platforms\MugenMvvmToolkit.Android\Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs">
-      <Link>TestInfrastructure\SerializableOperationCallbackFactory.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\Bindings\Accessors\MultiBindingSourceAccessorTest.cs">
       <Link>Bindings\Accessors\MultiBindingSourceAccessorTest.cs</Link>
     </Compile>

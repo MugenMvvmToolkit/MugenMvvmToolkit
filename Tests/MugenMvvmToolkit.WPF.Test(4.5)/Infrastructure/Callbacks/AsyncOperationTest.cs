@@ -10,6 +10,8 @@ using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestModels;
 using MugenMvvmToolkit.WinRT.Infrastructure.Callbacks;
+using MugenMvvmToolkit.Silverlight.Infrastructure.Callbacks;
+using MugenMvvmToolkit.WPF.Infrastructure.Callbacks;
 using Should;
 
 namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks

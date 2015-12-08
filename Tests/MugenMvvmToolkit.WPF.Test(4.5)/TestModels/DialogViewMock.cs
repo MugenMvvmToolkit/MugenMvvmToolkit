@@ -34,6 +34,8 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         public bool IsClose { get; set; }
 
+        public bool IsActivated { get; set; }
+
         #endregion
 
         #region Methods
@@ -83,10 +85,14 @@ namespace MugenMvvmToolkit.Test.TestModels
 #if WPF
         public bool Activate()
         {
+            IsActivated = true;
             return true;
         }
 #else
-        public void Activate() { }
+        public void Activate()
+        {
+            IsActivated = true;
+        }
 #endif
 
         #endregion

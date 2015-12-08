@@ -9,6 +9,8 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Test.TestViewModels;
 using MugenMvvmToolkit.WinRT.Infrastructure.Callbacks;
+using MugenMvvmToolkit.WPF.Infrastructure.Callbacks;
+using MugenMvvmToolkit.Silverlight.Infrastructure.Callbacks;
 using Should;
 
 namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
@@ -21,7 +23,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         [TestMethod]
         public void OperationShouldSerializeStaticMethods()
         {
-            ServiceProvider.OperationCallbackFactory = new SerializableOperationCallbackFactory();
+            ServiceProvider.OperationCallbackFactory = new SerializableOperationCallbackFactory(Serializer);
             var operation = new AsyncOperation<bool>();
             var result = OperationResult.CreateResult(OperationType.PageNavigation, this, true);
 
@@ -40,7 +42,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         [TestMethod]
         public void OperationShouldSerializeInstanceMethods()
         {
-            ServiceProvider.OperationCallbackFactory = new SerializableOperationCallbackFactory();
+            ServiceProvider.OperationCallbackFactory = new SerializableOperationCallbackFactory(Serializer);
             var operation = new AsyncOperation<bool>();
             var result = OperationResult.CreateResult(OperationType.PageNavigation, this, true);
 
@@ -65,7 +67,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         public void OperationShouldSerializeAnonymousClassMethods()
         {
             var vmMock = new NavigableViewModelMock();
-            ServiceProvider.OperationCallbackFactory = new SerializableOperationCallbackFactory();
+            ServiceProvider.OperationCallbackFactory = new SerializableOperationCallbackFactory(Serializer);
             var operation = new AsyncOperation<bool>();
             var result = OperationResult.CreateResult(OperationType.PageNavigation, this, true,
                 new NavigationContext(NavigationType.Page, NavigationMode.Back, vmMock, vmMock, this));

@@ -69,14 +69,16 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
         }
 
         [TestMethod]
-        public virtual void ShowTwiceShouldThrowException()
+        public virtual void ShowTwiceShouldActivateWindow()
         {
             var view = new DialogViewMock();
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
             WindowViewMediatorBase<TView> windowMediator = Create(vm);
             windowMediator.ShowAsync(null, DataContext.Empty);
-            ShouldThrow(() => windowMediator.ShowAsync(null, DataContext.Empty));
+            view.IsActivated.ShouldBeFalse();
+            windowMediator.ShowAsync(null, DataContext.Empty);
+            view.IsActivated.ShouldBeTrue();
         }
 
         [TestMethod]

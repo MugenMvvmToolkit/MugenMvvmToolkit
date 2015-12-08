@@ -73,9 +73,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Platforms\MugenMvvmToolkit.Android\Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs">
-      <Link>TestInfrastructure\SerializableOperationCallbackFactory.cs</Link>
-    </Compile>
     <Compile Include="Bindings\Accessors\MultiBindingSourceAccessorTest.cs" />
     <Compile Include="Bindings\Accessors\SingleBindingSourceAccessorTest.cs" />
     <Compile Include="Bindings\Behaviors\BindingBehaviorTestBase.cs" />
