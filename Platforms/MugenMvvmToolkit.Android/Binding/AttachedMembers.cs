@@ -440,7 +440,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
             static View()
             {
-                DrawerIsOpened = new BindingMemberDescriptor<global::Android.Views.View, bool>("Drawer.IsOpened");
+                DrawerIsOpened = new BindingMemberDescriptor<global::Android.Views.View, bool>("DrawerIsOpened");
             }
 
         #endregion

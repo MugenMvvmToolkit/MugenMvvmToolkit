@@ -192,28 +192,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             bool allMembersAvailable = true;
             IBindingMemberProvider memberProvider = BindingServiceProvider.MemberProvider;
             IList<string> items = Path.Parts;
-
-            //Trying to get member using full path with dot, example BindingErrorProvider.Errors or ErrorProvider.Errors.
-            if (items.Count == 2)
-            {
-                var pathMember = memberProvider.GetBindingMember(source.GetType(), Path.Path, _ignoreAttachedMembers, false);
-                if (pathMember != null)
-                {
-                    var observer = TryObserveMember(source, pathMember, true);
-                    if (observer != null)
-                        _listeners.Add(observer);
-                    return new MultiBindingPathMembers(_lastMemberListener.Reference, source, new[] { pathMember });
-                }
-            }
-
-
             int lastIndex = items.Count - 1;
             var members = new List<IBindingMemberInfo>();
             for (int index = 0; index < items.Count; index++)
             {
                 string name = items[index];
-                IBindingMemberInfo pathMember = memberProvider
-                    .GetBindingMember(source.GetType(), name, _ignoreAttachedMembers, true);
+                IBindingMemberInfo pathMember = memberProvider.GetBindingMember(source.GetType(), name, _ignoreAttachedMembers, true);
                 members.Add(pathMember);
                 var observer = TryObserveMember(source, pathMember, index == lastIndex);
                 if (observer != null)

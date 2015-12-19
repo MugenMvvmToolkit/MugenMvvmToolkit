@@ -145,11 +145,11 @@ namespace MugenMvvmToolkit.Binding.Modules
         #region Fields
 
         private static bool _isLoaded;
-        private const string ErrorProviderErrors = "SetBindingErrors";
         private static readonly HashSet<Type> ExplicitParentTypes;
         private static readonly bool DebbugerAttached;
         private static readonly IAttachedBindingMemberInfo<object, object> CommandParameterInternal;
         private static readonly INotifiableAttachedBindingMemberInfo<object, ParentValue> AttachedParentMember;
+        private const string ErrorsKey = "@!err";
 
         #endregion
 
@@ -411,11 +411,8 @@ namespace MugenMvvmToolkit.Binding.Modules
             memberProvider.Register(parentMember);
             memberProvider.Register(AttachedBindingMember.CreateMember<object, object>("Root", GetRootMember, null, ObserveRootMember));
 
-            var errorsMember = AttachedBindingMember.CreateNotifiableMember<object, IEnumerable<object>>(AttachedMemberConstants.ErrorsPropertyMember, GetErrors, SetErrors);
-            memberProvider.Register(errorsMember, true);
+            memberProvider.Register(AttachedBindingMember.CreateNotifiableMember<object, IEnumerable<object>>(AttachedMemberConstants.ErrorsPropertyMember, GetErrors, SetErrors));
             memberProvider.Register(AttachedBindingMember.CreateMember<object, bool>("HasErrors", GetHasErrors, null, ObserveHasErrors));
-            memberProvider.Register(typeof(object), ErrorProviderErrors, errorsMember, true);
-            memberProvider.Register(typeof(object), "BindingErrorProvider.Errors", errorsMember, true);
         }
 
         private static bool SetErrors(IBindingMemberInfo bindingMemberInfo, object o, IEnumerable<object> errors)
@@ -426,7 +423,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             var errorsList = errors as IList<object>;
             if (errorsList == null)
                 errorsList = errors == null ? Empty.Array<object>() : errors.ToArray();
-            errorProvider.SetErrors(o, ErrorProviderErrors, errorsList, DataContext.Empty);
+            errorProvider.SetErrors(o, ErrorsKey, errorsList, DataContext.Empty);
             return true;
         }
 
