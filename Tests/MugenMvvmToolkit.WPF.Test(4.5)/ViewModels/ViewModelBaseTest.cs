@@ -154,8 +154,9 @@ namespace MugenMvvmToolkit.Test.ViewModels
         public void DefaultBusyMessageShouldEqualsToSettingsDefaultBusyMessage()
         {
             const string busyMessage = "busy...";
-            Settings.WithoutClone = true;
-            Settings.DefaultBusyMessage = busyMessage;
+            var settings = new DefaultViewModelSettings { DefaultBusyMessage = busyMessage };
+            ServiceProvider.ViewModelSettingsFactory = model => settings;
+
             ViewModelBase viewModel = GetViewModelBase();
 
             viewModel.BeginBusy();

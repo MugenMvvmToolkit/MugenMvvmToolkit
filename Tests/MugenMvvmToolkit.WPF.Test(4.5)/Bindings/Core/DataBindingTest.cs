@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         public virtual void BindingShouldBeRegisteredInBindingManager()
         {
             var target = new object();
-            IBindingPath path = BindingPath.Create("test");
+            IBindingPath path = new BindingPath("test");
             var bindingManager = new BindingManager();
             DataBinding binding = CreateDataBinding(
                 new BindingSourceAccessorMock { Source = new ObserverMock { GetActualSource = b => target, Path = path } },
@@ -59,7 +59,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         [TestMethod]
         public virtual void BindingShouldCorrectInitializeProperties()
         {
-            IBindingPath path = BindingPath.Create("test");
+            IBindingPath path = new BindingPath("test");
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
@@ -76,7 +76,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         [TestMethod]
         public virtual void BindingShouldAddSelfToDataContext()
         {
-            IBindingPath path = BindingPath.Create("test");
+            IBindingPath path = new BindingPath("test");
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
@@ -94,7 +94,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         public virtual void BindingShouldRaiseExceptionEventWhenUpdateTargetThrowException()
         {
             bool isInvoked = false;
-            IBindingPath path = BindingPath.Create("test");
+            IBindingPath path = new BindingPath("test");
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
@@ -125,7 +125,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         public virtual void BindingShouldRaiseExceptionEventWhenUpdateSourceThrowException()
         {
             bool isInvoked = false;
-            IBindingPath path = BindingPath.Create("test");
+            IBindingPath path = new BindingPath("test");
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
@@ -154,7 +154,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         public virtual void BindingShouldRaiseEventWhenUpdateTargetTrue()
         {
             bool isInvoked = false;
-            IBindingPath path = BindingPath.Create("test");
+            IBindingPath path = new BindingPath("test");
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
@@ -183,7 +183,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         public virtual void BindingShouldRaiseEventWhenUpdateTargetFalse()
         {
             bool isInvoked = false;
-            IBindingPath path = BindingPath.Create("test");
+            IBindingPath path = new BindingPath("test");
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
@@ -206,7 +206,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         public virtual void BindingShouldRaiseEventWhenUpdateSourceTrue()
         {
             bool isInvoked = false;
-            IBindingPath path = BindingPath.Create("test");
+            IBindingPath path = new BindingPath("test");
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
@@ -235,7 +235,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         public virtual void BindingShouldRaiseEventWhenUpdateSourceFalse()
         {
             bool isInvoked = false;
-            IBindingPath path = BindingPath.Create("test");
+            IBindingPath path = new BindingPath("test");
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
@@ -258,7 +258,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         [TestMethod]
         public virtual void BindingShouldThrowExceptionDuplicateIdBehavior()
         {
-            IBindingPath path = BindingPath.Create("test");
+            IBindingPath path = new BindingPath("test");
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
@@ -276,7 +276,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         [TestMethod]
         public virtual void BindingShouldNotAddSameBehavior()
         {
-            IBindingPath path = BindingPath.Create("test");
+            IBindingPath path = new BindingPath("test");
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
@@ -297,7 +297,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         [TestMethod]
         public virtual void BindingShouldNotAddBehaviorIfAttachReturnsFalse()
         {
-            IBindingPath path = BindingPath.Create("test");
+            IBindingPath path = new BindingPath("test");
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
@@ -319,7 +319,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         [TestMethod]
         public virtual void BindingShouldCallAttachDetachMethodInBehavior()
         {
-            IBindingPath path = BindingPath.Create("test");
+            IBindingPath path = new BindingPath("test");
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
@@ -353,7 +353,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         public virtual void BindingShouldUpdateSourceWithBindingContext()
         {
             bool isInvoked = false;
-            IBindingPath path = BindingPath.Create("test");
+            IBindingPath path = new BindingPath("test");
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
@@ -382,7 +382,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
         public virtual void BindingShouldUpdateTargetWithBindingContext()
         {
             bool isInvoked = false;
-            IBindingPath path = BindingPath.Create("test");
+            IBindingPath path = new BindingPath("test");
             var bindingManager = new BindingManager();
             var target = new BindingSourceAccessorMock
             {
@@ -417,9 +417,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var cycleItem1 = new CycleItem();
             var cycleItem2 = new CycleItem();
             var dataBinding = CreateDataBinding(
-                new BindingSourceAccessor(new SinglePathObserver(cycleItem1, BindingPath.Create("Property"), true),
+                new BindingSourceAccessor(new SinglePathObserver(cycleItem1, new BindingPath("Property"), true),
                     DataContext.Empty, true),
-                new BindingSourceAccessor(new SinglePathObserver(cycleItem2, BindingPath.Create("Property"), true),
+                new BindingSourceAccessor(new SinglePathObserver(cycleItem2, new BindingPath("Property"), true),
                     DataContext.Empty, false));
             dataBinding.Behaviors.Add(new TwoWayBindingMode());
             cycleItem2.Property = 10;

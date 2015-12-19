@@ -42,6 +42,8 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         public bool CanWrite { get; set; }
 
+        public bool DisableEqualityChecking { get; set; }
+
         public IList<IObserver> Sources
         {
             get

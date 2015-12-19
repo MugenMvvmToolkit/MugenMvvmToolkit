@@ -24,28 +24,16 @@ namespace MugenMvvmToolkit.Test
 
         private sealed class UnitTestApp : MvvmApplication
         {
-            #region Fields
-
-            private readonly TestBase _test;
-
-            #endregion
-
             #region Constructors
 
-            public UnitTestApp(TestBase test)
+            public UnitTestApp()
                 : base(LoadMode.UnitTest)
             {
-                _test = test;
             }
 
             #endregion
 
             #region Methods
-
-            public override IViewModelSettings ViewModelSettings
-            {
-                get { return _test.Settings; }
-            }
 
             public override Type GetStartViewModelType()
             {
@@ -62,8 +50,6 @@ namespace MugenMvvmToolkit.Test
         protected List<Type> CanBeResolvedTypes { get; private set; }
 
         protected ViewManagerMock ViewManager { get; set; }
-
-        protected ViewModelSettingsMock Settings { get; set; }
 
         protected ThreadManagerMock ThreadManager { get; set; }
 
@@ -84,20 +70,19 @@ namespace MugenMvvmToolkit.Test
         {
             ServiceProvider.DesignTimeManager = DesignTimeManagerImpl.Instance;
             ServiceProvider.AttachedValueProvider = new AttachedValueProvider();
+            ServiceProvider.ViewModelSettingsFactory = model => new DefaultViewModelSettings();
             CanBeResolvedTypes = new List<Type>
             {
                 typeof (IThreadManager),
-                typeof (IViewModelSettings),
                 typeof (IViewManager),
                 typeof (IDisplayNameProvider),
-                typeof(IViewModelProvider),
-                typeof(OperationCallbackManagerMock)
+                typeof (IViewModelProvider),
+                typeof (OperationCallbackManagerMock)
             };
             OperationCallbackManager = new OperationCallbackManagerMock();
             ViewManager = new ViewManagerMock();
             ThreadManager = new ThreadManagerMock();
             ServiceProvider.ThreadManager = ThreadManager;
-            Settings = new ViewModelSettingsMock();
             DisplayNameProvider = new DisplayNameProviderMock();
             IocContainer = new IocContainerMock
             {
@@ -108,7 +93,7 @@ namespace MugenMvvmToolkit.Test
             ServiceProvider.Tracer = new ConsoleTracer();
             ViewModelProvider = new ViewModelProvider(IocContainer);
             OnInit();
-            var app = new UnitTestApp(this);
+            var app = new UnitTestApp();
             app.Initialize(PlatformInfo.UnitTest, IocContainer, Empty.Array<Assembly>(), DataContext.Empty);
         }
 
@@ -161,8 +146,6 @@ namespace MugenMvvmToolkit.Test
         {
             if (type == typeof(IThreadManager))
                 return ThreadManager;
-            if (type == typeof(IViewModelSettings))
-                return Settings;
             if (type == typeof(IViewManager))
                 return ViewManager;
             if (type == typeof(IDisplayNameProvider))

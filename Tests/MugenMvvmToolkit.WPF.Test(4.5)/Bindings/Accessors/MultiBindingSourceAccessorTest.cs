@@ -233,7 +233,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
 
         private static IObserver CreateSource(object model, string path)
         {
-            return new MultiPathObserver(model, BindingPath.Create(path), false);
+            return new MultiPathObserver(model, new BindingPath(path), false);
         }
 
         #endregion

@@ -25,7 +25,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         {
             var target = new BindingSourceModel();
             var observerProvider = Cretate();
-            observerProvider.Observe(target, BindingPath.Create(GetMemberPath(target, model => model.NestedModel)), false).ShouldBeType<SinglePathObserver>();
+            observerProvider.Observe(target, new BindingPath(GetMemberPath(target, model => model.NestedModel)), false).ShouldBeType<SinglePathObserver>();
         }
 
         [TestMethod]
@@ -33,7 +33,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         {
             var target = new BindingSourceModel();
             var observerProvider = Cretate();
-            observerProvider.Observe(target, BindingPath.Create(GetMemberPath(target, model => model.NestedModel.IntProperty)), false).ShouldBeType<MultiPathObserver>();
+            observerProvider.Observe(target, new BindingPath(GetMemberPath(target, model => model.NestedModel.IntProperty)), false).ShouldBeType<MultiPathObserver>();
         }
 
         protected virtual ObserverProvider Cretate()

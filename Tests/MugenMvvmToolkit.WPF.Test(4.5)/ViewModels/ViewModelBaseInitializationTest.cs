@@ -140,13 +140,14 @@ namespace MugenMvvmToolkit.Test.ViewModels
         public void DefaultPropertiesShouldBeInitialized()
         {
             ThreadManager.ImmediateInvokeAsync = true;
-            Settings.WithoutClone = true;
+            var settings = new DefaultViewModelSettings();
+            ServiceProvider.ViewModelSettingsFactory = model => settings;
             ViewModelBase viewModel = GetViewModelBase();
 
             var testViewModel = viewModel.GetViewModel<TestViewModelBase>();
             testViewModel.ThreadManager.ShouldEqual(ThreadManager);
             testViewModel.IocContainer.ShouldEqual(viewModel.IocContainer);
-            testViewModel.Settings.ShouldEqual(Settings);
+            testViewModel.Settings.ShouldEqual(settings);
         }
 
         [TestMethod]

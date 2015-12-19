@@ -338,7 +338,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
                 BindingServiceProvider.MemberProvider = memberProvider;
             if (contextManager != null)
                 BindingServiceProvider.ContextManager = contextManager;
-            var bindingPath = BindingPath.Create(path);
+            var bindingPath = new BindingPath(path);
             if (bindingPath.IsEmpty)
                 return new EmptyPathObserver(source, bindingPath);
             if (bindingPath.IsSingle)

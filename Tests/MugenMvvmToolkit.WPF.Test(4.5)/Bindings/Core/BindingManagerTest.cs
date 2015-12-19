@@ -156,7 +156,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
                 {
                     Source = new ObserverMock
                     {
-                        Path = BindingPath.Create(path),
+                        Path = new BindingPath(path),
                         GetActualSource = b => target
                     }
                 }

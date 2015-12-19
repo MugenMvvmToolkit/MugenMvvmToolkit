@@ -15,6 +15,7 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Syntax;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Test.Bindings.Parse;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestModels;
@@ -488,6 +489,19 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         }
 
         [TestMethod]
+        public void BuilderShouldUseBinding()
+        {
+            var builder = new BindingBuilder();
+            var dataContext = new DataContext();
+            var bindingMock = new DataBindingMock { GetContext = () => dataContext };
+            builder.Bind(new object(), "empty").To<BindingSourceModel>(() => (model, ctx) => ctx.Binding());
+            
+            builder.AddOrUpdate(BindingConstants.Binding, bindingMock);
+            var expression = builder.GetData(BindingBuilderConstants.MultiExpression);
+            expression(builder, Empty.Array<object>()).ShouldEqual(bindingMock);
+        }
+
+        [TestMethod]
         public void BuilderShouldUseSelfExpression1()
         {
             var builder = new BindingBuilder();
@@ -909,6 +923,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var sourceModel = new BindingSourceModel();
             const int firstValue = -1;
             int executionCount = 0;
+            var dataContext = new DataContext();
+            var bindingMock = new DataBindingMock { GetContext = () => dataContext };
             var result = new BindingSourceModel { IntProperty = firstValue };
             BindingServiceProvider.ResourceResolver.AddMethod<string, object, BindingSourceModel>(key, (s1, s2, context) =>
             {
@@ -919,6 +935,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
                 return result;
             });
             builder.Bind(sourceModel, "empty").To<BindingSourceModel>(() => (model, ctx) => ctx.OneTime(ctx.ResourceMethod<BindingSourceModel>(key, key, builder).IntProperty) + 3);
+            builder.AddOrUpdate(BindingConstants.Binding, bindingMock);
 
             var sources = builder.GetData(BindingBuilderConstants.Sources);
             sources.Count.ShouldEqual(1);
