@@ -38,8 +38,5 @@ namespace MugenMvvmToolkit.Interfaces.Models
 
         [NotNull]
         IDataContext State { get; }
-
-        [NotNull]
-        IViewModelSettings Clone();
     }
 }

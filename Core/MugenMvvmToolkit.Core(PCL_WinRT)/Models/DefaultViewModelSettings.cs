@@ -32,13 +32,6 @@ namespace MugenMvvmToolkit.Models
 
         #region Constructors
 
-        private DefaultViewModelSettings(IDataContext metadata, IDataContext state)
-            : base(metadata ?? Empty)
-        {
-            if (state != null)
-                _state = new DataContext(state);
-        }
-
         public DefaultViewModelSettings()
         {
             _defaultBusyMessage = string.Empty;
@@ -83,18 +76,6 @@ namespace MugenMvvmToolkit.Models
                 return _state;
             }
             protected set { _state = value; }
-        }
-
-        public virtual IViewModelSettings Clone()
-        {
-            return new DefaultViewModelSettings(this, _state)
-            {
-                DisposeCommands = DisposeCommands,
-                HandleBusyMessageMode = HandleBusyMessageMode,
-                EventExecutionMode = EventExecutionMode,
-                DefaultBusyMessage = DefaultBusyMessage,
-                BroadcastAllMessages = BroadcastAllMessages
-            };
         }
 
         #endregion
