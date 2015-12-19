@@ -35,7 +35,6 @@ namespace MugenMvvmToolkit
         private bool _isInitialized;
         private readonly LoadMode _mode;
         private PlatformInfo _platform;
-        private IViewModelSettings _viewModelSettings;
         private IIocContainer _iocContainer;
         private readonly IDataContext _context;
 
@@ -83,11 +82,6 @@ namespace MugenMvvmToolkit
             get { return _context; }
         }
 
-        public virtual IViewModelSettings ViewModelSettings
-        {
-            get { return _viewModelSettings; }
-        }
-
         #endregion
 
         #region Methods
@@ -118,11 +112,6 @@ namespace MugenMvvmToolkit
         protected virtual void OnInitialize(IList<Assembly> assemblies)
         {
             LoadModules(assemblies);
-            if (!IocContainer.TryGet(out _viewModelSettings))
-            {
-                _viewModelSettings = CreateViewModelSettings();
-                IocContainer.BindToConstant(_viewModelSettings);
-            }
         }
 
         protected virtual void LoadModules(IList<Assembly> assemblies)
@@ -133,12 +122,6 @@ namespace MugenMvvmToolkit
                 var context = CreateModuleContext(assemblies);
                 context.LoadModules(loadedModules);
             }
-        }
-
-        [NotNull]
-        protected virtual IViewModelSettings CreateViewModelSettings()
-        {
-            return new DefaultViewModelSettings();
         }
 
         [NotNull]

@@ -46,29 +46,22 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             #region Fields
 
             private readonly Type _startViewModelType;
-            private readonly IViewModelSettings _viewModelSettings;
 
             #endregion
 
             #region Constructors
 
-            public DefaultApp(Type startViewModelType, IViewModelSettings viewModelSettings = null, LoadMode mode = LoadMode.Runtime)
+            public DefaultApp(Type startViewModelType, LoadMode mode = LoadMode.Runtime)
                 : base(mode)
             {
                 Should.NotBeNull(startViewModelType, "startViewModelType");
                 Should.BeOfType<IViewModel>(startViewModelType, "startViewModelType");
                 _startViewModelType = startViewModelType;
-                _viewModelSettings = viewModelSettings;
             }
 
             #endregion
 
             #region Methods
-
-            protected override IViewModelSettings CreateViewModelSettings()
-            {
-                return _viewModelSettings ?? base.CreateViewModelSettings();
-            }
 
             public override Type GetStartViewModelType()
             {

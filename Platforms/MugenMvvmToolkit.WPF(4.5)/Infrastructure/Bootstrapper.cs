@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 #if WPF
@@ -69,18 +68,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         private sealed class DefaultApp : MvvmApplication
         {
-            #region Fields
-
-            public IViewModelSettings Settings;
-
-            #endregion
-
             #region Methods
-
-            protected override IViewModelSettings CreateViewModelSettings()
-            {
-                return Settings ?? base.CreateViewModelSettings();
-            }
 
             public override Type GetStartViewModelType()
             {
@@ -96,7 +84,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         private readonly IIocContainer _iocContainer;
         private readonly IEnumerable<Assembly> _assemblies;
-        private readonly IViewModelSettings _viewModelSettings;
         private IMvvmApplication _application;
 
         #endregion
@@ -110,30 +97,28 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         }
 
 #if WPF || (SILVERLIGHT && !WINDOWS_PHONE)
-        public Bootstrapper([NotNull] Application application, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, IViewModelSettings viewModelSettings = null, PlatformInfo platform = null)
+        public Bootstrapper([NotNull] Application application, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
             : base(application, platform: platform)
 #elif WINFORMS
-        public Bootstrapper([NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, IViewModelSettings viewModelSettings = null, PlatformInfo platform = null)
+        public Bootstrapper([NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
             : base(true, platform)
 #elif WINDOWS_PHONE
-        public Bootstrapper([NotNull] PhoneApplicationFrame rootFrame, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, IViewModelSettings viewModelSettings = null, PlatformInfo platform = null)
+        public Bootstrapper([NotNull] PhoneApplicationFrame rootFrame, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
             : base(rootFrame, platform)
 #elif WINDOWSCOMMON
-        public Bootstrapper([NotNull] Frame rootFrame, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, IViewModelSettings viewModelSettings = null, PlatformInfo platform = null)
+        public Bootstrapper([NotNull] Frame rootFrame, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
             : base(rootFrame, assemblies != null, platform)
 #elif TOUCH
-        public Bootstrapper([NotNull] UIWindow window, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, IViewModelSettings viewModelSettings = null, PlatformInfo platform = null)
+        public Bootstrapper([NotNull] UIWindow window, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
             : base(window, platform)
 #elif XAMARIN_FORMS
-        public Bootstrapper([NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null,
-            IViewModelSettings viewModelSettings = null, PlatformInfo platform = null)
+        public Bootstrapper([NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
             : base(platform)
 #endif
         {
             Should.NotBeNull(iocContainer, "iocContainer");
             _iocContainer = iocContainer;
             _assemblies = assemblies;
-            _viewModelSettings = viewModelSettings;
         }
 
         #endregion
@@ -184,7 +169,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
                 return _application;
             if (typeof(IMvvmApplication).IsAssignableFrom(typeof(T)))
                 return (IMvvmApplication)Activator.CreateInstance(typeof(T));
-            return new DefaultApp { Settings = _viewModelSettings };
+            return new DefaultApp();
         }
 
         protected override IIocContainer CreateIocContainer()
