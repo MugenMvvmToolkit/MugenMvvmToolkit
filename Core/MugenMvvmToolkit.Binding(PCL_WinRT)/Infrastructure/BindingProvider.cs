@@ -117,13 +117,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        public IList<IBindingBuilder> CreateBuildersFromString(object target, string bindingExpression, IList<object> sources = null)
+        public IList<IBindingBuilder> CreateBuildersFromString(object target, string bindingExpression, IList<object> sources = null, IDataContext context = null)
         {
             Should.NotBeNull(target, "target");
-            Should.NotBeNullOrWhitespace(bindingExpression, "bindingExpression");
+            Should.NotBeNull(bindingExpression, "bindingExpression");
             try
             {
-                var parserResult = Parser.Parse(bindingExpression, DataContext.Empty, target, sources);
+                var parserResult = Parser.Parse(target, bindingExpression, sources, context);
                 var result = new IBindingBuilder[parserResult.Count];
                 for (int index = 0; index < parserResult.Count; index++)
                 {
@@ -145,13 +145,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        public IList<IDataBinding> CreateBindingsFromString(object target, string bindingExpression, IList<object> sources = null)
+        public IList<IDataBinding> CreateBindingsFromString(object target, string bindingExpression, IList<object> sources = null, IDataContext context = null)
         {
             Should.NotBeNull(target, "target");
-            Should.NotBeNullOrWhitespace(bindingExpression, "bindingExpression");
+            Should.NotBeNull(bindingExpression, "bindingExpression");
             try
             {
-                IList<IDataContext> parserResult = Parser.Parse(bindingExpression, DataContext.Empty, target, sources);
+                IList<IDataContext> parserResult = Parser.Parse(target, bindingExpression, sources, context);
                 var result = new IDataBinding[parserResult.Count];
                 for (int index = 0; index < parserResult.Count; index++)
                     result[index] = BuildBinding(parserResult[index]);
