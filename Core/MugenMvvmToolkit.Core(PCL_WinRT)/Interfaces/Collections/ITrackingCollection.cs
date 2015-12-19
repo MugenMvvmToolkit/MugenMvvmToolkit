@@ -26,11 +26,16 @@ using MugenMvvmToolkit.Models;
 namespace MugenMvvmToolkit.Interfaces.Collections
 {
     public interface ITrackingCollection : INotifyPropertyChanged, IEnumerable<TrackingEntity<object>>
+#if PCL_WINRT
+        , IReadOnlyCollection<TrackingEntity<object>>
+#endif
     {
         [NotNull]
         IStateTransitionManager StateTransitionManager { get; set; }
 
+#if !PCL_WINRT
         int Count { get; }
+#endif
 
         bool HasChanges { get; }
 

@@ -656,7 +656,7 @@ namespace MugenMvvmToolkit
         {
             return itemsSource != null && itemsSource.IndexOf(item) > 0;
         }
-        
+
         public static bool CanMoveDownItem([CanBeNull] this IList itemsSource, [CanBeNull] object item)
         {
             if (itemsSource == null)
@@ -780,6 +780,11 @@ namespace MugenMvvmToolkit
             var collection = enumerable as ICollection;
             if (collection != null)
                 return collection.Count == 0;
+#if PCL_WINRT
+            var readOnlyCollection = enumerable as IReadOnlyCollection<object>;
+            if (readOnlyCollection != null)
+                return readOnlyCollection.Count == 0;
+#endif
             IEnumerator enumerator = enumerable.GetEnumerator();
             try
             {
@@ -801,6 +806,11 @@ namespace MugenMvvmToolkit
             var collection = source as ICollection;
             if (collection != null)
                 return collection.Count;
+#if PCL_WINRT
+            var readOnlyCollection = source as IReadOnlyCollection<object>;
+            if (readOnlyCollection != null)
+                return readOnlyCollection.Count;
+#endif
             int num = 0;
             var enumerator = source.GetEnumerator();
             try
