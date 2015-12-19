@@ -36,8 +36,8 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Parse
         IList<IBindingParserHandler> Handlers { get; }
 
         [NotNull]
-        IList<IDataContext> Parse([NotNull] string bindingExpression, [CanBeNull] IDataContext context,
-            [NotNull] object target, [CanBeNull] IList<object> sources);
+        IList<IDataContext> Parse([NotNull] object target, [NotNull] string bindingExpression, [CanBeNull] IList<object> sources,
+            [CanBeNull] IDataContext context);
 
         void InvalidateCache();
     }
