@@ -123,8 +123,7 @@ namespace MugenMvvmToolkit.ViewModels
             return Wrap<T>(viewModel, new DataContext(parameters));
         }
 
-        public static INavigationOperation ShowAsync([NotNull] this IViewModel viewModel,
-            params DataConstantValue[] parameters)
+        public static INavigationOperation ShowAsync([NotNull] this IViewModel viewModel, params DataConstantValue[] parameters)
         {
             return viewModel.ShowAsync(parameters == null ? null : new DataContext(parameters));
         }

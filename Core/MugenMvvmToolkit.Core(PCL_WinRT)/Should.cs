@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit
         [DebuggerStepThrough, AssertionMethod]
         public static void NotBeNullOrWhitespace([AssertionCondition(AssertionConditionType.IS_NOT_NULL)]string argumentValue, [InvokerParameterName] string paramName)
         {
-            if (string.IsNullOrEmpty(argumentValue) || (string.CompareOrdinal(argumentValue.Trim(), string.Empty) == 0))
+            if (string.IsNullOrWhiteSpace(argumentValue))
                 throw new ArgumentException(string.Format("Argument '{0}' cannot be null or whitespace", paramName));
         }
 

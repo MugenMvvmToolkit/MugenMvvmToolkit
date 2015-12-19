@@ -17,16 +17,16 @@
 #endregion
 
 using System.Threading;
-using MugenMvvmToolkit.Infrastructure.Presenters;
-using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Callbacks;
-using MugenMvvmToolkit.Interfaces.Navigation;
-using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.iOS.Infrastructure;
 using MugenMvvmToolkit.iOS.Infrastructure.Callbacks;
 using MugenMvvmToolkit.iOS.Infrastructure.Navigation;
 using MugenMvvmToolkit.iOS.Infrastructure.Presenters;
 using MugenMvvmToolkit.iOS.Interfaces;
+using MugenMvvmToolkit.Infrastructure.Presenters;
+using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Callbacks;
+using MugenMvvmToolkit.Interfaces.Navigation;
+using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.Modules;
@@ -37,17 +37,11 @@ namespace MugenMvvmToolkit.iOS.Modules
     {
         #region Cosntructors
 
-        static InitializationModule()
-        {
-            if (ServiceProvider.DesignTimeManager.IsDesignMode)
-                ServiceProvider.AttachedValueProvider = new AttachedValueProvider();
-        }
-
         public InitializationModule()
         {
         }
 
-        protected InitializationModule(LoadMode mode = LoadMode.All, int priority = InitializationModulePriority)
+        protected InitializationModule(LoadMode mode, int priority)
             : base(mode, priority)
         {
         }
@@ -95,7 +89,8 @@ namespace MugenMvvmToolkit.iOS.Modules
 
         protected override BindingInfo<IThreadManager> GetThreadManager()
         {
-            return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(SynchronizationContext.Current), DependencyLifecycle.SingleInstance);
+            return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(SynchronizationContext.Current),
+                DependencyLifecycle.SingleInstance);
         }
 
         protected override BindingInfo<INavigationProvider> GetNavigationProvider()

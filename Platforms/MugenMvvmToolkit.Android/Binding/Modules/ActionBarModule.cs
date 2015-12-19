@@ -645,10 +645,8 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                         tab.SetTag(value);
                         return true;
                     }));
-            memberProvider.Register(AttachedBindingMember.CreateMember<ActionBar, HomeButtonImpl>("HomeButton",
-                (info, bar) => HomeButtonImpl.GetOrAdd(bar), null));
-            memberProvider.Register(AttachedBindingMember.CreateEvent<HomeButtonImpl>("Click",
-                (info, homeButton, arg3) => homeButton.AddWithUnsubscriber(arg3)));
+            memberProvider.Register(AttachedBindingMember.CreateMember<ActionBar, HomeButtonImpl>("HomeButton", (info, bar) => HomeButtonImpl.GetOrAdd(bar), null));
+            memberProvider.Register(AttachedBindingMember.CreateEvent<HomeButtonImpl>("Click", (info, homeButton, arg3) => homeButton.AddWithUnsubscriber(arg3)));
 
             //SearchView
             BindingBuilderExtensions.RegisterDefaultBindingMember<SearchView>(() => v => v.Query);

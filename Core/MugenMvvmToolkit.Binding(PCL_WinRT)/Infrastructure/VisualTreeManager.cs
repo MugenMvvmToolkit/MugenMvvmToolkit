@@ -172,7 +172,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public virtual object FindRelativeSource(object target, string typeName, uint level)
         {
             Should.NotBeNull(target, "target");
-            Should.NotBeNullOrWhitespace(typeName, "typeName");
+            Should.NotBeNull(typeName, "typeName");
             object fullNameSource = null;
             object nameSource = null;
             uint fullNameLevel = 0;

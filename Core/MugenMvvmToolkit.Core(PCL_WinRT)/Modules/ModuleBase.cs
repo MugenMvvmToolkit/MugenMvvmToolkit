@@ -27,11 +27,8 @@ namespace MugenMvvmToolkit.Modules
     {
         #region Fields
 
-
         public const int InitializationModulePriority = 1;
-
         public const int BindingModulePriority = -1;
-
         public const int WrapperRegistrationModulePriority = -1000;
 
         private readonly bool _iocContainerCanBeNull;

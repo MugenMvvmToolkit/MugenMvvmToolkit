@@ -53,7 +53,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
         {
         }
 
-        protected InitializationModuleEx(LoadMode mode = LoadMode.All, int priority = InitializationModulePriority)
+        protected InitializationModuleEx(LoadMode mode, int priority)
             : base(mode, priority)
         {
         }

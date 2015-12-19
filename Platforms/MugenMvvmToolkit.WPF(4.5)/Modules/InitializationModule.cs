@@ -66,7 +66,7 @@ namespace MugenMvvmToolkit.WinPhone.Modules
         {
         }
 
-        protected InitializationModule(LoadMode loadMode = LoadMode.All, int priority = InitializationModulePriority)
+        protected InitializationModule(LoadMode loadMode, int priority)
             : base(loadMode, priority)
         {
         }

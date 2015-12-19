@@ -147,17 +147,17 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Converters
                     throw;
                 Tracer.Error(exception.Flatten(true));
 #if ANDROID
-                var txt = new TextView(parameter as Context ?? Application.Context) { Text = exception.Flatten(false) };
+                var txt = new TextView(parameter as Context ?? Application.Context) { Text = exception.Flatten(true) };
                 txt.SetTextColor(Color.Red);
                 return txt;
 #elif TOUCH
-                return new UITextView(new RectangleF(10, 10, 300, 30)) { TextColor = UIColor.Red, Editable = false, DataDetectorTypes = UIDataDetectorType.None, Text = exception.Flatten(false) };
+                return new UITextView(new RectangleF(10, 10, 300, 30)) { TextColor = UIColor.Red, Editable = false, DataDetectorTypes = UIDataDetectorType.None, Text = exception.Flatten(true) };
 #elif XAMARIN_FORMS
-                return new Label{TextColor = Color.Red, Text = exception.Flatten(false) };
+                return new Label{TextColor = Color.Red, Text = exception.Flatten(true) };
 #else
                 return new TextBox
                 {
-                    Text = exception.Flatten(false),
+                    Text = exception.Flatten(true),
 #if WINFORMS
                     ReadOnly = true,
                     WordWrap = true,
@@ -167,7 +167,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Converters
                     TextWrapping = TextWrapping.Wrap,
                     Foreground = new SolidColorBrush(Colors.Red)
 #endif
-
                 };
 #endif
             }

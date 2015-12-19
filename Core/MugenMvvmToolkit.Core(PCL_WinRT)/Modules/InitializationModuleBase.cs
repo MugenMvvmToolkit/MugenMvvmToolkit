@@ -47,9 +47,6 @@ namespace MugenMvvmToolkit.Modules
         protected override bool LoadInternal()
         {
             IocContainer.BindToBindingInfo(GetAttachedValueProvider());
-            IAttachedValueProvider attachedValueProvider;
-            if (IocContainer.TryGet(out attachedValueProvider))
-                ServiceProvider.AttachedValueProvider = attachedValueProvider;
             IocContainer.BindToBindingInfo(Mode.IsRuntimeMode() ? GetThreadManager() : GetThreadManagerInternal());
             IocContainer.BindToBindingInfo(GetSerializer());
             IocContainer.BindToBindingInfo(GetOperationCallbackManager());

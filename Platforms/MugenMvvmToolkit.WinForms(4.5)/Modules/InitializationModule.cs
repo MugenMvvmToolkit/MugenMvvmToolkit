@@ -37,7 +37,11 @@ namespace MugenMvvmToolkit.WinForms.Modules
     {
         #region Constructors
 
-        protected InitializationModule(LoadMode mode = LoadMode.All, int priority = InitializationModulePriority)
+        public InitializationModule()
+        {
+        }
+
+        protected InitializationModule(LoadMode mode, int priority)
             : base(mode, priority)
         {
         }
@@ -134,6 +138,5 @@ namespace MugenMvvmToolkit.WinForms.Modules
         }
 
         #endregion
-
     }
 }

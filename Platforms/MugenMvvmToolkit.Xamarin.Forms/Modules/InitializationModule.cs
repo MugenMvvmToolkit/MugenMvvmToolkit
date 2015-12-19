@@ -36,17 +36,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Modules
     {
         #region Cosntructors
 
-        static InitializationModule()
-        {
-            if (ServiceProvider.DesignTimeManager.IsDesignMode)
-                ServiceProvider.AttachedValueProvider = new AttachedValueProvider();
-        }
-
         public InitializationModule()
         {
         }
 
-        protected InitializationModule(LoadMode mode = LoadMode.All, int priority = InitializationModulePriority)
+        protected InitializationModule(LoadMode mode, int priority)
             : base(mode, priority)
         {
         }
@@ -83,7 +77,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Modules
 
         protected override BindingInfo<IThreadManager> GetThreadManager()
         {
-            return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(SynchronizationContext.Current), DependencyLifecycle.SingleInstance);
+            return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(SynchronizationContext.Current),
+                DependencyLifecycle.SingleInstance);
         }
 
         protected override BindingInfo<INavigationProvider> GetNavigationProvider()

@@ -42,7 +42,7 @@ namespace MugenMvvmToolkit.Android.Modules
         {
         }
 
-        protected InitializationModule(LoadMode mode = LoadMode.All, int priority = InitializationModulePriority)
+        protected InitializationModule(LoadMode mode, int priority)
             : base(mode, priority)
         {
         }

@@ -372,7 +372,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             sender.Disposed -= ClearCacheOnDisposeDelegate;
             lock (ContextCache)
             {
-                var pairs = ContextCache.Where(pair => ReferenceEquals(pair.Value, sender)).ToArray();
+                var pairs = ContextCache.Where(pair => ReferenceEquals(pair.Value, sender)).ToList();
                 foreach (var pair in pairs)
                     ContextCache.Remove(pair.Key);
             }
