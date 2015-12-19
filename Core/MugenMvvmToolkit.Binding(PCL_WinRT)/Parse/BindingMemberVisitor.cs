@@ -35,6 +35,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         private readonly IList<KeyValuePair<string, BindingMemberExpressionNode>> _members;
         private readonly Dictionary<IExpressionNode, IExpressionNode> _staticNodes;
         private bool _isMulti;
+        private readonly bool _ignoreLambda;
 
         //To reduce object creation in the TryGetMemberName method.
         private List<IExpressionNode> _nodes;
@@ -53,6 +54,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         private BindingMemberVisitor(BindingMemberVisitor innerVisitor, IEnumerable<string> lambdaParameters, IDataContext context)
             : this()
         {
+            _ignoreLambda = true;
             _members = innerVisitor._members;
             _staticNodes = innerVisitor._staticNodes;
             if (innerVisitor._lamdaParameters != null)
@@ -89,9 +91,9 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         public IExpressionNode Visit(IExpressionNode node)
         {
-            var lamdaNode = node as ILambdaExpressionNode;
-            if (lamdaNode != null)
-                return VisitLambda(lamdaNode);
+            var lambdaNode = node as ILambdaExpressionNode;
+            if (lambdaNode != null && !_ignoreLambda)
+                return VisitLambda(lambdaNode);
 
             var methodCall = node as IMethodCallExpressionNode;
             if (methodCall != null)
@@ -160,7 +162,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         private IExpressionNode VisitLambda(ILambdaExpressionNode node)
         {
             _isMulti = true;
-            node.Expression.Accept(new BindingMemberVisitor(this, node.Parameters, Context));
+            node.Accept(new BindingMemberVisitor(this, node.Parameters, Context));
             return node.Clone();
         }
 
@@ -186,12 +188,13 @@ namespace MugenMvvmToolkit.Binding.Parse
             {
                 if (type == null)
                 {
-                    var resourceObject = BindingServiceProvider
+                    var value = BindingServiceProvider
                         .ResourceResolver
-                        .ResolveObject(firstMember, Context, true);
-                    var dynamicObject = resourceObject.Value as IDynamicObject;
+                        .ResolveObject(firstMember, Context, true)
+                        .Value;
+                    var dynamicObject = value as IDynamicObject;
                     if (dynamicObject == null || path.Parts.Count <= 1)
-                        staticValue = new ConstantExpressionNode(resourceObject.Value);
+                        staticValue = new ConstantExpressionNode(value);
                     else
                     {
                         staticValue = new ConstantExpressionNode(dynamicObject.GetMember(path.Parts[1], Empty.Array<object>()));
