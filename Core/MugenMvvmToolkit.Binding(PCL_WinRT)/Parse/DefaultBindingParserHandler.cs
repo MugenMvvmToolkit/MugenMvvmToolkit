@@ -40,6 +40,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         internal const string GetEventArgsMethod = "GetEventArgs";
         internal const string GetErrorsMethod = "GetErrors";
+        internal const string GetBindingMethod = "GetBinding";
 
         private readonly Dictionary<Guid, string[]> _errorPathNames;
 

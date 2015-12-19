@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
@@ -28,51 +27,6 @@ namespace MugenMvvmToolkit.Binding.Parse
 {
     public class MacrosExpressionVisitor : IExpressionVisitor
     {
-        #region Nested Types
-
-        public sealed class OneTimeImpl
-        {
-            #region Fields
-
-            private object _value;
-            private bool _initialized;
-            internal static readonly MethodInfo GetValueMethod;
-            public const string GetValueMethodName = "GetValue";
-
-            #endregion
-
-            #region Constructors
-
-            static OneTimeImpl()
-            {
-                GetValueMethod = typeof(OneTimeImpl).GetMethodEx("GetValue", MemberFlags.Public | MemberFlags.Instance);
-            }
-
-            #endregion
-
-            #region Methods
-
-            public T GetValue<T>(Func<T> getValue)
-            {
-                if (!_initialized)
-                {
-                    lock (this)
-                    {
-                        if (!_initialized)
-                        {
-                            _value = getValue();
-                            _initialized = true;
-                        }
-                    }
-                }
-                return (T)_value;
-            }
-
-            #endregion
-        }
-
-        #endregion
-
         #region Fields
 
         public static readonly MacrosExpressionVisitor Instance;
@@ -126,18 +80,26 @@ namespace MugenMvvmToolkit.Binding.Parse
                     return new MemberExpressionNode(member.Target, BindingServiceProvider.ResourceResolver.DataContextResourceName);
                 //$args, $arg --> $GetEventArgs()
                 if (member.Member == "args" || member.Member == "arg")
-                    return new MethodCallExpressionNode(member.Target, DefaultBindingParserHandler.GetEventArgsMethod, Empty.Array<IExpressionNode>(), Empty.Array<string>());
+                    return new MethodCallExpressionNode(member.Target, DefaultBindingParserHandler.GetEventArgsMethod, null, null);
+                //$binding --> $GetBinding()
+                if (member.Member == "binding")
+                    return new MethodCallExpressionNode(member.Target, DefaultBindingParserHandler.GetBindingMethod, null, null);
             }
 
             var methodCallExp = node as IMethodCallExpressionNode;
             if (methodCallExp != null && methodCallExp.Target is ResourceExpressionNode)
             {
-                //$OneTime(Expression) --> oneTimeImpl.GetValue(() => Expression)
+                //$OneTime(Expression) --> oneTimeImpl.GetValue(GetBinding(), () => Expression)
                 if (methodCallExp.Method == "OneTime" && methodCallExp.Arguments.Count == 1)
                 {
-                    var item = new ConstantExpressionNode(new OneTimeImpl());
-                    IExpressionNode parameter = new LambdaExpressionNode(methodCallExp.Arguments[0], null);
-                    return new MethodCallExpressionNode(item, OneTimeImpl.GetValueMethodName, new[] { parameter }, null).Accept(this);
+                    DataConstant<object> constant = Guid.NewGuid().ToString("n");
+                    var idEx = new ConstantExpressionNode(constant);
+                    var getBindEx = new MethodCallExpressionNode(ResourceExpressionNode.DynamicInstance, DefaultBindingParserHandler.GetBindingMethod, null, null);
+                    IExpressionNode getValueEx = new LambdaExpressionNode(methodCallExp.Arguments[0], null);
+                    return new MethodCallExpressionNode(new ConstantExpressionNode(typeof(BindingExtensions)), "GetOrAddValue", new[]
+                    {
+                        getBindEx, idEx, getValueEx
+                    }, null).Accept(this);
                 }
 
                 //Alias ($Format(), $MethodName, etc) --> type.Format()

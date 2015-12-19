@@ -185,8 +185,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 remove { }
             }
 
-            #endregion
-
+            #endregion        
         }
 
         #endregion
@@ -220,7 +219,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _dynamicMethods = new Dictionary<string, IBindingResourceMethod>
             {
                 {DefaultBindingParserHandler.GetEventArgsMethod, new BindingResourceMethod(GetEventArgs, GetEventArgsReturnType)},
-                {DefaultBindingParserHandler.GetErrorsMethod, new BindingResourceMethod(GetErrorsMethod, typeof (IList<object>))}
+                {DefaultBindingParserHandler.GetErrorsMethod, new BindingResourceMethod(GetErrorsMethod, typeof (IList<object>))},
+                {DefaultBindingParserHandler.GetBindingMethod, new BindingResourceMethod(GetBindingMethod, typeof (IDataBinding))}
             };
             _objects = new Dictionary<string, DynamicResourceObject>();
             _aliasToMethod = new Dictionary<string, KeyValuePair<Type, string>>
@@ -345,8 +345,15 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private static object GetEventArgs(IList<Type> types, object[] items, IDataContext dataContext)
         {
             if (dataContext == null)
-                dataContext = DataContext.Empty;
+                return null;
             return dataContext.GetData(BindingConstants.CurrentEventArgs);
+        }
+
+        private static IDataBinding GetBindingMethod(IList<Type> types, object[] objects, IDataContext arg3)
+        {
+            if (arg3 == null)
+                return null;
+            return arg3.GetData(BindingConstants.Binding);
         }
 
         private static object GetErrorsMethod(IList<Type> types, object[] objects, IDataContext arg3)
@@ -443,7 +450,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual IBindingValueConverter ResolveConverter(string name, IDataContext context, bool throwOnError)
         {
-            Should.NotBeNullOrWhitespace(name, "name");
+            Should.NotBeNull(name, "name");
             lock (_converters)
             {
                 IBindingValueConverter value;
@@ -469,7 +476,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual IBindingResourceMethod ResolveMethod(string name, IDataContext context, bool throwOnError)
         {
-            Should.NotBeNullOrWhitespace(name, "name");
+            Should.NotBeNull(name, "name");
             lock (_dynamicMethods)
             {
                 IBindingResourceMethod value;
@@ -481,7 +488,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual ISourceValue ResolveObject(string name, IDataContext context, bool throwOnError)
         {
-            Should.NotBeNullOrWhitespace(name, "name");
+            Should.NotBeNull(name, "name");
             if (context != null && BindingSourceResourceName.Equals(name, StringComparison.Ordinal))
             {
                 object src;
@@ -504,13 +511,18 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
             var targetResourceObject = GetTargetResourceObject(name, context);
             if (targetResourceObject == null)
-                return GetOrAddDynamicResource(name, true);
+            {
+                var converter = ResolveConverter(name, context, false);
+                if (converter == null)
+                    return GetOrAddDynamicResource(name, true);
+                return new ConstResourceObject(converter);
+            }
             return targetResourceObject;
         }
 
         public virtual IBindingBehavior ResolveBehavior(string name, IDataContext context, IList<object> args, bool throwOnError)
         {
-            Should.NotBeNullOrWhitespace(name, "name");
+            Should.NotBeNull(name, "name");
             Func<IDataContext, IList<object>, IBindingBehavior> value;
             lock (_behaviors)
             {

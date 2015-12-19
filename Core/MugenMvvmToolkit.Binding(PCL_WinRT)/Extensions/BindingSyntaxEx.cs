@@ -24,9 +24,9 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Attributes;
 using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.DataConstants;
+using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Syntax;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Parse;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -48,9 +48,11 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
         private const string RootMethodName = "Root";
         private const string RelativeMethodName = "Relative";
         private static readonly MethodInfo GetEventArgsMethod;
+        private static readonly MethodInfo GetBindingMethod;
         private static readonly MethodInfo GetErrorsMethod;
         private static readonly MethodInfo ResourceMethodInfo;
         private static readonly MethodInfo ResourceMethodImplMethod;
+        private static readonly MethodInfo GetOneTimeValueMethod;
         private static readonly object FirstLevelBoxed;
 
         #endregion
@@ -59,12 +61,16 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
 
         static BindingSyntaxEx()
         {
+            GetBindingMethod = typeof(BindingSyntaxEx).GetMethodEx("GetBinding",
+                MemberFlags.NonPublic | MemberFlags.Static);
             GetEventArgsMethod = typeof(BindingSyntaxEx).GetMethodEx("GetEventArgs",
                 MemberFlags.NonPublic | MemberFlags.Static);
             GetErrorsMethod = typeof(BindingSyntaxEx).GetMethodEx("GetErrorsImpl",
                 MemberFlags.NonPublic | MemberFlags.Static);
             ResourceMethodImplMethod = typeof(BindingSyntaxEx).GetMethodEx("ResourceMethodImpl",
                 MemberFlags.NonPublic | MemberFlags.Static);
+            GetOneTimeValueMethod = typeof(BindingExtensions).GetMethodEx("GetOrAddValue",
+                MemberFlags.NonPublic | MemberFlags.Static | MemberFlags.Public);
             ResourceMethodInfo = typeof(BindingSyntaxEx)
                 .GetMethodsEx(MemberFlags.Public | MemberFlags.Static)
                 .First(info => info.Name == ResourceMethodName && info.GetParameters().Length == 2);
@@ -120,6 +126,11 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
             where TTarget : class
         {
             return MethodNotSupported<T>();
+        }
+
+        public static IDataBinding Binding(this IBindingSyntaxContext context)
+        {
+            return MethodNotSupported<IDataBinding>();
         }
 
         public static T Resource<T>(this IBindingSyntaxContext context, string name)
@@ -184,6 +195,13 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                 return null;
             }
 
+            if (name == "Binding")
+            {
+                if (context.IsSameExpression())
+                    return Expression.Convert(Expression.Call(GetBindingMethod, context.ContextParameter), mExp.Method.ReturnType);
+                return null;
+            }
+
             if (name == "ResourceMethod")
             {
                 if (!context.IsSameExpression())
@@ -197,9 +215,12 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
             {
                 if (!context.IsSameExpression())
                     return null;
-                var item = Expression.Constant(new MacrosExpressionVisitor.OneTimeImpl());
-                var parameter = Expression.Lambda(mExp.Arguments[1], Empty.Array<ParameterExpression>());
-                return Expression.Call(item, MacrosExpressionVisitor.OneTimeImpl.GetValueMethod.MakeGenericMethod(mExp.Arguments[1].Type), parameter);
+                DataConstant<object> id = Guid.NewGuid().ToString("n");
+                var idEx = Expression.Constant(id);
+                var getBindEx = Expression.Call(GetBindingMethod, context.ContextParameter);
+                var valueEx = Expression.Lambda(mExp.Arguments[1], Empty.Array<ParameterExpression>());
+                var method = GetOneTimeValueMethod.MakeGenericMethod(mExp.Arguments[1].Type);
+                return Expression.Call(method, new Expression[] { getBindEx, idEx, valueEx });
             }
 
             if (name == "GetErrors")
@@ -316,6 +337,12 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
         private static object GetEventArgs(IDataContext context)
         {
             return context.GetData(BindingConstants.CurrentEventArgs);
+        }
+
+        [UsedImplicitly]
+        private static IDataBinding GetBinding(IDataContext context)
+        {
+            return context.GetData(BindingConstants.Binding);
         }
 
         private static object ResourceMethodImpl(string name, IList<Type> typeArgs, IDataContext context, params object[] args)

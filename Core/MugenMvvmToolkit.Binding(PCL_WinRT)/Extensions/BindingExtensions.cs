@@ -702,6 +702,17 @@ namespace MugenMvvmToolkit.Binding
             return true;
         }
 
+        public static T GetOrAddValue<T>(IDataBinding binding, DataConstant<object> constant, Func<T> getValue)
+        {
+            object data;
+            if (!binding.Context.TryGetData(constant, out data))
+            {
+                data = getValue();
+                binding.Context.AddOrUpdate(constant, data);
+            }
+            return (T)data;
+        }
+
         internal static IObserver CreateBindingSource(IDataContext context, string path, object src,
             bool ignoreSrc = false)
         {
