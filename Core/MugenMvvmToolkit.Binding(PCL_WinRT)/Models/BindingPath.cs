@@ -18,8 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Models
@@ -29,12 +27,9 @@ namespace MugenMvvmToolkit.Binding.Models
         #region Fields
 
         public static readonly IBindingPath None;
-
         public static readonly IBindingPath Empty;
-
         public static readonly IBindingPath DataContext;
 
-        private static readonly Dictionary<string, IBindingPath> Cache;
         private readonly string _path;
         private string[] _items;
         private readonly bool _isEmpty;
@@ -46,13 +41,12 @@ namespace MugenMvvmToolkit.Binding.Models
 
         static BindingPath()
         {
-            Cache = new Dictionary<string, IBindingPath>();
-            None = Create("##none##", false);
-            Empty = Create(string.Empty, false);
-            DataContext = Create(AttachedMemberConstants.DataContext);
+            None = new BindingPath("##none##");
+            Empty = new BindingPath(string.Empty);
+            DataContext = new BindingPath(AttachedMemberConstants.DataContext);
         }
 
-        private BindingPath(string path)
+        internal BindingPath(string path)
         {
             const StringComparison comparison = StringComparison.Ordinal;
             if (string.IsNullOrEmpty(path))
@@ -115,37 +109,6 @@ namespace MugenMvvmToolkit.Binding.Models
         public bool IsSingle
         {
             get { return _isSingle; }
-        }
-
-        #endregion
-
-        #region Methods
-
-        internal static IBindingPath Create(string path)
-        {
-            return Create(path, true);
-        }
-
-        [NotNull]
-        public static IBindingPath Create([NotNull]string path, bool useCache = true)
-        {
-            if (!useCache)
-                return new BindingPath(path);
-            lock (Cache)
-            {
-                IBindingPath value;
-                if (!Cache.TryGetValue(path, out value))
-                {
-                    value = new BindingPath(path);
-                    if (Cache.Count > 300)
-                    {
-                        while (Cache.Count != 250)
-                            Cache.Remove(Cache.FirstOrDefault().Key);
-                    }
-                    Cache[path] = value;
-                }
-                return value;
-            }
         }
 
         #endregion

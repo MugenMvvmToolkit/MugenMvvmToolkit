@@ -50,6 +50,7 @@ namespace MugenMvvmToolkit.Binding
         private static readonly List<string> FakeMemberPrefixesField;
         private static readonly HashSet<string> DataContextMemberAliasesField;
         private static readonly Dictionary<string, IBindingBehavior> BindingModeToBehaviorField;
+        private static readonly Dictionary<string, IBindingPath> BindingPathCache;
         private static Func<string, IBindingPath> _bindingPathFactory;
         private static Func<Type, string, IBindingMemberInfo> _updateEventFinder;
         private static Func<CultureInfo> _bindingCultureInfo;
@@ -86,6 +87,7 @@ namespace MugenMvvmToolkit.Binding
             {
                 AttachedMemberConstants.DataContext
             };
+            BindingPathCache = new Dictionary<string, IBindingPath>(StringComparer.Ordinal);
             SetDefaultValues();
             MvvmApplication.InitializeDesignTimeManager();
             ViewManager.GetDataContext = BindingExtensions.DataContext;
@@ -266,7 +268,7 @@ namespace MugenMvvmToolkit.Binding
         {
             BindingCultureInfo = null;
             _updateEventFinder = FindUpdateEvent;
-            _bindingPathFactory = BindingPath.Create;
+            _bindingPathFactory = BindingPathFactoryImpl;
             _valueConverter = BindingReflectionExtensions.Convert;
             _resourceResolver = new BindingResourceResolver();
             _memberProvider = new BindingMemberProvider();
@@ -276,6 +278,20 @@ namespace MugenMvvmToolkit.Binding
             _bindingProvider = new BindingProvider();
             _observerProvider = new ObserverProvider();
             _contextManager = new BindingContextManager();
+        }
+
+        private static IBindingPath BindingPathFactoryImpl(string path)
+        {
+            lock (BindingPathCache)
+            {
+                IBindingPath value;
+                if (!BindingPathCache.TryGetValue(path, out value))
+                {
+                    value = new BindingPath(path);
+                    BindingPathCache[path] = value;
+                }
+                return value;
+            }
         }
 
         private static IBindingMemberInfo FindUpdateEvent(Type type, string memberName)
