@@ -32,6 +32,8 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Accessors
 
         bool CanWrite { get; }
 
+        bool DisableEqualityChecking { get; set; }
+
         [NotNull]
         IList<IObserver> Sources { get; }
 

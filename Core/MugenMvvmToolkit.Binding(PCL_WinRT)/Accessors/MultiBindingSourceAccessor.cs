@@ -66,6 +66,13 @@ namespace MugenMvvmToolkit.Binding.Accessors
             get { return false; }
         }
 
+        public override bool DisableEqualityChecking
+        {
+            get { return false; }
+            // ReSharper disable once ValueParameterNotUsed
+            set { }
+        }
+
         public override IList<IObserver> Sources
         {
             get { return _sources; }

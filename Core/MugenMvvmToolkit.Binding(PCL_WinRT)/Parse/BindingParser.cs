@@ -171,7 +171,10 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {AttachedMemberConstants.CommandParameter, parser => parser.GetCommandParameterSetter()},
                 {"Behavior", parser => parser.GetCustomBehaviorSetter()},
                 {"ToggleEnabledState", parser => parser.GetToggleEnabledState()},
-                {"ToggleEnabled", parser => parser.GetToggleEnabledState()}
+                {"ToggleEnabled", parser => parser.GetToggleEnabledState()},
+                {"DisableEqualityChecking", parser => parser.GetDisableEqualityChecking(null)},
+                {"DisableEqualityCheckingTarget", parser => parser.GetDisableEqualityChecking(true)},
+                {"DisableEqualityCheckingSource", parser => parser.GetDisableEqualityChecking(false)}
             };
 
             _binaryOperationAliases = new Dictionary<string, TokenType>(StringComparer.OrdinalIgnoreCase)
@@ -230,9 +233,9 @@ namespace MugenMvvmToolkit.Binding.Parse
             get { return _handlers; }
         }
 
-        public IList<IDataContext> Parse(string bindingExpression, IDataContext context, object target, IList<object> sources)
+        public IList<IDataContext> Parse(object target, string bindingExpression, IList<object> sources, IDataContext context)
         {
-            Should.NotBeNullOrWhitespace(bindingExpression, "bindingExpression");
+            Should.NotBeNull(bindingExpression, "bindingExpression");
             if (context == null)
                 context = DataContext.Empty;
             KeyValuePair<KeyValuePair<string, int>, Action<IDataContext>[]>[] bindingValues;
@@ -1153,6 +1156,28 @@ namespace MugenMvvmToolkit.Binding.Parse
             return new Action<IDataContext>[]
             {
                 context => context.Add(BindingBuilderConstants.ToggleEnabledState, value)
+            };
+        }
+
+        private IList<Action<IDataContext>> GetDisableEqualityChecking(bool? isTarget)
+        {
+            var value = ReadBoolValue();
+            if (!value)
+                return null;
+            return new Action<IDataContext>[]
+            {
+                context =>
+                {
+                    if (isTarget == null)
+                    {
+                        context.Add(BindingBuilderConstants.DisableEqualityCheckingTarget, true);
+                        context.Add(BindingBuilderConstants.DisableEqualityCheckingSource, true);
+                    }
+                    else if (isTarget.Value)
+                        context.Add(BindingBuilderConstants.DisableEqualityCheckingTarget, true);
+                    else
+                        context.Add(BindingBuilderConstants.DisableEqualityCheckingSource, true);
+                }
             };
         }
 

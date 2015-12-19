@@ -160,6 +160,8 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         #region Implementation of IBindingSourceAccessor
 
+        public abstract bool DisableEqualityChecking { get; set; }
+
         public abstract bool CanRead { get; }
 
         public abstract bool CanWrite { get; }

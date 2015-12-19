@@ -46,6 +46,8 @@ namespace MugenMvvmToolkit.Binding.DataConstants
         public static readonly DataConstant<Func<IDataContext, object>> Fallback;
         public static readonly DataConstant<object> TargetNullValue;
         public static readonly DataConstant<bool> ToggleEnabledState;
+        public static readonly DataConstant<bool> DisableEqualityCheckingTarget;
+        public static readonly DataConstant<bool> DisableEqualityCheckingSource;
         public static readonly DataConstant NoCache;
 
         #endregion
@@ -68,6 +70,8 @@ namespace MugenMvvmToolkit.Binding.DataConstants
             ConverterCulture = DataConstant.Create(() => ConverterCulture, true);
             CommandParameter = DataConstant.Create(() => CommandParameter, true);
             ToggleEnabledState = DataConstant.Create(() => ToggleEnabledState);
+            DisableEqualityCheckingTarget = DataConstant.Create(() => DisableEqualityCheckingTarget);
+            DisableEqualityCheckingSource = DataConstant.Create(() => DisableEqualityCheckingSource);
             Fallback = DataConstant.Create(() => Fallback, true);
             TargetNullValue = DataConstant.Create(() => TargetNullValue, false);
             NoCache = DataConstant.Create(() => NoCache);

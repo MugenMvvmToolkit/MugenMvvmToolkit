@@ -311,15 +311,11 @@ namespace MugenMvvmToolkit.Binding.Accessors
         private readonly bool _isOneTime;
         private readonly IObserver _bindingSource;
         private EventClosure _closure;
+        private bool _disableEqualityChecking;
 
         #endregion
 
         #region Constructors
-
-        static BindingSourceAccessor()
-        {
-            ToggleEnabledStateDefault = true;
-        }
 
         public BindingSourceAccessor([NotNull]IObserver bindingSource, [NotNull] IDataContext context, bool isTarget)
             : base(context, isTarget)
@@ -329,7 +325,8 @@ namespace MugenMvvmToolkit.Binding.Accessors
             if (isTarget)
             {
                 if (!context.TryGetData(BindingBuilderConstants.ToggleEnabledState, out _toggleEnabledState))
-                    _toggleEnabledState = ToggleEnabledStateDefault;
+                    _toggleEnabledState = true;
+                context.TryGetData(BindingBuilderConstants.DisableEqualityCheckingTarget, out _disableEqualityChecking);
                 List<IBindingBehavior> data;
                 if (context.TryGetData(BindingBuilderConstants.Behaviors, out data))
                 {
@@ -343,13 +340,9 @@ namespace MugenMvvmToolkit.Binding.Accessors
                     }
                 }
             }
+            else
+                context.TryGetData(BindingBuilderConstants.DisableEqualityCheckingSource, out _disableEqualityChecking);
         }
-
-        #endregion
-
-        #region Properties
-
-        public static bool ToggleEnabledStateDefault { get; set; }
 
         #endregion
 
@@ -368,6 +361,12 @@ namespace MugenMvvmToolkit.Binding.Accessors
         public override bool CanWrite
         {
             get { return true; }
+        }
+
+        public override bool DisableEqualityChecking
+        {
+            get { return _disableEqualityChecking; }
+            set { _disableEqualityChecking = value; }
         }
 
         public override IList<IObserver> Sources
@@ -416,7 +415,10 @@ namespace MugenMvvmToolkit.Binding.Accessors
             object newValue = targetAccessor.GetValue(lastMember, context, throwOnError);
             if (lastMember.CanRead && !BindingMemberType.BindingContext.EqualsWithoutNullCheck(lastMember.MemberType))
             {
-                oldValue = lastMember.GetValue(penultimateValue, null);
+                if (_disableEqualityChecking && !BindingMemberType.Event.EqualsWithoutNullCheck(lastMember.MemberType))
+                    oldValue = BindingConstants.UnsetValue;
+                else
+                    oldValue = lastMember.GetValue(penultimateValue, null);
                 if (ReferenceEquals(oldValue, newValue) || newValue.IsUnsetValueOrDoNothing())
                     return false;
             }
