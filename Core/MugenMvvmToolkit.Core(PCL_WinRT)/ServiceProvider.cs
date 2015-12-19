@@ -28,6 +28,7 @@ using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit
@@ -50,6 +51,7 @@ namespace MugenMvvmToolkit
         private static Func<object, WeakReference> _weakReferenceFactory;
         private static IDesignTimeManager _designTimeManager;
         private static IViewModelProvider _viewModelProvider;
+        private static Func<IViewModel, IViewModelSettings> _viewModelSettingsFactory;
 
         #endregion
 
@@ -57,11 +59,13 @@ namespace MugenMvvmToolkit
 
         static ServiceProvider()
         {
-            EntityConstructorInfos = new Dictionary<Type, ConstructorInfo>();
-            DefaultEntityFactory = DefaultEntityFactoryMethod;
             _weakReferenceFactory = CreateWeakReference;
             _instanceEventAggregatorFactory = GetInstanceEventAggregator;
+            _viewModelSettingsFactory = CreateViewModelSettings;
+            EntityConstructorInfos = new Dictionary<Type, ConstructorInfo>();
+            DefaultEntityFactory = DefaultEntityFactoryMethod;
             ObjectToSubscriberConverter = ObjectToSubscriberConverterImpl;
+
             var current = MvvmApplication.Current;
             if (current != null && current.IsInitialized)
                 Initialize(current);
@@ -80,6 +84,13 @@ namespace MugenMvvmToolkit
 
         [CanBeNull]
         public static Func<Type, IEnumerable<Type>> EntityMetadataTypeProvider { get; set; }
+
+        [NotNull]
+        public static Func<IViewModel, IViewModelSettings> ViewModelSettingsFactory
+        {
+            get { return _viewModelSettingsFactory; }
+            set { _viewModelSettingsFactory = value ?? CreateViewModelSettings; }
+        }
 
         [NotNull]
         public static Func<object, WeakReference> WeakReferenceFactory
@@ -328,6 +339,11 @@ namespace MugenMvvmToolkit
             TService result;
             if (iocContainer.TryGet(out result))
                 service = result;
+        }
+
+        private static IViewModelSettings CreateViewModelSettings(IViewModel vm)
+        {
+            return new DefaultViewModelSettings();
         }
 
         private static WeakReference CreateWeakReference(object o)

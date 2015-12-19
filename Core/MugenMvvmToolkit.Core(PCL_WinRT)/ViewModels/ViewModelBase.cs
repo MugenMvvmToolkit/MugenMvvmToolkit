@@ -213,7 +213,7 @@ namespace MugenMvvmToolkit.ViewModels
         private const int InitializedState = 1;
         private const int DefaultState = 0;
 
-        private readonly IViewModelSettings _settings;
+        private IViewModelSettings _settings;
 
         private BusyToken _busyTail;
         private CancellationTokenSource _disposeCancellationToken;
@@ -233,11 +233,6 @@ namespace MugenMvvmToolkit.ViewModels
 
         protected ViewModelBase()
         {
-            var current = MvvmApplication.Current;
-            if (current == null || current.ViewModelSettings == null)
-                _settings = new DefaultViewModelSettings();
-            else
-                _settings = current.ViewModelSettings.Clone();
             Tracer.TraceViewModel(ViewModelLifecycleType.Created, this);
             if (IsDesignMode)
                 ServiceProvider.DesignTimeManager.InitializeViewModel(this);
@@ -313,7 +308,12 @@ namespace MugenMvvmToolkit.ViewModels
 
         public IViewModelSettings Settings
         {
-            get { return _settings; }
+            get
+            {
+                if (_settings == null)
+                    Interlocked.CompareExchange(ref _settings, ServiceProvider.ViewModelSettingsFactory(this), null);
+                return _settings;
+            }
         }
 
         public virtual IIocContainer IocContainer
