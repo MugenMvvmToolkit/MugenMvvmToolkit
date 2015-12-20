@@ -173,8 +173,8 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {"ToggleEnabledState", parser => parser.GetToggleEnabledState()},
                 {"ToggleEnabled", parser => parser.GetToggleEnabledState()},
                 {"DisableEqualityChecking", parser => parser.GetDisableEqualityChecking(null)},
-                {"DisableEqualityCheckingTarget", parser => parser.GetDisableEqualityChecking(true)},
-                {"DisableEqualityCheckingSource", parser => parser.GetDisableEqualityChecking(false)}
+                {"TargetDisableEqualityChecking", parser => parser.GetDisableEqualityChecking(true)},
+                {"SourceDisableEqualityChecking", parser => parser.GetDisableEqualityChecking(false)}
             };
 
             _binaryOperationAliases = new Dictionary<string, TokenType>(StringComparer.OrdinalIgnoreCase)
@@ -1162,21 +1162,19 @@ namespace MugenMvvmToolkit.Binding.Parse
         private IList<Action<IDataContext>> GetDisableEqualityChecking(bool? isTarget)
         {
             var value = ReadBoolValue();
-            if (!value)
-                return null;
             return new Action<IDataContext>[]
             {
                 context =>
                 {
                     if (isTarget == null)
                     {
-                        context.Add(BindingBuilderConstants.DisableEqualityCheckingTarget, true);
-                        context.Add(BindingBuilderConstants.DisableEqualityCheckingSource, true);
+                        context.GetOrAddBehaviors().Add(DisableEqualityCheckingBehavior.GetTargetBehavior(value));
+                        context.GetOrAddBehaviors().Add(DisableEqualityCheckingBehavior.GetSourceBehavior(value));
                     }
                     else if (isTarget.Value)
-                        context.Add(BindingBuilderConstants.DisableEqualityCheckingTarget, true);
+                        context.GetOrAddBehaviors().Add(DisableEqualityCheckingBehavior.GetTargetBehavior(value));
                     else
-                        context.Add(BindingBuilderConstants.DisableEqualityCheckingSource, true);
+                        context.GetOrAddBehaviors().Add(DisableEqualityCheckingBehavior.GetSourceBehavior(value));
                 }
             };
         }

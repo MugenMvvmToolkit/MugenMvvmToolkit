@@ -326,7 +326,6 @@ namespace MugenMvvmToolkit.Binding.Accessors
             {
                 if (!context.TryGetData(BindingBuilderConstants.ToggleEnabledState, out _toggleEnabledState))
                     _toggleEnabledState = true;
-                context.TryGetData(BindingBuilderConstants.DisableEqualityCheckingTarget, out _disableEqualityChecking);
                 List<IBindingBehavior> data;
                 if (context.TryGetData(BindingBuilderConstants.Behaviors, out data))
                 {
@@ -340,8 +339,6 @@ namespace MugenMvvmToolkit.Binding.Accessors
                     }
                 }
             }
-            else
-                context.TryGetData(BindingBuilderConstants.DisableEqualityCheckingSource, out _disableEqualityChecking);
         }
 
         #endregion

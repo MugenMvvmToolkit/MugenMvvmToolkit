@@ -30,6 +30,7 @@ using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Android.Infrastructure;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -239,7 +240,6 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             RegisterPreferenceMembers(memberProvider);
             BindingBuilderExtensions.RegisterDefaultBindingMember<Button>("Click");
             BindingBuilderExtensions.RegisterDefaultBindingMember<TextView>(() => v => v.Text);
-            BindingBuilderExtensions.RegisterDefaultBindingMember<EditText>(() => v => v.Text);
             BindingBuilderExtensions.RegisterDefaultBindingMember<CheckBox>(() => v => v.Checked);
             BindingBuilderExtensions.RegisterDefaultBindingMember<CompoundButton>(() => v => v.Checked);
             BindingBuilderExtensions.RegisterDefaultBindingMember<SeekBar>(() => v => v.Progress);
@@ -627,6 +627,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         protected override void OnLoaded(IModuleContext context)
         {
             Register(BindingServiceProvider.MemberProvider);
+            BindingServiceProvider.BindingProvider.DefaultBehaviors.Add(DisableEqualityCheckingBehavior.TargetTrueNotTwoWay);
             base.OnLoaded(context);
         }
 

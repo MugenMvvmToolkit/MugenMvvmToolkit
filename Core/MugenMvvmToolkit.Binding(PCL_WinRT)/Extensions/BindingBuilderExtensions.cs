@@ -252,16 +252,13 @@ namespace MugenMvvmToolkit.Binding
 
         #region Parameters
 
-        public static IBindingInfoBehaviorSyntax<TSource> DisableEqualityChecking<TSource>([NotNull] this IBindingInfoSyntax<TSource> syntax, bool? isTarget = null)
+        public static IBindingInfoBehaviorSyntax<TSource> DisableEqualityChecking<TSource>([NotNull] this IBindingInfoSyntax<TSource> syntax, bool targetValue = true, bool sourceValue = true)
         {
-            if (isTarget == null)
-            {
-                syntax.WithParameter(BindingBuilderConstants.DisableEqualityCheckingSource, true);
-                return syntax.WithParameter(BindingBuilderConstants.DisableEqualityCheckingTarget, true);
-            }
-            if (isTarget.Value)
-                return syntax.WithParameter(BindingBuilderConstants.DisableEqualityCheckingTarget, true);
-            return syntax.WithParameter(BindingBuilderConstants.DisableEqualityCheckingSource, true);
+            Should.NotBeNull(syntax, "syntax");
+            var behaviors = syntax.Builder.GetOrAddBehaviors();
+            behaviors.Add(DisableEqualityCheckingBehavior.GetTargetBehavior(targetValue));
+            behaviors.Add(DisableEqualityCheckingBehavior.GetSourceBehavior(sourceValue));
+            return syntax.GetOrAddSyntaxBuilder<IBindingInfoBehaviorSyntax<TSource>, object, TSource>();
         }
 
         public static IBindingInfoBehaviorSyntax<TSource> ToggleEnabledState<TSource>(

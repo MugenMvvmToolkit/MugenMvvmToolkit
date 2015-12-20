@@ -213,19 +213,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             try
             {
-                var handler = BindingInitializing;
-                if (handler != null)
-                    handler(this, context);
-
+                RaiseInitializing(context);
                 object target;
                 IBindingPath targetPath;
                 IDataBinding binding = CreateBinding(context, out target, out targetPath);
                 if (!binding.IsDisposed)
                     BindingServiceProvider.BindingManager.Register(target, targetPath.Path, binding, context);
-
-                var initialized = BindingInitialized;
-                if (initialized != null)
-                    initialized(this, binding);
+                RaiseInitialized(binding);
                 return binding;
             }
             catch (Exception exception)
@@ -296,6 +290,20 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             behaviors.Sort(BehaviorComparer);
             for (int index = 0; index < behaviors.Count; index++)
                 binding.Behaviors.Add(behaviors[index]);
+        }
+
+        protected void RaiseInitializing(IDataContext context)
+        {
+            var handler = BindingInitializing;
+            if (handler != null)
+                handler(this, context);
+        }
+
+        protected void RaiseInitialized(IDataBinding binding)
+        {
+            var initialized = BindingInitialized;
+            if (initialized != null)
+                initialized(this, binding);
         }
 
         private static IDataBinding CreateInvalidaDataBinding(IDataContext dataContext)

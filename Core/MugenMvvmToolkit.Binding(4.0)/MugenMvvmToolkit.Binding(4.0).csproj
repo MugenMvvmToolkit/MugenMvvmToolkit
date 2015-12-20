@@ -84,6 +84,9 @@
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\behaviors\DelayBindingBehavior.cs">
       <Link>Behaviors\DelayBindingBehavior.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\DisableEqualityCheckingBehavior.cs">
+      <Link>Behaviors\DisableEqualityCheckingBehavior.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\behaviors\LostFocusUpdateSourceBehavior.cs">
       <Link>Behaviors\LostFocusUpdateSourceBehavior.cs</Link>
     </Compile>

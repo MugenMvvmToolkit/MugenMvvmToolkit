@@ -21,13 +21,13 @@ using System.Collections;
 using System.Linq;
 using Foundation;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Binding.Modules;
-using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.iOS.Binding.Converters;
@@ -505,6 +505,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             var converter = new BooleanToCheckmarkAccessoryConverter();
             BindingServiceProvider.ResourceResolver.AddConverter("BooleanToCheckmark", converter);
             BindingServiceProvider.ResourceResolver.AddConverter("BoolToCheckmark", converter);
+            BindingServiceProvider.BindingProvider.DefaultBehaviors.Add(DisableEqualityCheckingBehavior.TargetTrueNotTwoWay);
             base.OnLoaded(context);
         }
 
