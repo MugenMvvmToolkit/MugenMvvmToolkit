@@ -27,12 +27,10 @@ using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Syntax;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Parse;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
 // ReSharper disable once CheckNamespace
-
 namespace MugenMvvmToolkit.Binding
 {
     public static class BindingBuilderExtensions
@@ -516,6 +514,18 @@ namespace MugenMvvmToolkit.Binding
             return data;
         }
 
+        internal static IList<Func<IDataContext, IObserver>> GetOrAddBindingSources([NotNull] this IDataContext syntax)
+        {
+            Should.NotBeNull(syntax, "syntax");
+            IList<Func<IDataContext, IObserver>> delegates = syntax.GetData(BindingBuilderConstants.Sources);
+            if (delegates == null)
+            {
+                delegates = new List<Func<IDataContext, IObserver>>(1);
+                syntax.Add(BindingBuilderConstants.Sources, delegates);
+            }
+            return delegates;
+        }
+
         private static TResult GetOrAddSyntaxBuilder<TResult, T1, T2>(this IBuilderSyntax bindingSyntax)
             where T1 : class
             where TResult : IBindingInfoSyntax<T2>
@@ -535,7 +545,7 @@ namespace MugenMvvmToolkit.Binding
         private static IBindingModeInfoBehaviorSyntax<TSource> ToInternal<TSource>(this IBindingToSyntax syntax,
             Func<LambdaExpression> expression)
         {
-            LambdaExpressionToBindingExpressionConverter.Convert(expression, syntax);
+            BindingServiceProvider.BindingProvider.BuildFromLambdaExpression(syntax.Builder, expression);
             return syntax.GetOrAddSyntaxBuilder<IBindingModeInfoBehaviorSyntax<TSource>, object, TSource>();
         }
 
@@ -544,7 +554,7 @@ namespace MugenMvvmToolkit.Binding
         {
             Should.NotBeNull(syntax, "syntax");
             syntax.Builder.AddOrUpdate(BindingBuilderConstants.Source, source);
-            LambdaExpressionToBindingExpressionConverter.Convert(expression, syntax);
+            BindingServiceProvider.BindingProvider.BuildFromLambdaExpression(syntax.Builder, expression);
             return syntax.GetOrAddSyntaxBuilder<IBindingModeInfoBehaviorSyntax<TSource>, object, TSource>();
         }
 
@@ -557,29 +567,11 @@ namespace MugenMvvmToolkit.Binding
             return syntax.GetOrAddSyntaxBuilder<IBindingInfoBehaviorSyntax<TSource>, object, TSource>();
         }
 
-        private static IList<Func<IDataContext, IObserver>> GetOrAddBindingSources(
-            [NotNull] this IDataContext syntax)
-        {
-            Should.NotBeNull(syntax, "syntax");
-            IList<Func<IDataContext, IObserver>> delegates = syntax.GetData(BindingBuilderConstants.Sources);
-            if (delegates == null)
-            {
-                delegates = new List<Func<IDataContext, IObserver>>(1);
-                syntax.Add(BindingBuilderConstants.Sources, delegates);
-            }
-            return delegates;
-        }
-
         private static IBindingInfoBehaviorSyntax<TSource> WithParameter<TSource, TValue>(this IBuilderSyntax syntax,
             DataConstant<Func<IDataContext, TValue>> constant, Func<LambdaExpression> expression)
         {
             Should.NotBeNull(syntax, "syntax");
-            Func<IDataContext, TValue> value;
-            if (typeof(TValue) == typeof(object))
-                value = (Func<IDataContext, TValue>)(object)LambdaExpressionToBindingExpressionConverter.ConvertParameter(expression, syntax);
-            else
-                value = LambdaExpressionToBindingExpressionConverter.ConvertParameter(expression, syntax).CastFunc<TValue>;
-            syntax.Builder.AddOrUpdate(constant, value);
+            BindingServiceProvider.BindingProvider.BuildParameterFromLambdaExpression(syntax.Builder, expression, constant);
             return syntax.GetOrAddSyntaxBuilder<IBindingInfoBehaviorSyntax<TSource>, object, TSource>();
         }
 
@@ -589,11 +581,6 @@ namespace MugenMvvmToolkit.Binding
             Should.NotBeNull(syntax, "syntax");
             syntax.Builder.Add(constant, value);
             return syntax.GetOrAddSyntaxBuilder<IBindingInfoBehaviorSyntax<TSource>, object, TSource>();
-        }
-
-        private static TValue CastFunc<TValue>(this Func<IDataContext, object> func, IDataContext context)
-        {
-            return (TValue)func(context);
         }
 
         internal static object AsBindingExpressionWithContext<TType>(this Func<object[], object> func, IDataContext context, TType list) where TType : IList<object>

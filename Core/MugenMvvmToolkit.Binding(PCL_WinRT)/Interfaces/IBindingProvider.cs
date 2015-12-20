@@ -18,9 +18,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces
 {
@@ -31,10 +33,6 @@ namespace MugenMvvmToolkit.Binding.Interfaces
 
         [NotNull]
         IBindingParser Parser { get; set; }
-
-        event Action<IBindingProvider, IDataContext> BindingInitializing;
-
-        event Action<IBindingProvider, IDataBinding> BindingInitialized;
 
         [NotNull]
         IBindingBuilder CreateBuilder(IDataContext context = null);
@@ -49,5 +47,14 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         [NotNull]
         IList<IDataBinding> CreateBindingsFromString([NotNull] object target, [NotNull] string bindingExpression, IList<object> sources = null,
             IDataContext context = null);
+
+        void BuildFromLambdaExpression(IBindingBuilder builder, Func<LambdaExpression> expression);
+
+        void BuildParameterFromLambdaExpression<TValue>(IBindingBuilder builder, Func<LambdaExpression> expression,
+            DataConstant<Func<IDataContext, TValue>> parameterConstant);
+
+        event Action<IBindingProvider, IDataContext> BindingInitializing;
+
+        event Action<IBindingProvider, IDataBinding> BindingInitialized;
     }
 }

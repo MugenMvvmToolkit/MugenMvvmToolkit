@@ -25,6 +25,7 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
 // ReSharper disable once CheckNamespace
@@ -347,6 +348,11 @@ namespace MugenMvvmToolkit.Binding
             var actualArgs = new List<ArgumentData> { target };
             actualArgs.AddRange(args);
             return actualArgs;
+        }
+
+        internal static TValue CastFunc<TValue>(this Func<IDataContext, object> func, IDataContext context)
+        {
+            return (TValue)func(context);
         }
 
         private static IList<MethodData> FindBestMethods(ArgumentData target, IList<MethodInfo> methods, IList<ArgumentData> arguments, Type[] typeArgs)

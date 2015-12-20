@@ -245,9 +245,9 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                 if (args.Count == 0)
                     args.Add(Expression.Call(ResourceMethodInfo.MakeGenericMethod(typeof(object)), Expression.Constant(null, typeof(IBindingSyntaxContext)),
                         Expression.Constant(BindingServiceProvider.ResourceResolver.BindingSourceResourceName)));
-                context.AddBuildCallback(syntax =>
+                context.AddBuildCallback(builder =>
                 {
-                    var behaviors = syntax.Builder.GetOrAddBehaviors();
+                    var behaviors = builder.GetOrAddBehaviors();
                     if (!behaviors.Any(behavior => behavior is NotifyDataErrorsAggregatorBehavior))
                     {
                         behaviors.Clear();

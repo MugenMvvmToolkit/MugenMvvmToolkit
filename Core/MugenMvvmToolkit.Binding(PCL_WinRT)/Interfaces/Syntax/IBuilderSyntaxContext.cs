@@ -33,6 +33,6 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Syntax
         Expression GetOrAddParameterExpression(string prefix, string path, Expression expression,
             Func<IDataContext, string, IObserver> createSource);
 
-        void AddBuildCallback(Action<IBindingToSyntax> callback);
+        void AddBuildCallback(Action<IBindingBuilder> callback);
     }
 }

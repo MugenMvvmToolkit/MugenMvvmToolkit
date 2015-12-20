@@ -31,7 +31,7 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Parse
 {
-    public sealed class LambdaExpressionToBindingExpressionConverter : ExpressionVisitor, IBuilderSyntaxContext
+    internal sealed class LambdaExpressionToBindingExpressionConverter : ExpressionVisitor, IBuilderSyntaxContext
     {
         #region Nested types
 
@@ -77,7 +77,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             #region Fields
 
-            public Action<IBindingToSyntax>[] Actions;
+            public Action<IBindingBuilder>[] Actions;
             public Func<IDataContext, object[], object> Expression;
             public Func<IDataContext, IObserver>[] Members;
 
@@ -85,7 +85,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
             #region Constructors
 
-            public ParameterCacheValue(Action<IBindingToSyntax>[] actions,
+            public ParameterCacheValue(Action<IBindingBuilder>[] actions,
                 Func<IDataContext, object[], object> expression, Func<IDataContext, IObserver>[] members)
             {
                 Actions = actions;
@@ -101,10 +101,10 @@ namespace MugenMvvmToolkit.Binding.Parse
         #region Fields
 
         private static readonly ParameterExpression ContextExpression;
-        private static readonly Dictionary<Delegate, Action<IBindingToSyntax>[]> Cache;
+        private static readonly Dictionary<Delegate, Action<IBindingBuilder>[]> Cache;
         private static readonly Dictionary<Delegate, ParameterCacheValue> CacheParameter;
 
-        private List<Action<IBindingToSyntax>> _callbacks;
+        private List<Action<IBindingBuilder>> _callbacks;
         private List<KeyValuePair<ParameterExpression, Func<IDataContext, IObserver>>> _members;
         private ParameterExpression _sourceExpression;
 
@@ -118,14 +118,14 @@ namespace MugenMvvmToolkit.Binding.Parse
         static LambdaExpressionToBindingExpressionConverter()
         {
             ContextExpression = Expression.Parameter(typeof(IDataContext), "$context$");
-            Cache = new Dictionary<Delegate, Action<IBindingToSyntax>[]>(ReferenceEqualityComparer.Instance);
+            Cache = new Dictionary<Delegate, Action<IBindingBuilder>[]>(ReferenceEqualityComparer.Instance);
             CacheParameter = new Dictionary<Delegate, ParameterCacheValue>(ReferenceEqualityComparer.Instance);
         }
 
         private LambdaExpressionToBindingExpressionConverter(LambdaExpression expression)
         {
             _sourceExpression = expression.Parameters[0];
-            _callbacks = new List<Action<IBindingToSyntax>>();
+            _callbacks = new List<Action<IBindingBuilder>>();
             _members = new List<KeyValuePair<ParameterExpression, Func<IDataContext, IObserver>>>(2);
         }
 
@@ -151,50 +151,40 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Methods
 
-        public static void Convert(Func<LambdaExpression> expression, IBindingToSyntax syntax)
+        public static void Convert(IBindingBuilder builder, Func<LambdaExpression> expression)
         {
-            Should.NotBeNull(expression, "expression");
             var hasClosure = expression.HasClosure();
-            if (hasClosure || syntax.Builder.Contains(BindingBuilderConstants.NoCache))
+            if (hasClosure || builder.Contains(BindingBuilderConstants.NoCache))
             {
                 var ex = expression();
                 if (hasClosure)
                     ex.TraceClosureWarn();
-                Convert(ex, syntax);
+                Convert(builder, ex);
                 return;
             }
-            Action<IBindingToSyntax>[] callbacks;
+            Action<IBindingBuilder>[] callbacks;
             lock (Cache)
             {
                 if (!Cache.TryGetValue(expression, out callbacks))
                 {
-                    callbacks = ConvertInternal(expression(), syntax, false);
+                    callbacks = ConvertInternal(expression(), builder, false);
                     Cache[expression] = callbacks;
                 }
             }
             for (int i = 0; i < callbacks.Length; i++)
-                callbacks[i].Invoke(syntax);
+                callbacks[i].Invoke(builder);
         }
 
-        public static void Convert(LambdaExpression expression, IBindingToSyntax syntax)
+        public static Func<IDataContext, object> ConvertParameter(IBindingBuilder builder, Func<LambdaExpression> expression)
         {
-            Should.NotBeNull(expression, "expression");
-            var callbacks = ConvertInternal(expression, syntax, true);
-            for (int i = 0; i < callbacks.Length; i++)
-                callbacks[i].Invoke(syntax);
-        }
-
-        public static Func<IDataContext, object> ConvertParameter(Func<LambdaExpression> expression, IBuilderSyntax syntax)
-        {
-            Should.NotBeNull(expression, "expression");
             var hasClosure = expression.HasClosure();
-            if (hasClosure || syntax.Builder.Contains(BindingBuilderConstants.NoCache))
+            if (hasClosure || builder.Contains(BindingBuilderConstants.NoCache))
             {
                 var e = expression();
                 if (hasClosure)
                     e.TraceClosureWarn();
                 var converter = new LambdaExpressionToBindingExpressionConverter(e);
-                return ConvertParameterInternal(syntax, converter.ConvertParamterInternal(e));
+                return ConvertParameterInternal(builder, converter.ConvertParamterInternal(e));
             }
             ParameterCacheValue value;
             lock (CacheParameter)
@@ -207,20 +197,27 @@ namespace MugenMvvmToolkit.Binding.Parse
                     CacheParameter[expression] = value;
                 }
             }
-            return ConvertParameterInternal(syntax, value);
+            return ConvertParameterInternal(builder, value);
         }
 
-        private static Func<IDataContext, object> ConvertParameterInternal(IBuilderSyntax builder, ParameterCacheValue value)
+        private static void Convert(IBindingBuilder builder, LambdaExpression expression)
+        {
+            Action<IBindingBuilder>[] callbacks = ConvertInternal(expression, builder, true);
+            for (int i = 0; i < callbacks.Length; i++)
+                callbacks[i].Invoke(builder);
+        }
+
+        private static Func<IDataContext, object> ConvertParameterInternal(IBindingBuilder builder, ParameterCacheValue value)
         {
             var actions = value.Actions;
             for (int i = 0; i < actions.Length; i++)
-                actions[i].Invoke((IBindingToSyntax)builder);
+                actions[i].Invoke(builder);
 
             var func = value.Expression;
             var members = value.Members;
             var sources = new IObserver[members.Length];
             for (int i = 0; i < members.Length; i++)
-                sources[i] = members[i].Invoke(builder.Builder);
+                sources[i] = members[i].Invoke(builder);
             return dataContext =>
             {
                 var objects = new object[sources.Length + 1];
@@ -231,7 +228,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             };
         }
 
-        private static Action<IBindingToSyntax>[] ConvertInternal(LambdaExpression expression, IBindingToSyntax syntax, bool ignoreCallback)
+        private static Action<IBindingBuilder>[] ConvertInternal(LambdaExpression expression, IBindingBuilder builder, bool ignoreCallback)
         {
             Expression lastExpression;
             string path;
@@ -240,10 +237,10 @@ namespace MugenMvvmToolkit.Binding.Parse
             {
                 if (ignoreCallback)
                 {
-                    syntax.ToSource(context => BindingExtensions.CreateBindingSource(context, path, null));
-                    return Empty.Array<Action<IBindingToSyntax>>();
+                    builder.GetOrAddBindingSources().Add(context => BindingExtensions.CreateBindingSource(context, path, null));
+                    return Empty.Array<Action<IBindingBuilder>>();
                 }
-                return new Action<IBindingToSyntax>[] { s => s.ToSource(context => BindingExtensions.CreateBindingSource(context, path, null)) };
+                return new Action<IBindingBuilder>[] { b => b.GetOrAddBindingSources().Add(context => BindingExtensions.CreateBindingSource(context, path, null)) };
             }
             var visitor = new LambdaExpressionToBindingExpressionConverter(expression);
             visitor.ConvertInternal(expression);
@@ -260,19 +257,19 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             var multiExpression = Visit(ContextReplacerVisitor.UpdateContextParameter(expression.Body));
             if (_members.Count == 0)
-                AddBuildCallback(syntax => syntax.ToSource(context => BindingExtensions.CreateBindingSource(context, string.Empty, null)));
+                AddBuildCallback(builder => builder.GetOrAddBindingSources().Add(context => BindingExtensions.CreateBindingSource(context, string.Empty, null)));
             else
             {
                 for (int i = 0; i < _members.Count; i++)
                 {
                     var value = _members[i].Value;
-                    AddBuildCallback(syntax => syntax.ToSource(value));
+                    AddBuildCallback(builder => builder.GetOrAddBindingSources().Add(value));
                 }
             }
             if (!(multiExpression is ParameterExpression))
             {
                 var func = Compile<IList<object>>(multiExpression, false);
-                AddBuildCallback(syntax => syntax.Builder.Add(BindingBuilderConstants.MultiExpression, func));
+                AddBuildCallback(builder => builder.Add(BindingBuilderConstants.MultiExpression, func));
             }
         }
 
@@ -370,7 +367,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             return parameter;
         }
 
-        public void AddBuildCallback(Action<IBindingToSyntax> callback)
+        public void AddBuildCallback(Action<IBindingBuilder> callback)
         {
             _callbacks.Add(callback);
         }

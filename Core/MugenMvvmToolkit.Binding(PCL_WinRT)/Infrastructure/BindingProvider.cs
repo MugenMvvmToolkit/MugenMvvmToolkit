@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Accessors;
@@ -93,16 +94,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        public event Action<IBindingProvider, IDataContext> BindingInitializing;
-
-        public event Action<IBindingProvider, IDataBinding> BindingInitialized;
-
         public IBindingBuilder CreateBuilder(IDataContext context = null)
         {
-            context = context.ToNonReadOnly();
-            if (!context.Contains(BindingBuilderConstants.BuildDelegate))
-                context.Add(BindingBuilderConstants.BuildDelegate, _buildDelegate);
-            return new BindingBuilder(context);
+            return CreateBuilderInternal(context.ToNonReadOnly());
         }
 
         public IDataBinding CreateBinding(IDataContext context)
@@ -166,11 +160,56 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
+        public void BuildFromLambdaExpression(IBindingBuilder builder, Func<LambdaExpression> expression)
+        {
+            Should.NotBeNull(builder, "builder");
+            Should.NotBeNull(expression, "expression");
+            BuildFromLambdaExpressionInternal(builder, expression);
+        }
+
+        public void BuildParameterFromLambdaExpression<TValue>(IBindingBuilder builder, Func<LambdaExpression> expression,
+            DataConstant<Func<IDataContext, TValue>> parameterConstant)
+        {
+            Should.NotBeNull(builder, "builder");
+            Should.NotBeNull(expression, "expression");
+            Should.NotBeNull(parameterConstant, "parameterConstant");
+            BuildParameterFromLambdaExpressionInternal(builder, expression, parameterConstant);
+        }
+
+        public event Action<IBindingProvider, IDataContext> BindingInitializing;
+
+        public event Action<IBindingProvider, IDataBinding> BindingInitialized;
+
         #endregion
 
         #region Methods
 
-        protected IDataBinding BuildBinding([NotNull] IDataContext context)
+        protected virtual void BuildFromLambdaExpressionInternal(IBindingBuilder builder, Func<LambdaExpression> expression)
+        {
+            LambdaExpressionToBindingExpressionConverter.Convert(builder, expression);
+        }
+
+        protected virtual void BuildParameterFromLambdaExpressionInternal<TValue>(IBindingBuilder builder, Func<LambdaExpression> expression, DataConstant<Func<IDataContext, TValue>> parameterConstant)
+        {
+            Func<IDataContext, TValue> value;
+            var func = LambdaExpressionToBindingExpressionConverter.ConvertParameter(builder, expression);
+            if (typeof(TValue) == typeof(object))
+                value = (Func<IDataContext, TValue>)(object)func;
+            else
+                value = func.CastFunc<TValue>;
+            builder.Add(parameterConstant, value);
+        }
+
+        [NotNull]
+        protected virtual IBindingBuilder CreateBuilderInternal([NotNull] IDataContext context)
+        {
+            if (!context.Contains(BindingBuilderConstants.BuildDelegate))
+                context.Add(BindingBuilderConstants.BuildDelegate, _buildDelegate);
+            return new BindingBuilder(context);
+        }
+
+        [NotNull]
+        protected virtual IDataBinding BuildBinding([NotNull] IDataContext context)
         {
             try
             {
