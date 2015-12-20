@@ -29,6 +29,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         #region Fields
 
         public static readonly Guid IdBindingMode;
+        public const int DefaultPriority = int.MinValue + 1000;
 
         #endregion
 
@@ -124,7 +125,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         public override sealed int Priority
         {
-            get { return int.MinValue; }
+            get { return DefaultPriority; }
         }
 
         #endregion

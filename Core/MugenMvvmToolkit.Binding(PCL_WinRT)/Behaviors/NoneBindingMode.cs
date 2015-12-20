@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         public int Priority
         {
-            get { return int.MinValue; }
+            get { return BindingModeBase.DefaultPriority; }
         }
 
         bool IBindingBehavior.Attach(IDataBinding binding)
