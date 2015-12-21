@@ -94,9 +94,10 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
 
         static DynamicViewModelWindowPresenter()
         {
-            WindowViewMediatorConstant = DataConstant.Create(() => WindowViewMediatorConstant, true);
-            RestoredViewConstant = DataConstant.Create(() => RestoredViewConstant, true);
-            IsOpenViewConstant = DataConstant.Create(() => IsOpenViewConstant);
+            var type = typeof(DynamicViewModelWindowPresenter);
+            WindowViewMediatorConstant = DataConstant.Create<IWindowViewMediator>(type, nameof(WindowViewMediatorConstant), true);
+            RestoredViewConstant = DataConstant.Create<object>(type, nameof(RestoredViewConstant), true);
+            IsOpenViewConstant = DataConstant.Create<bool>(type, nameof(IsOpenViewConstant));
         }
 
         public DynamicViewModelWindowPresenter([NotNull] IViewMappingProvider viewMappingProvider,
@@ -104,11 +105,11 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
             [NotNull] IWrapperManager wrapperManager, [NotNull] IThreadManager threadManager,
             [NotNull] IOperationCallbackManager callbackManager)
         {
-            Should.NotBeNull(viewMappingProvider, "viewMappingProvider");
-            Should.NotBeNull(viewManager, "viewManager");
-            Should.NotBeNull(wrapperManager, "wrapperManager");
-            Should.NotBeNull(threadManager, "threadManager");
-            Should.NotBeNull(callbackManager, "callbackManager");
+            Should.NotBeNull(viewMappingProvider, nameof(viewMappingProvider));
+            Should.NotBeNull(viewManager, nameof(viewManager));
+            Should.NotBeNull(wrapperManager, nameof(wrapperManager));
+            Should.NotBeNull(threadManager, nameof(threadManager));
+            Should.NotBeNull(callbackManager, nameof(callbackManager));
             _viewMappingProvider = viewMappingProvider;
             _viewManager = viewManager;
             _wrapperManager = wrapperManager;

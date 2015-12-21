@@ -76,12 +76,12 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         static OperationCallbackManager()
         {
-            CallbackConstant = DataConstant.Create(() => CallbackConstant, true);
+            CallbackConstant = DataConstant.Create<CallbackDictionary>(typeof(OperationCallbackManager), nameof(CallbackConstant), true);
         }
 
         public OperationCallbackManager(ISerializer serializer)
         {
-            Should.NotBeNull(serializer, "serializer");
+            Should.NotBeNull(serializer, nameof(serializer));
             _serializer = serializer;
         }
 
@@ -97,9 +97,9 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         public void Register(OperationType operation, object target, IOperationCallback callback, IDataContext context)
         {
-            Should.NotBeNull(operation, "operation");
-            Should.NotBeNull(target, "target");
-            Should.NotBeNull(callback, "callback");
+            Should.NotBeNull(operation, nameof(operation));
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(callback, nameof(callback));
             if (context == null)
                 context = DataContext.Empty;
             RegisterInternal(operation, target, callback, context);
@@ -109,7 +109,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         public void SetResult(IOperationResult result)
         {
-            Should.NotBeNull(result, "result");
+            Should.NotBeNull(result, nameof(result));
             var invoked = SetResultInternal(result);
             if (Tracer.TraceInformation)
             {
@@ -122,7 +122,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         public void SetResult(object target, Func<OperationType, object, IOperationResult> getResult)
         {
-            Should.NotBeNull(target, "target");
+            Should.NotBeNull(target, nameof(target));
             if (getResult == null)
                 getResult = (type, o) => OperationResult.CreateCancelResult<bool?>(type, o);
             SetResultInternal(target, getResult);

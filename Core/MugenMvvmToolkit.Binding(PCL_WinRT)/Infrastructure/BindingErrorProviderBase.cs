@@ -95,7 +95,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public IList<object> GetErrors(object target, string key, IDataContext context)
         {
-            Should.NotBeNull(target, "target");
+            Should.NotBeNull(target, nameof(target));
             var dictionary = GetErrorsDictionary(target);
             if (dictionary == null)
                 return Empty.Array<object>();
@@ -109,8 +109,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public void SetErrors(object target, string senderKey, IList<object> errors, IDataContext context)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNull(senderKey, "senderKey");
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(senderKey, nameof(senderKey));
             if (context == null)
                 context = DataContext.Empty;
             var dict = GetOrAddErrorsDictionary(target);

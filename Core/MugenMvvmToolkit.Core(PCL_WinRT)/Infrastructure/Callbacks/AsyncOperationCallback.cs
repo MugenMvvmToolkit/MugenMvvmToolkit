@@ -43,7 +43,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         public AsyncOperationCallback(IAsyncOperationInternal asyncOperation)
         {
-            Should.NotBeNull(asyncOperation, "asyncOperation");
+            Should.NotBeNull(asyncOperation, nameof(asyncOperation));
             _asyncOperation = asyncOperation;
         }
 
@@ -83,7 +83,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         public void Invoke(IOperationResult result)
         {
-            Should.NotBeNull(result, "result");
+            Should.NotBeNull(result, nameof(result));
             if (_asyncOperation == null)
             {
                 if (_callback != null)

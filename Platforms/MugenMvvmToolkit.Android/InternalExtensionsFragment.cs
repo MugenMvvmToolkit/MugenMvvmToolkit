@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.Android
 
         public static FragmentManager GetFragmentManager(this Activity activity)
         {
-            Should.NotBeNull(activity, "activity");
+            Should.NotBeNull(activity, nameof(activity));
 #if APPCOMPAT
             Should.BeOfType<FragmentActivity>(activity, "activity");
             return ((FragmentActivity)activity).SupportFragmentManager;

@@ -170,7 +170,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         {
             if (!IsDesignMode)
                 return;
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             SynchronizationContext context = SynchronizationContext.Current;
             if (context == null)
                 Task.Factory.StartNew(() => InitializeViewModelInternal(viewModel));

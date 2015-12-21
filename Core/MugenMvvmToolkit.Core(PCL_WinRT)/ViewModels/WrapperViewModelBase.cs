@@ -112,7 +112,7 @@ namespace MugenMvvmToolkit.ViewModels
         public void Wrap(IViewModel viewModel, IDataContext context = null)
         {
             EnsureNotDisposed();
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             lock (_locker)
             {
                 if (_viewModel != null)
@@ -348,7 +348,7 @@ namespace MugenMvvmToolkit.ViewModels
                     _viewModel.PropertyChanged -= ViewModelOnPropertyChanged;
                     _viewModel.Settings.Metadata.Remove(ViewModelConstants.StateNotNeeded);
                     _viewModel = null;
-                    OnPropertyChanged("ViewModel");
+                    OnPropertyChanged(nameof(ViewModel));
                 }
             }
             base.OnDisposeInternal(disposing);

@@ -72,7 +72,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public void Restore(object entity)
             {
-                Should.NotBeNull(entity, "entity");
+                Should.NotBeNull(entity, nameof(entity));
                 foreach (var state in this)
                 {
                     if (!Equals(state.Value.PropertyInfo.GetValueEx<object>(entity), state.Value.Value))
@@ -84,7 +84,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public bool HasChanges(object entity)
             {
-                Should.NotBeNull(entity, "entity");
+                Should.NotBeNull(entity, nameof(entity));
                 foreach (var savedState in this)
                 {
                     if (!Equals(savedState.Value.PropertyInfo.GetValueEx<object>(entity), savedState.Value.Value))
@@ -95,7 +95,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public bool HasChanges(object entity, string propertyName)
             {
-                Should.NotBeNull(entity, "entity");
+                Should.NotBeNull(entity, nameof(entity));
                 SavedState savedState;
                 if (!TryGetValue(propertyName, out savedState))
                     return false;
@@ -104,7 +104,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public IDictionary<string, Tuple<object, object>> Dump(object entity)
             {
-                Should.NotBeNull(entity, "entity");
+                Should.NotBeNull(entity, nameof(entity));
                 var dictionary = new Dictionary<string, Tuple<object, object>>();
                 foreach (var savedState in this)
                 {
@@ -160,7 +160,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public IEntitySnapshot CreateSnapshot(object entity, IDataContext context = null)
         {
-            Should.NotBeNull(entity, "entity");
+            Should.NotBeNull(entity, nameof(entity));
             if (Tracer.TraceInformation)
                 Tracer.Info("The state snapshot for the '{0}' was created", entity.GetType());
             return new EntitySnapshot(entity, GetPropertiesInternal(entity));

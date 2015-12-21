@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using Android.App;
 using Android.OS;
+using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Models.EventArg;
@@ -147,31 +148,31 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             var actionBar = activity.GetActionBar();
 
             var setter = new XmlPropertySetter<ActionBarTemplate, ActionBar>(actionBar, activity, new BindingSet());
-            setter.SetEnumProperty<ActionBarNavigationMode>(() => template => template.NavigationMode, NavigationMode);
-            setter.SetProperty(() => template => template.DataContext, DataContext);
+            setter.SetEnumProperty<ActionBarNavigationMode>(nameof(NavigationMode), NavigationMode);
+            setter.SetProperty(nameof(DataContext), DataContext);
 
             if (!string.IsNullOrEmpty(Bind))
                 setter.BindingSet.BindFromExpression(actionBar, Bind);
-            setter.SetProperty(() => template => template.ContextActionBarTemplate, ContextActionBarTemplate);
-            setter.SetBinding(() => template => template.ContextActionBarVisible, ContextActionBarVisible, false);
-            setter.SetProperty(() => template => template.BackgroundDrawable, BackgroundDrawable);
-            setter.SetProperty(() => template => template.CustomView, CustomView);
-            setter.SetEnumProperty<ActionBarDisplayOptions>(() => template => template.DisplayOptions, DisplayOptions);
-            setter.SetBoolProperty(() => template => template.DisplayHomeAsUpEnabled, DisplayHomeAsUpEnabled);
-            setter.SetBoolProperty(() => template => template.DisplayShowCustomEnabled, DisplayShowCustomEnabled);
-            setter.SetBoolProperty(() => template => template.DisplayShowHomeEnabled, DisplayShowHomeEnabled);
-            setter.SetBoolProperty(() => template => template.DisplayShowTitleEnabled, DisplayShowTitleEnabled);
-            setter.SetBoolProperty(() => template => template.DisplayUseLogoEnabled, DisplayUseLogoEnabled);
-            setter.SetBoolProperty(() => template => template.HomeButtonEnabled, HomeButtonEnabled);
-            setter.SetProperty(() => template => template.Icon, Icon);
-            setter.SetProperty(() => template => template.Logo, Logo);
-            setter.SetProperty(() => template => template.SplitBackgroundDrawable, SplitBackgroundDrawable);
-            setter.SetProperty(() => template => template.StackedBackgroundDrawable, StackedBackgroundDrawable);
-            setter.SetBoolProperty(() => template => template.IsShowing, IsShowing);
-            setter.SetStringProperty(() => template => template.Subtitle, Subtitle);
-            setter.SetStringProperty(() => template => template.Title, Title);
-            setter.SetBoolProperty(() => template => template.Visible, Visible);
-            setter.SetBinding("HomeButton.Click", HomeButtonClick, false);
+            setter.SetProperty(nameof(ContextActionBarTemplate), ContextActionBarTemplate);
+            setter.SetBinding(nameof(ContextActionBarVisible), ContextActionBarVisible, false);
+            setter.SetProperty(nameof(BackgroundDrawable), BackgroundDrawable);
+            setter.SetProperty(nameof(CustomView), CustomView);
+            setter.SetEnumProperty<ActionBarDisplayOptions>(nameof(DisplayOptions), DisplayOptions);
+            setter.SetBoolProperty(nameof(DisplayHomeAsUpEnabled), DisplayHomeAsUpEnabled);
+            setter.SetBoolProperty(nameof(DisplayShowCustomEnabled), DisplayShowCustomEnabled);
+            setter.SetBoolProperty(nameof(DisplayShowHomeEnabled), DisplayShowHomeEnabled);
+            setter.SetBoolProperty(nameof(DisplayShowTitleEnabled), DisplayShowTitleEnabled);
+            setter.SetBoolProperty(nameof(DisplayUseLogoEnabled), DisplayUseLogoEnabled);
+            setter.SetBoolProperty(nameof(HomeButtonEnabled), HomeButtonEnabled);
+            setter.SetProperty(nameof(Icon), Icon);
+            setter.SetProperty(nameof(Logo), Logo);
+            setter.SetProperty(nameof(SplitBackgroundDrawable), SplitBackgroundDrawable);
+            setter.SetProperty(nameof(StackedBackgroundDrawable), StackedBackgroundDrawable);
+            setter.SetBoolProperty(nameof(IsShowing), IsShowing);
+            setter.SetStringProperty(nameof(Subtitle), Subtitle);
+            setter.SetStringProperty(nameof(Title), Title);
+            setter.SetBoolProperty(nameof(Visible), Visible);
+            setter.SetBinding(AttachedMembers.ActionBar.HomeButtonClick, HomeButtonClick, false);
 
             if (string.IsNullOrEmpty(ItemsSource))
             {
@@ -195,9 +196,9 @@ namespace MugenMvvmToolkit.Android.Binding.Models
 #else
                 actionBar.SetBindingMemberValue(AttachedMembers.ActionBar.ItemsSourceGenerator, new ActionBarTabItemsSourceGenerator(actionBar, TabTemplate));
 #endif
-                setter.SetBinding(() => template => template.ItemsSource, ItemsSource, false);
+                setter.SetBinding(nameof(ItemsSource), ItemsSource, false);
             }
-            setter.SetBinding(() => template => template.SelectedItem, SelectedItem, false);
+            setter.SetBinding(nameof(SelectedItem), SelectedItem, false);
             setter.Apply();
         }
 

@@ -44,42 +44,42 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         public DelegateContinuation(Action<IOperationResult> action)
         {
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(action, nameof(action));
             _action = action;
             _delegate = action;
         }
 
         public DelegateContinuation(Action<IOperationResult<TIn>> genericAction)
         {
-            Should.NotBeNull(genericAction, "genericAction");
+            Should.NotBeNull(genericAction, nameof(genericAction));
             _genericAction = genericAction;
             _delegate = genericAction;
         }
 
         public DelegateContinuation(Func<IOperationResult, TOut> func)
         {
-            Should.NotBeNull(func, "func");
+            Should.NotBeNull(func, nameof(func));
             _func = func;
             _delegate = func;
         }
 
         public DelegateContinuation(Func<IOperationResult<TIn>, TOut> genericFunc)
         {
-            Should.NotBeNull(genericFunc, "genericFunc");
+            Should.NotBeNull(genericFunc, nameof(genericFunc));
             _genericFunc = genericFunc;
             _delegate = genericFunc;
         }
 
         public DelegateContinuation(Action<TTarget, IOperationResult<TIn>> actionWithTarget)
         {
-            Should.NotBeNull(actionWithTarget, "actionWithTarget");
+            Should.NotBeNull(actionWithTarget, nameof(actionWithTarget));
             _actionWithTarget = actionWithTarget;
             _delegate = actionWithTarget;
         }
 
         public DelegateContinuation([NotNull] Func<TTarget, IOperationResult<TIn>, TOut> funcWithTarget)
         {
-            Should.NotBeNull(funcWithTarget, "funcWithTarget");
+            Should.NotBeNull(funcWithTarget, nameof(funcWithTarget));
             _funcWithTarget = funcWithTarget;
             _delegate = funcWithTarget;
         }

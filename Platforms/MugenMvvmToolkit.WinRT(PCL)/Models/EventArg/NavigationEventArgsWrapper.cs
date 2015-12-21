@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.WinRT.Models.EventArg
 
         public NavigationEventArgsWrapper([NotNull] NavigationEventArgs args, bool bringToFront)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             _args = args;
             _bringToFront = bringToFront;
         }

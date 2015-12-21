@@ -63,7 +63,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
 
         protected WpfBootstrapperBase([NotNull] Application application, bool autoStart = true, PlatformInfo platform = null)
         {
-            Should.NotBeNull(application, "application");
+            Should.NotBeNull(application, nameof(application));
             _platform = platform ?? PlatformExtensions.GetPlatformInfo();
             application.Startup += ApplicationOnStartup;
             AutoStart = autoStart;

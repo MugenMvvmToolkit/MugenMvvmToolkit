@@ -54,7 +54,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         static ValidatesOnNotifyDataErrorsBehavior()
         {
-            ErrorsChangedEvent = typeof(INotifyDataErrorInfo).GetEventEx("ErrorsChanged", MemberFlags.Instance | MemberFlags.Public);
+            ErrorsChangedEvent = typeof(INotifyDataErrorInfo).GetEventEx(nameof(INotifyDataErrorInfo.ErrorsChanged), MemberFlags.Instance | MemberFlags.Public);
             IdNotifyDataErrorInfoBindingBehavior = new Guid("198CBAA2-CF75-4620-9BDD-A1EBF9B8B2F4");
             Prototype = new ValidatesOnNotifyDataErrorsBehavior();
         }

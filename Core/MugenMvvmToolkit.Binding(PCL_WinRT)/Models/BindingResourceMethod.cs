@@ -39,8 +39,8 @@ namespace MugenMvvmToolkit.Binding.Models
         public BindingResourceMethod([NotNull] Func<IList<Type>, object[], IDataContext, object> method,
             [NotNull] Type returnType)
         {
-            Should.NotBeNull(method, "method");
-            Should.NotBeNull(returnType, "returnType");
+            Should.NotBeNull(method, nameof(method));
+            Should.NotBeNull(returnType, nameof(returnType));
             _method = method;
             _returnType = returnType;
         }
@@ -48,8 +48,8 @@ namespace MugenMvvmToolkit.Binding.Models
         public BindingResourceMethod([NotNull] Func<IList<Type>, object[], IDataContext, object> method,
             [NotNull] Func<IList<Type>, IList<Type>, IDataContext, Type> getReturnType)
         {
-            Should.NotBeNull(method, "method");
-            Should.NotBeNull(getReturnType, "getReturnType");
+            Should.NotBeNull(method, nameof(method));
+            Should.NotBeNull(getReturnType, nameof(getReturnType));
             _method = method;
             _getReturnType = getReturnType;
         }

@@ -17,18 +17,17 @@
 #endregion
 
 using System;
-using System.Collections;
 using Android.App;
 using Android.Content;
 using Android.Graphics.Drawables;
 using Android.Runtime;
 using Android.Views;
+using Android.Widget;
 using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Android.Binding.Models;
 using MugenMvvmToolkit.Android.Infrastructure;
-using MugenMvvmToolkit.Android.Interfaces;
 using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
@@ -55,7 +54,6 @@ using ActionBarTabItemsSourceGenerator = MugenMvvmToolkit.Android.AppCompat.Infr
 
 namespace MugenMvvmToolkit.Android.AppCompat.Modules
 #else
-using Android.Widget;
 
 namespace MugenMvvmToolkit.Android.Binding.Modules
 #endif
@@ -77,7 +75,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             public HomeButtonImpl(ActionBar actionBar)
             {
-                Should.NotBeNull(actionBar, "actionBar");
+                Should.NotBeNull(actionBar, nameof(actionBar));
                 _actionBar = actionBar;
             }
 
@@ -577,14 +575,14 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             memberProvider.Register(AttachedBindingMember
                 .CreateNotifiableMember(AttachedMembers.ActionBar.IsShowing.Override<ActionBar>(), (info, actionBar) => actionBar.IsShowing, SetActionBarIsShowing));
             memberProvider.Register(AttachedBindingMember
-                .CreateNotifiableMember<ActionBar, string>("Subtitle",
+                .CreateNotifiableMember<ActionBar, string>(nameof(ActionBar.Subtitle),
                     (info, actionBar) => actionBar.Subtitle, (info, actionBar, value) =>
                     {
                         actionBar.Subtitle = value;
                         return true;
                     }));
             memberProvider.Register(AttachedBindingMember
-                .CreateNotifiableMember<ActionBar, string>("Title",
+                .CreateNotifiableMember<ActionBar, string>(nameof(ActionBar.Title),
                     (info, actionBar) => actionBar.Title, (info, actionBar, value) =>
                     {
                         actionBar.Title = value;
@@ -599,7 +597,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ActionBarTab.ContentTemplateSelector.Override<ActionBar.Tab>()));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ActionBarTab.ContentTemplate.Override<ActionBar.Tab>()));
             memberProvider.Register(AttachedBindingMember
-                .CreateNotifiableMember<ActionBar.Tab, string>("ContentDescription",
+                .CreateNotifiableMember<ActionBar.Tab, string>(nameof(ActionBar.Tab.ContentDescription),
                     (info, tab) => tab.ContentDescription,
                     (info, tab, value) =>
                     {
@@ -630,7 +628,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                         return true;
                     }));
             memberProvider.Register(AttachedBindingMember
-                .CreateNotifiableMember<ActionBar.Tab, string>("Text",
+                .CreateNotifiableMember<ActionBar.Tab, string>(nameof(ActionBar.Tab.Text),
                     (info, tab) => tab.Text,
                     (info, tab, value) =>
                     {
@@ -638,7 +636,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                         return true;
                     }));
             memberProvider.Register(AttachedBindingMember
-                .CreateNotifiableMember<ActionBar.Tab, Object>("Tag",
+                .CreateNotifiableMember<ActionBar.Tab, Object>(nameof(ActionBar.Tab.Tag),
                     (info, tab) => tab.Tag,
                     (info, tab, value) =>
                     {
@@ -649,12 +647,12 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateEvent<HomeButtonImpl>("Click", (info, homeButton, arg3) => homeButton.AddWithUnsubscriber(arg3)));
 
             //SearchView
-            BindingBuilderExtensions.RegisterDefaultBindingMember<SearchView>(() => v => v.Query);
-            var queryMember = AttachedBindingMember.CreateMember<SearchView, string>("Query",
+            BindingBuilderExtensions.RegisterDefaultBindingMember<SearchView>(nameof(SearchView.Query));
+            var queryMember = AttachedBindingMember.CreateMember<SearchView, string>(nameof(SearchView.Query),
                 (info, searchView) => searchView.Query,
-                (info, searchView, value) => searchView.SetQuery(value, false), "QueryTextChange");
+                (info, searchView, value) => searchView.SetQuery(value, false), nameof(SearchView.QueryTextChange));
             memberProvider.Register(queryMember);
-            memberProvider.Register("Text", queryMember);
+            memberProvider.Register(nameof(TextView.Text), queryMember);
         }
 
         private static void ActionBarContextActionBarVisibleChanged(ActionBar actionBar,
@@ -922,7 +920,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         private static void MenuItemTemplateInitialized(MenuItemTemplate menuItemTemplate, IMenuItem menuItem, XmlPropertySetter<MenuItemTemplate, IMenuItem> setter)
         {
-            setter.SetEnumProperty<ShowAsAction>(() => template => template.ShowAsAction, menuItemTemplate.ShowAsAction);
+            setter.SetEnumProperty<ShowAsAction>(nameof(ShowAsAction), menuItemTemplate.ShowAsAction);
 
             if (!string.IsNullOrEmpty(menuItemTemplate.ActionViewBind))
                 ServiceProvider.AttachedValueProvider.SetValue(menuItem, ActionViewBindKey, menuItemTemplate.ActionViewBind);

@@ -134,10 +134,10 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         public ApplicationStateManager([NotNull] ISerializer serializer, [NotNull] IViewModelProvider viewModelProvider,
             [NotNull] IViewManager viewManager, [NotNull] IViewModelPresenter viewModelPresenter)
         {
-            Should.NotBeNull(serializer, "serializer");
-            Should.NotBeNull(viewModelProvider, "viewModelProvider");
-            Should.NotBeNull(viewManager, "viewManager");
-            Should.NotBeNull(viewModelPresenter, "viewModelPresenter");
+            Should.NotBeNull(serializer, nameof(serializer));
+            Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));
+            Should.NotBeNull(viewManager, nameof(viewManager));
+            Should.NotBeNull(viewModelPresenter, nameof(viewModelPresenter));
             _serializer = serializer;
             _viewModelProvider = viewModelProvider;
             _viewManager = viewManager;
@@ -180,8 +180,8 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         public void OnSaveState(FrameworkElement element, IDictionary<string, object> state, object args,
             IDataContext context = null)
         {
-            Should.NotBeNull(element, "element");
-            Should.NotBeNull(state, "state");
+            Should.NotBeNull(element, nameof(element));
+            Should.NotBeNull(state, nameof(state));
             var viewModel = element.DataContext as IViewModel;
             if (viewModel != null)
             {
@@ -193,8 +193,8 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         public void OnLoadState(FrameworkElement element, IDictionary<string, object> state, object args,
             IDataContext context = null)
         {
-            Should.NotBeNull(element, "element");
-            Should.NotBeNull(state, "state");
+            Should.NotBeNull(element, nameof(element));
+            Should.NotBeNull(state, nameof(state));
             object value;
             if (!state.TryGetValue(VmTypeKey, out value))
                 return;

@@ -96,7 +96,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
 
         public static void SetErrors([NotNull] FrameworkElement element, [CanBeNull] IList<object> errors)
         {
-            Should.NotBeNull(element, "element");
+            Should.NotBeNull(element, nameof(element));
             if (errors == null)
                 errors = Empty.Array<object>();
             var binder = (ValidationBinder)element.GetValue(ErrorContainerProperty);

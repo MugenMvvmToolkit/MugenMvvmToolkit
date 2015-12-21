@@ -114,7 +114,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 (item, args) => item.SetOnMenuItemClickListener(new MenuItemOnMenuItemClickListener(item))));
 
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<IMenuItem, object>("AlphabeticShortcut",
+                .CreateMember<IMenuItem, object>(nameof(IMenuItem.AlphabeticShortcut),
                     (info, item) => item.AlphabeticShortcut,
                     (info, item, value) =>
                     {
@@ -134,7 +134,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                     }));
 
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<IMenuItem, bool>("IsCheckable",
+                .CreateMember<IMenuItem, bool>(nameof(IMenuItem.IsCheckable),
                     (info, item) => item.IsCheckable,
                     (info, item, value) => item.SetCheckable(value)));
 
@@ -142,12 +142,12 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 (info, item) => item.IsEnabled,
                 (info, item, value) => item.SetEnabled(value));
             memberProvider.Register(menuItemEnabled);
-            memberProvider.Register("IsEnabled", menuItemEnabled);
+            memberProvider.Register(nameof(IMenuItem.IsEnabled), menuItemEnabled);
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<IMenuItem, bool>("IsVisible", (info, item) => item.IsVisible,
+                .CreateMember<IMenuItem, bool>(nameof(IMenuItem.IsVisible), (info, item) => item.IsVisible,
                     (info, item, value) => item.SetVisible(value)));
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<IMenuItem, object>("NumericShortcut",
+                .CreateMember<IMenuItem, object>(nameof(IMenuItem.NumericShortcut),
                     (info, item) => item.NumericShortcut,
                     (info, item, value) =>
                     {

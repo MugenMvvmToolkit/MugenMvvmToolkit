@@ -39,9 +39,9 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
             [NotNull] IExpressionNode ifFalse)
             : base(ExpressionNodeType.Condition)
         {
-            Should.NotBeNull(condition, "condition");
-            Should.NotBeNull(ifTrue, "ifTrue");
-            Should.NotBeNull(ifFalse, "ifFalse");
+            Should.NotBeNull(condition, nameof(condition));
+            Should.NotBeNull(ifTrue, nameof(ifTrue));
+            Should.NotBeNull(ifFalse, nameof(ifFalse));
             _condition = condition;
             _ifTrue = ifTrue;
             _ifFalse = ifFalse;

@@ -42,7 +42,7 @@ namespace MugenMvvmToolkit.WinForms.Modules
 
             public FormViewWrapper(Form form)
             {
-                Should.NotBeNull(form, "form");
+                Should.NotBeNull(form, nameof(form));
                 _form = form;
             }
 

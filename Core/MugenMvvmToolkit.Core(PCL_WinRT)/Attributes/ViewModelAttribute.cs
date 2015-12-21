@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.Attributes
 
         public ViewModelAttribute([NotNull, ViewModelTypeRequired] Type viewModelType, string name = null)
         {
-            Should.NotBeNull(viewModelType, "viewModelType");
+            Should.NotBeNull(viewModelType, nameof(viewModelType));
             Should.BeOfType<IViewModel>(viewModelType, "viewModelType");
             _viewModelType = viewModelType;
             _name = name;

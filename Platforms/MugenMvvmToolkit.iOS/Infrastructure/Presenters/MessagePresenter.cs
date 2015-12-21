@@ -42,7 +42,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
 
         public MessagePresenter(IThreadManager threadManager)
         {
-            Should.NotBeNull(threadManager, "threadManager");
+            Should.NotBeNull(threadManager, nameof(threadManager));
             _threadManager = threadManager;
         }
 
@@ -102,7 +102,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
                     alertView.AddButton(GetButtonText(MessageResult.Cancel));
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("button");
+                    throw new ArgumentOutOfRangeException(nameof(button));
             }
             EventHandler<UIButtonEventArgs> handler = null;
             handler = (sender, args) =>
@@ -151,7 +151,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
                         tcs.SetResult(args.ButtonIndex == 0 ? MessageResult.Retry : MessageResult.Cancel);
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException("button");
+                        throw new ArgumentOutOfRangeException(nameof(button));
                 }
             };
             alertView.Clicked += handler;

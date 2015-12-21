@@ -167,13 +167,13 @@ namespace MugenMvvmToolkit
 
         internal static Exception WrapperTypeShouldBeNonAbstract(Type wrapperType)
         {
-            return new ArgumentException($"The wrapper type '{wrapperType}' must be non abstract", "wrapperType");
+            return new ArgumentException($"The wrapper type '{wrapperType}' must be non abstract", nameof(wrapperType));
         }
 
 
         internal static Exception WrapperTypeNotSupported(Type wrapperType)
         {
-            return new ArgumentException($"There are no wrapper type for type '{wrapperType}'.", "wrapperType");
+            return new ArgumentException($"There are no wrapper type for type '{wrapperType}'.", nameof(wrapperType));
         }
 
         internal static Exception PresenterCannotShowViewModel(Type presenterType, Type vmType)

@@ -58,7 +58,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 #if WINDOWS_PHONE
         public FrameNavigationService([NotNull] Frame frame, bool isRootFrame)
         {
-            Should.NotBeNull(frame, "frame");
+            Should.NotBeNull(frame, nameof(frame));
             _frame = frame;
             _frame.Navigating += OnNavigating;
             _frame.Navigated += OnNavigated;
@@ -70,7 +70,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 #else
         public FrameNavigationService([NotNull] Frame frame)
         {
-            Should.NotBeNull(frame, "frame");
+            Should.NotBeNull(frame, nameof(frame));
             _frame = frame;
             _frame.Navigating += OnNavigating;
             _frame.Navigated += OnNavigated;
@@ -149,7 +149,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         public string GetParameterFromArgs(EventArgs args)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             var cancelArgs = args as NavigatingCancelEventArgsWrapper;
             if (cancelArgs != null)
                 return GetParameter(cancelArgs.Args.Uri);
@@ -161,7 +161,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         public bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
 #if WINDOWS_PHONE
             if (args is BackButtonNavigatingEventArgs)
             {
@@ -181,7 +181,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         public bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
-            Should.NotBeNull(source, "source");
+            Should.NotBeNull(source, nameof(source));
             bool result = NavigateInternal(source, parameter);
             if (result)
                 ClearNavigationStackIfNeed(dataContext);
@@ -190,7 +190,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         public bool CanClose(IViewModel viewModel, IDataContext dataContext)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             var content = CurrentContent;
             return content != null && ViewManager.GetDataContext(content) == viewModel && CanGoBack;
         }

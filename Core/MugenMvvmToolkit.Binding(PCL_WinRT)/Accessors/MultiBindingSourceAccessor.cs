@@ -46,8 +46,8 @@ namespace MugenMvvmToolkit.Binding.Accessors
             [NotNull] Func<IDataContext, IList<object>, object> formatExpression, [NotNull] IDataContext context)
             : base(context, false)
         {
-            Should.NotBeNull(sources, "sources");
-            Should.NotBeNull(formatExpression, "formatExpression");
+            Should.NotBeNull(sources, nameof(sources));
+            Should.NotBeNull(formatExpression, nameof(formatExpression));
             _sources = sources;
             _formatExpression = formatExpression;
         }

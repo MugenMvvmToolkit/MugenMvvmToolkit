@@ -93,7 +93,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             if (type == null)
             {
                 if (throwOnError)
-                    throw new ArgumentException("The type with name '" + typeName + "' was not found.", "typeName");
+                    throw new ArgumentException("The type with name '" + typeName + "' was not found.", nameof(typeName));
             }
             return type;
         }

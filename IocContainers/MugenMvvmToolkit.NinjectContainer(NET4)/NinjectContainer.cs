@@ -118,7 +118,7 @@ namespace MugenMvvmToolkit
 
         public NinjectContainer(IKernel kernel, IIocContainer parent = null)
         {
-            Should.NotBeNull(kernel, "kernel");
+            Should.NotBeNull(kernel, nameof(kernel));
             _kernel = kernel;
             _parent = parent;
             _id = Interlocked.Increment(ref _idCounter);
@@ -229,7 +229,7 @@ namespace MugenMvvmToolkit
         public object Get(Type service, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
+            Should.NotBeNull(service, nameof(service));
             if (name == null)
                 return _kernel.Get(service, ConvertParameters(parameters));
             return _kernel.Get(service, name, ConvertParameters(parameters));
@@ -238,7 +238,7 @@ namespace MugenMvvmToolkit
         public IEnumerable<object> GetAll(Type service, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
+            Should.NotBeNull(service, nameof(service));
             if (name == null)
                 return _kernel.GetAll(service, ConvertParameters(parameters));
             return _kernel.GetAll(service, name, ConvertParameters(parameters));
@@ -247,7 +247,7 @@ namespace MugenMvvmToolkit
         public void BindToConstant(Type service, object constValue, string name = null)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
+            Should.NotBeNull(service, nameof(service));
             IBindingWhenInNamedWithOrOnSyntax<object> syntax = _kernel.Bind(service).ToConstant(constValue);
             if (name != null)
                 syntax.Named(name);
@@ -257,8 +257,8 @@ namespace MugenMvvmToolkit
             DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
-            Should.NotBeNull(methodBindingDelegate, "methodBindingDelegate");
+            Should.NotBeNull(service, nameof(service));
+            Should.NotBeNull(methodBindingDelegate, nameof(methodBindingDelegate));
             if (parameters == null)
                 parameters = Empty.Array<IIocParameter>();
             IBindingWhenInNamedWithOrOnSyntax<object> syntax = _kernel
@@ -272,8 +272,8 @@ namespace MugenMvvmToolkit
         public void Bind(Type service, Type typeTo, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
-            Should.NotBeNull(typeTo, "typeTo");
+            Should.NotBeNull(service, nameof(service));
+            Should.NotBeNull(typeTo, nameof(typeTo));
             IBindingWhenInNamedWithOrOnSyntax<object> syntax = _kernel
                 .Bind(service)
                 .To(typeTo);
@@ -290,13 +290,13 @@ namespace MugenMvvmToolkit
         public void Unbind(Type service)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
+            Should.NotBeNull(service, nameof(service));
             _kernel.Unbind(service);
         }
 
         public bool CanResolve(Type service, string name = null)
         {
-            Should.NotBeNull(service, "service");
+            Should.NotBeNull(service, nameof(service));
             if (IsDisposed)
                 return false;
             Func<IBindingMetadata, bool> canResolve = null;

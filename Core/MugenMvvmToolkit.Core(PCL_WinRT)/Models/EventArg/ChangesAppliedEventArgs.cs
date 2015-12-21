@@ -35,7 +35,7 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         public ChangesAppliedEventArgs([NotNull]IList<IEntityStateEntry> changes)
         {
-            Should.NotBeNull(changes, "changes");
+            Should.NotBeNull(changes, nameof(changes));
             _changes = changes;
         }
 

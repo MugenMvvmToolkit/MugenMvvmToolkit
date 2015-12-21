@@ -118,7 +118,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         protected Task ValidateAsync<TModel>(Func<Expression<Func<TModel, object>>> getProperty)
         {
-            Should.NotBeNull(getProperty, "getProperty");
+            Should.NotBeNull(getProperty, nameof(getProperty));
             return ValidateAsync(getProperty.GetMemberName());
         }
 
@@ -322,7 +322,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         private IValidatorContext CreateContextInternal(object instanceToValidate)
         {
-            Should.NotBeNull(instanceToValidate, "instanceToValidate");
+            Should.NotBeNull(instanceToValidate, nameof(instanceToValidate));
             EnsureNotDisposed();
             var ctx = new ValidatorContext(instanceToValidate, PropertyMappings, IgnoreProperties, Settings.Metadata,
                 this.GetIocContainer(true, false));
@@ -392,7 +392,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         public void AddValidator(IValidator validator)
         {
-            Should.NotBeNull(validator, "validator");
+            Should.NotBeNull(validator, nameof(validator));
             EnsureNotDisposed();
             lock (_locker)
                 AddValidatorInternal(validator);
@@ -400,7 +400,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         public bool RemoveValidator(IValidator validator)
         {
-            Should.NotBeNull(validator, "validator");
+            Should.NotBeNull(validator, nameof(validator));
             EnsureNotDisposed();
             bool result;
             lock (_locker)
@@ -412,7 +412,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         public void AddInstance(object instanceToValidate)
         {
-            Should.NotBeNull(instanceToValidate, "instanceToValidate");
+            Should.NotBeNull(instanceToValidate, nameof(instanceToValidate));
             EnsureNotDisposed();
             lock (_locker)
                 AddInstanceInternal(instanceToValidate);
@@ -420,7 +420,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         public bool RemoveInstance(object instanceToValidate)
         {
-            Should.NotBeNull(instanceToValidate, "instanceToValidate");
+            Should.NotBeNull(instanceToValidate, nameof(instanceToValidate));
             EnsureNotDisposed();
             bool result;
             lock (_locker)
@@ -432,7 +432,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         public Task ValidateInstanceAsync(object instanceToValidate)
         {
-            Should.NotBeNull(instanceToValidate, "instanceToValidate");
+            Should.NotBeNull(instanceToValidate, nameof(instanceToValidate));
             EnsureNotDisposed();
             Task task;
             lock (_locker)
@@ -442,7 +442,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         public Task ValidateAsync(string propertyName)
         {
-            Should.NotBeNull(propertyName, "propertyName");
+            Should.NotBeNull(propertyName, nameof(propertyName));
             Task task;
             lock (_locker)
                 task = ValidateInternal(propertyName);
@@ -471,7 +471,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         public void ClearErrors(string propertyName)
         {
-            Should.NotBeNull(propertyName, "propertyName");
+            Should.NotBeNull(propertyName, nameof(propertyName));
             lock (_locker)
                 ClearErrorsInternal(propertyName);
         }

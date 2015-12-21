@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.iOS.MonoTouch.Dialog
 
         public static void RaiseParentChanged([NotNull] this Element element)
         {
-            Should.NotBeNull(element, "element");
+            Should.NotBeNull(element, nameof(element));
             element.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
         }
 

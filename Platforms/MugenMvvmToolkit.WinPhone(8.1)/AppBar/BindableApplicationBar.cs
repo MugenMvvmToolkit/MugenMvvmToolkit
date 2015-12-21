@@ -248,7 +248,7 @@ namespace MugenMvvmToolkit.WinPhone.AppBar
 
         public void Attach(object target)
         {
-            Should.NotBeNull(target, "target");
+            Should.NotBeNull(target, nameof(target));
             _page = (PhoneApplicationPage)target;
             _page.ApplicationBar = OriginalApplicationBar;
             if (ReadLocalValue(DataContextProperty) == DependencyProperty.UnsetValue)

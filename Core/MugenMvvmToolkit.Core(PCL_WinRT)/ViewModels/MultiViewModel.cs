@@ -70,8 +70,9 @@ namespace MugenMvvmToolkit.ViewModels
 
         static MultiViewModel()
         {
-            ViewModelState = DataConstant.Create(() => ViewModelState, true);
-            SelectedIndex = DataConstant.Create(() => SelectedIndex);
+            var type = typeof(MultiViewModel);
+            ViewModelState = DataConstant.Create<StateList>(type, nameof(ViewModelState), true);
+            SelectedIndex = DataConstant.Create<int>(type, nameof(SelectedIndex));
         }
 
         public MultiViewModel()
@@ -124,7 +125,7 @@ namespace MugenMvvmToolkit.ViewModels
         public virtual void AddViewModel(IViewModel viewModel, bool setSelected = true)
         {
             EnsureNotDisposed();
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             if (!ItemsSource.Contains(viewModel))
                 ItemsSource.Add(viewModel);
             if (setSelected)
@@ -134,7 +135,7 @@ namespace MugenMvvmToolkit.ViewModels
         public virtual Task<bool> RemoveViewModelAsync(IViewModel viewModel, object parameter = null)
         {
             EnsureNotDisposed();
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             if (!ItemsSource.Contains(viewModel))
                 return Empty.FalseTask;
             var result = viewModel
@@ -179,7 +180,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         public void PreserveViewModels([NotNull] IDataContext context)
         {
-            Should.NotBeNull(context, "context");
+            Should.NotBeNull(context, nameof(context));
             context.Remove(ViewModelState);
             if (ItemsSource.Count == 0)
                 return;
@@ -197,7 +198,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         public void RestoreViewModels([NotNull] IDataContext context)
         {
-            Should.NotBeNull(context, "context");
+            Should.NotBeNull(context, nameof(context));
             var states = context.GetData(ViewModelState);
             if (states == null)
                 return;

@@ -38,8 +38,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public DataTemplateProvider([NotNull] object container, [NotNull] string templateSelectorMember)
         {
-            Should.NotBeNull(container, "container");
-            Should.NotBeNull(templateSelectorMember, "templateSelectorMember");
+            Should.NotBeNull(container, nameof(container));
+            Should.NotBeNull(templateSelectorMember, nameof(templateSelectorMember));
             var type = container.GetType();
             _container = container;
             _templateSelectorMember = BindingServiceProvider.MemberProvider.GetBindingMember(type, templateSelectorMember, false, false);

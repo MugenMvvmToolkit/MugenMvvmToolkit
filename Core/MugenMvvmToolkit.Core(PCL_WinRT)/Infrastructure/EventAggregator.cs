@@ -163,8 +163,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public virtual void Publish(object sender, object message)
         {
-            Should.NotBeNull(sender, "sender");
-            Should.NotBeNull(message, "message");
+            Should.NotBeNull(sender, nameof(sender));
+            Should.NotBeNull(message, nameof(message));
             if (_subscribers.Count == 0)
                 return;
             bool owner;
@@ -211,7 +211,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public virtual bool Subscribe(ISubscriber subscriber)
         {
-            Should.NotBeNull(subscriber, "subscriber");
+            Should.NotBeNull(subscriber, nameof(subscriber));
             lock (_subscribers)
             {
                 if (subscriber.AllowDuplicate || !Contains(subscriber, false))
@@ -222,14 +222,14 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public virtual bool Unsubscribe(ISubscriber subscriber)
         {
-            Should.NotBeNull(subscriber, "subscriber");
+            Should.NotBeNull(subscriber, nameof(subscriber));
             lock (_subscribers)
                 return Contains(subscriber, true);
         }
 
         public virtual bool Contains(ISubscriber subscriber)
         {
-            Should.NotBeNull(subscriber, "subscriber");
+            Should.NotBeNull(subscriber, nameof(subscriber));
             lock (_subscribers)
                 return Contains(subscriber, false);
         }
@@ -268,9 +268,9 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public static void Publish(object target, object sender, object message, IDataContext context = null)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNull(sender, "sender");
-            Should.NotBeNull(message, "message");
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(sender, nameof(sender));
+            Should.NotBeNull(message, nameof(message));
             Func<object, IDataContext, ISubscriber> converter = ServiceProvider.ObjectToSubscriberConverter;
             if (converter == null)
                 return;

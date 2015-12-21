@@ -37,8 +37,8 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         internal MenuItemsSourceGenerator(IMenu menu, Context context, MenuItemTemplate itemTemplate)
         {
-            Should.NotBeNull(menu, "menu");
-            Should.NotBeNull(itemTemplate, "itemTemplate");
+            Should.NotBeNull(menu, nameof(menu));
+            Should.NotBeNull(itemTemplate, nameof(itemTemplate));
             _menu = menu;
             _context = context;
             _itemTemplate = itemTemplate;

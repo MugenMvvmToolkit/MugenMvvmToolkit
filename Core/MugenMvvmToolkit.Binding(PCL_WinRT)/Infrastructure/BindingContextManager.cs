@@ -301,7 +301,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public bool HasBindingContext(object item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             if (item is IBindingContext || item is IBindingContextHolder)
                 return true;
             return ServiceProvider.AttachedValueProvider.Contains(item, ContextMemberPath);
@@ -309,7 +309,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public IBindingContext GetBindingContext(object item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             var holder = item as IBindingContextHolder;
             if (holder != null)
                 return holder.BindingContext;

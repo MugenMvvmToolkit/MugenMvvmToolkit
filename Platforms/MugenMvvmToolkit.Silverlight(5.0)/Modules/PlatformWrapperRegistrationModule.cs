@@ -42,7 +42,7 @@ namespace MugenMvvmToolkit.Silverlight.Modules
 
             public WindowViewWrapper(ChildWindow window)
             {
-                Should.NotBeNull(window, "window");
+                Should.NotBeNull(window, nameof(window));
                 _window = window;
             }
 

@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         public ThreadManager([NotNull] SynchronizationContext synchronizationContext)
         {
-            Should.NotBeNull(synchronizationContext, "synchronizationContext");
+            Should.NotBeNull(synchronizationContext, nameof(synchronizationContext));
             _synchronizationContext = synchronizationContext;
             synchronizationContext.Post(state => ((ThreadManager)state)._mainThreadId = ManagedThreadId, this);
         }
@@ -85,7 +85,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         public void InvokeOnUiThread(Action action, OperationPriority priority = OperationPriority.Normal,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(action, nameof(action));
             if (cancellationToken.IsCancellationRequested)
                 return;
             if (IsUiThread)
@@ -97,7 +97,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         public void InvokeOnUiThreadAsync(Action action, OperationPriority priority = OperationPriority.Normal,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(action, nameof(action));
             if (cancellationToken.IsCancellationRequested)
                 return;
             if (priority != OperationPriority.Low && IsUiThread)
@@ -109,7 +109,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         public void InvokeAsync(Action action, OperationPriority priority = OperationPriority.Normal,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(action, nameof(action));
             Task.Factory.StartNew(action, cancellationToken);
         }
 

@@ -116,7 +116,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             : base(platform)
 #endif
         {
-            Should.NotBeNull(iocContainer, "iocContainer");
+            Should.NotBeNull(iocContainer, nameof(iocContainer));
             _iocContainer = iocContainer;
             _assemblies = assemblies;
         }

@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.WinRT.Binding.Converters
 
         public ValueConverterWrapper([NotNull] IValueConverter valueConverter)
         {
-            Should.NotBeNull(valueConverter, "valueConverter");
+            Should.NotBeNull(valueConverter, nameof(valueConverter));
             _valueConverter = valueConverter;
         }
 

@@ -43,7 +43,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             public AsyncOperationAwaiter(IAsyncOperation asyncOperation, bool continueOnCapturedContext)
             {
-                Should.NotBeNull(asyncOperation, "asyncOperation");
+                Should.NotBeNull(asyncOperation, nameof(asyncOperation));
                 _asyncOperation = asyncOperation;
                 _continueOnCapturedContext = continueOnCapturedContext;
             }
@@ -88,7 +88,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             public AwaiterContinuation(Action continuation, bool continueOnCapturedContext)
             {
-                Should.NotBeNull(continuation, "continuation");
+                Should.NotBeNull(continuation, nameof(continuation));
                 _continuation = continuation;
                 if (continueOnCapturedContext)
                     _context = SynchronizationContext.Current;
@@ -167,7 +167,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         private static AsyncOperationAwaiter<TResult> CreateAwaiterInternal<TResult>(IAsyncOperation operation, IDataContext context)
         {
-            Should.NotBeNull(operation, "operation");
+            Should.NotBeNull(operation, nameof(operation));
             if (context == null)
                 context = DataContext.Empty;
             bool continueOnCapturedContext;

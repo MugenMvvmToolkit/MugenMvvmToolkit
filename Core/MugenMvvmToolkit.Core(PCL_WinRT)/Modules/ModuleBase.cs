@@ -87,7 +87,7 @@ namespace MugenMvvmToolkit.Modules
 
         public bool Load(IModuleContext context)
         {
-            Should.NotBeNull(context, "context");
+            Should.NotBeNull(context, nameof(context));
             var mode = _supportedModes & context.Mode;
             if (_supportedModes.HasFlagEx(LoadMode.RuntimeDebug) || _supportedModes.HasFlagEx(LoadMode.RuntimeRelease))
             {
@@ -121,7 +121,7 @@ namespace MugenMvvmToolkit.Modules
 
         public void Unload(IModuleContext context)
         {
-            Should.NotBeNull(context, "context");
+            Should.NotBeNull(context, nameof(context));
             if (!_iocContainerCanBeNull && context.IocContainer == null)
                 return;
             lock (_locker)

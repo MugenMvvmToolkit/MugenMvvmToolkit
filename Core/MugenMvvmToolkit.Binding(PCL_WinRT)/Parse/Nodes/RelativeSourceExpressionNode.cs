@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         public static RelativeSourceExpressionNode CreateRelativeSource(string type, uint level, string path)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             return new RelativeSourceExpressionNode
             {
                 _type = type,

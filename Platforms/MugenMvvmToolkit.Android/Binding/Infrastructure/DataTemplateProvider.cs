@@ -43,9 +43,9 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         public DataTemplateProvider([NotNull] object container, [NotNull] string templateMember,
             [NotNull] string templateSelectorMember)
         {
-            Should.NotBeNull(container, "container");
-            Should.NotBeNull(templateMember, "templateMember");
-            Should.NotBeNull(templateSelectorMember, "templateSelectorMember");
+            Should.NotBeNull(container, nameof(container));
+            Should.NotBeNull(templateMember, nameof(templateMember));
+            Should.NotBeNull(templateSelectorMember, nameof(templateSelectorMember));
             var type = container.GetType();
             _container = container;
             _templateMember = BindingServiceProvider.MemberProvider.GetBindingMember(type, templateMember, false, false);

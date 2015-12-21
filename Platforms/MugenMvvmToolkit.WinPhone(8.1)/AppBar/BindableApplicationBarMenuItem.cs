@@ -134,7 +134,7 @@ namespace MugenMvvmToolkit.WinPhone.AppBar
 
         public void Attach(IBindableApplicationBar applicationBar, int position)
         {
-            Should.NotBeNull(applicationBar, "applicationBar");
+            Should.NotBeNull(applicationBar, nameof(applicationBar));
             if (_applicationBar != null)
                 throw new InvalidOperationException(
                     "The BindableApplicationBarMenuItem is already attached to an IBindableApplicationBar.");

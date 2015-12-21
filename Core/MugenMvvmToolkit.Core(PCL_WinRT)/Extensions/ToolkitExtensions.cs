@@ -273,7 +273,7 @@ namespace MugenMvvmToolkit
         [Pure]
         public static IIocContainer GetRoot([NotNull] this IIocContainer iocContainer)
         {
-            Should.NotBeNull(iocContainer, "iocContainer");
+            Should.NotBeNull(iocContainer, nameof(iocContainer));
             while (iocContainer.Parent != null)
                 iocContainer = iocContainer.Parent;
             return iocContainer;
@@ -283,7 +283,7 @@ namespace MugenMvvmToolkit
         public static T Get<T>([NotNull] this IIocContainer iocContainer, string name = null,
             params IIocParameter[] parameters)
         {
-            Should.NotBeNull(iocContainer, "iocContainer");
+            Should.NotBeNull(iocContainer, nameof(iocContainer));
             return (T)iocContainer.Get(typeof(T), name, parameters);
         }
 
@@ -306,8 +306,8 @@ namespace MugenMvvmToolkit
         public static bool TryGet([NotNull] this IIocContainer iocContainer, [NotNull] Type serviceType, out object service, string name = null,
             params IIocParameter[] parameters)
         {
-            Should.NotBeNull(iocContainer, "iocContainer");
-            Should.NotBeNull(serviceType, "serviceType");
+            Should.NotBeNull(iocContainer, nameof(iocContainer));
+            Should.NotBeNull(serviceType, nameof(serviceType));
             if (iocContainer.CanResolve(serviceType))
             {
                 try
@@ -329,7 +329,7 @@ namespace MugenMvvmToolkit
         public static IEnumerable<T> GetAll<T>([NotNull] this IIocContainer iocContainer, string name = null,
             params IIocParameter[] parameters)
         {
-            Should.NotBeNull(iocContainer, "iocContainer");
+            Should.NotBeNull(iocContainer, nameof(iocContainer));
             return iocContainer.GetAll(typeof(T), name, parameters).Cast<T>();
         }
 
@@ -337,27 +337,27 @@ namespace MugenMvvmToolkit
             string name = null, params IIocParameter[] parameters)
             where TTypeTo : T
         {
-            Should.NotBeNull(iocContainer, "iocContainer");
+            Should.NotBeNull(iocContainer, nameof(iocContainer));
             iocContainer.Bind(typeof(T), typeof(TTypeTo), lifecycle, name, parameters);
         }
 
         public static void BindToConstant<T>([NotNull] this IIocContainer iocContainer, T instance, string name = null)
         {
-            Should.NotBeNull(iocContainer, "iocContainer");
+            Should.NotBeNull(iocContainer, nameof(iocContainer));
             iocContainer.BindToConstant(typeof(T), instance, name);
         }
 
         public static void BindToMethod<T>([NotNull] this IIocContainer iocContainer,
             [NotNull] Func<IIocContainer, IList<IIocParameter>, T> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
-            Should.NotBeNull(iocContainer, "iocContainer");
-            Should.NotBeNull(methodBindingDelegate, "methodBindingDelegate");
+            Should.NotBeNull(iocContainer, nameof(iocContainer));
+            Should.NotBeNull(methodBindingDelegate, nameof(methodBindingDelegate));
             iocContainer.BindToMethod(typeof(T), methodBindingDelegate.AsMethodBindingDelegateObject, lifecycle, name, parameters);
         }
 
         public static void BindToBindingInfo<T>(this IIocContainer iocContainer, BindingInfo<T> binding)
         {
-            Should.NotBeNull(iocContainer, "iocContainer");
+            Should.NotBeNull(iocContainer, nameof(iocContainer));
             if (binding.IsEmpty)
                 return;
             if (iocContainer.CanResolve<T>(binding.Name))
@@ -368,21 +368,21 @@ namespace MugenMvvmToolkit
 
         public static void Unbind<T>([NotNull] this IIocContainer iocContainer)
         {
-            Should.NotBeNull(iocContainer, "iocContainer");
+            Should.NotBeNull(iocContainer, nameof(iocContainer));
             iocContainer.Unbind(typeof(T));
         }
 
         [Pure]
         public static bool CanResolve<T>([NotNull] this IIocContainer iocContainer, string name = null)
         {
-            Should.NotBeNull(iocContainer, "iocContainer");
+            Should.NotBeNull(iocContainer, nameof(iocContainer));
             return iocContainer.CanResolve(typeof(T), name);
         }
 
         [Pure]
         public static T GetService<T>([NotNull] this IServiceProvider serviceProvider)
         {
-            Should.NotBeNull(serviceProvider, "serviceProvider");
+            Should.NotBeNull(serviceProvider, nameof(serviceProvider));
             var service = serviceProvider.GetService(typeof(T));
             if (service == null)
                 return default(T);
@@ -402,7 +402,7 @@ namespace MugenMvvmToolkit
         [Pure]
         public static string Flatten([NotNull] this Exception exception, string message, bool includeStackTrace = false)
         {
-            Should.NotBeNull(exception, "exception");
+            Should.NotBeNull(exception, nameof(exception));
             var sb = new StringBuilder(message);
             FlattenInternal(exception, sb, includeStackTrace);
             return sb.ToString();
@@ -473,8 +473,8 @@ namespace MugenMvvmToolkit
         public static Task TryExecuteSynchronously<T>([NotNull] this Task<T> task, [NotNull] Action<Task<T>> action,
             CancellationToken token = default(CancellationToken))
         {
-            Should.NotBeNull(task, "task");
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(task, nameof(task));
+            Should.NotBeNull(action, nameof(action));
             if (!task.IsCompleted)
                 return task.ContinueWith(action, token,
                     TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
@@ -496,8 +496,8 @@ namespace MugenMvvmToolkit
         public static Task<TResult> TryExecuteSynchronously<T, TResult>([NotNull] this Task<T> task,
             [NotNull] Func<Task<T>, TResult> action, CancellationToken token = default(CancellationToken))
         {
-            Should.NotBeNull(task, "task");
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(task, nameof(task));
+            Should.NotBeNull(action, nameof(action));
             if (!task.IsCompleted)
                 return task.ContinueWith(action, token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
             try
@@ -517,8 +517,8 @@ namespace MugenMvvmToolkit
         public static Task TryExecuteSynchronously([NotNull] this Task task, [NotNull] Action<Task> action,
             CancellationToken token = default(CancellationToken))
         {
-            Should.NotBeNull(task, "task");
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(task, nameof(task));
+            Should.NotBeNull(action, nameof(action));
             if (!task.IsCompleted)
                 return task.ContinueWith(action, token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
             try
@@ -538,16 +538,16 @@ namespace MugenMvvmToolkit
 
         public static Task WithTaskExceptionHandler([NotNull] this Task task, [NotNull] IViewModel viewModel)
         {
-            Should.NotBeNull(task, "task");
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(task, nameof(task));
+            Should.NotBeNull(viewModel, nameof(viewModel));
             return task.WithTaskExceptionHandler(viewModel, viewModel.GetIocContainer(true, false));
         }
 
         public static Task WithTaskExceptionHandler([NotNull] this Task task, [NotNull] object sender,
             IIocContainer iocContainer = null)
         {
-            Should.NotBeNull(task, "task");
-            Should.NotBeNull(sender, "sender");
+            Should.NotBeNull(task, nameof(task));
+            Should.NotBeNull(sender, nameof(sender));
             if (task.IsCompleted)
                 TryHandleTaskException(task, sender, iocContainer);
             else
@@ -557,8 +557,8 @@ namespace MugenMvvmToolkit
 
         public static void TrySetFromTask<TResult>(this TaskCompletionSource<TResult> tcs, Task task)
         {
-            Should.NotBeNull(tcs, "tcs");
-            Should.NotBeNull(task, "task");
+            Should.NotBeNull(tcs, nameof(tcs));
+            Should.NotBeNull(task, nameof(task));
             if (task.IsCompleted)
             {
                 switch (task.Status)
@@ -696,7 +696,7 @@ namespace MugenMvvmToolkit
 
         public static object ElementAtIndex([NotNull]this IEnumerable enumerable, int index)
         {
-            Should.NotBeNull(enumerable, "enumerable");
+            Should.NotBeNull(enumerable, nameof(enumerable));
             var list = enumerable as IList;
             if (list != null)
                 return list[index];
@@ -705,7 +705,7 @@ namespace MugenMvvmToolkit
 
         public static T[] ToArrayEx<T>([NotNull] this IList<T> list)
         {
-            Should.NotBeNull(list, "list");
+            Should.NotBeNull(list, nameof(list));
             if (list.Count == 0)
                 return Empty.Array<T>();
             var array = new T[list.Count];
@@ -717,8 +717,8 @@ namespace MugenMvvmToolkit
         public static TResult[] ToArrayEx<T, TResult>([NotNull] this IList<T> list,
             [NotNull] Func<T, TResult> selector)
         {
-            Should.NotBeNull(list, "list");
-            Should.NotBeNull(selector, "selector");
+            Should.NotBeNull(list, nameof(list));
+            Should.NotBeNull(selector, nameof(selector));
             if (list.Count == 0)
                 return Empty.Array<TResult>();
             var array = new TResult[list.Count];
@@ -730,7 +730,7 @@ namespace MugenMvvmToolkit
         public static TResult[] ToArrayEx<T, TResult>([NotNull] this ICollection<T> collection,
             [NotNull] Func<T, TResult> selector)
         {
-            Should.NotBeNull(collection, "collection");
+            Should.NotBeNull(collection, nameof(collection));
             int count = collection.Count;
             if (count == 0)
                 return Empty.Array<TResult>();
@@ -743,7 +743,7 @@ namespace MugenMvvmToolkit
 
         public static T[] ToArrayEx<T>([NotNull] this ICollection<T> collection)
         {
-            Should.NotBeNull(collection, "collection");
+            Should.NotBeNull(collection, nameof(collection));
             int count = collection.Count;
             if (count == 0)
                 return Empty.Array<T>();
@@ -756,7 +756,7 @@ namespace MugenMvvmToolkit
 
         public static void AddIfNotNull<T>([NotNull] this ICollection<T> collection, T item)
         {
-            Should.NotBeNull(collection, "collection");
+            Should.NotBeNull(collection, nameof(collection));
             if (item != null)
                 collection.Add(item);
         }
@@ -776,7 +776,7 @@ namespace MugenMvvmToolkit
         [Pure]
         public static bool IsEmpty([NotNull] this IEnumerable enumerable)
         {
-            Should.NotBeNull(enumerable, "enumerable");
+            Should.NotBeNull(enumerable, nameof(enumerable));
             var collection = enumerable as ICollection;
             if (collection != null)
                 return collection.Count == 0;
@@ -829,8 +829,8 @@ namespace MugenMvvmToolkit
 
         public static void ForEach<T>([NotNull] this IEnumerable<T> collection, [NotNull] Action<T> action)
         {
-            Should.NotBeNull(collection, "collection");
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(action, nameof(action));
             var list = collection as IList<T>;
             if (list == null)
             {
@@ -846,8 +846,8 @@ namespace MugenMvvmToolkit
 
         public static void AddRange<T>([NotNull] this ICollection<T> collection, [NotNull] IEnumerable<T> items)
         {
-            Should.NotBeNull(collection, "collection");
-            Should.NotBeNull(items, "items");
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(items, nameof(items));
             var list = collection as List<T>;
             if (list != null)
             {
@@ -867,16 +867,16 @@ namespace MugenMvvmToolkit
         public static void AddRange<TKey, TValue>([NotNull] this IDictionary<TKey, TValue> target,
             [NotNull] IEnumerable<KeyValuePair<TKey, TValue>> source)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNull(source, "source");
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(source, nameof(source));
             foreach (var keyValuePair in source)
                 target[keyValuePair.Key] = keyValuePair.Value;
         }
 
         public static void RemoveRange<T>([NotNull] this ICollection<T> collection, [NotNull] IEnumerable<T> items)
         {
-            Should.NotBeNull(collection, "collection");
-            Should.NotBeNull(items, "items");
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(items, nameof(items));
             var notifiableCollection = collection as INotifiableCollection<T>;
             if (notifiableCollection != null)
             {
@@ -892,7 +892,7 @@ namespace MugenMvvmToolkit
         public static SynchronizedNotifiableCollection<T> ToSynchronizedCollection<T>(
             [NotNull] this IEnumerable<T> collection, [NotNull] IThreadManager threadManager = null)
         {
-            Should.NotBeNull(collection, "collection");
+            Should.NotBeNull(collection, nameof(collection));
             return collection as SynchronizedNotifiableCollection<T> ??
                    new SynchronizedNotifiableCollection<T>(collection, threadManager);
         }
@@ -900,7 +900,7 @@ namespace MugenMvvmToolkit
         public static FilterableNotifiableCollection<T> ToFilterableCollection<T>(
             [NotNull] this IEnumerable<T> collection, IThreadManager threadManager = null)
         {
-            Should.NotBeNull(collection, "collection");
+            Should.NotBeNull(collection, nameof(collection));
             return collection as FilterableNotifiableCollection<T> ??
                    new FilterableNotifiableCollection<T>(collection, threadManager);
         }
@@ -912,8 +912,8 @@ namespace MugenMvvmToolkit
         [NotNull]
         public static IAsyncOperation ContinueWith([NotNull] this IAsyncOperation operation, [NotNull] Action<IOperationResult> continuationAction)
         {
-            Should.NotBeNull(operation, "operation");
-            Should.NotBeNull(continuationAction, "continuationAction");
+            Should.NotBeNull(operation, nameof(operation));
+            Should.NotBeNull(continuationAction, nameof(continuationAction));
             return operation.ContinueWith(continuationAction: new DelegateContinuation<object, object, object>(continuationAction));
         }
 
@@ -921,16 +921,16 @@ namespace MugenMvvmToolkit
         public static IAsyncOperation<TResult> ContinueWith<TResult>([NotNull] this IAsyncOperation operation,
             [NotNull] Func<IOperationResult, TResult> continuationFunction)
         {
-            Should.NotBeNull(operation, "operation");
-            Should.NotBeNull(continuationFunction, "continuationFunction");
+            Should.NotBeNull(operation, nameof(operation));
+            Should.NotBeNull(continuationFunction, nameof(continuationFunction));
             return operation.ContinueWith(continuationFunction: new DelegateContinuation<object, TResult, object>(continuationFunction));
         }
 
         [NotNull]
         public static IAsyncOperation ContinueWith<TResult>([NotNull] this IAsyncOperation<TResult> operation, [NotNull] Action<IOperationResult<TResult>> continuationActionGeneric)
         {
-            Should.NotBeNull(operation, "operation");
-            Should.NotBeNull(continuationActionGeneric, "continuationActionGeneric");
+            Should.NotBeNull(operation, nameof(operation));
+            Should.NotBeNull(continuationActionGeneric, nameof(continuationActionGeneric));
             return operation.ContinueWith(continuationAction: new DelegateContinuation<TResult, object, object>(continuationActionGeneric));
         }
 
@@ -938,16 +938,16 @@ namespace MugenMvvmToolkit
         public static IAsyncOperation<TNewResult> ContinueWith<TResult, TNewResult>([NotNull] this IAsyncOperation<TResult> operation,
             [NotNull] Func<IOperationResult<TResult>, TNewResult> continuationFunctionGeneric)
         {
-            Should.NotBeNull(operation, "operation");
-            Should.NotBeNull(continuationFunctionGeneric, "continuationFunctionGeneric");
+            Should.NotBeNull(operation, nameof(operation));
+            Should.NotBeNull(continuationFunctionGeneric, nameof(continuationFunctionGeneric));
             return operation.ContinueWith(continuationFunction: new DelegateContinuation<TResult, TNewResult, object>(continuationFunctionGeneric));
         }
 
         [NotNull]
         public static IAsyncOperation ContinueWith<TSource, TResult>([NotNull] this IAsyncOperation<TResult> operation, [NotNull] Action<TSource, IOperationResult<TResult>> continuationAction)
         {
-            Should.NotBeNull(operation, "operation");
-            Should.NotBeNull(continuationAction, "continuationAction");
+            Should.NotBeNull(operation, nameof(operation));
+            Should.NotBeNull(continuationAction, nameof(continuationAction));
             return operation.ContinueWith(continuationAction: new DelegateContinuation<TResult, object, TSource>(continuationAction));
         }
 
@@ -955,14 +955,14 @@ namespace MugenMvvmToolkit
         public static IAsyncOperation<TNewResult> ContinueWith<TSource, TResult, TNewResult>([NotNull] this IAsyncOperation<TResult> operation,
              [NotNull] Func<TSource, IOperationResult<TResult>, TNewResult> continuationFunction)
         {
-            Should.NotBeNull(operation, "operation");
-            Should.NotBeNull(continuationFunction, "continuationFunction");
+            Should.NotBeNull(operation, nameof(operation));
+            Should.NotBeNull(continuationFunction, nameof(continuationFunction));
             return operation.ContinueWith(continuationFunction: new DelegateContinuation<TResult, TNewResult, TSource>(continuationFunction));
         }
 
         public static Task<T> AsTask<T>([NotNull] this IAsyncOperation<T> operation)
         {
-            Should.NotBeNull(operation, "operation");
+            Should.NotBeNull(operation, nameof(operation));
             var tcs = new TaskCompletionSource<T>();
             operation.ContinueWith(continuationActionGeneric: tcs.AsContinuationAction);
             return tcs.Task;
@@ -970,7 +970,7 @@ namespace MugenMvvmToolkit
 
         public static Task AsTask([NotNull] this IAsyncOperation operation)
         {
-            Should.NotBeNull(operation, "operation");
+            Should.NotBeNull(operation, nameof(operation));
             var tcs = new TaskCompletionSource<object>();
             operation.ContinueWith(tcs.AsContinuationAction);
             return tcs.Task;
@@ -988,25 +988,25 @@ namespace MugenMvvmToolkit
 
         public static IAsyncOperationAwaiter GetAwaiter([NotNull] this IAsyncOperation operation)
         {
-            Should.NotBeNull(operation, "operation");
+            Should.NotBeNull(operation, nameof(operation));
             return ServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, DataContext.Empty);
         }
 
         public static IAsyncOperationAwaiter<TResult> GetAwaiter<TResult>([NotNull] this IAsyncOperation<TResult> operation)
         {
-            Should.NotBeNull(operation, "operation");
+            Should.NotBeNull(operation, nameof(operation));
             return ServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, DataContext.Empty);
         }
 
         public static IAsyncOperationAwaiter ConfigureAwait([NotNull] this IAsyncOperation operation, bool continueOnCapturedContext)
         {
-            Should.NotBeNull(operation, "operation");
+            Should.NotBeNull(operation, nameof(operation));
             return ServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, new DataContext(OpeartionCallbackConstants.ContinueOnCapturedContext.ToValue(continueOnCapturedContext)));
         }
 
         public static IAsyncOperationAwaiter<TResult> ConfigureAwait<TResult>([NotNull] this IAsyncOperation<TResult> operation, bool continueOnCapturedContext)
         {
-            Should.NotBeNull(operation, "operation");
+            Should.NotBeNull(operation, nameof(operation));
             return ServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, new DataContext(OpeartionCallbackConstants.ContinueOnCapturedContext.ToValue(continueOnCapturedContext)));
         }
 
@@ -1023,13 +1023,13 @@ namespace MugenMvvmToolkit
         public static void SetProperty<TModel, T>([NotNull] this TModel model, ref T field, T newValue, Func<Expression<Func<TModel, T>>> expression, ExecutionMode? executionMode = null)
             where TModel : NotifyPropertyChangedBase
         {
-            Should.NotBeNull(model, "model");
+            Should.NotBeNull(model, nameof(model));
             model.SetProperty(ref field, newValue, expression.GetMemberName(), executionMode);
         }
 
         public static void OnPropertyChanged([NotNull] this NotifyPropertyChangedBase model, string propertyName, ExecutionMode? executionMode = null)
         {
-            Should.NotBeNull(model, "model");
+            Should.NotBeNull(model, nameof(model));
             if (executionMode == null)
                 model.OnPropertyChanged(propertyName);
             else
@@ -1039,21 +1039,21 @@ namespace MugenMvvmToolkit
         public static void Register<T>([NotNull] this IValidatorProvider validatorProvider)
             where T : IValidator
         {
-            Should.NotBeNull(validatorProvider, "validatorProvider");
+            Should.NotBeNull(validatorProvider, nameof(validatorProvider));
             validatorProvider.Register(typeof(T));
         }
 
         public static void Unregister<T>([NotNull] this IValidatorProvider validatorProvider)
             where T : IValidator
         {
-            Should.NotBeNull(validatorProvider, "validatorProvider");
+            Should.NotBeNull(validatorProvider, nameof(validatorProvider));
             validatorProvider.Unregister(typeof(T));
         }
 
         [CanBeNull]
         public static ISubscriber Subscribe<TMessage>([NotNull] this IObservable observable, Action<object, TMessage> action, bool weakSubscribtion = true)
         {
-            Should.NotBeNull(observable, "observable");
+            Should.NotBeNull(observable, nameof(observable));
             ISubscriber subscriber;
             if (weakSubscribtion && action.Target != null)
             {
@@ -1068,14 +1068,14 @@ namespace MugenMvvmToolkit
 
         public static bool Unsubscribe<TMessage>([NotNull] this IObservable observable, Action<object, TMessage> action)
         {
-            Should.NotBeNull(observable, "observable");
+            Should.NotBeNull(observable, nameof(observable));
             return observable.Unsubscribe(new ActionSubscriber<TMessage>(action));
         }
 
         [CanBeNull]
         public static ISubscriber Subscribe([NotNull] this IObservable observable, [NotNull] object instance, IDataContext context = null)
         {
-            Should.NotBeNull(observable, "observable");
+            Should.NotBeNull(observable, nameof(observable));
             var converter = ServiceProvider.ObjectToSubscriberConverter;
             if (converter == null)
                 return null;
@@ -1087,7 +1087,7 @@ namespace MugenMvvmToolkit
 
         public static bool Unsubscribe([NotNull] this IObservable observable, [NotNull]object instance, IDataContext context = null)
         {
-            Should.NotBeNull(observable, "observable");
+            Should.NotBeNull(observable, nameof(observable));
             var converter = ServiceProvider.ObjectToSubscriberConverter;
             if (converter == null)
                 return false;
@@ -1121,8 +1121,8 @@ namespace MugenMvvmToolkit
         public static IValidatorAggregator GetValidatorAggregator([NotNull] this IValidatorProvider validatorProvider,
             [NotNull] object instanceToValidate)
         {
-            Should.NotBeNull(validatorProvider, "validatorProvider");
-            Should.NotBeNull(instanceToValidate, "instanceToValidate");
+            Should.NotBeNull(validatorProvider, nameof(validatorProvider));
+            Should.NotBeNull(instanceToValidate, nameof(instanceToValidate));
             var aggregator = validatorProvider.GetValidatorAggregator();
             aggregator.AddInstance(instanceToValidate);
             return aggregator;
@@ -1130,14 +1130,14 @@ namespace MugenMvvmToolkit
 
         public static void SetValidatorErrors<T>([NotNull] this IValidatorAggregator aggregator, Func<Expression<Func<T, object>>> expresssion, params object[] errors)
         {
-            Should.NotBeNull(aggregator, "aggregator");
+            Should.NotBeNull(aggregator, nameof(aggregator));
             aggregator.Validator.SetErrors(expresssion, errors);
         }
 
         public static void SetValidatorErrors<T>([NotNull] this T aggregator, Func<Expression<Func<T, object>>> expresssion, params object[] errors)
             where T : IValidatorAggregator
         {
-            Should.NotBeNull(aggregator, "aggregator");
+            Should.NotBeNull(aggregator, nameof(aggregator));
             aggregator.Validator.SetErrors(expresssion, errors);
         }
 
@@ -1149,8 +1149,8 @@ namespace MugenMvvmToolkit
         public static TValidator AddValidator<TValidator>([NotNull] this IValidatorAggregator aggregator,
             [NotNull] object instanceToValidate) where TValidator : IValidator
         {
-            Should.NotBeNull(aggregator, "aggregator");
-            Should.NotBeNull(instanceToValidate, "instanceToValidate");
+            Should.NotBeNull(aggregator, nameof(aggregator));
+            Should.NotBeNull(instanceToValidate, nameof(instanceToValidate));
             var validator = ServiceProvider.GetOrCreate<TValidator>();
             validator.Initialize(aggregator.CreateContext(instanceToValidate));
             aggregator.AddValidator(validator);
@@ -1164,7 +1164,7 @@ namespace MugenMvvmToolkit
 
         public static void Publish([NotNull] this IEventPublisher eventPublisher, [NotNull] object sender, [NotNull] object message, ExecutionMode mode)
         {
-            Should.NotBeNull(eventPublisher, "eventPublisher");
+            Should.NotBeNull(eventPublisher, nameof(eventPublisher));
             ServiceProvider.ThreadManager.Invoke(mode, eventPublisher, sender, message, (publisher, o, arg3) => publisher.Publish(o, arg3));
         }
 
@@ -1175,7 +1175,7 @@ namespace MugenMvvmToolkit
 
         public static byte[] ToArray([NotNull] this Stream stream, int? position)
         {
-            Should.NotBeNull(stream, "stream");
+            Should.NotBeNull(stream, nameof(stream));
             if (position.HasValue && position.Value != stream.Position)
                 stream.Position = position.Value;
             var memoryStream = stream as MemoryStream;
@@ -1190,7 +1190,7 @@ namespace MugenMvvmToolkit
 
         public static string SerializeToBase64String(this ISerializer serializer, object item)
         {
-            Should.NotBeNull(serializer, "serializer");
+            Should.NotBeNull(serializer, nameof(serializer));
             using (var stream = serializer.Serialize(item))
             {
                 stream.Position = 0;
@@ -1207,7 +1207,7 @@ namespace MugenMvvmToolkit
 
         public static T Deserialize<T>(this ISerializer serializer, string stringData)
         {
-            Should.NotBeNull(serializer, "serializer");
+            Should.NotBeNull(serializer, nameof(serializer));
             using (var ms = new MemoryStream(Convert.FromBase64String(stringData)))
                 return (T)serializer.Deserialize(ms);
         }
@@ -1235,15 +1235,15 @@ namespace MugenMvvmToolkit
                     floatDuration = LongDuration;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("duration");
+                    throw new ArgumentOutOfRangeException(nameof(duration));
             }
             return toastPresenter.ShowAsync(content, floatDuration, position, context);
         }
 
         public static IList<IModule> LoadModules([NotNull] this IModuleContext context, [NotNull] IEnumerable<IModule> modules)
         {
-            Should.NotBeNull(context, "context");
-            Should.NotBeNull(modules, "modules");
+            Should.NotBeNull(context, nameof(context));
+            Should.NotBeNull(modules, nameof(modules));
             var list = new List<IModule>();
             foreach (var module in modules.OrderByDescending(module => module.Priority))
             {
@@ -1281,8 +1281,8 @@ namespace MugenMvvmToolkit
         public static void AddIfNotNull<T>([NotNull] this IDataContext context, [NotNull] DataConstant<T> data, T value)
             where T : class
         {
-            Should.NotBeNull(context, "context");
-            Should.NotBeNull(data, "data");
+            Should.NotBeNull(context, nameof(context));
+            Should.NotBeNull(data, nameof(data));
             if (value != null)
                 context.Add(data, value);
         }
@@ -1290,8 +1290,8 @@ namespace MugenMvvmToolkit
         public static T GetData<T>([NotNull] this IDataContext context, [NotNull] DataConstant<T> dataConstant,
             bool throwIfNotFound) where T : class
         {
-            Should.NotBeNull(context, "context");
-            Should.NotBeNull(dataConstant, "dataConstant");
+            Should.NotBeNull(context, nameof(context));
+            Should.NotBeNull(dataConstant, nameof(dataConstant));
             T result;
             if (!context.TryGetData(dataConstant, out result) && throwIfNotFound)
                 throw ExceptionManager.DataConstantNotFound(dataConstant);
@@ -1301,7 +1301,7 @@ namespace MugenMvvmToolkit
         [Pure]
         public static bool PropertyNameEqual<T>([NotNull] this PropertyChangedEventArgs args, [NotNull] Func<Expression<Func<T, object>>> getProperty)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             return MemberNameEqual(args.PropertyName, getProperty.GetMemberName());
         }
 
@@ -1374,7 +1374,7 @@ namespace MugenMvvmToolkit
 
         public static void SetStateForAll([NotNull] this ITrackingCollection collection, EntityState state)
         {
-            Should.NotBeNull(collection, "collection");
+            Should.NotBeNull(collection, nameof(collection));
             foreach (var item in collection)
                 collection.UpdateState(item.Entity, state);
         }
@@ -1382,16 +1382,16 @@ namespace MugenMvvmToolkit
         [Pure]
         public static bool HasChanges<T>(this IEntitySnapshot snapshot, T item, Func<Expression<Func<T, object>>> memberExpression)
         {
-            Should.NotBeNull(snapshot, "snapshot");
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(memberExpression, "memberExpression");
+            Should.NotBeNull(snapshot, nameof(snapshot));
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(memberExpression, nameof(memberExpression));
             return snapshot.HasChanges(item, memberExpression.GetMemberName());
         }
 
         public static void SetStateForAll([NotNull] this ITrackingCollection collection, [NotNull] Func<TrackingEntity<object>, bool> predicate, EntityState state)
         {
-            Should.NotBeNull(collection, "collection");
-            Should.NotBeNull(predicate, "predicate");
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(predicate, nameof(predicate));
             foreach (var item in collection)
             {
                 if (predicate(item))
@@ -1401,8 +1401,8 @@ namespace MugenMvvmToolkit
 
         public static bool UpdateState([NotNull] this ITrackingCollection collection, [NotNull] object item, EntityState newState, EntityState updateState)
         {
-            Should.NotBeNull(collection, "collection");
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(item, nameof(item));
             if (collection.Contains(item))
                 return collection.UpdateState(item, updateState);
             return collection.UpdateState(item, newState);
@@ -1410,30 +1410,30 @@ namespace MugenMvvmToolkit
 
         public static bool UpdateState([NotNull] this ITrackingCollection collection, [NotNull] IEntityStateEntry item)
         {
-            Should.NotBeNull(collection, "collection");
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(item, nameof(item));
             return collection.UpdateState(item.Entity, item.State);
         }
 
         public static void UpdateStates([NotNull] this ITrackingCollection collection, [NotNull] IEnumerable items, EntityState state)
         {
-            Should.NotBeNull(items, "items");
+            Should.NotBeNull(items, nameof(items));
             foreach (object value in items)
                 collection.UpdateState(value, state);
         }
 
         public static void UpdateStates([NotNull] this ITrackingCollection collection, [NotNull] IEnumerable<IEntityStateEntry> items)
         {
-            Should.NotBeNull(collection, "collection");
-            Should.NotBeNull(items, "items");
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(items, nameof(items));
             foreach (IEntityStateEntry entityStateEntry in items)
                 collection.UpdateState(entityStateEntry);
         }
 
         public static bool Detach([NotNull] this ITrackingCollection collection, [NotNull] object entity)
         {
-            Should.NotBeNull(collection, "collection");
-            Should.NotBeNull(entity, "entity");
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(entity, nameof(entity));
             return collection.UpdateState(entity, EntityState.Detached);
         }
 

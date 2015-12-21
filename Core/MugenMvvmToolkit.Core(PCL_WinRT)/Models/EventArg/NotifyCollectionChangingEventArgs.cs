@@ -35,7 +35,7 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         public NotifyCollectionChangingEventArgs([NotNull] NotifyCollectionChangedEventArgs changedEventArgs)
         {
-            Should.NotBeNull(changedEventArgs, "changedEventArgs");
+            Should.NotBeNull(changedEventArgs, nameof(changedEventArgs));
             _changedEventArgs = changedEventArgs;
         }
 

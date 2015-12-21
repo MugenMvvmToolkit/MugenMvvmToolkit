@@ -317,7 +317,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 .CreateLambdaExpression(multiExpression, parameters)
                 .Compile();
             Func<object[], object> exp;
-            var methodInfo = @delegate.GetType().GetMethodEx("Invoke", MemberFlags.Public | MemberFlags.Instance);
+            var methodInfo = @delegate.GetType().GetMethodEx(nameof(Action.Invoke), MemberFlags.Public | MemberFlags.Instance);
             if (methodInfo == null)
                 exp = @delegate.DynamicInvoke;
             else

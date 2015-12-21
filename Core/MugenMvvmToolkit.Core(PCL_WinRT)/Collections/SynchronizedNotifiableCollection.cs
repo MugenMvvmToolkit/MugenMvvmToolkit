@@ -406,7 +406,7 @@ namespace MugenMvvmToolkit.Collections
 
         public void Update(IEnumerable<T> items)
         {
-            Should.NotBeNull(items, "items");
+            Should.NotBeNull(items, nameof(items));
             if (Items == null)
                 return;
             using (SuspendNotifications())
@@ -418,7 +418,7 @@ namespace MugenMvvmToolkit.Collections
 
         public void AddRange(IEnumerable<T> collection)
         {
-            Should.NotBeNull(collection, "collection");
+            Should.NotBeNull(collection, nameof(collection));
             using (SuspendNotifications())
             {
                 lock (Locker)
@@ -434,13 +434,13 @@ namespace MugenMvvmToolkit.Collections
 
         void INotifiableCollection.AddRange(IEnumerable collection)
         {
-            Should.NotBeNull(collection, "collection");
+            Should.NotBeNull(collection, nameof(collection));
             AddRange(collection.Cast<T>());
         }
 
         public void RemoveRange(IEnumerable<T> collection)
         {
-            Should.NotBeNull(collection, "collection");
+            Should.NotBeNull(collection, nameof(collection));
             using (SuspendNotifications())
             {
                 lock (Locker)
@@ -458,7 +458,7 @@ namespace MugenMvvmToolkit.Collections
 
         void INotifiableCollection.RemoveRange(IEnumerable collection)
         {
-            Should.NotBeNull(collection, "collection");
+            Should.NotBeNull(collection, nameof(collection));
             RemoveRange(collection.Cast<T>());
         }
 

@@ -40,13 +40,14 @@ namespace MugenMvvmToolkit.Binding.DataConstants
 
         static BindingConstants()
         {
-            Source = DataConstant.Create(() => Source, true);
-            DoNothing = DataConstant.Create(() => DoNothing);
-            UnsetValue = DataConstant.Create(() => UnsetValue);
-            InvalidValue = DataConstant.Create(() => InvalidValue);
-            Binding = DataConstant.Create(() => Binding, true);
-            CurrentEventArgs = DataConstant.Create(() => CurrentEventArgs, false);
-            ClearErrors = DataConstant.Create(() => ClearErrors);
+            var type = typeof(BindingConstants);
+            Source = DataConstant.Create<WeakReference>(type, nameof(Source), true);
+            DoNothing = DataConstant.Create(type, nameof(DoNothing));
+            UnsetValue = DataConstant.Create(type, nameof(UnsetValue));
+            InvalidValue = DataConstant.Create(type, nameof(InvalidValue));
+            Binding = DataConstant.Create<IDataBinding>(type, nameof(Binding), true);
+            CurrentEventArgs = DataConstant.Create<object>(type, nameof(CurrentEventArgs), false);
+            ClearErrors = DataConstant.Create<bool>(type, nameof(ClearErrors));
         }
 
         #endregion

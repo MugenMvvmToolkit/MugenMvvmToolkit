@@ -51,8 +51,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public DataBinding([NotNull] ISingleBindingSourceAccessor target, [NotNull] IBindingSourceAccessor source)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNull(source, "source");
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(source, nameof(source));
             _targetAccessor = target;
             _sourceAccessor = source;
             _items = Empty.Array<IBindingBehavior>();
@@ -237,7 +237,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         private void CheckBehavior(IBindingBehavior newBehavior)
         {
-            Should.NotBeNull(newBehavior, "newBehavior");
+            Should.NotBeNull(newBehavior, nameof(newBehavior));
             if (_size == 0)
                 return;
             for (int index = 0; index < _size; index++)
@@ -410,7 +410,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         bool ICollection<IBindingBehavior>.Contains(IBindingBehavior item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             return IndexOf(item) >= 0;
         }
 
@@ -421,7 +421,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         bool ICollection<IBindingBehavior>.Remove(IBindingBehavior item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             int index = IndexOf(item);
             if (index < 0)
                 return false;

@@ -62,9 +62,9 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             PlatformExtensions.ValidateTemplate(ItemsSource, Items);
             var setter = new XmlPropertySetter<MenuTemplate, IMenu>(menu, context, new BindingSet());
             menu.SetBindingMemberValue(AttachedMembers.Object.Parent, parent);
-            setter.SetBinding(() => template => template.DataContext, DataContext, false);
-            setter.SetBoolProperty(() => template => template.IsVisible, IsVisible);
-            setter.SetBoolProperty(() => template => template.IsEnabled, IsEnabled);
+            setter.SetBinding(nameof(DataContext), DataContext, false);
+            setter.SetBoolProperty(nameof(IsVisible), IsVisible);
+            setter.SetBoolProperty(nameof(IsEnabled), IsEnabled);
             if (!string.IsNullOrEmpty(Bind))
                 setter.BindingSet.BindFromExpression(menu, Bind);
             if (string.IsNullOrEmpty(ItemsSource))
@@ -78,7 +78,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             else
             {
                 menu.SetBindingMemberValue(AttachedMembers.Menu.ItemsSourceGenerator, new MenuItemsSourceGenerator(menu, context, ItemTemplate));
-                setter.SetBinding(() => template => template.ItemsSource, ItemsSource, true);
+                setter.SetBinding(nameof(ItemsSource), ItemsSource, true);
             }
             setter.Apply();
         }

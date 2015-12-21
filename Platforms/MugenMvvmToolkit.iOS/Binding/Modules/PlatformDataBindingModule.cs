@@ -66,9 +66,9 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             RegisterCollectionViewMembers(memberProvider);
             RegisterDialogMembers(memberProvider);
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIBarButtonItem.ClickEvent);
-            BindingBuilderExtensions.RegisterDefaultBindingMember<UISearchBar>(() => t => t.Text);
-            BindingBuilderExtensions.RegisterDefaultBindingMember<UISlider>(() => t => t.Value);
-            BindingBuilderExtensions.RegisterDefaultBindingMember<UIProgressView>(() => t => t.Progress);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<UISearchBar>(nameof(UISearchBar.Text));
+            BindingBuilderExtensions.RegisterDefaultBindingMember<UISlider>(nameof(UISlider.Value));
+            BindingBuilderExtensions.RegisterDefaultBindingMember<UIProgressView>(nameof(UIProgressView.Progress));
 
             //Object
             var itemsSourceMember = AttachedBindingMember.CreateAutoProperty<object, IEnumerable>(AttachedMemberConstants.ItemsSource, ObjectItemsSourceChanged);
@@ -104,10 +104,10 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UIView.Visible, (info, view) => !view.Hidden, (info, view, arg3) => view.Hidden = !arg3));
 
             //UISegmentedControl
-            BindingBuilderExtensions.RegisterDefaultBindingMember<UISegmentedControl>(() => t => t.SelectedSegment);
-            memberProvider.Register(AttachedBindingMember.CreateMember<UISegmentedControl, int>("SelectedSegment",
+            BindingBuilderExtensions.RegisterDefaultBindingMember<UISegmentedControl>(nameof(UISegmentedControl.SelectedSegment));
+            memberProvider.Register(AttachedBindingMember.CreateMember<UISegmentedControl, int>(nameof(UISegmentedControl.SelectedSegment),
                 (info, control) => (int)control.SelectedSegment,
-                (info, control, arg3) => control.SelectedSegment = arg3, "ValueChanged"));
+                (info, control, arg3) => control.SelectedSegment = arg3, nameof(UISegmentedControl.ValueChanged)));
 
             //UIButton
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIControl.ClickEvent.Override<UIButton>());
@@ -121,30 +121,30 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             //UIDatePicker
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIDatePicker.Date);
             memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UIDatePicker.Date,
-                (info, picker) => NSDateToDateTime(picker.Date), (info, picker, arg3) => picker.Date = DateTimeToNSDate(arg3), "ValueChanged"));
+                (info, picker) => NSDateToDateTime(picker.Date), (info, picker, arg3) => picker.Date = DateTimeToNSDate(arg3), nameof(UIDatePicker.ValueChanged)));
 
             //UISwitch
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UISwitch.On);
             memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UISwitch.On,
-                (info, picker) => picker.On, (info, picker, arg3) => picker.On = arg3, "ValueChanged"));
+                (info, picker) => picker.On, (info, picker, arg3) => picker.On = arg3, nameof(UISwitch.ValueChanged)));
 
             //UIControl
-            var clickMember = memberProvider.GetBindingMember(typeof(UIControl), "TouchUpInside", true, false);
+            var clickMember = memberProvider.GetBindingMember(typeof(UIControl), nameof(UIControl.TouchUpInside), true, false);
             if (clickMember != null)
                 memberProvider.Register(typeof(UIControl), "Click", clickMember, true);
 
             //UITextField
-            BindingBuilderExtensions.RegisterDefaultBindingMember<UITextField>(() => t => t.Text);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<UITextField>(nameof(UITextField.Text));
             NSNotificationCenter.DefaultCenter.AddObserver(UITextField.TextFieldTextDidChangeNotification, TextDidChangeNotification);
             memberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UITextField.TextChangedEvent, SetTextFieldTextChanged));
 
             //UITextView
-            BindingBuilderExtensions.RegisterDefaultBindingMember<UITextView>(() => t => t.Text);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<UITextView>(nameof(UITextView.Text));
             NSNotificationCenter.DefaultCenter.AddObserver(UITextView.TextDidChangeNotification, TextDidChangeNotification);
             memberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UITextView.TextChangedEvent, SetTextFieldTextChanged));
 
             //UILabel
-            BindingBuilderExtensions.RegisterDefaultBindingMember<UILabel>(() => t => t.Text);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<UILabel>(nameof(UILabel.Text));
             memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UILabel.TextSizeToFit,
                 (info, label) => label.Text,
                 (info, label, arg3) =>
@@ -161,7 +161,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             var templateMember = AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIViewController.ToolbarItemTemplateSelector);
             memberProvider.Register(templateMember);
             memberProvider.Register(typeof(UIViewController), "ToolbarItemTemplate", templateMember, true);
-            memberProvider.Register(AttachedBindingMember.CreateMember<UIViewController, string>("Title",
+            memberProvider.Register(AttachedBindingMember.CreateMember<UIViewController, string>(nameof(UIViewController.Title),
                 (info, controller) => controller.Title,
                 (info, controller, arg3) => controller.Title = arg3 ?? string.Empty));
             memberProvider.Register(AttachedBindingMember.CreateMember<UIViewController, object>(AttachedMemberConstants.ParentExplicit,
@@ -209,7 +209,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
                     (info, view, arg3) => GetOrAddPickerViewModel(view).SelectedItem = arg3, (info, view, arg3) =>
                     {
                         var viewModel = GetOrAddPickerViewModel(view);
-                        return BindingServiceProvider.WeakEventManager.TrySubscribe(viewModel, "SelectedItemChanged", arg3);
+                        return BindingServiceProvider.WeakEventManager.TrySubscribe(viewModel, nameof(MvvmPickerViewModel.SelectedItemChanged), arg3);
                     }));
         }
 

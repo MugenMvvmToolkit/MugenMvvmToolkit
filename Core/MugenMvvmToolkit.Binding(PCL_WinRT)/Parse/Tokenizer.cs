@@ -122,7 +122,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         public void SetSource(string source)
         {
-            Should.NotBeNullOrEmpty(source, "source");
+            Should.NotBeNullOrEmpty(source, nameof(source));
             _source = source;
             CurrentChar = source[0];
             Position = 0;

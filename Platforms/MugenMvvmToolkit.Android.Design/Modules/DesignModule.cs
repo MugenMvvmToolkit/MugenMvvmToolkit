@@ -76,21 +76,21 @@ namespace MugenMvvmToolkit.Android.Design.Modules
                     }));
 
             //TabLayout.Tab
-            provider.Register(AttachedBindingMember.CreateNotifiableMember<TabLayout.Tab, string>("Text",
+            provider.Register(AttachedBindingMember.CreateNotifiableMember<TabLayout.Tab, string>(nameof(TabLayout.Tab.Text),
                 (info, tab) => tab.Text,
                 (info, tab, arg3) =>
                 {
                     tab.SetText(arg3);
                     return true;
                 }));
-            provider.Register(AttachedBindingMember.CreateNotifiableMember<TabLayout.Tab, string>("ContentDescription",
+            provider.Register(AttachedBindingMember.CreateNotifiableMember<TabLayout.Tab, string>(nameof(TabLayout.Tab.ContentDescription),
                 (info, tab) => tab.ContentDescription,
                 (info, tab, arg3) =>
                 {
                     tab.SetContentDescription(arg3);
                     return true;
                 }));
-            provider.Register(AttachedBindingMember.CreateNotifiableMember<TabLayout.Tab, object>("Icon",
+            provider.Register(AttachedBindingMember.CreateNotifiableMember<TabLayout.Tab, object>(nameof(TabLayout.Tab.Icon),
                 (info, tab) => tab.Icon,
                 (info, tab, arg3) =>
                 {
@@ -100,7 +100,7 @@ namespace MugenMvvmToolkit.Android.Design.Modules
                         tab.SetIcon((Drawable)arg3);
                     return true;
                 }));
-            provider.Register(AttachedBindingMember.CreateNotifiableMember<TabLayout.Tab, Object>("Tag",
+            provider.Register(AttachedBindingMember.CreateNotifiableMember<TabLayout.Tab, Object>(nameof(TabLayout.Tab.Tag),
                 (info, tab) => tab.Tag,
                 (info, tab, arg3) =>
                 {

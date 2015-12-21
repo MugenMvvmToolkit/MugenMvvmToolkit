@@ -35,7 +35,7 @@ namespace MugenMvvmToolkit.WPF.Models.EventArg
 
         public NavigatingCancelEventArgsWrapper([NotNull] NavigatingCancelEventArgs args)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             _args = args;
         }
 

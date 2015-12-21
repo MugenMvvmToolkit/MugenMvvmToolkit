@@ -47,14 +47,15 @@ namespace MugenMvvmToolkit.Android.DataConstants
 
         static ViewFactoryConstants()
         {
-            Bindings = DataConstant.Create(() => Bindings, false);
-            ItemTemplateId = DataConstant.Create(() => ItemTemplateId);
-            DropDownItemTemplateId = DataConstant.Create(() => DropDownItemTemplateId);
-            ContentTemplateId = DataConstant.Create(() => ContentTemplateId);
-            MenuTemplateId = DataConstant.Create(() => MenuTemplateId);
-            PopupMenuTemplateId = DataConstant.Create(() => PopupMenuTemplateId);
-            PopupMenuEvent = DataConstant.Create(() => PopupMenuEvent, true);
-            PlacementTargetPath = DataConstant.Create(() => PlacementTargetPath, true);
+            var type = typeof(ViewFactoryConstants);
+            Bindings = DataConstant.Create<IList<string>>(type, nameof(Bindings), false);
+            ItemTemplateId = DataConstant.Create<int>(type, nameof(ItemTemplateId));
+            DropDownItemTemplateId = DataConstant.Create<int>(type, nameof(DropDownItemTemplateId));
+            ContentTemplateId = DataConstant.Create<int>(type, nameof(ContentTemplateId));
+            MenuTemplateId = DataConstant.Create<int>(type, nameof(MenuTemplateId));
+            PopupMenuTemplateId = DataConstant.Create<int>(type, nameof(PopupMenuTemplateId));
+            PopupMenuEvent = DataConstant.Create<string>(type, nameof(PopupMenuEvent), true);
+            PlacementTargetPath = DataConstant.Create<string>(type, nameof(PlacementTargetPath), true);
         }
 
         #endregion

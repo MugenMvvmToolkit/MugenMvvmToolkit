@@ -39,20 +39,20 @@ namespace MugenMvvmToolkit.Attributes
 
         public MetadataTypeAttribute([NotNull] params Type[] metadataClassTypes)
         {
-            Should.NotBeNullOrEmpty(metadataClassTypes, "metadataClassTypes");
+            Should.NotBeNullOrEmpty(metadataClassTypes, nameof(metadataClassTypes));
             _metadataClassTypes = metadataClassTypes;
         }
 
         public MetadataTypeAttribute([NotNull] string methodName)
         {
-            Should.NotBeNullOrWhitespace(methodName, "methodName");
+            Should.NotBeNullOrWhitespace(methodName, nameof(methodName));
             _methodName = methodName;
         }
 
         public MetadataTypeAttribute([NotNull] Type metadataType, [NotNull] string methodName)
         {
-            Should.NotBeNull(metadataType, "metadataType");
-            Should.NotBeNullOrWhitespace(methodName, "methodName");
+            Should.NotBeNull(metadataType, nameof(metadataType));
+            Should.NotBeNullOrWhitespace(methodName, nameof(methodName));
             _accessor = FindAccessor(methodName, metadataType);
         }
 
@@ -62,7 +62,7 @@ namespace MugenMvvmToolkit.Attributes
 
         public IEnumerable<Type> GetTypes([NotNull]Type definedType)
         {
-            Should.NotBeNull(definedType, "definedType");
+            Should.NotBeNull(definedType, nameof(definedType));
             if (_metadataClassTypes == null)
             {
                 if (_accessor == null)

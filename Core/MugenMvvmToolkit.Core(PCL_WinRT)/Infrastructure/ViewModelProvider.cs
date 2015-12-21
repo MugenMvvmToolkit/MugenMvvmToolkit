@@ -115,13 +115,13 @@ namespace MugenMvvmToolkit.Infrastructure
         static ViewModelProvider()
         {
             CachedViewModels = new Dictionary<Guid, CachedViewModel>();
-            ViewModelTypeNameConstant = DataConstant.Create(() => ViewModelTypeNameConstant, true);
+            ViewModelTypeNameConstant = DataConstant.Create<string>(typeof(ViewModelProvider), nameof(ViewModelTypeNameConstant), true);
             Tracer.TraceViewModelHandler += OnTraceViewModel;
         }
 
         public ViewModelProvider([NotNull]IIocContainer iocContainer)
         {
-            Should.NotBeNull(iocContainer, "iocContainer");
+            Should.NotBeNull(iocContainer, nameof(iocContainer));
             _iocContainer = iocContainer;
         }
 
@@ -150,8 +150,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public IViewModel GetViewModel(GetViewModelDelegate<IViewModel> getViewModel, IDataContext dataContext)
         {
-            Should.NotBeNull(getViewModel, "getViewModel");
-            Should.NotBeNull(dataContext, "dataContext");
+            Should.NotBeNull(getViewModel, nameof(getViewModel));
+            Should.NotBeNull(dataContext, nameof(dataContext));
             dataContext = dataContext.ToNonReadOnly();
             IViewModel viewModel = getViewModel(GetIocContainer(dataContext));
             if (!viewModel.IsInitialized)
@@ -161,8 +161,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public IViewModel GetViewModel(Type viewModelType, IDataContext dataContext)
         {
-            Should.NotBeNull(viewModelType, "viewModelType");
-            Should.NotBeNull(dataContext, "dataContext");
+            Should.NotBeNull(viewModelType, nameof(viewModelType));
+            Should.NotBeNull(dataContext, nameof(dataContext));
             var viewModel = CreateViewModel(viewModelType, dataContext);
             if (!viewModel.IsInitialized)
                 InitializeViewModel(viewModel, dataContext);
@@ -171,7 +171,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public void InitializeViewModel(IViewModel viewModel, IDataContext dataContext)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             ViewModelInitializationEventArgs args = null;
             var initializing = Initializing;
             if (initializing != null)
@@ -192,7 +192,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public IDataContext PreserveViewModel(IViewModel viewModel, IDataContext dataContext)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             if (dataContext == null)
                 dataContext = DataContext.Empty;
 

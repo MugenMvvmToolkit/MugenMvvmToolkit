@@ -52,9 +52,9 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         public ArrayItemsSourceGenerator([NotNull] TContainer container, [NotNull] string templateMemberName,
             [NotNull] Action<TContainer, TItem[]> setItems)
         {
-            Should.NotBeNull(container, "container");
-            Should.NotBeNull(templateMemberName, "templateMemberName");
-            Should.NotBeNull(setItems, "setItems");
+            Should.NotBeNull(container, nameof(container));
+            Should.NotBeNull(templateMemberName, nameof(templateMemberName));
+            Should.NotBeNull(setItems, nameof(setItems));
             _isControllerItem = typeof(UIViewController).IsAssignableFrom(typeof(TItem));
             _items = new List<KeyValuePair<object, TItem>>();
             _containerRef = PlatformExtensions.CreateWeakReference(container);

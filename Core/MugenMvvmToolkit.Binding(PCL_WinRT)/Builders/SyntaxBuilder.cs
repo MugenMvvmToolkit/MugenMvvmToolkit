@@ -35,7 +35,7 @@ namespace MugenMvvmToolkit.Binding.Builders
 
         public SyntaxBuilder(IBindingBuilder builder)
         {
-            Should.NotBeNull(builder, "builder");
+            Should.NotBeNull(builder, nameof(builder));
             _builder = builder;
         }
 

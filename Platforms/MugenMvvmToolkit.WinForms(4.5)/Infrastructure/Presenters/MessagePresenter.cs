@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Presenters
 
         public MessagePresenter(IThreadManager threadManager)
         {
-            Should.NotBeNull(threadManager, "threadManager");
+            Should.NotBeNull(threadManager, nameof(threadManager));
             _threadManager = threadManager;
         }
 

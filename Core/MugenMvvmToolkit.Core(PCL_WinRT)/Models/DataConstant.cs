@@ -67,6 +67,23 @@ namespace MugenMvvmToolkit.Models
                 throw ExceptionManager.DataConstantCannotBeNull(this);
         }
 
+        public static DataConstant Create(Type classType, string name)
+        {
+            return CreateInternal<object>(classType, name, false);
+        }
+
+        public static DataConstant<T> Create<T>(Type classType, string name)
+            where T : struct
+        {
+            return CreateInternal<T>(classType, name, false);
+        }
+
+        public static DataConstant<T> Create<T>(Type classType, string name, bool notNull)
+            where T : class
+        {
+            return CreateInternal<T>(classType, name, notNull);
+        }
+
         public static DataConstant Create(Expression<Func<DataConstant>> getConstant)
         {
             return CreateInternal<object>(getConstant, false);
@@ -86,10 +103,15 @@ namespace MugenMvvmToolkit.Models
 
         private static DataConstant<T> CreateInternal<T>(LambdaExpression getConstant, bool notNull)
         {
-            Should.NotBeNull(getConstant, "getConstant");
+            Should.NotBeNull(getConstant, nameof(getConstant));
             MemberInfo member = getConstant.GetMemberInfo();
-            Type declaringType = member.DeclaringType ?? typeof(DataConstant);
-            return new DataConstant<T>(declaringType.Name + "_" + declaringType.FullName.Length.ToString() + "::" + member.Name, notNull);
+            return CreateInternal<T>(member.DeclaringType ?? typeof(DataConstant), member.Name, notNull);
+        }
+
+        private static DataConstant<T> CreateInternal<T>(Type classType, string name, bool notNull)
+        {
+            Should.NotBeNull(classType, nameof(classType));
+            return new DataConstant<T>(classType.Name + "_" + classType.FullName.Length.ToString() + "::" + name, notNull);
         }
 
         #endregion

@@ -42,9 +42,9 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         public XmlPropertySetter([NotNull]TTarget target, [NotNull] Context context, [NotNull] BindingSet bindingSet)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNull(context, "context");
-            Should.NotBeNull(bindingSet, "bindingSet");
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(context, nameof(context));
+            Should.NotBeNull(bindingSet, nameof(bindingSet));
             _target = target;
             _context = context;
             _bindingSet = bindingSet;
@@ -74,6 +74,12 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         }
 
         public void SetEnumProperty<TEnum>(Func<Expression<Func<TWrapper, object>>> propertyName, string value)
+            where TEnum : struct
+        {
+            SetStringProperty(propertyName, value, s => (TEnum)Enum.Parse(typeof(TEnum), s.Replace("|", ","), true));
+        }
+
+        public void SetEnumProperty<TEnum>(string propertyName, string value)
             where TEnum : struct
         {
             SetStringProperty(propertyName, value, s => (TEnum)Enum.Parse(typeof(TEnum), s.Replace("|", ","), true));

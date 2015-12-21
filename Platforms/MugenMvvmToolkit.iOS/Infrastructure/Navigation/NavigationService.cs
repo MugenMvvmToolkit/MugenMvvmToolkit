@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         public NavigationService([NotNull] UIWindow window)
         {
-            Should.NotBeNull(window, "window");
+            Should.NotBeNull(window, nameof(window));
             _window = window;
             if (_window.RootViewController == null)
             {
@@ -67,7 +67,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         public NavigationService([NotNull] UINavigationController navigationController)
         {
-            Should.NotBeNull(navigationController, "navigationController");
+            Should.NotBeNull(navigationController, nameof(navigationController));
             InitializeNavigationController(navigationController);
             UseAnimations = true;
         }
@@ -123,7 +123,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         public virtual string GetParameterFromArgs(EventArgs args)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             EnsureInitialized();
             var cancelArgs = args as NavigatingCancelEventArgs;
             if (cancelArgs == null)
@@ -138,7 +138,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         public virtual bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             if (!args.IsCancelable)
                 return false;
             EnsureInitialized();
@@ -151,7 +151,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         public virtual bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
-            Should.NotBeNull(source, "source");
+            Should.NotBeNull(source, nameof(source));
             EnsureInitialized();
             if (dataContext == null)
                 dataContext = DataContext.Empty;
@@ -227,7 +227,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         public virtual bool CanClose(IViewModel viewModel, IDataContext dataContext)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             if (NavigationController == null)
                 return false;
             var controllers = NavigationController.ViewControllers;
@@ -243,7 +243,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         public virtual bool TryClose(IViewModel viewModel, IDataContext dataContext)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             if (dataContext == null)
                 dataContext = DataContext.Empty;
             bool animated;

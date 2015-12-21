@@ -35,8 +35,8 @@ namespace MugenMvvmToolkit.Binding.Models
 
         public BindingActionValue([NotNull] object memberSource, [NotNull] IBindingMemberInfo member)
         {
-            Should.NotBeNull(memberSource, "memberSource");
-            Should.NotBeNull(member, "member");
+            Should.NotBeNull(memberSource, nameof(memberSource));
+            Should.NotBeNull(member, nameof(member));
             _memberSource = ToolkitExtensions.GetWeakReference(memberSource);
             _member = member;
         }

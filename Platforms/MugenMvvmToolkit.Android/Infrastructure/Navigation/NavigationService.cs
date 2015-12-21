@@ -230,7 +230,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         public virtual void OnPauseActivity(Activity activity, IDataContext context = null)
         {
-            Should.NotBeNull(activity, "activity");
+            Should.NotBeNull(activity, nameof(activity));
             if (_isNew || _isBack || !ReferenceEquals(activity, CurrentContent))
                 return;
             _isPause = true;
@@ -240,7 +240,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         public virtual void OnResumeActivity(Activity activity, IDataContext context = null)
         {
-            Should.NotBeNull(activity, "activity");
+            Should.NotBeNull(activity, nameof(activity));
             if (ReferenceEquals(activity, CurrentContent))
                 return;
             PlatformExtensions.SetCurrentActivity(activity, false);
@@ -272,7 +272,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         public virtual bool OnFinishActivity(Activity activity, bool isBackNavigation, IDataContext context = null)
         {
-            Should.NotBeNull(activity, "activity");
+            Should.NotBeNull(activity, nameof(activity));
             if (!isBackNavigation)
                 return true;
             if (!RaiseNavigating(new NavigatingCancelEventArgs(NavigationMode.Back)))
@@ -286,7 +286,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         public virtual string GetParameterFromArgs(EventArgs args)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             var cancelArgs = args as NavigatingCancelEventArgs;
             if (cancelArgs == null)
             {
@@ -300,7 +300,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         public virtual bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             if (!args.IsCancelable)
                 return false;
             var eventArgs = ((NavigatingCancelEventArgs)args);
@@ -316,7 +316,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         public virtual bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
-            Should.NotBeNull(source, "source");
+            Should.NotBeNull(source, nameof(source));
             if (dataContext == null)
                 dataContext = DataContext.Empty;
             bool bringToFront;
@@ -381,7 +381,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         public virtual bool TryClose(IViewModel viewModel, IDataContext dataContext)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             if (CurrentContent != null && CurrentContent.DataContext() == viewModel)
             {
                 GoBack();

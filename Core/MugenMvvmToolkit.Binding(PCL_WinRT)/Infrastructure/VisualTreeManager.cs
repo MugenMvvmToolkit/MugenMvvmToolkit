@@ -130,7 +130,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual IBindingMemberInfo GetRootMember(Type type)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             return BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(type, AttachedMemberConstants.RootElement, false, false) ?? RootMember;
@@ -138,13 +138,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual IBindingMemberInfo GetParentMember(Type type)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             return BindingServiceProvider.MemberProvider.GetBindingMember(type, AttachedMemberConstants.Parent, false, false);
         }
 
         public virtual object FindParent(object target)
         {
-            Should.NotBeNull(target, "target");
+            Should.NotBeNull(target, nameof(target));
             Type type = target.GetType();
             IBindingMemberInfo parentProp = GetParentMember(type);
             return parentProp == null ? null : parentProp.GetValue(target, null);
@@ -152,7 +152,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual object FindByName(object target, string elementName)
         {
-            Should.NotBeNull(elementName, "elementName");
+            Should.NotBeNull(elementName, nameof(elementName));
             while (target != null)
             {
                 var member = BindingServiceProvider
@@ -171,8 +171,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual object FindRelativeSource(object target, string typeName, uint level)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNull(typeName, "typeName");
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(typeName, nameof(typeName));
             object fullNameSource = null;
             object nameSource = null;
             uint fullNameLevel = 0;

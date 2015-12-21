@@ -63,7 +63,7 @@ namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
 
             public BindingEventClosure(DependencyProperty property)
             {
-                Should.NotBeNull(property, "property");
+                Should.NotBeNull(property, nameof(property));
                 _property = property;
             }
 

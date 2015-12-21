@@ -64,7 +64,7 @@ namespace MugenMvvmToolkit.WinForms
 
         public static BindingListWrapper<T> ToBindingList<T>(this INotifiableCollection<T> collection)
         {
-            Should.NotBeNull(collection, "collection");
+            Should.NotBeNull(collection, nameof(collection));
             return new BindingListWrapper<T>(collection);
         }
 

@@ -108,7 +108,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         public ItemsSourceAdapter([NotNull] object container, Context context, bool listenCollectionChanges, string dropDownItemTemplateSelectorName = null,
             string itemTemplateSelectorName = null, string dropDownItemTemplateName = null, string itemTemplateName = null)
         {
-            Should.NotBeNull(container, "container");
+            Should.NotBeNull(container, nameof(container));
             _container = container;
             container.TryGetBindingMemberValue(AttachedMembers.Object.StableIdProvider, out _stableIdProvider);
             _itemTemplateProvider = new DataTemplateProvider(container, itemTemplateName ?? AttachedMemberConstants.ItemTemplate,

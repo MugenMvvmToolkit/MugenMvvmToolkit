@@ -93,7 +93,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
 
         public ToastPresenter([NotNull] IThreadManager threadManager)
         {
-            Should.NotBeNull(threadManager, "threadManager");
+            Should.NotBeNull(threadManager, nameof(threadManager));
             _threadManager = threadManager;
         }
 

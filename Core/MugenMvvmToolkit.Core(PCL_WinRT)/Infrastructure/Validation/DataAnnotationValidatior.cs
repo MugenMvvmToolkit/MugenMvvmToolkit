@@ -59,7 +59,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
             public ValidationContext(object instance, IServiceProvider serviceProvider, IDictionary<object, object> items)
             {
-                Should.NotBeNull(instance, "instance");
+                Should.NotBeNull(instance, nameof(instance));
                 _objectInstance = instance;
                 _serviceProvider = serviceProvider;
                 _items = items;
@@ -79,7 +79,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 get { return _displayName; }
                 set
                 {
-                    Should.PropertyNotBeNullOrEmpty(value, "DisplayName");
+                    Should.PropertyNotBeNullOrEmpty(value, nameof(DisplayName));
                     _displayName = value;
                 }
             }
@@ -351,7 +351,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         {
             if (GetValidationElementsDelegate != null)
                 return GetValidationElementsDelegate(instance);
-            Should.NotBeNull(instance, "instance");
+            Should.NotBeNull(instance, nameof(instance));
             Type type = instance.GetType();
             lock (ElementsCache)
             {

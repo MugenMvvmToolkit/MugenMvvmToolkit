@@ -79,12 +79,12 @@ namespace MugenMvvmToolkit.Infrastructure
         static WrapperManager()
         {
             TrueCondition = (model, context) => true;
-            ItemToWrapConstant = DataConstant.Create(() => ItemToWrapConstant, true);
+            ItemToWrapConstant = DataConstant.Create<object>(typeof(WrapperManager), nameof(ItemToWrapConstant), true);
         }
 
         public WrapperManager([NotNull] IViewModelProvider viewModelProvider)
         {
-            Should.NotBeNull(viewModelProvider, "viewModelProvider");
+            Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));
             _viewModelProvider = viewModelProvider;
             _registrations = new Dictionary<Type, List<WrapperRegistration>>();
         }
@@ -109,8 +109,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public void AddWrapper(Type wrapperType, Type implementation, Func<Type, IDataContext, bool> condition = null, Func<object, IDataContext, object> wrapperFactory = null)
         {
-            Should.NotBeNull(wrapperType, "wrapperType");
-            Should.NotBeNull(implementation, "implementation");
+            Should.NotBeNull(wrapperType, nameof(wrapperType));
+            Should.NotBeNull(implementation, nameof(implementation));
 #if PCL_WINRT
             TypeInfo typeInfo = implementation.GetTypeInfo();
             if (typeInfo.IsInterface || typeInfo.IsAbstract)
@@ -201,8 +201,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public bool CanWrap(Type type, Type wrapperType, IDataContext dataContext)
         {
-            Should.NotBeNull(type, "type");
-            Should.NotBeNull(wrapperType, "wrapperType");
+            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNull(wrapperType, nameof(wrapperType));
             if (wrapperType.IsAssignableFrom(type))
                 return true;
             if (dataContext == null)
@@ -221,8 +221,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public object Wrap(object item, Type wrapperType, IDataContext dataContext)
         {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(wrapperType, "wrapperType");
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(wrapperType, nameof(wrapperType));
             if (wrapperType.IsInstanceOfType(item))
                 return item;
             dataContext = dataContext.ToNonReadOnly();

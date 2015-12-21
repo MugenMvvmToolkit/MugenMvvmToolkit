@@ -58,11 +58,11 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             [NotNull] IWrapperManager wrapperManager,
             [NotNull] IOperationCallbackManager operationCallbackManager)
         {
-            Should.NotBeNull(viewModel, "viewModel");
-            Should.NotBeNull(threadManager, "threadManager");
-            Should.NotBeNull(viewManager, "viewManager");
-            Should.NotBeNull(wrapperManager, "wrapperManager");
-            Should.NotBeNull(operationCallbackManager, "operationCallbackManager");
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            Should.NotBeNull(threadManager, nameof(threadManager));
+            Should.NotBeNull(viewManager, nameof(viewManager));
+            Should.NotBeNull(wrapperManager, nameof(wrapperManager));
+            Should.NotBeNull(operationCallbackManager, nameof(operationCallbackManager));
             _viewModel = viewModel;
             _threadManager = threadManager;
             _viewManager = viewManager;

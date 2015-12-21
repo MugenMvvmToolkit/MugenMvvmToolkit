@@ -32,9 +32,9 @@ namespace MugenMvvmToolkit.Infrastructure
             UpdateValueDelegate<TItem, TValue, TValue, object> updateValueFactory,
             object state = null)
         {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(path, "path");
-            Should.NotBeNull(updateValueFactory, "updateValueFactory");
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(path, nameof(path));
+            Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
             LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, true);
             lock (dictionary)
             {
@@ -55,10 +55,10 @@ namespace MugenMvvmToolkit.Infrastructure
             UpdateValueDelegate<TItem, Func<TItem, object, TValue>, TValue, object> updateValueFactory,
             object state = null)
         {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(path, "path");
-            Should.NotBeNull(addValueFactory, "addValueFactory");
-            Should.NotBeNull(updateValueFactory, "updateValueFactory");
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(path, nameof(path));
+            Should.NotBeNull(addValueFactory, nameof(addValueFactory));
+            Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
             LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, true);
             lock (dictionary)
             {
@@ -78,9 +78,9 @@ namespace MugenMvvmToolkit.Infrastructure
         public virtual TValue GetOrAdd<TItem, TValue>(TItem item, string path, Func<TItem, object, TValue> valueFactory,
             object state = null)
         {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(path, "path");
-            Should.NotBeNull(valueFactory, "valueFactory");
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(path, nameof(path));
+            Should.NotBeNull(valueFactory, nameof(valueFactory));
             LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, true);
             lock (dictionary)
             {
@@ -95,8 +95,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public virtual TValue GetOrAdd<TValue>(object item, string path, TValue value)
         {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(path, "path");
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(path, nameof(path));
             LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, true);
             lock (dictionary)
             {
@@ -110,8 +110,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public virtual bool TryGetValue<TValue>(object item, string path, out TValue value)
         {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(path, "path");
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(path, nameof(path));
             LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, false);
             if (dictionary == null)
             {
@@ -133,8 +133,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public virtual TValue GetValue<TValue>(object item, string path, bool throwOnError)
         {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(path, "path");
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(path, nameof(path));
             LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, false);
             if (dictionary == null)
             {
@@ -157,8 +157,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public virtual void SetValue(object item, string path, object value)
         {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(path, "path");
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(path, nameof(path));
             LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, true);
             lock (dictionary)
                 dictionary[path] = value;
@@ -166,7 +166,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public virtual bool Contains(object item, string path)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, false);
             if (dictionary == null)
                 return false;
@@ -176,7 +176,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public virtual IList<KeyValuePair<string, object>> GetValues(object item, Func<string, object, bool> predicate)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             LightDictionaryBase<string, object> dictionary = GetOrAddAttachedDictionary(item, false);
             if (dictionary == null)
                 return Empty.Array<KeyValuePair<string, object>>();
@@ -196,7 +196,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public virtual bool Clear(object item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             return ClearInternal(item);
         }
 

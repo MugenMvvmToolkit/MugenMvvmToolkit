@@ -39,7 +39,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         public LambdaExpressionNode([NotNull] IExpressionNode expression, [CanBeNull] IEnumerable<string> parameters)
             : base(ExpressionNodeType.Lambda)
         {
-            Should.NotBeNull(expression, "expression");
+            Should.NotBeNull(expression, nameof(expression));
             _expression = expression;
             _parameters = parameters == null
                 ? Empty.Array<string>()

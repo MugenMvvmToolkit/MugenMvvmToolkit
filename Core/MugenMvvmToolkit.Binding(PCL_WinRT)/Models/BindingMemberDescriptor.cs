@@ -32,7 +32,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
         public BindingMemberDescriptor([NotNull] string path)
         {
-            Should.NotBeNull(path, "path");
+            Should.NotBeNull(path, nameof(path));
             Path = path;
         }
 

@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
              [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IOperationCallbackManager callbackManager)
             : base(viewModel, threadManager, viewManager, wrapperManager, callbackManager)
         {
-            Should.NotBeNull(window, "window");
+            Should.NotBeNull(window, nameof(window));
             _window = window;
         }
 #endif

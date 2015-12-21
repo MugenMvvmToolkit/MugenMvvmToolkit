@@ -54,24 +54,24 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         public virtual ViewResult Create(string name, Context context, IAttributeSet attrs)
         {
-            Should.NotBeNull(name, "name");
+            Should.NotBeNull(name, nameof(name));
             Type type = TypeCache<View>.Instance.GetTypeByName(name, true, true);
             return Create(type, context, attrs);
         }
 
         public virtual ViewResult Create(Type type, Context context, IAttributeSet attrs)
         {
-            Should.NotBeNull(type, "type");
-            Should.NotBeNull(context, "context");
-            Should.NotBeNull(attrs, "attrs");
+            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNull(context, nameof(context));
+            Should.NotBeNull(attrs, nameof(attrs));
             var view = type.CreateView(context, attrs);
             return Initialize(view, attrs);
         }
 
         public virtual ViewResult Initialize(View view, IAttributeSet attrs)
         {
-            Should.NotBeNull(view, "view");
-            Should.NotBeNull(attrs, "attrs");
+            Should.NotBeNull(view, nameof(view));
+            Should.NotBeNull(attrs, nameof(attrs));
             return new ViewResult(view, GetDataContext(view, view.Context, attrs));
         }
 

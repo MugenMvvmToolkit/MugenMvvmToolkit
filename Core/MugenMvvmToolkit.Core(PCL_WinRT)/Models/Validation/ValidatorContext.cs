@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.Models.Validation
             ICollection<string> ignoredProperties, IDataContext validationMetadata = null,
             IServiceProvider serviceProvider = null)
         {
-            Should.NotBeNull(instanceToValidate, "instanceToValidate");
+            Should.NotBeNull(instanceToValidate, nameof(instanceToValidate));
             _instance = instanceToValidate;
             _propertyMappings = propertyMappings ?? new Dictionary<string, ICollection<string>>();
             _ignoreProperties = ignoredProperties ?? new HashSet<string>();

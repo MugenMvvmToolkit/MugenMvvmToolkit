@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         public ViewModelPreservingEventArgs([NotNull] IViewModel viewModel)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             _viewModel = viewModel;
         }
 

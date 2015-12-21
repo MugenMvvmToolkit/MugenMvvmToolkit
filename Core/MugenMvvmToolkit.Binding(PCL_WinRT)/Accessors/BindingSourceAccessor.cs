@@ -320,7 +320,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
         public BindingSourceAccessor([NotNull]IObserver bindingSource, [NotNull] IDataContext context, bool isTarget)
             : base(context, isTarget)
         {
-            Should.NotBeNull(bindingSource, "bindingSource");
+            Should.NotBeNull(bindingSource, nameof(bindingSource));
             _bindingSource = bindingSource;
             if (isTarget)
             {

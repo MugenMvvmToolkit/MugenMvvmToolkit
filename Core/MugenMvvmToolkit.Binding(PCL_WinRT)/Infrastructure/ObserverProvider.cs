@@ -27,8 +27,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual IObserver Observe(object target, IBindingPath path, bool ignoreAttachedMembers)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNull(path, "path");
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(path, nameof(path));
             if (path.IsSingle)
                 return new SinglePathObserver(target, path, ignoreAttachedMembers);
             if (path.IsEmpty)

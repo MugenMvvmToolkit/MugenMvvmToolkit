@@ -38,8 +38,8 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         public BinaryExpressionNode([NotNull] IExpressionNode left, [NotNull] IExpressionNode right, TokenType token)
             : base(ExpressionNodeType.Binary)
         {
-            Should.NotBeNull(left, "left");
-            Should.NotBeNull(right, "right");
+            Should.NotBeNull(left, nameof(left));
+            Should.NotBeNull(right, nameof(right));
             _left = left;
             _right = right;
             _token = token;

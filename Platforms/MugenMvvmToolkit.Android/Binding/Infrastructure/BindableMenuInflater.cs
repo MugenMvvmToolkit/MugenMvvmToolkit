@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         public BindableMenuInflater([NotNull] Context context)
             : base(context)
         {
-            Should.NotBeNull(context, "context");
+            Should.NotBeNull(context, nameof(context));
             _context = context;
         }
 

@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         public NavigatedEventArgs([NotNull]INavigationContext context)
         {
-            Should.NotBeNull(context, "context");
+            Should.NotBeNull(context, nameof(context));
             _context = context;
         }
 

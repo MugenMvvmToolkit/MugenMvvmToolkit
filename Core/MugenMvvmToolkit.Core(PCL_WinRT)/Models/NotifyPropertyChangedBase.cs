@@ -131,7 +131,7 @@ namespace MugenMvvmToolkit.Models
 
         protected virtual void OnPropertyChanged(PropertyChangedEventArgs args, ExecutionMode executionMode)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             if (IsNotificationsSuspended)
                 IsNotificationsDirty = true;
             else

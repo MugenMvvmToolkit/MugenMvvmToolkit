@@ -69,7 +69,7 @@ namespace MugenMvvmToolkit.Collections
             IStateTransitionManager stateTransitionManager = null, IEqualityComparer<object> comparer = null)
             : this(stateTransitionManager, comparer)
         {
-            Should.NotBeNull(collection, "collection");
+            Should.NotBeNull(collection, nameof(collection));
             foreach (object item in collection)
                 ItemsInternal.Add(item, entityState);
         }
@@ -78,7 +78,7 @@ namespace MugenMvvmToolkit.Collections
             IStateTransitionManager stateTransitionManager = null, IEqualityComparer<object> comparer = null)
             : this(stateTransitionManager, comparer)
         {
-            Should.NotBeNull(changes, "changes");
+            Should.NotBeNull(changes, nameof(changes));
             foreach (var item in changes)
                 ItemsInternal.Add(item.Entity, item.State);
         }
@@ -87,7 +87,7 @@ namespace MugenMvvmToolkit.Collections
             IStateTransitionManager stateTransitionManager = null, IEqualityComparer<object> comparer = null)
             : this(stateTransitionManager, comparer)
         {
-            Should.NotBeNull(changes, "changes");
+            Should.NotBeNull(changes, nameof(changes));
             foreach (var item in changes)
                 ItemsInternal.Add(item.Key, item.Value);
         }
@@ -161,14 +161,14 @@ namespace MugenMvvmToolkit.Collections
 
         public bool Contains(object item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             lock (Locker)
                 return ItemsInternal.ContainsKey(item);
         }
 
         public bool Contains<TEntity>(Func<TrackingEntity<TEntity>, bool> predicate)
         {
-            Should.NotBeNull(predicate, "predicate");
+            Should.NotBeNull(predicate, nameof(predicate));
             lock (Locker)
             {
                 foreach (var keyValuePair in ItemsInternal)
@@ -215,7 +215,7 @@ namespace MugenMvvmToolkit.Collections
 
         public EntityState GetState(object value)
         {
-            Should.NotBeNull(value, "value");
+            Should.NotBeNull(value, nameof(value));
             lock (Locker)
             {
                 EntityState result;
@@ -227,7 +227,7 @@ namespace MugenMvvmToolkit.Collections
 
         public bool UpdateState(object value, EntityState state)
         {
-            Should.NotBeNull(value, "value");
+            Should.NotBeNull(value, nameof(value));
             bool updated;
             lock (Locker)
                 updated = UpdateStateInternal(value, state);

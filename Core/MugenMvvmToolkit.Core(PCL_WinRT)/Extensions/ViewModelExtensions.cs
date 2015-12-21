@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         public static string GetViewName([NotNull] this IViewModel viewModel, IDataContext context = null)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             if (context == null)
                 return viewModel.Settings.Metadata.GetData(InitializationConstants.ViewName);
             return context.GetData(NavigationConstants.ViewName) ??
@@ -66,7 +66,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         public static void ClearBusy([NotNull] this IViewModel viewModel)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             var tokens = viewModel.GetBusyTokens();
             for (int i = 0; i < tokens.Count; i++)
                 tokens[i].Dispose();
@@ -83,8 +83,8 @@ namespace MugenMvvmToolkit.ViewModels
             object message = null, bool? handleException = null)
             where TTask : Task
         {
-            Should.NotBeNull(task, "task");
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(task, nameof(task));
+            Should.NotBeNull(viewModel, nameof(viewModel));
             if (handleException == null)
                 handleException = ApplicationSettings.HandleTaskExceptionBusyIndicator;
             if (task.IsCompleted)
@@ -106,7 +106,7 @@ namespace MugenMvvmToolkit.ViewModels
         public static T Wrap<T>([NotNull] this IViewModel viewModel, [CanBeNull] IDataContext context)
             where T : IViewModel
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             if (context == null)
                 context = DataContext.Empty;
             return (T)viewModel
@@ -130,7 +130,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         public static INavigationOperation ShowAsync([NotNull] this IViewModel viewModel, IDataContext context = null)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             if (context == null)
                 context = DataContext.Empty;
             return viewModel
@@ -148,7 +148,7 @@ namespace MugenMvvmToolkit.ViewModels
             Action<T, IOperationResult<bool>> completeCallback, string viewName = null, IDataContext context = null)
             where T : IViewModel
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             if (viewName != null)
             {
                 context = context.ToNonReadOnly();
@@ -180,8 +180,8 @@ namespace MugenMvvmToolkit.ViewModels
             [NotNull] GetViewModelDelegate<T> getViewModelGeneric, params DataConstantValue[] parameters)
             where T : class, IViewModel
         {
-            Should.NotBeNull(viewModelProvider, "viewModelProvider");
-            Should.NotBeNull(getViewModelGeneric, "getViewModelGeneric");
+            Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));
+            Should.NotBeNull(getViewModelGeneric, nameof(getViewModelGeneric));
             return (T)viewModelProvider.GetViewModel(getViewModelGeneric, new DataContext(parameters));
         }
 
@@ -197,8 +197,8 @@ namespace MugenMvvmToolkit.ViewModels
         public static IViewModel GetViewModel([NotNull] this IViewModelProvider viewModelProvider,
             [NotNull] Type viewModelType, params DataConstantValue[] parameters)
         {
-            Should.NotBeNull(viewModelProvider, "viewModelProvider");
-            Should.NotBeNull(viewModelType, "viewModelType");
+            Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));
+            Should.NotBeNull(viewModelType, nameof(viewModelType));
             return viewModelProvider.GetViewModel(viewModelType, new DataContext(parameters));
         }
 
@@ -235,7 +235,7 @@ namespace MugenMvvmToolkit.ViewModels
         public static Task<bool> TryCloseAsync([NotNull] this IViewModel viewModel, [CanBeNull] object parameter,
             [CanBeNull] INavigationContext context, NavigationType type = null)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             if (context == null)
                 context = parameter as INavigationContext ??
                           new NavigationContext(type ?? NavigationType.Undefined, NavigationMode.Back, viewModel, viewModel.GetParentViewModel(), null);
@@ -272,7 +272,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         public static IIocContainer GetIocContainer([NotNull] this IViewModel viewModel, bool useGlobalContainer, bool throwOnError = true)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             IIocContainer iocContainer = null;
             if (!viewModel.IsDisposed)
                 iocContainer = viewModel.IocContainer;
@@ -314,22 +314,22 @@ namespace MugenMvvmToolkit.ViewModels
         public static Task ValidateAsync<T>([NotNull] this T validatableViewModel, [NotNull] Func<Expression<Func<T, object>>> getMember)
             where T : IValidatorAggregator
         {
-            Should.NotBeNull(validatableViewModel, "validatableViewModel");
+            Should.NotBeNull(validatableViewModel, nameof(validatableViewModel));
             return validatableViewModel.ValidateAsync(getMember.GetMemberName());
         }
 
         public static Task DisableValidationAsync<T>([NotNull] this T validatableViewModel, [NotNull] Func<Expression<Func<T, object>>> getMember)
             where T : IValidatorAggregator
         {
-            Should.NotBeNull(validatableViewModel, "validatableViewModel");
+            Should.NotBeNull(validatableViewModel, nameof(validatableViewModel));
             return validatableViewModel.DisableValidationAsync(getMember.GetMemberName());
         }
 
         public static Task DisableValidationAsync([NotNull] this IValidatorAggregator validatableViewModel,
             [NotNull] string propertyName)
         {
-            Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            Should.NotBeNull(propertyName, "propertyName");
+            Should.NotBeNull(validatableViewModel, nameof(validatableViewModel));
+            Should.NotBeNull(propertyName, nameof(propertyName));
             validatableViewModel.ClearErrors(propertyName);
             validatableViewModel.IgnoreProperties.Add(propertyName);
             return validatableViewModel.ValidateAsync(propertyName);
@@ -338,15 +338,15 @@ namespace MugenMvvmToolkit.ViewModels
         public static Task EnableValidationAsync<T>([NotNull] this T validatableViewModel, [NotNull] Func<Expression<Func<T, object>>> getMember)
             where T : IValidatorAggregator
         {
-            Should.NotBeNull(validatableViewModel, "validatableViewModel");
+            Should.NotBeNull(validatableViewModel, nameof(validatableViewModel));
             return validatableViewModel.EnableValidationAsync(getMember.GetMemberName());
         }
 
         public static Task EnableValidationAsync([NotNull] this IValidatorAggregator validatableViewModel,
             [NotNull] string propertyName)
         {
-            Should.NotBeNull(validatableViewModel, "validatableViewModel");
-            Should.NotBeNull(propertyName, "propertyName");
+            Should.NotBeNull(validatableViewModel, nameof(validatableViewModel));
+            Should.NotBeNull(propertyName, nameof(propertyName));
             validatableViewModel.IgnoreProperties.Remove(propertyName);
             return validatableViewModel.ValidateAsync(propertyName);
         }
@@ -357,7 +357,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         public static void MoveUpSelectedItem([NotNull] this IGridViewModel gridViewModel)
         {
-            Should.NotBeNull(gridViewModel, "gridViewModel");
+            Should.NotBeNull(gridViewModel, nameof(gridViewModel));
             object selectedItem = gridViewModel.SelectedItem;
             if (gridViewModel.OriginalItemsSource.MoveUpItem(selectedItem))
                 gridViewModel.SelectedItem = selectedItem;
@@ -365,7 +365,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         public static void MoveDownSelectedItem([NotNull] this IGridViewModel gridViewModel)
         {
-            Should.NotBeNull(gridViewModel, "gridViewModel");
+            Should.NotBeNull(gridViewModel, nameof(gridViewModel));
             object selectedItem = gridViewModel.SelectedItem;
             if (gridViewModel.OriginalItemsSource.MoveDownItem(selectedItem))
                 gridViewModel.SelectedItem = selectedItem;
@@ -373,13 +373,13 @@ namespace MugenMvvmToolkit.ViewModels
 
         public static bool CanMoveUpSelectedItem([NotNull] this IGridViewModel gridViewModel)
         {
-            Should.NotBeNull(gridViewModel, "gridViewModel");
+            Should.NotBeNull(gridViewModel, nameof(gridViewModel));
             return gridViewModel.OriginalItemsSource.CanMoveUpItem(gridViewModel.SelectedItem);
         }
 
         public static bool CanMoveDownSelectedItem([NotNull] this IGridViewModel gridViewModel)
         {
-            Should.NotBeNull(gridViewModel, "gridViewModel");
+            Should.NotBeNull(gridViewModel, nameof(gridViewModel));
             return gridViewModel.OriginalItemsSource.CanMoveDownItem(gridViewModel.SelectedItem);
         }
 

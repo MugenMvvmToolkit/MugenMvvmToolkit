@@ -111,7 +111,7 @@ namespace MugenMvvmToolkit.iOS
 
         public static void AddOrientationChangeListener([NotNull] IOrientationChangeListener listener)
         {
-            Should.NotBeNull(listener, "listener");
+            Should.NotBeNull(listener, nameof(listener));
             lock (OrientationChangeListeners)
             {
                 if (!_hasOrientationChangeSubscriber)
@@ -125,7 +125,7 @@ namespace MugenMvvmToolkit.iOS
 
         public static void RemoveOrientationChangeListener([NotNull]IOrientationChangeListener listener)
         {
-            Should.NotBeNull(listener, "listener");
+            Should.NotBeNull(listener, nameof(listener));
             lock (OrientationChangeListeners)
             {
                 for (int i = 0; i < OrientationChangeListeners.Count; i++)

@@ -43,8 +43,8 @@ namespace MugenMvvmToolkit.Models
 
         public PlatformInfo(PlatformType platform, Version version)
         {
-            Should.NotBeNull(platform, "platform");
-            Should.NotBeNull(version, "version");
+            Should.NotBeNull(platform, nameof(platform));
+            Should.NotBeNull(version, nameof(version));
             _platform = platform;
             _version = version;
         }

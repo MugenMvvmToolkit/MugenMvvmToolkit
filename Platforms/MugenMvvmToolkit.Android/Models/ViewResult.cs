@@ -35,7 +35,7 @@ namespace MugenMvvmToolkit.Android.Models
 
         public ViewResult([NotNull] View view, IDataContext dataContext)
         {
-            Should.NotBeNull(view, "view");
+            Should.NotBeNull(view, nameof(view));
             _view = view;
             _dataContext = dataContext ?? MugenMvvmToolkit.Models.DataContext.Empty;
         }

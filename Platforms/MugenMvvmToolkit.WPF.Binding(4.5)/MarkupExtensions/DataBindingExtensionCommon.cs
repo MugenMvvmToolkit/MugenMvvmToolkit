@@ -413,12 +413,12 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             {
                 var parameters = eventInfo
                     .EventHandlerType
-                    .GetMethodEx("Invoke")
+                    .GetMethodEx(nameof(Action.Invoke))
                     .GetParameters()
                     .ToArrayEx(parameter => System.Linq.Expressions.Expression.Parameter(parameter.ParameterType));
 
                 var callExpression = System.Linq.Expressions.Expression
-                    .Call(System.Linq.Expressions.Expression.Constant(NoDoFunc, typeof(Func<object>)), "Invoke", Empty.Array<Type>());
+                    .Call(System.Linq.Expressions.Expression.Constant(NoDoFunc, typeof(Func<object>)), nameof(Action.Invoke), Empty.Array<Type>());
                 value = System.Linq.Expressions.Expression
                     .Lambda(eventInfo.EventHandlerType, callExpression, parameters)
                     .Compile();

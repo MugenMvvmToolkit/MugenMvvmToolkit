@@ -113,7 +113,7 @@ namespace MugenMvvmToolkit.Models
         public DataContext([NotNull] ICollection<KeyValuePair<DataConstant, object>> values)
             : base(values.Count)
         {
-            Should.NotBeNull(values, "values");
+            Should.NotBeNull(values, nameof(values));
             foreach (var value in values)
                 Add(value.Key, value.Value);
         }
@@ -138,7 +138,7 @@ namespace MugenMvvmToolkit.Models
         public DataContext(IDataContext context)
             : base(false)
         {
-            Should.NotBeNull(context, "context");
+            Should.NotBeNull(context, nameof(context));
             Initialize(context.Count);
             if (context.Count != 0)
                 Merge(context);
@@ -164,7 +164,7 @@ namespace MugenMvvmToolkit.Models
 
         public void AddValue(DataConstant dataConstant, object value)
         {
-            Should.NotBeNull(dataConstant, "dataConstant");
+            Should.NotBeNull(dataConstant, nameof(dataConstant));
             dataConstant.Validate(value);
             Add(dataConstant, value);
         }
@@ -187,21 +187,21 @@ namespace MugenMvvmToolkit.Models
 
         public void Add<T>(DataConstant<T> dataConstant, T value)
         {
-            Should.NotBeNull(dataConstant, "dataConstant");
+            Should.NotBeNull(dataConstant, nameof(dataConstant));
             dataConstant.Validate(value);
             base.Add(dataConstant, value);
         }
 
         public void AddOrUpdate<T>(DataConstant<T> dataConstant, T value)
         {
-            Should.NotBeNull(dataConstant, "dataConstant");
+            Should.NotBeNull(dataConstant, nameof(dataConstant));
             dataConstant.Validate(value);
             base[dataConstant] = value;
         }
 
         public T GetData<T>(DataConstant<T> dataConstant)
         {
-            Should.NotBeNull(dataConstant, "dataConstant");
+            Should.NotBeNull(dataConstant, nameof(dataConstant));
             object value;
             if (!TryGetValue(dataConstant, out value))
                 return default(T);
@@ -222,19 +222,19 @@ namespace MugenMvvmToolkit.Models
 
         public bool Contains(DataConstant dataConstant)
         {
-            Should.NotBeNull(dataConstant, "dataConstant");
+            Should.NotBeNull(dataConstant, nameof(dataConstant));
             return ContainsKey(dataConstant);
         }
 
         public new bool Remove(DataConstant dataConstant)
         {
-            Should.NotBeNull(dataConstant, "dataConstant");
+            Should.NotBeNull(dataConstant, nameof(dataConstant));
             return base.Remove(dataConstant);
         }
 
         public void Merge(IDataContext context)
         {
-            Should.NotBeNull(context, "context");
+            Should.NotBeNull(context, nameof(context));
             if (ReferenceEquals(this, context))
                 return;
             foreach (var item in context.ToList())

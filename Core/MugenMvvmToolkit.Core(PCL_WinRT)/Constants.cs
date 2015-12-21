@@ -48,15 +48,16 @@ namespace MugenMvvmToolkit.DataConstants
 
         static ViewModelConstants()
         {
-            Id = DataConstant.Create(() => Id);
-            IdParent = DataConstant.Create(() => IdParent);
-            View = DataConstant.Create(() => View, true);
-            ViewModelTypeName = DataConstant.Create(() => ViewModelTypeName, true);
-            ViewModelState = DataConstant.Create(() => ViewModelState, true);
-            ViewModel = DataConstant.Create(() => ViewModel, true);
-            ParentViewModel = DataConstant.Create(() => ParentViewModel, true);
-            StateNotNeeded = DataConstant.Create(() => StateNotNeeded);
-            StateRestored = DataConstant.Create(() => StateRestored);
+            var type = typeof(ViewModelConstants);
+            Id = DataConstant.Create<Guid>(type, nameof(Id));
+            IdParent = DataConstant.Create<Guid>(type, nameof(IdParent));
+            View = DataConstant.Create<object>(type, nameof(View), true);
+            ViewModelTypeName = DataConstant.Create<string>(type, nameof(ViewModelTypeName), true);
+            ViewModelState = DataConstant.Create<IDataContext>(type, nameof(ViewModelState), true);
+            ViewModel = DataConstant.Create<IViewModel>(type, nameof(ViewModel), true);
+            ParentViewModel = DataConstant.Create<WeakReference>(type, nameof(ParentViewModel), true);
+            StateNotNeeded = DataConstant.Create<bool>(type, nameof(StateNotNeeded));
+            StateRestored = DataConstant.Create<bool>(type, nameof(StateRestored));
         }
 
         #endregion
@@ -82,15 +83,16 @@ namespace MugenMvvmToolkit.DataConstants
 
         static InitializationConstants()
         {
-            IocContainer = DataConstant.Create(() => IocContainer, true);
-            ParentViewModel = DataConstant.Create(() => ParentViewModel, true);
-            ObservationMode = DataConstant.Create(() => ObservationMode);
-            ViewModelBindingName = DataConstant.Create(() => ViewModelBindingName, false);
-            IocParameters = DataConstant.Create(() => IocParameters, true);
-            IsRestored = DataConstant.Create(() => IsRestored);
+            var type = typeof(InitializationConstants);
+            IocContainer = DataConstant.Create<IIocContainer>(type, nameof(IocContainer), true);
+            ParentViewModel = DataConstant.Create<IViewModel>(type, nameof(ParentViewModel), true);
+            ObservationMode = DataConstant.Create<ObservationMode>(type, nameof(ObservationMode));
+            ViewModelBindingName = DataConstant.Create<string>(type, nameof(ViewModelBindingName), false);
+            IocParameters = DataConstant.Create<IIocParameter[]>(type, nameof(IocParameters), true);
+            IsRestored = DataConstant.Create<bool>(type, nameof(IsRestored));
             ViewName = NavigationConstants.ViewName;
-            ViewModelType = DataConstant.Create(() => ViewModelType, true);
-            IgnoreViewModelCache = DataConstant.Create(() => IgnoreViewModelCache);
+            ViewModelType = DataConstant.Create<Type>(type, nameof(ViewModelType), true);
+            IgnoreViewModelCache = DataConstant.Create<bool>(type, nameof(IgnoreViewModelCache));
         }
 
         #endregion
@@ -115,14 +117,15 @@ namespace MugenMvvmToolkit.DataConstants
 
         static NavigationConstants()
         {
-            SuppressPageNavigation = DataConstant.Create(() => SuppressPageNavigation);
-            SuppressWindowNavigation = DataConstant.Create(() => SuppressWindowNavigation);
-            SuppressTabNavigation = DataConstant.Create(() => SuppressTabNavigation);
-            ViewModel = DataConstant.Create(() => ViewModel, true);
-            ViewName = DataConstant.Create(() => ViewName, false);
-            IsDialog = DataConstant.Create(() => IsDialog);
-            ClearBackStack = DataConstant.Create(() => ClearBackStack);
-            UseAnimations = DataConstant.Create(() => UseAnimations);
+            var type = typeof(NavigationConstants);
+            SuppressPageNavigation = DataConstant.Create<bool>(type, nameof(SuppressPageNavigation));
+            SuppressWindowNavigation = DataConstant.Create<bool>(type, nameof(SuppressWindowNavigation));
+            SuppressTabNavigation = DataConstant.Create<bool>(type, nameof(SuppressTabNavigation));
+            ViewModel = DataConstant.Create<IViewModel>(type, nameof(ViewModel), true);
+            ViewName = DataConstant.Create<string>(type, nameof(ViewName), false);
+            IsDialog = DataConstant.Create<bool>(type, nameof(IsDialog));
+            ClearBackStack = DataConstant.Create<bool>(type, nameof(ClearBackStack));
+            UseAnimations = DataConstant.Create<bool>(type, nameof(UseAnimations));
         }
 
         #endregion
@@ -140,7 +143,8 @@ namespace MugenMvvmToolkit.DataConstants
 
         static OpeartionCallbackConstants()
         {
-            ContinueOnCapturedContext = DataConstant.Create(() => ContinueOnCapturedContext);
+            var type = typeof(OpeartionCallbackConstants);
+            ContinueOnCapturedContext = DataConstant.Create<bool>(type, nameof(ContinueOnCapturedContext));
         }
 
         #endregion
@@ -163,12 +167,13 @@ namespace MugenMvvmToolkit.DataConstants
 
         static NavigationProviderConstants()
         {
-            NavigationArgs = DataConstant.Create(() => NavigationArgs, true);
-            NavigatingCancelArgs = DataConstant.Create(() => NavigatingCancelArgs, true);
-            OperationId = DataConstant.Create(() => OperationId, false);
-            BringToFront = DataConstant.Create(() => BringToFront);
-            InvalidateCache = DataConstant.Create(() => InvalidateCache);
-            InvalidateAllCache = DataConstant.Create(() => InvalidateAllCache);
+            var type = typeof(NavigationProviderConstants);
+            NavigationArgs = DataConstant.Create<NavigationEventArgsBase>(type, nameof(NavigationArgs), true);
+            NavigatingCancelArgs = DataConstant.Create<NavigatingCancelEventArgsBase>(type, nameof(NavigatingCancelArgs), true);
+            OperationId = DataConstant.Create<string>(type, nameof(OperationId), false);
+            BringToFront = DataConstant.Create<bool>(type, nameof(BringToFront));
+            InvalidateCache = DataConstant.Create<bool>(type, nameof(InvalidateCache));
+            InvalidateAllCache = DataConstant.Create<bool>(type, nameof(InvalidateAllCache));
         }
 
         #endregion

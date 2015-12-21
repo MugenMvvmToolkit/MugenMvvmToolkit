@@ -136,7 +136,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public BindingMemberProvider([NotNull] BindingMemberProvider provider)
         {
-            Should.NotBeNull(provider, "provider");
+            Should.NotBeNull(provider, nameof(provider));
             _currentPaths = new HashSet<string>(StringComparer.Ordinal);
             _attachedMembers = provider._attachedMembers;
             _tempMembersCache = provider._tempMembersCache;
@@ -178,8 +178,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public IBindingMemberInfo GetBindingMember(Type sourceType, string path, bool ignoreAttachedMembers,
             bool throwOnError)
         {
-            Should.NotBeNull(sourceType, "sourceType");
-            Should.NotBeNull(path, "path");
+            Should.NotBeNull(sourceType, nameof(sourceType));
+            Should.NotBeNull(path, nameof(path));
             IBindingMemberInfo bindingMember;
             var key = new CacheKey(sourceType, path, ignoreAttachedMembers);
             bool lockTaken = false;
@@ -234,9 +234,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public void Register(Type type, string path, IBindingMemberInfo member, bool rewrite)
         {
-            Should.NotBeNull(type, "type");
-            Should.NotBeNullOrEmpty(path, "path");
-            Should.NotBeNull(member, "member");
+            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNullOrEmpty(path, nameof(path));
+            Should.NotBeNull(member, nameof(member));
             lock (_attachedMembers)
             {
                 var key = new CacheKey(type, path, false);
@@ -257,7 +257,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public bool Unregister(Type type, string path)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             bool removed;
             lock (_attachedMembers)
                 removed = _attachedMembers.Remove(new CacheKey(type, path, false));
@@ -294,7 +294,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public ICollection<KeyValuePair<string, IBindingMemberInfo>> GetAttachedMembers(Type type)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var names = new HashSet<KeyValuePair<string, IBindingMemberInfo>>();
             lock (_attachedMembers)
             {

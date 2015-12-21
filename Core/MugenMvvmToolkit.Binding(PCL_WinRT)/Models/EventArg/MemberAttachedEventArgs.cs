@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
 
         public MemberAttachedEventArgs([NotNull] IBindingMemberInfo member)
         {
-            Should.NotBeNull(member, "member");
+            Should.NotBeNull(member, nameof(member));
             _member = member;
         }
 

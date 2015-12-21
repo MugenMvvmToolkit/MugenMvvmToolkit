@@ -121,8 +121,8 @@ namespace MugenMvvmToolkit
         protected void Initialize([NotNull] IMvvmApplication application, [NotNull] IIocContainer iocContainer,
             PlatformInfo platform, params Assembly[] assemblies)
         {
-            Should.NotBeNull(application, "application");
-            Should.NotBeNull(iocContainer, "iocContainer");
+            Should.NotBeNull(application, nameof(application));
+            Should.NotBeNull(iocContainer, nameof(iocContainer));
             ServiceProvider.DesignTimeManager = new DesignTimeManagerImpl(platform);
             application.Initialize(platform ?? PlatformInfo.UnitTest, iocContainer, assemblies, DataContext.Empty);
             if (ViewModelProvider == null)

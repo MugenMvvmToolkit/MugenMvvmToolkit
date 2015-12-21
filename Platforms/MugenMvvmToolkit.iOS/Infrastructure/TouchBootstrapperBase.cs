@@ -65,7 +65,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         protected TouchBootstrapperBase([NotNull] UIWindow window, PlatformInfo platform = null)
         {
-            Should.NotBeNull(window, "window");
+            Should.NotBeNull(window, nameof(window));
             _window = window;
             _platform = platform ?? PlatformExtensions.GetPlatformInfo();
             WrapToNavigationController = true;

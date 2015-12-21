@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         public PreferenceItemsSourceGenerator(PreferenceGroup preference)
         {
-            Should.NotBeNull(preference, "preference");
+            Should.NotBeNull(preference, nameof(preference));
             _preference = preference;
             _collectionViewManagerMember = BindingServiceProvider
                 .MemberProvider

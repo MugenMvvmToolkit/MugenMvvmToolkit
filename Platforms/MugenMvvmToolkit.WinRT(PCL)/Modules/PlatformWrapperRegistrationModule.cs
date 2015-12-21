@@ -344,7 +344,7 @@ namespace MugenMvvmToolkit.WinRT.Modules
 
             static ContentDialogWrapper()
             {
-                OnClosingMethod = typeof(ContentDialogWrapper).GetMethodEx("OnClosing",
+                OnClosingMethod = typeof(ContentDialogWrapper).GetMethodEx(nameof(OnClosing),
                     MemberFlags.Instance | MemberFlags.NonPublic);
             }
 
@@ -378,7 +378,7 @@ namespace MugenMvvmToolkit.WinRT.Modules
                 var eventArgs = new CancelEventArgs();
                 handler(this, eventArgs);
                 if (_cancelProperty == null)
-                    _cancelProperty = args.GetType().GetPropertyEx("Cancel", MemberFlags.Instance | MemberFlags.Public);
+                    _cancelProperty = args.GetType().GetPropertyEx(nameof(CancelEventArgs.Cancel), MemberFlags.Instance | MemberFlags.Public);
                 if (_cancelProperty != null)
                     _cancelProperty.SetValueEx(args, eventArgs.Cancel);
             }
@@ -390,7 +390,8 @@ namespace MugenMvvmToolkit.WinRT.Modules
             public void Show()
             {
                 if (_showAsyncMethod == null)
-                    _showAsyncMethod = _window.GetType()
+                    _showAsyncMethod = _window
+                        .GetType()
                         .GetMethodEx("ShowAsync", MemberFlags.Instance | MemberFlags.Public);
                 if (_showAsyncMethod != null)
                     _showAsyncMethod.InvokeEx(_window);

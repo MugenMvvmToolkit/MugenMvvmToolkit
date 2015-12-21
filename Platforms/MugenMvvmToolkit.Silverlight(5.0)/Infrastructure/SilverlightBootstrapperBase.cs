@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
 
         protected SilverlightBootstrapperBase([NotNull] Application application, bool autoStart = true, PlatformInfo platform = null)
         {
-            Should.NotBeNull(application, "application");
+            Should.NotBeNull(application, nameof(application));
             _application = application;
             _platform = platform ?? PlatformExtensions.GetPlatformInfo();
             AutoStart = autoStart;

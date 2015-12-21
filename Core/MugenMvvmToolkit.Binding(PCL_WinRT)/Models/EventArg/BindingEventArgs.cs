@@ -48,8 +48,8 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
         public BindingEventArgs(BindingAction action, [NotNull] Exception exception, [NotNull] Exception originalException)
             : this(action, false)
         {
-            Should.NotBeNull(exception, "exception");
-            Should.NotBeNull(originalException, "originalException");
+            Should.NotBeNull(exception, nameof(exception));
+            Should.NotBeNull(originalException, nameof(originalException));
             _exception = exception;
             _originalException = originalException;
         }

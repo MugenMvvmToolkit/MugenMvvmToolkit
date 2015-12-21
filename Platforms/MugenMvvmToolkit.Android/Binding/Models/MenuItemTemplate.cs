@@ -188,27 +188,27 @@ namespace MugenMvvmToolkit.Android.Binding.Models
         {
             if (!string.IsNullOrEmpty(Bind))
                 setter.BindingSet.BindFromExpression(menuItem, Bind);
-            setter.SetStringProperty(() => template => template.AlphabeticShortcut, AlphabeticShortcut);
-            setter.SetStringProperty(() => template => template.NumericShortcut, NumericShortcut);
-            setter.SetProperty(() => template => template.Icon, Icon);
-            setter.SetBoolProperty(() => template => template.IsCheckable, IsCheckable);
-            setter.SetBoolProperty(() => template => template.IsChecked, IsChecked);
-            setter.SetBoolProperty(() => template => template.IsEnabled, IsEnabled);
-            setter.SetBoolProperty(() => template => template.IsVisible, IsVisible);
-            setter.SetBoolProperty(() => template => template.IsActionViewExpanded, IsActionViewExpanded);
-            setter.SetStringProperty(() => template => template.Title, Title);
-            setter.SetStringProperty(() => template => template.TitleCondensed, TitleCondensed);
-            setter.SetStringProperty(() => template => template.CommandParameter, CommandParameter);
-            setter.SetBinding(() => template => template.Click, Click, false);
+            setter.SetStringProperty(nameof(AlphabeticShortcut), AlphabeticShortcut);
+            setter.SetStringProperty(nameof(NumericShortcut), NumericShortcut);
+            setter.SetProperty(nameof(Icon), Icon);
+            setter.SetBoolProperty(nameof(IsCheckable), IsCheckable);
+            setter.SetBoolProperty(nameof(IsChecked), IsChecked);
+            setter.SetBoolProperty(nameof(IsEnabled), IsEnabled);
+            setter.SetBoolProperty(nameof(IsVisible), IsVisible);
+            setter.SetBoolProperty(nameof(IsActionViewExpanded), IsActionViewExpanded);
+            setter.SetStringProperty(nameof(Title), Title);
+            setter.SetStringProperty(nameof(TitleCondensed), TitleCondensed);
+            setter.SetStringProperty(nameof(CommandParameter), CommandParameter);
+            setter.SetBinding(nameof(Click), Click, false);
 
             var initalized = Initalized;
             if (initalized != null)
                 initalized(this, menuItem, setter);
 
-            setter.SetBinding(() => template => template.ActionViewTemplateSelector, ActionViewTemplateSelector, false);
-            setter.SetBinding(() => template => template.ActionProviderTemplateSelector, ActionProviderTemplateSelector, false);
-            setter.SetProperty(() => template => template.ActionView, ActionView);
-            setter.SetStringProperty(() => template => template.ActionProvider, ActionProvider);
+            setter.SetBinding(nameof(ActionViewTemplateSelector), ActionViewTemplateSelector, false);
+            setter.SetBinding(nameof(ActionProviderTemplateSelector), ActionProviderTemplateSelector, false);
+            setter.SetProperty(nameof(ActionView), ActionView);
+            setter.SetStringProperty(nameof(ActionProvider), ActionProvider);
         }
 
         private void SetDataContext(object target, BindingSet setter, object dataContext, bool useContext)

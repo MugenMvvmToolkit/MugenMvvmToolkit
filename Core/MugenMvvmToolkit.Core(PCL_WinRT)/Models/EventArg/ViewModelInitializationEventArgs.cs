@@ -35,7 +35,7 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         public ViewModelInitializationEventArgs([NotNull] IViewModel viewModel, [CanBeNull] IDataContext context)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             _viewModel = viewModel;
             Context = context;
         }

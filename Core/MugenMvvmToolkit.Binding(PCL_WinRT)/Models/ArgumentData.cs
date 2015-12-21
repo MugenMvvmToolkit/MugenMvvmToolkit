@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
         public ArgumentData(IExpressionNode node, Expression expression, Type type, bool isTypeAccess)
         {
-            Should.NotBeNull(node, "node");
+            Should.NotBeNull(node, nameof(node));
             _node = node;
             _expression = expression;
             if (type == null && expression != null)

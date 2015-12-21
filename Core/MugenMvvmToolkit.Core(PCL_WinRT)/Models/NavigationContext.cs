@@ -39,7 +39,7 @@ namespace MugenMvvmToolkit.Models
         public NavigationContext([NotNull] NavigationType type, NavigationMode navigationMode, [CanBeNull] IViewModel viewModelFrom, [CanBeNull] IViewModel viewModelTo,
              [CanBeNull] object navigationProvider)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             _type = type;
             _navigationMode = navigationMode;
             _navigationProvider = navigationProvider;

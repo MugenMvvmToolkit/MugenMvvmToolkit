@@ -43,7 +43,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         public ThreadManager(Dispatcher dispatcher)
         {
-            Should.NotBeNull(dispatcher, "dispatcher");
+            Should.NotBeNull(dispatcher, nameof(dispatcher));
             _dispatcher = dispatcher;
         }
 
@@ -68,7 +68,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         public void InvokeOnUiThreadAsync(Action action, OperationPriority priority = OperationPriority.Normal,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(action, nameof(action));
             if (cancellationToken.IsCancellationRequested)
                 return;
             if (priority != OperationPriority.Low && IsUiThread)
@@ -90,7 +90,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         public void InvokeOnUiThread(Action action, OperationPriority priority = OperationPriority.Normal,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(action, nameof(action));
             if (cancellationToken.IsCancellationRequested)
                 return;
             if (IsUiThread)
@@ -116,7 +116,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         public void InvokeAsync(Action action, OperationPriority priority = OperationPriority.Normal,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(action, nameof(action));
             Task.Factory.StartNew(action, cancellationToken);
         }
 

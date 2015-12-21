@@ -35,7 +35,7 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         public ViewModelClosedEventArgs([NotNull] IViewModel viewModel, [CanBeNull] object parameter)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             _viewModel = viewModel;
             _parameter = parameter;
         }

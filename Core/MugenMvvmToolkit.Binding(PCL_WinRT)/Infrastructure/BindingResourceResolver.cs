@@ -274,7 +274,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public BindingResourceResolver([NotNull] BindingResourceResolver resolver)
         {
-            Should.NotBeNull(resolver, "resolver");
+            Should.NotBeNull(resolver, nameof(resolver));
             RootElementResourceName = resolver.RootElementResourceName;
             BindingSourceResourceName = resolver.BindingSourceResourceName;
             SelfResourceName = resolver.SelfResourceName;
@@ -333,7 +333,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             var eventInfo = members.LastMember.Member as EventInfo;
             if (!members.AllMembersAvailable || eventInfo == null)
                 return typeof(object);
-            var invokeMethod = eventInfo.EventHandlerType.GetMethodEx("Invoke", MemberFlags.Instance | MemberFlags.Public);
+            var invokeMethod = eventInfo.EventHandlerType.GetMethodEx(nameof(Action.Invoke), MemberFlags.Instance | MemberFlags.Public);
             if (invokeMethod == null)
                 return typeof(object);
             var parameters = invokeMethod.GetParameters();
@@ -450,7 +450,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual IBindingValueConverter ResolveConverter(string name, IDataContext context, bool throwOnError)
         {
-            Should.NotBeNull(name, "name");
+            Should.NotBeNull(name, nameof(name));
             lock (_converters)
             {
                 IBindingValueConverter value;
@@ -476,7 +476,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual IBindingResourceMethod ResolveMethod(string name, IDataContext context, bool throwOnError)
         {
-            Should.NotBeNull(name, "name");
+            Should.NotBeNull(name, nameof(name));
             lock (_dynamicMethods)
             {
                 IBindingResourceMethod value;
@@ -488,7 +488,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual ISourceValue ResolveObject(string name, IDataContext context, bool throwOnError)
         {
-            Should.NotBeNull(name, "name");
+            Should.NotBeNull(name, nameof(name));
             if (context != null && BindingSourceResourceName.Equals(name, StringComparison.Ordinal))
             {
                 object src;
@@ -522,7 +522,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual IBindingBehavior ResolveBehavior(string name, IDataContext context, IList<object> args, bool throwOnError)
         {
-            Should.NotBeNull(name, "name");
+            Should.NotBeNull(name, nameof(name));
             Func<IDataContext, IList<object>, IBindingBehavior> value;
             lock (_behaviors)
             {
@@ -538,8 +538,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual void AddBehavior(string name, Func<IDataContext, IList<object>, IBindingBehavior> getBehavior, bool rewrite)
         {
-            Should.NotBeNullOrWhitespace(name, "name");
-            Should.NotBeNull(getBehavior, "getBehavior");
+            Should.NotBeNullOrWhitespace(name, nameof(name));
+            Should.NotBeNull(getBehavior, nameof(getBehavior));
             lock (_behaviors)
             {
                 if (rewrite)
@@ -551,8 +551,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual void AddConverter(string name, IBindingValueConverter converter, bool rewrite)
         {
-            Should.NotBeNullOrWhitespace(name, "name");
-            Should.NotBeNull(converter, "converter");
+            Should.NotBeNullOrWhitespace(name, nameof(name));
+            Should.NotBeNull(converter, nameof(converter));
             lock (_converters)
             {
                 if (rewrite)
@@ -566,8 +566,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual void AddType(string name, Type type, bool rewrite)
         {
-            Should.NotBeNullOrWhitespace(name, "name");
-            Should.NotBeNull(type, "type");
+            Should.NotBeNullOrWhitespace(name, nameof(name));
+            Should.NotBeNull(type, nameof(type));
             lock (_types)
             {
                 if (rewrite)
@@ -579,8 +579,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual void AddMethod(string name, IBindingResourceMethod method, bool rewrite)
         {
-            Should.NotBeNullOrWhitespace(name, "name");
-            Should.NotBeNull(method, "method");
+            Should.NotBeNullOrWhitespace(name, nameof(name));
+            Should.NotBeNull(method, nameof(method));
             lock (_dynamicMethods)
             {
                 if (rewrite)
@@ -592,8 +592,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual void AddObject(string name, ISourceValue obj, bool rewrite)
         {
-            Should.NotBeNullOrWhitespace(name, "name");
-            Should.NotBeNull(obj, "obj");
+            Should.NotBeNullOrWhitespace(name, nameof(name));
+            Should.NotBeNull(obj, nameof(obj));
             DynamicResourceObject value;
             lock (_objects)
             {
@@ -608,9 +608,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual void AddMethodAlias(string bindingMethodName, Type type, string method, bool rewrite)
         {
-            Should.NotBeNull(bindingMethodName, "bindingMethodName");
-            Should.NotBeNull(type, "type");
-            Should.NotBeNullOrEmpty(method, "method");
+            Should.NotBeNull(bindingMethodName, nameof(bindingMethodName));
+            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNullOrEmpty(method, nameof(method));
             var methods = type.GetMethodsEx(MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Static);
             if (methods.Count == 0)
                 throw BindingExceptionManager.InvalidBindingMember(type, method);
@@ -626,7 +626,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual bool TryGetMethodAlias(string bindingMethodName, out Type type, out string method)
         {
-            Should.NotBeNull(bindingMethodName, "bindingMethodName");
+            Should.NotBeNull(bindingMethodName, nameof(bindingMethodName));
             lock (_aliasToMethod)
             {
                 KeyValuePair<Type, string> pair;

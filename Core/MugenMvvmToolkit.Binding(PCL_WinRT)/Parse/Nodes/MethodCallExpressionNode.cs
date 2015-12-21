@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
             [CanBeNull] IList<IExpressionNode> args, [CanBeNull] IList<string> typeArgs)
             : base(ExpressionNodeType.MethodCall)
         {
-            Should.NotBeNull(methodName, "methodName");
+            Should.NotBeNull(methodName, nameof(methodName));
             _target = target;
             _method = methodName;
             _typeArgs = typeArgs == null

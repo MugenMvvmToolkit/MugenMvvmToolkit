@@ -17,10 +17,14 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvmToolkit.Collections;
+using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit
@@ -93,16 +97,16 @@ namespace MugenMvvmToolkit
             Task = FalseTask;
             EmptyDataErrorsChangedArgs = new DataErrorsChangedEventArgs(string.Empty);
             EmptyPropertyChangedArgs = new PropertyChangedEventArgs(string.Empty);
-            CountChangedArgs = new PropertyChangedEventArgs("Count");
-            NotificationCountChangedArgs = new PropertyChangedEventArgs("NotificationCount");
+            CountChangedArgs = new PropertyChangedEventArgs(nameof(ICollection.Count));
+            NotificationCountChangedArgs = new PropertyChangedEventArgs(nameof(SynchronizedNotifiableCollection<object>.NotificationCount));
             IndexerPropertyChangedArgs = new PropertyChangedEventArgs(ReflectionExtensions.IndexerName);
-            IsNotificationsSuspendedChangedArgs = new PropertyChangedEventArgs("IsNotificationsSuspended");
-            HasChangesChangedArgs = new PropertyChangedEventArgs("HasChanges");
-            SelectedItemChangedArgs = new PropertyChangedEventArgs("SelectedItem");
-            HasErrorsChangedArgs = new PropertyChangedEventArgs("HasErrors");
-            IsValidChangedArgs = new PropertyChangedEventArgs("IsValid");
-            IsBusyChangedArgs = new PropertyChangedEventArgs("IsBusy");
-            BusyMessageChangedArgs = new PropertyChangedEventArgs("BusyMessage");
+            IsNotificationsSuspendedChangedArgs = new PropertyChangedEventArgs(nameof(ISuspendNotifications.IsNotificationsSuspended));
+            HasChangesChangedArgs = new PropertyChangedEventArgs(nameof(IEditableViewModel.HasChanges));
+            SelectedItemChangedArgs = new PropertyChangedEventArgs(nameof(IGridViewModel.SelectedItem));
+            HasErrorsChangedArgs = new PropertyChangedEventArgs(nameof(IValidatableViewModel.HasErrors));
+            IsValidChangedArgs = new PropertyChangedEventArgs(nameof(IValidatableViewModel.IsValid));
+            IsBusyChangedArgs = new PropertyChangedEventArgs(nameof(IViewModel.IsBusy));
+            BusyMessageChangedArgs = new PropertyChangedEventArgs(nameof(IViewModel.BusyMessage));
             ResetEventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
         }
 

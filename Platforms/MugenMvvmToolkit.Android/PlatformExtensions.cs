@@ -91,7 +91,7 @@ namespace MugenMvvmToolkit.Android
 
             public void Add(IContentViewManager contentViewManager)
             {
-                Should.NotBeNull(contentViewManager, "contentViewManager");
+                Should.NotBeNull(contentViewManager, nameof(contentViewManager));
                 lock (_contentViewManagers)
                     _contentViewManagers.Insert(0, contentViewManager);
             }
@@ -114,7 +114,7 @@ namespace MugenMvvmToolkit.Android
 
             public void Remove(IContentViewManager contentViewManager)
             {
-                Should.NotBeNull(contentViewManager, "contentViewManager");
+                Should.NotBeNull(contentViewManager, nameof(contentViewManager));
                 lock (_contentViewManagers)
                     _contentViewManagers.Remove(contentViewManager);
             }
@@ -280,7 +280,7 @@ namespace MugenMvvmToolkit.Android
             IsApiGreaterThanOrEqualTo17 = Build.VERSION.SdkInt >= BuildVersionCodes.JellyBeanMr1;
             IsApiGreaterThanOrEqualTo19 = Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat;
             IsApiGreaterThanOrEqualTo21 = Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop;
-            FragmentConstant = DataConstant.Create(() => FragmentConstant, false);
+            FragmentConstant = DataConstant.Create<object>(typeof(PlatformExtensions), nameof(FragmentConstant), false);
             _menuInflaterFactory = (context, dataContext) => new BindableMenuInflater(context);
             _layoutInflaterFactory = (context, dataContext, factory, inflater) =>
             {
@@ -438,7 +438,7 @@ namespace MugenMvvmToolkit.Android
 
         public static void Inflate(this MenuInflater menuInflater, int menuRes, IMenu menu, object parent)
         {
-            Should.NotBeNull(menuInflater, "menuInflater");
+            Should.NotBeNull(menuInflater, nameof(menuInflater));
             var bindableMenuInflater = menuInflater as BindableMenuInflater;
             if (bindableMenuInflater == null)
                 menuInflater.Inflate(menuRes, menu);
@@ -451,7 +451,7 @@ namespace MugenMvvmToolkit.Android
         {
             if (context == null)
             {
-                Should.NotBeNull(inflater, "inflater");
+                Should.NotBeNull(inflater, nameof(inflater));
                 context = inflater.Context;
             }
             return LayoutInflaterFactory(context, null, null, inflater);
@@ -460,7 +460,7 @@ namespace MugenMvvmToolkit.Android
         [NotNull]
         public static LayoutInflater GetBindableLayoutInflater([NotNull] this Context context)
         {
-            Should.NotBeNull(context, "context");
+            Should.NotBeNull(context, nameof(context));
             var activity = context.GetActivity();
             if (activity == null)
                 return LayoutInflaterFactory(context, null, null, null);
@@ -692,7 +692,7 @@ namespace MugenMvvmToolkit.Android
         internal static void ValidateViewIdFragment(View view, object content)
         {
             if (view.Id == View.NoId)
-                throw new ArgumentException($"To use a fragment {view}, you must specify the id for view {content}, for instance: @+id/placeholder", "view");
+                throw new ArgumentException($"To use a fragment {view}, you must specify the id for view {content}, for instance: @+id/placeholder", nameof(view));
         }
 
         private static View GetContentInternal(Context ctx, object content, int? templateId)
@@ -717,7 +717,7 @@ namespace MugenMvvmToolkit.Android
 
         private static object GetContentViewInternal(object container, Context ctx, object content, int? templateId, IDataTemplateSelector templateSelector)
         {
-            Should.NotBeNull(container, "container");
+            Should.NotBeNull(container, nameof(container));
             object result;
             if (templateSelector != null)
             {

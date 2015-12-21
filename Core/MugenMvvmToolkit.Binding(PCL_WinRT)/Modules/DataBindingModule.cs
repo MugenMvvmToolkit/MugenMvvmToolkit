@@ -174,7 +174,7 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         public bool Load(IModuleContext context)
         {
-            Should.NotBeNull(context, "context");
+            Should.NotBeNull(context, nameof(context));
             if (!CanLoad(context))
                 return false;
 

@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.Android.Attributes
 
         public TypeNameAliasAttribute([NotNull] string @alias)
         {
-            Should.NotBeNull(@alias, "alias");
+            Should.NotBeNull(@alias, nameof(alias));
             _alias = alias;
         }
 

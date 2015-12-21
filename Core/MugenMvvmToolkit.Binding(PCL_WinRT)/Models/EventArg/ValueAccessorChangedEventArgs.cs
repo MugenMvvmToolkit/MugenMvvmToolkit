@@ -39,8 +39,8 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
             IBindingMemberInfo lastMember, object oldValue, object newValue)
             : base(oldValue, newValue)
         {
-            Should.NotBeNull(context, "context");
-            Should.NotBeNull(lastMember, "lastMember");
+            Should.NotBeNull(context, nameof(context));
+            Should.NotBeNull(lastMember, nameof(lastMember));
             _context = context;
             _penultimateValue = penultimateValue;
             _lastMember = lastMember;

@@ -263,17 +263,17 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             if (useContext)
                 newTab.SetDataContext(context);
             else
-                setter.SetProperty(() => template => template.DataContext, DataContext);
+                setter.SetProperty(nameof(DataContext), DataContext);
             if (!string.IsNullOrEmpty(Bind))
                 setter.BindingSet.BindFromExpression(newTab, Bind);
-            setter.SetBinding(() => template => template.ContentTemplateSelector, ContentTemplateSelector, false);
-            setter.SetProperty(() => template => template.ContentTemplate, ContentTemplate);
-            setter.SetProperty(() => template => template.Content, Content);
-            setter.SetStringProperty(() => template => template.ContentDescription, ContentDescription);
-            setter.SetProperty(() => template => template.CustomView, CustomView);
-            setter.SetProperty(() => template => template.Icon, Icon);
-            setter.SetProperty(() => template => template.Text, Text);
-            setter.SetProperty(() => template => template.Tag, Tag);
+            setter.SetBinding(nameof(ContentTemplateSelector), ContentTemplateSelector, false);
+            setter.SetProperty(nameof(ContentTemplate), ContentTemplate);
+            setter.SetProperty(nameof(Content), Content);
+            setter.SetStringProperty(nameof(ContentDescription), ContentDescription);
+            setter.SetProperty(nameof(CustomView), CustomView);
+            setter.SetProperty(nameof(Icon), Icon);
+            setter.SetProperty(nameof(Text), Text);
+            setter.SetProperty(nameof(Tag), Tag);
             setter.Apply();
 
             var tabListener = new TabListener(new DataTemplateProvider(bar, AttachedMemberConstants.ContentTemplate,

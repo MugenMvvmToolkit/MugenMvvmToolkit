@@ -51,8 +51,8 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         internal ActionBarTabItemsSourceGenerator(ActionBar actionBar, ActionBarTabTemplate tabTemplate)
         {
-            Should.NotBeNull(actionBar, "actionBar");
-            Should.NotBeNull(tabTemplate, "tabTemplate");
+            Should.NotBeNull(actionBar, nameof(actionBar));
+            Should.NotBeNull(tabTemplate, nameof(tabTemplate));
             _actionBar = actionBar;
             _tabTemplate = tabTemplate;
             _collectionViewManagerMember = BindingServiceProvider

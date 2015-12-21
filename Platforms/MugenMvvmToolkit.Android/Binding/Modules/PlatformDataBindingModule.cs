@@ -231,18 +231,17 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         #region Methods
 
-        private static void Register([NotNull] IBindingMemberProvider memberProvider)
+        private static void Register(IBindingMemberProvider memberProvider)
         {
-            Should.NotBeNull(memberProvider, "memberProvider");
             BindingServiceProvider.BindingMemberPriorities[AttachedMembers.Object.StableIdProvider] = BindingServiceProvider.TemplateMemberPriority - 1;
             RegisterMenuMembers(memberProvider);
             RegisterViewMembers(memberProvider);
             RegisterPreferenceMembers(memberProvider);
-            BindingBuilderExtensions.RegisterDefaultBindingMember<Button>("Click");
-            BindingBuilderExtensions.RegisterDefaultBindingMember<TextView>(() => v => v.Text);
-            BindingBuilderExtensions.RegisterDefaultBindingMember<CheckBox>(() => v => v.Checked);
-            BindingBuilderExtensions.RegisterDefaultBindingMember<CompoundButton>(() => v => v.Checked);
-            BindingBuilderExtensions.RegisterDefaultBindingMember<SeekBar>(() => v => v.Progress);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<Button>(nameof(Button.Click));
+            BindingBuilderExtensions.RegisterDefaultBindingMember<TextView>(nameof(TextView.Text));
+            BindingBuilderExtensions.RegisterDefaultBindingMember<CheckBox>(nameof(CheckBox.Checked));
+            BindingBuilderExtensions.RegisterDefaultBindingMember<CompoundButton>(nameof(CompoundButton.Checked));
+            BindingBuilderExtensions.RegisterDefaultBindingMember<SeekBar>(nameof(SeekBar.Progress));
 
             //Object
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.Object.StableIdProvider));
@@ -268,17 +267,17 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             //Activity
             //to suppress message about parent
             memberProvider.Register(AttachedBindingMember.CreateMember<Activity, object>(AttachedMemberConstants.ParentExplicit, (info, activity) => null, null));
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Activity, string>("Title",
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Activity, string>(nameof(Activity.Title),
                 (activity, args) => activity.Title = args.NewValue, getDefaultValue: (activity, info) => activity.Title));
             memberProvider.Register(AttachedBindingMember.CreateMember<Activity, object>(AttachedMemberConstants.FindByNameMethod, ActivityFindByNameMember));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.Activity.ToastTemplateSelector));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.Activity.StartActivityDelegate));
 
             //RatingBar
-            BindingBuilderExtensions.RegisterDefaultBindingMember<RatingBar>(() => r => r.Rating);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<RatingBar>(nameof(RatingBar.Rating));
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<RatingBar, float>("Rating", (info, btn) => btn.Rating,
-                    (info, btn, value) => btn.Rating = value, "RatingBarChange"));
+                .CreateMember<RatingBar, float>(nameof(RatingBar.Rating), (info, btn) => btn.Rating,
+                    (info, btn, value) => btn.Rating = value, nameof(RatingBar.RatingBarChange)));
 
             //AdapterView
             _rawAdapterMember = memberProvider.GetBindingMember(typeof(AdapterView), "RawAdapter", false, true);
@@ -335,7 +334,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             //TimePicker
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.TimePicker.SelectedTime);
-            var selectedTimeMember = AttachedBindingMember.CreateMember(AttachedMembers.TimePicker.SelectedTime, GetTimePickerValue, SetTimePickerValue, "TimeChanged");
+            var selectedTimeMember = AttachedBindingMember.CreateMember(AttachedMembers.TimePicker.SelectedTime, GetTimePickerValue, SetTimePickerValue, nameof(TimePicker.TimeChanged));
             memberProvider.Register(selectedTimeMember);
             memberProvider.Register("Value", selectedTimeMember);
 

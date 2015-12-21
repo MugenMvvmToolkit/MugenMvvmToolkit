@@ -111,13 +111,13 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         public static void RegisterFrame([NotNull] Frame frame)
         {
-            Should.NotBeNull(frame, "frame");
+            Should.NotBeNull(frame, nameof(frame));
             ServiceProvider.AttachedValueProvider.GetOrAdd(frame, StateObserverMember, CreateObserverDelegate, null);
         }
 
         public static void InvokeAfterRestoreState([NotNull] this NavigationEventArgs args, Action<NavigationEventArgs> action)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             var attachedValueProvider = ServiceProvider.AttachedValueProvider;
             if (attachedValueProvider.Contains(args, ActionAfterRestoreStateKey))
                 attachedValueProvider.SetValue(args, ActionAfterRestoreStateKey, action);

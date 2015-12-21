@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public Func<string> GetDisplayNameAccessor(MemberInfo memberInfo)
         {
-            Should.NotBeNull(memberInfo, "memberInfo");
+            Should.NotBeNull(memberInfo, nameof(memberInfo));
             Func<string> name;
             lock (MembersToNames)
             {

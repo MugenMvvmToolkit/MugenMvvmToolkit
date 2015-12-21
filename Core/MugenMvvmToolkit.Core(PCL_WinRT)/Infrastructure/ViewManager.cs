@@ -54,9 +54,9 @@ namespace MugenMvvmToolkit.Infrastructure
         public ViewManager([NotNull] IThreadManager threadManager,
             [NotNull] IViewMappingProvider viewMappingProvider, [NotNull] IWrapperManager wrapperManager)
         {
-            Should.NotBeNull(threadManager, "threadManager");
-            Should.NotBeNull(viewMappingProvider, "viewMappingProvider");
-            Should.NotBeNull(viewMappingProvider, "wrapperManager");
+            Should.NotBeNull(threadManager, nameof(threadManager));
+            Should.NotBeNull(viewMappingProvider, nameof(viewMappingProvider));
+            Should.NotBeNull(viewMappingProvider, nameof(wrapperManager));
             _threadManager = threadManager;
             _viewMappingProvider = viewMappingProvider;
             _wrapperManager = wrapperManager;
@@ -121,7 +121,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public Task<object> GetViewAsync(IViewModel viewModel, IDataContext context = null)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             var tcs = new TaskCompletionSource<object>();
             ThreadManager.InvokeOnUiThreadAsync(() =>
             {
@@ -138,7 +138,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public Task<object> GetViewAsync(IViewMappingItem viewMapping, IDataContext context = null)
         {
-            Should.NotBeNull(viewMapping, "viewMapping");
+            Should.NotBeNull(viewMapping, nameof(viewMapping));
             var tcs = new TaskCompletionSource<object>();
             ThreadManager.InvokeOnUiThreadAsync(() =>
             {
@@ -180,7 +180,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public Task CleanupViewAsync(IViewModel viewModel, IDataContext context = null)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             object view = viewModel.Settings.Metadata.GetData(ViewModelConstants.View);
             if (view == null)
                 return Empty.Task;

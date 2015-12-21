@@ -259,7 +259,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
             {
                 type = DependencyProperty.UnsetValue.GetType();
                 isNamedObject = type.FullName.Equals("MS.Internal.NamedObject", StringComparison.Ordinal);
-                var methodInfo = typeof(DependencyPropertyBindingMember).GetMethodEx("Is", MemberFlags.Static | MemberFlags.Public);
+                var methodInfo = typeof(DependencyPropertyBindingMember).GetMethodEx(nameof(Is), MemberFlags.Static | MemberFlags.Public);
                 if (methodInfo == null || !isNamedObject)
                     IsNamedObjectFunc = o => false;
                 else
@@ -277,9 +277,9 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
         public DependencyPropertyBindingMember([NotNull] DependencyProperty dependencyProperty, [NotNull] string path,
             [NotNull] Type type, bool readOnly, [CanBeNull] MemberInfo member, [CanBeNull] IBindingMemberInfo changePropertyMember)
         {
-            Should.NotBeNull(dependencyProperty, "dependencyProperty");
-            Should.NotBeNullOrEmpty(path, "path");
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(dependencyProperty, nameof(dependencyProperty));
+            Should.NotBeNullOrEmpty(path, nameof(path));
+            Should.NotBeNull(type, nameof(type));
             _dependencyProperty = dependencyProperty;
             _path = path;
 #if WPF

@@ -111,8 +111,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         static ObserverBase()
         {
-            CollectionChangedEvent = typeof(INotifyCollectionChanged).GetEventEx("CollectionChanged", MemberFlags.Instance | MemberFlags.Public);
-            ValueChangedEvent = typeof(ISourceValue).GetEventEx("ValueChanged", MemberFlags.Instance | MemberFlags.Public);
+            CollectionChangedEvent = typeof(INotifyCollectionChanged).GetEventEx(nameof(INotifyCollectionChanged.CollectionChanged), MemberFlags.Instance | MemberFlags.Public);
+            ValueChangedEvent = typeof(ISourceValue).GetEventEx(nameof(ISourceValue.ValueChanged), MemberFlags.Instance | MemberFlags.Public);
             DisposedException = ExceptionManager.ObjectDisposed(typeof(ObserverBase));
             EmptyDisposable = new ActionToken(() => { });
             EmptySource = new BindingResourceObject(null);
@@ -120,8 +120,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         protected ObserverBase([NotNull] object source, [NotNull] IBindingPath path)
         {
-            Should.NotBeNull(source, "source");
-            Should.NotBeNull(path, "path");
+            Should.NotBeNull(source, nameof(source));
+            Should.NotBeNull(path, nameof(path));
             _path = path;
             if (source is ISourceValue)
                 _source = source;

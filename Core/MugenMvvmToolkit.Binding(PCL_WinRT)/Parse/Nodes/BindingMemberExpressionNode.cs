@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         private BindingMemberExpressionNode([NotNull] string paramName, int index)
             : base(ExpressionNodeType.BindingMember)
         {
-            Should.NotBeNull(paramName, "paramName");
+            Should.NotBeNull(paramName, nameof(paramName));
             _parameterName = paramName;
             _index = index;
         }
@@ -50,7 +50,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
             [NotNull] string paramName, int index)
             : this(paramName, index)
         {
-            Should.NotBeNull(relativeSource, "relativeSource");
+            Should.NotBeNull(relativeSource, nameof(relativeSource));
             _relativeSourceExpression = relativeSource;
             _path = relativeSource.Path;
         }
@@ -58,7 +58,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         public BindingMemberExpressionNode([NotNull] string path, [NotNull] string paramName, int index)
             : this(paramName, index)
         {
-            Should.NotBeNull(path, "path");
+            Should.NotBeNull(path, nameof(path));
             _path = path;
         }
 
@@ -66,8 +66,8 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
             [NotNull] string paramName, int index)
             : this(paramName, index)
         {
-            Should.NotBeNull(resourceName, "resourceName");
-            Should.NotBeNull(path, "path");
+            Should.NotBeNull(resourceName, nameof(resourceName));
+            Should.NotBeNull(path, nameof(path));
             _resourceName = resourceName;
             _path = path;
             _isDynamic = true;

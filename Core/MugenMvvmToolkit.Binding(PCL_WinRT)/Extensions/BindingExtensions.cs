@@ -335,8 +335,8 @@ namespace MugenMvvmToolkit.Binding
             string eventName, IEventListener listener,
             IDataContext context = null)
         {
-            Should.NotBeNull(eventManager, "eventManager");
-            Should.NotBeNull(target, "target");
+            Should.NotBeNull(eventManager, nameof(eventManager));
+            Should.NotBeNull(target, nameof(target));
             EventInfo @event = target.GetType().GetEventEx(eventName, MemberFlags.Instance | MemberFlags.Public);
             if (@event == null)
                 throw BindingExceptionManager.MissingEvent(target, eventName);
@@ -345,7 +345,7 @@ namespace MugenMvvmToolkit.Binding
 
         public static void Handle<TSender, TMessage>(this IEventListener listener, TSender sender, TMessage message)
         {
-            Should.NotBeNull(listener, "listener");
+            Should.NotBeNull(listener, nameof(listener));
             listener.TryHandle(sender, message);
         }
 
@@ -372,14 +372,14 @@ namespace MugenMvvmToolkit.Binding
             [NotNull] IAttachedBindingMemberInfo<TTarget, TType> member, bool rewrite = true)
             where TTarget : class
         {
-            Should.NotBeNull(memberProvider, "memberProvider");
+            Should.NotBeNull(memberProvider, nameof(memberProvider));
             memberProvider.Register(typeof(TTarget), path, member, rewrite);
         }
 
         public static BindingResourceObject AddObject([NotNull] this IBindingResourceResolver resolver, [NotNull] string name,
             object value, bool rewrite = true)
         {
-            Should.NotBeNull(resolver, "resolver");
+            Should.NotBeNull(resolver, nameof(resolver));
             var resourceObject = new BindingResourceObject(value);
             resolver.AddObject(name, resourceObject, rewrite);
             return resourceObject;
@@ -388,7 +388,7 @@ namespace MugenMvvmToolkit.Binding
         public static void AddType([NotNull] this IBindingResourceResolver resolver, [NotNull] Type type,
             bool rewrite = true)
         {
-            Should.NotBeNull(resolver, "resolver");
+            Should.NotBeNull(resolver, nameof(resolver));
             resolver.AddType(type.Name, type, rewrite);
             resolver.AddType(type.FullName, type, rewrite);
         }
@@ -396,8 +396,8 @@ namespace MugenMvvmToolkit.Binding
         public static void AddConverter([NotNull] this IBindingResourceResolver resolver,
             [NotNull] IBindingValueConverter converter, Type type = null, bool rewrite = true)
         {
-            Should.NotBeNull(resolver, "resolver");
-            Should.NotBeNull(converter, "converter");
+            Should.NotBeNull(resolver, nameof(resolver));
+            Should.NotBeNull(converter, nameof(converter));
             if (type == null)
                 type = converter.GetType();
             string name = RemoveTail(RemoveTail(RemoveTail(type.Name, "BindingValueConverter"), "ValueConverter"), "Converter");
@@ -409,7 +409,7 @@ namespace MugenMvvmToolkit.Binding
         public static void AddMethod<TArg1, TResult>([NotNull] this IBindingResourceResolver resolver,
             [NotNull] string name, [NotNull] Func<TArg1, IDataContext, TResult> method, bool rewrite = true)
         {
-            Should.NotBeNull(resolver, "resolver");
+            Should.NotBeNull(resolver, nameof(resolver));
             resolver.AddMethod(name,
                 new BindingResourceMethod(method.AsResourceMethodDelegate, typeof(TResult)), rewrite);
         }
@@ -417,7 +417,7 @@ namespace MugenMvvmToolkit.Binding
         public static void AddMethod<TArg1, TArg2, TResult>([NotNull] this IBindingResourceResolver resolver,
             [NotNull] string name, [NotNull] Func<TArg1, TArg2, IDataContext, TResult> method, bool rewrite = true)
         {
-            Should.NotBeNull(resolver, "resolver");
+            Should.NotBeNull(resolver, nameof(resolver));
             resolver.AddMethod(name,
                 new BindingResourceMethod(method.AsResourceMethodDelegate, typeof(TResult)), rewrite);
         }
@@ -425,7 +425,7 @@ namespace MugenMvvmToolkit.Binding
         public static IBindingContext GetBindingContext([NotNull] this IBindingContextManager contextManager,
             [NotNull] object target, [NotNull] string targetPath)
         {
-            Should.NotBeNull(contextManager, "contextManager");
+            Should.NotBeNull(contextManager, nameof(contextManager));
             if (BindingServiceProvider.DataContextMemberAliases.Contains(targetPath))
                 return new BindingContextWrapper(target);
             return contextManager.GetBindingContext(target);
@@ -434,7 +434,7 @@ namespace MugenMvvmToolkit.Binding
         [Pure]
         public static string GetMemberPath(Func<LambdaExpression> getExpression, string separator = ".")
         {
-            Should.NotBeNull(getExpression, "getExpression");
+            Should.NotBeNull(getExpression, nameof(getExpression));
             if (getExpression.HasClosure())
             {
                 LambdaExpression expression = getExpression();
@@ -562,7 +562,7 @@ namespace MugenMvvmToolkit.Binding
         public static object SetBindingMemberValue<TSource, TValue>([NotNull] this TSource source, BindingMemberDescriptor<TSource, TValue> member, TValue value)
             where TSource : class
         {
-            Should.NotBeNull(source, "source");
+            Should.NotBeNull(source, nameof(source));
             return BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(source.GetType(), member.Path, false, true)
@@ -572,7 +572,7 @@ namespace MugenMvvmToolkit.Binding
         public static object SetBindingMemberValue<TSource, TValue>([NotNull]this TSource source, BindingMemberDescriptor<TSource, TValue> member, object[] args)
             where TSource : class
         {
-            Should.NotBeNull(source, "source");
+            Should.NotBeNull(source, nameof(source));
             if (args == null)
                 args = NullValue;
             return BindingServiceProvider
@@ -625,9 +625,9 @@ namespace MugenMvvmToolkit.Binding
             where T : class
             where TBindingSet : BindingSet
         {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(bindingSet, "bindingSet");
-            Should.NotBeNull(bindings, "bindings");
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(bindingSet, nameof(bindingSet));
+            Should.NotBeNull(bindings, nameof(bindings));
             bindingSet.BindFromExpression(item, bindings, sources);
             return item;
         }
@@ -637,9 +637,9 @@ namespace MugenMvvmToolkit.Binding
             where T : class
             where TBindingSet : BindingSet
         {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(bindingSet, "bindingSet");
-            Should.NotBeNull(setBinding, "setBinding");
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(bindingSet, nameof(bindingSet));
+            Should.NotBeNull(setBinding, nameof(setBinding));
             setBinding(bindingSet, item);
             return item;
         }
@@ -689,7 +689,7 @@ namespace MugenMvvmToolkit.Binding
 
         public static bool IsAllMembersAvailable(this IBindingSourceAccessor accessor, bool checkLastMember = false)
         {
-            Should.NotBeNull(accessor, "accessor");
+            Should.NotBeNull(accessor, nameof(accessor));
             var s = accessor as ISingleBindingSourceAccessor;
             if (s != null)
                 return s.Source.IsAllMembersAvailable(checkLastMember);
@@ -1013,7 +1013,7 @@ namespace MugenMvvmToolkit.Binding
             where TSource : class
         {
             if (throwOnError)
-                Should.NotBeNull(source, "source");
+                Should.NotBeNull(source, nameof(source));
             else if (source == null)
             {
                 value = default(TValue);

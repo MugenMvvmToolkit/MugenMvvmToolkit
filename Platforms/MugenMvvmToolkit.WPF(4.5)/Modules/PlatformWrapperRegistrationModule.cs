@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.WPF.Modules
 
             public WindowViewWrapper(Window window)
             {
-                Should.NotBeNull(window, "window");
+                Should.NotBeNull(window, nameof(window));
                 _window = window;
             }
 

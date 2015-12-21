@@ -51,9 +51,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual void Register(object target, string path, IDataBinding binding, IDataContext context = null)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNull(path, "path");
-            Should.NotBeNull(binding, "binding");
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(path, nameof(path));
+            Should.NotBeNull(binding, nameof(binding));
             var dataBinding = binding as DataBinding;
             if (dataBinding == null)
             {
@@ -74,7 +74,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual bool IsRegistered(IDataBinding binding)
         {
-            Should.NotBeNull(binding, "binding");
+            Should.NotBeNull(binding, nameof(binding));
             var dataBinding = binding as DataBinding;
             if (dataBinding == null)
                 return ServiceProvider.AttachedValueProvider.GetValue<object>(binding, IsRegisteredMember, false) != null;
@@ -83,7 +83,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual ICollection<IDataBinding> GetBindings(object target, IDataContext context = null)
         {
-            Should.NotBeNull(target, "target");
+            Should.NotBeNull(target, nameof(target));
             return ServiceProvider
                 .AttachedValueProvider
                 .GetValues(target, GetBindingPredicateDelegate)
@@ -92,7 +92,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual ICollection<IDataBinding> GetBindings(object target, string path, IDataContext context = null)
         {
-            Should.NotBeNull(target, "target");
+            Should.NotBeNull(target, nameof(target));
             object value;
             if (ServiceProvider.AttachedValueProvider.TryGetValue(target, BindPrefix + path, out value))
                 return new[] { (IDataBinding)value };
@@ -101,7 +101,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual void Unregister(IDataBinding binding)
         {
-            Should.NotBeNull(binding, "binding");
+            Should.NotBeNull(binding, nameof(binding));
             object source = binding.TargetAccessor.Source.GetActualSource(false);
             string path = binding.TargetAccessor.Source.Path.Path;
             if (source != null && path != null)
@@ -110,7 +110,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual void ClearBindings(object target, IDataContext context = null)
         {
-            Should.NotBeNull(target, "target");
+            Should.NotBeNull(target, nameof(target));
             IAttachedValueProvider provider = ServiceProvider.AttachedValueProvider;
             var values = provider.GetValues(target, GetBindingPredicateDelegate);
             for (int index = 0; index < values.Count; index++)
@@ -123,7 +123,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual void ClearBindings(object target, string path, IDataContext context = null)
         {
-            Should.NotBeNull(target, "target");
+            Should.NotBeNull(target, nameof(target));
             path = BindPrefix + path;
             var binding = ServiceProvider.AttachedValueProvider.GetValue<IDataBinding>(target, path, false);
             if (binding != null)

@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         public UnaryExressionNode([NotNull] IExpressionNode operand, TokenType token)
             : base(ExpressionNodeType.Unary)
         {
-            Should.NotBeNull(operand, "operand");
+            Should.NotBeNull(operand, nameof(operand));
             _operand = operand;
             _token = token;
         }

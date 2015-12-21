@@ -210,7 +210,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
 
         public ToastPresenter([NotNull]IThreadManager threadManager)
         {
-            Should.NotBeNull(threadManager, "threadManager");
+            Should.NotBeNull(threadManager, nameof(threadManager));
             _threadManager = threadManager;
             Background = new SolidColorBrush(Color.FromArgb(255, 105, 105, 105));
             Foreground = new SolidColorBrush(Color.FromArgb(255, 247, 247, 247));
@@ -625,7 +625,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
                     verticalOffset = 50;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("position");
+                    throw new ArgumentOutOfRangeException(nameof(position));
             }
 
 #if WINDOWS_PHONE

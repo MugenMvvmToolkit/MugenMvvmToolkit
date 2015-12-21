@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
 
         public WindowNavigationService([NotNull] NavigationWindow window, bool useUrlNavigation)
         {
-            Should.NotBeNull(window, "window");
+            Should.NotBeNull(window, nameof(window));
             _window = window;
             _useUrlNavigation = useUrlNavigation;
             _window.Navigating += OnNavigating;
@@ -109,7 +109,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
 
         public string GetParameterFromArgs(EventArgs args)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             var cancelEventArgs = args as NavigatingCancelEventArgsWrapper;
             if (cancelEventArgs == null)
             {
@@ -123,7 +123,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
 
         public bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
-            Should.NotBeNull(source, "source");
+            Should.NotBeNull(source, nameof(source));
             var result = NavigateInternal(source, parameter);
             if (result)
                 ClearNavigationStackIfNeed(dataContext);
@@ -132,14 +132,14 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
 
         public bool CanClose(IViewModel viewModel, IDataContext dataContext)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             var content = CurrentContent;
             return content != null && ViewManager.GetDataContext(content) == viewModel && CanGoBack;
         }
 
         public bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             var result = NavigateInternal(args);
             if (result)
                 ClearNavigationStackIfNeed(dataContext);

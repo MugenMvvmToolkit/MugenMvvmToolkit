@@ -309,7 +309,7 @@ namespace MugenMvvmToolkit
 
         private static void Initialize(IMvvmApplication application)
         {
-            Should.NotBeNull(application, "application");
+            Should.NotBeNull(application, nameof(application));
             var iocContainer = application.IocContainer;
             TryInitialize(iocContainer, ref _tracer);
             TryInitialize(iocContainer, ref ReflectionManagerField);
@@ -353,7 +353,7 @@ namespace MugenMvvmToolkit
 
         private static object DefaultEntityFactoryMethod(Type type)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             ConstructorInfo constructor;
             lock (EntityConstructorInfos)
             {

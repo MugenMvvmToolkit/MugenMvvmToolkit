@@ -159,8 +159,8 @@ namespace MugenMvvmToolkit.Binding.Models
 
         private BindingMemberInfo(string path, BindingMemberType memberType, Type type)
         {
-            Should.NotBeNull(path, "path");
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(path, nameof(path));
+            Should.NotBeNull(type, nameof(type));
             _type = type;
             _memberType = memberType;
             _path = path;

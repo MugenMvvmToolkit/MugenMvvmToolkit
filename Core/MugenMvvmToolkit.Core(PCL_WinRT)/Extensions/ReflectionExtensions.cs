@@ -68,8 +68,8 @@ namespace MugenMvvmToolkit
 
             public WeakEventHandler(TTarget target, Action<TTarget, object, TArg> invokeAction, Delegate unsubscribeAction)
             {
-                Should.NotBeNull(target, "target");
-                Should.NotBeNull(invokeAction, "invokeAction");
+                Should.NotBeNull(target, nameof(target));
+                Should.NotBeNull(invokeAction, nameof(invokeAction));
                 _invokeAction = invokeAction;
                 _unsubscribeAction = unsubscribeAction;
                 _targetReference = ToolkitExtensions.GetWeakReference(target);
@@ -214,7 +214,7 @@ namespace MugenMvvmToolkit
             where TTarget : class
             where TResult : class
         {
-            Should.NotBeNull(createHandler, "createHandler");
+            Should.NotBeNull(createHandler, nameof(createHandler));
             var weakEventHandler = new WeakEventHandler<TTarget, TArg, TResult>(target, invokeAction, unsubscribeAction);
             var handler = createHandler(weakEventHandler);
             if (unsubscribeAction == null)
@@ -308,7 +308,7 @@ namespace MugenMvvmToolkit
 
         internal static object GetDataContext(object item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             var type = item.GetType();
             Func<object, object> func;
             lock (GetDataContextDelegateCache)
@@ -328,7 +328,7 @@ namespace MugenMvvmToolkit
 
         internal static bool SetDataContext(object item, object dataContext)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             var type = item.GetType();
             Action<object, object> setter;
             lock (SetDataContextDelegateCache)
@@ -349,7 +349,7 @@ namespace MugenMvvmToolkit
 
         public static IList<IModule> GetModules([NotNull] this IEnumerable<Assembly> assemblies, bool throwOnError)
         {
-            Should.NotBeNull(assemblies, "assemblies");
+            Should.NotBeNull(assemblies, nameof(assemblies));
             var modulesToLoad = new List<Type>();
             foreach (var assembly in SkipFrameworkAssemblies(assemblies))
             {
@@ -428,13 +428,13 @@ namespace MugenMvvmToolkit
 
         internal static AssemblyName GetAssemblyName(this Assembly assembly)
         {
-            Should.NotBeNull(assembly, "assembly");
+            Should.NotBeNull(assembly, nameof(assembly));
             return new AssemblyName(assembly.FullName);
         }
 
         internal static Attribute[] GetAttributes([NotNull] this MemberInfo member)
         {
-            Should.NotBeNull(member, "member");
+            Should.NotBeNull(member, nameof(member));
             Attribute[] attributes;
             lock (CachedAttributes)
             {
@@ -452,7 +452,7 @@ namespace MugenMvvmToolkit
         [Pure]
         public static MemberInfo GetMemberInfo([NotNull] this Func<LambdaExpression> getExpression)
         {
-            Should.NotBeNull(getExpression, "getExpression");
+            Should.NotBeNull(getExpression, nameof(getExpression));
             if (getExpression.HasClosure())
             {
                 LambdaExpression expression = getExpression();
@@ -473,7 +473,7 @@ namespace MugenMvvmToolkit
 
         internal static MemberInfo GetMemberInfo([NotNull] this LambdaExpression expression)
         {
-            Should.NotBeNull(expression, "expression");
+            Should.NotBeNull(expression, nameof(expression));
             // Get the last element of the include path
             var unaryExpression = expression.Body as UnaryExpression;
             if (unaryExpression != null)
@@ -550,7 +550,7 @@ namespace MugenMvvmToolkit
 
         internal static void DisposeCommands(IViewModel item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             Func<object, ICommand>[] list;
             lock (TypesToCommandsProperties)
             {
@@ -606,7 +606,7 @@ namespace MugenMvvmToolkit
                         if (@interface.GetGenericTypeDefinition() != typeof(IViewModelAwareView<>)) continue;
                         if (result != null)
                             throw ExceptionManager.DuplicateInterface("view", "IViewModelAwareView<>", viewType);
-                        result = ServiceProvider.ReflectionManager.GetMemberSetter<IViewModel>(@interface.GetPropertyEx("ViewModel", MemberFlags.Public | MemberFlags.Instance));
+                        result = ServiceProvider.ReflectionManager.GetMemberSetter<IViewModel>(@interface.GetPropertyEx(nameof(IViewModelAwareView<IViewModel>.ViewModel), MemberFlags.Public | MemberFlags.Instance));
                     }
                     ViewToViewModelInterface[viewType] = result;
                 }
@@ -630,7 +630,7 @@ namespace MugenMvvmToolkit
                         if (@interface.GetGenericTypeDefinition() != typeof(IViewAwareViewModel<>)) continue;
                         if (result != null)
                             throw ExceptionManager.DuplicateInterface("view model", "IViewAwareViewModel<>", viewModelType);
-                        result = @interface.GetPropertyEx("View", MemberFlags.Public | MemberFlags.Instance);
+                        result = @interface.GetPropertyEx(nameof(IViewAwareViewModel<object>.View), MemberFlags.Public | MemberFlags.Instance);
                     }
                     ViewModelToViewInterface[viewModelType] = result;
                 }
@@ -707,7 +707,7 @@ namespace MugenMvvmToolkit
         [CanBeNull]
         public static MethodInfo GetMethodEx([NotNull] this Type type, string name, Type[] types, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             foreach (var method in type.GetMethodsEx(flags))
             {
                 if (method.Name != name)
@@ -769,7 +769,7 @@ namespace MugenMvvmToolkit
         [CanBeNull]
         public static PropertyInfo GetPropertyEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             foreach (var property in type.GetRuntimeProperties())
             {
                 if (property.Name == name && FilterProperty(property, flags))
@@ -791,7 +791,7 @@ namespace MugenMvvmToolkit
         [NotNull]
         public static ICollection<PropertyInfo> GetPropertiesEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var list = new List<PropertyInfo>();
             while (type != null)
             {
@@ -809,7 +809,7 @@ namespace MugenMvvmToolkit
         [CanBeNull]
         public static FieldInfo GetFieldEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             foreach (var field in type.GetRuntimeFields())
             {
                 if (field.Name == name && FilterField(field, flags))
@@ -831,7 +831,7 @@ namespace MugenMvvmToolkit
         [NotNull]
         public static ICollection<FieldInfo> GetFieldsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var list = new List<FieldInfo>();
             while (type != null)
             {
@@ -849,7 +849,7 @@ namespace MugenMvvmToolkit
         [CanBeNull]
         public static MethodInfo GetMethodEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             MethodInfo result = null;
             foreach (var method in type.GetMethodsEx(flags))
             {
@@ -866,7 +866,7 @@ namespace MugenMvvmToolkit
         [NotNull]
         public static ICollection<MethodInfo> GetMethodsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var list = new List<MethodInfo>();
             while (type != null)
             {
@@ -884,7 +884,7 @@ namespace MugenMvvmToolkit
         [CanBeNull]
         public static EventInfo GetEventEx(this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             foreach (var @event in type.GetRuntimeEvents())
             {
                 if (@event.Name == name && FilterMethod(@event.AddMethod ?? @event.RemoveMethod, flags))
@@ -906,7 +906,7 @@ namespace MugenMvvmToolkit
         [CanBeNull]
         public static ConstructorInfo GetConstructor([NotNull] this Type type, Type[] types)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             foreach (ConstructorInfo constructor in type.GetTypeInfo().DeclaredConstructors)
             {
                 if (constructor.IsStatic)
@@ -931,7 +931,7 @@ namespace MugenMvvmToolkit
 
         internal static bool IsDefined(this Type type, Type attributeType, bool inherit)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             return type.GetTypeInfo().IsDefined(attributeType, inherit);
         }
 
@@ -944,14 +944,14 @@ namespace MugenMvvmToolkit
 
         internal static bool IsAssignableFrom([NotNull] this Type typeFrom, [NotNull] Type typeTo)
         {
-            Should.NotBeNull(typeFrom, "typeFrom");
-            Should.NotBeNull(typeTo, "typeTo");
+            Should.NotBeNull(typeFrom, nameof(typeFrom));
+            Should.NotBeNull(typeTo, nameof(typeTo));
             return typeFrom.GetTypeInfo().IsAssignableFrom(typeTo.GetTypeInfo());
         }
 
         internal static IEnumerable<Type> GetInterfaces([NotNull] this Type type)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             return type.GetTypeInfo().ImplementedInterfaces;
         }
 
@@ -1015,14 +1015,14 @@ namespace MugenMvvmToolkit
 #else
         public static MethodInfo GetMethodInfo([NotNull] this Delegate del)
         {
-            Should.NotBeNull(del, "del");
+            Should.NotBeNull(del, nameof(del));
             return del.Method;
         }
 
         [CanBeNull]
         public static PropertyInfo GetPropertyEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var bindingFlags = flags.ToBindingFlags(false);
             var property = type.GetProperty(name, bindingFlags | BindingFlags.FlattenHierarchy);
             if (property != null || !flags.HasMemberFlag(MemberFlags.NonPublic))
@@ -1041,7 +1041,7 @@ namespace MugenMvvmToolkit
         [NotNull]
         public static ICollection<PropertyInfo> GetPropertiesEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var bindingFlags = flags.ToBindingFlags(false);
             if (flags.HasMemberFlag(MemberFlags.NonPublic))
             {
@@ -1060,7 +1060,7 @@ namespace MugenMvvmToolkit
         [CanBeNull]
         public static FieldInfo GetFieldEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var bindingFlags = flags.ToBindingFlags(false);
             var field = type.GetField(name, bindingFlags | BindingFlags.FlattenHierarchy);
             if (field != null || !flags.HasMemberFlag(MemberFlags.NonPublic))
@@ -1079,7 +1079,7 @@ namespace MugenMvvmToolkit
         [NotNull]
         public static ICollection<FieldInfo> GetFieldsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var bindingFlags = flags.ToBindingFlags(false);
             if (flags.HasMemberFlag(MemberFlags.NonPublic))
             {
@@ -1098,7 +1098,7 @@ namespace MugenMvvmToolkit
         [CanBeNull]
         public static MethodInfo GetMethodEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var bindingFlags = flags.ToBindingFlags(false);
             var method = type.GetMethod(name, bindingFlags | BindingFlags.FlattenHierarchy);
             if (method != null || !flags.HasMemberFlag(MemberFlags.NonPublic))
@@ -1117,7 +1117,7 @@ namespace MugenMvvmToolkit
         [NotNull]
         public static ICollection<MethodInfo> GetMethodsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var bindingFlags = flags.ToBindingFlags(false);
             if (flags.HasMemberFlag(MemberFlags.NonPublic))
             {
@@ -1136,7 +1136,7 @@ namespace MugenMvvmToolkit
         [CanBeNull]
         public static EventInfo GetEventEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var bindingFlags = flags.ToBindingFlags(false);
             var @event = type.GetEvent(name, bindingFlags | BindingFlags.FlattenHierarchy);
             if (@event != null || !flags.HasMemberFlag(MemberFlags.NonPublic))

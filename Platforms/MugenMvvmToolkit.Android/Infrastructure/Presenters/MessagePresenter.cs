@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
 
         public MessagePresenter(IThreadManager threadManager)
         {
-            Should.NotBeNull(threadManager, "threadManager");
+            Should.NotBeNull(threadManager, nameof(threadManager));
             _threadManager = threadManager;
         }
 
@@ -146,7 +146,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
                         (sender, args) => tcs.TrySetResult(MessageResult.Cancel));
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("button");
+                    throw new ArgumentOutOfRangeException(nameof(button));
             }
             int? drawable = GetIconResource(icon);
             if (drawable != null)

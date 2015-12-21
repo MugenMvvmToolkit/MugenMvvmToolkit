@@ -138,7 +138,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                     var argExpressions = ConvertParameters(method.GetParameters(), parameters, hasParams);
                     parameters.Insert(0, Expression.Parameter(type));
                     var compile = Expression.Lambda(Expression.Call(parameters[0], method, argExpressions), parameters.Cast<ParameterExpression>()).Compile();
-                    var methodInfo = compile.GetType().GetMethodEx("Invoke", MemberFlags.Public | MemberFlags.Instance);
+                    var methodInfo = compile.GetType().GetMethodEx(nameof(Action.Invoke), MemberFlags.Public | MemberFlags.Instance);
                     if (methodInfo == null)
                         result = compile.DynamicInvoke;
                     else
@@ -256,26 +256,26 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         static CompiledExpressionInvoker()
         {
-            StringConcatMethod = typeof(string).GetMethodEx("Concat", new[] { typeof(object), typeof(object) }, MemberFlags.Public | MemberFlags.Static);
-            ProxyMethod = typeof(CompiledExpressionInvoker).GetMethodEx("InvokeDynamicMethod", MemberFlags.Instance | MemberFlags.NonPublic);
+            StringConcatMethod = typeof(string).GetMethodEx(nameof(string.Concat), new[] { typeof(object), typeof(object) }, MemberFlags.Public | MemberFlags.Static);
+            ProxyMethod = typeof(CompiledExpressionInvoker).GetMethodEx(nameof(InvokeDynamicMethod), MemberFlags.Instance | MemberFlags.NonPublic);
             DataContextParameter = Expression.Parameter(typeof(IDataContext), "dataContext");
-            BindingMemberGetValueMethod = typeof(IBindingMemberInfo).GetMethodEx("GetValue", new[] { typeof(object), typeof(object[]) }, MemberFlags.Public | MemberFlags.Instance);
-            GetMemberValueDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx("GetMemberValueDynamic", MemberFlags.Static | MemberFlags.NonPublic);
-            GetIndexValueDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx("GetIndexValueDynamic", MemberFlags.Static | MemberFlags.NonPublic);
-            InvokeMemberDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx("InvokeMemberDynamic", MemberFlags.Static | MemberFlags.NonPublic);
-            EqualsMethod = typeof(object).GetMethodEx("Equals", MemberFlags.Public | MemberFlags.Static);
+            BindingMemberGetValueMethod = typeof(IBindingMemberInfo).GetMethodEx(nameof(IBindingMemberInfo.GetValue), new[] { typeof(object), typeof(object[]) }, MemberFlags.Public | MemberFlags.Instance);
+            GetMemberValueDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx(nameof(GetMemberValueDynamic), MemberFlags.Static | MemberFlags.NonPublic);
+            GetIndexValueDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx(nameof(GetIndexValueDynamic), MemberFlags.Static | MemberFlags.NonPublic);
+            InvokeMemberDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx(nameof(InvokeMemberDynamic), MemberFlags.Static | MemberFlags.NonPublic);
+            EqualsMethod = typeof(object).GetMethodEx(nameof(Equals), MemberFlags.Public | MemberFlags.Static);
             EmptyObjectArrayExpression = Expression.Constant(Empty.Array<object>(), typeof(object[]));
             SupportCoalesceExpression = true;
-            Should.BeSupported(BindingMemberGetValueMethod != null, "BindingMemberGetValueMethod");
-            Should.BeSupported(GetMemberValueDynamicMethod != null, "GetMemberValueDynamicMethod");
-            Should.BeSupported(GetIndexValueDynamicMethod != null, "GetIndexValueDynamicMethod");
-            Should.BeSupported(InvokeMemberDynamicMethod != null, "InvokeMemberDynamicMethod");
-            Should.BeSupported(EqualsMethod != null, "EqualsMethod");
+            Should.BeSupported(BindingMemberGetValueMethod != null, nameof(BindingMemberGetValueMethod));
+            Should.BeSupported(GetMemberValueDynamicMethod != null, nameof(GetMemberValueDynamicMethod));
+            Should.BeSupported(GetIndexValueDynamicMethod != null, nameof(GetIndexValueDynamicMethod));
+            Should.BeSupported(InvokeMemberDynamicMethod != null, nameof(InvokeMemberDynamicMethod));
+            Should.BeSupported(EqualsMethod != null, nameof(EqualsMethod));
         }
 
         public CompiledExpressionInvoker([NotNull] IExpressionNode node, bool isEmpty)
         {
-            Should.NotBeNull(node, "node");
+            Should.NotBeNull(node, nameof(node));
             _node = node;
             _isEmpty = isEmpty;
             _expressionCache = new Dictionary<CacheKey, Func<object[], object>>(CacheKeyComparer.Instance);
@@ -429,7 +429,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             var @delegate = ExpressionReflectionManager
                 .CreateLambdaExpression(expression, Parameters.OrderBy(pair => pair.Key).Select(pair => pair.Value).ToArray())
                 .Compile();
-            var methodInfo = @delegate.GetType().GetMethodEx("Invoke", MemberFlags.Public | MemberFlags.Instance);
+            var methodInfo = @delegate.GetType().GetMethodEx(nameof(Action.Invoke), MemberFlags.Public | MemberFlags.Instance);
             if (methodInfo == null)
                 return @delegate.DynamicInvoke;
 
@@ -559,7 +559,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             if (_lambdaParameter == null)
                 throw BindingExceptionManager.UnexpectedExpressionNode(lambdaExpression);
 
-            var method = _lambdaParameter.ParameterType.GetMethodEx("Invoke", MemberFlags.Instance | MemberFlags.Public);
+            var method = _lambdaParameter.ParameterType.GetMethodEx(nameof(Action.Invoke), MemberFlags.Instance | MemberFlags.Public);
             if (method == null)
                 throw BindingExceptionManager.UnexpectedExpressionNode(lambdaExpression);
 

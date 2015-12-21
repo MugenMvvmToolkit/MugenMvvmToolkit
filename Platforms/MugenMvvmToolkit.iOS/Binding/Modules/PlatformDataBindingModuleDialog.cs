@@ -33,8 +33,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
 
         private static void RegisterDialogMembers(IBindingMemberProvider memberProvider)
         {
-            BindingBuilderExtensions.RegisterDefaultBindingMember<Element>(() => e => e.Caption);
-            memberProvider.Register(AttachedBindingMember.CreateMember<Element, string>("Caption",
+            BindingBuilderExtensions.RegisterDefaultBindingMember<Element>(nameof(Element.Caption));
+            memberProvider.Register(AttachedBindingMember.CreateMember<Element, string>(nameof(Element.Caption),
                 (info, element) => element.Caption,
                 (info, element, arg3) =>
                 {
@@ -44,14 +44,14 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateMember<Element, object>(AttachedMemberConstants.ParentExplicit,
                 (info, element) => element.Parent, null));
 
-            BindingBuilderExtensions.RegisterDefaultBindingMember<EntryElement>(() => e => e.Value);
-            IBindingMemberInfo member = memberProvider.GetBindingMember(typeof(EntryElement), "Changed", true, false);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<EntryElement>(nameof(EntryElement.Value));
+            IBindingMemberInfo member = memberProvider.GetBindingMember(typeof(EntryElement), nameof(EntryElement.Changed), true, false);
             if (member != null)
                 memberProvider.Register(AttachedBindingMember.CreateEvent<EntryElement>("ValueChanged",
                     (info, element, arg3) => member.TryObserve(element, arg3)));
 
-            BindingBuilderExtensions.RegisterDefaultBindingMember<StringElement>(() => e => e.Value);
-            memberProvider.Register(AttachedBindingMember.CreateMember<StringElement, string>("Value",
+            BindingBuilderExtensions.RegisterDefaultBindingMember<StringElement>(nameof(StringElement.Value));
+            memberProvider.Register(AttachedBindingMember.CreateMember<StringElement, string>(nameof(StringElement.Value),
                 (info, element) => element.Value,
                 (info, element, arg3) =>
                 {

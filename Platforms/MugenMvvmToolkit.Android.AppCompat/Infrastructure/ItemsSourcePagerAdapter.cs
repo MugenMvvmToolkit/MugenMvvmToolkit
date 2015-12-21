@@ -64,7 +64,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
 
         public ItemsSourcePagerAdapter([NotNull] ViewPager viewPager)
         {
-            Should.NotBeNull(viewPager, "viewPager");
+            Should.NotBeNull(viewPager, nameof(viewPager));
             _viewPager = viewPager;
             _fragmentManager = viewPager.GetFragmentManager();
             _itemTemplateProvider = new DataTemplateProvider(viewPager, AttachedMemberConstants.ItemTemplate, AttachedMemberConstants.ItemTemplateSelector);

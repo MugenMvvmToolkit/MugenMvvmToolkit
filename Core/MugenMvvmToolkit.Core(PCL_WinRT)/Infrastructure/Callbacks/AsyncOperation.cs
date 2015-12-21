@@ -59,13 +59,13 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         public void SetResult([NotNull] IOperationResult<TResult> result)
         {
-            Should.NotBeNull(result, "result");
+            Should.NotBeNull(result, nameof(result));
             ((IAsyncOperationInternal)this).SetResult(result, true);
         }
 
         public bool TrySetResult([NotNull] IOperationResult<TResult> result)
         {
-            Should.NotBeNull(result, "result");
+            Should.NotBeNull(result, nameof(result));
             return ((IAsyncOperationInternal)this).SetResult(result, false);
         }
 

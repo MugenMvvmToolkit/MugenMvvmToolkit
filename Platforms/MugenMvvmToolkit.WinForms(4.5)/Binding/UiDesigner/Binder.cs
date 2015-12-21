@@ -56,7 +56,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
         public Binder([NotNull] IContainer container)
             : this()
         {
-            Should.NotBeNull(container, "container");
+            Should.NotBeNull(container, nameof(container));
             container.Add(this);
         }
 
@@ -126,7 +126,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
                 XElement xElement = XElement.Parse(bindingsString);
                 XElement element = xElement.Name == RootTagName ? xElement : xElement.Element(RootTagName);
                 if (element == null)
-                    throw new ArgumentException($"The root tag: {RootTagName} is not found.", "bindingsString");
+                    throw new ArgumentException($"The root tag: {RootTagName} is not found.", nameof(bindingsString));
                 foreach (XElement descendant in element.Descendants())
                     UpdateControlBinding(descendant);
             }

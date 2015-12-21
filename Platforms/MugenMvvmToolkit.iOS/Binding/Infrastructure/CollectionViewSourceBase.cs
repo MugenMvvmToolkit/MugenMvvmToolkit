@@ -61,7 +61,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         protected CollectionViewSourceBase([NotNull] UICollectionView collectionView,
             string itemTemplate = AttachedMemberConstants.ItemTemplate)
         {
-            Should.NotBeNull(collectionView, "collectionView");
+            Should.NotBeNull(collectionView, nameof(collectionView));
             _collectionView = PlatformExtensions.CreateWeakReference(collectionView);
             _itemTemplateProvider = new DataTemplateProvider(collectionView, itemTemplate);
             var controllerView = collectionView.FindParent<IViewControllerView>();

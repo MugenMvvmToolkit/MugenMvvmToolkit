@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         public NavigationOperation(Task task)
         {
-            Should.NotBeNull(task, "task");
+            Should.NotBeNull(task, nameof(task));
             _task = task;
         }
 

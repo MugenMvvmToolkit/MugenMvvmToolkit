@@ -30,8 +30,8 @@ namespace MugenMvvmToolkit.WinRT.Binding
 
         public static void ShowAtEx([NotNull] this FlyoutBase flyoutBase, [NotNull] FrameworkElement placementTarget)
         {
-            Should.NotBeNull(flyoutBase, "flyoutBase");
-            Should.NotBeNull(placementTarget, "placementTarget");
+            Should.NotBeNull(flyoutBase, nameof(flyoutBase));
+            Should.NotBeNull(placementTarget, nameof(placementTarget));
             var flyout = flyoutBase as Flyout;
             if (flyout == null)
             {

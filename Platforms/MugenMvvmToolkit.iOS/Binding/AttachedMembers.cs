@@ -79,14 +79,14 @@ namespace MugenMvvmToolkit.iOS.Binding
             {
                 Content = new BindingMemberDescriptor<UIKit.UIView, object>(AttachedMemberConstants.Content);
                 ContentTemplateSelector = new BindingMemberDescriptor<UIKit.UIView, IDataTemplateSelector>(AttachedMemberConstants.ContentTemplateSelector);
-                ContentViewManager = new BindingMemberDescriptor<UIKit.UIView, IContentViewManager>("ContentViewManager");
+                ContentViewManager = new BindingMemberDescriptor<UIKit.UIView, IContentViewManager>(nameof(ContentViewManager));
 
                 ItemsSource = new BindingMemberDescriptor<UIKit.UIView, IEnumerable>(AttachedMemberConstants.ItemsSource);
                 ItemsSourceGenerator = new BindingMemberDescriptor<UIKit.UIView, IItemsSourceGenerator>(ItemsSourceGeneratorBase.MemberDescriptor);
                 ItemTemplateSelector = new BindingMemberDescriptor<UIKit.UIView, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
-                CollectionViewManager = new BindingMemberDescriptor<UIKit.UIView, ICollectionViewManager>("CollectionViewManager");
+                CollectionViewManager = new BindingMemberDescriptor<UIKit.UIView, ICollectionViewManager>(nameof(CollectionViewManager));
 
-                Visible = new BindingMemberDescriptor<UIKit.UIView, bool>("Visible");
+                Visible = new BindingMemberDescriptor<UIKit.UIView, bool>(nameof(Visible));
             }
 
             #endregion
@@ -123,8 +123,8 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             static UIButton()
             {
-                Title = new BindingMemberDescriptor<UIKit.UIButton, string>("Title");
-                State = new BindingMemberDescriptor<UIKit.UIButton, UIControlState>("State");
+                Title = new BindingMemberDescriptor<UIKit.UIButton, string>(nameof(Title));
+                State = new BindingMemberDescriptor<UIKit.UIButton, UIControlState>(nameof(State));
             }
 
             #endregion
@@ -142,7 +142,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             static UIDatePicker()
             {
-                Date = new BindingMemberDescriptor<UIKit.UIDatePicker, DateTime>("Date");
+                Date = new BindingMemberDescriptor<UIKit.UIDatePicker, DateTime>(nameof(Date));
             }
 
             #endregion
@@ -160,7 +160,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             static UISwitch()
             {
-                On = new BindingMemberDescriptor<UIKit.UISwitch, bool>("On");
+                On = new BindingMemberDescriptor<UIKit.UISwitch, bool>(nameof(On));
             }
 
             #endregion
@@ -214,7 +214,7 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             static UILabel()
             {
-                TextSizeToFit = new BindingMemberDescriptor<UIKit.UILabel, string>("TextSizeToFit");
+                TextSizeToFit = new BindingMemberDescriptor<UIKit.UILabel, string>(nameof(TextSizeToFit));
             }
 
             #endregion
@@ -245,14 +245,14 @@ namespace MugenMvvmToolkit.iOS.Binding
                 ItemTemplateSelector = new BindingMemberDescriptor<UIKit.UITableView, ITableCellTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
                 SelectedItem = new BindingMemberDescriptor<UIKit.UITableView, object>(AttachedMemberConstants.SelectedItem);
                 SelectedItemChangedEvent = new BindingMemberDescriptor<UIKit.UITableView, IEventListener>("SelectedItemChanged");
-                ReadOnly = new BindingMemberDescriptor<UIKit.UITableView, bool>("ReadOnly");
-                UseAnimations = new BindingMemberDescriptor<UIKit.UITableView, bool?>("UseAnimations");
-                CellBind = new BindingMemberDescriptor<UIKit.UITableView, Action<UIKit.UITableViewCell>>("CellBind");
-                AddAnimation = new BindingMemberDescriptor<UIKit.UITableView, UITableViewRowAnimation?>("AddAnimation");
-                RemoveAnimation = new BindingMemberDescriptor<UIKit.UITableView, UITableViewRowAnimation?>("RemoveAnimation");
-                ReplaceAnimation = new BindingMemberDescriptor<UIKit.UITableView, UITableViewRowAnimation?>("ReplaceAnimation");
-                ScrollPosition = new BindingMemberDescriptor<UIKit.UITableView, UITableViewScrollPosition?>("ScrollPosition");
-                CellStyle = new BindingMemberDescriptor<UIKit.UITableView, UITableViewCellStyle?>("CellStyle");
+                ReadOnly = new BindingMemberDescriptor<UIKit.UITableView, bool>(nameof(ReadOnly));
+                UseAnimations = new BindingMemberDescriptor<UIKit.UITableView, bool?>(nameof(UseAnimations));
+                CellBind = new BindingMemberDescriptor<UIKit.UITableView, Action<UIKit.UITableViewCell>>(nameof(CellBind));
+                AddAnimation = new BindingMemberDescriptor<UIKit.UITableView, UITableViewRowAnimation?>(nameof(AddAnimation));
+                RemoveAnimation = new BindingMemberDescriptor<UIKit.UITableView, UITableViewRowAnimation?>(nameof(RemoveAnimation));
+                ReplaceAnimation = new BindingMemberDescriptor<UIKit.UITableView, UITableViewRowAnimation?>(nameof(ReplaceAnimation));
+                ScrollPosition = new BindingMemberDescriptor<UIKit.UITableView, UITableViewScrollPosition?>(nameof(ScrollPosition));
+                CellStyle = new BindingMemberDescriptor<UIKit.UITableView, UITableViewCellStyle?>(nameof(CellStyle));
             }
 
             #endregion
@@ -284,14 +284,14 @@ namespace MugenMvvmToolkit.iOS.Binding
                 AccessoryButtonTappedEvent = new BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener>("AccessoryButtonTapped");
                 DeleteClickEvent = new BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener>("DeleteClick");
                 InsertClickEvent = new BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener>("InsertClick");
-                Moveable = new BindingMemberDescriptor<UIKit.UITableViewCell, bool?>("Moveable");
-                TitleForDeleteConfirmation = new BindingMemberDescriptor<UIKit.UITableViewCell, string>("TitleForDeleteConfirmation");
-                EditingStyle = new BindingMemberDescriptor<UIKit.UITableViewCell, UITableViewCellEditingStyle?>("EditingStyle");
-                ShouldHighlight = new BindingMemberDescriptor<UIKit.UITableViewCell, bool?>("ShouldHighlight");
-                Selected = new BindingMemberDescriptor<UIKit.UITableViewCell, bool?>("Selected");
-                Highlighted = new BindingMemberDescriptor<UIKit.UITableViewCell, bool>("Highlighted");
-                Editing = new BindingMemberDescriptor<UIKit.UITableViewCell, bool>("Editing");
-                ClickEvent = new BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener>("ClickEvent");
+                Moveable = new BindingMemberDescriptor<UIKit.UITableViewCell, bool?>(nameof(Moveable));
+                TitleForDeleteConfirmation = new BindingMemberDescriptor<UIKit.UITableViewCell, string>(nameof(TitleForDeleteConfirmation));
+                EditingStyle = new BindingMemberDescriptor<UIKit.UITableViewCell, UITableViewCellEditingStyle?>(nameof(EditingStyle));
+                ShouldHighlight = new BindingMemberDescriptor<UIKit.UITableViewCell, bool?>(nameof(ShouldHighlight));
+                Selected = new BindingMemberDescriptor<UIKit.UITableViewCell, bool?>(nameof(Selected));
+                Highlighted = new BindingMemberDescriptor<UIKit.UITableViewCell, bool>(nameof(Highlighted));
+                Editing = new BindingMemberDescriptor<UIKit.UITableViewCell, bool>(nameof(Editing));
+                ClickEvent = new BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener>("Click");
             }
 
             #endregion
@@ -316,8 +316,8 @@ namespace MugenMvvmToolkit.iOS.Binding
                 ItemTemplateSelector = new BindingMemberDescriptor<UIKit.UICollectionView, ICollectionCellTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
                 SelectedItem = new BindingMemberDescriptor<UIKit.UICollectionView, object>(AttachedMemberConstants.SelectedItem);
                 SelectedItemChangedEvent = new BindingMemberDescriptor<UIKit.UICollectionView, IEventListener>("SelectedItemChanged");
-                UseAnimations = new BindingMemberDescriptor<UIKit.UICollectionView, bool?>("UseAnimations");
-                ScrollPosition = new BindingMemberDescriptor<UIKit.UICollectionView, UICollectionViewScrollPosition?>("ScrollPosition");
+                UseAnimations = new BindingMemberDescriptor<UIKit.UICollectionView, bool?>(nameof(UseAnimations));
+                ScrollPosition = new BindingMemberDescriptor<UIKit.UICollectionView, UICollectionViewScrollPosition?>(nameof(ScrollPosition));
             }
 
             #endregion
@@ -340,12 +340,12 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             static UICollectionViewCell()
             {
-                ShouldSelect = new BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?>("ShouldSelect");
-                ShouldDeselect = new BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?>("ShouldDeselect");
-                ShouldHighlight = new BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?>("ShouldHighlight");
-                Selected = new BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?>("Selected");
-                Highlighted = new BindingMemberDescriptor<UIKit.UICollectionViewCell, bool>("Highlighted");
-                ClickEvent = new BindingMemberDescriptor<UIKit.UICollectionViewCell, IEventListener>("ClickEvent");
+                ShouldSelect = new BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?>(nameof(ShouldSelect));
+                ShouldDeselect = new BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?>(nameof(ShouldDeselect));
+                ShouldHighlight = new BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?>(nameof(ShouldHighlight));
+                Selected = new BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?>(nameof(Selected));
+                Highlighted = new BindingMemberDescriptor<UIKit.UICollectionViewCell, bool>(nameof(Highlighted));
+                ClickEvent = new BindingMemberDescriptor<UIKit.UICollectionViewCell, IEventListener>("Click");
             }
 
             #endregion
@@ -365,7 +365,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             static UIPickerView()
             {
                 SelectedItem = new BindingMemberDescriptor<UIKit.UIPickerView, object>(AttachedMemberConstants.SelectedItem);
-                DisplayMemberPath = new BindingMemberDescriptor<UIKit.UIPickerView, string>("DisplayMemberPath");
+                DisplayMemberPath = new BindingMemberDescriptor<UIKit.UIPickerView, string>(nameof(DisplayMemberPath));
             }
 
             #endregion
@@ -386,10 +386,10 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             static UIViewController()
             {
-                ToolbarItemsSourceGenerator = new BindingMemberDescriptor<UIKit.UIViewController, IItemsSourceGenerator>("Toolbar" + ItemsSourceGeneratorBase.MemberDescriptor);
-                ToolbarItemTemplateSelector = new BindingMemberDescriptor<UIKit.UIViewController, IDataTemplateSelector>("ToolbarItemTemplateSelector");
-                ToolbarItemsSource = new BindingMemberDescriptor<UIKit.UIViewController, IEnumerable>("ToolbarItemsSource");
-                ToastTemplateSelector = new BindingMemberDescriptor<UIKit.UIViewController, IDataTemplateSelector>("ToastTemplateSelector");
+                ToolbarItemsSourceGenerator = new BindingMemberDescriptor<UIKit.UIViewController, IItemsSourceGenerator>(nameof(ToolbarItemsSourceGenerator));
+                ToolbarItemTemplateSelector = new BindingMemberDescriptor<UIKit.UIViewController, IDataTemplateSelector>(nameof(ToolbarItemTemplateSelector));
+                ToolbarItemsSource = new BindingMemberDescriptor<UIKit.UIViewController, IEnumerable>(nameof(ToolbarItemsSource));
+                ToastTemplateSelector = new BindingMemberDescriptor<UIKit.UIViewController, IDataTemplateSelector>(nameof(ToastTemplateSelector));
             }
 
             #endregion
@@ -434,8 +434,8 @@ namespace MugenMvvmToolkit.iOS.Binding
 
             static UISplitViewController()
             {
-                MasterView = new BindingMemberDescriptor<UIKit.UISplitViewController, UIKit.UIViewController>("MasterView");
-                DetailView = new BindingMemberDescriptor<UIKit.UISplitViewController, UIKit.UIViewController>("DetailView");
+                MasterView = new BindingMemberDescriptor<UIKit.UISplitViewController, UIKit.UIViewController>(nameof(MasterView));
+                DetailView = new BindingMemberDescriptor<UIKit.UISplitViewController, UIKit.UIViewController>(nameof(DetailView));
             }
 
             #endregion

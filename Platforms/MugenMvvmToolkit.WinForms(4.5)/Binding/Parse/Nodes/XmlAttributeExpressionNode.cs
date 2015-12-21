@@ -37,8 +37,8 @@ namespace MugenMvvmToolkit.WinForms.Binding.Parse.Nodes
         public XmlAttributeExpressionNode([NotNull] XmlValueExpressionNode name, XmlValueExpressionNode equal, [NotNull] XmlValueExpressionNode value, int start, int end)
             : base(start, end)
         {
-            Should.NotBeNull(name, "name");
-            Should.NotBeNull(value, "value");
+            Should.NotBeNull(name, nameof(name));
+            Should.NotBeNull(value, nameof(value));
             Name = name;
             Equal = equal;
             Value = value;

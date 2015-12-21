@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         public DynamicMultiViewModelPresenter([NotNull] IMultiViewModel multiViewModel,
             IOperationCallbackManager callbackManager = null, Func<IViewModel, IDataContext, IViewModelPresenter, bool> canShowViewModel = null)
         {
-            Should.NotBeNull(multiViewModel, "multiViewModel");
+            Should.NotBeNull(multiViewModel, nameof(multiViewModel));
             _multiViewModel = multiViewModel;
             _callbackManager = callbackManager ?? multiViewModel.GetIocContainer(true).Get<IOperationCallbackManager>();
             _canShowViewModel = canShowViewModel;
@@ -102,7 +102,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         public virtual INavigationOperation TryShowAsync(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             if (ReferenceEquals(viewModel, _multiViewModel))
                 return null;
             bool data;

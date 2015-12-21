@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         {
             if (uriParameters == null)
                 return uri;
-            Should.NotBeNull(uri, "uri");
+            Should.NotBeNull(uri, nameof(uri));
             return BuildQueryString(uri, uriParameters);
         }
 

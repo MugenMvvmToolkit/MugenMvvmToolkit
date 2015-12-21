@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.WinForms.Controls
 
         public ToastMessageControl([NotNull] string message, Color backgroundColor, Color foregroundColor, Color? glowColor)
         {
-            Should.NotBeNull(message, "message");
+            Should.NotBeNull(message, nameof(message));
             _message = message;
             _backgroundColor = backgroundColor;
             _foregroundColor = foregroundColor;

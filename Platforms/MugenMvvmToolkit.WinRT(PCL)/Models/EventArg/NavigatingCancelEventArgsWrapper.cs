@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.WinRT.Models.EventArg
 
         public NavigatingCancelEventArgsWrapper([NotNull] NavigatingCancelEventArgs args, string parameter, bool bringToFront)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             _args = args;
             _parameter = parameter;
             _bringToFront = bringToFront;

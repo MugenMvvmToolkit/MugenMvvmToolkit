@@ -45,7 +45,7 @@ namespace MugenMvvmToolkit.Models
         public ViewMappingItem(Type viewModelType, Type viewType, string name, Uri uri)
         {
             Should.BeOfType<IViewModel>(viewModelType, "viewModelType");
-            Should.NotBeNull(viewType, "viewType");
+            Should.NotBeNull(viewType, nameof(viewType));
             _viewModelType = viewModelType;
             _viewType = viewType;
             _name = name;

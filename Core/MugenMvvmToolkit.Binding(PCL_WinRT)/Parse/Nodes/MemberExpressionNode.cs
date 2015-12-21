@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         public MemberExpressionNode(IExpressionNode target, [NotNull] string member)
             : base(ExpressionNodeType.Member)
         {
-            Should.NotBeNull(member, "member");
+            Should.NotBeNull(member, nameof(member));
             _target = target;
             _member = member;
         }

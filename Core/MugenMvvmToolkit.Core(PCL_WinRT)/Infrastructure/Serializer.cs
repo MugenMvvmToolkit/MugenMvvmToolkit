@@ -69,7 +69,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public Stream Serialize(object item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             if (_knownTypes.Add(item.GetType()))
                 _contractSerializer = new DataContractSerializer(typeof(DataContainer), _knownTypes);
             item = new DataContainer { Data = item };
@@ -80,7 +80,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public object Deserialize(Stream stream)
         {
-            Should.NotBeNull(stream, "stream");
+            Should.NotBeNull(stream, nameof(stream));
             return ((DataContainer)_contractSerializer.ReadObject(stream)).Data;
         }
 

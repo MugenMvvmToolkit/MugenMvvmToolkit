@@ -79,7 +79,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
             public void Add(IDynamicViewModelPresenter item)
             {
-                Should.NotBeNull(item, "item");
+                Should.NotBeNull(item, nameof(item));
                 _list.Add(item);
                 _presenter.OnDynamicPresenterAdded(item);
             }
@@ -104,7 +104,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
             public bool Remove(IDynamicViewModelPresenter item)
             {
-                Should.NotBeNull(item, "item");
+                Should.NotBeNull(item, nameof(item));
                 var remove = _list.Remove(item);
                 if (remove)
                     _presenter.OnDynamicPresenterRemoved(item);
@@ -154,7 +154,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         public virtual INavigationOperation ShowAsync(IViewModel viewModel, IDataContext context)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             if (context == null)
                 context = DataContext.Empty;
             var presenters = _dynamicPresenters.ToArrayEx();
@@ -173,7 +173,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         public virtual void Restore(IViewModel viewModel, IDataContext context)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             if (context == null)
                 context = DataContext.Empty;
             var presenters = _dynamicPresenters.ToArrayEx();

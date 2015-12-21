@@ -237,10 +237,10 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                             view.RequestFocus();
                         else
                             view.ClearFocus();
-                    }, "FocusChange"));
+                    }, nameof(View.FocusChange)));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, bool>(AttachedMemberConstants.Enabled,
                     (info, view) => view.Enabled, (info, view, value) => view.Enabled = value));
-            memberProvider.Register(AttachedBindingMember.CreateMember<View, ViewStates>("Visibility",
+            memberProvider.Register(AttachedBindingMember.CreateMember<View, ViewStates>(nameof(View.Visibility),
                 (info, view) => view.Visibility, (info, view, value) => view.Visibility = value,
                 ObserveViewVisibility));
             memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.View.Visible,

@@ -60,8 +60,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             CreateInvalidaDataBindingDelegate = CreateInvalidaDataBinding;
             FormatMembersExpressionDelegate = FormatMembersExpression;
-            ProviderConstant = DataConstant.Create(() => ProviderConstant, true);
-            ExceptionConstant = DataConstant.Create(() => ExceptionConstant, true);
+            var type = typeof(BindingProvider);
+            ProviderConstant = DataConstant.Create<BindingProvider>(type, nameof(ProviderConstant), true);
+            ExceptionConstant = DataConstant.Create<Exception>(type, nameof(ExceptionConstant), true);
             BehaviorComparer = new DelegateComparer<IBindingBehavior>((behavior, bindingBehavior) => bindingBehavior.Priority.CompareTo(behavior.Priority));
         }
 
@@ -113,8 +114,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public IList<IBindingBuilder> CreateBuildersFromString(object target, string bindingExpression, IList<object> sources = null, IDataContext context = null)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNull(bindingExpression, "bindingExpression");
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(bindingExpression, nameof(bindingExpression));
             try
             {
                 var parserResult = Parser.Parse(target, bindingExpression, sources, context);
@@ -141,8 +142,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public IList<IDataBinding> CreateBindingsFromString(object target, string bindingExpression, IList<object> sources = null, IDataContext context = null)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNull(bindingExpression, "bindingExpression");
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(bindingExpression, nameof(bindingExpression));
             try
             {
                 IList<IDataContext> parserResult = Parser.Parse(target, bindingExpression, sources, context);
@@ -162,17 +163,17 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public void BuildFromLambdaExpression(IBindingBuilder builder, Func<LambdaExpression> expression)
         {
-            Should.NotBeNull(builder, "builder");
-            Should.NotBeNull(expression, "expression");
+            Should.NotBeNull(builder, nameof(builder));
+            Should.NotBeNull(expression, nameof(expression));
             BuildFromLambdaExpressionInternal(builder, expression);
         }
 
         public void BuildParameterFromLambdaExpression<TValue>(IBindingBuilder builder, Func<LambdaExpression> expression,
             DataConstant<Func<IDataContext, TValue>> parameterConstant)
         {
-            Should.NotBeNull(builder, "builder");
-            Should.NotBeNull(expression, "expression");
-            Should.NotBeNull(parameterConstant, "parameterConstant");
+            Should.NotBeNull(builder, nameof(builder));
+            Should.NotBeNull(expression, nameof(expression));
+            Should.NotBeNull(parameterConstant, nameof(parameterConstant));
             BuildParameterFromLambdaExpressionInternal(builder, expression, parameterConstant);
         }
 

@@ -134,7 +134,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         protected TableViewSourceBase([NotNull] UITableView tableView,
             string itemTemplate = AttachedMemberConstants.ItemTemplate)
         {
-            Should.NotBeNull(tableView, "tableView");
+            Should.NotBeNull(tableView, nameof(tableView));
             _tableView = ServiceProvider.WeakReferenceFactory(tableView);
             _templateProvider = new DataTemplateProvider(tableView, itemTemplate);
             var controllerView = tableView.FindParent<IViewControllerView>();

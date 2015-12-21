@@ -143,16 +143,16 @@ namespace MugenMvvmToolkit.iOS
             [NotNull] Action<T, TParent> showAction)
             where T : UIActionSheet
         {
-            Should.NotBeNull(actionSheet, "actionSheet");
-            Should.NotBeNull(showAction, "showAction");
+            Should.NotBeNull(actionSheet, nameof(actionSheet));
+            Should.NotBeNull(showAction, nameof(showAction));
             ParentObserver.GetOrAdd(actionSheet).Parent = parent;
             showAction(actionSheet, parent);
         }
 
         public static void AddButtonWithBinding(this UIActionSheet actionSheet, string title, [NotNull] string bindingExpression, IList<object> sources = null)
         {
-            Should.NotBeNull(actionSheet, "actionSheet");
-            Should.NotBeNull(bindingExpression, "bindingExpression");
+            Should.NotBeNull(actionSheet, nameof(actionSheet));
+            Should.NotBeNull(bindingExpression, nameof(bindingExpression));
             if (IsOS8)
                 actionSheet.AddButtonOS8(title, bindingExpression, sources);
             else
@@ -161,7 +161,7 @@ namespace MugenMvvmToolkit.iOS
 
         public static void SetInputViewEx([NotNull] this UITextField textField, UIView view)
         {
-            Should.NotBeNull(textField, "textField");
+            Should.NotBeNull(textField, nameof(textField));
             textField.InputView = view;
             if (view != null)
                 ParentObserver.GetOrAdd(view).Parent = textField;
@@ -169,7 +169,7 @@ namespace MugenMvvmToolkit.iOS
 
         public static void SetNavigationParameter([NotNull] this UIViewController controller, object value)
         {
-            Should.NotBeNull(controller, "controller");
+            Should.NotBeNull(controller, nameof(controller));
             if (value == null)
                 ServiceProvider.AttachedValueProvider.Clear(controller, NavParamKey);
             else
@@ -186,19 +186,19 @@ namespace MugenMvvmToolkit.iOS
         public static void SetCellBind([NotNull] this UITableView tableView,
             [CanBeNull] Action<UITableViewCell> bindAction)
         {
-            Should.NotBeNull(tableView, "tableView");
+            Should.NotBeNull(tableView, nameof(tableView));
             tableView.SetBindingMemberValue(AttachedMembers.UITableView.CellBind, bindAction);
         }
 
         public static void SetCellStyle([NotNull] this UITableView tableView, UITableViewCellStyle style)
         {
-            Should.NotBeNull(tableView, "tableView");
+            Should.NotBeNull(tableView, nameof(tableView));
             tableView.SetBindingMemberValue(AttachedMembers.UITableView.CellStyle, style);
         }
 
         public static UITableViewCell CellAtEx(this UITableView tableView, NSIndexPath indexPath)
         {
-            Should.NotBeNull(tableView, "tableView");
+            Should.NotBeNull(tableView, nameof(tableView));
             var sourceBase = tableView.Source as TableViewSourceBase;
             if (sourceBase == null)
                 return tableView.CellAt(indexPath);
@@ -207,7 +207,7 @@ namespace MugenMvvmToolkit.iOS
 
         public static NSIndexPath IndexPathForCellEx(this UITableView tableView, UITableViewCell cell)
         {
-            Should.NotBeNull(tableView, "tableView");
+            Should.NotBeNull(tableView, nameof(tableView));
             var sourceBase = tableView.Source as TableViewSourceBase;
             if (sourceBase == null)
                 return tableView.IndexPathForCell(cell);
@@ -216,7 +216,7 @@ namespace MugenMvvmToolkit.iOS
 
         public static UICollectionViewCell CellForItemEx(this UICollectionView collectionView, NSIndexPath indexPath)
         {
-            Should.NotBeNull(collectionView, "collectionView");
+            Should.NotBeNull(collectionView, nameof(collectionView));
             var sourceBase = collectionView.Source as CollectionViewSourceBase;
             if (sourceBase == null)
                 return collectionView.CellForItem(indexPath);
@@ -225,7 +225,7 @@ namespace MugenMvvmToolkit.iOS
 
         public static NSIndexPath IndexPathForCellEx(this UICollectionView collectionView, UICollectionViewCell cell)
         {
-            Should.NotBeNull(collectionView, "collectionView");
+            Should.NotBeNull(collectionView, nameof(collectionView));
             var sourceBase = collectionView.Source as CollectionViewSourceBase;
             if (sourceBase == null)
                 return collectionView.IndexPathForCell(cell);
@@ -234,14 +234,14 @@ namespace MugenMvvmToolkit.iOS
 
         public static void SetEditingStyle([NotNull]this UITableViewCell cell, UITableViewCellEditingStyle editingStyle)
         {
-            Should.NotBeNull(cell, "cell");
+            Should.NotBeNull(cell, nameof(cell));
             cell.SetBindingMemberValue(AttachedMembers.UITableViewCell.EditingStyle, editingStyle);
         }
 
         public static void SetToolbarItemsEx([NotNull] this UIViewController controller, UIBarButtonItem[] items,
             bool? animated = null)
         {
-            Should.NotBeNull(controller, "controller");
+            Should.NotBeNull(controller, nameof(controller));
             SetParent(items, controller);
             if (animated == null)
                 controller.ToolbarItems = items;
@@ -251,7 +251,7 @@ namespace MugenMvvmToolkit.iOS
 
         public static void SetItemsEx([NotNull] this UIToolbar toolbar, UIBarButtonItem[] items, bool? animated = null)
         {
-            Should.NotBeNull(toolbar, "toolbar");
+            Should.NotBeNull(toolbar, nameof(toolbar));
             SetParent(items, toolbar);
             if (animated == null)
                 toolbar.Items = items;
@@ -263,7 +263,7 @@ namespace MugenMvvmToolkit.iOS
             where T : INativeObject
             where TItem : class
         {
-            Should.NotBeNull(container, "container");
+            Should.NotBeNull(container, nameof(container));
             item.SetBindingMemberValue(AttachedMembers.Object.Parent, container);
             setAction(container, item);
         }
@@ -272,7 +272,7 @@ namespace MugenMvvmToolkit.iOS
             where T : INativeObject
             where TItem : class
         {
-            Should.NotBeNull(container, "container");
+            Should.NotBeNull(container, nameof(container));
             SetParent(items, container);
             setAction(container, items);
         }
@@ -284,49 +284,49 @@ namespace MugenMvvmToolkit.iOS
 
         public static void AddEx([NotNull] this UIViewController controller, UIView view)
         {
-            Should.NotBeNull(controller, "controller");
+            Should.NotBeNull(controller, nameof(controller));
             controller.Add(view);
             view.RaiseParentChanged();
         }
 
         public static void AddEx([NotNull] this UIView parent, UIView view)
         {
-            Should.NotBeNull(parent, "parent");
+            Should.NotBeNull(parent, nameof(parent));
             parent.Add(view);
             view.RaiseParentChanged();
         }
 
         public static void AddSubviewEx([NotNull] this UIView parent, UIView view)
         {
-            Should.NotBeNull(parent, "parent");
+            Should.NotBeNull(parent, nameof(parent));
             parent.AddSubview(view);
             view.RaiseParentChanged();
         }
 
         public static void AddSubviewsEx([NotNull] this UIView parent, params UIView[] subViews)
         {
-            Should.NotBeNull(parent, "parent");
+            Should.NotBeNull(parent, nameof(parent));
             parent.AddSubviews(subViews);
             RaiseParentChanged(subViews);
         }
 
         public static void InsertSubviewEx([NotNull] this UIView parent, UIView view, int index)
         {
-            Should.NotBeNull(parent, "parent");
+            Should.NotBeNull(parent, nameof(parent));
             parent.InsertSubview(view, index);
             view.RaiseParentChanged();
         }
 
         public static void RemoveFromSuperviewEx([NotNull] this UIView view)
         {
-            Should.NotBeNull(view, "view");
+            Should.NotBeNull(view, nameof(view));
             view.RemoveFromSuperview();
             view.RaiseParentChanged(false);
         }
 
         public static void ClearSubViews(this UIView view)
         {
-            Should.NotBeNull(view, "view");
+            Should.NotBeNull(view, nameof(view));
             if (view.Subviews == null)
                 return;
             foreach (UIView subview in view.Subviews)
@@ -354,7 +354,7 @@ namespace MugenMvvmToolkit.iOS
 
         public static void InititalizeRestorationIdentifier([NotNull] this UIView view, bool checkRestoreMethodOverload = true)
         {
-            Should.NotBeNull(view, "view");
+            Should.NotBeNull(view, nameof(view));
             if (string.IsNullOrEmpty(view.RestorationIdentifier))
             {
                 var identifier = GenerateRestorationIdentifier(view, checkRestoreMethodOverload);
@@ -365,7 +365,7 @@ namespace MugenMvvmToolkit.iOS
 
         public static void InititalizeRestorationIdentifier([NotNull] this UIViewController controller, bool checkRestoreMethodOverload = true)
         {
-            Should.NotBeNull(controller, "controller");
+            Should.NotBeNull(controller, nameof(controller));
             if (string.IsNullOrEmpty(controller.RestorationIdentifier) && GetHasState(controller))
             {
                 var identifier = GenerateRestorationIdentifier(controller, checkRestoreMethodOverload);

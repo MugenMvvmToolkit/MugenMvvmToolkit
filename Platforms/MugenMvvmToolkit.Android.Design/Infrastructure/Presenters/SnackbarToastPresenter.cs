@@ -102,7 +102,7 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure.Presenters
 
         public SnackbarToastPresenter(IThreadManager threadManager, IToastPresenter defaultPresenter)
         {
-            Should.NotBeNull(threadManager, "threadManager");
+            Should.NotBeNull(threadManager, nameof(threadManager));
             _threadManager = threadManager;
             _defaultPresenter = defaultPresenter;
         }

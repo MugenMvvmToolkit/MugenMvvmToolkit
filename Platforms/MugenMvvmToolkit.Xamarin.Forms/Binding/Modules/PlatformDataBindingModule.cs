@@ -38,25 +38,25 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
 
         private static void Register(IBindingMemberProvider memberProvider)
         {
-            BindingBuilderExtensions.RegisterDefaultBindingMember<Entry>(() => t => t.Text);
-            BindingBuilderExtensions.RegisterDefaultBindingMember<Label>(() => t => t.Text);
-            BindingBuilderExtensions.RegisterDefaultBindingMember<Button>("Clicked");
-            BindingBuilderExtensions.RegisterDefaultBindingMember<ToolbarItem>("Clicked");
-            BindingBuilderExtensions.RegisterDefaultBindingMember<ListView>(() => c => c.ItemsSource);
-            BindingBuilderExtensions.RegisterDefaultBindingMember<ProgressBar>(() => c => c.Progress);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<Entry>(nameof(Entry.Text));
+            BindingBuilderExtensions.RegisterDefaultBindingMember<Label>(nameof(Label.Text));
+            BindingBuilderExtensions.RegisterDefaultBindingMember<Button>(nameof(Button.Clicked));
+            BindingBuilderExtensions.RegisterDefaultBindingMember<ToolbarItem>(nameof(ToolbarItem.Clicked));
+            BindingBuilderExtensions.RegisterDefaultBindingMember<ListView>(nameof(ListView.ItemsSource));
+            BindingBuilderExtensions.RegisterDefaultBindingMember<ProgressBar>(nameof(ProgressBar.Progress));
 
             //Element
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<Element, object>(AttachedMemberConstants.Parent, GetParentValue, SetParentValue, ObserveParentMember));
-            memberProvider.Register(typeof(Element), "BindingContext", BindingMemberProvider.BindingContextMember, true);
+            memberProvider.Register(typeof(Element), nameof(Element.BindingContext), BindingMemberProvider.BindingContextMember, true);
 
             //VisualElement
             var visibleMember = memberProvider.GetBindingMember(typeof(VisualElement),
                 ToolkitExtensions.GetMemberName<VisualElement>(() => element => element.IsVisible), true, false);
             if (visibleMember != null)
             {
-                memberProvider.Register(typeof(VisualElement), "Visible", visibleMember, true);
-                memberProvider.Register(AttachedBindingMember.CreateMember<VisualElement, bool>("Hidden",
+                memberProvider.Register(typeof(VisualElement), AttachedMembers.VisualElement.Visible, visibleMember, true);
+                memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.VisualElement.Hidden,
                     (info, element) => !element.IsVisible, (info, element, arg3) => element.IsVisible = !arg3,
                     (info, element, arg3) => visibleMember.TryObserve(element, arg3)));
             }
@@ -70,7 +70,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
                         element.Focus();
                     else
                         element.Unfocus();
-                }, (info, element, arg3) => BindingServiceProvider.WeakEventManager.Subscribe(element, "IsFocused", arg3)));
+                }, (info, element, arg3) => BindingServiceProvider.WeakEventManager.Subscribe(element, nameof(VisualElement.IsFocused), arg3)));
 
             var enabledMember = memberProvider.GetBindingMember(typeof(VisualElement),
                 ToolkitExtensions.GetMemberName<VisualElement>(() => element => element.IsEnabled), true, false);

@@ -154,8 +154,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public virtual Delegate TryCreateDelegate(Type delegateType, object target, MethodInfo method)
         {
-            Should.NotBeNull(delegateType, "delegateType");
-            Should.NotBeNull(method, "method");
+            Should.NotBeNull(delegateType, nameof(delegateType));
+            Should.NotBeNull(method, nameof(method));
             MethodInfo result;
             lock (CachedDelegates)
             {
@@ -181,7 +181,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public virtual Func<object[], object> GetActivatorDelegate(ConstructorInfo constructor)
         {
-            Should.NotBeNull(constructor, "constructor");
+            Should.NotBeNull(constructor, nameof(constructor));
             lock (ActivatorCache)
             {
                 Func<object[], object> value;
@@ -199,7 +199,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public virtual Func<object, object[], object> GetMethodDelegate(MethodInfo method)
         {
-            Should.NotBeNull(method, "method");
+            Should.NotBeNull(method, nameof(method));
             lock (InvokeMethodCache)
             {
                 Func<object, object[], object> value;
@@ -214,17 +214,17 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public virtual Delegate GetMethodDelegate(Type delegateType, MethodInfo method)
         {
-            Should.NotBeNull(delegateType, "delegateType");
-            Should.NotBeNull(method, "method");
+            Should.NotBeNull(delegateType, nameof(delegateType));
+            Should.NotBeNull(method, nameof(method));
             lock (InvokeMethodCacheDelegate)
             {
                 var cacheKey = new MethodDelegateCacheKey(method, delegateType);
                 Delegate value;
                 if (!InvokeMethodCacheDelegate.TryGetValue(cacheKey, out value))
                 {
-                    MethodInfo delegateMethod = delegateType.GetMethodEx("Invoke");
+                    MethodInfo delegateMethod = delegateType.GetMethodEx(nameof(Action.Invoke));
                     if (delegateMethod == null)
-                        throw new ArgumentException(string.Empty, "delegateType");
+                        throw new ArgumentException(string.Empty, nameof(delegateType));
 
                     var delegateParams = delegateMethod.GetParameters().ToList();
                     ParameterInfo[] methodParams = method.GetParameters();
@@ -267,7 +267,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public virtual Func<object, TType> GetMemberGetter<TType>(MemberInfo member)
         {
-            Should.NotBeNull(member, "member");
+            Should.NotBeNull(member, nameof(member));
             lock (MemberAccessCache)
             {
                 Delegate value;
@@ -293,7 +293,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public virtual Action<object, TType> GetMemberSetter<TType>(MemberInfo member)
         {
-            Should.NotBeNull(member, "member");
+            Should.NotBeNull(member, nameof(member));
             lock (MemberSetterCache)
             {
                 Delegate action;
@@ -360,7 +360,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 return null;
 
             ParameterInfo[] mParameters = method.GetParameters();
-            ParameterInfo[] eParameters = eventHandlerType.GetMethodEx("Invoke").GetParameters();
+            ParameterInfo[] eParameters = eventHandlerType.GetMethodEx(nameof(Action.Invoke)).GetParameters();
             if (mParameters.Length != eParameters.Length)
                 return null;
             if (method.IsGenericMethodDefinition)

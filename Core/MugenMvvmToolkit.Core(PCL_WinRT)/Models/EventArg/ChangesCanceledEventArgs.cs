@@ -33,7 +33,7 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         public ChangesCanceledEventArgs([NotNull]object entity)
         {
-            Should.NotBeNull(entity, "entity");
+            Should.NotBeNull(entity, nameof(entity));
             _entity = entity;
         }
 

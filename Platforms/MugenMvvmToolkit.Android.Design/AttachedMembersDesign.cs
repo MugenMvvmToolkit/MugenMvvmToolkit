@@ -45,9 +45,9 @@ namespace MugenMvvmToolkit.Android.Design
 
             static Activity()
             {
-                SnackbarView = new BindingMemberDescriptor<global::Android.App.Activity, View>("SnackbarView");
-                SnackbarViewSelector = new BindingMemberDescriptor<global::Android.App.Activity, Func<object, ToastPosition, IDataContext, View>>("SnackbarViewSelector");
-                SnackbarTemplateSelector = new BindingMemberDescriptor<global::Android.App.Activity, IDataTemplateSelector>("SnackbarTemplateSelector");
+                SnackbarView = new BindingMemberDescriptor<global::Android.App.Activity, View>(nameof(SnackbarView));
+                SnackbarViewSelector = new BindingMemberDescriptor<global::Android.App.Activity, Func<object, ToastPosition, IDataContext, View>>(nameof(SnackbarViewSelector));
+                SnackbarTemplateSelector = new BindingMemberDescriptor<global::Android.App.Activity, IDataTemplateSelector>(nameof(SnackbarTemplateSelector));
             }
 
             #endregion
@@ -65,7 +65,7 @@ namespace MugenMvvmToolkit.Android.Design
 
             static NavigationView()
             {
-                MenuTemplate = new BindingMemberDescriptor<global::Android.Support.Design.Widget.NavigationView, int>("MenuTemplate");
+                MenuTemplate = new BindingMemberDescriptor<global::Android.Support.Design.Widget.NavigationView, int>(nameof(MenuTemplate));
             }
 
             #endregion

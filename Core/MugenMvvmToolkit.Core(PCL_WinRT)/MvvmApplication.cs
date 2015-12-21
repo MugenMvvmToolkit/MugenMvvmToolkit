@@ -149,9 +149,9 @@ namespace MugenMvvmToolkit
 
         public void Initialize(PlatformInfo platform, IIocContainer iocContainer, IList<Assembly> assemblies, IDataContext context)
         {
-            Should.NotBeNull(platform, "platform");
-            Should.NotBeNull(iocContainer, "iocContainer");
-            Should.NotBeNull(assemblies, "assemblies");
+            Should.NotBeNull(platform, nameof(platform));
+            Should.NotBeNull(iocContainer, nameof(iocContainer));
+            Should.NotBeNull(assemblies, nameof(assemblies));
             if (_isInitialized)
                 return;
             _isInitialized = true;

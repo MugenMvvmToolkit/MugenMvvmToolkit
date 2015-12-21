@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit.Infrastructure
         public void InvokeOnUiThread(Action action, OperationPriority priority = OperationPriority.Normal,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(action, nameof(action));
             if (!cancellationToken.IsCancellationRequested)
                 action();
         }

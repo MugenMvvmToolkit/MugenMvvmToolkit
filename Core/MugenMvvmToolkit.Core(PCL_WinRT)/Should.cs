@@ -77,7 +77,7 @@ namespace MugenMvvmToolkit
         [DebuggerStepThrough]
         public static void BeOfType(object instance, string paramName, Type requiredType)
         {
-            NotBeNull(instance, "instance");
+            NotBeNull(instance, nameof(instance));
             BeOfType(instance.GetType(), paramName, requiredType);
         }
 
@@ -90,8 +90,8 @@ namespace MugenMvvmToolkit
         [DebuggerStepThrough]
         public static void BeOfType(Type type, string paramName, Type requiredType)
         {
-            NotBeNull(type, "type");
-            NotBeNull(requiredType, "requiredType");
+            NotBeNull(type, nameof(type));
+            NotBeNull(requiredType, nameof(requiredType));
             if (!requiredType.IsAssignableFrom(type))
                 throw new ArgumentException($"Type '{type.Name}' should be of type '{requiredType.Name}', but is not", paramName);
         }
@@ -126,14 +126,14 @@ namespace MugenMvvmToolkit
         [DebuggerStepThrough]
         public static void BeValid(string paramName, [NotNull] Func<bool> validation)
         {
-            NotBeNull(validation, "validation");
+            NotBeNull(validation, nameof(validation));
             BeValid(paramName, validation());
         }
 
         [DebuggerStepThrough]
         public static void BeValid<T>(T paramValue, string paramName, [NotNull] Func<T, bool> validation)
         {
-            NotBeNull(validation, "validation");
+            NotBeNull(validation, nameof(validation));
             BeValid(paramName, validation(paramValue));
         }
 
@@ -161,7 +161,7 @@ namespace MugenMvvmToolkit
         [DebuggerStepThrough]
         public static void NotBeDisposed(this IDisposableObject disposableObject)
         {
-            NotBeNull(disposableObject, "disposableObject");
+            NotBeNull(disposableObject, nameof(disposableObject));
             if (disposableObject.IsDisposed)
                 throw ExceptionManager.ObjectDisposed(disposableObject.GetType());
         }

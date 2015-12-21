@@ -39,16 +39,16 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public WeakActionTokenInternal(Action<TTarget> action, TTarget target)
             {
-                Should.NotBeNull(action, "action");
-                Should.NotBeNull(target, "target");
+                Should.NotBeNull(action, nameof(action));
+                Should.NotBeNull(target, nameof(target));
                 _action = action;
                 _target = GetWeakReference(target);
             }
 
             public WeakActionTokenInternal(Action<TTarget, TArg1> action, TTarget target, TArg1 arg1)
             {
-                Should.NotBeNull(action, "action");
-                Should.NotBeNull(target, "target");
+                Should.NotBeNull(action, nameof(action));
+                Should.NotBeNull(target, nameof(target));
                 _action = action;
                 _target = new object[]
                 {
@@ -60,8 +60,8 @@ namespace MugenMvvmToolkit.Infrastructure
             public WeakActionTokenInternal(Action<TTarget, TArg1, TArg2> action, TTarget target, TArg1 arg1,
                 TArg2 arg2)
             {
-                Should.NotBeNull(action, "action");
-                Should.NotBeNull(target, "target");
+                Should.NotBeNull(action, nameof(action));
+                Should.NotBeNull(target, nameof(target));
                 _action = action;
                 _target = new object[]
                 {

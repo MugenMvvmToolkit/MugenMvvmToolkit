@@ -171,7 +171,7 @@ namespace MugenMvvmToolkit.Models
                     {
                         Type @interface = interfaces[index];
                         Type typeMessage = @interface.GetGenericArguments()[0];
-                        MethodInfo method = @interface.GetMethodEx("Handle");
+                        MethodInfo method = @interface.GetMethodEx(nameof(IHandler<object>.Handle));
                         if (typeMessage.IsAssignableFrom(key.MessageType))
                             items.Add(ServiceProvider.ReflectionManager.GetMethodDelegate(method));
                     }

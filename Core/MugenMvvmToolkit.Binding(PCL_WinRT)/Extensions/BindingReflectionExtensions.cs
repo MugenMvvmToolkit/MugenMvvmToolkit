@@ -107,8 +107,8 @@ namespace MugenMvvmToolkit.Binding
 
         internal static Func<object, object> GetGetPropertyAccessor(this PropertyInfo propertyInfo, MethodInfo getMethod, string path)
         {
-            Should.NotBeNull(propertyInfo, "propertyInfo");
-            Should.NotBeNull(getMethod, "getMethod");
+            Should.NotBeNull(propertyInfo, nameof(propertyInfo));
+            Should.NotBeNull(getMethod, nameof(getMethod));
             ParameterInfo[] indexParameters = propertyInfo.GetIndexParameters();
             if (indexParameters.Length == 0)
                 return ServiceProvider.ReflectionManager.GetMemberGetter<object>(propertyInfo);
@@ -121,8 +121,8 @@ namespace MugenMvvmToolkit.Binding
 
         internal static Action<object, object> GetSetPropertyAccessor(this PropertyInfo propertyInfo, MethodInfo setMethod, string path)
         {
-            Should.NotBeNull(propertyInfo, "propertyInfo");
-            Should.NotBeNull(setMethod, "setMethod");
+            Should.NotBeNull(propertyInfo, nameof(propertyInfo));
+            Should.NotBeNull(setMethod, nameof(setMethod));
             ParameterInfo[] indexParameters = propertyInfo.GetIndexParameters();
             if (indexParameters.Length == 0)
                 return ServiceProvider.ReflectionManager.GetMemberSetter<object>(propertyInfo);
@@ -627,7 +627,7 @@ namespace MugenMvvmToolkit.Binding
             if (!typeof(Delegate).IsAssignableFrom(parameterType))
                 return false;
 
-            var method = parameterType.GetMethodEx("Invoke", MemberFlags.Public | MemberFlags.Instance);
+            var method = parameterType.GetMethodEx(nameof(Action.Invoke), MemberFlags.Public | MemberFlags.Instance);
             if (method == null || method.GetParameters().Length != lambdaExpressionNode.Parameters.Count)
                 return false;
             return true;

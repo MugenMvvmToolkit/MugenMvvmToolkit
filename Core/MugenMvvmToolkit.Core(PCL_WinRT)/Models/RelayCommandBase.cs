@@ -194,7 +194,7 @@ namespace MugenMvvmToolkit.Models
 
         public bool AddNotifier(object item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             if (!HasCanExecuteImpl)
                 return false;
             lock (_notifiers)
@@ -211,7 +211,7 @@ namespace MugenMvvmToolkit.Models
 
         public bool RemoveNotifier(object item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             if (!HasCanExecuteImpl)
                 return false;
             lock (_notifiers)

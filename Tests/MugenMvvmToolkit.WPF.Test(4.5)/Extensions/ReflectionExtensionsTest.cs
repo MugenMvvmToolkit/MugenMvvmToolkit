@@ -90,19 +90,19 @@ namespace MugenMvvmToolkit.Test.Extensions
         public void TestGetPublicField()
         {
             typeof(ReflectionClass)
-                .GetFieldEx("PublicField", MemberFlags.Public | MemberFlags.Instance)
+                .GetFieldEx(nameof(ReflectionClass.PublicField), MemberFlags.Public | MemberFlags.Instance)
                 .ShouldNotBeNull();
             typeof(ReflectionClass)
-                .GetFieldEx("PublicField", MemberFlags.Public | MemberFlags.Instance | MemberFlags.Static | MemberFlags.NonPublic)
+                .GetFieldEx(nameof(ReflectionClass.PublicField), MemberFlags.Public | MemberFlags.Instance | MemberFlags.Static | MemberFlags.NonPublic)
                 .ShouldNotBeNull();
             typeof(ReflectionClass)
-                .GetFieldEx("PublicField", MemberFlags.NonPublic | MemberFlags.Instance)
+                .GetFieldEx(nameof(ReflectionClass.PublicField), MemberFlags.NonPublic | MemberFlags.Instance)
                 .ShouldBeNull();
             typeof(ReflectionClass)
-                .GetFieldEx("PublicField", MemberFlags.Public | MemberFlags.Static)
+                .GetFieldEx(nameof(ReflectionClass.PublicField), MemberFlags.Public | MemberFlags.Static)
                 .ShouldBeNull();
             typeof(ReflectionClass)
-                .GetFieldEx("PublicField", MemberFlags.NonPublic | MemberFlags.Static)
+                .GetFieldEx(nameof(ReflectionClass.PublicField), MemberFlags.NonPublic | MemberFlags.Static)
                 .ShouldBeNull();
         }
 
@@ -110,19 +110,19 @@ namespace MugenMvvmToolkit.Test.Extensions
         public void TestGetPublicFieldStatic()
         {
             typeof(ReflectionClass)
-                .GetFieldEx("PublicFieldSt", MemberFlags.Public | MemberFlags.Instance)
+                .GetFieldEx(nameof(ReflectionBaseClass.PublicFieldSt), MemberFlags.Public | MemberFlags.Instance)
                 .ShouldBeNull();
             typeof(ReflectionClass)
-                .GetFieldEx("PublicFieldSt", MemberFlags.Public | MemberFlags.Instance | MemberFlags.Static | MemberFlags.NonPublic)
+                .GetFieldEx(nameof(ReflectionBaseClass.PublicFieldSt), MemberFlags.Public | MemberFlags.Instance | MemberFlags.Static | MemberFlags.NonPublic)
                 .ShouldNotBeNull();
             typeof(ReflectionClass)
-                .GetFieldEx("PublicFieldSt", MemberFlags.NonPublic | MemberFlags.Instance)
+                .GetFieldEx(nameof(ReflectionBaseClass.PublicFieldSt), MemberFlags.NonPublic | MemberFlags.Instance)
                 .ShouldBeNull();
             typeof(ReflectionClass)
-                .GetFieldEx("PublicFieldSt", MemberFlags.Public | MemberFlags.Static)
+                .GetFieldEx(nameof(ReflectionBaseClass.PublicFieldSt), MemberFlags.Public | MemberFlags.Static)
                 .ShouldNotBeNull();
             typeof(ReflectionClass)
-                .GetFieldEx("PublicFieldSt", MemberFlags.NonPublic | MemberFlags.Static)
+                .GetFieldEx(nameof(ReflectionBaseClass.PublicFieldSt), MemberFlags.NonPublic | MemberFlags.Static)
                 .ShouldBeNull();
         }
 
@@ -210,19 +210,19 @@ namespace MugenMvvmToolkit.Test.Extensions
         public void TestGetPublicProperty()
         {
             typeof(ReflectionClass)
-                .GetPropertyEx("PublicProperty", MemberFlags.Public | MemberFlags.Instance)
+                .GetPropertyEx(nameof(ReflectionClass.PublicProperty), MemberFlags.Public | MemberFlags.Instance)
                 .ShouldNotBeNull();
             typeof(ReflectionClass)
-                .GetPropertyEx("PublicProperty", MemberFlags.Public | MemberFlags.Instance | MemberFlags.Static | MemberFlags.NonPublic)
+                .GetPropertyEx(nameof(ReflectionClass.PublicProperty), MemberFlags.Public | MemberFlags.Instance | MemberFlags.Static | MemberFlags.NonPublic)
                 .ShouldNotBeNull();
             typeof(ReflectionClass)
-                .GetPropertyEx("PublicProperty", MemberFlags.NonPublic | MemberFlags.Instance)
+                .GetPropertyEx(nameof(ReflectionClass.PublicProperty), MemberFlags.NonPublic | MemberFlags.Instance)
                 .ShouldBeNull();
             typeof(ReflectionClass)
-                .GetPropertyEx("PublicProperty", MemberFlags.Public | MemberFlags.Static)
+                .GetPropertyEx(nameof(ReflectionClass.PublicProperty), MemberFlags.Public | MemberFlags.Static)
                 .ShouldBeNull();
             typeof(ReflectionClass)
-                .GetPropertyEx("PublicProperty", MemberFlags.NonPublic | MemberFlags.Static)
+                .GetPropertyEx(nameof(ReflectionClass.PublicProperty), MemberFlags.NonPublic | MemberFlags.Static)
                 .ShouldBeNull();
         }
 
@@ -230,19 +230,19 @@ namespace MugenMvvmToolkit.Test.Extensions
         public void TestGetPublicPropertyStatic()
         {
             typeof(ReflectionClass)
-                .GetPropertyEx("PublicPropertySt", MemberFlags.Public | MemberFlags.Instance)
+                .GetPropertyEx(nameof(ReflectionBaseClass.PublicPropertySt), MemberFlags.Public | MemberFlags.Instance)
                 .ShouldBeNull();
             typeof(ReflectionClass)
-                .GetPropertyEx("PublicPropertySt", MemberFlags.Public | MemberFlags.Instance | MemberFlags.Static | MemberFlags.NonPublic)
+                .GetPropertyEx(nameof(ReflectionBaseClass.PublicPropertySt), MemberFlags.Public | MemberFlags.Instance | MemberFlags.Static | MemberFlags.NonPublic)
                 .ShouldNotBeNull();
             typeof(ReflectionClass)
-                .GetPropertyEx("PublicPropertySt", MemberFlags.NonPublic | MemberFlags.Instance)
+                .GetPropertyEx(nameof(ReflectionBaseClass.PublicPropertySt), MemberFlags.NonPublic | MemberFlags.Instance)
                 .ShouldBeNull();
             typeof(ReflectionClass)
-                .GetPropertyEx("PublicPropertySt", MemberFlags.Public | MemberFlags.Static)
+                .GetPropertyEx(nameof(ReflectionBaseClass.PublicPropertySt), MemberFlags.Public | MemberFlags.Static)
                 .ShouldNotBeNull();
             typeof(ReflectionClass)
-                .GetPropertyEx("PublicPropertySt", MemberFlags.NonPublic | MemberFlags.Static)
+                .GetPropertyEx(nameof(ReflectionBaseClass.PublicPropertySt), MemberFlags.NonPublic | MemberFlags.Static)
                 .ShouldBeNull();
         }
 
@@ -330,19 +330,19 @@ namespace MugenMvvmToolkit.Test.Extensions
         public void TestGetPublicEvent()
         {
             typeof(ReflectionClass)
-                .GetEventEx("PublicEvent", MemberFlags.Public | MemberFlags.Instance)
+                .GetEventEx(nameof(ReflectionClass.PublicEvent), MemberFlags.Public | MemberFlags.Instance)
                 .ShouldNotBeNull();
             typeof(ReflectionClass)
-                .GetEventEx("PublicEvent", MemberFlags.Public | MemberFlags.Instance | MemberFlags.Static | MemberFlags.NonPublic)
+                .GetEventEx(nameof(ReflectionClass.PublicEvent), MemberFlags.Public | MemberFlags.Instance | MemberFlags.Static | MemberFlags.NonPublic)
                 .ShouldNotBeNull();
             typeof(ReflectionClass)
-                .GetEventEx("PublicEvent", MemberFlags.NonPublic | MemberFlags.Instance)
+                .GetEventEx(nameof(ReflectionClass.PublicEvent), MemberFlags.NonPublic | MemberFlags.Instance)
                 .ShouldBeNull();
             typeof(ReflectionClass)
-                .GetEventEx("PublicEvent", MemberFlags.Public | MemberFlags.Static)
+                .GetEventEx(nameof(ReflectionClass.PublicEvent), MemberFlags.Public | MemberFlags.Static)
                 .ShouldBeNull();
             typeof(ReflectionClass)
-                .GetEventEx("PublicEvent", MemberFlags.NonPublic | MemberFlags.Static)
+                .GetEventEx(nameof(ReflectionClass.PublicEvent), MemberFlags.NonPublic | MemberFlags.Static)
                 .ShouldBeNull();
         }
 
@@ -350,19 +350,19 @@ namespace MugenMvvmToolkit.Test.Extensions
         public void TestGetPublicEventStatic()
         {
             typeof(ReflectionClass)
-                .GetEventEx("PublicEventSt", MemberFlags.Public | MemberFlags.Instance)
+                .GetEventEx(nameof(ReflectionBaseClass.PublicEventSt), MemberFlags.Public | MemberFlags.Instance)
                 .ShouldBeNull();
             typeof(ReflectionClass)
-                .GetEventEx("PublicEventSt", MemberFlags.Public | MemberFlags.Instance | MemberFlags.Static | MemberFlags.NonPublic)
+                .GetEventEx(nameof(ReflectionBaseClass.PublicEventSt), MemberFlags.Public | MemberFlags.Instance | MemberFlags.Static | MemberFlags.NonPublic)
                 .ShouldNotBeNull();
             typeof(ReflectionClass)
-                .GetEventEx("PublicEventSt", MemberFlags.NonPublic | MemberFlags.Instance)
+                .GetEventEx(nameof(ReflectionBaseClass.PublicEventSt), MemberFlags.NonPublic | MemberFlags.Instance)
                 .ShouldBeNull();
             typeof(ReflectionClass)
-                .GetEventEx("PublicEventSt", MemberFlags.Public | MemberFlags.Static)
+                .GetEventEx(nameof(ReflectionBaseClass.PublicEventSt), MemberFlags.Public | MemberFlags.Static)
                 .ShouldNotBeNull();
             typeof(ReflectionClass)
-                .GetEventEx("PublicEventSt", MemberFlags.NonPublic | MemberFlags.Static)
+                .GetEventEx(nameof(ReflectionBaseClass.PublicEventSt), MemberFlags.NonPublic | MemberFlags.Static)
                 .ShouldBeNull();
         }
 
@@ -450,19 +450,19 @@ namespace MugenMvvmToolkit.Test.Extensions
         public void TestGetPublicMethod()
         {
             typeof(ReflectionClass)
-                .GetMethodEx("PublicMethod", MemberFlags.Public | MemberFlags.Instance)
+                .GetMethodEx(nameof(ReflectionClass.PublicMethod), MemberFlags.Public | MemberFlags.Instance)
                 .ShouldNotBeNull();
             typeof(ReflectionClass)
-                .GetMethodEx("PublicMethod", MemberFlags.Public | MemberFlags.Instance | MemberFlags.Static | MemberFlags.NonPublic)
+                .GetMethodEx(nameof(ReflectionClass.PublicMethod), MemberFlags.Public | MemberFlags.Instance | MemberFlags.Static | MemberFlags.NonPublic)
                 .ShouldNotBeNull();
             typeof(ReflectionClass)
-                .GetMethodEx("PublicMethod", MemberFlags.NonPublic | MemberFlags.Instance)
+                .GetMethodEx(nameof(ReflectionClass.PublicMethod), MemberFlags.NonPublic | MemberFlags.Instance)
                 .ShouldBeNull();
             typeof(ReflectionClass)
-                .GetMethodEx("PublicMethod", MemberFlags.Public | MemberFlags.Static)
+                .GetMethodEx(nameof(ReflectionClass.PublicMethod), MemberFlags.Public | MemberFlags.Static)
                 .ShouldBeNull();
             typeof(ReflectionClass)
-                .GetMethodEx("PublicMethod", MemberFlags.NonPublic | MemberFlags.Static)
+                .GetMethodEx(nameof(ReflectionClass.PublicMethod), MemberFlags.NonPublic | MemberFlags.Static)
                 .ShouldBeNull();
         }
 
@@ -470,19 +470,19 @@ namespace MugenMvvmToolkit.Test.Extensions
         public void TestGetPublicMethodStatic()
         {
             typeof(ReflectionClass)
-                .GetMethodEx("PublicMethodSt", MemberFlags.Public | MemberFlags.Instance)
+                .GetMethodEx(nameof(ReflectionBaseClass.PublicMethodSt), MemberFlags.Public | MemberFlags.Instance)
                 .ShouldBeNull();
             typeof(ReflectionClass)
-                .GetMethodEx("PublicMethodSt", MemberFlags.Public | MemberFlags.Instance | MemberFlags.Static | MemberFlags.NonPublic)
+                .GetMethodEx(nameof(ReflectionBaseClass.PublicMethodSt), MemberFlags.Public | MemberFlags.Instance | MemberFlags.Static | MemberFlags.NonPublic)
                 .ShouldNotBeNull();
             typeof(ReflectionClass)
-                .GetMethodEx("PublicMethodSt", MemberFlags.NonPublic | MemberFlags.Instance)
+                .GetMethodEx(nameof(ReflectionBaseClass.PublicMethodSt), MemberFlags.NonPublic | MemberFlags.Instance)
                 .ShouldBeNull();
             typeof(ReflectionClass)
-                .GetMethodEx("PublicMethodSt", MemberFlags.Public | MemberFlags.Static)
+                .GetMethodEx(nameof(ReflectionBaseClass.PublicMethodSt), MemberFlags.Public | MemberFlags.Static)
                 .ShouldNotBeNull();
             typeof(ReflectionClass)
-                .GetMethodEx("PublicMethodSt", MemberFlags.NonPublic | MemberFlags.Static)
+                .GetMethodEx(nameof(ReflectionBaseClass.PublicMethodSt), MemberFlags.NonPublic | MemberFlags.Static)
                 .ShouldBeNull();
         }
 
@@ -570,13 +570,13 @@ namespace MugenMvvmToolkit.Test.Extensions
         public void TestGetMethodWithArgs()
         {
             typeof(ReflectionClass)
-                .GetMethodEx("ArgMethod", new[] { typeof(object) }, MemberFlags.Public | MemberFlags.Instance)
+                .GetMethodEx(nameof(ReflectionBaseClass.ArgMethod), new[] { typeof(object) }, MemberFlags.Public | MemberFlags.Instance)
                 .GetParameters()[0]
                 .ParameterType
                 .ShouldEqual(typeof(object));
 
             typeof(ReflectionClass)
-                .GetMethodEx("ArgMethod", new[] { typeof(string) }, MemberFlags.Public | MemberFlags.Instance)
+                .GetMethodEx(nameof(ReflectionBaseClass.ArgMethod), new[] { typeof(string) }, MemberFlags.Public | MemberFlags.Instance)
                 .GetParameters()[0]
                 .ParameterType
                 .ShouldEqual(typeof(string));

@@ -119,7 +119,7 @@ namespace MugenMvvmToolkit.ViewModels
             IList<IEntityStateEntry> result = ApplyChangesInternal(out entity) ??
                                               Empty.Array<IEntityStateEntry>();
             Entity = entity;
-            Should.PropertyNotBeNull(Entity, "Entity");
+            Should.PropertyNotBeNull(Entity, nameof(Entity));
             OnChangesApplied(result);
             RaiseChangesApplied(result);
             InvalidateProperties();
@@ -145,7 +145,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         public void InitializeEntity(T entity, bool isNewRecord)
         {
-            Should.NotBeNull(entity, "entity");
+            Should.NotBeNull(entity, nameof(entity));
             EnsureNotDisposed();
             IsNewRecord = isNewRecord;
             var saved = SaveEntityState(entity);
@@ -303,7 +303,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         private void OnBeginEdit()
         {
-            Should.PropertyNotBeNull(Entity, "Entity");
+            Should.PropertyNotBeNull(Entity, nameof(Entity));
             object oldInstance = _initializedEntity;
             if (oldInstance != null)
             {

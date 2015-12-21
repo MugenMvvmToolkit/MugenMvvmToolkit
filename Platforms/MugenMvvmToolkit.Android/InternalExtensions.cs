@@ -168,7 +168,7 @@ namespace MugenMvvmToolkit.Android
 
         public static ActionBar GetActionBar(this Activity activity, bool throwOnError = true)
         {
-            Should.NotBeNull(activity, "activity");
+            Should.NotBeNull(activity, nameof(activity));
 #if APPCOMPAT
             if (throwOnError)
             {

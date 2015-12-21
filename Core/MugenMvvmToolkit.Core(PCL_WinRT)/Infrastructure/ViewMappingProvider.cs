@@ -50,7 +50,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public ViewMappingProvider([NotNull] IEnumerable<Assembly> assemblies, IList<string> viewPostfix, IList<string> viewModelPostfix)
         {
-            Should.NotBeNull(assemblies, "assemblies");
+            Should.NotBeNull(assemblies, nameof(assemblies));
             _assemblies = assemblies;
             _viewPostfix = viewPostfix ?? new[]
             {
@@ -334,7 +334,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public IList<IViewMappingItem> FindMappingsForView(Type viewType, bool throwOnError)
         {
-            Should.NotBeNull(viewType, "viewType");
+            Should.NotBeNull(viewType, nameof(viewType));
             EnsureInitialized();
             List<IViewMappingItem> item;
             if (!_viewTypeToMapping.TryGetValue(viewType, out item) && throwOnError)

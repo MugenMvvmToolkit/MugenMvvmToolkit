@@ -51,8 +51,8 @@ namespace MugenMvvmToolkit.WinForms.Binding.Models
 
         public AutoCompleteItem(string displayName, string value, MemberTypes? memberType = null, Type type = null)
         {
-            Should.NotBeNull(displayName, "displayName");
-            Should.NotBeNull(value, "value");
+            Should.NotBeNull(displayName, nameof(displayName));
+            Should.NotBeNull(value, nameof(value));
             Type = type ?? typeof(object);
             DisplayName = memberType.HasValue
                 ? $"{displayName} ({Type.Name} - {(memberType.Value == MemberTypes.Custom ? "Attached" : memberType.Value.ToString())})"

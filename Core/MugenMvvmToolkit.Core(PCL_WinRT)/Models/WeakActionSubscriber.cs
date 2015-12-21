@@ -37,8 +37,8 @@ namespace MugenMvvmToolkit.Models
 
         public WeakActionSubscriber(object target, MethodInfo method)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNull(method, "method");
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(method, nameof(method));
             _reference = ToolkitExtensions.GetWeakReference(target);
             _method = method;
             _delegate = (Action<object, object, T>)ServiceProvider

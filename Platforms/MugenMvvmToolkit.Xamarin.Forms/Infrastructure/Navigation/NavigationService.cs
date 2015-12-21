@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         public NavigationService([NotNull] IThreadManager threadManager, bool isRootFrame = false)
         {
-            Should.NotBeNull(threadManager, "threadManager");
+            Should.NotBeNull(threadManager, nameof(threadManager));
             _threadManager = threadManager;
             _isRootFrame = isRootFrame;
             XamarinFormsExtensions.BackButtonPressed += ReflectionExtensions
@@ -138,7 +138,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         public virtual string GetParameterFromArgs(EventArgs args)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             var cancelArgs = args as NavigatingCancelEventArgs;
             if (cancelArgs == null)
             {
@@ -152,7 +152,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         public virtual bool Navigate(NavigatingCancelEventArgsBase args, IDataContext context)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             if (!args.IsCancelable)
                 return false;
             var eventArgs = (NavigatingCancelEventArgs)args;
@@ -178,7 +178,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         public virtual bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
-            Should.NotBeNull(source, "source");
+            Should.NotBeNull(source, nameof(source));
             if (_rootPage == null)
                 return false;
             if (dataContext == null)
@@ -229,7 +229,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         public virtual bool CanClose(IViewModel viewModel, IDataContext dataContext)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             var navigation = _rootPage.Navigation;
             if (navigation == null)
                 return false;
@@ -243,7 +243,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         public virtual bool TryClose(IViewModel viewModel, IDataContext dataContext)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             if (CurrentContent != null && CurrentContent.DataContext() == viewModel)
             {
                 GoBack();

@@ -36,25 +36,25 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         public AsyncOperationImpl([NotNull] IActionContinuation continuationAction)
         {
-            Should.NotBeNull(continuationAction, "continuationAction");
+            Should.NotBeNull(continuationAction, nameof(continuationAction));
             _continuationAction = continuationAction;
         }
 
         public AsyncOperationImpl([NotNull] IActionContinuation<T> continuationAction)
         {
-            Should.NotBeNull(continuationAction, "continuationAction");
+            Should.NotBeNull(continuationAction, nameof(continuationAction));
             _continuationActionGeneric = continuationAction;
         }
 
         public AsyncOperationImpl([NotNull] IFunctionContinuation<T> continuationFunction)
         {
-            Should.NotBeNull(continuationFunction, "continuationFunction");
+            Should.NotBeNull(continuationFunction, nameof(continuationFunction));
             _continuationFunction = continuationFunction;
         }
 
         public AsyncOperationImpl([NotNull] IFunctionContinuation<TIn, T> continuationFunction)
         {
-            Should.NotBeNull(continuationFunction, "continuationFunction");
+            Should.NotBeNull(continuationFunction, nameof(continuationFunction));
             _continuationFunctionGeneric = continuationFunction;
         }
 

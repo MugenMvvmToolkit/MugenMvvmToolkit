@@ -168,7 +168,7 @@ namespace MugenMvvmToolkit.ViewModels
             where TItemsSource : IList<T>, INotifyCollectionChanged, IList
         {
             EnsureNotDisposed();
-            Should.NotBeNull(originalItemsSource, "originalItemsSource");
+            Should.NotBeNull(originalItemsSource, nameof(originalItemsSource));
             INotifyCollectionChanging collectionChanging;
             if (_originalData != null)
             {
@@ -191,8 +191,8 @@ namespace MugenMvvmToolkit.ViewModels
             Should.BeOfType<INotifiableCollection>(list, "DecoratedItemsSource");
             _itemsSource = (INotifiableCollection<T>)list;
             UpdateFilter();
-            OnPropertyChanged("ItemsSource");
-            OnPropertyChanged("OriginalItemsSource");
+            OnPropertyChanged(nameof(ItemsSource));
+            OnPropertyChanged(nameof(OriginalItemsSource));
         }
 
         public void UpdateFilter()
@@ -242,8 +242,8 @@ namespace MugenMvvmToolkit.ViewModels
             UpdateFilter();
             OnItemsSourceChanged(value);
             RaiseItemsSourceChanged(value);
-            OnPropertyChanged("ItemsSource");
-            OnPropertyChanged("OriginalItemsSource");
+            OnPropertyChanged(nameof(ItemsSource));
+            OnPropertyChanged(nameof(OriginalItemsSource));
         }
 
         protected virtual void UpdateFilterInternal()

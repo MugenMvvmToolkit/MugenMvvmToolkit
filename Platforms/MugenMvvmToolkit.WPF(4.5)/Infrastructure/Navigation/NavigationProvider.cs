@@ -279,20 +279,21 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         static NavigationProvider()
         {
-            ViewModelTypeConstant = DataConstant.Create(() => ViewModelTypeConstant, true);
-            IsNavigatedConstant = DataConstant.Create(() => IsNavigatedConstant, false);
+            var type = typeof(NavigationProvider);
+            ViewModelTypeConstant = DataConstant.Create<Type>(type, nameof(ViewModelTypeConstant), true);
+            IsNavigatedConstant = DataConstant.Create<object>(type, nameof(IsNavigatedConstant), false);
         }
 
         public NavigationProvider([NotNull] INavigationService navigationService, [NotNull] IThreadManager threadManager,
             [NotNull] IViewMappingProvider mappingProvider, [NotNull] IViewManager viewManager,
             [NotNull] IViewModelProvider viewModelProvider, IOperationCallbackManager callbackManager, INavigationCachePolicy cachePolicy = null)
         {
-            Should.NotBeNull(navigationService, "navigationService");
-            Should.NotBeNull(threadManager, "threadManager");
-            Should.NotBeNull(mappingProvider, "mappingProvider");
-            Should.NotBeNull(viewManager, "viewManager");
-            Should.NotBeNull(viewModelProvider, "viewModelProvider");
-            Should.NotBeNull(callbackManager, "callbackManager");
+            Should.NotBeNull(navigationService, nameof(navigationService));
+            Should.NotBeNull(threadManager, nameof(threadManager));
+            Should.NotBeNull(mappingProvider, nameof(mappingProvider));
+            Should.NotBeNull(viewManager, nameof(viewManager));
+            Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));
+            Should.NotBeNull(callbackManager, nameof(callbackManager));
             _navigationService = navigationService;
             _threadManager = threadManager;
             _mappingProvider = mappingProvider;
@@ -400,7 +401,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         public Task NavigateAsync(IOperationCallback callback, IDataContext context)
         {
-            Should.NotBeNull(context, "context");
+            Should.NotBeNull(context, nameof(context));
             IViewModel viewModel = context.GetData(NavigationConstants.ViewModel);
             if (viewModel == null)
                 throw new InvalidOperationException($"The '{GetType()}' provider doesn't support the DataContext without navigation target.");
@@ -438,7 +439,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         public virtual void OnNavigated(IViewModel viewModel, NavigationMode mode, IDataContext context)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             var navigationContext = new NavigationContext(NavigationType.Page, mode, CurrentViewModel, viewModel, this);
             var currentViewModel = CurrentViewModel;
             if (currentViewModel != null)
@@ -462,7 +463,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         public static string GenerateNavigationParameter([NotNull] Type vmType, string value)
         {
-            Should.NotBeNull(vmType, "vmType");
+            Should.NotBeNull(vmType, nameof(vmType));
             return vmType.AssemblyQualifiedName + IdSeparator[0] + value;
         }
 

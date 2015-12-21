@@ -50,7 +50,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         public IExpressionNode Accept(IExpressionVisitor visitor)
         {
-            Should.NotBeNull(visitor, "visitor");
+            Should.NotBeNull(visitor, nameof(visitor));
             var isPostOrder = visitor.IsPostOrder;
             if (!isPostOrder)
             {

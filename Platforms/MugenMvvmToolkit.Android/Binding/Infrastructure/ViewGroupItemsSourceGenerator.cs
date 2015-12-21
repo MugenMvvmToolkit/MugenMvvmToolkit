@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         internal ViewGroupItemsSourceGenerator([NotNull] ViewGroup viewGroup)
         {
-            Should.NotBeNull(viewGroup, "viewGroup");
+            Should.NotBeNull(viewGroup, nameof(viewGroup));
             _viewGroup = viewGroup;
             _adapter = ItemsSourceAdapter.Factory(viewGroup, viewGroup.Context, Context);
             _collectionViewManagerMember = BindingServiceProvider

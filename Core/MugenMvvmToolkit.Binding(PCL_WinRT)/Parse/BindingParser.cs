@@ -235,7 +235,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         public IList<IDataContext> Parse(object target, string bindingExpression, IList<object> sources, IDataContext context)
         {
-            Should.NotBeNull(bindingExpression, "bindingExpression");
+            Should.NotBeNull(bindingExpression, nameof(bindingExpression));
             if (context == null)
                 context = DataContext.Empty;
             KeyValuePair<KeyValuePair<string, int>, Action<IDataContext>[]>[] bindingValues;
@@ -1495,7 +1495,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         protected void SetTokenizer([NotNull] ITokenizer tokenizer)
         {
-            Should.NotBeNull(tokenizer, "tokenizer");
+            Should.NotBeNull(tokenizer, nameof(tokenizer));
             _tokenizer = tokenizer;
         }
 

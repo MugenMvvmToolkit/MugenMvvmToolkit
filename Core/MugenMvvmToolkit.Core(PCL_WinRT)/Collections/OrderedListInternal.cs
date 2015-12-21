@@ -111,7 +111,7 @@ namespace MugenMvvmToolkit.Collections
 
         public int Add(TKey key, TValue value)
         {
-            Should.NotBeNull(key, "key");
+            Should.NotBeNull(key, nameof(key));
             int num = Array.BinarySearch(KeysInternal, 0, Size, key, Comparer);
             if (num >= 0)
                 throw ExceptionManager.DuplicateItemCollection(value);
@@ -127,7 +127,7 @@ namespace MugenMvvmToolkit.Collections
 
         public int IndexOfKey(TKey key)
         {
-            Should.NotBeNull(key, "key");
+            Should.NotBeNull(key, nameof(key));
             int num = Array.BinarySearch(KeysInternal, 0, Size, key, Comparer);
             if (num < 0)
                 return -1;
@@ -276,7 +276,7 @@ namespace MugenMvvmToolkit.Collections
 
         public int GetInsertIndex(T item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             int num = Array.BinarySearch(Items, 0, Size, item, ComparerInternal);
             if (num >= 0)
                 return num;
@@ -325,7 +325,7 @@ namespace MugenMvvmToolkit.Collections
 
         int IList.Add(object value)
         {
-            Should.NotBeNull(value, "value");
+            Should.NotBeNull(value, nameof(value));
             return Add((T)value);
         }
 
@@ -436,7 +436,7 @@ namespace MugenMvvmToolkit.Collections
 
         public bool Remove(T item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             int indexOf = IndexOfObject(item);
             if (indexOf == -1)
                 return false;
@@ -456,7 +456,7 @@ namespace MugenMvvmToolkit.Collections
 
         public int IndexOf(T item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             return IndexOfObject(item);
         }
 
@@ -514,7 +514,7 @@ namespace MugenMvvmToolkit.Collections
 
         public int Add(T item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             return InsertInternal(GetInsertIndex(item), item);
         }
 

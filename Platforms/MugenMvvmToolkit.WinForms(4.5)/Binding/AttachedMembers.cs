@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.WinForms.Binding
                 ItemsSource = new BindingMemberDescriptor<object, IEnumerable>(AttachedMemberConstants.ItemsSource);
                 ItemsSourceGenerator = new BindingMemberDescriptor<object, IItemsSourceGenerator>(ItemsSourceGeneratorBase.MemberDescriptor);
                 ItemTemplateSelector = new BindingMemberDescriptor<object, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
-                CollectionViewManager = new BindingMemberDescriptor<object, ICollectionViewManager>("CollectionViewManager");
+                CollectionViewManager = new BindingMemberDescriptor<object, ICollectionViewManager>(nameof(CollectionViewManager));
             }
 
             #endregion
@@ -75,7 +75,7 @@ namespace MugenMvvmToolkit.WinForms.Binding
 
             static Form()
             {
-                ToastTemplateSelector = new BindingMemberDescriptor<System.Windows.Forms.Form, IDataTemplateSelector>("ToastTemplateSelector");
+                ToastTemplateSelector = new BindingMemberDescriptor<System.Windows.Forms.Form, IDataTemplateSelector>(nameof(ToastTemplateSelector));
             }
 
             #endregion
@@ -97,7 +97,7 @@ namespace MugenMvvmToolkit.WinForms.Binding
             {
                 Content = new BindingMemberDescriptor<System.Windows.Forms.Control, object>(AttachedMemberConstants.Content);
                 ContentTemplateSelector = new BindingMemberDescriptor<System.Windows.Forms.Control, IDataTemplateSelector>(AttachedMemberConstants.ContentTemplateSelector);
-                ContentViewManager = new BindingMemberDescriptor<System.Windows.Forms.Control, IContentViewManager>("ContentViewManager");
+                ContentViewManager = new BindingMemberDescriptor<System.Windows.Forms.Control, IContentViewManager>(nameof(ContentViewManager));
             }
 
             #endregion

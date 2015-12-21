@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
         public DefaultAttachedMemberRegistration([NotNull] IBindingMemberInfo defaultMember, string path = null)
         {
-            Should.NotBeNull(defaultMember, "defaultMember");
+            Should.NotBeNull(defaultMember, nameof(defaultMember));
             _defaultMember = defaultMember;
             _path = path ?? defaultMember.Path;
         }

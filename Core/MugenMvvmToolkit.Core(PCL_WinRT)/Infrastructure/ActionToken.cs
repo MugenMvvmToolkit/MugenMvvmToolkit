@@ -38,13 +38,13 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public ActionToken([NotNull] Action action)
         {
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(action, nameof(action));
             _action = action;
         }
 
         public ActionToken([NotNull] Action<object> action, object state)
         {
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(action, nameof(action));
             _action = action;
             _state = state;
         }

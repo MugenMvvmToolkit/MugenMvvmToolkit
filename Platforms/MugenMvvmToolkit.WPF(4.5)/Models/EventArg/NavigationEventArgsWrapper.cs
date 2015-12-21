@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.WPF.Models.EventArg
 
         public NavigationEventArgsWrapper([NotNull] NavigationEventArgs args, NavigationMode mode)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             _args = args;
             _mode = mode;
         }

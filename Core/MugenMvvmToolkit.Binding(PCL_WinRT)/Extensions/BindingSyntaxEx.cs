@@ -15,6 +15,7 @@
 // ****************************************************************************
 
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,13 +41,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
     {
         #region Fields
 
-        public const string ProvideExpressionMethodName = "ProvideExpression";
-
-        private const string ResourceMethodName = "Resource";
-        private const string SelfMethodName = "Self";
-        private const string SourceMethodName = "Source";
-        private const string RootMethodName = "Root";
-        private const string RelativeMethodName = "Relative";
+        public const string ProvideExpressionMethodName = nameof(ProvideExpression);
         private static readonly MethodInfo GetEventArgsMethod;
         private static readonly MethodInfo GetBindingMethod;
         private static readonly MethodInfo GetErrorsMethod;
@@ -61,19 +56,19 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
 
         static BindingSyntaxEx()
         {
-            GetBindingMethod = typeof(BindingSyntaxEx).GetMethodEx("GetBinding",
+            GetBindingMethod = typeof(BindingSyntaxEx).GetMethodEx(nameof(GetBinding),
                 MemberFlags.NonPublic | MemberFlags.Static);
-            GetEventArgsMethod = typeof(BindingSyntaxEx).GetMethodEx("GetEventArgs",
+            GetEventArgsMethod = typeof(BindingSyntaxEx).GetMethodEx(nameof(GetEventArgs),
                 MemberFlags.NonPublic | MemberFlags.Static);
-            GetErrorsMethod = typeof(BindingSyntaxEx).GetMethodEx("GetErrorsImpl",
+            GetErrorsMethod = typeof(BindingSyntaxEx).GetMethodEx(nameof(GetErrorsImpl),
                 MemberFlags.NonPublic | MemberFlags.Static);
-            ResourceMethodImplMethod = typeof(BindingSyntaxEx).GetMethodEx("ResourceMethodImpl",
+            ResourceMethodImplMethod = typeof(BindingSyntaxEx).GetMethodEx(nameof(ResourceMethodImpl),
                 MemberFlags.NonPublic | MemberFlags.Static);
-            GetOneTimeValueMethod = typeof(BindingExtensions).GetMethodEx("GetOrAddValue",
+            GetOneTimeValueMethod = typeof(BindingExtensions).GetMethodEx(nameof(BindingExtensions.GetOrAddValue),
                 MemberFlags.NonPublic | MemberFlags.Static | MemberFlags.Public);
             ResourceMethodInfo = typeof(BindingSyntaxEx)
                 .GetMethodsEx(MemberFlags.Public | MemberFlags.Static)
-                .First(info => info.Name == ResourceMethodName && info.GetParameters().Length == 2);
+                .First(info => info.Name == nameof(Resource) && info.GetParameters().Length == 2);
             FirstLevelBoxed = 1u;
         }
 
@@ -188,21 +183,21 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
         {
             var mExp = context.MethodExpression;
             var name = mExp.Method.Name;
-            if (name == "EventArgs")
+            if (name == nameof(EventArgs))
             {
                 if (context.IsSameExpression())
                     return Expression.Convert(Expression.Call(GetEventArgsMethod, context.ContextParameter), mExp.Method.ReturnType);
                 return null;
             }
 
-            if (name == "Binding")
+            if (name == nameof(Binding))
             {
                 if (context.IsSameExpression())
                     return Expression.Convert(Expression.Call(GetBindingMethod, context.ContextParameter), mExp.Method.ReturnType);
                 return null;
             }
 
-            if (name == "ResourceMethod")
+            if (name == nameof(ResourceMethod))
             {
                 if (!context.IsSameExpression())
                     return null;
@@ -211,7 +206,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                             context.ContextParameter, mExp.Arguments[2]), context.Expression.Type);
             }
 
-            if (name == "OneTime")
+            if (name == nameof(OneTime))
             {
                 if (!context.IsSameExpression())
                     return null;
@@ -223,7 +218,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                 return Expression.Call(method, new Expression[] { getBindEx, idEx, valueEx });
             }
 
-            if (name == "GetErrors")
+            if (name == nameof(GetErrors))
             {
                 if (!context.IsSameExpression())
                     return null;
@@ -270,21 +265,21 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                 return context.GetOrAddParameterExpression(string.Empty, path, context.Expression,
                     (dataContext, s) => BindingExtensions.CreateBindingSource(dataContext, s, null, true));
 
-            if (name == SelfMethodName || name == RootMethodName || name == ResourceMethodName || name == SourceMethodName)
+            if (name == nameof(Self) || name == nameof(Root) || name == nameof(Resource) || name == nameof(Source))
             {
                 string resourceName;
                 switch (name)
                 {
-                    case SelfMethodName:
+                    case nameof(Self):
                         resourceName = BindingServiceProvider.ResourceResolver.SelfResourceName;
                         break;
-                    case RootMethodName:
+                    case nameof(Root):
                         resourceName = BindingServiceProvider.ResourceResolver.RootElementResourceName;
                         break;
-                    case SourceMethodName:
+                    case nameof(Source):
                         resourceName = BindingServiceProvider.ResourceResolver.BindingSourceResourceName;
                         break;
-                    case ResourceMethodName:
+                    case nameof(Resource):
                         mExp.Arguments[1].TryGetStaticValue(out resourceName, true);
                         if (mExp.Arguments.Count == 3)
                         {
@@ -310,14 +305,14 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                     });
             }
 
-            if (name == RelativeMethodName || name == "Element")
+            if (name == nameof(Relative) || name == nameof(Element))
             {
                 object firstArg;
                 if (mExp.Arguments.Count == 1)
                     firstArg = FirstLevelBoxed;
                 else
                     mExp.Arguments[1].TryGetStaticValue(out firstArg, true);
-                var node = name == RelativeMethodName
+                var node = name == nameof(Relative)
                     ? RelativeSourceExpressionNode
                         .CreateRelativeSource(mExp.Method.ReturnType.AssemblyQualifiedName, (uint)firstArg, null)
                     : RelativeSourceExpressionNode.CreateElementSource(firstArg.ToString(), null);

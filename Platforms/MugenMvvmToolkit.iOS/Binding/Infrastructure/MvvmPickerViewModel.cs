@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public MvvmPickerViewModel([NotNull] UIPickerView pickerView)
         {
-            Should.NotBeNull(pickerView, "pickerView");
+            Should.NotBeNull(pickerView, nameof(pickerView));
             _pickerView = ServiceProvider.WeakReferenceFactory(pickerView);
             _weakHandler = ReflectionExtensions.MakeWeakCollectionChangedHandler(this,
                 (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));

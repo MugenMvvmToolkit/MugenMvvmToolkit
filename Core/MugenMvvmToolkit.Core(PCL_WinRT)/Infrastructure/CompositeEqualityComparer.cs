@@ -54,15 +54,15 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public ComparerWrapper([NotNull] IEqualityComparer<T> comparer, bool exactlySameType)
             {
-                Should.NotBeNull(comparer, "comparer");
+                Should.NotBeNull(comparer, nameof(comparer));
                 Comparer = comparer;
                 ExactlySameType = exactlySameType;
             }
 
             public ComparerWrapper(Func<T, T, bool> equalsDel, Func<T, int> getHashDel, bool exactlySameType)
             {
-                Should.NotBeNull(equalsDel, "equalsDel");
-                Should.NotBeNull(getHashDel, "getHashDel");
+                Should.NotBeNull(equalsDel, nameof(equalsDel));
+                Should.NotBeNull(getHashDel, nameof(getHashDel));
                 _equalsDel = equalsDel;
                 _getHashDel = getHashDel;
                 ExactlySameType = exactlySameType;

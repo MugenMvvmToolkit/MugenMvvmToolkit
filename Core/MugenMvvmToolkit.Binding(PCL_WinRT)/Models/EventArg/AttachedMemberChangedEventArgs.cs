@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
         public AttachedMemberChangedEventArgs(T oldValue, T newValue, object[] args, [NotNull] IBindingMemberInfo member)
             : base(oldValue, newValue)
         {
-            Should.NotBeNull(member, "member");
+            Should.NotBeNull(member, nameof(member));
             _member = member;
             _args = args;
         }

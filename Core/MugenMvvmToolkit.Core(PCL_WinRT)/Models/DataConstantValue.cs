@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.Models
 
         private DataConstantValue([NotNull] DataConstant dataConstant, object value)
         {
-            Should.NotBeNull(dataConstant, "dataConstant");
+            Should.NotBeNull(dataConstant, nameof(dataConstant));
             DataConstant = dataConstant;
             Value = value;
         }

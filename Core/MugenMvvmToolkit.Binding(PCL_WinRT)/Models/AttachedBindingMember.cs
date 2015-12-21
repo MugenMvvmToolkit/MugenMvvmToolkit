@@ -115,8 +115,8 @@ namespace MugenMvvmToolkit.Binding.Models
                 Func<IBindingMemberInfo, TTarget, object[], object> setValue, Action<IBindingMemberInfo, TTarget, TType> setValueSimple,
                 MemberInfo member, BindingMemberType memberType = null)
             {
-                Should.NotBeNullOrWhitespace(path, "path");
-                Should.NotBeNull(type, "type");
+                Should.NotBeNullOrWhitespace(path, nameof(path));
+                Should.NotBeNull(type, nameof(type));
                 if (getValue == null)
                     _getValueSimple = getValueSimple ?? GetValueThrow<TTarget, TType>;
                 else
@@ -265,7 +265,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
             public void UpdateType(Type type)
             {
-                Should.NotBeNull(type, "type");
+                Should.NotBeNull(type, nameof(type));
                 _type = type;
                 if (_isAttachedProperty && !type.IsInstanceOfType(_defaultValue))
                     _defaultValue = (TType)type.GetDefaultValue();
@@ -407,7 +407,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
             public ObservableProperty(Func<IBindingMemberInfo, TTarget, TType, bool> setValue)
             {
-                Should.NotBeNull(setValue, "setValue");
+                Should.NotBeNull(setValue, nameof(setValue));
                 _setValue = setValue;
             }
 
@@ -605,7 +605,7 @@ namespace MugenMvvmToolkit.Binding.Models
         public static bool TrySetRaiseAction<TTarget, TType>(IAttachedBindingMemberInfo<TTarget, TType> bindingMember,
             [NotNull] Action<IBindingMemberInfo, TTarget, object> raiseAction) where TTarget : class
         {
-            Should.NotBeNull(raiseAction, "raiseAction");
+            Should.NotBeNull(raiseAction, nameof(raiseAction));
             var memberInternal = bindingMember as AttachedBindingMemberInfo<TTarget, TType>;
             if (memberInternal == null || memberInternal.RaiseAction != null)
                 return false;

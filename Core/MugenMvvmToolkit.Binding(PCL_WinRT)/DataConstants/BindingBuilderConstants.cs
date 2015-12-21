@@ -54,23 +54,24 @@ namespace MugenMvvmToolkit.Binding.DataConstants
 
         static BindingBuilderConstants()
         {
-            RawSources = DataConstant.Create(() => RawSources, true);
-            Source = DataConstant.Create(() => Source, true);
-            BuildDelegate = DataConstant.Create(() => BuildDelegate, true);
-            Target = DataConstant.Create(() => Target, true);
-            TargetSource = DataConstant.Create(() => TargetSource, true);
-            TargetPath = DataConstant.Create(() => TargetPath, true);
-            Sources = DataConstant.Create(() => Sources, true);
-            MultiExpression = DataConstant.Create(() => MultiExpression, true);
-            Behaviors = DataConstant.Create(() => Behaviors, true);
-            Converter = DataConstant.Create(() => Converter, true);
-            ConverterParameter = DataConstant.Create(() => ConverterParameter, true);
-            ConverterCulture = DataConstant.Create(() => ConverterCulture, true);
-            CommandParameter = DataConstant.Create(() => CommandParameter, true);
-            ToggleEnabledState = DataConstant.Create(() => ToggleEnabledState);
-            Fallback = DataConstant.Create(() => Fallback, true);
-            TargetNullValue = DataConstant.Create(() => TargetNullValue, false);
-            NoCache = DataConstant.Create(() => NoCache);
+            var type = typeof(BindingBuilderConstants);
+            RawSources = DataConstant.Create<IList<object>>(type, nameof(RawSources), true);
+            Source = DataConstant.Create<object>(type, nameof(Source), true);
+            BuildDelegate = DataConstant.Create<Func<IDataContext, IDataBinding>>(type, nameof(BuildDelegate), true);
+            Target = DataConstant.Create<object>(type, nameof(Target), true);
+            TargetSource = DataConstant.Create<ISourceValue>(type, nameof(TargetSource), true);
+            TargetPath = DataConstant.Create<IBindingPath>(type, nameof(TargetPath), true);
+            Sources = DataConstant.Create<IList<Func<IDataContext, IObserver>>>(type, nameof(Sources), true);
+            MultiExpression = DataConstant.Create<Func<IDataContext, IList<object>, object>>(type, nameof(MultiExpression), true);
+            Behaviors = DataConstant.Create<List<IBindingBehavior>>(type, nameof(Behaviors), true);
+            Converter = DataConstant.Create<Func<IDataContext, IBindingValueConverter>>(type, nameof(Converter), true);
+            ConverterParameter = DataConstant.Create<Func<IDataContext, object>>(type, nameof(ConverterParameter), true);
+            ConverterCulture = DataConstant.Create<Func<IDataContext, CultureInfo>>(type, nameof(ConverterCulture), true);
+            CommandParameter = DataConstant.Create<Func<IDataContext, object>>(type, nameof(CommandParameter), true);
+            ToggleEnabledState = DataConstant.Create<bool>(type, nameof(ToggleEnabledState));
+            Fallback = DataConstant.Create<Func<IDataContext, object>>(type, nameof(Fallback), true);
+            TargetNullValue = DataConstant.Create<object>(type, nameof(TargetNullValue), false);
+            NoCache = DataConstant.Create(type, nameof(NoCache));
         }
 
         #endregion

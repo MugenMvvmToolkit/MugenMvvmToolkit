@@ -56,10 +56,10 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         public ApplicationStateManager([NotNull] ISerializer serializer, [NotNull] IViewModelProvider viewModelProvider,
             [NotNull] IViewManager viewManager, [NotNull] IViewModelPresenter viewModelPresenter)
         {
-            Should.NotBeNull(serializer, "serializer");
-            Should.NotBeNull(viewModelProvider, "viewModelProvider");
-            Should.NotBeNull(viewManager, "viewManager");
-            Should.NotBeNull(viewModelPresenter, "viewModelPresenter");
+            Should.NotBeNull(serializer, nameof(serializer));
+            Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));
+            Should.NotBeNull(viewManager, nameof(viewManager));
+            Should.NotBeNull(viewModelPresenter, nameof(viewModelPresenter));
             _serializer = serializer;
             _viewModelProvider = viewModelProvider;
             _viewManager = viewManager;
@@ -99,8 +99,8 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         public void EncodeState(NSObject item, NSCoder state, IDataContext context = null)
         {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(state, "state");
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(state, nameof(state));
             var controller = item as UIViewController;
             if (controller != null && string.IsNullOrEmpty(controller.RestorationIdentifier))
                 return;
@@ -123,8 +123,8 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         public void DecodeState(NSObject item, NSCoder state, IDataContext context = null)
         {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(state, "state");
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(state, nameof(state));
             RestoreNavigationParameter(item, state);
             if (!state.ContainsKey(VmTypeKey))
                 return;

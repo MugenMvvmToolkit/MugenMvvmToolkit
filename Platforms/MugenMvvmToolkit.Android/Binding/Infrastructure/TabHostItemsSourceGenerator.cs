@@ -53,7 +53,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
             public TabFactory([NotNull] TabHostItemsSourceGenerator generator)
             {
-                Should.NotBeNull(generator, "generator");
+                Should.NotBeNull(generator, nameof(generator));
                 _generator = generator;
             }
 
@@ -158,7 +158,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         internal TabHostItemsSourceGenerator([NotNull] TabHost tabHost)
         {
-            Should.NotBeNull(tabHost, "tabHost");
+            Should.NotBeNull(tabHost, nameof(tabHost));
             TabHost = tabHost;
             TabHost.Setup();
             _tabToContent = new Dictionary<string, TabInfo>();

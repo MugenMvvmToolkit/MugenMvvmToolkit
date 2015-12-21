@@ -193,7 +193,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         {
             if (IsDisposed)
                 throw ExceptionManager.ObjectDisposed(GetType());
-            Should.NotBeNull(context, "context");
+            Should.NotBeNull(context, nameof(context));
             if (!CanValidateContext(context) || !CanValidateInternal(context))
                 return false;
             if (Interlocked.CompareExchange(ref _context, context, null) != null)
@@ -609,7 +609,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         private ICollection<string> UpdateErrorsInternal([NotNull] string propertyName,
             [CanBeNull] IEnumerable validatorErrors)
         {
-            Should.NotBeNull(propertyName, "propertyName");
+            Should.NotBeNull(propertyName, nameof(propertyName));
             IList<object> errors;
             if (validatorErrors is string)
                 errors = new object[] { validatorErrors };

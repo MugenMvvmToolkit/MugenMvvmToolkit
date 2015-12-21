@@ -58,7 +58,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 Empty = new WeakEventListenerWrapper[0];
                 AddSourceEventDelegate = AddSourceEvent;
                 UpdateSourceEventDelegate = UpdateSourceEvent;
-                HandleMethod = typeof(WeakListenerInternal).GetMethodEx("Raise", MemberFlags.Public | MemberFlags.Instance);
+                HandleMethod = typeof(WeakListenerInternal).GetMethodEx(nameof(Raise), MemberFlags.Public | MemberFlags.Instance);
                 EmptyListener = new WeakListenerInternal();
             }
 
@@ -393,9 +393,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual IDisposable TrySubscribe(object target, EventInfo eventInfo, IEventListener listener, IDataContext context = null)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNull(eventInfo, "eventInfo");
-            Should.NotBeNull(listener, "listener");
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(eventInfo, nameof(eventInfo));
+            Should.NotBeNull(listener, nameof(listener));
             var listenerInternal = ServiceProvider
                 .AttachedValueProvider
                 .GetOrAdd(target, EventPrefix + eventInfo.Name, CreateWeakListenerDelegate, eventInfo);
@@ -409,9 +409,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public virtual IDisposable Subscribe(INotifyPropertyChanged propertyChanged, string propertyName, IEventListener listener, IDataContext context = null)
         {
-            Should.NotBeNull(propertyChanged, "propertyChanged");
-            Should.NotBeNull(propertyName, "propertyName");
-            Should.NotBeNull(listener, "listener");
+            Should.NotBeNull(propertyChanged, nameof(propertyChanged));
+            Should.NotBeNull(propertyName, nameof(propertyName));
+            Should.NotBeNull(listener, nameof(listener));
             return ServiceProvider
                 .AttachedValueProvider
                 .GetOrAdd(propertyChanged, PropertyChangedMember, CreateWeakPropertyListenerDelegate, null)

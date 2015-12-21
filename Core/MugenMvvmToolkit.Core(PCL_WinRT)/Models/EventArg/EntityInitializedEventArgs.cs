@@ -34,8 +34,8 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         public EntityInitializedEventArgs([NotNull]object originalEntity, [NotNull] object entity)
         {
-            Should.NotBeNull(originalEntity, "originalEntity");
-            Should.NotBeNull(entity, "entity");
+            Should.NotBeNull(originalEntity, nameof(originalEntity));
+            Should.NotBeNull(entity, nameof(entity));
             _originalEntity = originalEntity;
             _entity = entity;
         }

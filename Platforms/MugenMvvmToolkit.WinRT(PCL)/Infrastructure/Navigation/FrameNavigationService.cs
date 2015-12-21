@@ -50,7 +50,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
 
         public FrameNavigationService(Frame frame, bool isRootFrame = false)
         {
-            Should.NotBeNull(frame, "frame");
+            Should.NotBeNull(frame, nameof(frame));
             _frame = frame;
             _frame.Navigating += OnNavigating;
             _frame.Navigated += OnNavigated;
@@ -93,7 +93,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
 
         public string GetParameterFromArgs(EventArgs args)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             var cancelEventArgs = args as NavigatingCancelEventArgsWrapper;
             if (cancelEventArgs == null)
             {
@@ -107,7 +107,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
 
         public bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             if (args is BackButtonNavigatingEventArgs)
             {
                 var application = Application.Current;
@@ -126,7 +126,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
 
         public bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
-            Should.NotBeNull(source, "source");
+            Should.NotBeNull(source, nameof(source));
             if (dataContext == null)
                 dataContext = DataContext.Empty;
             dataContext.TryGetData(NavigationProviderConstants.BringToFront, out _bringToFront);
@@ -143,7 +143,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
 
         public bool CanClose(IViewModel viewModel, IDataContext dataContext)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             var content = CurrentContent;
             var canClose = content != null && ViewManager.GetDataContext(content) == viewModel && CanGoBack;
             if (canClose)
@@ -159,7 +159,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
 
         public bool TryClose(IViewModel viewModel, IDataContext dataContext)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             var content = CurrentContent;
             if (content != null && ViewManager.GetDataContext(content) == viewModel && CanGoBack)
             {

@@ -60,7 +60,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms
 
         public static bool HandleBackButtonPressed([NotNull] this Page page, Func<bool> baseOnBackButtonPressed = null)
         {
-            Should.NotBeNull(page, "page");
+            Should.NotBeNull(page, nameof(page));
             var handler = BackButtonPressed;
             if (handler == null)
                 return baseOnBackButtonPressed != null && baseOnBackButtonPressed();
@@ -73,7 +73,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms
 
         public static void SetNavigationParameter([NotNull] this Page controller, object value)
         {
-            Should.NotBeNull(controller, "controller");
+            Should.NotBeNull(controller, nameof(controller));
             if (value == null)
                 ServiceProvider.AttachedValueProvider.Clear(controller, NavParamKey);
             else
@@ -117,8 +117,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms
 
         internal static bool IsAssignableFrom([NotNull] this Type typeFrom, [NotNull] Type typeTo)
         {
-            Should.NotBeNull(typeFrom, "typeFrom");
-            Should.NotBeNull(typeTo, "typeTo");
+            Should.NotBeNull(typeFrom, nameof(typeFrom));
+            Should.NotBeNull(typeTo, nameof(typeTo));
             return typeFrom.GetTypeInfo().IsAssignableFrom(typeTo.GetTypeInfo());
         }
 

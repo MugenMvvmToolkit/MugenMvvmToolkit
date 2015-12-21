@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Android
 #if APPCOMPAT
         public static void SetDrawerListenerEx([NotNull] this DrawerLayout layout, DrawerLayout.IDrawerListener listener)
         {
-            Should.NotBeNull(layout, "layout");
+            Should.NotBeNull(layout, nameof(layout));
             AppCompatModule.DrawerListenerImpl.GetOrAdd(layout).SetListener(layout.Context, listener);
         }
 #endif
@@ -48,7 +48,7 @@ namespace MugenMvvmToolkit.Android
                     [NotNull] FragmentTransaction transaction,
                     [NotNull] Action<ViewGroup, Fragment, FragmentTransaction> updateAction)
         {
-            Should.NotBeNull(frameLayout, "frameLayout");
+            Should.NotBeNull(frameLayout, nameof(frameLayout));
             var view = content as View;
             if (view == null)
             {

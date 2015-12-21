@@ -45,7 +45,7 @@ namespace MugenMvvmToolkit.Models
             [NotEmptyParams] params object[] notifiers)
             : base(canExecute != null, notifiers)
         {
-            Should.NotBeNull(execute, "execute");
+            Should.NotBeNull(execute, nameof(execute));
             _execute = execute;
             _canExecute = canExecute;
         }
@@ -54,7 +54,7 @@ namespace MugenMvvmToolkit.Models
             [NotEmptyParams] params object[] notifiers)
             : base(canExecute != null, notifiers)
         {
-            Should.NotBeNull(execute, "execute");
+            Should.NotBeNull(execute, nameof(execute));
             _execute = execute;
             _canExecute = canExecute;
             _state |= RelayCommand.TaskDelegateFlag;
@@ -147,7 +147,7 @@ namespace MugenMvvmToolkit.Models
             [NotEmptyParams] params object[] notifiers)
             : base(canExecute != null, notifiers)
         {
-            Should.NotBeNull(execute, "execute");
+            Should.NotBeNull(execute, nameof(execute));
             _execute = execute;
             _canExecute = canExecute;
             _state |= ObjectDelegateFlag;
@@ -157,7 +157,7 @@ namespace MugenMvvmToolkit.Models
             [NotEmptyParams] params object[] notifiers)
             : base(canExecute != null, notifiers)
         {
-            Should.NotBeNull(execute, "execute");
+            Should.NotBeNull(execute, nameof(execute));
             _execute = execute;
             _canExecute = canExecute;
         }
@@ -165,7 +165,7 @@ namespace MugenMvvmToolkit.Models
         protected internal RelayCommand([NotNull] Func<Task> execute, [CanBeNull] Func<bool> canExecute, bool allowMultipleExecution, [NotEmptyParams] params object[] notifiers)
             : base(canExecute != null, notifiers)
         {
-            Should.NotBeNull(execute, "execute");
+            Should.NotBeNull(execute, nameof(execute));
             _execute = execute;
             _canExecute = canExecute;
             _state |= TaskDelegateFlag;

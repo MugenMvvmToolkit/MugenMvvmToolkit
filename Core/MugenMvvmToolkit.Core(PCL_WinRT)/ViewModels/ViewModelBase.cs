@@ -344,7 +344,7 @@ namespace MugenMvvmToolkit.ViewModels
         void IViewModel.InitializeViewModel(IDataContext context)
         {
             EnsureNotDisposed();
-            Should.NotBeNull(context, "context");
+            Should.NotBeNull(context, nameof(context));
             if (Interlocked.CompareExchange(ref _state, InitializedState, DefaultState) != DefaultState)
             {
                 Tracer.Warn(ExceptionManager.ObjectInitialized("ViewModel", this).Message);
@@ -365,7 +365,7 @@ namespace MugenMvvmToolkit.ViewModels
                 handler(this, EventArgs.Empty);
                 Initialized = null;
             }
-            OnPropertyChanged("IsInitialized");
+            OnPropertyChanged(nameof(IsInitialized));
             Tracer.TraceViewModel(ViewModelLifecycleType.Initialized, this);
         }
 

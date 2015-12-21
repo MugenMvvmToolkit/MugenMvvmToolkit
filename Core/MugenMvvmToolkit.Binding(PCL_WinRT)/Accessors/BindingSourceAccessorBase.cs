@@ -115,7 +115,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         protected BindingSourceAccessorBase([NotNull] IDataContext context, bool isTarget)
         {
-            Should.NotBeNull(context, "context");
+            Should.NotBeNull(context, nameof(context));
             _isTarget = isTarget;
             bool hasValue = false;
             Func<IDataContext, IBindingValueConverter> converterDelegate;

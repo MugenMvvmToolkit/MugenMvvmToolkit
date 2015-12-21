@@ -94,7 +94,7 @@ namespace MugenMvvmToolkit
 
         public AutofacContainer(ContainerBuilder containerBuilder)
         {
-            Should.NotBeNull(containerBuilder, "containerBuilder");
+            Should.NotBeNull(containerBuilder, nameof(containerBuilder));
             containerBuilder.RegisterSource(new AnyConcreteTypeNotAlreadyRegisteredSource
             {
 #if !WINDOWS_PHONE7
@@ -107,7 +107,7 @@ namespace MugenMvvmToolkit
 
         private AutofacContainer(ILifetimeScope container, IIocContainer parent)
         {
-            Should.NotBeNull(container, "container");
+            Should.NotBeNull(container, nameof(container));
             _container = container;
             _parent = parent;
             var containerBuilder = new ContainerBuilder();
@@ -224,7 +224,7 @@ namespace MugenMvvmToolkit
         public object Get(Type service, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
+            Should.NotBeNull(service, nameof(service));
             if (name == null)
                 return _container.Resolve(service, ConvertParameters(parameters));
             return _container.ResolveNamed(name, service, ConvertParameters(parameters));
@@ -233,7 +233,7 @@ namespace MugenMvvmToolkit
         public IEnumerable<object> GetAll(Type service, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
+            Should.NotBeNull(service, nameof(service));
             if (name == null)
                 return (IEnumerable<object>)_container
                     .Resolve(typeof(IEnumerable<>).MakeGenericType(service), ConvertParameters(parameters));
@@ -244,7 +244,7 @@ namespace MugenMvvmToolkit
         public void BindToConstant(Type service, object constValue, string name = null)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
+            Should.NotBeNull(service, nameof(service));
             var builder = new ContainerBuilder();
             if (name == null)
                 builder.RegisterInstance(constValue).As(service);
@@ -256,8 +256,8 @@ namespace MugenMvvmToolkit
         public void BindToMethod(Type service, Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
-            Should.NotBeNull(methodBindingDelegate, "methodBindingDelegate");
+            Should.NotBeNull(service, nameof(service));
+            Should.NotBeNull(methodBindingDelegate, nameof(methodBindingDelegate));
             if (parameters == null)
                 parameters = Empty.Array<IIocParameter>();
             var builder = new ContainerBuilder();
@@ -271,8 +271,8 @@ namespace MugenMvvmToolkit
         public void Bind(Type service, Type typeTo, DependencyLifecycle dependencyLifecycle, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
-            Should.NotBeNull(typeTo, "typeTo");
+            Should.NotBeNull(service, nameof(service));
+            Should.NotBeNull(typeTo, nameof(typeTo));
             var builder = new ContainerBuilder();
             IRegistrationBuilder<object, ConcreteReflectionActivatorData, SingleRegistrationStyle> syntax = name == null
                 ? builder.RegisterType(typeTo).As(service)
@@ -301,7 +301,7 @@ namespace MugenMvvmToolkit
 
         public bool CanResolve(Type service, string name = null)
         {
-            Should.NotBeNull(service, "service");
+            Should.NotBeNull(service, nameof(service));
             if (IsDisposed)
                 return false;
             if (name == null)

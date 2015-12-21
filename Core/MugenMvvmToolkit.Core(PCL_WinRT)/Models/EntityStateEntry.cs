@@ -39,7 +39,7 @@ namespace MugenMvvmToolkit.Models
 
         public EntityStateEntry(EntityState state, object entity)
         {
-            Should.NotBeNull(entity, "entity");
+            Should.NotBeNull(entity, nameof(entity));
             _state = state;
             _entity = entity;
         }

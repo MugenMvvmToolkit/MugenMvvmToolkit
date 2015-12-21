@@ -35,10 +35,10 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         private static void RegisterPreferenceMembers(IBindingMemberProvider memberProvider)
         {
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.Preference.Click);
-            BindingBuilderExtensions.RegisterDefaultBindingMember<TwoStatePreference>(() => preference => preference.Checked);
-            BindingBuilderExtensions.RegisterDefaultBindingMember<ListPreference>(() => preference => preference.Value);
-            BindingBuilderExtensions.RegisterDefaultBindingMember<MultiSelectListPreference>(() => preference => preference.Values);
-            BindingBuilderExtensions.RegisterDefaultBindingMember<EditTextPreference>(() => preference => preference.Text);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<TwoStatePreference>(nameof(TwoStatePreference.Checked));
+            BindingBuilderExtensions.RegisterDefaultBindingMember<ListPreference>(nameof(ListPreference.Value));
+            BindingBuilderExtensions.RegisterDefaultBindingMember<MultiSelectListPreference>(nameof(MultiSelectListPreference.Values));
+            BindingBuilderExtensions.RegisterDefaultBindingMember<EditTextPreference>(nameof(EditTextPreference.Text));
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.PreferenceGroup.ItemsSource);
             var changeMember = AttachedBindingMember.CreateEvent(AttachedMembers.Preference.ValueChangedEvent);
             BindingServiceProvider.MemberProvider.Register(changeMember);

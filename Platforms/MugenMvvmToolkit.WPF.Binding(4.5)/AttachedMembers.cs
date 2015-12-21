@@ -62,9 +62,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding
                 DataContext = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.DataContext);
                 Parent = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.Parent);
                 CommandParameter = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.CommandParameter);
-                Errors =
-                    new BindingMemberDescriptor<object, IEnumerable<object>>(
-                        AttachedMemberConstants.ErrorsPropertyMember);
+                Errors = new BindingMemberDescriptor<object, IEnumerable<object>>(AttachedMemberConstants.ErrorsPropertyMember);
             }
 
             #endregion
@@ -84,8 +82,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding
 
             static VisualElement()
             {
-                Visible = new BindingMemberDescriptor<UIElementEx, bool>("Visible");
-                Hidden = new BindingMemberDescriptor<UIElementEx, bool>("Hidden");
+                Visible = new BindingMemberDescriptor<UIElementEx, bool>(nameof(Visible));
+                Hidden = new BindingMemberDescriptor<UIElementEx, bool>(nameof(Hidden));
             }
 
         #endregion
@@ -104,8 +102,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding
 
             static UIElement()
             {
-                Visible = new BindingMemberDescriptor<UIElementEx, bool>("Visible");
-                Hidden = new BindingMemberDescriptor<UIElementEx, bool>("Hidden");
+                Visible = new BindingMemberDescriptor<UIElementEx, bool>(nameof(Visible));
+                Hidden = new BindingMemberDescriptor<UIElementEx, bool>(nameof(Hidden));
             }
 
             #endregion

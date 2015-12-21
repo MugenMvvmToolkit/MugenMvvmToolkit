@@ -107,19 +107,18 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
 
         private static void Register(IBindingMemberProvider memberProvider)
         {
-            Should.NotBeNull(memberProvider, "memberProvider");
-            BindingBuilderExtensions.RegisterDefaultBindingMember<TextBlock>(() => t => t.Text);
-            BindingBuilderExtensions.RegisterDefaultBindingMember<TextBox>(() => t => t.Text);
-            BindingBuilderExtensions.RegisterDefaultBindingMember<Button>("Click");
-            BindingBuilderExtensions.RegisterDefaultBindingMember<ComboBox>(() => c => c.ItemsSource);
-            BindingBuilderExtensions.RegisterDefaultBindingMember<ListBox>(() => c => c.ItemsSource);
-            BindingBuilderExtensions.RegisterDefaultBindingMember<ProgressBar>(() => c => c.Value);
+            BindingBuilderExtensions.RegisterDefaultBindingMember<TextBlock>(nameof(TextBlock.Text));
+            BindingBuilderExtensions.RegisterDefaultBindingMember<TextBox>(nameof(TextBox.Text));
+            BindingBuilderExtensions.RegisterDefaultBindingMember<Button>(nameof(Button.Click));
+            BindingBuilderExtensions.RegisterDefaultBindingMember<ComboBox>(nameof(ComboBox.ItemsSource));
+            BindingBuilderExtensions.RegisterDefaultBindingMember<ListBox>(nameof(ListBox.ItemsSource));
+            BindingBuilderExtensions.RegisterDefaultBindingMember<ProgressBar>(nameof(ProgressBar.Value));
 
             //UIElement
-            memberProvider.Register(AttachedBindingMember.CreateMember<UIElement, bool>("Visible",
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UIElement.Visible,
                     (info, view) => view.Visibility == Visibility.Visible,
                     (info, view, value) => view.Visibility = value ? Visibility.Visible : Visibility.Collapsed, ObserveVisiblityMember));
-            memberProvider.Register(AttachedBindingMember.CreateMember<UIElement, bool>("Hidden",
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UIElement.Hidden,
                     (info, view) => view.Visibility != Visibility.Visible,
                     (info, view, value) => view.Visibility = value ? Visibility.Collapsed : Visibility.Visible, ObserveVisiblityMember));
 
@@ -131,7 +130,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
 #if SILVERLIGHT || WINDOWSCOMMON || WINDOWS_PHONE
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, bool>(AttachedMemberConstants.Focused,
-                    (info, control) => FocusManager.GetFocusedElement() == control, null, "LostFocus"));
+                    (info, control) => FocusManager.GetFocusedElement() == control, null, nameof(FrameworkElement.LostFocus)));
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<Control, bool>(AttachedMemberConstants.Enabled,
                     (info, control) => control.IsEnabled,
@@ -139,27 +138,32 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
 #else
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, bool>(AttachedMemberConstants.Focused,
-                    (info, control) => control.IsFocused, null, "LostFocus"));
+                    (info, control) => control.IsFocused, null, nameof(FrameworkElement.LostFocus)));
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, bool>(AttachedMemberConstants.Enabled,
                     (info, control) => control.IsEnabled,
-                    (info, control, value) => control.IsEnabled = value, "IsEnabledChanged"));
+                    (info, control, value) => control.IsEnabled = value, nameof(FrameworkElement.IsEnabledChanged)));
 #endif
 
             //TextBox
 #if WINDOWSCOMMON
-            memberProvider.Register(AttachedBindingMember.CreateMember<TextBox, string>("Text",
+            memberProvider.Register(AttachedBindingMember.CreateMember<TextBox, string>(nameof(TextBox.Text),
                 (info, box) => box.Text,
-                (info, box, value) => box.Text = value ?? string.Empty, "TextChanged"));
+                (info, box, value) => box.Text = value ?? string.Empty, nameof(TextBox.TextChanged)));
 
             //TextBlock
-            memberProvider.Register(AttachedBindingMember.CreateMember<TextBlock, string>("Text",
+            memberProvider.Register(AttachedBindingMember.CreateMember<TextBlock, string>(nameof(TextBlock.Text),
                 (info, box) => box.Text,
                 (info, box, value) => box.Text = value ?? string.Empty, ObserveTextTextBlock));
 #else
             //WebBrowser
-            memberProvider.Register(AttachedBindingMember.CreateMember<WebBrowser, Uri>("Source",
-                (info, browser) => browser.Source, (info, browser, arg3) => browser.Source = arg3, "Navigated"));
+#if SILVERLIGHT
+            memberProvider.Register(AttachedBindingMember.CreateMember<WebBrowser, Uri>(nameof(WebBrowser),
+                            (info, browser) => browser.Source, (info, browser, arg3) => browser.Source = arg3));
+#else
+            memberProvider.Register(AttachedBindingMember.CreateMember<WebBrowser, Uri>(nameof(WebBrowser),
+                            (info, browser) => browser.Source, (info, browser, arg3) => browser.Source = arg3, nameof(WebBrowser.Navigated)));
+#endif
 #endif
         }
 
@@ -179,7 +183,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
 #if WINDOWS_UWP
             return DependencyPropertyBindingMember.ObserveProperty(uiElement, UIElement.VisibilityProperty, arg3);
 #elif WINDOWSCOMMON || WINDOWS_PHONE
-            return new DependencyPropertyBindingMember.DependencyPropertyListener(uiElement, "Visibility", arg3);
+            return new DependencyPropertyBindingMember.DependencyPropertyListener(uiElement, nameof(UIElement.Visibility), arg3);
 #else
             return new DependencyPropertyBindingMember.DependencyPropertyListener(uiElement, UIElement.VisibilityProperty, arg3);
 #endif
@@ -221,7 +225,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
 #if WINDOWS_UWP
             return DependencyPropertyBindingMember.ObserveProperty(textBlock, TextBlock.TextProperty, arg3);
 #else
-            return new DependencyPropertyBindingMember.DependencyPropertyListener(textBlock, "Text", arg3);
+            return new DependencyPropertyBindingMember.DependencyPropertyListener(textBlock, nameof(TextBlock.Text), arg3);
 #endif
         }
 #endif

@@ -78,7 +78,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
 
             public void Show(Toast toast, float duration, ToastPosition position)
             {
-                Should.NotBeNull(toast, "toast");
+                Should.NotBeNull(toast, nameof(toast));
                 _toast = toast;
                 switch (position)
                 {
@@ -92,7 +92,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
                         _toast.SetGravity(GravityFlags.Top | GravityFlags.CenterHorizontal, 0, 0);
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException("position");
+                        throw new ArgumentOutOfRangeException(nameof(position));
                 }
                 _toast.Duration = ToastLength.Short;
                 _toast.Show();
@@ -162,7 +162,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
 
         public ToastPresenter([NotNull] IThreadManager threadManager)
         {
-            Should.NotBeNull(threadManager, "threadManager");
+            Should.NotBeNull(threadManager, nameof(threadManager));
             _threadManager = threadManager;
         }
 

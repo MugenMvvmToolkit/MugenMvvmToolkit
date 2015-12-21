@@ -33,7 +33,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public DelegateComparer(Comparison<T> comparerDelegate)
         {
-            Should.NotBeNull(comparerDelegate, "comparerDelegate");
+            Should.NotBeNull(comparerDelegate, nameof(comparerDelegate));
             _compareDelegate = comparerDelegate;
         }
 

@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.Models
 
         public ActionSubscriber(Action<object, T> action)
         {
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(action, nameof(action));
             _action = action;
             _hash = ActionSubscriberGetHashCode(action.Target, action.GetMethodInfo());
         }

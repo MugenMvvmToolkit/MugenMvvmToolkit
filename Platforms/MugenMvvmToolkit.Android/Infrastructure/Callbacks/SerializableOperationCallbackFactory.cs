@@ -556,7 +556,7 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure.Callbacks
             public AwaiterContinuation(Action continuation, IHasStateMachine hasStateMachine, Type resultType, bool continueOnCapturedContext,
                 IAsyncOperation asyncOperation, ISerializer serializer)
             {
-                Should.NotBeNull(continuation, "continuation");
+                Should.NotBeNull(continuation, nameof(continuation));
                 _continuation = continuation;
                 _hasStateMachine = hasStateMachine;
                 _resultType = resultType;
@@ -704,8 +704,8 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure.Callbacks
 
             public DelegateSerializableCallback(string targetType, string methodName, bool firstParameterSource, bool isStatic, object target, List<FieldSnapshot> snapshots)
             {
-                Should.NotBeNull(targetType, "targetType");
-                Should.NotBeNull(methodName, "methodName");
+                Should.NotBeNull(targetType, nameof(targetType));
+                Should.NotBeNull(methodName, nameof(methodName));
                 Snapshots = snapshots;
                 TargetType = targetType;
                 MethodName = methodName;
@@ -809,12 +809,12 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure.Callbacks
         static SerializableOperationCallbackFactory()
         {
             GetDefaultGenericMethod = typeof(SerializableOperationCallbackFactory)
-                .GetMethodEx("GetDefaultGeneric", MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Static);
+                .GetMethodEx(nameof(GetDefaultGeneric), MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Static);
         }
 
         public SerializableOperationCallbackFactory(ISerializer serializer)
         {
-            Should.NotBeNull(serializer, "serializer");
+            Should.NotBeNull(serializer, nameof(serializer));
             _serializer = serializer;
         }
 
@@ -834,7 +834,7 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure.Callbacks
 
         public ISerializableCallback CreateSerializableCallback(Delegate @delegate)
         {
-            Should.NotBeNull(@delegate, "delegate");
+            Should.NotBeNull(@delegate, nameof(@delegate));
             var method = @delegate.GetMethodInfo();
             bool firstParameterSource;
             if (!CheckMethodParameters(method, out firstParameterSource))
@@ -870,7 +870,7 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure.Callbacks
 
         private SerializableAwaiter<TResult> CreateAwaiterInternal<TResult>(IAsyncOperation operation, IDataContext context)
         {
-            Should.NotBeNull(operation, "operation");
+            Should.NotBeNull(operation, nameof(operation));
             if (context == null)
                 context = DataContext.Empty;
             bool continueOnCapturedContext;

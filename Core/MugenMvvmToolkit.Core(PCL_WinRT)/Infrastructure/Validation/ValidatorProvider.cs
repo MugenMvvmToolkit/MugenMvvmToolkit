@@ -86,7 +86,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         public IList<IValidator> GetValidators(IValidatorContext context)
         {
-            Should.NotBeNull(context, "context");
+            Should.NotBeNull(context, nameof(context));
             var validators = new List<IValidator>();
             var instanceType = context.Instance.GetType();
             lock (_validators)

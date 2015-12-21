@@ -69,7 +69,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 Parent = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.Parent);
                 CommandParameter = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.CommandParameter);
                 Errors = new BindingMemberDescriptor<object, IEnumerable<object>>(AttachedMemberConstants.ErrorsPropertyMember);
-                StableIdProvider = new BindingMemberDescriptor<object, IStableIdProvider>("StableIdProvider");
+                StableIdProvider = new BindingMemberDescriptor<object, IStableIdProvider>(nameof(StableIdProvider));
             }
 
             #endregion
@@ -87,8 +87,8 @@ namespace MugenMvvmToolkit.Android.Binding
 
             static Activity()
             {
-                ToastTemplateSelector = new BindingMemberDescriptor<global::Android.App.Activity, IDataTemplateSelector>("ToastTemplateSelector");
-                StartActivityDelegate = new BindingMemberDescriptor<global::Android.App.Activity, Action<Context, Intent, IViewMappingItem, IDataContext>>("StartActivityDelegate");
+                ToastTemplateSelector = new BindingMemberDescriptor<global::Android.App.Activity, IDataTemplateSelector>(nameof(ToastTemplateSelector));
+                StartActivityDelegate = new BindingMemberDescriptor<global::Android.App.Activity, Action<Context, Intent, IViewMappingItem, IDataContext>>(nameof(StartActivityDelegate));
             }
 
             #endregion
@@ -112,13 +112,13 @@ namespace MugenMvvmToolkit.Android.Binding
 
             static View()
             {
-                Visible = new BindingMemberDescriptor<global::Android.Views.View, bool>("Visible");
-                Hidden = new BindingMemberDescriptor<global::Android.Views.View, bool>("Hidden");
-                PopupMenuTemplate = new BindingMemberDescriptor<global::Android.Views.View, int>("PopupMenuTemplate");
-                PopupMenuEvent = new BindingMemberDescriptor<global::Android.Views.View, string>("PopupMenuEvent");
+                Visible = new BindingMemberDescriptor<global::Android.Views.View, bool>(nameof(Visible));
+                Hidden = new BindingMemberDescriptor<global::Android.Views.View, bool>(nameof(Hidden));
+                PopupMenuTemplate = new BindingMemberDescriptor<global::Android.Views.View, int>(nameof(PopupMenuTemplate));
+                PopupMenuEvent = new BindingMemberDescriptor<global::Android.Views.View, string>(nameof(PopupMenuEvent));
                 PopupMenuPlacementTargetPath = new BindingMemberDescriptor<global::Android.Views.View, string>("PlacementTargetPath");
-                PopupMenuPresenter = new BindingMemberDescriptor<global::Android.Views.View, IPopupMenuPresenter>("PopupMenuPresenter");
-                Fragment = new BindingMemberDescriptor<global::Android.Views.View, object>("Fragment");
+                PopupMenuPresenter = new BindingMemberDescriptor<global::Android.Views.View, IPopupMenuPresenter>(nameof(PopupMenuPresenter));
+                Fragment = new BindingMemberDescriptor<global::Android.Views.View, object>(nameof(Fragment));
             }
 
             #endregion
@@ -136,7 +136,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
             static Dialog()
             {
-                Title = new BindingMemberDescriptor<global::Android.App.Dialog, string>("Title");
+                Title = new BindingMemberDescriptor<global::Android.App.Dialog, string>(nameof(Title));
             }
 
             #endregion
@@ -168,15 +168,15 @@ namespace MugenMvvmToolkit.Android.Binding
                 Content = new BindingMemberDescriptor<global::Android.Views.ViewGroup, object>(AttachedMemberConstants.Content);
                 ContentTemplate = new BindingMemberDescriptor<global::Android.Views.ViewGroup, int?>(AttachedMemberConstants.ContentTemplate);
                 ContentTemplateSelector = new BindingMemberDescriptor<global::Android.Views.ViewGroup, IDataTemplateSelector>(AttachedMemberConstants.ContentTemplateSelector);
-                ContentViewManager = new BindingMemberDescriptor<global::Android.Views.ViewGroup, IContentViewManager>("ContentViewManager");
-                AddToBackStack = new BindingMemberDescriptor<global::Android.Views.ViewGroup, bool>("AddToBackStack");
-                DisableHierarchyListener = new BindingMemberDescriptor<global::Android.Views.ViewGroup, bool>("DisableHierarchyListener");
+                ContentViewManager = new BindingMemberDescriptor<global::Android.Views.ViewGroup, IContentViewManager>(nameof(ContentViewManager));
+                AddToBackStack = new BindingMemberDescriptor<global::Android.Views.ViewGroup, bool>(nameof(AddToBackStack));
+                DisableHierarchyListener = new BindingMemberDescriptor<global::Android.Views.ViewGroup, bool>(nameof(DisableHierarchyListener));
 
                 ItemsSource = new BindingMemberDescriptor<global::Android.Views.ViewGroup, IEnumerable>(AttachedMemberConstants.ItemsSource);
                 ItemsSourceGenerator = new BindingMemberDescriptor<global::Android.Views.ViewGroup, IItemsSourceGenerator>(ItemsSourceGeneratorBase.MemberDescriptor);
                 ItemTemplate = new BindingMemberDescriptor<global::Android.Views.ViewGroup, int?>(AttachedMemberConstants.ItemTemplate);
                 ItemTemplateSelector = new BindingMemberDescriptor<global::Android.Views.ViewGroup, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
-                CollectionViewManager = new BindingMemberDescriptor<global::Android.Views.ViewGroup, ICollectionViewManager>("CollectionViewManager");
+                CollectionViewManager = new BindingMemberDescriptor<global::Android.Views.ViewGroup, ICollectionViewManager>(nameof(CollectionViewManager));
             }
 
             #endregion
@@ -198,11 +198,11 @@ namespace MugenMvvmToolkit.Android.Binding
 
             static AdapterView()
             {
-                DropDownItemTemplate = new BindingMemberDescriptor<global::Android.Widget.AdapterView, int?>("DropDownItemTemplate");
-                DropDownItemTemplateSelector = new BindingMemberDescriptor<global::Android.Widget.AdapterView, IDataTemplateSelector>("DropDownItemTemplateSelector");
-                SelectedItemPosition = new BindingMemberDescriptor<global::Android.Widget.AdapterView, int>("SelectedItemPosition");
+                DropDownItemTemplate = new BindingMemberDescriptor<global::Android.Widget.AdapterView, int?>(nameof(DropDownItemTemplate));
+                DropDownItemTemplateSelector = new BindingMemberDescriptor<global::Android.Widget.AdapterView, IDataTemplateSelector>(nameof(DropDownItemTemplateSelector));
+                SelectedItemPosition = new BindingMemberDescriptor<global::Android.Widget.AdapterView, int>(nameof(SelectedItemPosition));
                 SelectedItem = new BindingMemberDescriptor<global::Android.Widget.AdapterView, object>(AttachedMemberConstants.SelectedItem);
-                ScrollToSelectedItem = new BindingMemberDescriptor<global::Android.Widget.AdapterView, bool?>("ScrollToSelectedItem");
+                ScrollToSelectedItem = new BindingMemberDescriptor<global::Android.Widget.AdapterView, bool?>(nameof(ScrollToSelectedItem));
             }
 
             #endregion
@@ -222,7 +222,7 @@ namespace MugenMvvmToolkit.Android.Binding
             static TabHost()
             {
                 SelectedItem = new BindingMemberDescriptor<global::Android.Widget.TabHost, object>(AttachedMemberConstants.SelectedItem);
-                RestoreSelectedIndex = new BindingMemberDescriptor<global::Android.Widget.TabHost, bool?>("RestoreSelectedIndex");
+                RestoreSelectedIndex = new BindingMemberDescriptor<global::Android.Widget.TabHost, bool?>(nameof(RestoreSelectedIndex));
             }
 
             #endregion
@@ -240,7 +240,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
             static TabSpec()
             {
-                Title = new BindingMemberDescriptor<global::Android.Widget.TabHost.TabSpec, string>("Title");
+                Title = new BindingMemberDescriptor<global::Android.Widget.TabHost.TabSpec, string>(nameof(Title));
             }
 
             #endregion
@@ -280,7 +280,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
             static DatePicker()
             {
-                SelectedDate = new BindingMemberDescriptor<global::Android.Widget.DatePicker, DateTime>("SelectedDate");
+                SelectedDate = new BindingMemberDescriptor<global::Android.Widget.DatePicker, DateTime>(nameof(SelectedDate));
             }
 
             #endregion
@@ -298,7 +298,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
             static TimePicker()
             {
-                SelectedTime = new BindingMemberDescriptor<global::Android.Widget.TimePicker, TimeSpan>("SelectedTime");
+                SelectedTime = new BindingMemberDescriptor<global::Android.Widget.TimePicker, TimeSpan>(nameof(SelectedTime));
             }
 
             #endregion
@@ -316,7 +316,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
             static ImageView()
             {
-                ImageSource = new BindingMemberDescriptor<global::Android.Widget.ImageView, object>("ImageSource");
+                ImageSource = new BindingMemberDescriptor<global::Android.Widget.ImageView, object>(nameof(ImageSource));
             }
 
             #endregion
@@ -340,7 +340,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 ItemsSource = new BindingMemberDescriptor<IMenu, IEnumerable>(AttachedMemberConstants.ItemsSource);
                 ItemsSourceGenerator = ItemsSourceGeneratorBase.MemberDescriptor.Override<IMenu>();
                 Enabled = new BindingMemberDescriptor<IMenu, bool?>(AttachedMemberConstants.Enabled);
-                Visible = new BindingMemberDescriptor<IMenu, bool?>("Visible");
+                Visible = new BindingMemberDescriptor<IMenu, bool?>(nameof(Visible));
             }
 
             #endregion
@@ -368,17 +368,17 @@ namespace MugenMvvmToolkit.Android.Binding
 
             static MenuItem()
             {
-                Icon = new BindingMemberDescriptor<IMenuItem, object>("Icon");
-                Title = new BindingMemberDescriptor<IMenuItem, string>("Title");
-                TitleCondensed = new BindingMemberDescriptor<IMenuItem, string>("TitleCondensed");
-                ActionView = new BindingMemberDescriptor<IMenuItem, object>("ActionView");
-                ActionViewTemplateSelector = new BindingMemberDescriptor<IMenuItem, IDataTemplateSelector>("ActionViewTemplateSelector");
+                Icon = new BindingMemberDescriptor<IMenuItem, object>(nameof(Icon));
+                Title = new BindingMemberDescriptor<IMenuItem, string>(nameof(Title));
+                TitleCondensed = new BindingMemberDescriptor<IMenuItem, string>(nameof(TitleCondensed));
+                ActionView = new BindingMemberDescriptor<IMenuItem, object>(nameof(ActionView));
+                ActionViewTemplateSelector = new BindingMemberDescriptor<IMenuItem, IDataTemplateSelector>(nameof(ActionViewTemplateSelector));
                 ActionProvider = new BindingMemberDescriptor<IMenuItem, object>("ActionProvider");
-                ActionProviderTemplateSelector = new BindingMemberDescriptor<IMenuItem, IDataTemplateSelector>("ActionProviderTemplateSelector");
-                IsActionViewExpanded = new BindingMemberDescriptor<IMenuItem, bool>("IsActionViewExpanded");
-                ShowAsAction = new BindingMemberDescriptor<IMenuItem, ShowAsAction>("ShowAsAction");
-                IsChecked = new BindingMemberDescriptor<IMenuItem, bool>("IsChecked");
-                Click = new BindingMemberDescriptor<IMenuItem, IEventListener>("Click");
+                ActionProviderTemplateSelector = new BindingMemberDescriptor<IMenuItem, IDataTemplateSelector>(nameof(ActionProviderTemplateSelector));
+                IsActionViewExpanded = new BindingMemberDescriptor<IMenuItem, bool>(nameof(IsActionViewExpanded));
+                ShowAsAction = new BindingMemberDescriptor<IMenuItem, ShowAsAction>(nameof(ShowAsAction));
+                IsChecked = new BindingMemberDescriptor<IMenuItem, bool>(nameof(IsChecked));
+                Click = new BindingMemberDescriptor<IMenuItem, IEventListener>(nameof(Click));
             }
 
             #endregion
@@ -440,7 +440,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
             static View()
             {
-                DrawerIsOpened = new BindingMemberDescriptor<global::Android.Views.View, bool>("DrawerIsOpened");
+                DrawerIsOpened = new BindingMemberDescriptor<global::Android.Views.View, bool>(nameof(DrawerIsOpened));
             }
 
         #endregion
@@ -462,7 +462,7 @@ namespace MugenMvvmToolkit.Android.Binding
             static ViewPager()
             {
                 SelectedItem = new BindingMemberDescriptor<global::Android.Support.V4.View.ViewPager, object>(AttachedMemberConstants.SelectedItem);
-                CurrentItem = new BindingMemberDescriptor<global::Android.Support.V4.View.ViewPager, int>("CurrentItem");
+                CurrentItem = new BindingMemberDescriptor<global::Android.Support.V4.View.ViewPager, int>(nameof(CurrentItem));
                 GetPageTitleDelegate = new BindingMemberDescriptor<global::Android.Support.V4.View.ViewPager, Func<object, ICharSequence>>("GetPageTitle");
                 RestoreSelectedIndex = AttachedMembers.TabHost.RestoreSelectedIndex.Override<global::Android.Support.V4.View.ViewPager>();
             }
@@ -483,8 +483,8 @@ namespace MugenMvvmToolkit.Android.Binding
 
             static DrawerLayout()
             {
-                ActionBarDrawerToggleEnabled = new BindingMemberDescriptor<global::Android.Support.V4.Widget.DrawerLayout, bool>("ActionBarDrawerToggleEnabled");
-                DrawerListener = new BindingMemberDescriptor<global::Android.Support.V4.Widget.DrawerLayout, object>("DrawerListener");
+                ActionBarDrawerToggleEnabled = new BindingMemberDescriptor<global::Android.Support.V4.Widget.DrawerLayout, bool>(nameof(ActionBarDrawerToggleEnabled));
+                DrawerListener = new BindingMemberDescriptor<global::Android.Support.V4.Widget.DrawerLayout, object>(nameof(DrawerListener));
             }
 
         #endregion
@@ -529,27 +529,27 @@ namespace MugenMvvmToolkit.Android.Binding
 
             static ActionBar()
             {
-                BackgroundDrawable = new BindingMemberDescriptor<ActionBarEx, object>("BackgroundDrawable");
-                CustomView = new BindingMemberDescriptor<ActionBarEx, object>("CustomView");
-                ContextActionBarTemplate = new BindingMemberDescriptor<ActionBarEx, int?>("ContextActionBarTemplate");
-                ContextActionBarVisible = new BindingMemberDescriptor<ActionBarEx, bool>("ContextActionBarVisible");
-                DisplayHomeAsUpEnabled = new BindingMemberDescriptor<ActionBarEx, bool>("DisplayHomeAsUpEnabled");
-                DisplayOptions = new BindingMemberDescriptor<ActionBarEx, ActionBarDisplayOptions>("DisplayOptions");
-                DisplayShowCustomEnabled = new BindingMemberDescriptor<ActionBarEx, bool>("DisplayShowCustomEnabled");
-                DisplayShowHomeEnabled = new BindingMemberDescriptor<ActionBarEx, bool>("DisplayShowHomeEnabled");
-                DisplayShowTitleEnabled = new BindingMemberDescriptor<ActionBarEx, bool>("DisplayShowTitleEnabled");
-                DisplayUseLogoEnabled = new BindingMemberDescriptor<ActionBarEx, bool>("DisplayUseLogoEnabled");
-                HomeButtonEnabled = new BindingMemberDescriptor<ActionBarEx, bool>("HomeButtonEnabled");
+                BackgroundDrawable = new BindingMemberDescriptor<ActionBarEx, object>(nameof(BackgroundDrawable));
+                CustomView = new BindingMemberDescriptor<ActionBarEx, object>(nameof(CustomView));
+                ContextActionBarTemplate = new BindingMemberDescriptor<ActionBarEx, int?>(nameof(ContextActionBarTemplate));
+                ContextActionBarVisible = new BindingMemberDescriptor<ActionBarEx, bool>(nameof(ContextActionBarVisible));
+                DisplayHomeAsUpEnabled = new BindingMemberDescriptor<ActionBarEx, bool>(nameof(DisplayHomeAsUpEnabled));
+                DisplayOptions = new BindingMemberDescriptor<ActionBarEx, ActionBarDisplayOptions>(nameof(DisplayOptions));
+                DisplayShowCustomEnabled = new BindingMemberDescriptor<ActionBarEx, bool>(nameof(DisplayShowCustomEnabled));
+                DisplayShowHomeEnabled = new BindingMemberDescriptor<ActionBarEx, bool>(nameof(DisplayShowHomeEnabled));
+                DisplayShowTitleEnabled = new BindingMemberDescriptor<ActionBarEx, bool>(nameof(DisplayShowTitleEnabled));
+                DisplayUseLogoEnabled = new BindingMemberDescriptor<ActionBarEx, bool>(nameof(DisplayUseLogoEnabled));
+                HomeButtonEnabled = new BindingMemberDescriptor<ActionBarEx, bool>(nameof(HomeButtonEnabled));
                 HomeButtonClick = new BindingMemberDescriptor<ActionBarEx, IEventListener>("HomeButton.Click");
-                Icon = new BindingMemberDescriptor<ActionBarEx, object>("Icon");
-                Logo = new BindingMemberDescriptor<ActionBarEx, object>("Logo");
-                NavigationMode = new BindingMemberDescriptor<ActionBarEx, ActionBarNavigationMode>("NavigationMode");
-                SplitBackgroundDrawable = new BindingMemberDescriptor<ActionBarEx, object>("SplitBackgroundDrawable");
-                StackedBackgroundDrawable = new BindingMemberDescriptor<ActionBarEx, object>("StackedBackgroundDrawable");
-                IsShowing = new BindingMemberDescriptor<ActionBarEx, bool>("IsShowing");
-                Visible = new BindingMemberDescriptor<ActionBarEx, bool>("Visible");
+                Icon = new BindingMemberDescriptor<ActionBarEx, object>(nameof(Icon));
+                Logo = new BindingMemberDescriptor<ActionBarEx, object>(nameof(Logo));
+                NavigationMode = new BindingMemberDescriptor<ActionBarEx, ActionBarNavigationMode>(nameof(NavigationMode));
+                SplitBackgroundDrawable = new BindingMemberDescriptor<ActionBarEx, object>(nameof(SplitBackgroundDrawable));
+                StackedBackgroundDrawable = new BindingMemberDescriptor<ActionBarEx, object>(nameof(StackedBackgroundDrawable));
+                IsShowing = new BindingMemberDescriptor<ActionBarEx, bool>(nameof(IsShowing));
+                Visible = new BindingMemberDescriptor<ActionBarEx, bool>(nameof(Visible));
                 ItemsSource = new BindingMemberDescriptor<ActionBarEx, IEnumerable>(AttachedMemberConstants.ItemsSource);
-                ItemsSourceAdapter = new BindingMemberDescriptor<ActionBarEx, IItemsSourceAdapter>("ItemsSourceAdapter");
+                ItemsSourceAdapter = new BindingMemberDescriptor<ActionBarEx, IItemsSourceAdapter>(nameof(ItemsSourceAdapter));
                 SelectedItem = new BindingMemberDescriptor<ActionBarEx, object>(AttachedMemberConstants.SelectedItem);
                 ItemsSourceGenerator = new BindingMemberDescriptor<ActionBarEx, IItemsSourceGenerator>(ItemsSourceGeneratorBase.MemberDescriptor);
                 ItemTemplate = new BindingMemberDescriptor<ActionBarEx, int?>(AttachedMemberConstants.ItemTemplate);
@@ -581,8 +581,8 @@ namespace MugenMvvmToolkit.Android.Binding
                 Content = new BindingMemberDescriptor<ActionBarEx.Tab, object>(AttachedMemberConstants.Content);
                 ContentTemplate = new BindingMemberDescriptor<ActionBarEx.Tab, int?>(AttachedMemberConstants.ContentTemplate);
                 ContentTemplateSelector = new BindingMemberDescriptor<ActionBarEx.Tab, IDataTemplateSelector>(AttachedMemberConstants.ContentTemplateSelector);
-                CustomView = new BindingMemberDescriptor<ActionBarEx.Tab, object>("CustomView");
-                Icon = new BindingMemberDescriptor<ActionBarEx.Tab, object>("Icon");
+                CustomView = new BindingMemberDescriptor<ActionBarEx.Tab, object>(nameof(CustomView));
+                Icon = new BindingMemberDescriptor<ActionBarEx.Tab, object>(nameof(Icon));
             }
 
             #endregion
@@ -601,8 +601,8 @@ namespace MugenMvvmToolkit.Android.Binding
 
             static Toolbar()
             {
-                IsActionBar = new BindingMemberDescriptor<TolbarEx, bool>("IsActionBar");
-                MenuTemplate = new BindingMemberDescriptor<TolbarEx, int>("MenuTemplate");
+                IsActionBar = new BindingMemberDescriptor<TolbarEx, bool>(nameof(IsActionBar));
+                MenuTemplate = new BindingMemberDescriptor<TolbarEx, int>(nameof(MenuTemplate));
             }
 
             #endregion

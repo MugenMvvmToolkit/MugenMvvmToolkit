@@ -58,7 +58,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
 
         internal ItemsSourceGenerator([NotNull] object view)
         {
-            Should.NotBeNull(view, "view");
+            Should.NotBeNull(view, nameof(view));
             var type = view.GetType();
             _view = ServiceProvider.WeakReferenceFactory(view);
             _itemTemplateMember = BindingServiceProvider

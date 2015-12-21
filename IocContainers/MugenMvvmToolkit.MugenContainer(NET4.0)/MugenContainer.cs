@@ -102,7 +102,7 @@ namespace MugenMvvmToolkit
 
         public MugenContainer(IInjector injector, IIocContainer parent = null)
         {
-            Should.NotBeNull(injector, "injector");
+            Should.NotBeNull(injector, nameof(injector));
             _injector = injector;
             _injector.Disposed += InjectorOnDisposed;
             _parent = parent;
@@ -229,7 +229,7 @@ namespace MugenMvvmToolkit
         public object Get(Type service, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
+            Should.NotBeNull(service, nameof(service));
             if (name == null)
                 return _injector.Get(service, ConvertParameters(parameters));
             return _injector.Get(service, name, null, ConvertParameters(parameters));
@@ -238,7 +238,7 @@ namespace MugenMvvmToolkit
         public IEnumerable<object> GetAll(Type service, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
+            Should.NotBeNull(service, nameof(service));
             if (name == null)
                 return _injector.GetAll(service, ConvertParameters(parameters));
             return _injector.GetAll(service, name, null, ConvertParameters(parameters));
@@ -247,7 +247,7 @@ namespace MugenMvvmToolkit
         public void BindToConstant(Type service, object constValue, string name = null)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
+            Should.NotBeNull(service, nameof(service));
             IConstantObjectPriorityWhenSyntax syntax = _injector.BindWithManualBuild(service).ToConstant(constValue);
             if (name != null)
                 syntax.NamedBinding(name);
@@ -257,8 +257,8 @@ namespace MugenMvvmToolkit
         public void BindToMethod(Type service, Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
-            Should.NotBeNull(methodBindingDelegate, "methodBindingDelegate");
+            Should.NotBeNull(service, nameof(service));
+            Should.NotBeNull(methodBindingDelegate, nameof(methodBindingDelegate));
             if (parameters == null)
                 parameters = Empty.Array<IIocParameter>();
             IMethodCallbackObjectPriorityUseWithSyntax syntax = _injector.BindWithManualBuild(service).ToMethod(context => methodBindingDelegate(this, GetParameters(parameters, context))).InScope(GetScope(lifecycle));
@@ -270,8 +270,8 @@ namespace MugenMvvmToolkit
         public void Bind(Type service, Type typeTo, DependencyLifecycle dependencyLifecycle, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
-            Should.NotBeNull(typeTo, "typeTo");
+            Should.NotBeNull(service, nameof(service));
+            Should.NotBeNull(typeTo, nameof(typeTo));
             ITypeCallbackConstructorObjectPriorityUseWithSyntax syntax = _injector.BindWithManualBuild(service).To(typeTo).InScope(GetScope(dependencyLifecycle));
             if (parameters != null)
             {
@@ -286,13 +286,13 @@ namespace MugenMvvmToolkit
         public void Unbind(Type service)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
+            Should.NotBeNull(service, nameof(service));
             _injector.Unbind(service);
         }
 
         public bool CanResolve(Type service, string name = null)
         {
-            Should.NotBeNull(service, "service");
+            Should.NotBeNull(service, nameof(service));
             if (IsDisposed)
                 return false;
             if (name == null)

@@ -72,7 +72,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Parse
 
         public void Visit([NotNull] IList<XmlExpressionNode> nodes)
         {
-            Should.NotBeNull(nodes, "nodes");
+            Should.NotBeNull(nodes, nameof(nodes));
             _nodes.Clear();
             _isInvlalid = false;
             for (int i = 0; i < nodes.Count; i++)

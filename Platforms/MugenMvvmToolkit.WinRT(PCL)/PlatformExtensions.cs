@@ -54,7 +54,7 @@ namespace MugenMvvmToolkit.WinRT
                     if (type == null)
                         return;
                     var eventInfo = type.GetEventEx("BackPressed", MemberFlags.Public | MemberFlags.Static);
-                    var handleMethod = typeof(ReflectionExtensions.IWeakEventHandler<object>).GetMethodEx("Handle", MemberFlags.Public | MemberFlags.Instance);
+                    var handleMethod = typeof(ReflectionExtensions.IWeakEventHandler<object>).GetMethodEx(nameof(ReflectionExtensions.IWeakEventHandler<object>.Handle), MemberFlags.Public | MemberFlags.Instance);
                     if (eventInfo == null || handleMethod == null || eventInfo.AddMethod == null)
                         return;
                     object token = null;

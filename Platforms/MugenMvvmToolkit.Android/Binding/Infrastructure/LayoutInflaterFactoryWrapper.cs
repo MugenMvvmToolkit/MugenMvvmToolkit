@@ -71,8 +71,8 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         private LayoutInflaterFactoryWrapper(LayoutInflater inflater, IViewFactory viewFactory)
         {
-            Should.NotBeNull(inflater, "inflater");
-            Should.NotBeNull(viewFactory, "viewFactory");
+            Should.NotBeNull(inflater, nameof(inflater));
+            Should.NotBeNull(viewFactory, nameof(viewFactory));
             _viewFactory = viewFactory;
             _factory = inflater.Factory;
             if (Factory2Field != null)

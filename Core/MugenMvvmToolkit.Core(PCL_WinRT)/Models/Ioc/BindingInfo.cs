@@ -75,7 +75,7 @@ namespace MugenMvvmToolkit.Models.IoC
 
         public static BindingInfo<T> FromInstance(T instance, string name = null)
         {
-            Should.NotBeNull(instance, "instance");
+            Should.NotBeNull(instance, nameof(instance));
             return new BindingInfo<T>(null, null, instance, DependencyLifecycle.SingleInstance, name, null);
         }
 
@@ -87,7 +87,7 @@ namespace MugenMvvmToolkit.Models.IoC
 
         public static BindingInfo<T> FromType(Type serviceType, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
-            Should.NotBeNull(serviceType, "serviceType");
+            Should.NotBeNull(serviceType, nameof(serviceType));
             Should.BeOfType<T>(serviceType, "serviceType");
             return new BindingInfo<T>(serviceType, null, default(T), lifecycle, name, parameters);
         }
@@ -95,13 +95,13 @@ namespace MugenMvvmToolkit.Models.IoC
         public static BindingInfo<T> FromMethod(Func<IIocContainer, IList<IIocParameter>, T> methodBindingDelegate,
             DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
-            Should.NotBeNull(methodBindingDelegate, "methodBindingDelegate");
+            Should.NotBeNull(methodBindingDelegate, nameof(methodBindingDelegate));
             return new BindingInfo<T>(null, methodBindingDelegate, default(T), lifecycle, name, parameters);
         }
 
         public void SetBinding(IIocContainer iocContainer)
         {
-            Should.NotBeNull(iocContainer, "iocContainer");
+            Should.NotBeNull(iocContainer, nameof(iocContainer));
             if (IsEmpty)
                 return;
             if (MethodBindingDelegate != null)

@@ -39,14 +39,14 @@ namespace MugenMvvmToolkit.Attributes
 
         public DisplayNameAttribute([NotNull] string displayName)
         {
-            Should.NotBeNullOrEmpty(displayName, "displayName");
+            Should.NotBeNullOrEmpty(displayName, nameof(displayName));
             _displayName = displayName;
         }
 
         public DisplayNameAttribute([NotNull] Type resourceType, [NotNull] string resourceName)
         {
-            Should.NotBeNull(resourceType, "resourceType");
-            Should.NotBeNullOrWhitespace(resourceName, "resourceName");
+            Should.NotBeNull(resourceType, nameof(resourceType));
+            Should.NotBeNullOrWhitespace(resourceName, nameof(resourceName));
             _resourceAccessor = FindResourceAccessor(resourceName, resourceType);
         }
 

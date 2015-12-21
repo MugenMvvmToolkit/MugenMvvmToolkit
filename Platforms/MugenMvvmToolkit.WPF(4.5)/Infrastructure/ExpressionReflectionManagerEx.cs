@@ -56,8 +56,8 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         public override Delegate TryCreateDelegate(Type delegateType, object target, MethodInfo method)
         {
-            Should.NotBeNull(delegateType, "delegateType");
-            Should.NotBeNull(method, "method");
+            Should.NotBeNull(delegateType, nameof(delegateType));
+            Should.NotBeNull(method, nameof(method));
             Func<object, Delegate> value;
             lock (DelegatesCache)
             {

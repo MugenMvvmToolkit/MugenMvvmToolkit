@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.Android.RecyclerView
             static RecyclerView()
             {
                 CreateViewHolderDelegate = new BindingMemberDescriptor<global::Android.Support.V7.Widget.RecyclerView,
-                    Func<LayoutInflater, ViewGroup, int, global::Android.Support.V7.Widget.RecyclerView.ViewHolder>>("CreateViewHolderDelegate");
+                    Func<LayoutInflater, ViewGroup, int, global::Android.Support.V7.Widget.RecyclerView.ViewHolder>>(nameof(CreateViewHolderDelegate));
             }
 
             #endregion

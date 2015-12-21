@@ -45,7 +45,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms
 
         static LinkerInclude()
         {
-            CreateLambdaGeneric = typeof(LinkerInclude).GetMethodEx("CreateLambdaExpressionGeneric",
+            CreateLambdaGeneric = typeof(LinkerInclude).GetMethodEx(nameof(CreateLambdaExpressionGeneric),
                 MemberFlags.Static | MemberFlags.NonPublic);
         }
 

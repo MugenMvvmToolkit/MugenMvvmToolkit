@@ -117,7 +117,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         protected MediatorBase([NotNull] TTarget target)
         {
-            Should.NotBeNull(target, "target");
+            Should.NotBeNull(target, nameof(target));
             _target = target;
         }
 

@@ -59,8 +59,8 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
              [NotNull] IViewModelProvider viewModelProvider)
             : base(viewModel, threadManager, viewManager, wrapperManager, operationCallbackManager)
         {
-            Should.NotBeNull(viewMappingProvider, "viewMappingProvider");
-            Should.NotBeNull(viewModelProvider, "viewModelProvider");
+            Should.NotBeNull(viewMappingProvider, nameof(viewMappingProvider));
+            Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));
             _viewMappingProvider = viewMappingProvider;
             _viewModelProvider = viewModelProvider;
             UseAnimations = true;

@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         protected WindowsPhoneBootstrapperBase([NotNull] PhoneApplicationFrame rootFrame, PlatformInfo platform = null)
         {
-            Should.NotBeNull(rootFrame, "rootFrame");
+            Should.NotBeNull(rootFrame, nameof(rootFrame));
             _rootFrame = rootFrame;
             _platform = platform ?? PlatformExtensions.GetPlatformInfo();
             PhoneApplicationService.Current.Launching += OnLaunching;
@@ -85,7 +85,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
             var service = CreateNavigationService(_rootFrame);
             if (service != null)
                 iocContainer.BindToConstant(service);
-            Should.PropertyNotBeNull(PhoneApplicationService.Current, "PhoneApplicationService.Current");
+            Should.PropertyNotBeNull(PhoneApplicationService.Current, nameof(PhoneApplicationService) + nameof(PhoneApplicationService.Current));
         }
 
         #endregion

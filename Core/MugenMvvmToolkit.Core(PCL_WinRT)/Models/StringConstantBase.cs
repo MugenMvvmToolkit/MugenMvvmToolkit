@@ -42,7 +42,7 @@ namespace MugenMvvmToolkit.Models
 
         protected StringConstantBase(string id)
         {
-            Should.NotBeNull(id, "id");
+            Should.NotBeNull(id, nameof(id));
             Id = id;
         }
 

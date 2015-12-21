@@ -54,7 +54,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             public DefaultApp(Type startViewModelType, LoadMode mode = LoadMode.Runtime)
                 : base(mode)
             {
-                Should.NotBeNull(startViewModelType, "startViewModelType");
+                Should.NotBeNull(startViewModelType, nameof(startViewModelType));
                 Should.BeOfType<IViewModel>(startViewModelType, "startViewModelType");
                 _startViewModelType = startViewModelType;
             }
