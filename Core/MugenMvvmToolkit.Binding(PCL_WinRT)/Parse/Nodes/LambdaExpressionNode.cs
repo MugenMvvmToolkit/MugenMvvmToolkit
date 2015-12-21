@@ -79,7 +79,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         {
             if (Parameters.Count == 0)
                 return "() => " + Expression;
-            return string.Format("({0}) => {1}", string.Join(", ", Parameters), Expression);
+            return $"({string.Join(", ", Parameters)}) => {Expression}";
         }
 
         #endregion

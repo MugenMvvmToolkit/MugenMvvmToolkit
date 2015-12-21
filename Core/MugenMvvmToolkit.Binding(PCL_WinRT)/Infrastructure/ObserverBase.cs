@@ -378,7 +378,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public override string ToString()
         {
-            return string.Format("{0}, Member: {1}, IsValid: {2}", Path, GetPathMembers(false).LastMember, Validate(false).ToString());
+            return $"{Path}, Member: {GetPathMembers(false).LastMember}, IsValid: {Validate(false).ToString()}";
         }
 
         #endregion

@@ -98,11 +98,11 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         {
             string typeArgs = null;
             if (TypeArgs.Count != 0)
-                typeArgs = string.Format("<{0}>", string.Join(", ", TypeArgs));
+                typeArgs = $"<{string.Join(", ", TypeArgs)}>";
             string @join = string.Join(",", Arguments);
             if (Target == null)
-                return string.Format("{0}{1}({2})", Method, typeArgs, join);
-            return string.Format("{0}.{1}{2}({3})", Target, Method, typeArgs, join);
+                return $"{Method}{typeArgs}({@join})";
+            return $"{Target}.{Method}{typeArgs}({@join})";
         }
 
         #endregion

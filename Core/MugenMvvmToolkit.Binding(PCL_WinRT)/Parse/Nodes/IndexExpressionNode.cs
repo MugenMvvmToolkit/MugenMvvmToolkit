@@ -77,7 +77,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         public override string ToString()
         {
             string @join = string.Join(", ", Arguments);
-            return string.Format("{0}[{1}]", Object, join);
+            return $"{Object}[{@join}]";
         }
 
         #endregion

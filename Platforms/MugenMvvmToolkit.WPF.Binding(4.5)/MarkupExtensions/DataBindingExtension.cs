@@ -169,7 +169,7 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             if (memberInfo != null)
                 return name;
 
-            var fullName = string.Format("_attached_{0}_{1}", declaringType.FullName.Replace(".", "_"), name);
+            var fullName = $"_attached_{declaringType.FullName.Replace(".", "_")}_{name}";
             memberInfo = BindingServiceProvider
                                         .MemberProvider
                                         .GetBindingMember(targetType, fullName, false, false);

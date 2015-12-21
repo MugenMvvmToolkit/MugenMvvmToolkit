@@ -181,9 +181,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             if (expression == "{}")
                 return string.Empty;
             if (!expression.EndsWith("}"))
-                throw new ArgumentException(
-                    string.Format("The binding string should start with '{{' symbol and end with '}}' symbol, invalid string: '{0}'", expression),
-                    expression);
+                throw new ArgumentException($"The binding string should start with '{{' symbol and end with '}}' symbol, invalid string: '{expression}'", expression);
             return expression.Substring(1, expression.Length - 2);
         }
 

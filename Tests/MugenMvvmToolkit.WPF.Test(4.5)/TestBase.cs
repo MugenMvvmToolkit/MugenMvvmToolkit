@@ -116,11 +116,11 @@ namespace MugenMvvmToolkit.Test
                 if (aggregateException != null)
                     exception = GetOriginalException(aggregateException);
                 if (!(exception is T))
-                    throw new InvalidOperationException(string.Format("The exception is wrong {0}.", exception));
+                    throw new InvalidOperationException($"The exception is wrong {exception}.");
                 Tracer.Info("Error : " + exception);
                 return;
             }
-            throw new InvalidOperationException(string.Format("The exception {0} was not thrown.", typeof(T)));
+            throw new InvalidOperationException($"The exception {typeof (T)} was not thrown.");
         }
 
         protected void ShouldThrow(Action action)

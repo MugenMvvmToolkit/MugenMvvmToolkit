@@ -105,17 +105,17 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
             {
                 if (string.IsNullOrEmpty(Path))
                     return "{RelativeSource Self}";
-                return string.Format("{{RelativeSource Self, Path={0}}}", Path);
+                return $"{{RelativeSource Self, Path={Path}}}";
             }
             if (Type == ElementSourceType)
             {
                 if (string.IsNullOrEmpty(Path))
-                    return string.Format("{{ElementSource {0}}}", ElementName);
-                return string.Format("{{ElementSource {0}, Path={1}}}", ElementName, Path);
+                    return $"{{ElementSource {ElementName}}}";
+                return $"{{ElementSource {ElementName}, Path={Path}}}";
             }
             if (string.IsNullOrEmpty(Path))
-                return string.Format("{{RelativeSource {0}, Level={1}}}", ElementName, Level.ToString());
-            return string.Format("{{RelativeSource {0}, Path={1}, Level={2}}}", Type, Path, Level.ToString());
+                return $"{{RelativeSource {ElementName}, Level={Level.ToString()}}}";
+            return $"{{RelativeSource {Type}, Path={Path}, Level={Level.ToString()}}}";
         }
 
         #endregion

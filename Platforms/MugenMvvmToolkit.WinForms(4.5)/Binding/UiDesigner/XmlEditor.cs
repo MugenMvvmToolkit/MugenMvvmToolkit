@@ -610,7 +610,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
                         {
                             var newIndex = SelectionStart + 1;
                             SelectionLength = 0;
-                            SelectedText = string.Format("></{0}>", element.Name);
+                            SelectedText = $"></{element.Name}>";
                             SelectionStart = newIndex;
                             e.Handled = true;
                         }

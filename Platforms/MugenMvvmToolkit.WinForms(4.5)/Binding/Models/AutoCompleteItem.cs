@@ -55,8 +55,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Models
             Should.NotBeNull(value, "value");
             Type = type ?? typeof(object);
             DisplayName = memberType.HasValue
-                ? string.Format("{0} ({1} - {2})", displayName, Type.Name,
-                    memberType.Value == MemberTypes.Custom ? "Attached" : memberType.Value.ToString())
+                ? $"{displayName} ({Type.Name} - {(memberType.Value == MemberTypes.Custom ? "Attached" : memberType.Value.ToString())})"
                 : displayName;
             Value = value;
             MemberType = memberType.GetValueOrDefault(MemberTypes.Custom);

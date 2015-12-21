@@ -163,7 +163,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
                     _controlsDictionary[name] = completeItems;
                 }
                 AddCompleteItems(type, completeItems);
-                _controlsCompleteItems.Add(new AutoCompleteItem(string.Format("{0} ({1})", name, type.Name), name));
+                _controlsCompleteItems.Add(new AutoCompleteItem($"{name} ({type.Name})", name));
             }
             catch (Exception)
             {
@@ -196,7 +196,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
         private static string GetDisplayName(object instance, string name, Type type)
         {
             string text = instance == null ? null : PlatformExtensions.TryGetValue(instance, "Text");
-            return string.Format("{0} ({1}{2})", name, type.Name, string.IsNullOrEmpty(text) ? "" : ", " + text);
+            return $"{name} ({type.Name}{(string.IsNullOrEmpty(text) ? "" : ", " + text)})";
         }
 
         private ICollection<AutoCompleteItem> FindControlMemberItems(Type type, string value)

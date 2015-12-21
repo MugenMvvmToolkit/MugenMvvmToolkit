@@ -403,7 +403,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             Should.NotBeNull(context, "context");
             IViewModel viewModel = context.GetData(NavigationConstants.ViewModel);
             if (viewModel == null)
-                throw new InvalidOperationException(string.Format("The '{0}' provider doesn't support the DataContext without navigation target.", GetType()));
+                throw new InvalidOperationException($"The '{GetType()}' provider doesn't support the DataContext without navigation target.");
             context = context.ToNonReadOnly();
             if (ReferenceEquals(viewModel, CurrentViewModel))
             {

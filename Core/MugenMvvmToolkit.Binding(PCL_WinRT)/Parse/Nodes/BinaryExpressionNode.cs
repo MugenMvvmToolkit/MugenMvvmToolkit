@@ -81,7 +81,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         public override string ToString()
         {
-            return string.Format("({0} {1} {2})", Left, Token.Value, Right);
+            return $"({Left} {Token.Value} {Right})";
         }
 
         #endregion

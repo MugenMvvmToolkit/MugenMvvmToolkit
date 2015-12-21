@@ -82,8 +82,7 @@ namespace MugenMvvmToolkit.Models
 
         public override string ToString()
         {
-            return string.Format("View: {0}, ViewModelType: {1}, Name: {2}, Uri: {3}", ViewType, ViewModelType, Name,
-                Uri);
+            return $"View: {ViewType}, ViewModelType: {ViewModelType}, Name: {Name}, Uri: {Uri}";
         }
 
         #endregion

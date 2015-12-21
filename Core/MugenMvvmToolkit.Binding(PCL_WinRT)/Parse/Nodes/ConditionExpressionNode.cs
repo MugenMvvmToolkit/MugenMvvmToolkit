@@ -84,7 +84,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         public override string ToString()
         {
-            return string.Format("if ({0}) {{{1}}} else {{{2}}}", Condition, IfTrue, IfFalse);
+            return $"if ({Condition}) {{{IfTrue}}} else {{{IfFalse}}}";
         }
 
         #endregion

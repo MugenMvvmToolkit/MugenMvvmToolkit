@@ -783,11 +783,11 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const float value = 2.33333f;
             const decimal d = 44.44440M;
             expression(context, new object[] { dateTime, value })
-                .ShouldEqual(string.Format("{0:d,2} - {1,2}", dateTime, value) +
-                             string.Format(" - {0:HH:mm:ss tt zz} - {1:0,0}", dateTime, value + string.Format("{0}", value > 3 ? "1" : "2")));
+                .ShouldEqual($"{dateTime:d,2} - {value,2}" +
+                             $" - {dateTime:HH:mm:ss tt zz} - {value + $"{(value > 3 ? "1" : "2")}":0,0}");
             expression(context, new object[] { dateTime, d })
-                .ShouldEqual(string.Format("{0:d,2} - {1,2}", dateTime, d) +
-                             string.Format(" - {0:HH:mm:ss tt zz} - {1:0,0}", dateTime, d + string.Format("{0}", d > 3 ? "1" : "2")));
+                .ShouldEqual($"{dateTime:d,2} - {d,2}" +
+                             $" - {dateTime:HH:mm:ss tt zz} - {d + $"{(d > 3 ? "1" : "2")}":0,0}");
 
             var sources = context.GetData(BindingBuilderConstants.Sources);
             BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),

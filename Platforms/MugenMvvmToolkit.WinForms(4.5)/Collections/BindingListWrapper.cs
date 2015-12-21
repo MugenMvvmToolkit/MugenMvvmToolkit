@@ -92,7 +92,7 @@ namespace MugenMvvmToolkit.WinForms.Collections
                 var collection = SourceCollection as SynchronizedNotifiableCollection<T>;
                 if (collection != null)
                     c = collection.NotificationCount;
-                return string.Format("Count = {0}, NotificationCount = {1}", SourceCollection.Count, c);
+                return $"Count = {SourceCollection.Count}, NotificationCount = {c}";
             }
         }
 

@@ -41,14 +41,14 @@ namespace MugenMvvmToolkit
         public static void NotBeNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL)]string argumentValue, [InvokerParameterName] string paramName)
         {
             if (string.IsNullOrEmpty(argumentValue))
-                throw new ArgumentException(string.Format("Argument '{0}' cannot be null or empty", paramName));
+                throw new ArgumentException($"Argument '{paramName}' cannot be null or empty");
         }
 
         [DebuggerStepThrough, AssertionMethod]
         public static void NotBeNullOrWhitespace([AssertionCondition(AssertionConditionType.IS_NOT_NULL)]string argumentValue, [InvokerParameterName] string paramName)
         {
             if (string.IsNullOrWhiteSpace(argumentValue))
-                throw new ArgumentException(string.Format("Argument '{0}' cannot be null or whitespace", paramName));
+                throw new ArgumentException($"Argument '{paramName}' cannot be null or whitespace");
         }
 
         [DebuggerStepThrough, AssertionMethod]
@@ -56,7 +56,7 @@ namespace MugenMvvmToolkit
             where T : IEnumerable
         {
             if (argumentValue.IsNullOrEmpty())
-                throw new ArgumentException(string.Format("Argument '{0}' cannot be null or empty", paramName));
+                throw new ArgumentException($"Argument '{paramName}' cannot be null or empty");
         }
 
         [DebuggerStepThrough, AssertionMethod]
@@ -64,14 +64,14 @@ namespace MugenMvvmToolkit
             where T : struct
         {
             if (argumentValue == null || EqualityComparer<T>.Default.Equals(default(T), argumentValue.Value))
-                throw new ArgumentException(string.Format("Argument '{0}' cannot be null or defult", paramName));
+                throw new ArgumentException($"Argument '{paramName}' cannot be null or defult");
         }
 
         [DebuggerStepThrough]
         public static void NotBeDefault<T>(T argumentValue, [InvokerParameterName] string paramName) where T : struct
         {
             if (EqualityComparer<T>.Default.Equals(default(T), argumentValue))
-                throw new ArgumentException(string.Format("Argument '{0}' cannot be default", paramName));
+                throw new ArgumentException($"Argument '{paramName}' cannot be default");
         }
 
         [DebuggerStepThrough]
@@ -93,8 +93,7 @@ namespace MugenMvvmToolkit
             NotBeNull(type, "type");
             NotBeNull(requiredType, "requiredType");
             if (!requiredType.IsAssignableFrom(type))
-                throw new ArgumentException(
-                string.Format("Type '{0}' should be of type '{1}', but is not", type.Name, requiredType.Name), paramName);
+                throw new ArgumentException($"Type '{type.Name}' should be of type '{requiredType.Name}', but is not", paramName);
         }
 
         [DebuggerStepThrough]
@@ -142,23 +141,21 @@ namespace MugenMvvmToolkit
         public static void BeValid(string paramName, [AssertionCondition(AssertionConditionType.IS_TRUE)] bool validation)
         {
             if (!validation)
-                throw new ArgumentException(string.Format("Argument '{0}' is not valid", paramName));
+                throw new ArgumentException($"Argument '{paramName}' is not valid");
         }
 
         [DebuggerStepThrough, AssertionMethod]
         public static void PropertyNotBeNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)]object value, [CallerMemberName] string propertyName = "")
         {
             if (value == null)
-                throw new ArgumentNullException(propertyName,
-                    string.Format("The property with name '{0}' cannot be null.", propertyName));
+                throw new ArgumentNullException(propertyName, $"The property with name '{propertyName}' cannot be null.");
         }
 
         [DebuggerStepThrough, AssertionMethod]
         public static void PropertyNotBeNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL)]string value, string propertyName)
         {
             if (string.IsNullOrEmpty(value))
-                throw new ArgumentNullException(propertyName,
-                    string.Format("The property with name '{0}' cannot be null or empty.", propertyName));
+                throw new ArgumentNullException(propertyName, $"The property with name '{propertyName}' cannot be null or empty.");
         }
 
         [DebuggerStepThrough]

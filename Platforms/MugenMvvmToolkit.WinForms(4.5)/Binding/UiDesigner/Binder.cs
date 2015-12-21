@@ -126,8 +126,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
                 XElement xElement = XElement.Parse(bindingsString);
                 XElement element = xElement.Name == RootTagName ? xElement : xElement.Element(RootTagName);
                 if (element == null)
-                    throw new ArgumentException(string.Format("The root tag: {0} is not found.", RootTagName),
-                        "bindingsString");
+                    throw new ArgumentException($"The root tag: {RootTagName} is not found.", "bindingsString");
                 foreach (XElement descendant in element.Descendants())
                     UpdateControlBinding(descendant);
             }
@@ -147,7 +146,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
             bool throwOnError = !DesignMode || !IgnoreControlException;
             if (component == null)
             {
-                var msg = string.Format("The control with name '{0}' is not found", name);
+                var msg = $"The control with name '{name}' is not found";
                 if (throwOnError)
                     throw new ArgumentException(msg);
                 Tracer.Error(msg);

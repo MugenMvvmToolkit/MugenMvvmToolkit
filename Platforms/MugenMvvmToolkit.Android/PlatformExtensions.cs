@@ -692,7 +692,7 @@ namespace MugenMvvmToolkit.Android
         internal static void ValidateViewIdFragment(View view, object content)
         {
             if (view.Id == View.NoId)
-                throw new ArgumentException(string.Format("To use a fragment {0}, you must specify the id for view {1}, for instance: @+id/placeholder", view, content), "view");
+                throw new ArgumentException($"To use a fragment {view}, you must specify the id for view {content}, for instance: @+id/placeholder", "view");
         }
 
         private static View GetContentInternal(Context ctx, object content, int? templateId)

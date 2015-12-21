@@ -67,7 +67,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public override string ToString()
             {
-                return string.Format("Type: {0}, Path: {1}, IgnoreAttachedMembers: {2}", Type, Path, IgnoreAttachedMembers);
+                return $"Type: {Type}, Path: {Path}, IgnoreAttachedMembers: {IgnoreAttachedMembers}";
             }
 
             #endregion

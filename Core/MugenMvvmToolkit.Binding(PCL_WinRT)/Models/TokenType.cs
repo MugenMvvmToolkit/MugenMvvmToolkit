@@ -175,7 +175,7 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             if (string.IsNullOrEmpty(Value))
                 return Id;
-            return string.Format("{0} '{1}'", Id, Value);
+            return $"{Id} '{Value}'";
         }
 
         #endregion

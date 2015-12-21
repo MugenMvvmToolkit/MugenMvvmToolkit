@@ -775,7 +775,7 @@ namespace MugenMvvmToolkit.Binding
                         .Arguments
                         .Cast<IConstantExpressionNode>()
                         .Select(node => node.Value.ToStringValue());
-                    members.Insert(0, string.Format("[{0}]", string.Join(",", args)).Trim());
+                    members.Insert(0, "[" + string.Join(",", args).Trim() + "]");
                     target = indexExpressionNode.Object;
                 }
                 else

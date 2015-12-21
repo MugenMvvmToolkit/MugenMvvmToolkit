@@ -209,7 +209,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                     {
                         end = tokenizer.Position;
                         tokenizer.NextToken(false);
-                        return string.Format("$string.Format(\"{0}\", {1})", resultBuilder, string.Join(",", items));
+                        return $"$string.Format(\"{resultBuilder}\", {string.Join(",", items)})";
                     }
                 }
 

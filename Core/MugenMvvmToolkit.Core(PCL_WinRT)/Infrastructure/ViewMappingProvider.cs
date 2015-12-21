@@ -246,7 +246,7 @@ namespace MugenMvvmToolkit.Infrastructure
             Assembly assembly = viewType.GetAssembly();
             string name = assembly.GetAssemblyName().Name;
             string uri = viewType.FullName.Replace(name, string.Empty).Replace(".", "/");
-            return new Uri(string.Format("/{0};component{1}.xaml", name, uri), uriKind);
+            return new Uri($"/{name};component{uri}.xaml", uriKind);
         }
 
         private static bool TryGetNames(Type type, IList<string> postFixes, out List<string> names)

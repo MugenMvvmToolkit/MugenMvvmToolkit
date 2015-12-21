@@ -75,7 +75,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         {
             if (Target == null)
                 return string.IsNullOrEmpty(Member) ? AttachedMemberConstants.DataContext : Member;
-            return string.Format("{0}.{1}", Target, Member);
+            return $"{Target}.{Member}";
         }
 
         #endregion

@@ -31,7 +31,7 @@ namespace MugenMvvmToolkit.Binding.Models.Exceptions
         #region Constructors
 
         public ParseException(string message, int position)
-            : base(string.Format("{0} (at index {1})", message, position.ToString()))
+            : base($"{message} (at index {position.ToString()})")
         {
             _position = position;
         }

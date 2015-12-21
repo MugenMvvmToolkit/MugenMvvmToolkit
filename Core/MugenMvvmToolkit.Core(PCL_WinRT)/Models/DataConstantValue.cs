@@ -70,7 +70,7 @@ namespace MugenMvvmToolkit.Models
 
         public override string ToString()
         {
-            return string.Format("DataConstant: {0}, Value: {1}", DataConstant, Value);
+            return $"DataConstant: {DataConstant}, Value: {Value}";
         }
 
         #endregion
