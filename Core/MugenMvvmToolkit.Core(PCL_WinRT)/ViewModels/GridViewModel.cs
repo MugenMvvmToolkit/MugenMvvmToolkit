@@ -264,12 +264,8 @@ namespace MugenMvvmToolkit.ViewModels
             var args = new SelectedItemChangedEventArgs<T>(oldValue, newValue);
             ThreadManager.Invoke(Settings.EventExecutionMode, this, args, (model, eventArgs) =>
             {
-                var genericHandler = model.SelectedItemChanged;
-                var nonGenericHandler = model._selectedItemChangedNonGeneric;
-                if (genericHandler != null)
-                    genericHandler(model, eventArgs);
-                if (nonGenericHandler != null)
-                    nonGenericHandler(model, eventArgs);
+                model.SelectedItemChanged?.Invoke(model, eventArgs);
+                model._selectedItemChangedNonGeneric?.Invoke(model, eventArgs);
             });
         }
 
@@ -280,12 +276,8 @@ namespace MugenMvvmToolkit.ViewModels
             var args = new ItemsSourceChangedEventArgs<T>(data);
             ThreadManager.Invoke(Settings.EventExecutionMode, this, args, (model, eventArgs) =>
             {
-                var genericHandler = model.ItemsSourceChanged;
-                var nonGenericHandler = model._itemsSourceChangedNonGeneric;
-                if (genericHandler != null)
-                    genericHandler(model, eventArgs);
-                if (nonGenericHandler != null)
-                    nonGenericHandler(model, eventArgs);
+                model.ItemsSourceChanged?.Invoke(model, eventArgs);
+                model._itemsSourceChangedNonGeneric?.Invoke(model, eventArgs);
             });
         }
 
@@ -300,17 +292,13 @@ namespace MugenMvvmToolkit.ViewModels
         private void RaiseCollectionChanging(object sender, NotifyCollectionChangingEventArgs e)
         {
             OnCollectionChanging(sender, e);
-            var eventHandler = CollectionChanging;
-            if (eventHandler != null)
-                eventHandler(this, e);
+            CollectionChanging?.Invoke(this, e);
         }
 
         private void RaiseCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             OnCollectionChanged(sender, e);
-            var eventHandler = CollectionChanged;
-            if (eventHandler != null)
-                eventHandler(this, e);
+            CollectionChanged?.Invoke(this, e);
         }
 
         #endregion

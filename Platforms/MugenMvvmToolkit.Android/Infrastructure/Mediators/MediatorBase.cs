@@ -135,9 +135,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 var oldValue = _dataContext;
                 _dataContext = value;
                 OnDataContextChanged(oldValue, _dataContext);
-                var handler = DataContextChanged;
-                if (handler != null)
-                    handler(Target, EventArgs.Empty);
+                DataContextChanged?.Invoke(Target, EventArgs.Empty);
             }
         }
 

@@ -152,9 +152,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             try
             {
-                var handler = _valueChanged;
-                if (handler != null)
-                    handler(this, args);
+                _valueChanged?.Invoke(this, args);
             }
             catch
             {

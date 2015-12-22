@@ -554,11 +554,7 @@ namespace MugenMvvmToolkit.Android
                 }
             }
             if (changed)
-            {
-                var handler = CurrentActivityChanged;
-                if (handler != null)
-                    handler(activity, EventArgs.Empty);
-            }
+                CurrentActivityChanged?.Invoke(activity, EventArgs.Empty);
         }
 
         public static void CleanupWeakReferences()

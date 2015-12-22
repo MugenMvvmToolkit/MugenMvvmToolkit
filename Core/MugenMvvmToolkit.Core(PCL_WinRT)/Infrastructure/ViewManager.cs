@@ -119,9 +119,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (context == null)
                     context = DataContext.Empty;
                 object view = GetView(viewModel, context);
-                Action<IViewManager, IViewModel, object, IDataContext> handler = ViewCreated;
-                if (handler != null)
-                    handler(this, viewModel, view, context);
+                ViewCreated?.Invoke(this, viewModel, view, context);
                 tcs.SetResult(view);
             });
             return tcs.Task;
@@ -136,9 +134,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (context == null)
                     context = DataContext.Empty;
                 object view = GetView(viewMapping, context);
-                Action<IViewManager, IViewModel, object, IDataContext> handler = ViewCreated;
-                if (handler != null)
-                    handler(this, null, view, context);
+                ViewCreated?.Invoke(this, null, view, context);
                 tcs.SetResult(view);
             });
             return tcs.Task;
@@ -161,9 +157,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (oldView != null)
                     CleanupViewInternal(viewModel, oldView, context);
                 InitializeView(viewModel, view, context);
-                Action<IViewManager, IViewModel, object, IDataContext> handler = ViewInitialized;
-                if (handler != null)
-                    handler(this, viewModel, view, context);
+                ViewInitialized?.Invoke(this, viewModel, view, context);
                 tcs.SetResult(null);
             });
             return tcs.Task;
@@ -265,9 +259,7 @@ namespace MugenMvvmToolkit.Infrastructure
         private void CleanupViewInternal(IViewModel viewModel, object view, IDataContext context)
         {
             CleanupView(viewModel, view, context);
-            Action<IViewManager, IViewModel, object, IDataContext> handler = ViewCleared;
-            if (handler != null)
-                handler(this, viewModel, view, context);
+            ViewCleared?.Invoke(this, viewModel, view, context);
         }
 
         private static void InitializeViewInternal(IViewModel viewModel, object view)

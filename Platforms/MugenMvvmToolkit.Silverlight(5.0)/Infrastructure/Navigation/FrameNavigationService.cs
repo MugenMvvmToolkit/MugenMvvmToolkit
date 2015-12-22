@@ -95,9 +95,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         private void OnNavigating(object sender, NavigatingCancelEventArgs args)
         {
-            EventHandler<INavigationService, NavigatingCancelEventArgsBase> handler = Navigating;
-            if (handler != null)
-                handler(this, new NavigatingCancelEventArgsWrapper(args));
+            Navigating?.Invoke(this, new NavigatingCancelEventArgsWrapper(args));
         }
 
         private static string GetParameter(Uri uri)
@@ -236,9 +234,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 #if WINDOWS_PHONE
         private void RaiseNavigated(NavigationEventArgsBase args)
         {
-            var navigated = Navigated;
-            if (navigated != null)
-                navigated(this, args);
+            Navigated?.Invoke(this, args);
         }
 
         private void OnBackButtonPressed(CancelEventArgs args)

@@ -68,9 +68,7 @@ namespace MugenMvvmToolkit
 
         public static void TraceViewModel(ViewModelLifecycleType lifecycleType, IViewModel viewModel)
         {
-            Action<ViewModelLifecycleType, IViewModel> handler = TraceViewModelHandler;
-            if (handler != null)
-                handler(lifecycleType, viewModel);
+            TraceViewModelHandler?.Invoke(lifecycleType, viewModel);
             ServiceProvider.Tracer.TraceViewModel(lifecycleType, viewModel);
         }
 

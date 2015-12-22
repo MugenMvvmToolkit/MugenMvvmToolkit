@@ -148,9 +148,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             private void RaiseValueChanged()
             {
-                var handler = ValueChanged;
-                if (handler != null)
-                    handler(this, EventArgs.Empty);
+                ValueChanged?.Invoke(this, EventArgs.Empty);
             }
 
             #endregion
@@ -224,9 +222,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             private void OnDataContextChanged(ValueChangedEventArgs message)
             {
                 _isInvoked = true;
-                var handler = ValueChanged;
-                if (handler != null)
-                    handler(this, message);
+                ValueChanged?.Invoke(this, message);
             }
 
             #endregion

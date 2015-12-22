@@ -102,9 +102,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
                     if (Equals(_value, value))
                         return;
                     _value = value;
-                    var handler = _handler;
-                    if (handler != null)
-                        handler(this, EventArgs.Empty);
+                    _handler?.Invoke(this, EventArgs.Empty);
                 }
             }
 

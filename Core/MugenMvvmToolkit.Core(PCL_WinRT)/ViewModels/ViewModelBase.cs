@@ -274,16 +274,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         public virtual bool IsBusy => _busyTail != null;
 
-        public virtual object BusyMessage
-        {
-            get
-            {
-                var tail = _busyTail;
-                if (tail == null)
-                    return null;
-                return tail.Message;
-            }
-        }
+        public virtual object BusyMessage => _busyTail?.Message;
 
         public IViewModelSettings Settings
         {

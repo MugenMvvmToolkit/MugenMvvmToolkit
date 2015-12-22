@@ -574,9 +574,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         protected virtual void RaiseNavigated(INavigationContext ctx)
         {
-            var handler = Navigated;
-            if (handler != null)
-                handler(this, new NavigatedEventArgs(ctx));
+            Navigated?.Invoke(this, new NavigatedEventArgs(ctx));
         }
 
         protected bool TryCompleteOperationCallback([NotNull] IViewModel viewModel, [NotNull] INavigationContext context)

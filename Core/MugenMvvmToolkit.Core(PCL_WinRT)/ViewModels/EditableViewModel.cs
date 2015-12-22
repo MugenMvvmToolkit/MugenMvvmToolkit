@@ -249,16 +249,12 @@ namespace MugenMvvmToolkit.ViewModels
                 args = new EntityInitializedEventArgs<T>(originalEntity, entity);
                 genericHandler(this, args);
             }
-            var handler = _entityEntityInitializedNonGeneric;
-            if (handler != null)
-                handler(this, args ?? new EntityInitializedEventArgs<T>(originalEntity, entity));
+            _entityEntityInitializedNonGeneric?.Invoke(this, args ?? new EntityInitializedEventArgs<T>(originalEntity, entity));
         }
 
         protected virtual void RaiseChangesApplied(IList<IEntityStateEntry> entityStateEntries)
         {
-            var handler = ChangesApplied;
-            if (handler != null)
-                handler(this, new ChangesAppliedEventArgs(entityStateEntries));
+            ChangesApplied?.Invoke(this, new ChangesAppliedEventArgs(entityStateEntries));
         }
 
         protected virtual void RaiseChangesCanceled(T entity)
@@ -270,9 +266,7 @@ namespace MugenMvvmToolkit.ViewModels
                 args = new ChangesCanceledEventArgs<T>(entity);
                 genericHandler(this, args);
             }
-            var handler = _changesCanceledNonGeneric;
-            if (handler != null)
-                handler(this, args ?? new ChangesCanceledEventArgs<T>(entity));
+            _changesCanceledNonGeneric?.Invoke(this, args ?? new ChangesCanceledEventArgs<T>(entity));
         }
 
         protected void AddPropertyMapping<TViewModel>([NotNull] Func<Expression<Func<TViewModel, object>>> viewModelProperty,

@@ -74,11 +74,8 @@ namespace MugenMvvmToolkit.iOS
 
             public void OnClick(object sender, UIButtonEventArgs e)
             {
-                if (e.ButtonIndex != Index)
-                    return;
-                var handler = Click;
-                if (handler != null)
-                    handler(sender, e);
+                if (e.ButtonIndex == Index)
+                    Click?.Invoke(sender, e);
             }
 
             #endregion

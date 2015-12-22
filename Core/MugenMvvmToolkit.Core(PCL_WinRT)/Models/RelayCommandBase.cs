@@ -323,9 +323,7 @@ namespace MugenMvvmToolkit.Models
 
         private static void RaiseCanExecuteChangedStatic(RelayCommandBase @this, EventArgs args)
         {
-            EventHandler handler = @this._canExecuteChangedInternal;
-            if (handler != null)
-                handler(@this, args);
+            @this._canExecuteChangedInternal?.Invoke(@this, args);
         }
 
         private static void OnPropertyChangedStatic(RelayCommandBase relayCommandBase, object o, PropertyChangedEventArgs arg3)

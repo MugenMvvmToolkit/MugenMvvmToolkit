@@ -60,17 +60,13 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
 
         private void OnNavigated(object sender, NavigationEventArgs args)
         {
-            var handler = Navigated;
-            if (handler != null)
-                handler(this, new NavigationEventArgsWrapper(args, _lastMode.ToNavigationMode()));
+            Navigated?.Invoke(this, new NavigationEventArgsWrapper(args, _lastMode.ToNavigationMode()));
         }
 
         private void OnNavigating(object sender, NavigatingCancelEventArgs args)
         {
             _lastMode = args.NavigationMode;
-            var handler = Navigating;
-            if (handler != null)
-                handler(this, new NavigatingCancelEventArgsWrapper(args));
+            Navigating?.Invoke(this, new NavigatingCancelEventArgsWrapper(args));
         }
 
         #endregion

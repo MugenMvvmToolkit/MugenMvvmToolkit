@@ -271,7 +271,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 baseOnSaveInstanceState(outState);
             else
 #endif
-            base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
+                base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
         }
 
         public virtual void OnDetach(Action baseOnDetach)
@@ -296,9 +296,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public virtual void OnStart(Action baseOnStart)
         {
             baseOnStart();
-            var view = Target.View;
-            if (view != null)
-                view.RootView.ListenParentChange();
+            Target.View?.RootView.ListenParentChange();
         }
 
         public virtual void OnStop(Action baseOnStop)
@@ -308,9 +306,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         public virtual void OnCancel(IDialogInterface dialog, Action<IDialogInterface> baseOnCancel)
         {
-            var handler = Canceled;
-            if (handler != null)
-                handler((IWindowView)Target, EventArgs.Empty);
+            Canceled?.Invoke((IWindowView)Target, EventArgs.Empty);
             baseOnCancel(dialog);
         }
 
@@ -349,9 +345,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         protected override void OnDataContextChanged(object oldValue, object newValue)
         {
             base.OnDataContextChanged(oldValue, newValue);
-            View view = Target.View;
-            if (view != null)
-                view.SetDataContext(DataContext);
+            Target.View?.SetDataContext(DataContext);
         }
 
         protected override IDataContext CreateRestorePresenterContext(Fragment target)
@@ -370,9 +364,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         private void RaiseDestroy()
         {
-            var handler = Destroyed;
-            if (handler != null)
-                handler(Target, EventArgs.Empty);
+            Destroyed?.Invoke(Target, EventArgs.Empty);
         }
 
         private bool OnClosing()

@@ -284,9 +284,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         protected virtual void RaiseNavigated(NavigationEventArgs args)
         {
-            EventHandler<INavigationService, NavigationEventArgsBase> handler = Navigated;
-            if (handler != null)
-                handler(this, args);
+            Navigated?.Invoke(this, args);
         }
 
         protected void EnsureInitialized()

@@ -176,16 +176,10 @@ namespace MugenMvvmToolkit
             return result;
         }
 
-        private void OnDisposed()
-        {
-            var handler = Disposed;
-            if (handler != null) handler(this, EventArgs.Empty);
-        }
-
         private void InjectorOnDisposed(IDisposableObject disposableObject)
         {
             disposableObject.Disposed -= InjectorOnDisposed;
-            OnDisposed();
+            Disposed?.Invoke(this, EventArgs.Empty);
         }
 
         #endregion

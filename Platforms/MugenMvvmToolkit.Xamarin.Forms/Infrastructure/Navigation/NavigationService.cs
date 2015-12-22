@@ -281,9 +281,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         protected void RaiseNavigated(object page, string parameter, NavigationMode mode)
         {
-            var handler = Navigated;
-            if (handler != null)
-                handler(this, new Models.EventArg.NavigationEventArgs(page, parameter, mode));
+            Navigated?.Invoke(this, new Models.EventArg.NavigationEventArgs(page, parameter, mode));
         }
 
         private void OnPopped(object sender, NavigationEventArgs args)

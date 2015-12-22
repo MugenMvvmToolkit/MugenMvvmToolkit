@@ -292,16 +292,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         protected void RaiseInitializing(IDataContext context)
         {
-            var handler = BindingInitializing;
-            if (handler != null)
-                handler(this, context);
+            BindingInitializing?.Invoke(this, context);
         }
 
         protected void RaiseInitialized(IDataBinding binding)
         {
-            var initialized = BindingInitialized;
-            if (initialized != null)
-                initialized(this, binding);
+            BindingInitialized?.Invoke(this, binding);
         }
 
         private static IDataBinding CreateInvalidaDataBinding(IDataContext dataContext)

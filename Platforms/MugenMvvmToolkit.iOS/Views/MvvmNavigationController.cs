@@ -162,9 +162,7 @@ namespace MugenMvvmToolkit.iOS.Views
 
         protected void RaiseDidPopViewController()
         {
-            var handler = DidPopViewController;
-            if (handler != null)
-                handler(this, EventArgs.Empty);
+            DidPopViewController?.Invoke(this, EventArgs.Empty);
         }
 
         #endregion

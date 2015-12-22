@@ -73,9 +73,7 @@ namespace MugenMvvmToolkit.Binding.Models
                     return;
 
                 SetValue(value);
-                var handler = ValueChanged;
-                if (handler != null)
-                    handler(this, EventArgs.Empty);
+                ValueChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 

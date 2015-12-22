@@ -207,8 +207,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         protected void RaiseBindingUpdated(BindingEventArgs args)
         {
-            var handler = BindingUpdated;
-            if (handler != null) handler(this, args);
+            BindingUpdated?.Invoke(this, args);
         }
 
         private void InitializeContext()

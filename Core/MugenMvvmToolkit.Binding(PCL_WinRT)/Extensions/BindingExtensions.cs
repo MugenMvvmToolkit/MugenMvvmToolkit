@@ -131,9 +131,7 @@ namespace MugenMvvmToolkit.Binding
 
             private void RaiseValueChanged()
             {
-                EventHandler<ISourceValue, EventArgs> handler = ValueChanged;
-                if (handler != null)
-                    handler(this, EventArgs.Empty);
+                ValueChanged?.Invoke(this, EventArgs.Empty);
             }
 
             #endregion
@@ -212,9 +210,7 @@ namespace MugenMvvmToolkit.Binding
                     if (Equals(value, _value.Target))
                         return;
                     _value = ToolkitExtensions.GetWeakReferenceOrDefault(value, Empty.WeakReference, false);
-                    EventHandler<ISourceValue, EventArgs> handler = ValueChanged;
-                    if (handler != null)
-                        handler(this, EventArgs.Empty);
+                    ValueChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
 

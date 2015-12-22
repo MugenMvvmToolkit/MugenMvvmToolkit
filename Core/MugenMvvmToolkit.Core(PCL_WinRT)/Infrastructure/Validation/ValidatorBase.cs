@@ -458,9 +458,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         protected virtual void RaiseErrorsChanged(string propertyName, bool isAsyncValidate)
         {
-            EventHandler<DataErrorsChangedEventArgs> handler = ErrorsChanged;
-            if (handler != null)
-                handler(this, new DataErrorsChangedEventArgs(propertyName));
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
         }
 
         internal virtual bool CanValidateContext(IValidatorContext validatorContext)

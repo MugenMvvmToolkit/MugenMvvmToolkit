@@ -111,9 +111,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         protected virtual void RaiseClosed(object parameter)
         {
-            var handler = Closed;
-            if (handler != null)
-                handler(this, new ViewModelClosedEventArgs(this, parameter));
+            Closed?.Invoke(this, new ViewModelClosedEventArgs(this, parameter));
         }
 
         private Task<bool> CloseInternal(object parameter)

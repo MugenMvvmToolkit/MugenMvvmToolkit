@@ -168,16 +168,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         protected virtual void RaiseNavigated(object content, NavigationMode mode, string parameter)
         {
-            var handler = Navigated;
-            if (handler != null)
-                handler(this, new NavigationEventArgs(content, parameter, mode));
+            Navigated?.Invoke(this, new NavigationEventArgs(content, parameter, mode));
         }
 
         private static string GetParameterFromIntent(Intent intent)
         {
-            if (intent == null)
-                return null;
-            return intent.GetStringExtra(ParameterString);
+            return intent?.GetStringExtra(ParameterString);
         }
 
         protected virtual void StartActivity(Context context, Intent intent, IViewMappingItem source, IDataContext dataContext)

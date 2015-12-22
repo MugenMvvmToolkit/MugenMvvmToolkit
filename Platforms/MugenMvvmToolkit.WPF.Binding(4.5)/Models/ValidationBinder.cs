@@ -135,9 +135,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
 #if NET4
             OnPropertyChanged(ChangedArgs, ExecutionMode.None);
 #else
-            EventHandler<DataErrorsChangedEventArgs> handler = ErrorsChanged;
-            if (handler != null)
-                handler(this, ChangedArgs);
+            ErrorsChanged?.Invoke(this, ChangedArgs);
 #endif
         }
 

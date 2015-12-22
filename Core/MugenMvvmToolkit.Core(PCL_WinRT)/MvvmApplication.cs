@@ -124,8 +124,7 @@ namespace MugenMvvmToolkit
 
         protected static void RaiseInitialized(IMvvmApplication sender)
         {
-            var handler = Initialized;
-            if (handler != null) handler(sender, EventArgs.Empty);
+            Initialized?.Invoke(sender, EventArgs.Empty);
         }
 
         #endregion

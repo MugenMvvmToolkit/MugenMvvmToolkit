@@ -247,9 +247,7 @@ namespace MugenMvvmToolkit.Binding
 
         public static void RaiseBindingException(IDataBinding binding, BindingEventArgs args)
         {
-            var exceptionHandler = BindingExceptionHandler;
-            if (exceptionHandler != null)
-                exceptionHandler(binding, args);
+            BindingExceptionHandler?.Invoke(binding, args);
         }
 
         internal static void SetDefaultValues()

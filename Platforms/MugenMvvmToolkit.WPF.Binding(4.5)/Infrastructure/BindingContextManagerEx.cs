@@ -147,9 +147,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 
             private void RaiseDataContextChanged(object sender, EventType args)
             {
-                var handler = ValueChanged;
-                if (handler != null)
-                    handler(this, EventArgs.Empty);
+                ValueChanged?.Invoke(this, EventArgs.Empty);
             }
 
 #if !WINDOWS_PHONE

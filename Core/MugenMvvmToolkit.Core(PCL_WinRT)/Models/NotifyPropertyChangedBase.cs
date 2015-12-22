@@ -147,9 +147,7 @@ namespace MugenMvvmToolkit.Models
 
         private static void RaisePropertyChanged(NotifyPropertyChangedBase @this, PropertyChangedEventArgs args)
         {
-            var handler = @this.PropertyChanged;
-            if (handler != null)
-                handler.Invoke(@this, args);
+            @this.PropertyChanged?.Invoke(@this, args);
             @this.OnPropertyChangedInternal(args);
         }
 

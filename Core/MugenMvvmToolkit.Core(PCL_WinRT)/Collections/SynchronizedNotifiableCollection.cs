@@ -571,23 +571,17 @@ namespace MugenMvvmToolkit.Collections
 
         protected virtual void OnCollectionChanging(NotifyCollectionChangingEventArgs e)
         {
-            NotifyCollectionChangingEventHandler handler = CollectionChanging;
-            if (handler != null)
-                handler(this, e);
+            CollectionChanging?.Invoke(this, e);
         }
 
         protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
         {
-            NotifyCollectionChangedEventHandler handler = CollectionChanged;
-            if (handler != null)
-                handler(this, e);
+            CollectionChanged?.Invoke(this, e);
         }
 
         protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-                handler(this, e);
+            PropertyChanged?.Invoke(this, e);
         }
 
         protected static NotifyCollectionChangingEventArgs GetCollectionChangeArgs(NotifyCollectionChangedAction action,

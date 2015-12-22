@@ -153,9 +153,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             var service = Get<INavigationService>();
             service.OnCreateActivity(Target);
 
-            var handler = Created;
-            if (handler != null)
-                handler(Target, new ValueEventArgs<Bundle>(savedInstanceState));
+            Created?.Invoke(Target, new ValueEventArgs<Bundle>(savedInstanceState));
 
             if (viewId.HasValue)
                 Target.SetContentView(viewId.Value);
@@ -174,9 +172,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         public override void OnSaveInstanceState(Bundle outState, Action<Bundle> baseOnSaveInstanceState)
         {
-            var handler = SaveInstanceState;
-            if (handler != null)
-                handler(Target, new ValueEventArgs<Bundle>(outState));
+            SaveInstanceState?.Invoke(Target, new ValueEventArgs<Bundle>(outState));
             base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
         }
 
@@ -201,9 +197,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             if (Tracer.TraceInformation)
                 Tracer.Info("OnDestroy activity({0})", Target);
             ServiceProvider.EventAggregator.Unsubscribe(this);
-            var handler = Destroyed;
-            if (handler != null)
-                handler(Target, EventArgs.Empty);
+            Destroyed?.Invoke(Target, EventArgs.Empty);
             _view.RemoveFromParent();
             _view.ClearBindingsRecursively(true, true);
             ThreadPool.QueueUserWorkItem(state => PlatformExtensions.CleanupWeakReferences());
@@ -260,18 +254,14 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         {
             var service = Get<INavigationService>();
             service.OnPauseActivity(Target);
-            var handler = Paused;
-            if (handler != null)
-                handler(Target, EventArgs.Empty);
+            Paused?.Invoke(Target, EventArgs.Empty);
             base.OnPause(baseOnPause);
         }
 
         public virtual void OnRestart(Action baseOnRestart)
         {
             baseOnRestart();
-            var handler = Restarted;
-            if (handler != null)
-                handler(Target, EventArgs.Empty);
+            Restarted?.Invoke(Target, EventArgs.Empty);
         }
 
         public override void OnResume(Action baseOnResume)
@@ -280,10 +270,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
             var service = Get<INavigationService>();
             service.OnResumeActivity(Target);
-
-            var handler = Resume;
-            if (handler != null)
-                handler(Target, EventArgs.Empty);
+            Resume?.Invoke(Target, EventArgs.Empty);
         }
 
         public virtual void OnStart(Action baseOnStart)
@@ -297,18 +284,13 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
             var service = Get<INavigationService>();
             service.OnStartActivity(Target);
-
-            var handler = Started;
-            if (handler != null)
-                handler(Target, EventArgs.Empty);
+            Started?.Invoke(Target, EventArgs.Empty);
         }
 
         public virtual void OnStop(Action baseOnStop)
         {
             baseOnStop();
-            var handler = Stoped;
-            if (handler != null)
-                handler(Target, EventArgs.Empty);
+            Stoped?.Invoke(Target, EventArgs.Empty);
         }
 
         public virtual void SetContentView(int layoutResId)
@@ -352,16 +334,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public virtual void OnConfigurationChanged(Configuration newConfig, Action<Configuration> baseOnConfigurationChanged)
         {
             baseOnConfigurationChanged(newConfig);
-            var handler = ConfigurationChanged;
-            if (handler != null)
-                handler(Target, new ValueEventArgs<Configuration>(newConfig));
+            ConfigurationChanged?.Invoke(Target, new ValueEventArgs<Configuration>(newConfig));
         }
 
         public virtual void OnPostCreate(Bundle savedInstanceState, Action<Bundle> baseOnPostCreate)
         {
-            var handler = PostCreate;
-            if (handler != null)
-                handler(Target, new ValueEventArgs<Bundle>(savedInstanceState));
+            PostCreate?.Invoke(Target, new ValueEventArgs<Bundle>(savedInstanceState));
             baseOnPostCreate(savedInstanceState);
         }
 

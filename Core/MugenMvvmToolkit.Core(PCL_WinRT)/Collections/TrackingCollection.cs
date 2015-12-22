@@ -320,9 +320,7 @@ namespace MugenMvvmToolkit.Collections
 
         protected virtual void OnPropertyChanged(PropertyChangedEventArgs args)
         {
-            var handler = PropertyChanged;
-            if (handler != null)
-                handler(this, args);
+            PropertyChanged?.Invoke(this, args);
         }
 
         protected virtual ITrackingCollection CloneInternal()

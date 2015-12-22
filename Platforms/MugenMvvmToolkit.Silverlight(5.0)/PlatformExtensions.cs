@@ -61,9 +61,7 @@ namespace MugenMvvmToolkit.WinPhone
 #if WINDOWS_PHONE
         public static void HandleMainPageOnBackKeyPress(Action<CancelEventArgs> baseAction, CancelEventArgs args)
         {
-            var eventHandler = MainPageOnBackKeyPressed;
-            if (eventHandler != null)
-                eventHandler(null, args);
+            MainPageOnBackKeyPressed?.Invoke(null, args);
             baseAction(args);
         }
 

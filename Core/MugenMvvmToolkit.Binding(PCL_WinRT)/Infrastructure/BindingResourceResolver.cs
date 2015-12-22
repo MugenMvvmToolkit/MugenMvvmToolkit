@@ -64,9 +64,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public bool TryHandle(object sender, object message)
             {
-                var changed = ValueChanged;
-                if (changed != null)
-                    changed(this, EventArgs.Empty);
+                ValueChanged?.Invoke(this, EventArgs.Empty);
                 return IsAlive;
             }
 
@@ -132,13 +130,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             private void OnValueChanged(ISourceValue sender, EventArgs args)
             {
-                var handler = ValueChanged;
-                if (handler != null)
-                    handler(this, args);
+                ValueChanged?.Invoke(this, args);
             }
 
             #endregion
-
         }
 
         private sealed class ConstResourceObject : ISourceValue

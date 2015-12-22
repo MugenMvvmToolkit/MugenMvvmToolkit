@@ -89,9 +89,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public static void Raise(object item, string path, object message)
         {
-            var list = ServiceProvider.AttachedValueProvider.GetValue<EventListenerList>(item, path, false);
-            if (list != null)
-                list.Raise(item, message);
+            ServiceProvider.AttachedValueProvider.GetValue<EventListenerList>(item, path, false)?.Raise(item, message);
         }
 
         public void Raise<TArg>(object sender, TArg args)

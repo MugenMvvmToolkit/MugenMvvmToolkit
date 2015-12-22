@@ -282,16 +282,12 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
 
         private void OnNavigating(object sender, NavigatingCancelEventArgs args)
         {
-            var handler = Navigating;
-            if (handler != null)
-                handler(this, new NavigatingCancelEventArgsWrapper(args, _lastParameter, _bringToFront));
+            Navigating?.Invoke(this, new NavigatingCancelEventArgsWrapper(args, _lastParameter, _bringToFront));
         }
 
         private void RaiseNavigated(NavigationEventArgsBase args)
         {
-            var handler = Navigated;
-            if (handler != null)
-                handler(this, args);
+            Navigated?.Invoke(this, args);
         }
 
         private bool Navigate(Type type, string parameter, IViewModel viewModel)

@@ -167,10 +167,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         public override void Selected(UIPickerView picker, nint row, nint component)
         {
             _selectedItem = _itemsSource == null ? null : _itemsSource.ElementAtIndex((int)row);
-
-            EventHandler handler = SelectedItemChanged;
-            if (handler != null)
-                handler(this, EventArgs.Empty);
+            SelectedItemChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public override string GetTitle(UIPickerView picker, nint row, nint component)

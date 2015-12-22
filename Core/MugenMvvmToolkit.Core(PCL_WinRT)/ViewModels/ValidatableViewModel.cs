@@ -312,9 +312,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         private static void RaiseErrorsChangedStatic(ValidatableViewModel @this, DataErrorsChangedEventArgs args)
         {
-            var handler = @this.ErrorsChanged;
-            if (handler != null)
-                handler(@this, args);
+            @this.ErrorsChanged?.Invoke(@this, args);
         }
 
         private IValidatorContext CreateContextInternal(object instanceToValidate)

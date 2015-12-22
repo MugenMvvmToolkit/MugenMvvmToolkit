@@ -286,16 +286,14 @@ namespace MugenMvvmToolkit.ViewModels
         {
             vm.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
             OnViewModelAdded(vm);
-            var handler = ViewModelAdded;
-            if (handler != null) handler(this, new ValueEventArgs<IViewModel>(vm));
+            ViewModelAdded?.Invoke(this, new ValueEventArgs<IViewModel>(vm));
         }
 
         private void RaiseViewModelRemoved(IViewModel vm)
         {
             vm.Settings.Metadata.Remove(ViewModelConstants.StateNotNeeded);
             OnViewModelRemoved(vm);
-            var handler = ViewModelRemoved;
-            if (handler != null) handler(this, new ValueEventArgs<IViewModel>(vm));
+            ViewModelRemoved?.Invoke(this, new ValueEventArgs<IViewModel>(vm));
         }
 
         private void TryUpdateSelectedValue(int oldIndex)
@@ -342,9 +340,7 @@ namespace MugenMvvmToolkit.ViewModels
             var args = new SelectedItemChangedEventArgs<IViewModel>(oldValue, newValue);
             ThreadManager.Invoke(Settings.EventExecutionMode, this, args, (model, eventArgs) =>
             {
-                var handler = model.SelectedItemChanged;
-                if (handler != null)
-                    handler(model, eventArgs);
+                model.SelectedItemChanged?.Invoke(model, eventArgs);
             });
         }
 
