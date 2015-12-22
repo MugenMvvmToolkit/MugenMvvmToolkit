@@ -172,10 +172,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
             return _errors;
         }
 
-        bool INotifyDataErrorInfo.HasErrors
-        {
-            get { return _errors.Count != 0; }
-        }
+        bool INotifyDataErrorInfo.HasErrors => _errors.Count != 0;
 
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 #endif

@@ -80,10 +80,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IBindingProvider
 
-        public ICollection<IBindingBehavior> DefaultBehaviors
-        {
-            get { return _defaultBehaviors; }
-        }
+        public ICollection<IBindingBehavior> DefaultBehaviors => _defaultBehaviors;
 
         public IBindingParser Parser
         {

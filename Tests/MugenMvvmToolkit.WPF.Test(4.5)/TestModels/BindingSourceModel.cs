@@ -124,10 +124,7 @@ namespace MugenMvvmToolkit.Test.TestModels
             set { IndexerValues[index] = value; }
         }
 
-        public int this[int index]
-        {
-            get { return index; }
-        }
+        public int this[int index] => index;
 
         public string this[string index, int intValue]
         {

@@ -53,36 +53,18 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Implementation of IBindingPathMembers
 
-            public IBindingPath Path
-            {
-                get { return _path; }
-            }
+            public IBindingPath Path => _path;
 
-            public bool AllMembersAvailable
-            {
-                get { return _reference.Target != null; }
-            }
+            public bool AllMembersAvailable => _reference.Target != null;
 
-            public IList<IBindingMemberInfo> Members
-            {
-                //NOTE it's better each time to create a new array than to keep it in memory, because this property is rarely used.
-                get { return new[] { _lastMember }; }
-            }
+            //NOTE it's better each time to create a new array than to keep it in memory, because this property is rarely used.
+            public IList<IBindingMemberInfo> Members => new[] { _lastMember };
 
-            public IBindingMemberInfo LastMember
-            {
-                get { return _lastMember; }
-            }
+            public IBindingMemberInfo LastMember => _lastMember;
 
-            public object Source
-            {
-                get { return _reference.Target; }
-            }
+            public object Source => _reference.Target;
 
-            public object PenultimateValue
-            {
-                get { return _reference.Target; }
-            }
+            public object PenultimateValue => _reference.Target;
 
             #endregion
         }
@@ -111,10 +93,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Overrides of ObserverBase
 
-        protected override bool DependsOnSubscribers
-        {
-            get { return OriginalSource is WeakReference; }
-        }
+        protected override bool DependsOnSubscribers => OriginalSource is WeakReference;
 
         protected override IBindingPathMembers UpdateInternal(IBindingPathMembers oldPath, bool hasSubscribers)
         {
@@ -165,10 +144,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of interfaces
 
-        bool IEventListener.IsWeak
-        {
-            get { return false; }
-        }
+        bool IEventListener.IsWeak => false;
 
         bool IEventListener.TryHandle(object sender, object message)
         {
@@ -176,10 +152,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return true;
         }
 
-        WeakReference IHasWeakReference.WeakReference
-        {
-            get { return _ref; }
-        }
+        WeakReference IHasWeakReference.WeakReference => _ref;
 
         #endregion
     }

@@ -44,10 +44,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             #region Implementation of IOperationResult<out TResult>
 
-            public new TResult Result
-            {
-                get { return (TResult)base.Result; }
-            }
+            public new TResult Result => (TResult)base.Result;
 
             #endregion
         }
@@ -105,30 +102,15 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Implementation of IOperationResult
 
-        public OperationType Operation
-        {
-            get { return _operation; }
-        }
+        public OperationType Operation => _operation;
 
-        public object Source
-        {
-            get { return _source; }
-        }
+        public object Source => _source;
 
-        public Exception Exception
-        {
-            get { return _exception; }
-        }
+        public Exception Exception => _exception;
 
-        public bool IsCanceled
-        {
-            get { return _isCanceled; }
-        }
+        public bool IsCanceled => _isCanceled;
 
-        public bool IsFaulted
-        {
-            get { return Exception != null; }
-        }
+        public bool IsFaulted => Exception != null;
 
         public object Result
         {
@@ -142,10 +124,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             }
         }
 
-        public IDataContext OperationContext
-        {
-            get { return _context; }
-        }
+        public IDataContext OperationContext => _context;
 
         #endregion
 

@@ -43,10 +43,7 @@ namespace MugenMvvmToolkit.Models.EventArg
         #region Properties
 
         [NotNull]
-        public INavigationContext Context
-        {
-            get { return _context; }
-        }
+        public INavigationContext Context => _context;
 
         #endregion
     }

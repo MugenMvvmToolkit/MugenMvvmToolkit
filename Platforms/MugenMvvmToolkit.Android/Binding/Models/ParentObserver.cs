@@ -47,10 +47,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
         #region Properties
 
         [CanBeNull]
-        public View Source
-        {
-            get { return (View)_view.Target; }
-        }
+        public View Source => (View)_view.Target;
 
         [CanBeNull]
         public object Parent

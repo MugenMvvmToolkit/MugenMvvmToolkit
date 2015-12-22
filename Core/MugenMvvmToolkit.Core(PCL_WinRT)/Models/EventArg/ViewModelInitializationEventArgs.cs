@@ -45,10 +45,7 @@ namespace MugenMvvmToolkit.Models.EventArg
         #region Properties
 
         [NotNull]
-        public IViewModel ViewModel
-        {
-            get { return _viewModel; }
-        }
+        public IViewModel ViewModel => _viewModel;
 
         [CanBeNull]
         public IDataContext Context { get; set; }

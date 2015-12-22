@@ -49,10 +49,7 @@ namespace MugenMvvmToolkit.Models.Messages
 
         #region Properties
 
-        public string PropertyName
-        {
-            get { return _propertyName; }
-        }
+        public string PropertyName => _propertyName;
 
         public Task Task
         {

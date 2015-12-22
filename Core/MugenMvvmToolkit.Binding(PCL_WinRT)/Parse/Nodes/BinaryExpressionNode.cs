@@ -49,20 +49,11 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Implementation of IBinaryExpressionNode
 
-        public IExpressionNode Left
-        {
-            get { return _left; }
-        }
+        public IExpressionNode Left => _left;
 
-        public IExpressionNode Right
-        {
-            get { return _right; }
-        }
+        public IExpressionNode Right => _right;
 
-        public TokenType Token
-        {
-            get { return _token; }
-        }
+        public TokenType Token => _token;
 
         #endregion
 

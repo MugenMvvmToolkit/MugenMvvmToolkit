@@ -63,17 +63,11 @@ namespace MugenMvvmToolkit.Collections
 
         #region Properties
 
-        public IComparer<T> Comparer
-        {
-            get { return Items.Comparer; }
-        }
+        public IComparer<T> Comparer => Items.Comparer;
 
         public bool ValidateOnInsert { get; set; }
 
-        private new OrderedListInternal<T> Items
-        {
-            get { return (OrderedListInternal<T>)base.Items; }
-        }
+        private new OrderedListInternal<T> Items => (OrderedListInternal<T>)base.Items;
 
         #endregion
 

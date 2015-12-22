@@ -41,10 +41,7 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Properties
 
-        public string PropertyName
-        {
-            get { return _propertyName; }
-        }
+        public string PropertyName => _propertyName;
 
         #endregion
     }

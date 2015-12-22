@@ -52,15 +52,9 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Properties
 
-        public bool IsEmpty
-        {
-            get { return _item == null; }
-        }
+        public bool IsEmpty => _item == null;
 
-        public object Source
-        {
-            get { return _item; }
-        }
+        public object Source => _item;
 
         [NotNull]
         public IEventListener EventListener

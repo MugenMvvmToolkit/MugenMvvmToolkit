@@ -75,10 +75,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         #region Properties
 
-        protected UIWindow Window
-        {
-            get { return _window; }
-        }
+        protected UIWindow Window => _window;
 
         public bool WrapToNavigationController { get; set; }
 
@@ -86,10 +83,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         #region Implementation of IDynamicViewModelPresenter
 
-        int IDynamicViewModelPresenter.Priority
-        {
-            get { return int.MaxValue; }
-        }
+        int IDynamicViewModelPresenter.Priority => int.MaxValue;
 
         INavigationOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {

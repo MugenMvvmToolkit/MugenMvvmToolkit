@@ -65,10 +65,7 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
             #region Properties
 
             //In the hundreds of times faster than the access to the ItemView field.
-            public IBindingContext BindingContext
-            {
-                get { return _bindingContext; }
-            }
+            public IBindingContext BindingContext => _bindingContext;
 
             #endregion
         }
@@ -100,20 +97,11 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
 
         #region Properties
 
-        protected global::Android.Support.V7.Widget.RecyclerView RecyclerView
-        {
-            get { return _recyclerView; }
-        }
+        protected global::Android.Support.V7.Widget.RecyclerView RecyclerView => _recyclerView;
 
-        protected DataTemplateProvider DataTemplateProvider
-        {
-            get { return _itemTemplateProvider; }
-        }
+        protected DataTemplateProvider DataTemplateProvider => _itemTemplateProvider;
 
-        protected LayoutInflater LayoutInflater
-        {
-            get { return _layoutInflater; }
-        }
+        protected LayoutInflater LayoutInflater => _layoutInflater;
 
         public virtual IEnumerable ItemsSource
         {

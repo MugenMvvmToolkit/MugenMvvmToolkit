@@ -56,10 +56,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Presenters
 
             #region Properties
 
-            public Task CompletionTask
-            {
-                get { return Tcs.Task; }
-            }
+            public Task CompletionTask => Tcs.Task;
 
             #endregion
 

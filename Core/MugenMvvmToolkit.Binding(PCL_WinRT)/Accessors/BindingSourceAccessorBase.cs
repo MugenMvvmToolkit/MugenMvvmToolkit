@@ -64,40 +64,22 @@ namespace MugenMvvmToolkit.Binding.Accessors
             #region Properties
 
             [CanBeNull]
-            public Func<IDataContext, IBindingValueConverter> ConverterDelegate
-            {
-                get { return _converterDelegate; }
-            }
+            public Func<IDataContext, IBindingValueConverter> ConverterDelegate => _converterDelegate;
 
             [CanBeNull]
-            public Func<IDataContext, object> ConverterParameterDelegate
-            {
-                get { return _converterParameterDelegate; }
-            }
+            public Func<IDataContext, object> ConverterParameterDelegate => _converterParameterDelegate;
 
             [CanBeNull]
-            public Func<IDataContext, CultureInfo> ConverterCultureDelegate
-            {
-                get { return _converterCultureDelegate; }
-            }
+            public Func<IDataContext, CultureInfo> ConverterCultureDelegate => _converterCultureDelegate;
 
             [CanBeNull]
-            public object TargetNullValue
-            {
-                get { return _targetNullValue; }
-            }
+            public object TargetNullValue => _targetNullValue;
 
             [CanBeNull]
-            public Func<IDataContext, object> FallbackDelegate
-            {
-                get { return _fallbackDelegate; }
-            }
+            public Func<IDataContext, object> FallbackDelegate => _fallbackDelegate;
 
             [CanBeNull]
-            public Func<IDataContext, object> CommandParameterDelegate
-            {
-                get { return _commandParameterDelegate; }
-            }
+            public Func<IDataContext, object> CommandParameterDelegate => _commandParameterDelegate;
 
             #endregion
         }
@@ -145,16 +127,10 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         #region Properties
 
-        protected bool IsTarget
-        {
-            get { return _isTarget; }
-        }
+        protected bool IsTarget => _isTarget;
 
         [CanBeNull]
-        protected BindingParameters Parameters
-        {
-            get { return _parameters; }
-        }
+        protected BindingParameters Parameters => _parameters;
 
         #endregion
 

@@ -58,30 +58,15 @@ namespace MugenMvvmToolkit.Models.Validation
 
         #region Implementation of IValidatorContext
 
-        public object Instance
-        {
-            get { return _instance; }
-        }
+        public object Instance => _instance;
 
-        public IDataContext ValidationMetadata
-        {
-            get { return _validationMetadata; }
-        }
+        public IDataContext ValidationMetadata => _validationMetadata;
 
-        public IDictionary<string, ICollection<string>> PropertyMappings
-        {
-            get { return _propertyMappings; }
-        }
+        public IDictionary<string, ICollection<string>> PropertyMappings => _propertyMappings;
 
-        public ICollection<string> IgnoreProperties
-        {
-            get { return _ignoreProperties; }
-        }
+        public ICollection<string> IgnoreProperties => _ignoreProperties;
 
-        public IServiceProvider ServiceProvider
-        {
-            get { return _serviceProvider; }
-        }
+        public IServiceProvider ServiceProvider => _serviceProvider;
 
         #endregion
 

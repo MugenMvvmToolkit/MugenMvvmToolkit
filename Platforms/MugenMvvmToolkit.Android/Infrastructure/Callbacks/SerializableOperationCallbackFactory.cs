@@ -634,10 +634,7 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure.Callbacks
                 _operation.ContinueWith(new AwaiterContinuation(continuation, this, typeof(TResult), _continueOnCapturedContext, _operation, _serializer));
             }
 
-            public bool IsCompleted
-            {
-                get { return _result != null || _operation.IsCompleted; }
-            }
+            public bool IsCompleted => _result != null || _operation.IsCompleted;
 
             TResult IAsyncOperationAwaiter<TResult>.GetResult()
             {
@@ -661,10 +658,7 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure.Callbacks
 
             #region Implementation of IHasStateMachine
 
-            public IAsyncStateMachine StateMachine
-            {
-                get { return _stateMachine; }
-            }
+            public IAsyncStateMachine StateMachine => _stateMachine;
 
             #endregion
         }

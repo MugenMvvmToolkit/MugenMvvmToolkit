@@ -56,15 +56,9 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         #region Overrides of BindingSourceAccessorBase
 
-        public override bool CanRead
-        {
-            get { return true; }
-        }
+        public override bool CanRead => true;
 
-        public override bool CanWrite
-        {
-            get { return false; }
-        }
+        public override bool CanWrite => false;
 
         public override bool DisableEqualityChecking
         {
@@ -73,10 +67,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             set { }
         }
 
-        public override IList<IObserver> Sources
-        {
-            get { return _sources; }
-        }
+        public override IList<IObserver> Sources => _sources;
 
         public override void Dispose()
         {

@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         #region Nested types
 
         [DataContract]
-        internal protected sealed class LazySerializableContainer
+        protected internal sealed class LazySerializableContainer
         {
             #region Fields
 
@@ -148,34 +148,19 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
 
         #region Properties
 
-        protected ISerializer Serializer
-        {
-            get { return _serializer; }
-        }
+        protected ISerializer Serializer => _serializer;
 
-        protected IViewModelProvider ViewModelProvider
-        {
-            get { return _viewModelProvider; }
-        }
+        protected IViewModelProvider ViewModelProvider => _viewModelProvider;
 
-        protected IViewManager ViewManager
-        {
-            get { return _viewManager; }
-        }
+        protected IViewManager ViewManager => _viewManager;
 
-        protected IViewModelPresenter ViewModelPresenter
-        {
-            get { return _viewModelPresenter; }
-        }
+        protected IViewModelPresenter ViewModelPresenter => _viewModelPresenter;
 
         #endregion
 
         #region Implementation of IApplicationStateManager
 
-        public virtual IList<Type> KnownTypes
-        {
-            get { return KnownTypesStatic; }
-        }
+        public virtual IList<Type> KnownTypes => KnownTypesStatic;
 
         public void OnSaveState(FrameworkElement element, IDictionary<string, object> state, object args,
             IDataContext context = null)

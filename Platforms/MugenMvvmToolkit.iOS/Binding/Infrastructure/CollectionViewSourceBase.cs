@@ -109,16 +109,10 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             }
         }
 
-        protected DataTemplateProvider DataTemplateProvider
-        {
-            get { return _itemTemplateProvider; }
-        }
+        protected DataTemplateProvider DataTemplateProvider => _itemTemplateProvider;
 
         [CanBeNull]
-        protected UICollectionView CollectionView
-        {
-            get { return (UICollectionView)_collectionView.Target; }
-        }
+        protected UICollectionView CollectionView => (UICollectionView)_collectionView.Target;
 
         #endregion
 

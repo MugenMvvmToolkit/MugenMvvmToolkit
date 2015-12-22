@@ -36,10 +36,7 @@ namespace MugenMvvmToolkit.WinPhone.AppBar
 
         #region Properties
 
-        public new IApplicationBarIconButton ApplicationBarItem
-        {
-            get { return (IApplicationBarIconButton) base.ApplicationBarItem; }
-        }
+        public new IApplicationBarIconButton ApplicationBarItem => (IApplicationBarIconButton) base.ApplicationBarItem;
 
         public Uri IconUri
         {

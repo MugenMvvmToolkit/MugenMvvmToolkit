@@ -122,25 +122,13 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Implementation of IRelativeSourceExpressionNode
 
-        public string Type
-        {
-            get { return _type; }
-        }
+        public string Type => _type;
 
-        public string ElementName
-        {
-            get { return _elementName; }
-        }
+        public string ElementName => _elementName;
 
-        public string Path
-        {
-            get { return _path; }
-        }
+        public string Path => _path;
 
-        public uint Level
-        {
-            get { return _level; }
-        }
+        public uint Level => _level;
 
         public void MergePath(string path)
         {

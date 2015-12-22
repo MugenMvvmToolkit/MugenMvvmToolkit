@@ -71,10 +71,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         protected override IEnumerable ItemsSource { get; set; }
 
-        protected override bool IsTargetDisposed
-        {
-            get { return _containerRef.Target == null; }
-        }
+        protected override bool IsTargetDisposed => _containerRef.Target == null;
 
         protected override void Add(int insertionIndex, int count)
         {

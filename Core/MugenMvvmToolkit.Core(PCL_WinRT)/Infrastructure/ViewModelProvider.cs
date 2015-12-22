@@ -129,10 +129,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Properties
 
-        protected IIocContainer IocContainer
-        {
-            get { return _iocContainer; }
-        }
+        protected IIocContainer IocContainer => _iocContainer;
 
         #endregion
 

@@ -307,15 +307,9 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             #region Implementation of IEventListener
 
-            public bool IsAlive
-            {
-                get { return true; }
-            }
+            public bool IsAlive => true;
 
-            public bool IsWeak
-            {
-                get { return false; }
-            }
+            public bool IsWeak => false;
 
             public bool TryHandle(object sender, object message)
             {

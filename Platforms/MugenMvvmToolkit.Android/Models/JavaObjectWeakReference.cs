@@ -36,10 +36,7 @@ namespace MugenMvvmToolkit.Android.Models
 
         #region Overrides of WeakReference
 
-        public override bool IsAlive
-        {
-            get { return Target != null; }
-        }
+        public override bool IsAlive => Target != null;
 
         public override object Target
         {

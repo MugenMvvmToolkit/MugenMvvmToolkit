@@ -61,15 +61,9 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         #region Properties
 
-        bool IEventListener.IsAlive
-        {
-            get { return true; }
-        }
+        bool IEventListener.IsAlive => true;
 
-        bool IEventListener.IsWeak
-        {
-            get { return false; }
-        }
+        bool IEventListener.IsWeak => false;
 
         #endregion
 

@@ -152,20 +152,11 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             }
         }
 
-        protected object Container
-        {
-            get { return _container; }
-        }
+        protected object Container => _container;
 
-        protected LayoutInflater LayoutInflater
-        {
-            get { return _layoutInflater; }
-        }
+        protected LayoutInflater LayoutInflater => _layoutInflater;
 
-        protected DataTemplateProvider DataTemplateProvider
-        {
-            get { return _itemTemplateProvider; }
-        }
+        protected DataTemplateProvider DataTemplateProvider => _itemTemplateProvider;
 
         #endregion
 
@@ -221,10 +212,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             return type;
         }
 
-        public override bool HasStableIds
-        {
-            get { return _stableIdProvider != null; }
-        }
+        public override bool HasStableIds => _stableIdProvider != null;
 
         public override int ViewTypeCount
         {

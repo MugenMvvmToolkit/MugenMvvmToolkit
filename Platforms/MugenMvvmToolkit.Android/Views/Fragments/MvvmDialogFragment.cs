@@ -64,10 +64,7 @@ namespace MugenMvvmToolkit.Android.Views.Fragments
 
         #region Implementation of IView
 
-        public virtual IMvvmFragmentMediator Mediator
-        {
-            get { return this.GetOrCreateMediator(ref _mediator); }
-        }
+        public virtual IMvvmFragmentMediator Mediator => this.GetOrCreateMediator(ref _mediator);
 
         public object DataContext
         {
@@ -85,10 +82,7 @@ namespace MugenMvvmToolkit.Android.Views.Fragments
 
         #region Properties
 
-        protected virtual int? ViewId
-        {
-            get { return _viewId; }
-        }
+        protected virtual int? ViewId => _viewId;
 
         #endregion
 

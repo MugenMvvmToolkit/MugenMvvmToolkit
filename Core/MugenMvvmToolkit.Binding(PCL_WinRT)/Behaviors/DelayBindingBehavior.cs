@@ -140,15 +140,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Properties
 
-        public int Delay
-        {
-            get { return _delay; }
-        }
+        public int Delay => _delay;
 
-        public bool IsTarget
-        {
-            get { return _isTarget; }
-        }
+        public bool IsTarget => _isTarget;
 
         #endregion
 
@@ -164,10 +158,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             }
         }
 
-        public override int Priority
-        {
-            get { return 0; }
-        }
+        public override int Priority => 0;
 
         protected override bool OnAttached()
         {

@@ -66,20 +66,11 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
 
         #region Implementation of INavigationService
 
-        public bool CanGoBack
-        {
-            get { return _frame.CanGoBack; }
-        }
+        public bool CanGoBack => _frame.CanGoBack;
 
-        public bool CanGoForward
-        {
-            get { return _frame.CanGoForward; }
-        }
+        public bool CanGoForward => _frame.CanGoForward;
 
-        public object CurrentContent
-        {
-            get { return _frame.Content; }
-        }
+        public object CurrentContent => _frame.Content;
 
         public void GoBack()
         {

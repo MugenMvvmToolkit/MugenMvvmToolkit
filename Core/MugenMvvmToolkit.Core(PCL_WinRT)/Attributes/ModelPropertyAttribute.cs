@@ -43,10 +43,7 @@ namespace MugenMvvmToolkit.Attributes
         #region Properties
 
         [NotNull]
-        public string Property
-        {
-            get { return _property; }
-        }
+        public string Property => _property;
 
         #endregion
     }

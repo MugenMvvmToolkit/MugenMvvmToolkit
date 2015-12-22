@@ -50,17 +50,11 @@ namespace MugenMvvmToolkit.Attributes
         public string Uri { get; set; }
 
         [NotNull]
-        public Type ViewModelType
-        {
-            get { return _viewModelType; }
-        }
+        public Type ViewModelType => _viewModelType;
 
         public UriKind UriKind { get; set; }
 
-        public string Name
-        {
-            get { return _name; }
-        }
+        public string Name => _name;
 
         #endregion
     }

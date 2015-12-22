@@ -91,10 +91,7 @@ namespace MugenMvvmToolkit.Collections
                 }
             }
 
-            public Dictionary<NotifyCollectionChangedAction, List<NotifyCollectionChangedEventArgs>>.ValueCollection Events
-            {
-                get { return _events.Values; }
-            }
+            public Dictionary<NotifyCollectionChangedAction, List<NotifyCollectionChangedEventArgs>>.ValueCollection Events => _events.Values;
 
             private int Count
             {
@@ -340,10 +337,7 @@ namespace MugenMvvmToolkit.Collections
             set { _threadManager = value; }
         }
 
-        public int NotificationCount
-        {
-            get { return _notificationCount; }
-        }
+        public int NotificationCount => _notificationCount;
 
         public int Count
         {
@@ -360,10 +354,7 @@ namespace MugenMvvmToolkit.Collections
 
         public virtual NotificationCollectionMode NotificationMode { get; set; }
 
-        protected virtual int CountInternal
-        {
-            get { return Items.Count; }
-        }
+        protected virtual int CountInternal => Items.Count;
 
         protected internal IList<T> Items
         {
@@ -751,10 +742,7 @@ namespace MugenMvvmToolkit.Collections
 
         #region Implementation of ISuspendNotifications
 
-        public virtual bool IsNotificationsSuspended
-        {
-            get { return _suspendCount != 0; }
-        }
+        public virtual bool IsNotificationsSuspended => _suspendCount != 0;
 
         public virtual IDisposable SuspendNotifications()
         {
@@ -811,15 +799,9 @@ namespace MugenMvvmToolkit.Collections
             }
         }
 
-        object ICollection.SyncRoot
-        {
-            get { return Locker; }
-        }
+        object ICollection.SyncRoot => Locker;
 
-        bool ICollection.IsSynchronized
-        {
-            get { return true; }
-        }
+        bool ICollection.IsSynchronized => true;
 
         #endregion
 
@@ -889,15 +871,9 @@ namespace MugenMvvmToolkit.Collections
             set { this[index] = (T)value; }
         }
 
-        bool IList.IsReadOnly
-        {
-            get { return IsReadOnly; }
-        }
+        bool IList.IsReadOnly => IsReadOnly;
 
-        bool IList.IsFixedSize
-        {
-            get { return false; }
-        }
+        bool IList.IsFixedSize => false;
 
         #endregion
 
@@ -958,10 +934,7 @@ namespace MugenMvvmToolkit.Collections
             }
         }
 
-        public virtual bool IsReadOnly
-        {
-            get { return false; }
-        }
+        public virtual bool IsReadOnly => false;
 
         #endregion
 

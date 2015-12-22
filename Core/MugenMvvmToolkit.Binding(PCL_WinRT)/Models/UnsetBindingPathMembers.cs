@@ -45,35 +45,17 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Implementation of IBindingPathMembers
 
-        public IBindingPath Path
-        {
-            get { return BindingPath.None; }
-        }
+        public IBindingPath Path => BindingPath.None;
 
-        public bool AllMembersAvailable
-        {
-            get { return false; }
-        }
+        public bool AllMembersAvailable => false;
 
-        public IList<IBindingMemberInfo> Members
-        {
-            get { return Empty.Array<IBindingMemberInfo>(); }
-        }
+        public IList<IBindingMemberInfo> Members => Empty.Array<IBindingMemberInfo>();
 
-        public IBindingMemberInfo LastMember
-        {
-            get { return BindingMemberInfo.Unset; }
-        }
+        public IBindingMemberInfo LastMember => BindingMemberInfo.Unset;
 
-        public object Source
-        {
-            get { return BindingConstants.UnsetValue; }
-        }
+        public object Source => BindingConstants.UnsetValue;
 
-        public object PenultimateValue
-        {
-            get { return BindingConstants.UnsetValue; }
-        }
+        public object PenultimateValue => BindingConstants.UnsetValue;
 
         #endregion
     }

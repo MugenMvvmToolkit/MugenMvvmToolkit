@@ -197,16 +197,10 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             }
         }
 
-        protected DataTemplateProvider DataTemplateProvider
-        {
-            get { return _templateProvider; }
-        }
+        protected DataTemplateProvider DataTemplateProvider => _templateProvider;
 
         [CanBeNull]
-        protected UITableView TableView
-        {
-            get { return (UITableView)_tableView.Target; }
-        }
+        protected UITableView TableView => (UITableView)_tableView.Target;
 
         #endregion
 

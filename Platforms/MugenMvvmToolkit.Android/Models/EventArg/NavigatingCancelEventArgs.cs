@@ -66,15 +66,9 @@ namespace MugenMvvmToolkit.Android.Models.EventArg
 
         #region Properties
 
-        public IViewMappingItem Mapping
-        {
-            get { return _mapping; }
-        }
+        public IViewMappingItem Mapping => _mapping;
 
-        public string Parameter
-        {
-            get { return _parameter; }
-        }
+        public string Parameter => _parameter;
 
         #endregion
 
@@ -82,15 +76,9 @@ namespace MugenMvvmToolkit.Android.Models.EventArg
 
         public override bool Cancel { get; set; }
 
-        public override NavigationMode NavigationMode
-        {
-            get { return _navigationMode; }
-        }
+        public override NavigationMode NavigationMode => _navigationMode;
 
-        public override bool IsCancelable
-        {
-            get { return _isCancelable; }
-        }
+        public override bool IsCancelable => _isCancelable;
 
         #endregion
     }

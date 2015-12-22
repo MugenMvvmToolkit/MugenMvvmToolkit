@@ -59,10 +59,7 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure
 
         protected override IEnumerable ItemsSource { get; set; }
 
-        protected override bool IsTargetDisposed
-        {
-            get { return !_tabLayout.IsAlive(); }
-        }
+        protected override bool IsTargetDisposed => !_tabLayout.IsAlive();
 
         protected override void Update(IEnumerable itemsSource, IDataContext context = null)
         {

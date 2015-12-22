@@ -51,30 +51,15 @@ namespace MugenMvvmToolkit.Models
 
         #region Implementation of INavigationContext
 
-        public NavigationMode NavigationMode
-        {
-            get { return _navigationMode; }
-        }
+        public NavigationMode NavigationMode => _navigationMode;
 
-        public IViewModel ViewModelFrom
-        {
-            get { return _viewModelFrom; }
-        }
+        public IViewModel ViewModelFrom => _viewModelFrom;
 
-        public IViewModel ViewModelTo
-        {
-            get { return _viewModelTo; }
-        }
+        public IViewModel ViewModelTo => _viewModelTo;
 
-        public NavigationType NavigationType
-        {
-            get { return _type; }
-        }
+        public NavigationType NavigationType => _type;
 
-        public object NavigationProvider
-        {
-            get { return _navigationProvider; }
-        }
+        public object NavigationProvider => _navigationProvider;
 
         #endregion
     }

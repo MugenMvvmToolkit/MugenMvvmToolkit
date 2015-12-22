@@ -50,20 +50,11 @@ namespace MugenMvvmToolkit.Models
 
         #region Implementation of ISubscriber
 
-        public bool IsAlive
-        {
-            get { return true; }
-        }
+        public bool IsAlive => true;
 
-        public bool AllowDuplicate
-        {
-            get { return true; }
-        }
+        public bool AllowDuplicate => true;
 
-        public object Target
-        {
-            get { return _action.Target ?? Method; }
-        }
+        public object Target => _action.Target ?? Method;
 
         public HandlerResult Handle(object sender, object message)
         {
@@ -112,10 +103,7 @@ namespace MugenMvvmToolkit.Models
 
         #region Implementation of IActionSubscriber
 
-        public MethodInfo Method
-        {
-            get { return _action.GetMethodInfo(); }
-        }
+        public MethodInfo Method => _action.GetMethodInfo();
 
         #endregion
     }

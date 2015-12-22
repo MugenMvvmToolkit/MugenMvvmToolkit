@@ -62,10 +62,7 @@ namespace MugenMvvmToolkit.Models
 
         public ExecutionMode EventExecutionMode { get; set; }
 
-        public IDataContext Metadata
-        {
-            get { return this; }
-        }
+        public IDataContext Metadata => this;
 
         public IDataContext State
         {

@@ -65,10 +65,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             set { _adapter.ItemsSource = value; }
         }
 
-        protected override bool IsTargetDisposed
-        {
-            get { return !_viewGroup.IsAlive(); }
-        }
+        protected override bool IsTargetDisposed => !_viewGroup.IsAlive();
 
         protected override void Add(int insertionIndex, int count)
         {

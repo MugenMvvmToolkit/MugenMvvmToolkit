@@ -53,10 +53,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
             #region Methods
 
-            public IDynamicViewModelPresenter this[int index]
-            {
-                get { return _list[index]; }
-            }
+            public IDynamicViewModelPresenter this[int index] => _list[index];
 
             private static int ComparerDelegate(IDynamicViewModelPresenter x1, IDynamicViewModelPresenter x2)
             {
@@ -111,15 +108,9 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 return remove;
             }
 
-            public int Count
-            {
-                get { return _list.Count; }
-            }
+            public int Count => _list.Count;
 
-            public bool IsReadOnly
-            {
-                get { return false; }
-            }
+            public bool IsReadOnly => false;
 
             #endregion
         }
@@ -147,10 +138,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Implementation of IViewModelPresenter
 
-        public ICollection<IDynamicViewModelPresenter> DynamicPresenters
-        {
-            get { return _dynamicPresenters; }
-        }
+        public ICollection<IDynamicViewModelPresenter> DynamicPresenters => _dynamicPresenters;
 
         public virtual INavigationOperation ShowAsync(IViewModel viewModel, IDataContext context)
         {

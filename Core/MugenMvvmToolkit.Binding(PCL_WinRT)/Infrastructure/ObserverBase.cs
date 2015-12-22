@@ -60,15 +60,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
             }
 
-            bool IEventListener.IsAlive
-            {
-                get { return Ref.Target != null; }
-            }
+            bool IEventListener.IsAlive => Ref.Target != null;
 
-            bool IEventListener.IsWeak
-            {
-                get { return true; }
-            }
+            bool IEventListener.IsWeak => true;
 
             bool IEventListener.TryHandle(object sender, object message)
             {
@@ -133,10 +127,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Properties
 
-        protected object OriginalSource
-        {
-            get { return _source; }
-        }
+        protected object OriginalSource => _source;
 
         protected abstract bool DependsOnSubscribers { get; }
 
@@ -275,10 +266,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        public IBindingPath Path
-        {
-            get { return _path; }
-        }
+        public IBindingPath Path => _path;
 
         public object Source
         {

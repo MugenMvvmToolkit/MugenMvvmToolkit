@@ -56,25 +56,13 @@ namespace MugenMvvmToolkit.Models
 
         #region Implementation of IViewPageMappingItem
 
-        public string Name
-        {
-            get { return _name; }
-        }
+        public string Name => _name;
 
-        public Type ViewType
-        {
-            get { return _viewType; }
-        }
+        public Type ViewType => _viewType;
 
-        public Type ViewModelType
-        {
-            get { return _viewModelType; }
-        }
+        public Type ViewModelType => _viewModelType;
 
-        public Uri Uri
-        {
-            get { return _uri; }
-        }
+        public Uri Uri => _uri;
 
         #endregion
 

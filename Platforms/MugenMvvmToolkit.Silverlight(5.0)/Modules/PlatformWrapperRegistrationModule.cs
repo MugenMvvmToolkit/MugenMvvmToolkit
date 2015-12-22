@@ -50,10 +50,7 @@ namespace MugenMvvmToolkit.Silverlight.Modules
 
             #region Implementation of IWindowView
 
-            public object View
-            {
-                get { return _window; }
-            }
+            public object View => _window;
 
             public void Show()
             {

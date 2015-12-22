@@ -86,10 +86,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Implementation of IBindingPath
 
-        public string Path
-        {
-            get { return _path; }
-        }
+        public string Path => _path;
 
         public IList<string> Parts
         {
@@ -101,15 +98,9 @@ namespace MugenMvvmToolkit.Binding.Models
             }
         }
 
-        public bool IsEmpty
-        {
-            get { return _isEmpty; }
-        }
+        public bool IsEmpty => _isEmpty;
 
-        public bool IsSingle
-        {
-            get { return _isSingle; }
-        }
+        public bool IsSingle => _isSingle;
 
         #endregion
 

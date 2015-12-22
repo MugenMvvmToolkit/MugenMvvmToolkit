@@ -59,10 +59,7 @@ namespace MugenMvvmToolkit
 
             #region Properties
 
-            public IList<IIocParameter> Parameters
-            {
-                get { return _parameters; }
-            }
+            public IList<IIocParameter> Parameters => _parameters;
 
             #endregion
 
@@ -113,10 +110,7 @@ namespace MugenMvvmToolkit
 
         #region Properties
 
-        public IInjector Container
-        {
-            get { return _injector; }
-        }
+        public IInjector Container => _injector;
 
         #endregion
 
@@ -198,27 +192,15 @@ namespace MugenMvvmToolkit
 
         #region Implementation of IIocContainer
 
-        public int Id
-        {
-            get { return _id; }
-        }
+        public int Id => _id;
 
-        public bool IsDisposed
-        {
-            get { return _injector.IsDisposed; }
-        }
+        public bool IsDisposed => _injector.IsDisposed;
 
         public event EventHandler<Interfaces.Models.IDisposableObject, EventArgs> Disposed;
 
-        public IIocContainer Parent
-        {
-            get { return _parent; }
-        }
+        public IIocContainer Parent => _parent;
 
-        object IIocContainer.Container
-        {
-            get { return _injector; }
-        }
+        object IIocContainer.Container => _injector;
 
         public IIocContainer CreateChild()
         {

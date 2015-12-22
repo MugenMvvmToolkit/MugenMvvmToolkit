@@ -76,15 +76,9 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
 
         #region Implementation of IMvvmViewControllerMediator
 
-        public bool IsDisappeared
-        {
-            get { return _canDispose; }
-        }
+        public bool IsDisappeared => _canDispose;
 
-        public bool IsAppeared
-        {
-            get { return !_canDispose; }
-        }
+        public bool IsAppeared => !_canDispose;
 
         public virtual void ViewWillAppear(Action<bool> baseViewWillAppear, bool animated)
         {

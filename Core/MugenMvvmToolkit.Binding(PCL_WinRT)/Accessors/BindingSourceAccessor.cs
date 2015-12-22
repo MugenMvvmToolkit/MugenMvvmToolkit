@@ -269,10 +269,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 }
             }
 
-            public bool IsWeak
-            {
-                get { return true; }
-            }
+            public bool IsWeak => true;
 
             public bool TryHandle(object sender, object message)
             {
@@ -345,20 +342,11 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         #region Overrides of BindingSourceAccessorBase
 
-        public IObserver Source
-        {
-            get { return _bindingSource; }
-        }
+        public IObserver Source => _bindingSource;
 
-        public override bool CanRead
-        {
-            get { return true; }
-        }
+        public override bool CanRead => true;
 
-        public override bool CanWrite
-        {
-            get { return true; }
-        }
+        public override bool CanWrite => true;
 
         public override bool DisableEqualityChecking
         {

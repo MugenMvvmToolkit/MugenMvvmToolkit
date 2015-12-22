@@ -210,10 +210,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Implementation of IAsyncOperation
 
-        public bool IsCompleted
-        {
-            get { return _result != null; }
-        }
+        public bool IsCompleted => _result != null;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public IOperationResult<TResult> Result
@@ -226,10 +223,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        IOperationResult IAsyncOperation.Result
-        {
-            get { return Result; }
-        }
+        IOperationResult IAsyncOperation.Result => Result;
 
         public void Wait()
         {

@@ -57,10 +57,7 @@ namespace MugenMvvmToolkit
 
             #region Properties
 
-            public IList<IIocParameter> Parameters
-            {
-                get { return _parameters; }
-            }
+            public IList<IIocParameter> Parameters => _parameters;
 
             #endregion
 
@@ -76,15 +73,9 @@ namespace MugenMvvmToolkit
                 return _parameters;
             }
 
-            public string Name
-            {
-                get { return "~@~params"; }
-            }
+            public string Name => "~@~params";
 
-            public bool ShouldInherit
-            {
-                get { return true; }
-            }
+            public bool ShouldInherit => true;
 
             #endregion
         }
@@ -94,7 +85,6 @@ namespace MugenMvvmToolkit
         #region Fields
 
         private static int _idCounter;
-        private readonly int _id;
         private readonly IKernel _kernel;
         private readonly IIocContainer _parent;
 
@@ -102,10 +92,7 @@ namespace MugenMvvmToolkit
 
         #region Properties
 
-        public IKernel Container
-        {
-            get { return _kernel; }
-        }
+        public IKernel Container => _kernel;
 
         #endregion
 
@@ -121,7 +108,7 @@ namespace MugenMvvmToolkit
             Should.NotBeNull(kernel, nameof(kernel));
             _kernel = kernel;
             _parent = parent;
-            _id = Interlocked.Increment(ref _idCounter);
+            Id = Interlocked.Increment(ref _idCounter);
         }
 
         #endregion
@@ -198,27 +185,15 @@ namespace MugenMvvmToolkit
 
         #region Implementation of IIocContainer
 
-        public int Id
-        {
-            get { return _id; }
-        }
+        public int Id { get; }
 
-        public bool IsDisposed
-        {
-            get { return _kernel.IsDisposed; }
-        }
+        public bool IsDisposed => _kernel.IsDisposed;
 
         public event EventHandler<IDisposableObject, EventArgs> Disposed;
 
-        public IIocContainer Parent
-        {
-            get { return _parent; }
-        }
+        public IIocContainer Parent => _parent;
 
-        object IIocContainer.Container
-        {
-            get { return _kernel; }
-        }
+        object IIocContainer.Container => _kernel;
 
         public IIocContainer CreateChild()
         {

@@ -334,40 +334,19 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         public static bool SupportCoalesceExpression { get; set; }
 
-        protected Dictionary<ExpressionNodeType, Func<IExpressionNode, Expression>> NodeToExpressionMapping
-        {
-            get { return _nodeToExpressionMapping; }
-        }
+        protected Dictionary<ExpressionNodeType, Func<IExpressionNode, Expression>> NodeToExpressionMapping => _nodeToExpressionMapping;
 
-        protected Dictionary<TokenType, Func<Expression, Expression>> UnaryToExpressionMapping
-        {
-            get { return _unaryToExpressionMapping; }
-        }
+        protected Dictionary<TokenType, Func<Expression, Expression>> UnaryToExpressionMapping => _unaryToExpressionMapping;
 
-        protected Dictionary<TokenType, Func<Expression, Expression, Expression>> BinaryToExpressionMapping
-        {
-            get { return _binaryToExpressionMapping; }
-        }
+        protected Dictionary<TokenType, Func<Expression, Expression, Expression>> BinaryToExpressionMapping => _binaryToExpressionMapping;
 
-        protected ConstantExpression ThisExpression
-        {
-            get { return _thisExpression; }
-        }
+        protected ConstantExpression ThisExpression => _thisExpression;
 
-        protected IDataContext DataContext
-        {
-            get { return _dataContext; }
-        }
+        protected IDataContext DataContext => _dataContext;
 
-        protected IList<KeyValuePair<int, ParameterExpression>> Parameters
-        {
-            get { return _parameters; }
-        }
+        protected IList<KeyValuePair<int, ParameterExpression>> Parameters => _parameters;
 
-        protected IList<object> SourceValues
-        {
-            get { return _sourceValues; }
-        }
+        protected IList<object> SourceValues => _sourceValues;
 
         #endregion
 

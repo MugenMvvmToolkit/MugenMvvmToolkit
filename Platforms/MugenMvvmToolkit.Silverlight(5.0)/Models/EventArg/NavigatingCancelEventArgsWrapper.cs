@@ -46,10 +46,7 @@ namespace MugenMvvmToolkit.WinPhone.Models.EventArg
 
         #region Properties
 
-        public NavigatingCancelEventArgs Args
-        {
-            get { return _args; }
-        }
+        public NavigatingCancelEventArgs Args => _args;
 
         #endregion
 
@@ -61,15 +58,9 @@ namespace MugenMvvmToolkit.WinPhone.Models.EventArg
             set { _args.Cancel = value; }
         }
 
-        public override NavigationMode NavigationMode
-        {
-            get { return _args.NavigationMode.ToNavigationMode(); }
-        }
+        public override NavigationMode NavigationMode => _args.NavigationMode.ToNavigationMode();
 
-        public override bool IsCancelable
-        {
-            get { return _args.IsCancelable; }
-        }
+        public override bool IsCancelable => _args.IsCancelable;
 
         #endregion
     }

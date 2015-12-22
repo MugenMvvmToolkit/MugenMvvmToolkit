@@ -74,7 +74,7 @@ namespace MugenMvvmToolkit.Models
             return _id.Equals(other._id, StringComparison.Ordinal);
         }
 
-        public override sealed bool Equals(object obj)
+        public sealed override bool Equals(object obj)
         {
             var other = obj as TType;
             return other != null && Equals(other);

@@ -46,16 +46,10 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
         #region Properties
 
         [NotNull]
-        public IBindingMemberInfo Member
-        {
-            get { return _member; }
-        }
+        public IBindingMemberInfo Member => _member;
 
         [CanBeNull]
-        public object[] Args
-        {
-            get { return _args; }
-        }
+        public object[] Args => _args;
 
         #endregion
     }

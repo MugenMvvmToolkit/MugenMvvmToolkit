@@ -400,10 +400,7 @@ namespace MugenMvvmToolkit.Android
             }
         }
 
-        public static Activity CurrentActivity
-        {
-            get { return (Activity)_activityRef.Target; }
-        }
+        public static Activity CurrentActivity => (Activity)_activityRef.Target;
 
         public static bool AggressiveViewCleanup { get; set; }
 

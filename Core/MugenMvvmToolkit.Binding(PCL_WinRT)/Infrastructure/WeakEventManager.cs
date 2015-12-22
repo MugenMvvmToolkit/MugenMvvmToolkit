@@ -77,10 +77,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Properties
 
-            internal bool IsEmpty
-            {
-                get { return Listeners == null; }
-            }
+            internal bool IsEmpty => Listeners == null;
 
             #endregion
 

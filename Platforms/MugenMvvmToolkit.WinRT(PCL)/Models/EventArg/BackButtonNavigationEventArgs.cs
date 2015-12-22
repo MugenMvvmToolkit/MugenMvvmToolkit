@@ -44,15 +44,9 @@ namespace MugenMvvmToolkit.WinPhone.Models.EventArg
 
         #region Properties
 
-        public override object Content
-        {
-            get { return null; }
-        }
+        public override object Content => null;
 
-        public override NavigationMode Mode
-        {
-            get { return NavigationMode.Back; }
-        }
+        public override NavigationMode Mode => NavigationMode.Back;
 
         #endregion
     }

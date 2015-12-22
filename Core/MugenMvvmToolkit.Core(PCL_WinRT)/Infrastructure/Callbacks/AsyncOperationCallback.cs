@@ -76,10 +76,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Implementation of IOperationCallback
 
-        public bool IsSerializable
-        {
-            get { return _callback != null || _asyncOperation != null; }
-        }
+        public bool IsSerializable => _callback != null || _asyncOperation != null;
 
         public void Invoke(IOperationResult result)
         {

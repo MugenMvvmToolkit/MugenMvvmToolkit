@@ -46,15 +46,9 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Implementation of IUnaryExressionNode
 
-        public TokenType Token
-        {
-            get { return _token; }
-        }
+        public TokenType Token => _token;
 
-        public IExpressionNode Operand
-        {
-            get { return _operand; }
-        }
+        public IExpressionNode Operand => _operand;
 
         #endregion
 

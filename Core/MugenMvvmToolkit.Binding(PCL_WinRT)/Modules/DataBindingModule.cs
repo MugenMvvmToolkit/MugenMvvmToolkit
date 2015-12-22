@@ -82,7 +82,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         {
             #region Fields
 
-            private readonly static ExplicitParentListener Instance;
+            private static readonly ExplicitParentListener Instance;
 
             #endregion
 
@@ -101,15 +101,9 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             #region Implementation of IEventListener
 
-            public bool IsAlive
-            {
-                get { return true; }
-            }
+            public bool IsAlive => true;
 
-            public bool IsWeak
-            {
-                get { return true; }
-            }
+            public bool IsWeak => true;
 
             public bool TryHandle(object sender, object message)
             {
@@ -167,10 +161,7 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         #region Implementation of IModule
 
-        public virtual int Priority
-        {
-            get { return ModuleBase.BindingModulePriority; }
-        }
+        public virtual int Priority => ModuleBase.BindingModulePriority;
 
         public bool Load(IModuleContext context)
         {

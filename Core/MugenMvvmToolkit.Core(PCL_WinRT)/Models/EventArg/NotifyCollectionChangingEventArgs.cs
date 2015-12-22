@@ -44,35 +44,17 @@ namespace MugenMvvmToolkit.Models.EventArg
         #region Properties
 
         [NotNull]
-        public NotifyCollectionChangedEventArgs ChangedEventArgs
-        {
-            get { return _changedEventArgs; }
-        }
+        public NotifyCollectionChangedEventArgs ChangedEventArgs => _changedEventArgs;
 
-        public NotifyCollectionChangedAction Action
-        {
-            get { return ChangedEventArgs.Action; }
-        }
+        public NotifyCollectionChangedAction Action => ChangedEventArgs.Action;
 
-        public IList NewItems
-        {
-            get { return ChangedEventArgs.NewItems; }
-        }
+        public IList NewItems => ChangedEventArgs.NewItems;
 
-        public IList OldItems
-        {
-            get { return ChangedEventArgs.OldItems; }
-        }
+        public IList OldItems => ChangedEventArgs.OldItems;
 
-        public int NewStartingIndex
-        {
-            get { return ChangedEventArgs.NewStartingIndex; }
-        }
+        public int NewStartingIndex => ChangedEventArgs.NewStartingIndex;
 
-        public int OldStartingIndex
-        {
-            get { return ChangedEventArgs.OldStartingIndex; }
-        }
+        public int OldStartingIndex => ChangedEventArgs.OldStartingIndex;
 
         #endregion
     }

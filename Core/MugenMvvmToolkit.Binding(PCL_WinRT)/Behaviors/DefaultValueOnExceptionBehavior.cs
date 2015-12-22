@@ -50,10 +50,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Properties
 
-        public object Value
-        {
-            get { return _value; }
-        }
+        public object Value => _value;
 
         #endregion
 
@@ -101,15 +98,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Overrides of BindingBehaviorBase
 
-        public override Guid Id
-        {
-            get { return IdDefaultValuesOnExceptionBehavior; }
-        }
+        public override Guid Id => IdDefaultValuesOnExceptionBehavior;
 
-        public override int Priority
-        {
-            get { return 0; }
-        }
+        public override int Priority => 0;
 
         protected override bool OnAttached()
         {

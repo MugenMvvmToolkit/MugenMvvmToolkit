@@ -73,10 +73,7 @@ namespace MugenMvvmToolkit.Binding
 
             #region Implementation of interfaces
 
-            public object Source
-            {
-                get { return _innerContext; }
-            }
+            public object Source => _innerContext;
 
             public object Value
             {
@@ -89,17 +86,11 @@ namespace MugenMvvmToolkit.Binding
                 set { _innerContext.Value = value; }
             }
 
-            public bool IsAlive
-            {
-                get { return _innerContext == null || _innerContext.IsAlive; }
-            }
+            public bool IsAlive => _innerContext == null || _innerContext.IsAlive;
 
             public event EventHandler<ISourceValue, EventArgs> ValueChanged;
 
-            public bool IsWeak
-            {
-                get { return true; }
-            }
+            public bool IsWeak => true;
 
             public bool TryHandle(object sender, object message)
             {
@@ -179,10 +170,7 @@ namespace MugenMvvmToolkit.Binding
 
             #region Implementation of interfaces
 
-            public bool IsWeak
-            {
-                get { return true; }
-            }
+            public bool IsWeak => true;
 
             public bool TryHandle(object sender, object message)
             {
@@ -230,10 +218,7 @@ namespace MugenMvvmToolkit.Binding
                 }
             }
 
-            public bool IsAlive
-            {
-                get { return _targetReference.Target != null; }
-            }
+            public bool IsAlive => _targetReference.Target != null;
 
             public event EventHandler<ISourceValue, EventArgs> ValueChanged;
 
@@ -280,10 +265,7 @@ namespace MugenMvvmToolkit.Binding
                 }
             }
 
-            public bool IsWeak
-            {
-                get { return true; }
-            }
+            public bool IsWeak => true;
 
             public bool TryHandle(object sender, object message)
             {

@@ -68,10 +68,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
 
         #region Properties
 
-        protected Frame RootFrame
-        {
-            get { return _rootFrame; }
-        }
+        protected Frame RootFrame => _rootFrame;
 
         #endregion
 

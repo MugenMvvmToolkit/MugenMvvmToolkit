@@ -31,15 +31,9 @@ namespace MugenMvvmToolkit.WinPhone.Models.EventArg
 
         public override bool Cancel { get; set; }
 
-        public override NavigationMode NavigationMode
-        {
-            get { return NavigationMode.Back; }
-        }
+        public override NavigationMode NavigationMode => NavigationMode.Back;
 
-        public override bool IsCancelable
-        {
-            get { return true; }
-        }
+        public override bool IsCancelable => true;
 
         #endregion
     }

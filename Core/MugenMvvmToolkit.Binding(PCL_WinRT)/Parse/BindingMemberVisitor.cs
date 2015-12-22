@@ -68,22 +68,13 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Properties
 
-        public IList<KeyValuePair<string, BindingMemberExpressionNode>> Members
-        {
-            get { return _members; }
-        }
+        public IList<KeyValuePair<string, BindingMemberExpressionNode>> Members => _members;
 
-        public bool IsMulti
-        {
-            get { return _isMulti; }
-        }
+        public bool IsMulti => _isMulti;
 
         public IDataContext Context { get; set; }
 
-        public bool IsPostOrder
-        {
-            get { return false; }
-        }
+        public bool IsPostOrder => false;
 
         #endregion
 

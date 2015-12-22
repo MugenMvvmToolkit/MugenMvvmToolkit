@@ -59,10 +59,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Propreties
 
-        protected FilterableNotifiableCollection<T> FilterableItemsSource
-        {
-            get { return _filterableItemsSource; }
-        }
+        protected FilterableNotifiableCollection<T> FilterableItemsSource => _filterableItemsSource;
 
         public bool UpdateSelectedStateOnChange { get; set; }
 
@@ -70,20 +67,11 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Implementation of IGridViewModel
 
-        Type IGridViewModel.ModelType
-        {
-            get { return typeof(T); }
-        }
+        Type IGridViewModel.ModelType => typeof(T);
 
-        IList IGridViewModel.OriginalItemsSource
-        {
-            get { return (IList)OriginalItemsSource; }
-        }
+        IList IGridViewModel.OriginalItemsSource => (IList)OriginalItemsSource;
 
-        INotifiableCollection IGridViewModel.ItemsSource
-        {
-            get { return (INotifiableCollection)ItemsSource; }
-        }
+        INotifiableCollection IGridViewModel.ItemsSource => (INotifiableCollection)ItemsSource;
 
         object IGridViewModel.SelectedItem
         {
@@ -113,15 +101,9 @@ namespace MugenMvvmToolkit.ViewModels
             UpdateItemsSource((IEnumerable<T>)value);
         }
 
-        public virtual IList<T> OriginalItemsSource
-        {
-            get { return FilterableItemsSource.SourceCollection; }
-        }
+        public virtual IList<T> OriginalItemsSource => FilterableItemsSource.SourceCollection;
 
-        public virtual INotifiableCollection<T> ItemsSource
-        {
-            get { return _itemsSource; }
-        }
+        public virtual INotifiableCollection<T> ItemsSource => _itemsSource;
 
         public virtual T SelectedItem
         {

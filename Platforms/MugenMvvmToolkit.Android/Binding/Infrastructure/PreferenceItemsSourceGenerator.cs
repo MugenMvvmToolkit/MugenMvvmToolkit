@@ -52,10 +52,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         protected override IEnumerable ItemsSource { get; set; }
 
-        protected override bool IsTargetDisposed
-        {
-            get { return !_preference.IsAlive(); }
-        }
+        protected override bool IsTargetDisposed => !_preference.IsAlive();
 
         #endregion
 

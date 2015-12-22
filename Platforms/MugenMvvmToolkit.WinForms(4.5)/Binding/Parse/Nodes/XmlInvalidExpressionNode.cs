@@ -58,15 +58,9 @@ namespace MugenMvvmToolkit.WinForms.Binding.Parse.Nodes
 
         #region Properties
 
-        public XmlInvalidExpressionType Type
-        {
-            get { return _type; }
-        }
+        public XmlInvalidExpressionType Type => _type;
 
-        public IList<XmlExpressionNode> Nodes
-        {
-            get { return _nodes; }
-        }
+        public IList<XmlExpressionNode> Nodes => _nodes;
 
         #endregion
 

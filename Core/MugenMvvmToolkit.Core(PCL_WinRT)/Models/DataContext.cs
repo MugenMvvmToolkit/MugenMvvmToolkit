@@ -35,15 +35,9 @@ namespace MugenMvvmToolkit.Models
         {
             #region Implementation of IDataContext
 
-            public int Count
-            {
-                get { return 0; }
-            }
+            public int Count => 0;
 
-            public bool IsReadOnly
-            {
-                get { return true; }
-            }
+            public bool IsReadOnly => true;
 
             public void Add<T>(DataConstant<T> dataConstant, T value)
             {
@@ -180,10 +174,7 @@ namespace MugenMvvmToolkit.Models
 
         #region Implementation of IDataContext
 
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
+        public bool IsReadOnly => false;
 
         public void Add<T>(DataConstant<T> dataConstant, T value)
         {

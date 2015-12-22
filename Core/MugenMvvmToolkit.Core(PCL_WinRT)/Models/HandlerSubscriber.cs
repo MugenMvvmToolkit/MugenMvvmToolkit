@@ -102,20 +102,11 @@ namespace MugenMvvmToolkit.Models
 
         #region Implementation of ISubscriber
 
-        public bool IsAlive
-        {
-            get { return _reference.Target != null; }
-        }
+        public bool IsAlive => _reference.Target != null;
 
-        public bool AllowDuplicate
-        {
-            get { return false; }
-        }
+        public bool AllowDuplicate => false;
 
-        public object Target
-        {
-            get { return _reference.Target; }
-        }
+        public object Target => _reference.Target;
 
         public HandlerResult Handle(object sender, object message)
         {

@@ -61,15 +61,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Implementation of IBindingBehavior
 
-        public Guid Id
-        {
-            get { return IdValidatesOnExceptionsBehavior; }
-        }
+        public Guid Id => IdValidatesOnExceptionsBehavior;
 
-        public int Priority
-        {
-            get { return 0; }
-        }
+        public int Priority => 0;
 
         public bool Attach(IDataBinding binding)
         {

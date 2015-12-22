@@ -49,15 +49,9 @@ namespace MugenMvvmToolkit.Models
 
         #region Implementation of IEntityStateEntry
 
-        EntityState IEntityStateEntry.State
-        {
-            get { return State; }
-        }
+        EntityState IEntityStateEntry.State => State;
 
-        object IEntityStateEntry.Entity
-        {
-            get { return Entity; }
-        }
+        object IEntityStateEntry.Entity => Entity;
 
         #endregion
 

@@ -90,20 +90,11 @@ namespace MugenMvvmToolkit.Collections
             }
         }
 
-        public TKey[] Keys
-        {
-            get { return KeysInternal; }
-        }
+        public TKey[] Keys => KeysInternal;
 
-        public TValue[] Values
-        {
-            get { return ValuesInternal; }
-        }
+        public TValue[] Values => ValuesInternal;
 
-        public int Count
-        {
-            get { return Size; }
-        }
+        public int Count => Size;
 
         #endregion
 
@@ -240,10 +231,7 @@ namespace MugenMvvmToolkit.Collections
 
         #region Properties
 
-        public IComparer<T> Comparer
-        {
-            get { return ComparerInternal; }
-        }
+        public IComparer<T> Comparer => ComparerInternal;
 
         public int Capacity
         {
@@ -368,25 +356,16 @@ namespace MugenMvvmToolkit.Collections
             set { this[index] = (T)value; }
         }
 
-        bool IList.IsReadOnly
-        {
-            get { return IsReadOnly; }
-        }
+        bool IList.IsReadOnly => IsReadOnly;
 
-        bool IList.IsFixedSize
-        {
-            get { return false; }
-        }
+        bool IList.IsFixedSize => false;
 
         public void CopyTo(Array array, int index)
         {
             Array.Copy(Items, 0, array, index, Size);
         }
 
-        int ICollection.Count
-        {
-            get { return Count; }
-        }
+        int ICollection.Count => Count;
 
         object ICollection.SyncRoot
         {
@@ -398,10 +377,7 @@ namespace MugenMvvmToolkit.Collections
             }
         }
 
-        bool ICollection.IsSynchronized
-        {
-            get { return false; }
-        }
+        bool ICollection.IsSynchronized => false;
 
         public IEnumerator<T> GetEnumerator()
         {
@@ -444,15 +420,9 @@ namespace MugenMvvmToolkit.Collections
             return true;
         }
 
-        public int Count
-        {
-            get { return Size; }
-        }
+        public int Count => Size;
 
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
+        public bool IsReadOnly => false;
 
         public int IndexOf(T item)
         {

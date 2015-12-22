@@ -53,39 +53,21 @@ namespace MugenMvvmToolkit.WinForms.Binding.Parse.Nodes
 
         #region Properties
 
-        public bool IsComplex
-        {
-            get { return _startTagEnd != null; }
-        }
+        public bool IsComplex => _startTagEnd != null;
 
-        public bool IsValid
-        {
-            get { return EndTag != null; }
-        }
+        public bool IsValid => EndTag != null;
 
         [NotNull]
-        public string Name
-        {
-            get { return _name; }
-        }
+        public string Name => _name;
 
         [CanBeNull]
-        public new XmlElementExpressionNode Parent
-        {
-            get { return (XmlElementExpressionNode)base.Parent; }
-        }
+        public new XmlElementExpressionNode Parent => (XmlElementExpressionNode)base.Parent;
 
         [NotNull]
-        public IEnumerable<XmlExpressionNode> Elements
-        {
-            get { return _elements; }
-        }
+        public IEnumerable<XmlExpressionNode> Elements => _elements;
 
         [NotNull]
-        public IEnumerable<XmlExpressionNode> Attributes
-        {
-            get { return _attributes; }
-        }
+        public IEnumerable<XmlExpressionNode> Attributes => _attributes;
 
         [NotNull]
         public XmlValueExpressionNode StartTag

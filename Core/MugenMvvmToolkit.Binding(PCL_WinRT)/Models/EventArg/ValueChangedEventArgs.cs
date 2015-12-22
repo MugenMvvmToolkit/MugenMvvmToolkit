@@ -48,10 +48,7 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
 
         #region Properties
 
-        public bool LastMemberChanged
-        {
-            get { return _lastMemberChanged; }
-        }
+        public bool LastMemberChanged => _lastMemberChanged;
 
         #endregion
     }

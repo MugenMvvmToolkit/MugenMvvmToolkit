@@ -82,10 +82,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
 
         #region Implementation of IDynamicViewModelPresenter
 
-        int IDynamicViewModelPresenter.Priority
-        {
-            get { return int.MaxValue; }
-        }
+        int IDynamicViewModelPresenter.Priority => int.MaxValue;
 
         INavigationOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {

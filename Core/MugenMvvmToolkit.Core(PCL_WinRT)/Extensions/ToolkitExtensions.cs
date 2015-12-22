@@ -158,15 +158,9 @@ namespace MugenMvvmToolkit
                 return Remove(item.Key);
             }
 
-            public int Count
-            {
-                get { return Context.Count; }
-            }
+            public int Count => Context.Count;
 
-            public bool IsReadOnly
-            {
-                get { return false; }
-            }
+            public bool IsReadOnly => false;
 
             public void Add(object key, object value)
             {

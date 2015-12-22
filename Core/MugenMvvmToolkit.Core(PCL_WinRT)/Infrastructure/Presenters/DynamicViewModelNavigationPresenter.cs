@@ -83,10 +83,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Implementation of IDynamicViewModelPresenter
 
-        public int Priority
-        {
-            get { return ViewModelPresenter.DefaultNavigationPresenterPriority; }
-        }
+        public int Priority => ViewModelPresenter.DefaultNavigationPresenterPriority;
 
         public INavigationOperation TryShowAsync(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)

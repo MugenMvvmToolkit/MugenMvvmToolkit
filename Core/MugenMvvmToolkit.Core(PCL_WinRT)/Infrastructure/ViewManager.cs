@@ -100,20 +100,11 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public static Action<IViewManager, IViewModel, object, IDataContext> ViewCleared { get; set; }
 
-        protected IThreadManager ThreadManager
-        {
-            get { return _threadManager; }
-        }
+        protected IThreadManager ThreadManager => _threadManager;
 
-        protected IViewMappingProvider ViewMappingProvider
-        {
-            get { return _viewMappingProvider; }
-        }
+        protected IViewMappingProvider ViewMappingProvider => _viewMappingProvider;
 
-        protected IWrapperManager WrapperManager
-        {
-            get { return _wrapperManager; }
-        }
+        protected IWrapperManager WrapperManager => _wrapperManager;
 
         #endregion
 

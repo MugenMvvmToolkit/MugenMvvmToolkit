@@ -51,15 +51,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Implementation of IEventListener
 
-            public bool IsAlive
-            {
-                get { return Reference.Target != null; }
-            }
+            public bool IsAlive => Reference.Target != null;
 
-            public bool IsWeak
-            {
-                get { return true; }
-            }
+            public bool IsWeak => true;
 
             public bool TryHandle(object sender, object message)
             {
@@ -118,20 +112,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 }
             }
 
-            public bool AllMembersAvailable
-            {
-                get { return _observerRef.Target != null && _penultimateValueRef.Target != null; }
-            }
+            public bool AllMembersAvailable => _observerRef.Target != null && _penultimateValueRef.Target != null;
 
-            public IList<IBindingMemberInfo> Members
-            {
-                get { return _members; }
-            }
+            public IList<IBindingMemberInfo> Members => _members;
 
-            public IBindingMemberInfo LastMember
-            {
-                get { return _lastMember; }
-            }
+            public IBindingMemberInfo LastMember => _lastMember;
 
             public object Source
             {
@@ -144,10 +129,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 }
             }
 
-            public object PenultimateValue
-            {
-                get { return _penultimateValueRef.Target; }
-            }
+            public object PenultimateValue => _penultimateValueRef.Target;
 
             #endregion
         }
@@ -177,10 +159,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Overrides of ObserverBase
 
-        protected override bool DependsOnSubscribers
-        {
-            get { return false; }
-        }
+        protected override bool DependsOnSubscribers => false;
 
         protected override IBindingPathMembers UpdateInternal(IBindingPathMembers oldPath, bool hasSubscribers)
         {
@@ -263,10 +242,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of interfaces
 
-        bool IEventListener.IsWeak
-        {
-            get { return false; }
-        }
+        bool IEventListener.IsWeak => false;
 
         bool IEventListener.TryHandle(object sender, object message)
         {
@@ -274,10 +250,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return true;
         }
 
-        WeakReference IHasWeakReference.WeakReference
-        {
-            get { return _lastMemberListener.Reference; }
-        }
+        WeakReference IHasWeakReference.WeakReference => _lastMemberListener.Reference;
 
         #endregion
     }

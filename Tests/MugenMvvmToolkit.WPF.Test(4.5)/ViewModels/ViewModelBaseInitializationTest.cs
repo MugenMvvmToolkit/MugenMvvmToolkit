@@ -49,10 +49,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
         public class TestViewModelBase : ViewModelBase
         {
-            public IThreadManager ThreadManager
-            {
-                get { return base.ThreadManager; }
-            }
+            public IThreadManager ThreadManager => base.ThreadManager;
         }
 
         public class ViewModelBaseWithDisplayName : ViewModelBase, IHasDisplayName

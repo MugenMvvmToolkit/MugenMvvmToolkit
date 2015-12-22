@@ -64,10 +64,7 @@ namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
             set { Converter.ViewName = value; }
         }
 
-        public new ViewModelToViewConverter Converter
-        {
-            get { return (ViewModelToViewConverter)base.Converter; }
-        }
+        public new ViewModelToViewConverter Converter => (ViewModelToViewConverter)base.Converter;
 
         #endregion
 

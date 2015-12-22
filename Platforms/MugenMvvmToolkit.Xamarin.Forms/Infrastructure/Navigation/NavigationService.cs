@@ -71,15 +71,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         #region Implementation of INavigationService
 
-        public virtual bool CanGoBack
-        {
-            get { return _rootPage.Navigation != null && _rootPage.Navigation.NavigationStack.Count > 1; }
-        }
+        public virtual bool CanGoBack => _rootPage.Navigation != null && _rootPage.Navigation.NavigationStack.Count > 1;
 
-        public virtual bool CanGoForward
-        {
-            get { return false; }
-        }
+        public virtual bool CanGoForward => false;
 
         public virtual object CurrentContent
         {

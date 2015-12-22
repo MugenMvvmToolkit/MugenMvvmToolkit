@@ -45,10 +45,7 @@ namespace MugenMvvmToolkit.Models
 
         #region Properties
 
-        public bool IsEmpty
-        {
-            get { return ReferenceEquals(DataConstant, null); }
-        }
+        public bool IsEmpty => ReferenceEquals(DataConstant, null);
 
         #endregion
 

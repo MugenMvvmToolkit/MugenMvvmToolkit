@@ -86,15 +86,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Implementation of IEventListener
 
-            public bool IsAlive
-            {
-                get { return _target.Target != null; }
-            }
+            public bool IsAlive => _target.Target != null;
 
-            public bool IsWeak
-            {
-                get { return true; }
-            }
+            public bool IsWeak => true;
 
             public bool TryHandle(object sender, object message)
             {

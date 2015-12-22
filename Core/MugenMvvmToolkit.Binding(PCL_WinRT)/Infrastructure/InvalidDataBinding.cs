@@ -50,10 +50,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Properties
 
-        public Exception Exception
-        {
-            get { return _exception; }
-        }
+        public Exception Exception => _exception;
 
         #endregion
 

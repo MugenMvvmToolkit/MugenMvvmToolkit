@@ -89,15 +89,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Properties
 
-        protected IDataBinding Binding
-        {
-            get { return _binding; }
-        }
+        protected IDataBinding Binding => _binding;
 
-        protected bool IsAttached
-        {
-            get { return _state == Attached; }
-        }
+        protected bool IsAttached => _state == Attached;
 
         #endregion
 

@@ -60,20 +60,11 @@ namespace MugenMvvmToolkit.WinForms.Binding.Parse.Nodes
             }
         }
 
-        public int Start
-        {
-            get { return _start; }
-        }
+        public int Start => _start;
 
-        public int End
-        {
-            get { return _end; }
-        }
+        public int End => _end;
 
-        public int Length
-        {
-            get { return _length; }
-        }
+        public int Length => _length;
 
         #endregion
 

@@ -65,10 +65,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
         #region Properties
 
         [CanBeNull]
-        public FrameworkElement Source
-        {
-            get { return (FrameworkElement)_view.Target; }
-        }
+        public FrameworkElement Source => (FrameworkElement)_view.Target;
 
         [CanBeNull]
         public object Parent

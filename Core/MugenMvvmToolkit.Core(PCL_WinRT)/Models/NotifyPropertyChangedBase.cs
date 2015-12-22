@@ -82,15 +82,9 @@ namespace MugenMvvmToolkit.Models
             set { _isNotificationsDirty = value; }
         }
 
-        protected virtual IThreadManager ThreadManager
-        {
-            get { return ServiceProvider.ThreadManager; }
-        }
+        protected virtual IThreadManager ThreadManager => ServiceProvider.ThreadManager;
 
-        protected virtual ExecutionMode PropertyChangeExecutionMode
-        {
-            get { return ApplicationSettings.PropertyChangeExecutionMode; }
-        }
+        protected virtual ExecutionMode PropertyChangeExecutionMode => ApplicationSettings.PropertyChangeExecutionMode;
 
         #endregion
 
@@ -176,10 +170,7 @@ namespace MugenMvvmToolkit.Models
 
         #region Implementation of ISuspendNotifications
 
-        public virtual bool IsNotificationsSuspended
-        {
-            get { return _suspendCount != 0; }
-        }
+        public virtual bool IsNotificationsSuspended => _suspendCount != 0;
 
         public virtual IDisposable SuspendNotifications()
         {

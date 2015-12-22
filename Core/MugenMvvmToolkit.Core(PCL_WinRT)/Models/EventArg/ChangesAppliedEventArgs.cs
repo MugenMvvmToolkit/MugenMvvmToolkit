@@ -44,10 +44,7 @@ namespace MugenMvvmToolkit.Models.EventArg
         #region Properties
 
         [NotNull]
-        public IList<IEntityStateEntry> Changes
-        {
-            get { return _changes; }
-        }
+        public IList<IEntityStateEntry> Changes => _changes;
 
         #endregion
     }

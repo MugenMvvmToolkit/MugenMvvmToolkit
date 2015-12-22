@@ -70,15 +70,9 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             set { _canShowDelegateDefault = value; }
         }
 
-        protected IMultiViewModel MultiViewModel
-        {
-            get { return _multiViewModel; }
-        }
+        protected IMultiViewModel MultiViewModel => _multiViewModel;
 
-        protected IOperationCallbackManager CallbackManager
-        {
-            get { return _callbackManager; }
-        }
+        protected IOperationCallbackManager CallbackManager => _callbackManager;
 
         protected Func<IViewModel, IDataContext, IViewModelPresenter, bool> CanShowViewModel
         {
@@ -94,10 +88,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Implementation of IDynamicViewModelPresenter
 
-        public int Priority
-        {
-            get { return ViewModelPresenter.DefaultMultiViewModelPresenterPriority; }
-        }
+        public int Priority => ViewModelPresenter.DefaultMultiViewModelPresenterPriority;
 
         public virtual INavigationOperation TryShowAsync(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)

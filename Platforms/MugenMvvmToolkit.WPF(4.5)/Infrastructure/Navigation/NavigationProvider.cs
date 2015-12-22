@@ -100,10 +100,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
             #region Properties
 
-            private IRelayCommand RelayCommand
-            {
-                get { return NestedCommand as IRelayCommand; }
-            }
+            private IRelayCommand RelayCommand => NestedCommand as IRelayCommand;
 
             #endregion
 
@@ -161,10 +158,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
                 }
             }
 
-            public bool IsNotificationsSuspended
-            {
-                get { return RelayCommand != null && RelayCommand.IsNotificationsSuspended; }
-            }
+            public bool IsNotificationsSuspended => RelayCommand != null && RelayCommand.IsNotificationsSuspended;
 
             public IDisposable SuspendNotifications()
             {
@@ -173,10 +167,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
                 return RelayCommand.SuspendNotifications();
             }
 
-            public bool HasCanExecuteImpl
-            {
-                get { return true; }
-            }
+            public bool HasCanExecuteImpl => true;
 
             public CommandExecutionMode ExecutionMode
             {
@@ -314,43 +305,25 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
         #region Properties
 
         [NotNull]
-        protected IViewManager ViewManager
-        {
-            get { return _viewManager; }
-        }
+        protected IViewManager ViewManager => _viewManager;
 
         [NotNull]
-        protected IViewMappingProvider ViewMappingProvider
-        {
-            get { return _mappingProvider; }
-        }
+        protected IViewMappingProvider ViewMappingProvider => _mappingProvider;
 
         [NotNull]
-        protected IThreadManager ThreadManager
-        {
-            get { return _threadManager; }
-        }
+        protected IThreadManager ThreadManager => _threadManager;
 
         [NotNull]
-        protected IViewModelProvider ViewModelProvider
-        {
-            get { return _viewModelProvider; }
-        }
+        protected IViewModelProvider ViewModelProvider => _viewModelProvider;
 
         [NotNull]
-        protected IOperationCallbackManager CallbackManager
-        {
-            get { return _callbackManager; }
-        }
+        protected IOperationCallbackManager CallbackManager => _callbackManager;
 
         #endregion
 
         #region Implementation of INavigationProvider
 
-        public INavigationService NavigationService
-        {
-            get { return _navigationService; }
-        }
+        public INavigationService NavigationService => _navigationService;
 
         public IViewModel CurrentViewModel
         {
@@ -358,10 +331,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             protected set { _vmReference = ToolkitExtensions.GetWeakReferenceOrDefault(value, Empty.WeakReference, true); }
         }
 
-        public virtual object CurrentContent
-        {
-            get { return _navigationService.CurrentContent; }
-        }
+        public virtual object CurrentContent => _navigationService.CurrentContent;
 
         public Task CurrentNavigationTask
         {
@@ -374,20 +344,11 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             }
         }
 
-        public INavigationCachePolicy CachePolicy
-        {
-            get { return _cachePolicy; }
-        }
+        public INavigationCachePolicy CachePolicy => _cachePolicy;
 
-        public virtual bool CanGoBack
-        {
-            get { return _navigationService.CanGoBack; }
-        }
+        public virtual bool CanGoBack => _navigationService.CanGoBack;
 
-        public virtual bool CanGoForward
-        {
-            get { return _navigationService.CanGoForward; }
-        }
+        public virtual bool CanGoForward => _navigationService.CanGoForward;
 
         public virtual void GoBack()
         {

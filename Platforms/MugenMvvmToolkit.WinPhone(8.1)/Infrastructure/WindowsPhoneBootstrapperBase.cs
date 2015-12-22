@@ -67,10 +67,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #region Properties
 
-        protected PhoneApplicationFrame RootFrame
-        {
-            get { return _rootFrame; }
-        }
+        protected PhoneApplicationFrame RootFrame => _rootFrame;
 
         #endregion
 

@@ -120,15 +120,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             }
         }
 
-        Activity IMvvmActivityMediator.Activity
-        {
-            get { return Target; }
-        }
+        Activity IMvvmActivityMediator.Activity => Target;
 
-        public virtual Bundle Bundle
-        {
-            get { return _bundle; }
-        }
+        public virtual Bundle Bundle => _bundle;
 
         public virtual void OnBackPressed(Action baseOnBackPressed)
         {

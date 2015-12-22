@@ -90,10 +90,7 @@ namespace MugenMvvmToolkit
 
         #region Properties
 
-        protected IIocContainer IocContainer
-        {
-            get { return MvvmApplication.Current.IocContainer; }
-        }
+        protected IIocContainer IocContainer => MvvmApplication.Current.IocContainer;
 
         protected IViewModelProvider ViewModelProvider { get; set; }
 

@@ -112,25 +112,13 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
             }
         }
 
-        public virtual int Priority
-        {
-            get { return _priority; }
-        }
+        public virtual int Priority => _priority;
 
-        public PlatformInfo Platform
-        {
-            get { return _platform; }
-        }
+        public PlatformInfo Platform => _platform;
 
-        public IIocContainer IocContainer
-        {
-            get { return _iocContainer; }
-        }
+        public IIocContainer IocContainer => _iocContainer;
 
-        public IDataContext Context
-        {
-            get { return _context; }
-        }
+        public IDataContext Context => _context;
 
         public void Initialize()
         {

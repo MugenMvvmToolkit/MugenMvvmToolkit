@@ -23,10 +23,7 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         #region Properties
 
-        public bool IsShowAny
-        {
-            get { return IsShow || IsShowDialog; }
-        }
+        public bool IsShowAny => IsShow || IsShowDialog;
 
         public bool IsShow { get; set; }
 

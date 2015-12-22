@@ -117,10 +117,7 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        public INotifiableCollection<IViewModel> ItemsSource
-        {
-            get { return _itemsSource; }
-        }
+        public INotifiableCollection<IViewModel> ItemsSource => _itemsSource;
 
         public virtual void AddViewModel(IViewModel viewModel, bool setSelected = true)
         {

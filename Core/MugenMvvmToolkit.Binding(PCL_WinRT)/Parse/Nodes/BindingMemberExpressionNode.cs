@@ -77,40 +77,19 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Properties
 
-        public bool IsRelativeSource
-        {
-            get { return RelativeSourceExpression != null; }
-        }
+        public bool IsRelativeSource => RelativeSourceExpression != null;
 
-        public IRelativeSourceExpressionNode RelativeSourceExpression
-        {
-            get { return _relativeSourceExpression; }
-        }
+        public IRelativeSourceExpressionNode RelativeSourceExpression => _relativeSourceExpression;
 
-        public string ParameterName
-        {
-            get { return _parameterName; }
-        }
+        public string ParameterName => _parameterName;
 
-        public int Index
-        {
-            get { return _index; }
-        }
+        public int Index => _index;
 
-        public string ResourceName
-        {
-            get { return _resourceName; }
-        }
+        public string ResourceName => _resourceName;
 
-        public string Path
-        {
-            get { return _path; }
-        }
+        public string Path => _path;
 
-        public bool IsDynamic
-        {
-            get { return _isDynamic; }
-        }
+        public bool IsDynamic => _isDynamic;
 
         #endregion
 

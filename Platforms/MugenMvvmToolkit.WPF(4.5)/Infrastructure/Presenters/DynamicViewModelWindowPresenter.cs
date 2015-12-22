@@ -121,39 +121,21 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
 
         #region Properties
 
-        protected IViewMappingProvider ViewMappingProvider
-        {
-            get { return _viewMappingProvider; }
-        }
+        protected IViewMappingProvider ViewMappingProvider => _viewMappingProvider;
 
-        protected IWrapperManager WrapperManager
-        {
-            get { return _wrapperManager; }
-        }
+        protected IWrapperManager WrapperManager => _wrapperManager;
 
-        protected IThreadManager ThreadManager
-        {
-            get { return _threadManager; }
-        }
+        protected IThreadManager ThreadManager => _threadManager;
 
-        protected IOperationCallbackManager CallbackManager
-        {
-            get { return _callbackManager; }
-        }
+        protected IOperationCallbackManager CallbackManager => _callbackManager;
 
-        protected IViewManager ViewManager
-        {
-            get { return _viewManager; }
-        }
+        protected IViewManager ViewManager => _viewManager;
 
         #endregion
 
         #region Implementation of IDynamicViewModelPresenter
 
-        public virtual int Priority
-        {
-            get { return ViewModelPresenter.DefaultWindowPresenterPriority; }
-        }
+        public virtual int Priority => ViewModelPresenter.DefaultWindowPresenterPriority;
 
         public INavigationOperation TryShowAsync(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)

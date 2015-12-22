@@ -69,22 +69,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
         #region Properties
 
         [CanBeNull]
-        public IViewMappingItem Mapping
-        {
-            get { return _mapping; }
-        }
+        public IViewMappingItem Mapping => _mapping;
 
-        public string Parameter
-        {
-            get { return _parameter; }
-        }
+        public string Parameter => _parameter;
 
 #if !TOUCH
-        public bool IsBackButtonNavigation
-        {
-            get { return _isBackButton; }
-        }
-
+        public bool IsBackButtonNavigation => _isBackButton;
 #endif
         #endregion
 
@@ -92,15 +82,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
 
         public override bool Cancel { get; set; }
 
-        public override NavigationMode NavigationMode
-        {
-            get { return _navigationMode; }
-        }
+        public override NavigationMode NavigationMode => _navigationMode;
 
-        public override bool IsCancelable
-        {
-            get { return _isCancelable; }
-        }
+        public override bool IsCancelable => _isCancelable;
 
         #endregion
     }

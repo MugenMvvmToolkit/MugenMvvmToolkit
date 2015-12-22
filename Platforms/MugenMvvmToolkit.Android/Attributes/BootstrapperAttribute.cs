@@ -46,15 +46,9 @@ namespace MugenMvvmToolkit.Android.Attributes
         #region Properties
 
         [NotNull]
-        public Type BootstrapperType
-        {
-            get { return _bootstrapperType; }
-        }
+        public Type BootstrapperType => _bootstrapperType;
 
-        public int Priority
-        {
-            get { return _priority; }
-        }
+        public int Priority => _priority;
 
         #endregion
     }

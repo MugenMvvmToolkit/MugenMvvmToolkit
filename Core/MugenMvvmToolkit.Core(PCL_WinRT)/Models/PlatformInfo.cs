@@ -54,16 +54,10 @@ namespace MugenMvvmToolkit.Models
         #region Properties
 
         [NotNull]
-        public PlatformType Platform
-        {
-            get { return _platform; }
-        }
+        public PlatformType Platform => _platform;
 
         [NotNull]
-        public Version Version
-        {
-            get { return _version; }
-        }
+        public Version Version => _version;
 
         #endregion
 

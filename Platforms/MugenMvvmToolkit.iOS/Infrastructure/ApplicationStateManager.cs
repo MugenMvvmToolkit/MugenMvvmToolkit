@@ -70,25 +70,13 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         #region Properties
 
-        protected ISerializer Serializer
-        {
-            get { return _serializer; }
-        }
+        protected ISerializer Serializer => _serializer;
 
-        protected IViewModelProvider ViewModelProvider
-        {
-            get { return _viewModelProvider; }
-        }
+        protected IViewModelProvider ViewModelProvider => _viewModelProvider;
 
-        protected IViewManager ViewManager
-        {
-            get { return _viewManager; }
-        }
+        protected IViewManager ViewManager => _viewManager;
 
-        protected IViewModelPresenter ViewModelPresenter
-        {
-            get { return _viewModelPresenter; }
-        }
+        protected IViewModelPresenter ViewModelPresenter => _viewModelPresenter;
 
         [CanBeNull]
         public static Func<Type, NSCoder, IDataContext, UIViewController> ViewControllerFactory { get; set; }

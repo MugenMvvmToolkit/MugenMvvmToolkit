@@ -44,22 +44,13 @@ namespace MugenMvvmToolkit.Android.Models
 
         #region Properties
 
-        public bool IsEmpty
-        {
-            get { return _view == null; }
-        }
+        public bool IsEmpty => _view == null;
 
         [NotNull]
-        public View View
-        {
-            get { return _view; }
-        }
+        public View View => _view;
 
         [NotNull]
-        public IDataContext DataContext
-        {
-            get { return _dataContext; }
-        }
+        public IDataContext DataContext => _dataContext;
 
         #endregion
     }

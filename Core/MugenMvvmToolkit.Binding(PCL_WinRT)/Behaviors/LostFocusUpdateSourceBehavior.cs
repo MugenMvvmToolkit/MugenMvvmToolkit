@@ -46,15 +46,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Overrides of BindingBehaviorBase
 
-        public override Guid Id
-        {
-            get { return IdLostFocusUpdateSourceBehavior; }
-        }
+        public override Guid Id => IdLostFocusUpdateSourceBehavior;
 
-        public override int Priority
-        {
-            get { return 0; }
-        }
+        public override int Priority => 0;
 
         protected override bool OnAttached()
         {
@@ -114,15 +108,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Implementation of IEventListener
 
-        bool IEventListener.IsAlive
-        {
-            get { return Binding != null; }
-        }
+        bool IEventListener.IsAlive => Binding != null;
 
-        bool IEventListener.IsWeak
-        {
-            get { return false; }
-        }
+        bool IEventListener.IsWeak => false;
 
         bool IEventListener.TryHandle(object sender, object message)
         {

@@ -58,28 +58,15 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
 
         #region Properties
 
-        public BindingAction Action
-        {
-            get { return _action; }
-        }
+        public BindingAction Action => _action;
 
-        public bool Result
-        {
-            get { return _result; }
-        }
+        public bool Result => _result;
 
         [CanBeNull]
-        public Exception Exception
-        {
-            get { return _exception; }
-        }
+        public Exception Exception => _exception;
 
         [CanBeNull]
-        public Exception OriginalException
-        {
-            get { return _originalException; }
-        }
-
+        public Exception OriginalException => _originalException;
 
         #endregion
     }

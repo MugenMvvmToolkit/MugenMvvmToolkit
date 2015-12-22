@@ -43,20 +43,11 @@ namespace MugenMvvmToolkit.Models.IoC
 
         #region Properties
 
-        public IocParameterType ParameterType
-        {
-            get { return _parameterType; }
-        }
+        public IocParameterType ParameterType => _parameterType;
 
-        public string Name
-        {
-            get { return _name; }
-        }
+        public string Name => _name;
 
-        public object Value
-        {
-            get { return _value; }
-        }
+        public object Value => _value;
 
         #endregion
     }

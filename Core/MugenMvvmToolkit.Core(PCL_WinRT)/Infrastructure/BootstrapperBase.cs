@@ -38,10 +38,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public static BootstrapperBase Current { get; protected set; }
 
-        public bool IsInitialized
-        {
-            get { return _state == InitializedState; }
-        }
+        public bool IsInitialized => _state == InitializedState;
 
         public IDataContext InitializationContext { get; set; }
 

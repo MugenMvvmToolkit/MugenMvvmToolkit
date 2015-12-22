@@ -51,10 +51,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         protected override IEnumerable ItemsSource { get; set; }
 
-        protected override bool IsTargetDisposed
-        {
-            get { return !_menu.IsAlive(); }
-        }
+        protected override bool IsTargetDisposed => !_menu.IsAlive();
 
         protected override void Add(int insertionIndex, int count)
         {

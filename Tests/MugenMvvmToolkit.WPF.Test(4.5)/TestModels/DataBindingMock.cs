@@ -24,10 +24,7 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         #region Implementation of IBinding
 
-        public IDataContext Context
-        {
-            get { return GetContext(); }
-        }
+        public IDataContext Context => GetContext();
 
         public ISingleBindingSourceAccessor TargetAccessor { get; set; }
 

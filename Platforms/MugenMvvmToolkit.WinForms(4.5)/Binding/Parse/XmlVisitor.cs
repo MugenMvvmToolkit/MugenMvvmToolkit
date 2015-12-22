@@ -45,20 +45,11 @@ namespace MugenMvvmToolkit.WinForms.Binding.Parse
 
         #region Properties
 
-        public HashSet<XmlExpressionNode> Nodes
-        {
-            get { return _nodes; }
-        }
+        public HashSet<XmlExpressionNode> Nodes => _nodes;
 
-        public bool IsInvlalid
-        {
-            get { return _isInvlalid; }
-        }
+        public bool IsInvlalid => _isInvlalid;
 
-        public bool IsPostOrder
-        {
-            get { return false; }
-        }
+        public bool IsPostOrder => false;
 
         #endregion
 

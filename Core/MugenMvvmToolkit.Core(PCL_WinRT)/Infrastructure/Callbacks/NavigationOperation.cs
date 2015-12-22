@@ -45,10 +45,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Implementation of INavigationOperation
 
-        public Task NavigationCompletedTask
-        {
-            get { return _task; }
-        }
+        public Task NavigationCompletedTask => _task;
 
         #endregion
     }

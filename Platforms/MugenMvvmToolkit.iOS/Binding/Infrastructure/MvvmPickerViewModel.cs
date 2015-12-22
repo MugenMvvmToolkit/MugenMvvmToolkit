@@ -86,10 +86,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         }
 
         [CanBeNull]
-        protected UIPickerView PickerView
-        {
-            get { return (UIPickerView)_pickerView.Target; }
-        }
+        protected UIPickerView PickerView => (UIPickerView)_pickerView.Target;
 
         #endregion
 

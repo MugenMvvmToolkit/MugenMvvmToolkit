@@ -133,10 +133,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Properties
 
-        protected List<ISubscriber> Subscribers
-        {
-            get { return _subscribers; }
-        }
+        protected List<ISubscriber> Subscribers => _subscribers;
 
         private static HashSet<MessageSenderCache> GetHandledMessages(out bool owner)
         {

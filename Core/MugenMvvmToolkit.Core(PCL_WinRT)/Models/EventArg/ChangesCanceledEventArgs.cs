@@ -42,10 +42,7 @@ namespace MugenMvvmToolkit.Models.EventArg
         #region Properties
 
         [NotNull]
-        public object Entity
-        {
-            get { return _entity; }
-        }
+        public object Entity => _entity;
 
         #endregion
     }
@@ -64,10 +61,7 @@ namespace MugenMvvmToolkit.Models.EventArg
         #region Properties
 
         [NotNull]
-        public new TEntity Entity
-        {
-            get { return (TEntity) base.Entity; }
-        }
+        public new TEntity Entity => (TEntity) base.Entity;
 
         #endregion
     }

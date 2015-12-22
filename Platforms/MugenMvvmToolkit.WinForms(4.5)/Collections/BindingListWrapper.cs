@@ -49,15 +49,9 @@ namespace MugenMvvmToolkit.WinForms.Collections
 
         #region Properties
 
-        public INotifiableCollection<T> SourceCollection
-        {
-            get { return (INotifiableCollection<T>)Items; }
-        }
+        public INotifiableCollection<T> SourceCollection => (INotifiableCollection<T>)Items;
 
-        public bool IsNotificationsSuspended
-        {
-            get { return SourceCollection.IsNotificationsSuspended; }
-        }
+        public bool IsNotificationsSuspended => SourceCollection.IsNotificationsSuspended;
 
         int ICollection.Count
         {

@@ -196,15 +196,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         #region Implementation of INavigationService
 
-        public virtual bool CanGoBack
-        {
-            get { return PlatformExtensions.CurrentActivity != null; }
-        }
+        public virtual bool CanGoBack => PlatformExtensions.CurrentActivity != null;
 
-        public virtual bool CanGoForward
-        {
-            get { return false; }
-        }
+        public virtual bool CanGoForward => false;
 
         public virtual object CurrentContent
         {

@@ -48,10 +48,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Overrides of ValidatesOnNotifyDataErrorsBehavior
 
-        public override Guid Id
-        {
-            get { return _id; }
-        }
+        public override Guid Id => _id;
 
         protected override bool OnAttached()
         {

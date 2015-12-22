@@ -46,16 +46,10 @@ namespace MugenMvvmToolkit.Binding.Models
         #region Properties
 
         [NotNull]
-        public WeakReference MemberSource
-        {
-            get { return _memberSource; }
-        }
+        public WeakReference MemberSource => _memberSource;
 
         [NotNull]
-        public IBindingMemberInfo Member
-        {
-            get { return _member; }
-        }
+        public IBindingMemberInfo Member => _member;
 
         #endregion
     }

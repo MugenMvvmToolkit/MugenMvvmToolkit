@@ -45,15 +45,9 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Implementation of IIndexExpressionNode
 
-        public IExpressionNode Object
-        {
-            get { return _object; }
-        }
+        public IExpressionNode Object => _object;
 
-        public IList<IExpressionNode> Arguments
-        {
-            get { return _arguments; }
-        }
+        public IList<IExpressionNode> Arguments => _arguments;
 
         #endregion
 

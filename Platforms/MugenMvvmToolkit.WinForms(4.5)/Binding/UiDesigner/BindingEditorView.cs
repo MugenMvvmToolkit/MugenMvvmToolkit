@@ -99,10 +99,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
 
         public static Control CurrentControl { get; set; }
 
-        public string BindingText
-        {
-            get { return bindingEditor.GetBindingText(); }
-        }
+        public string BindingText => bindingEditor.GetBindingText();
 
         #endregion
 

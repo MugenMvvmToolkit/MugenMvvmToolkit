@@ -96,10 +96,7 @@ namespace MugenMvvmToolkit.Collections
             }
         }
 
-        public IList<T> SourceCollection
-        {
-            get { return Items; }
-        }
+        public IList<T> SourceCollection => Items;
 
         public bool AlwaysReset { get; set; }
 

@@ -57,10 +57,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 object result = _asyncOperation.Result.Result;
             }
 
-            public bool IsCompleted
-            {
-                get { return _asyncOperation.IsCompleted; }
-            }
+            public bool IsCompleted => _asyncOperation.IsCompleted;
 
             TResult IAsyncOperationAwaiter<TResult>.GetResult()
             {

@@ -29,10 +29,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
     {
         #region Properties
 
-        protected virtual bool SupportInitialize
-        {
-            get { return true; }
-        }
+        protected virtual bool SupportInitialize => true;
 
         #endregion
 

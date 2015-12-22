@@ -49,15 +49,9 @@ namespace MugenMvvmToolkit.Binding.Builders
 
         #region Implementation of IDataContext
 
-        public int Count
-        {
-            get { return _internalContext.Count; }
-        }
+        public int Count => _internalContext.Count;
 
-        public bool IsReadOnly
-        {
-            get { return _internalContext.IsReadOnly; }
-        }
+        public bool IsReadOnly => _internalContext.IsReadOnly;
 
         public void Add<T>(DataConstant<T> data, T value)
         {

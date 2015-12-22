@@ -21,10 +21,7 @@ namespace MugenMvvmToolkit.Test
 
         #region Properties
 
-        protected IDataContext EmptyContext
-        {
-            get { return DataContext.Empty; }
-        }
+        protected IDataContext EmptyContext => DataContext.Empty;
 
         #endregion
 

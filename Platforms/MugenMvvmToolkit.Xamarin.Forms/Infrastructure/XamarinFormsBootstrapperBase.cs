@@ -92,10 +92,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         #region Properties
 
         [CanBeNull]
-        public new static XamarinFormsBootstrapperBase Current
-        {
-            get { return BootstrapperBase.Current as XamarinFormsBootstrapperBase; }
-        }
+        public new static XamarinFormsBootstrapperBase Current => BootstrapperBase.Current as XamarinFormsBootstrapperBase;
 
         protected static string BindingAssemblyName
         {
@@ -123,10 +120,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         #region Implementation of IDynamicViewModelPresenter
 
-        int IDynamicViewModelPresenter.Priority
-        {
-            get { return int.MaxValue; }
-        }
+        int IDynamicViewModelPresenter.Priority => int.MaxValue;
 
         INavigationOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {

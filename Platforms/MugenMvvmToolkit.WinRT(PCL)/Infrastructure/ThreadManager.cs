@@ -45,19 +45,13 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
 
         #region Properties
 
-        public CoreDispatcher Dispatcher
-        {
-            get { return _dispatcher; }
-        }
+        public CoreDispatcher Dispatcher => _dispatcher;
 
         #endregion
 
         #region Implementation of IThreadManager
 
-        public bool IsUiThread
-        {
-            get { return Dispatcher.HasThreadAccess; }
-        }
+        public bool IsUiThread => Dispatcher.HasThreadAccess;
 
         public void InvokeOnUiThreadAsync(Action action, OperationPriority priority = OperationPriority.Normal,
             CancellationToken cancellationToken = default(CancellationToken))

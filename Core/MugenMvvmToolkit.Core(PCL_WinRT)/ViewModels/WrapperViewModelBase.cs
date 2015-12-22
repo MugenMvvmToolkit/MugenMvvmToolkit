@@ -67,24 +67,15 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Properties
 
-        public TViewModel ViewModel
-        {
-            get { return _viewModel; }
-        }
+        public TViewModel ViewModel => _viewModel;
 
-        protected IDictionary<string, string> WrappedPropertyNames
-        {
-            get { return _wrappedPropertyNames; }
-        }
+        protected IDictionary<string, string> WrappedPropertyNames => _wrappedPropertyNames;
 
         #endregion
 
         #region Implementation of interfaces
 
-        IViewModel IWrapperViewModel.ViewModel
-        {
-            get { return _viewModel; }
-        }
+        IViewModel IWrapperViewModel.ViewModel => _viewModel;
 
         public virtual ICommand CloseCommand
         {

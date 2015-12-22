@@ -21,10 +21,7 @@ namespace System.ComponentModel
             DisplayNameValue = displayName;
         }
 
-        public virtual string DisplayName
-        {
-            get { return DisplayNameValue; }
-        }
+        public virtual string DisplayName => DisplayNameValue;
 
         protected string DisplayNameValue { get; set; }
 

@@ -50,30 +50,15 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Properties
 
-        public bool IsLambda
-        {
-            get { return Node.NodeType == ExpressionNodeType.Lambda; }
-        }
+        public bool IsLambda => Node.NodeType == ExpressionNodeType.Lambda;
 
-        public bool IsTypeAccess
-        {
-            get { return _isTypeAccess; }
-        }
+        public bool IsTypeAccess => _isTypeAccess;
 
-        public Type Type
-        {
-            get { return _type; }
-        }
+        public Type Type => _type;
 
-        public Expression Expression
-        {
-            get { return _expression; }
-        }
+        public Expression Expression => _expression;
 
-        public IExpressionNode Node
-        {
-            get { return _node; }
-        }
+        public IExpressionNode Node => _node;
 
         #endregion
 

@@ -43,15 +43,9 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Properties
 
-        public new T OldValue
-        {
-            get { return (T) base.OldValue; }
-        }
+        public new T OldValue => (T) base.OldValue;
 
-        public new T NewValue
-        {
-            get { return (T) base.NewValue; }
-        }
+        public new T NewValue => (T) base.NewValue;
 
         #endregion
     }

@@ -40,10 +40,7 @@ namespace MugenMvvmToolkit.Binding.Models.Exceptions
 
         #region Properties
 
-        public int Position
-        {
-            get { return _position; }
-        }
+        public int Position => _position;
 
         #endregion
     }

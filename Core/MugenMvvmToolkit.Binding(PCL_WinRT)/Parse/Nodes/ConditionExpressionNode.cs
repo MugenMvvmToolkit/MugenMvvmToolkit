@@ -51,20 +51,11 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Implementation of IConditionExpressionNode
 
-        public IExpressionNode Condition
-        {
-            get { return _condition; }
-        }
+        public IExpressionNode Condition => _condition;
 
-        public IExpressionNode IfTrue
-        {
-            get { return _ifTrue; }
-        }
+        public IExpressionNode IfTrue => _ifTrue;
 
-        public IExpressionNode IfFalse
-        {
-            get { return _ifFalse; }
-        }
+        public IExpressionNode IfFalse => _ifFalse;
 
         #endregion
 

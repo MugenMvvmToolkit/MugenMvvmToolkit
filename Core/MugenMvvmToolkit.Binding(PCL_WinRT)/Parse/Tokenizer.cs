@@ -77,22 +77,13 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Properties
 
-        public string Source
-        {
-            get { return _source; }
-        }
+        public string Source => _source;
 
         protected Char CurrentChar { get; set; }
 
-        public HashSet<char> IgnoreChars
-        {
-            get { return _ignoreChars; }
-        }
+        public HashSet<char> IgnoreChars => _ignoreChars;
 
-        public bool ThrowOnError
-        {
-            get { return _throwOnError; }
-        }
+        public bool ThrowOnError => _throwOnError;
 
         #endregion
 
@@ -102,10 +93,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         public int Position { get; protected set; }
 
-        public int Length
-        {
-            get { return Source.Length; }
-        }
+        public int Length => Source.Length;
 
         public TokenType Token { get; protected set; }
 

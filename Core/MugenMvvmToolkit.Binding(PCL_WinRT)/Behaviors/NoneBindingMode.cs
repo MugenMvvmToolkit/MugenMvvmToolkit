@@ -44,15 +44,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Implementation of IBindingBehavior
 
-        public Guid Id
-        {
-            get { return BindingModeBase.IdBindingMode; }
-        }
+        public Guid Id => BindingModeBase.IdBindingMode;
 
-        public int Priority
-        {
-            get { return BindingModeBase.DefaultPriority; }
-        }
+        public int Priority => BindingModeBase.DefaultPriority;
 
         bool IBindingBehavior.Attach(IDataBinding binding)
         {

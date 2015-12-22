@@ -55,10 +55,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of IIocContainer
 
-        int IIocContainer.Id
-        {
-            get { return _count; }
-        }
+        int IIocContainer.Id => _count;
 
         public IIocContainer Parent { get; private set; }
 

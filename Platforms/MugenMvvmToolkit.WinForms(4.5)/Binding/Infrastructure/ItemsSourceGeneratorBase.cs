@@ -205,10 +205,7 @@ namespace MugenMvvmToolkit.Silverlight.Binding.Infrastructure
 
         #region Implementation of IItemsSourceGenerator
 
-        IEnumerable IItemsSourceGenerator.ItemsSource
-        {
-            get { return ItemsSource; }
-        }
+        IEnumerable IItemsSourceGenerator.ItemsSource => ItemsSource;
 
         void IItemsSourceGenerator.SetItemsSource(IEnumerable itemsSource, IDataContext context)
         {

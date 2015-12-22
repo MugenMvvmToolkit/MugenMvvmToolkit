@@ -56,10 +56,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Parse.Nodes
 
         #endregion
 
-        public XmlValueExpressionType Type
-        {
-            get { return _type; }
-        }
+        public XmlValueExpressionType Type => _type;
 
         #region Overrides of ExpressionNode
 

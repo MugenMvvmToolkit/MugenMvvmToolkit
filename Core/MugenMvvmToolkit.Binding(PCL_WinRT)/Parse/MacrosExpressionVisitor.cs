@@ -48,20 +48,11 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Properties
 
-        private static ICollection<string> RelativeSourceAliases
-        {
-            get { return BindingServiceProvider.BindingProvider.Parser.RelativeSourceAliases; }
-        }
+        private static ICollection<string> RelativeSourceAliases => BindingServiceProvider.BindingProvider.Parser.RelativeSourceAliases;
 
-        private static ICollection<string> ElementSourceAliases
-        {
-            get { return BindingServiceProvider.BindingProvider.Parser.ElementSourceAliases; }
-        }
+        private static ICollection<string> ElementSourceAliases => BindingServiceProvider.BindingProvider.Parser.ElementSourceAliases;
 
-        public bool IsPostOrder
-        {
-            get { return false; }
-        }
+        public bool IsPostOrder => false;
 
         #endregion
 

@@ -46,15 +46,9 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Implementation of IMemberExpressionNode
 
-        public IExpressionNode Target
-        {
-            get { return _target; }
-        }
+        public IExpressionNode Target => _target;
 
-        public string Member
-        {
-            get { return _member; }
-        }
+        public string Member => _member;
 
         #endregion
 

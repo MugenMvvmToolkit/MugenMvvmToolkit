@@ -42,10 +42,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Implementation of IBindingPathMembers
 
-            public IBindingPath Path
-            {
-                get { return BindingPath.Empty; }
-            }
+            public IBindingPath Path => BindingPath.Empty;
 
             public bool AllMembersAvailable
             {
@@ -58,15 +55,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 }
             }
 
-            public IList<IBindingMemberInfo> Members
-            {
-                get { return new[] { LastMember }; }
-            }
+            public IList<IBindingMemberInfo> Members => new[] { LastMember };
 
-            public IBindingMemberInfo LastMember
-            {
-                get { return BindingMemberInfo.Empty; }
-            }
+            public IBindingMemberInfo LastMember => BindingMemberInfo.Empty;
 
             public object Source
             {
@@ -79,10 +70,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 }
             }
 
-            public object PenultimateValue
-            {
-                get { return Source; }
-            }
+            public object PenultimateValue => Source;
 
             #endregion
         }
@@ -108,10 +96,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Overrides of ObserverBase
 
-        protected override bool DependsOnSubscribers
-        {
-            get { return true; }
-        }
+        protected override bool DependsOnSubscribers => true;
 
         protected override IBindingPathMembers UpdateInternal(IBindingPathMembers oldPath, bool hasSubscribers)
         {
@@ -144,10 +129,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of interfaces
 
-        public WeakReference WeakReference
-        {
-            get { return _members.Ref; }
-        }
+        public WeakReference WeakReference => _members.Ref;
 
         #endregion
     }

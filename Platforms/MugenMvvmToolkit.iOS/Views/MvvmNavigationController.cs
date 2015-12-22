@@ -171,10 +171,7 @@ namespace MugenMvvmToolkit.iOS.Views
 
         #region Implementation of IMvvmNavigationController
 
-        public virtual IMvvmViewControllerMediator Mediator
-        {
-            get { return this.GetOrCreateMediator(ref _mediator); }
-        }
+        public virtual IMvvmViewControllerMediator Mediator => this.GetOrCreateMediator(ref _mediator);
 
         public event EventHandler<IMvvmNavigationController, CancelEventArgs> ShouldPopViewController;
 

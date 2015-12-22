@@ -48,10 +48,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Models
         #region Properties
 
         [CanBeNull]
-        public Element Source
-        {
-            get { return (Element)_view.Target; }
-        }
+        public Element Source => (Element)_view.Target;
 
         [CanBeNull]
         public object Parent

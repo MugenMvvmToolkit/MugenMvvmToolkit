@@ -42,10 +42,7 @@ namespace MugenMvvmToolkit.Android.Attributes
 
         #region Properties
 
-        public string Alias
-        {
-            get { return _alias; }
-        }
+        public string Alias => _alias;
 
         #endregion
     }

@@ -62,30 +62,15 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IDataBinding
 
-        public IDataContext Context
-        {
-            get { return this; }
-        }
+        public IDataContext Context => this;
 
-        public ISingleBindingSourceAccessor TargetAccessor
-        {
-            get { return _targetAccessor; }
-        }
+        public ISingleBindingSourceAccessor TargetAccessor => _targetAccessor;
 
-        public IBindingSourceAccessor SourceAccessor
-        {
-            get { return _sourceAccessor; }
-        }
+        public IBindingSourceAccessor SourceAccessor => _sourceAccessor;
 
-        public ICollection<IBindingBehavior> Behaviors
-        {
-            get { return this; }
-        }
+        public ICollection<IBindingBehavior> Behaviors => this;
 
-        public bool IsDisposed
-        {
-            get { return ReferenceEquals(DataContext.Empty, _lazyContext); }
-        }
+        public bool IsDisposed => ReferenceEquals(DataContext.Empty, _lazyContext);
 
         public virtual bool UpdateSource()
         {
@@ -293,10 +278,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        bool IDataContext.IsReadOnly
-        {
-            get { return false; }
-        }
+        bool IDataContext.IsReadOnly => false;
 
         void IDataContext.Add<T>(DataConstant<T> dataConstant, T value)
         {
@@ -435,15 +417,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return true;
         }
 
-        int ICollection<IBindingBehavior>.Count
-        {
-            get { return _size; }
-        }
+        int ICollection<IBindingBehavior>.Count => _size;
 
-        bool ICollection<IBindingBehavior>.IsReadOnly
-        {
-            get { return false; }
-        }
+        bool ICollection<IBindingBehavior>.IsReadOnly => false;
 
         #endregion
     }

@@ -118,15 +118,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Overrides of BindingBehaviorBase
 
-        public override sealed Guid Id
-        {
-            get { return IdBindingMode; }
-        }
+        public sealed override Guid Id => IdBindingMode;
 
-        public override sealed int Priority
-        {
-            get { return DefaultPriority; }
-        }
+        public sealed override int Priority => DefaultPriority;
 
         #endregion
     }

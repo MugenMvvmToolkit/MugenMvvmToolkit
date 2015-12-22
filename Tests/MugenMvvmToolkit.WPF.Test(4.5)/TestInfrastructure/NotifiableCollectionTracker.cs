@@ -50,25 +50,13 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Properties
 
-        public List<T> ChangingItems
-        {
-            get { return _changingItems; }
-        }
+        public List<T> ChangingItems => _changingItems;
 
-        public List<T> ChangedItems
-        {
-            get { return _changedItems; }
-        }
+        public List<T> ChangedItems => _changedItems;
 
-        public bool CountRaised
-        {
-            get { return _countRaised; }
-        }
+        public bool CountRaised => _countRaised;
 
-        public bool IndexerRaised
-        {
-            get { return _indexerRaised; }
-        }
+        public bool IndexerRaised => _indexerRaised;
 
         #endregion
 

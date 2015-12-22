@@ -51,22 +51,13 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
         #region Properties
 
         [NotNull]
-        public IDataContext Context
-        {
-            get { return _context; }
-        }
+        public IDataContext Context => _context;
 
         [CanBeNull]
-        public object PenultimateValue
-        {
-            get { return _penultimateValue; }
-        }
+        public object PenultimateValue => _penultimateValue;
 
         [NotNull]
-        public IBindingMemberInfo LastMember
-        {
-            get { return _lastMember; }
-        }
+        public IBindingMemberInfo LastMember => _lastMember;
 
         #endregion
     }

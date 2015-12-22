@@ -92,14 +92,10 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
 
             #region Properties
 
-            public Task CompletionTask
-            {
-                get { return Tcs.Task; }
-            }
+            public Task CompletionTask => Tcs.Task;
 
             #endregion
-
-
+            
             #region Methods
 
             public void Close()
@@ -148,10 +144,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
 
             #region Properties
 
-            public Popup Popup
-            {
-                get { return _popup; }
-            }
+            public Popup Popup => _popup;
 
             #endregion
 

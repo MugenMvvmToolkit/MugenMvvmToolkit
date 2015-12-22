@@ -69,15 +69,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Overrides of BindingBehaviorBase
 
-        public override Guid Id
-        {
-            get { return IdNotifyDataErrorInfoBindingBehavior; }
-        }
+        public override Guid Id => IdNotifyDataErrorInfoBindingBehavior;
 
-        public override int Priority
-        {
-            get { return 0; }
-        }
+        public override int Priority => 0;
 
         protected override bool OnAttached()
         {
@@ -294,25 +288,16 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Implementation of interfaces
 
-        bool IEventListener.IsAlive
-        {
-            get { return Binding != null; }
-        }
+        bool IEventListener.IsAlive => Binding != null;
 
-        bool IEventListener.IsWeak
-        {
-            get { return false; }
-        }
+        bool IEventListener.IsWeak => false;
 
         bool IEventListener.TryHandle(object sender, object message)
         {
             return Handle(message as DataErrorsChangedEventArgs);
         }
 
-        WeakReference IHasWeakReference.WeakReference
-        {
-            get { return _selfReference; }
-        }
+        WeakReference IHasWeakReference.WeakReference => _selfReference;
 
         #endregion
     }

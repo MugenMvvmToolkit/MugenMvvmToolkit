@@ -52,20 +52,11 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Properties
 
-        public IList<ParameterInfo> Parameters
-        {
-            get { return _parameters; }
-        }
+        public IList<ParameterInfo> Parameters => _parameters;
 
-        public bool IsExtensionMethod
-        {
-            get { return _isExtensionMethod; }
-        }
+        public bool IsExtensionMethod => _isExtensionMethod;
 
-        public bool IsLateBinding
-        {
-            get { return _buildMethod != null; }
-        }
+        public bool IsLateBinding => _buildMethod != null;
 
         #endregion
 

@@ -94,10 +94,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             }
         }
 
-        public virtual bool CanGoForward
-        {
-            get { return false; }
-        }
+        public virtual bool CanGoForward => false;
 
         public virtual object CurrentContent
         {

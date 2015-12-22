@@ -58,15 +58,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Implementation of ISourceValue
 
-            public bool IsAlive
-            {
-                get { return _target.Target != null; }
-            }
+            public bool IsAlive => _target.Target != null;
 
-            public bool IsWeak
-            {
-                get { return true; }
-            }
+            public bool IsWeak => true;
 
             public bool TryHandle(object sender, object message)
             {
@@ -102,10 +96,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Implementation of ISourceValue
 
-            public bool IsAlive
-            {
-                get { return true; }
-            }
+            public bool IsAlive => true;
 
             public object Value
             {
@@ -169,15 +160,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Implementation of ISourceValue
 
-            public bool IsAlive
-            {
-                get { return _reference.Target != null; }
-            }
+            public bool IsAlive => _reference.Target != null;
 
-            public object Value
-            {
-                get { return _reference.Target; }
-            }
+            public object Value => _reference.Target;
 
             public event EventHandler<ISourceValue, EventArgs> ValueChanged
             {

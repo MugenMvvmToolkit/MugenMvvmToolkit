@@ -56,10 +56,7 @@ namespace MugenMvvmToolkit
 
             #region Properties
 
-            public IList<IIocParameter> Parameters
-            {
-                get { return _parameters; }
-            }
+            public IList<IIocParameter> Parameters => _parameters;
 
             #endregion
 
@@ -127,10 +124,7 @@ namespace MugenMvvmToolkit
 
         public bool ThrowOnUnbind { get; set; }
 
-        public ILifetimeScope Container
-        {
-            get { return _container; }
-        }
+        public ILifetimeScope Container => _container;
 
         #endregion
 
@@ -200,20 +194,11 @@ namespace MugenMvvmToolkit
 
         #region Implementation of IIocContainer
 
-        public int Id
-        {
-            get { return _id; }
-        }
+        public int Id => _id;
 
-        public IIocContainer Parent
-        {
-            get { return _parent; }
-        }
+        public IIocContainer Parent => _parent;
 
-        object IIocContainer.Container
-        {
-            get { return _container; }
-        }
+        object IIocContainer.Container => _container;
 
         public IIocContainer CreateChild()
         {

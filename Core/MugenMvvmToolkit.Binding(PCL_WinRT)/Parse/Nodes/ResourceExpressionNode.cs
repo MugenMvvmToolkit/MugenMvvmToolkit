@@ -53,10 +53,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Properties
 
-        public bool Dynamic
-        {
-            get { return _dynamic; }
-        }
+        public bool Dynamic => _dynamic;
 
         #endregion
 

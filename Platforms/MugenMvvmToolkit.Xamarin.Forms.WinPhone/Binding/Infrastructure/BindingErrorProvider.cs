@@ -90,15 +90,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Binding.Infrastructure
 
         #region Implementation of IEventListener
 
-        bool IEventListener.IsAlive
-        {
-            get { return true; }
-        }
+        bool IEventListener.IsAlive => true;
 
-        bool IEventListener.IsWeak
-        {
-            get { return true; }
-        }
+        bool IEventListener.IsWeak => true;
 
         bool IEventListener.TryHandle(object sender, object message)
         {

@@ -64,10 +64,7 @@ namespace MugenMvvmToolkit.Models.IoC
 
         #region Properties
 
-        public bool IsEmpty
-        {
-            get { return !_notEmpty; }
-        }
+        public bool IsEmpty => !_notEmpty;
 
         #endregion
 

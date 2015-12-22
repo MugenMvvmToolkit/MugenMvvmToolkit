@@ -67,10 +67,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
 
             #region Properties
 
-            public Task CompletionTask
-            {
-                get { return _tcs.Task; }
-            }
+            public Task CompletionTask => _tcs.Task;
 
             #endregion
 

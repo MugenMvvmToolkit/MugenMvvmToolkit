@@ -66,15 +66,9 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Properties
 
-        protected IList<string> ViewPostfix
-        {
-            get { return _viewPostfix; }
-        }
+        protected IList<string> ViewPostfix => _viewPostfix;
 
-        protected IList<string> ViewModelPostfix
-        {
-            get { return _viewModelPostfix; }
-        }
+        protected IList<string> ViewModelPostfix => _viewModelPostfix;
 
         #endregion
 

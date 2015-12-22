@@ -32,10 +32,7 @@ namespace MugenMvvmToolkit.Test.TestModels
             IsDisposed = true;
         }
 
-        public bool HasCanExecuteImpl
-        {
-            get { return true; }
-        }
+        public bool HasCanExecuteImpl => true;
 
         public CommandExecutionMode ExecutionMode { get; set; }
 

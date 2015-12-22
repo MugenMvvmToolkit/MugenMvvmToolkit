@@ -43,10 +43,7 @@ namespace MugenMvvmToolkit.Models.EventArg
         #region Properties
 
         [CanBeNull]
-        public IEnumerable Value
-        {
-            get { return _value; }
-        }
+        public IEnumerable Value => _value;
 
         #endregion
     }
@@ -65,10 +62,7 @@ namespace MugenMvvmToolkit.Models.EventArg
         #region Properties
 
         [CanBeNull]
-        public new IEnumerable<T> Value
-        {
-            get { return (IEnumerable<T>) base.Value; }
-        }
+        public new IEnumerable<T> Value => (IEnumerable<T>) base.Value;
 
         #endregion
     }

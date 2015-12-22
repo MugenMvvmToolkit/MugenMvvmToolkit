@@ -341,40 +341,19 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Implementation of IBindingMemberInfo
 
-        public string Path
-        {
-            get { return _path; }
-        }
+        public string Path => _path;
 
-        public Type Type
-        {
-            get { return _type; }
-        }
+        public Type Type => _type;
 
-        public MemberInfo Member
-        {
-            get { return _member; }
-        }
+        public MemberInfo Member => _member;
 
-        public BindingMemberType MemberType
-        {
-            get { return _memberType; }
-        }
+        public BindingMemberType MemberType => _memberType;
 
-        public bool CanRead
-        {
-            get { return _canRead; }
-        }
+        public bool CanRead => _canRead;
 
-        public bool CanWrite
-        {
-            get { return _canWrite; }
-        }
+        public bool CanWrite => _canWrite;
 
-        public bool CanObserve
-        {
-            get { return _canObserve; }
-        }
+        public bool CanObserve => _canObserve;
 
         public object GetValue(object source, object[] args)
         {

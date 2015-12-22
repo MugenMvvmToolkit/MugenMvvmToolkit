@@ -69,10 +69,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
             #region Properties
 
-            public object ObjectInstance
-            {
-                get { return _objectInstance; }
-            }
+            public object ObjectInstance => _objectInstance;
 
             public string DisplayName
             {
@@ -86,15 +83,9 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
             public string MemberName { get; set; }
 
-            public IDictionary<object, object> Items
-            {
-                get { return _items; }
-            }
+            public IDictionary<object, object> Items => _items;
 
-            public IServiceProvider ServiceProvider
-            {
-                get { return _serviceProvider; }
-            }
+            public IServiceProvider ServiceProvider => _serviceProvider;
 
             #endregion
         }

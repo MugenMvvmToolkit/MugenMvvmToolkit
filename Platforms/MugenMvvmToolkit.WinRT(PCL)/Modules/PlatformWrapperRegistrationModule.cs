@@ -96,10 +96,7 @@ namespace MugenMvvmToolkit.WinRT.Modules
                 _settings = null;
             }
 
-            public object View
-            {
-                get { return _popupView; }
-            }
+            public object View => _popupView;
 
             public void Show()
             {
@@ -270,10 +267,7 @@ namespace MugenMvvmToolkit.WinRT.Modules
                 _flyout.Unloaded -= FlyoutOnUnloaded;
             }
 
-            public object View
-            {
-                get { return _flyout; }
-            }
+            public object View => _flyout;
 
             public void Show()
             {
@@ -426,10 +420,7 @@ namespace MugenMvvmToolkit.WinRT.Modules
 
             #region Implementation of IViewWrapper
 
-            public object View
-            {
-                get { return _window; }
-            }
+            public object View => _window;
 
             #endregion
 

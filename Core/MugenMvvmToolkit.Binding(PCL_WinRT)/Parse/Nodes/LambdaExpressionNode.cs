@@ -51,15 +51,9 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Implementation of ILambdaExpressionNode
 
-        public IList<string> Parameters
-        {
-            get { return _parameters; }
-        }
+        public IList<string> Parameters => _parameters;
 
-        public IExpressionNode Expression
-        {
-            get { return _expression; }
-        }
+        public IExpressionNode Expression => _expression;
 
         #endregion
 

@@ -88,10 +88,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
             set { SetItemsSource(value, true); }
         }
 
-        protected DataTemplateProvider DataTemplateProvider
-        {
-            get { return _itemTemplateProvider; }
-        }
+        protected DataTemplateProvider DataTemplateProvider => _itemTemplateProvider;
 
         #endregion
 

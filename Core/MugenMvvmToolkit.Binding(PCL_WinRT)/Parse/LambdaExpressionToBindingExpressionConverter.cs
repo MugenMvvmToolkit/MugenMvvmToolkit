@@ -334,20 +334,11 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Implementation of IBuilderSyntaxContext
 
-        MethodCallExpression IBuilderSyntaxContext.MethodExpression
-        {
-            get { return _methodExpression; }
-        }
+        MethodCallExpression IBuilderSyntaxContext.MethodExpression => _methodExpression;
 
-        Expression IBuilderSyntaxContext.Expression
-        {
-            get { return _currentExpression; }
-        }
+        Expression IBuilderSyntaxContext.Expression => _currentExpression;
 
-        ParameterExpression IBuilderSyntaxContext.ContextParameter
-        {
-            get { return ContextExpression; }
-        }
+        ParameterExpression IBuilderSyntaxContext.ContextParameter => ContextExpression;
 
         public Expression GetOrAddParameterExpression(string prefix, string path, Expression expression, Func<IDataContext, string, IObserver> createSource)
         {

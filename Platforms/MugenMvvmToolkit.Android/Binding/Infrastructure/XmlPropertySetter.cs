@@ -54,10 +54,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         #region Properties
 
-        public BindingSet BindingSet
-        {
-            get { return _bindingSet; }
-        }
+        public BindingSet BindingSet => _bindingSet;
 
         #endregion
 

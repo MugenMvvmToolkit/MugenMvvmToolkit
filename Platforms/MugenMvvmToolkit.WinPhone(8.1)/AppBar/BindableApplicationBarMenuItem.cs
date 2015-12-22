@@ -72,10 +72,7 @@ namespace MugenMvvmToolkit.WinPhone.AppBar
 
         #region Properties
 
-        protected IBindableApplicationBar ApplicationBar
-        {
-            get { return _applicationBar; }
-        }
+        protected IBindableApplicationBar ApplicationBar => _applicationBar;
 
         protected virtual IList OriginalList
         {
@@ -115,10 +112,7 @@ namespace MugenMvvmToolkit.WinPhone.AppBar
             remove { ApplicationBarItem.Click -= value; }
         }
 
-        public IApplicationBarMenuItem ApplicationBarItem
-        {
-            get { return _applicationBarItem; }
-        }
+        public IApplicationBarMenuItem ApplicationBarItem => _applicationBarItem;
 
         public ICommand Command
         {

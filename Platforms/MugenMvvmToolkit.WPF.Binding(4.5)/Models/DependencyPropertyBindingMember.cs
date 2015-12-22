@@ -314,40 +314,19 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
 
         #region Implementation of IBindingMemberInfo
 
-        public string Path
-        {
-            get { return _path; }
-        }
+        public string Path => _path;
 
-        public Type Type
-        {
-            get { return _type; }
-        }
+        public Type Type => _type;
 
-        public MemberInfo Member
-        {
-            get { return _member; }
-        }
+        public MemberInfo Member => _member;
 
-        public BindingMemberType MemberType
-        {
-            get { return BindingMemberType.DependencyProperty; }
-        }
+        public BindingMemberType MemberType => BindingMemberType.DependencyProperty;
 
-        public bool CanRead
-        {
-            get { return true; }
-        }
+        public bool CanRead => true;
 
-        public bool CanWrite
-        {
-            get { return _canWrite; }
-        }
+        public bool CanWrite => _canWrite;
 
-        public bool CanObserve
-        {
-            get { return true; }
-        }
+        public bool CanObserve => true;
 
         public object GetValue(object source, object[] args)
         {

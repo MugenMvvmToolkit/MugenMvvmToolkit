@@ -61,29 +61,17 @@ namespace MugenMvvmToolkit.Modules
         #region Properties
 
         [NotNull]
-        protected IModuleContext Context
-        {
-            get { return _context; }
-        }
+        protected IModuleContext Context => _context;
 
-        protected LoadMode Mode
-        {
-            get { return _mode; }
-        }
+        protected LoadMode Mode => _mode;
 
-        protected IIocContainer IocContainer
-        {
-            get { return _iocContainer; }
-        }
+        protected IIocContainer IocContainer => _iocContainer;
 
         #endregion
 
         #region Implementation of IModule
 
-        public int Priority
-        {
-            get { return _priority; }
-        }
+        public int Priority => _priority;
 
         public bool Load(IModuleContext context)
         {

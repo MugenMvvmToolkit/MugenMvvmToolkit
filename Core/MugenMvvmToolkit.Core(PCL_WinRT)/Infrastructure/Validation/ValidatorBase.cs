@@ -162,15 +162,9 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         #region Implementation of IValidator
 
-        public bool IsDisposed
-        {
-            get { return ReferenceEquals(_weakPropertyHandler, DisposedHandler); }
-        }
+        public bool IsDisposed => ReferenceEquals(_weakPropertyHandler, DisposedHandler);
 
-        public bool IsInitialized
-        {
-            get { return Context != null; }
-        }
+        public bool IsInitialized => Context != null;
 
         public bool IsValid
         {
@@ -184,10 +178,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         public bool ValidateOnPropertyChanged { get; set; }
 
-        public IValidatorContext Context
-        {
-            get { return _context; }
-        }
+        public IValidatorContext Context => _context;
 
         public bool Initialize(IValidatorContext context)
         {
@@ -303,10 +294,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             ClearErrorsInternal();
         }
 
-        public bool HasErrors
-        {
-            get { return !IsValid; }
-        }
+        public bool HasErrors => !IsValid;
 
         IEnumerable INotifyDataErrorInfo.GetErrors(string propertyName)
         {
@@ -366,10 +354,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         public static bool ValidateOnPropertyChangedDefault { get; set; }
 
-        protected Dictionary<string, IList<object>> Errors
-        {
-            get { return _errors; }
-        }
+        protected Dictionary<string, IList<object>> Errors => _errors;
 
         protected object Instance
         {
@@ -403,15 +388,9 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             }
         }
 
-        protected bool IsValidating
-        {
-            get { return _runningTask != null && _runningTask.Count != 0; }
-        }
+        protected bool IsValidating => _runningTask != null && _runningTask.Count != 0;
 
-        protected object Locker
-        {
-            get { return _errors; }
-        }
+        protected object Locker => _errors;
 
         #endregion
 
@@ -746,10 +725,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
     {
         #region Properties
 
-        protected new T Instance
-        {
-            get { return (T)base.Instance; }
-        }
+        protected new T Instance => (T)base.Instance;
 
         #endregion
 

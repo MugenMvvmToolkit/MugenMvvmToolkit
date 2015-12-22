@@ -47,10 +47,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Models
         #region Properties
 
         [CanBeNull]
-        public UIView Source
-        {
-            get { return (UIView)_view.Target; }
-        }
+        public UIView Source => (UIView)_view.Target;
 
         [CanBeNull]
         public object Parent

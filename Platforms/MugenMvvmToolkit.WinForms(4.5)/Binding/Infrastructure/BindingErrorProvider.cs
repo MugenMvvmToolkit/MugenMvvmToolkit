@@ -35,7 +35,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
 
         #region Overrides of BindingErrorProviderBase
 
-        protected override sealed void SetErrors(object target, IList<object> errors, IDataContext context)
+        protected sealed override void SetErrors(object target, IList<object> errors, IDataContext context)
         {
             base.SetErrors(target, errors, context);
             var control = target as Control;
@@ -67,7 +67,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
             SetErrors(control, errorProvider, errors, context);
         }
 
-        protected override sealed void ClearErrors(object target, IDataContext context)
+        protected sealed override void ClearErrors(object target, IDataContext context)
         {
             base.SetErrors(target, Empty.Array<object>(), context);
             var control = target as Control;

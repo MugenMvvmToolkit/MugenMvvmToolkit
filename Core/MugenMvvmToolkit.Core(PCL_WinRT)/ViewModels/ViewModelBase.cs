@@ -122,15 +122,9 @@ namespace MugenMvvmToolkit.ViewModels
 
             #region Implementation of IBusyToken
 
-            public bool IsCompleted
-            {
-                get { return ReferenceEquals(CompletedList, _listeners); }
-            }
+            public bool IsCompleted => ReferenceEquals(CompletedList, _listeners);
 
-            public object Message
-            {
-                get { return _message; }
-            }
+            public object Message => _message;
 
             public void Register(IBusyTokenCallback callback)
             {
@@ -242,10 +236,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Properties
 
-        protected static bool IsDesignMode
-        {
-            get { return ServiceProvider.DesignTimeManager.IsDesignMode; }
-        }
+        protected static bool IsDesignMode => ServiceProvider.DesignTimeManager.IsDesignMode;
 
         protected internal IEventAggregator LocalEventAggregator
         {
@@ -256,15 +247,9 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        protected internal bool IsRestored
-        {
-            get { return (_state & RestoredState) == RestoredState; }
-        }
+        protected internal bool IsRestored => (_state & RestoredState) == RestoredState;
 
-        protected virtual IViewModelProvider ViewModelProvider
-        {
-            get { return ServiceProvider.ViewModelProvider; }
-        }
+        protected virtual IViewModelProvider ViewModelProvider => ServiceProvider.ViewModelProvider;
 
         #endregion
 
@@ -285,15 +270,9 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        public bool IsInitialized
-        {
-            get { return _state != DefaultState; }
-        }
+        public bool IsInitialized => _state != DefaultState;
 
-        public virtual bool IsBusy
-        {
-            get { return _busyTail != null; }
-        }
+        public virtual bool IsBusy => _busyTail != null;
 
         public virtual object BusyMessage
         {
@@ -336,10 +315,7 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        public bool IsDisposed
-        {
-            get { return _disposeCancellationToken != null && _disposeCancellationToken.IsCancellationRequested; }
-        }
+        public bool IsDisposed => _disposeCancellationToken != null && _disposeCancellationToken.IsCancellationRequested;
 
         void IViewModel.InitializeViewModel(IDataContext context)
         {

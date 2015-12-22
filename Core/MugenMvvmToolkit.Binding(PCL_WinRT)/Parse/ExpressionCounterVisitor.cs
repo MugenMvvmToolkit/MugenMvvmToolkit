@@ -43,10 +43,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Properties
 
-        public bool IsPostOrder
-        {
-            get { return false; }
-        }
+        public bool IsPostOrder => false;
 
         #endregion
 

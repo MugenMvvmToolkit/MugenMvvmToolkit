@@ -150,20 +150,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Properties
 
-        public static IBindingMemberInfo BindingContextMember
-        {
-            get { return BindingMemberInfo.BindingContextMember; }
-        }
+        public static IBindingMemberInfo BindingContextMember => BindingMemberInfo.BindingContextMember;
 
-        public static IBindingMemberInfo Unset
-        {
-            get { return BindingMemberInfo.Unset; }
-        }
+        public static IBindingMemberInfo Unset => BindingMemberInfo.Unset;
 
-        public static IBindingMemberInfo Empty
-        {
-            get { return BindingMemberInfo.Empty; }
-        }
+        public static IBindingMemberInfo Empty => BindingMemberInfo.Empty;
 
         public MemberFlags FieldFlags { get; set; }
 

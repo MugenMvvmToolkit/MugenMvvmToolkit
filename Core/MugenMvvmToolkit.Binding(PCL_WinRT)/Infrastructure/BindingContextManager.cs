@@ -55,10 +55,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Implementation of interfaces
 
-            public object Source
-            {
-                get { return _srcRef.Target; }
-            }
+            public object Source => _srcRef.Target;
 
             public object Value
             {
@@ -95,15 +92,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 }
             }
 
-            public bool IsAlive
-            {
-                get { return true; }
-            }
+            public bool IsAlive => true;
 
-            public bool IsWeak
-            {
-                get { return true; }
-            }
+            public bool IsWeak => true;
 
             public bool TryHandle(object sender, object message)
             {
@@ -190,15 +181,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Implementation of interfaces
 
-            public object Source
-            {
-                get { return _observer.Source; }
-            }
+            public object Source => _observer.Source;
 
-            public bool IsAlive
-            {
-                get { return true; }
-            }
+            public bool IsAlive => true;
 
             public object Value
             {

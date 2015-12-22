@@ -45,24 +45,15 @@ namespace MugenMvvmToolkit.WPF.Models.EventArg
 
         #region Properties
 
-        public NavigationEventArgs Args
-        {
-            get { return _args; }
-        }
+        public NavigationEventArgs Args => _args;
 
         #endregion
 
         #region Overrides of NavigationEventArgsBase
 
-        public override object Content
-        {
-            get { return _args.Content; }
-        }
+        public override object Content => _args.Content;
 
-        public override NavigationMode Mode
-        {
-            get { return _mode; }
-        }
+        public override NavigationMode Mode => _mode;
 
         #endregion
     }

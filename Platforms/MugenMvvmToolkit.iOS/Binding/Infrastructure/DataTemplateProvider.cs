@@ -52,25 +52,13 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         #region Properties
 
-        public ITableCellTemplateSelector TableCellTemplateSelector
-        {
-            get { return _tableCellTemplateSelector; }
-        }
+        public ITableCellTemplateSelector TableCellTemplateSelector => _tableCellTemplateSelector;
 
-        public ICollectionCellTemplateSelector CollectionCellTemplateSelector
-        {
-            get { return _collectionCellTemplateSelector; }
-        }
+        public ICollectionCellTemplateSelector CollectionCellTemplateSelector => _collectionCellTemplateSelector;
 
-        bool IEventListener.IsAlive
-        {
-            get { return true; }
-        }
+        bool IEventListener.IsAlive => true;
 
-        bool IEventListener.IsWeak
-        {
-            get { return false; }
-        }
+        bool IEventListener.IsWeak => false;
 
         #endregion
 

@@ -112,10 +112,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         #region Implementation of IMvvmFragmentMediator
 
-        Fragment IMvvmFragmentMediator.Fragment
-        {
-            get { return Target; }
-        }
+        Fragment IMvvmFragmentMediator.Fragment => Target;
 
         public bool CacheFragmentView { get; set; }
 

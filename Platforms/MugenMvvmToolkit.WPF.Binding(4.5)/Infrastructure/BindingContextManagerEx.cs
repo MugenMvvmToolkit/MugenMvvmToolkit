@@ -111,10 +111,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
                 }
             }
 
-            public bool IsAlive
-            {
-                get { return true; }
-            }
+            public bool IsAlive => true;
 
             public object Value
             {

@@ -141,16 +141,10 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             }
         }
 
-        public bool IsDestroyed
-        {
-            get { return _isDestroyed; }
-        }
+        public bool IsDestroyed => _isDestroyed;
 
         [NotNull]
-        protected TTarget Target
-        {
-            get { return _target; }
-        }
+        protected TTarget Target => _target;
 
         [CanBeNull]
         protected abstract PreferenceManager PreferenceManager { get; }

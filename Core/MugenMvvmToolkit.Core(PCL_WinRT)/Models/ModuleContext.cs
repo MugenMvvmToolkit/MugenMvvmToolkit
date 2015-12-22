@@ -51,30 +51,15 @@ namespace MugenMvvmToolkit.Models
 
         #region Implementation of IModuleContext
 
-        public IIocContainer IocContainer
-        {
-            get { return _iocContainer; }
-        }
+        public IIocContainer IocContainer => _iocContainer;
 
-        public IDataContext Context
-        {
-            get { return _context; }
-        }
+        public IDataContext Context => _context;
 
-        public IList<Assembly> Assemblies
-        {
-            get { return _assemblies; }
-        }
+        public IList<Assembly> Assemblies => _assemblies;
 
-        public LoadMode Mode
-        {
-            get { return _mode; }
-        }
+        public LoadMode Mode => _mode;
 
-        public PlatformInfo Platform
-        {
-            get { return _platform; }
-        }
+        public PlatformInfo Platform => _platform;
 
         #endregion
     }

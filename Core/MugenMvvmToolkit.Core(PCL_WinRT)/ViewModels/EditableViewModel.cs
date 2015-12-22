@@ -61,10 +61,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Implementation of IEditableViewModel
 
-        public Type ModelType
-        {
-            get { return typeof(T); }
-        }
+        public Type ModelType => typeof(T);
 
         public bool IsNewRecord
         {
@@ -95,15 +92,9 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        public virtual bool IsEntityInitialized
-        {
-            get { return _initializedEntity != null; }
-        }
+        public virtual bool IsEntityInitialized => _initializedEntity != null;
 
-        object IEditableViewModel.Entity
-        {
-            get { return Entity; }
-        }
+        object IEditableViewModel.Entity => Entity;
 
         void IEditableViewModel.InitializeEntity(object entity, bool isNewRecord)
         {
@@ -193,10 +184,7 @@ namespace MugenMvvmToolkit.ViewModels
         public virtual IEntityStateManager StateManager { get; protected set; }
 
         [CanBeNull]
-        protected IEntitySnapshot EntitySnapshot
-        {
-            get { return _entitySnapshot; }
-        }
+        protected IEntitySnapshot EntitySnapshot => _entitySnapshot;
 
         #endregion
 

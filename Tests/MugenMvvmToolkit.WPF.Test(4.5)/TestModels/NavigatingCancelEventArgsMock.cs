@@ -30,15 +30,9 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         public override bool Cancel { get; set; }
 
-        public override NavigationMode NavigationMode
-        {
-            get { return _mode; }
-        }
+        public override NavigationMode NavigationMode => _mode;
 
-        public override bool IsCancelable
-        {
-            get { return _isCancelable; }
-        }
+        public override bool IsCancelable => _isCancelable;
 
         #endregion
     }

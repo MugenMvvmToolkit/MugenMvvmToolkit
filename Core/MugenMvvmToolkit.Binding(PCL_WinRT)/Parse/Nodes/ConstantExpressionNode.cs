@@ -47,15 +47,9 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Implementation of IConstantExpressionNode
 
-        public object Value
-        {
-            get { return _value; }
-        }
+        public object Value => _value;
 
-        public Type Type
-        {
-            get { return _type; }
-        }
+        public Type Type => _type;
 
         #endregion
 

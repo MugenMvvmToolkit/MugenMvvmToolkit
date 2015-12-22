@@ -103,27 +103,15 @@ namespace MugenMvvmToolkit.Binding
 
         public static bool DisableDataTemplateSelectorAutoRegistration { get; set; }
 
-        public static Dictionary<string, IBindingBehavior> BindingModeToBehavior
-        {
-            get { return BindingModeToBehaviorField; }
-        }
+        public static Dictionary<string, IBindingBehavior> BindingModeToBehavior => BindingModeToBehaviorField;
 
-        public static List<string> FakeMemberPrefixes
-        {
-            get { return FakeMemberPrefixesField; }
-        }
+        public static List<string> FakeMemberPrefixes => FakeMemberPrefixesField;
 
         [NotNull]
-        public static Dictionary<string, int> BindingMemberPriorities
-        {
-            get { return MemberPriorities; }
-        }
+        public static Dictionary<string, int> BindingMemberPriorities => MemberPriorities;
 
         [NotNull]
-        public static HashSet<string> DataContextMemberAliases
-        {
-            get { return DataContextMemberAliasesField; }
-        }
+        public static HashSet<string> DataContextMemberAliases => DataContextMemberAliasesField;
 
         [NotNull]
         public static Func<IBindingMemberInfo, Type, object, object> ValueConverter

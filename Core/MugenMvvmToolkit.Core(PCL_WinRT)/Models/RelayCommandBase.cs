@@ -87,10 +87,7 @@ namespace MugenMvvmToolkit.Models
 
         #region Implementation of IRelayCommand
 
-        public bool HasCanExecuteImpl
-        {
-            get { return _weakHandler != null; }
-        }
+        public bool HasCanExecuteImpl => _weakHandler != null;
 
         public CommandExecutionMode ExecutionMode { get; set; }
 

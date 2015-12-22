@@ -34,10 +34,7 @@ namespace MugenMvvmToolkit.Test.TestModels
             }
         }
 
-        public bool IsDisposed
-        {
-            get { return _disposed == DisposedState; }
-        }
+        public bool IsDisposed => _disposed == DisposedState;
 
         public event EventHandler<IDisposableObject, EventArgs> Disposed;
 

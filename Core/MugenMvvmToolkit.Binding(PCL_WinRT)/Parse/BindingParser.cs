@@ -208,30 +208,15 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Implementation of IBindingParser
 
-        public ICollection<string> ElementSourceAliases
-        {
-            get { return _elementSourceAliases; }
-        }
+        public ICollection<string> ElementSourceAliases => _elementSourceAliases;
 
-        public ICollection<string> RelativeSourceAliases
-        {
-            get { return _relativeSourceAliases; }
-        }
+        public ICollection<string> RelativeSourceAliases => _relativeSourceAliases;
 
-        public IDictionary<string, TokenType> UnaryOperationAliases
-        {
-            get { return _unaryOperationAliases; }
-        }
+        public IDictionary<string, TokenType> UnaryOperationAliases => _unaryOperationAliases;
 
-        public IDictionary<string, TokenType> BinaryOperationAliases
-        {
-            get { return _binaryOperationAliases; }
-        }
+        public IDictionary<string, TokenType> BinaryOperationAliases => _binaryOperationAliases;
 
-        public IList<IBindingParserHandler> Handlers
-        {
-            get { return _handlers; }
-        }
+        public IList<IBindingParserHandler> Handlers => _handlers;
 
         public IList<IDataContext> Parse(object target, string bindingExpression, IList<object> sources, IDataContext context)
         {
@@ -316,40 +301,19 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Properties
 
-        protected string Expression
-        {
-            get { return _expression; }
-        }
+        protected string Expression => _expression;
 
-        protected ITokenizer Tokenizer
-        {
-            get { return _tokenizer; }
-        }
+        protected ITokenizer Tokenizer => _tokenizer;
 
-        protected IDataContext Context
-        {
-            get { return _context; }
-        }
+        protected IDataContext Context => _context;
 
-        protected Dictionary<string, Func<BindingParser, IList<Action<IDataContext>>>> BindingParameterToAction
-        {
-            get { return _bindingParameterToAction; }
-        }
+        protected Dictionary<string, Func<BindingParser, IList<Action<IDataContext>>>> BindingParameterToAction => _bindingParameterToAction;
 
-        protected ICollection<TokenType> UnaryOperationTokens
-        {
-            get { return _unaryOperationTokens; }
-        }
+        protected ICollection<TokenType> UnaryOperationTokens => _unaryOperationTokens;
 
-        protected IDictionary<TokenType, int> BinaryOperationTokens
-        {
-            get { return _binaryOperationTokens; }
-        }
+        protected IDictionary<TokenType, int> BinaryOperationTokens => _binaryOperationTokens;
 
-        private bool PrevMemberIsWhitespace
-        {
-            get { return char.IsWhiteSpace(Expression, Tokenizer.Position - 2); }
-        }
+        private bool PrevMemberIsWhitespace => char.IsWhiteSpace(Expression, Tokenizer.Position - 2);
 
         #endregion
 

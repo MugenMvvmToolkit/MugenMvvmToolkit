@@ -153,15 +153,9 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
 
         #region Properties
 
-        public new bool CanUndo
-        {
-            get { return _undoList.Count > 0; }
-        }
+        public new bool CanUndo => _undoList.Count > 0;
 
-        public new bool CanRedo
-        {
-            get { return _redoStack.Count > 0; }
-        }
+        public new bool CanRedo => _redoStack.Count > 0;
 
         public new string Text
         {
@@ -178,10 +172,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
 
         internal IXmlHandler Handler { get; set; }
 
-        private int Delay
-        {
-            get { return Math.Min(Lines.Length * 4, 600); }
-        }
+        private int Delay => Math.Min(Lines.Length * 4, 600);
 
         #endregion
 
@@ -631,7 +622,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
         private static extern short GetKeyState(int nVirtKey);
 
         [DllImport("user32")]
-        private extern static int GetCaretPos(out Point p);
+        private static extern int GetCaretPos(out Point p);
 
         [DllImport("user32.dll")]
         private static extern IntPtr SendMessage(IntPtr hWnd, Int32 wMsg, Int32 wParam, ref Point lParam);

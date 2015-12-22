@@ -57,30 +57,15 @@ namespace MugenMvvmToolkit
 
         public static IMvvmApplication Current { get; protected set; }
 
-        public virtual bool IsInitialized
-        {
-            get { return _isInitialized; }
-        }
+        public virtual bool IsInitialized => _isInitialized;
 
-        public virtual PlatformInfo Platform
-        {
-            get { return _platform; }
-        }
+        public virtual PlatformInfo Platform => _platform;
 
-        public virtual LoadMode Mode
-        {
-            get { return _mode; }
-        }
+        public virtual LoadMode Mode => _mode;
 
-        public virtual IIocContainer IocContainer
-        {
-            get { return _iocContainer; }
-        }
+        public virtual IIocContainer IocContainer => _iocContainer;
 
-        public virtual IDataContext Context
-        {
-            get { return _context; }
-        }
+        public virtual IDataContext Context => _context;
 
         #endregion
 

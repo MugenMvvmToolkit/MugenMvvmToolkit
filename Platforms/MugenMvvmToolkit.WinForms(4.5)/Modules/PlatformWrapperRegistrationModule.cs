@@ -81,10 +81,7 @@ namespace MugenMvvmToolkit.WinForms.Modules
                 _form.Dispose();
             }
 
-            public object View
-            {
-                get { return _form; }
-            }
+            public object View => _form;
 
             #endregion
         }

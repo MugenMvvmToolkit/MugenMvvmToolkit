@@ -126,10 +126,7 @@ namespace MugenMvvmToolkit.Test.Models
 
         #region Overrides of NotifyPropertyChangedBase
 
-        protected override ExecutionMode PropertyChangeExecutionMode
-        {
-            get { return PropertyExecutionMode; }
-        }
+        protected override ExecutionMode PropertyChangeExecutionMode => PropertyExecutionMode;
 
         #endregion
 
@@ -281,10 +278,7 @@ namespace MugenMvvmToolkit.Test.Models
 
         #region Overrides of NotifyPropertyChangedBase
 
-        protected override IThreadManager ThreadManager
-        {
-            get { return _threadManagerMock ?? base.ThreadManager; }
-        }
+        protected override IThreadManager ThreadManager => _threadManagerMock ?? base.ThreadManager;
 
         #endregion
     }

@@ -49,10 +49,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Parse.Nodes
         #region Properties
 
         [NotNull]
-        public new XmlElementExpressionNode Parent
-        {
-            get { return (XmlElementExpressionNode)base.Parent; }
-        }
+        public new XmlElementExpressionNode Parent => (XmlElementExpressionNode)base.Parent;
 
         [NotNull]
         public XmlValueExpressionNode Name

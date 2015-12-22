@@ -65,10 +65,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Implementation of IEntitySnapshot
 
-            public bool SupportChangeDetection
-            {
-                get { return true; }
-            }
+            public bool SupportChangeDetection => true;
 
             public void Restore(object entity)
             {

@@ -215,30 +215,15 @@ namespace MugenMvvmToolkit.WinPhone.AppBar
             set { SetValue(MenuItemsSourceProperty, value); }
         }
 
-        public double DefaultSize
-        {
-            get { return _applicationBar.DefaultSize; }
-        }
+        public double DefaultSize => _applicationBar.DefaultSize;
 
-        public double MiniSize
-        {
-            get { return _applicationBar.MiniSize; }
-        }
+        public double MiniSize => _applicationBar.MiniSize;
 
-        public IList Buttons
-        {
-            get { return _buttons; }
-        }
+        public IList Buttons => _buttons;
 
-        public IList MenuItems
-        {
-            get { return _menuItems; }
-        }
+        public IList MenuItems => _menuItems;
 
-        public IApplicationBar OriginalApplicationBar
-        {
-            get { return _applicationBar; }
-        }
+        public IApplicationBar OriginalApplicationBar => _applicationBar;
 
         public event EventHandler<ApplicationBarStateChangedEventArgs> StateChanged
         {

@@ -54,25 +54,13 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Implementation of IMethodCallExpressionNode
 
-        public IList<string> TypeArgs
-        {
-            get { return _typeArgs; }
-        }
+        public IList<string> TypeArgs => _typeArgs;
 
-        public string Method
-        {
-            get { return _method; }
-        }
+        public string Method => _method;
 
-        public IExpressionNode Target
-        {
-            get { return _target; }
-        }
+        public IExpressionNode Target => _target;
 
-        public IList<IExpressionNode> Arguments
-        {
-            get { return _arguments; }
-        }
+        public IList<IExpressionNode> Arguments => _arguments;
 
         #endregion
 

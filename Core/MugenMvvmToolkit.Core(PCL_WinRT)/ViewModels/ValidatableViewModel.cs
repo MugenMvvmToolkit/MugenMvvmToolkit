@@ -81,10 +81,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Properties
 
-        protected Dictionary<object, List<IValidator>> InstanceToValidators
-        {
-            get { return _instanceToValidators; }
-        }
+        protected Dictionary<object, List<IValidator>> InstanceToValidators => _instanceToValidators;
 
         protected internal IValidatorProvider ValidatorProvider
         {
@@ -353,20 +350,11 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        public IDictionary<string, ICollection<string>> PropertyMappings
-        {
-            get { return _propertyMappings; }
-        }
+        public IDictionary<string, ICollection<string>> PropertyMappings => _propertyMappings;
 
-        public ICollection<string> IgnoreProperties
-        {
-            get { return _ignoreProperties; }
-        }
+        public ICollection<string> IgnoreProperties => _ignoreProperties;
 
-        public ManualValidator Validator
-        {
-            get { return _validator; }
-        }
+        public ManualValidator Validator => _validator;
 
         public bool IsValid
         {
@@ -482,10 +470,7 @@ namespace MugenMvvmToolkit.ViewModels
                 ClearErrorsInternal();
         }
 
-        public bool HasErrors
-        {
-            get { return !IsValid; }
-        }
+        public bool HasErrors => !IsValid;
 
         IEnumerable INotifyDataErrorInfo.GetErrors(string propertyName)
         {

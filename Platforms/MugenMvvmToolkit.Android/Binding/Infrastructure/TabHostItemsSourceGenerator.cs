@@ -181,10 +181,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         #region Overrides of ItemsSourceGeneratorBase
 
-        protected override bool IsTargetDisposed
-        {
-            get { return !TabHost.IsAlive(); }
-        }
+        protected override bool IsTargetDisposed => !TabHost.IsAlive();
 
         protected override void Update(IEnumerable itemsSource, IDataContext context = null)
         {

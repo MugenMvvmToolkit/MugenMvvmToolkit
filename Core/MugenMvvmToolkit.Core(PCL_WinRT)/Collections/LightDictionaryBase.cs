@@ -68,16 +68,9 @@ namespace MugenMvvmToolkit.Collections
 
             #region Implementation of IEnumerator<KeyValuePair<TKey, TValue>>
 
-            public KeyValuePair<TKey, TValue> Current
-            {
-                get { return _current; }
-            }
-
-
-            object IEnumerator.Current
-            {
-                get { return _current; }
-            }
+            public KeyValuePair<TKey, TValue> Current => _current;
+            
+            object IEnumerator.Current => _current;
 
             public bool MoveNext()
             {

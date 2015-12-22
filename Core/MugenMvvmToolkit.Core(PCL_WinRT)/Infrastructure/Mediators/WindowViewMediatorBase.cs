@@ -81,44 +81,23 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         protected bool IsClosing { get; private set; }
 
-        protected IViewManager ViewManager
-        {
-            get { return _viewManager; }
-        }
+        protected IViewManager ViewManager => _viewManager;
 
-        protected IThreadManager ThreadManager
-        {
-            get { return _threadManager; }
-        }
+        protected IThreadManager ThreadManager => _threadManager;
 
-        protected IOperationCallbackManager OperationCallbackManager
-        {
-            get { return _operationCallbackManager; }
-        }
+        protected IOperationCallbackManager OperationCallbackManager => _operationCallbackManager;
 
-        protected IWrapperManager WrapperManager
-        {
-            get { return _wrapperManager; }
-        }
+        protected IWrapperManager WrapperManager => _wrapperManager;
 
         #endregion
 
         #region Implementation of IWindowViewMediator
 
-        public bool IsOpen
-        {
-            get { return _isOpen; }
-        }
+        public bool IsOpen => _isOpen;
 
-        object IWindowViewMediator.View
-        {
-            get { return View; }
-        }
+        object IWindowViewMediator.View => View;
 
-        public virtual IViewModel ViewModel
-        {
-            get { return _viewModel; }
-        }
+        public virtual IViewModel ViewModel => _viewModel;
 
         public Task ShowAsync(IOperationCallback callback, IDataContext context)
         {

@@ -108,15 +108,9 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
                 }
             }
 
-            public bool IsAlive
-            {
-                get { return _reference.Target != null || _globalResource.IsAlive; }
-            }
+            public bool IsAlive => _reference.Target != null || _globalResource.IsAlive;
 
-            public bool IsWeak
-            {
-                get { return true; }
-            }
+            public bool IsWeak => true;
 
             public bool TryHandle(object sender, object message)
             {

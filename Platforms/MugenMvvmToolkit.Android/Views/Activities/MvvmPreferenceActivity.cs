@@ -54,10 +54,7 @@ namespace MugenMvvmToolkit.Android.Views.Activities
 
         #region Implementation of IView
 
-        public virtual IMvvmActivityMediator Mediator
-        {
-            get { return this.GetOrCreateMediator(ref _mediator); }
-        }
+        public virtual IMvvmActivityMediator Mediator => this.GetOrCreateMediator(ref _mediator);
 
         public object DataContext
         {
@@ -75,24 +72,15 @@ namespace MugenMvvmToolkit.Android.Views.Activities
 
         #region Properties
 
-        protected virtual int? ViewId
-        {
-            get { return _viewId; }
-        }
+        protected virtual int? ViewId => _viewId;
 
         #endregion
 
         #region Overrides of Activity
 
-        public override MenuInflater MenuInflater
-        {
-            get { return Mediator.GetMenuInflater(base.MenuInflater); }
-        }
+        public override MenuInflater MenuInflater => Mediator.GetMenuInflater(base.MenuInflater);
 
-        public override LayoutInflater LayoutInflater
-        {
-            get { return Mediator.GetLayoutInflater(base.LayoutInflater); }
-        }
+        public override LayoutInflater LayoutInflater => Mediator.GetLayoutInflater(base.LayoutInflater);
 
         public override void Finish()
         {

@@ -77,20 +77,11 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
 
         #region Implementation of INavigationService
 
-        public bool CanGoBack
-        {
-            get { return _window.CanGoBack; }
-        }
+        public bool CanGoBack => _window.CanGoBack;
 
-        public bool CanGoForward
-        {
-            get { return _window.CanGoForward; }
-        }
+        public bool CanGoForward => _window.CanGoForward;
 
-        public object CurrentContent
-        {
-            get { return _window.Content; }
-        }
+        public object CurrentContent => _window.Content;
 
         public void GoBack()
         {

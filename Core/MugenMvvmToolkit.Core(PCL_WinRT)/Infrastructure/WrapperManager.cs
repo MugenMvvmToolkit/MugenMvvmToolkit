@@ -93,15 +93,9 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Properties
 
-        protected IViewModelProvider ViewModelProvider
-        {
-            get { return _viewModelProvider; }
-        }
+        protected IViewModelProvider ViewModelProvider => _viewModelProvider;
 
-        protected IDictionary<Type, List<WrapperRegistration>> Registrations
-        {
-            get { return _registrations; }
-        }
+        protected IDictionary<Type, List<WrapperRegistration>> Registrations => _registrations;
 
         #endregion
 

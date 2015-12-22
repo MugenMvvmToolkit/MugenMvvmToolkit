@@ -43,10 +43,7 @@ namespace MugenMvvmToolkit.Binding.Builders
 
         #region Implementation of IBuilderSyntax
 
-        public IBindingBuilder Builder
-        {
-            get { return _builder; }
-        }
+        public IBindingBuilder Builder => _builder;
 
         #endregion
     }

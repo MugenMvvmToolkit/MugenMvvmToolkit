@@ -43,10 +43,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Implementation of IExpressionNode
 
-        public virtual ExpressionNodeType NodeType
-        {
-            get { return _nodeType; }
-        }
+        public virtual ExpressionNodeType NodeType => _nodeType;
 
         public IExpressionNode Accept(IExpressionVisitor visitor)
         {

@@ -47,15 +47,9 @@ namespace MugenMvvmToolkit.WinRT.Models.EventArg
 
         #region Properties
 
-        public NavigatingCancelEventArgs Args
-        {
-            get { return _args; }
-        }
+        public NavigatingCancelEventArgs Args => _args;
 
-        public string Parameter
-        {
-            get { return _parameter; }
-        }
+        public string Parameter => _parameter;
 
         #endregion
 
@@ -78,10 +72,7 @@ namespace MugenMvvmToolkit.WinRT.Models.EventArg
             }
         }
 
-        public override bool IsCancelable
-        {
-            get { return true; }
-        }
+        public override bool IsCancelable => true;
 
         #endregion
     }

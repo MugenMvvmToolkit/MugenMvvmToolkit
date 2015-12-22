@@ -59,19 +59,13 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure
 
         public bool AutoStart { get; set; }
 
-        protected Application Application
-        {
-            get { return _application; }
-        }
+        protected Application Application => _application;
 
         #endregion
 
         #region Implementation of IDynamicViewModelPresenter
 
-        int IDynamicViewModelPresenter.Priority
-        {
-            get { return int.MaxValue; }
-        }
+        int IDynamicViewModelPresenter.Priority => int.MaxValue;
 
         INavigationOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {

@@ -96,15 +96,9 @@ namespace MugenMvvmToolkit.Collections
 
         #region Properties
 
-        protected Dictionary<object, EntityState> Items
-        {
-            get { return ItemsInternal; }
-        }
+        protected Dictionary<object, EntityState> Items => ItemsInternal;
 
-        protected object Locker
-        {
-            get { return ItemsInternal; }
-        }
+        protected object Locker => ItemsInternal;
 
         #endregion
 
@@ -130,10 +124,7 @@ namespace MugenMvvmToolkit.Collections
 
         #region Implementation of ITrackingCollection
 
-        public int Count
-        {
-            get { return ItemsInternal.Count; }
-        }
+        public int Count => ItemsInternal.Count;
 
         [IgnoreDataMember]
         public IStateTransitionManager StateTransitionManager
@@ -152,10 +143,7 @@ namespace MugenMvvmToolkit.Collections
             }
         }
 
-        public bool HasChanges
-        {
-            get { return ChangedCount != 0; }
-        }
+        public bool HasChanges => ChangedCount != 0;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
