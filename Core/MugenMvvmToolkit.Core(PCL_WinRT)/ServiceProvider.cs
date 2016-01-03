@@ -43,9 +43,9 @@ namespace MugenMvvmToolkit
         private static ITracer _tracer;
         private static IAttachedValueProvider _attachedValueProvider;
         private static IOperationCallbackFactory _operationCallbackFactory;
-        internal static IReflectionManager ReflectionManagerField;
-        internal static IValidatorProvider ValidatorProviderField;
-        internal static IEventAggregator EventAggregatorField;
+        private static IReflectionManager _reflectionManager;
+        private static IValidatorProvider _validatorProvider;
+        private static IEventAggregator _eventAggregator;
 
         private static Func<object, IEventAggregator> _instanceEventAggregatorFactory;
         private static Func<object, WeakReference> _weakReferenceFactory;
@@ -151,11 +151,11 @@ namespace MugenMvvmToolkit
         {
             get
             {
-                if (ReflectionManagerField == null)
-                    Interlocked.CompareExchange(ref ReflectionManagerField, new ExpressionReflectionManager(), null);
-                return ReflectionManagerField;
+                if (_reflectionManager == null)
+                    Interlocked.CompareExchange(ref _reflectionManager, new ExpressionReflectionManager(), null);
+                return _reflectionManager;
             }
-            set { ReflectionManagerField = value; }
+            set { _reflectionManager = value; }
         }
 
         [NotNull]
@@ -187,11 +187,11 @@ namespace MugenMvvmToolkit
         {
             get
             {
-                if (ValidatorProviderField == null)
-                    Interlocked.CompareExchange(ref ValidatorProviderField, new ValidatorProvider(), null);
-                return ValidatorProviderField;
+                if (_validatorProvider == null)
+                    Interlocked.CompareExchange(ref _validatorProvider, new ValidatorProvider(), null);
+                return _validatorProvider;
             }
-            set { ValidatorProviderField = value; }
+            set { _validatorProvider = value; }
         }
 
         [NotNull]
@@ -223,11 +223,11 @@ namespace MugenMvvmToolkit
         {
             get
             {
-                if (EventAggregatorField == null)
-                    Interlocked.CompareExchange(ref EventAggregatorField, new EventAggregator(), null);
-                return EventAggregatorField;
+                if (_eventAggregator == null)
+                    Interlocked.CompareExchange(ref _eventAggregator, new EventAggregator(), null);
+                return _eventAggregator;
             }
-            set { EventAggregatorField = value; }
+            set { _eventAggregator = value; }
         }
 
         #endregion
@@ -312,13 +312,13 @@ namespace MugenMvvmToolkit
             Should.NotBeNull(application, nameof(application));
             var iocContainer = application.IocContainer;
             TryInitialize(iocContainer, ref _tracer);
-            TryInitialize(iocContainer, ref ReflectionManagerField);
+            TryInitialize(iocContainer, ref _reflectionManager);
             TryInitialize(iocContainer, ref _attachedValueProvider);
             TryInitialize(iocContainer, ref _threadManager);
             TryInitialize(iocContainer, ref _operationCallbackFactory);
-            TryInitialize(iocContainer, ref ValidatorProviderField);
+            TryInitialize(iocContainer, ref _validatorProvider);
             TryInitialize(iocContainer, ref _viewModelProvider);
-            TryInitialize(iocContainer, ref EventAggregatorField);
+            TryInitialize(iocContainer, ref _eventAggregator);
 
             if (OperationCallbackStateManager == null)
             {

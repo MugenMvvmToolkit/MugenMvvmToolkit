@@ -92,12 +92,12 @@ namespace MugenMvvmToolkit.Modules
 
         protected virtual BindingInfo<IAttachedValueProvider> GetAttachedValueProvider()
         {
-            return BindingInfo<IAttachedValueProvider>.FromType<AttachedValueProviderDefault>(DependencyLifecycle.SingleInstance);
+            return BindingInfo<IAttachedValueProvider>.FromMethod((container, list) => ServiceProvider.AttachedValueProvider, DependencyLifecycle.SingleInstance);
         }
 
         protected virtual BindingInfo<IReflectionManager> GetReflectionManager()
         {
-            return BindingInfo<IReflectionManager>.FromMethod((container, list) => ServiceProvider.ReflectionManagerField ?? new ExpressionReflectionManager(), DependencyLifecycle.SingleInstance);
+            return BindingInfo<IReflectionManager>.FromMethod((container, list) => ServiceProvider.ReflectionManager, DependencyLifecycle.SingleInstance);
         }
 
         protected virtual BindingInfo<IDisplayNameProvider> GetDisplayNameProvider()
@@ -143,7 +143,7 @@ namespace MugenMvvmToolkit.Modules
 
         protected virtual BindingInfo<IEventAggregator> GetEventAggregator()
         {
-            return BindingInfo<IEventAggregator>.FromMethod((container, list) => ServiceProvider.EventAggregatorField ?? new EventAggregator(), DependencyLifecycle.SingleInstance);
+            return BindingInfo<IEventAggregator>.FromMethod((container, list) => ServiceProvider.EventAggregator, DependencyLifecycle.SingleInstance);
         }
 
         protected virtual BindingInfo<IEntityStateManager> GetEntityStateProvider()
@@ -153,7 +153,7 @@ namespace MugenMvvmToolkit.Modules
 
         protected virtual BindingInfo<IValidatorProvider> GetValidatorProvider()
         {
-            return BindingInfo<IValidatorProvider>.FromMethod((container, list) => ServiceProvider.ValidatorProviderField ?? new ValidatorProvider(), DependencyLifecycle.SingleInstance);
+            return BindingInfo<IValidatorProvider>.FromMethod((container, list) => ServiceProvider.ValidatorProvider, DependencyLifecycle.SingleInstance);
         }
 
         protected virtual BindingInfo<ITracer> GetTracer()

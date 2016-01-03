@@ -193,7 +193,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             var source2 = new BindingResourceObject("test2");
             var resolver = CreateBindingResourceResolver();
             resolver.AddObject(name, source, false);
-            resolver.AddObject(name, source2, true);
+            resolver.AddObject(name, source2, false);
             resolver.ResolveObject(name, EmptyContext, true).Value.ShouldEqual(source2.Value);
         }
 

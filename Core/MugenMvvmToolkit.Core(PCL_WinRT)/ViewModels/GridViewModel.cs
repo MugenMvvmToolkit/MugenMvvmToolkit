@@ -215,7 +215,7 @@ namespace MugenMvvmToolkit.ViewModels
                 _originalData.Clear();
             else
             {
-                using (FilterableItemsSource.SuspendNotifications())
+                using (ItemsSource.SuspendNotifications())
                 {
                     _originalData.Clear();
                     _itemsSource.AddRange(value);
