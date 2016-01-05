@@ -1665,12 +1665,6 @@ namespace MugenMvvmToolkit
             return (mode & value) == value;
         }
 
-        internal static bool HasFlagEx(this NotificationCollectionMode mode,
-            NotificationCollectionMode value)
-        {
-            return (mode & value) == value;
-        }
-
         internal static bool HasFlagEx(this HandleMode handleMode, HandleMode value)
         {
             return (handleMode & value) == value;

@@ -43,15 +43,6 @@ namespace MugenMvvmToolkit.Models
         Top = 2
     }
 
-    [Flags]
-    public enum NotificationCollectionMode
-    {
-        None = 0,
-        CollectionIntefaceUseNotificationValue = 1,
-        GenericCollectionInterfaceUseNotificationValue = 2,
-        OnlyOnUiThread = 4
-    }
-
     public enum ExecutionMode
     {
         None = 0,

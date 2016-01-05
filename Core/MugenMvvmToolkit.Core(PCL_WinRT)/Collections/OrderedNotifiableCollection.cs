@@ -63,61 +63,65 @@ namespace MugenMvvmToolkit.Collections
 
         #region Properties
 
-        public IComparer<T> Comparer => Items.Comparer;
+        public IComparer<T> Comparer => ((OrderedListInternal<T>)Items).Comparer;
 
         public bool ValidateOnInsert { get; set; }
-
-        private new OrderedListInternal<T> Items => (OrderedListInternal<T>)base.Items;
 
         #endregion
 
         #region Overrides of SynchronizedNotifiableCollection<T>
 
-        protected override void OnInitialized()
+        protected override IList<T> OnItemsChanged(IList<T> items)
         {
-            base.OnInitialized();
-            if (!(base.Items is OrderedListInternal<T>))
-                base.Items = new OrderedListInternal<T>(base.Items);
+            if (items is OrderedListInternal<T>)
+                return items;
+            return new OrderedListInternal<T>(items);
         }
 
-        protected override void SetItemInternal(int index, T item, out bool shouldRaiseEvents)
+        protected override IList<T> CreateSnapshotCollection(IList<T> items)
         {
-            shouldRaiseEvents = false;
-            T oldItem = Items[index];
-            NotifyCollectionChangingEventArgs args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Replace,
-                oldItem, item, index);
-            OnCollectionChanging(args);
-            if (args.Cancel) return;
-
-            Items.RemoveAt(index);
-            int newIndex = Items.Add(item);
-            EventsTracker.AddEvent(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItem,
-                index));
-            EventsTracker.AddEvent(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item,
-                newIndex));
-            shouldRaiseEvents = true;
+            return new OrderedListInternal<T>(items, Comparer);
         }
 
-        protected override int InsertItemInternal(int index, T item, bool isAdd, out bool shouldRaiseEvents)
+        protected override bool SetItemInternal(IList<T> items, int index, T item, NotificationType notificationType)
         {
-            shouldRaiseEvents = false;
-            if (ValidateOnInsert)
+            var orderedList = (OrderedListInternal<T>)items;
+            T oldItem = orderedList[index];
+
+            if (HasChangingFlag(notificationType))
             {
-                if (isAdd)
-                    index = Items.GetInsertIndex(item);
+                NotifyCollectionChangingEventArgs args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Replace, oldItem, item, index);
+                OnCollectionChanging(args);
+                if (args.Cancel)
+                    return false;
             }
-            else
-                index = Items.GetInsertIndex(item);
+            orderedList.RemoveAt(index);
+            int newIndex = orderedList.Add(item);
+            if (HasChangedFlag(notificationType))
+            {
+                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItem, index));
+                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, newIndex));
+            }
+            return true;
+        }
 
-            NotifyCollectionChangingEventArgs args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Add, item,
-                index);
-            OnCollectionChanging(args);
-            if (args.Cancel)
-                return -1;
+        protected override int InsertItemInternal(IList<T> items, int index, T item, bool isAdd, NotificationType notificationType)
+        {
+            var orderedList = (OrderedListInternal<T>)items;
+            if (isAdd || !ValidateOnInsert)
+                index = orderedList.GetInsertIndex(item);
 
-            Items.Insert(index, item);
-            EventsTracker.AddEvent(args.ChangedEventArgs);
-            shouldRaiseEvents = true;
+            NotifyCollectionChangingEventArgs args = null;
+            if (HasChangingFlag(notificationType))
+            {
+                args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Add, item, index);
+                OnCollectionChanging(args);
+                if (args.Cancel)
+                    return -1;
+            }
+            orderedList.Insert(index, item);
+            if (HasChangedFlag(notificationType))
+                OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
             return index;
         }
 

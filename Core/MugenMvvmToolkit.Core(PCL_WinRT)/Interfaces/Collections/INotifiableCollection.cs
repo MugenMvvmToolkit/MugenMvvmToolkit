@@ -41,6 +41,6 @@ namespace MugenMvvmToolkit.Interfaces.Collections
 
         void Update(IEnumerable<T> items);
 
-        bool Replace(T oldValue, T newValue);
+        T[] ToArray();
     }
 }

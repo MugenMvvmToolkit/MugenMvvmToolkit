@@ -19,7 +19,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -36,7 +35,7 @@ using MugenMvvmToolkit.Models.EventArg;
 namespace MugenMvvmToolkit.Collections
 {
     [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable]
-    [DebuggerDisplay("Count = {Count}, NotificationCount = {NotificationCount}")]
+    [DebuggerDisplay("Count = {Count}")]
     public class SynchronizedNotifiableCollection<T> : INotifiableCollection, INotifiableCollection<T>
 #if PCL_WINRT
         , IReadOnlyList<T>
@@ -44,271 +43,127 @@ namespace MugenMvvmToolkit.Collections
     {
         #region Nested types
 
-        [DebuggerDisplay("AddedCount = {AddedCount}, RemovedCount = {RemovedCount}")]
-        protected internal sealed class EventTracker
+        public struct Enumerator : IEnumerator<T>
         {
             #region Fields
 
             private readonly SynchronizedNotifiableCollection<T> _collection;
-            private readonly Dictionary<NotifyCollectionChangedAction, List<NotifyCollectionChangedEventArgs>> _events;
-            private bool _hasResetEvent;
+            private int _index;
+            private T _current;
 
             #endregion
 
             #region Constructors
 
-            public EventTracker(SynchronizedNotifiableCollection<T> collection)
+            public Enumerator(SynchronizedNotifiableCollection<T> collection)
             {
                 _collection = collection;
-                _events = new Dictionary<NotifyCollectionChangedAction, List<NotifyCollectionChangedEventArgs>>();
+                _index = 0;
+                _current = default(T);
             }
 
             #endregion
 
-            #region Properties
+            #region Implementatio of IEnumerator<T>
 
-            public int AddedCount
+            public bool MoveNext()
             {
-                get
+                if (_collection == null)
+                    return false;
+                lock (_collection.Locker)
                 {
-                    List<NotifyCollectionChangedEventArgs> list;
-                    _events.TryGetValue(NotifyCollectionChangedAction.Add, out list);
-                    if (list == null)
-                        return 0;
-                    return list.Count;
+                    var items = _collection.GetItems();
+                    if (_index >= _collection.GetCountInternal(items))
+                        return false;
+                    _current = _collection.GetItemInternal(items, _index);
+                    ++_index;
+                    return true;
                 }
             }
 
-            public int RemovedCount
+            public void Reset()
             {
-                get
-                {
-                    List<NotifyCollectionChangedEventArgs> list;
-                    _events.TryGetValue(NotifyCollectionChangedAction.Remove, out list);
-                    if (list == null)
-                        return 0;
-                    return list.Count;
-                }
+                _index = 0;
             }
 
-            public Dictionary<NotifyCollectionChangedAction, List<NotifyCollectionChangedEventArgs>>.ValueCollection Events => _events.Values;
+            public T Current => _current;
 
-            private int Count
+            object IEnumerator.Current => Current;
+
+            public void Dispose()
             {
-                get
-                {
-                    int count = 0;
-                    foreach (var @event in _events)
-                        count += @event.Value.Count;
-                    return count;
-                }
             }
 
             #endregion
 
-            #region Methods
+        }
 
-            public void AddEvent(NotifyCollectionChangedEventArgs args)
-            {
-                if (_hasResetEvent)
-                    return;
-                if (Count >= _collection.BatchSize)
-                    args = Empty.ResetEventArgs;
-                bool shouldIgnore = false;
-                switch (args.Action)
-                {
-                    case NotifyCollectionChangedAction.Add:
-                        OnAddEvent(ref args);
-                        break;
-                    case NotifyCollectionChangedAction.Remove:
-                        OnRemoveEvent(ref args, ref shouldIgnore);
-                        break;
-                    case NotifyCollectionChangedAction.Replace:
-                        OnReplaceEvent(ref args, ref shouldIgnore);
-                        break;
-                    case NotifyCollectionChangedAction.Reset:
-                        _hasResetEvent = true;
-                        _events.Clear();
-                        break;
-                }
-
-                if (shouldIgnore) return;
-                List<NotifyCollectionChangedEventArgs> list;
-                if (!_events.TryGetValue(args.Action, out list))
-                {
-                    list = new List<NotifyCollectionChangedEventArgs>();
-                    _events[args.Action] = list;
-                }
-                list.Add(args);
-            }
-
-            public void Clear()
-            {
-                _events.Clear();
-                _hasResetEvent = false;
-            }
-
-            private void OnAddEvent(ref NotifyCollectionChangedEventArgs args)
-            {
-                List<NotifyCollectionChangedEventArgs> list;
-                if (_events.TryGetValue(NotifyCollectionChangedAction.Add, out list) && list.Count != 0)
-                {
-                    for (int index = 0; index < list.Count; index++)
-                    {
-                        NotifyCollectionChangedEventArgs oldArgs = list[index];
-                        if (oldArgs.NewStartingIndex < args.NewStartingIndex) continue;
-                        list[index] = UpdateAddEvent(oldArgs.NewItems, oldArgs.NewStartingIndex + 1);
-                    }
-                }
-
-                if (_events.TryGetValue(NotifyCollectionChangedAction.Replace, out list) && list.Count != 0)
-                {
-                    for (int index = 0; index < list.Count; index++)
-                    {
-                        NotifyCollectionChangedEventArgs oldArgs = list[index];
-                        if (oldArgs.NewStartingIndex < args.NewStartingIndex) continue;
-                        list[index] = UpdateReplaceEvent(oldArgs.NewItems, oldArgs.OldItems,
-                            oldArgs.NewStartingIndex + 1);
-                    }
-                }
-            }
-
-            private void OnRemoveEvent(ref NotifyCollectionChangedEventArgs args, ref bool shouldIgnore)
-            {
-                List<NotifyCollectionChangedEventArgs> list;
-                if (_events.TryGetValue(NotifyCollectionChangedAction.Add, out list) && list.Count != 0)
-                {
-                    for (int index = 0; index < list.Count; index++)
-                    {
-                        NotifyCollectionChangedEventArgs oldArgs = list[index];
-                        if (oldArgs.NewStartingIndex == args.OldStartingIndex &&
-                            SequenceEqual(oldArgs.NewItems, args.OldItems))
-                        {
-                            list.RemoveAt(index);
-                            index--;
-                            shouldIgnore = true;
-                            continue;
-                        }
-                        if (oldArgs.NewStartingIndex < args.OldStartingIndex) continue;
-                        int newIndex = oldArgs.NewStartingIndex - 1;
-                        if (newIndex < 0)
-                        {
-                            list.RemoveAt(index);
-                            index--;
-                            shouldIgnore = true;
-                        }
-                        else
-                            list[index] = UpdateAddEvent(oldArgs.NewItems, newIndex);
-                    }
-                }
-
-                if (_events.TryGetValue(NotifyCollectionChangedAction.Replace, out list) && list.Count != 0)
-                {
-                    for (int index = 0; index < list.Count; index++)
-                    {
-                        NotifyCollectionChangedEventArgs oldArgs = list[index];
-                        if (oldArgs.NewStartingIndex < args.OldStartingIndex) continue;
-                        int replaceIndex = oldArgs.NewStartingIndex - 1;
-                        if (replaceIndex < 0)
-                        {
-                            list.RemoveAt(index);
-                            index--;
-                        }
-                        else
-                            list[index] = UpdateReplaceEvent(oldArgs.NewItems, oldArgs.OldItems, replaceIndex);
-                    }
-                }
-            }
-
-            private void OnReplaceEvent(ref NotifyCollectionChangedEventArgs args, ref bool shouldIgnore)
-            {
-                List<NotifyCollectionChangedEventArgs> list;
-                if (_events.TryGetValue(NotifyCollectionChangedAction.Add, out list) && list.Count != 0)
-                {
-                    for (int index = 0; index < list.Count; index++)
-                    {
-                        if (list[index].NewStartingIndex == args.NewStartingIndex)
-                        {
-                            list[index] = UpdateAddEvent(args.NewItems, args.NewStartingIndex);
-                            shouldIgnore = true;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            private static NotifyCollectionChangedEventArgs UpdateAddEvent(IList items, int index)
-            {
-                return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, items[0], index);
-            }
-
-            private static NotifyCollectionChangedEventArgs UpdateReplaceEvent(IList newItems, IList oldItems, int index)
-            {
-                return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItems[0],
-                    oldItems[0], index);
-            }
-
-            private static bool SequenceEqual(IEnumerable enumerable1, IEnumerable enumerable2)
-            {
-                return enumerable1.OfType<object>().SequenceEqual(enumerable2.OfType<object>());
-            }
-
-            #endregion
+        [Flags]
+        protected enum NotificationType
+        {
+            None = 0,
+            Changing = 1,
+            Changed = 2,
+            Both = Changing | Changed
         }
 
         #endregion
 
         #region Fields
 
-        [DataMember]
-        protected internal readonly object Locker;
-
-        [DataMember]
-        internal IList<T> ItemsInternal;
+        [XmlIgnore, NonSerialized]
+        private object _locker;
 
         [XmlIgnore, NonSerialized]
-        private EventTracker _eventsTracker;
+        private bool _isNotificationsDirty;
+
+        private IList<T> _items;
+
         [XmlIgnore, NonSerialized]
-        private int _notificationCount;
+        private bool _notifying;
+
+        [XmlIgnore, NonSerialized]
+        private bool _hasClearAction;
+
+        [XmlIgnore, NonSerialized]
+        private List<Action<SynchronizedNotifiableCollection<T>>> _pendingChanges;
+
+        [XmlIgnore, NonSerialized]
+        private IList<T> _snapshot;
 
         [XmlIgnore, NonSerialized]
         private int _suspendCount;
+
         [XmlIgnore, NonSerialized]
         private IThreadManager _threadManager;
 
         [XmlIgnore, NonSerialized]
-        private Action _raiseEventsDelegate;
-
-        internal NotifyCollectionChangedEventHandler BeforeCollectionChanged;
-
         internal NotifyCollectionChangedEventHandler AfterCollectionChanged;
+
+        // ReSharper disable once StaticMemberInGenericType
+        private static readonly bool IsRefType;
 
         #endregion
 
         #region Constructors
 
+        static SynchronizedNotifiableCollection()
+        {
+            IsRefType = default(T) == null;
+        }
+
         public SynchronizedNotifiableCollection(IList<T> list, IThreadManager threadManager = null)
         {
-            if (list == null)
-                list = new List<T>();
-            else
-            {
-                if (list.IsReadOnly)
-                    list = new List<T>(list);
-            }
-            _raiseEventsDelegate = RaiseEventsInternal;
-            _eventsTracker = new EventTracker(this);
+            Should.NotBeNull(list, nameof(list));
+            if (list.IsReadOnly)
+                list = new List<T>(list);
             _threadManager = threadManager;
-
             Items = list;
-            var collection = Items as ICollection;
-            Locker = collection == null ? new object() : collection.SyncRoot;
-            // ReSharper disable once DoNotCallOverridableMethodsInConstructor
-            OnInitialized();
+            BatchSize = ApplicationSettings.NotificationCollectionBatchSize;
         }
 
         public SynchronizedNotifiableCollection()
-            : this(new List<T>(), null)
+            : this(new List<T>())
         {
         }
 
@@ -337,41 +192,82 @@ namespace MugenMvvmToolkit.Collections
             set { _threadManager = value; }
         }
 
-        public int NotificationCount => _notificationCount;
+        [DataMember]
+        public int BatchSize { get; set; }
+
+        object ICollection.SyncRoot => Locker;
+
+        bool ICollection.IsSynchronized => true;
+
+        bool IList.IsReadOnly => false;
+
+        bool ICollection<T>.IsReadOnly => false;
+
+        bool IList.IsFixedSize => false;
+
+        public bool IsNotificationsSuspended => _suspendCount != 0;
+
+        public T this[int index]
+        {
+            get
+            {
+                lock (Locker)
+                    return GetItemInternal(GetItems(), index);
+            }
+            set
+            {
+                lock (Locker)
+                {
+                    if (IsUiThread())
+                    {
+                        EnsureSynchronized();
+                        SetItemInternal(Items, index, value, NotificationType.Both);
+                    }
+                    else
+                    {
+                        InitializePendingChanges();
+                        if (SetItemInternal(Items, index, value, NotificationType.Changing))
+                            AddPendingAction(c => SetItemInternal(c._snapshot, index, value, NotificationType.Changed), false);
+                    }
+                }
+            }
+        }
+
+        object IList.this[int index]
+        {
+            get { return this[index]; }
+            set { this[index] = (T)value; }
+        }
 
         public int Count
         {
             get
             {
                 lock (Locker)
-                    return CountInternal;
+                    return GetCountInternal(GetItems());
             }
         }
 
-        public int BatchSize { get; set; }
-
-        public virtual ExecutionMode ExecutionMode { get; set; }
-
-        public virtual NotificationCollectionMode NotificationMode { get; set; }
-
-        protected virtual int CountInternal => Items.Count;
-
+        [DataMember]
         protected internal IList<T> Items
         {
-            get
-            {
-                CheckDeserialization();
-                return ItemsInternal;
-            }
-            set { ItemsInternal = value; }
+            get { return _items; }
+            set { _items = OnItemsChanged(value); }
         }
 
-        protected internal EventTracker EventsTracker
+        protected object Locker
         {
             get
             {
-                CheckDeserialization();
-                return _eventsTracker;
+                if (_locker == null)
+                {
+                    var collection = Items as ICollection;
+                    if (collection != null && collection.IsSynchronized)
+                        _locker = collection.SyncRoot;
+                    else
+                        Interlocked.CompareExchange(ref _locker, new object(), null);
+                }
+                return _locker;
             }
         }
 
@@ -379,194 +275,193 @@ namespace MugenMvvmToolkit.Collections
 
         #region Methods
 
-        public void InvokeWithLock(Action<SynchronizedNotifiableCollection<T>> action)
+        public int Add(T item)
+        {
+            lock (Locker)
+                return AddNoLock(item);
+        }
+
+        public int Insert(int index, T item)
         {
             lock (Locker)
             {
-                using (SuspendNotifications())
-                    action(this);
-            }
-        }
-
-        public void RaiseReset()
-        {
-            lock (Locker)
-                EventsTracker.AddEvent(Empty.ResetEventArgs);
-            RaiseEvents();
-        }
-
-        public void Update(IEnumerable<T> items)
-        {
-            Should.NotBeNull(items, nameof(items));
-            if (Items == null)
-                return;
-            using (SuspendNotifications())
-            {
-                Clear();
-                AddRange(items);
-            }
-        }
-
-        public void AddRange(IEnumerable<T> collection)
-        {
-            Should.NotBeNull(collection, nameof(collection));
-            using (SuspendNotifications())
-            {
-                lock (Locker)
+                if (IsUiThread())
                 {
-                    foreach (T item in collection)
-                    {
-                        bool shouldRaiseEvents;
-                        InsertItemInternal(CountInternal, item, true, out shouldRaiseEvents);
-                    }
+                    EnsureSynchronized();
+                    return InsertItemInternal(Items, index, item, false, NotificationType.Both);
                 }
+                InitializePendingChanges();
+                var i = InsertItemInternal(Items, index, item, false, NotificationType.Changing);
+                if (i >= 0)
+                    AddPendingAction(c => c.InsertItemInternal(c._snapshot, index, item, false, NotificationType.Changed), false);
+                return i;
             }
         }
 
-        void INotifiableCollection.AddRange(IEnumerable collection)
+        public Enumerator GetEnumerator()
         {
-            Should.NotBeNull(collection, nameof(collection));
-            AddRange(collection.Cast<T>());
+            return new Enumerator(this);
         }
 
-        public void RemoveRange(IEnumerable<T> collection)
+        protected virtual IList<T> OnItemsChanged(IList<T> items)
         {
-            Should.NotBeNull(collection, nameof(collection));
-            using (SuspendNotifications())
+            //Suppress array usage on deserialization
+            if (items is T[])
+                return new List<T>(items);
+            return items;
+        }
+
+        protected virtual IList<T> CreateSnapshotCollection(IList<T> items)
+        {
+            return new List<T>(items);
+        }
+
+        protected virtual T GetItemInternal(IList<T> items, int index)
+        {
+            return items[index];
+        }
+
+        protected virtual int GetCountInternal(IList<T> items)
+        {
+            return items.Count;
+        }
+
+        protected virtual bool SetItemInternal(IList<T> items, int index, T item, NotificationType notificationType)
+        {
+            var oldItem = items[index];
+            NotifyCollectionChangingEventArgs args = null;
+            if (HasChangingFlag(notificationType))
             {
-                lock (Locker)
-                {
-                    bool shouldRaiseEvents;
-                    foreach (var item in collection)
-                    {
-                        int index = IndexOfInternal(item);
-                        if (index >= 0)
-                            RemoveItemInternal(index, out shouldRaiseEvents);
-                    }
-                }
-            }
-        }
-
-        void INotifiableCollection.RemoveRange(IEnumerable collection)
-        {
-            Should.NotBeNull(collection, nameof(collection));
-            RemoveRange(collection.Cast<T>());
-        }
-
-        public bool Replace(T oldValue, T newValue)
-        {
-            bool shouldRaiseEvents;
-            lock (Locker)
-            {
-                int index = IndexOfInternal(oldValue);
-                if (index == -1)
+                args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Replace, oldItem, item, index);
+                OnCollectionChanging(args);
+                if (args.Cancel)
                     return false;
-                SetItemInternal(index, newValue, out shouldRaiseEvents);
             }
-            if (shouldRaiseEvents)
-                RaiseEvents();
+
+            items[index] = item;
+            if (HasChangedFlag(notificationType))
+                OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, item, oldItem, index));
             return true;
         }
 
-        protected virtual void OnInitialized()
+        protected virtual int InsertItemInternal(IList<T> items, int index, T item, bool isAdd, NotificationType notificationType)
         {
-            ExecutionMode = ApplicationSettings.SynchronizedCollectionExecutionMode;
-            NotificationMode = ApplicationSettings.NotificationCollectionMode;
-            _notificationCount = CountInternal;
-            BatchSize = ApplicationSettings.NotificationCollectionBatchSize;
-        }
+            NotifyCollectionChangingEventArgs args = null;
+            if (HasChangingFlag(notificationType))
+            {
+                args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Add, item, index);
+                OnCollectionChanging(args);
+                if (args.Cancel)
+                    return -1;
+            }
 
-        protected virtual void CopyToInternal(Array array, int index)
-        {
-            int count = Items.Count;
-            for (int i = index; i < count; i++)
-                array.SetValue(Items[i], i);
-        }
-
-        protected virtual void ClearItemsInternal(out bool shouldRaiseEvents)
-        {
-            shouldRaiseEvents = false;
-            if (Items.Count == 0)
-                return;
-            NotifyCollectionChangingEventArgs args = GetCollectionChangeArgs();
-            OnCollectionChanging(args);
-            if (args.Cancel)
-                return;
-
-            Items.Clear();
-            EventsTracker.AddEvent(args.ChangedEventArgs);
-            shouldRaiseEvents = true;
-        }
-
-        protected virtual void RemoveItemInternal(int index, out bool shouldRaiseEvents)
-        {
-            shouldRaiseEvents = false;
-            T removedItem = Items[index];
-            NotifyCollectionChangingEventArgs args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Remove,
-                removedItem, index);
-            OnCollectionChanging(args);
-            if (args.Cancel)
-                return;
-
-            Items.RemoveAt(index);
-            EventsTracker.AddEvent(args.ChangedEventArgs);
-            shouldRaiseEvents = true;
-        }
-
-        protected virtual void SetItemInternal(int index, T item, out bool shouldRaiseEvents)
-        {
-            shouldRaiseEvents = false;
-            T oldItem = Items[index];
-            NotifyCollectionChangingEventArgs args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Replace,
-                oldItem, item,
-                index);
-            OnCollectionChanging(args);
-            if (args.Cancel) return;
-
-            Items[index] = item;
-            EventsTracker.AddEvent(args.ChangedEventArgs);
-            shouldRaiseEvents = true;
-        }
-
-        protected virtual T GetItemInternal(int index)
-        {
-            return Items[index];
-        }
-
-        protected virtual int InsertItemInternal(int index, T item, bool isAdd, out bool shouldRaiseEvents)
-        {
-            shouldRaiseEvents = false;
-            NotifyCollectionChangingEventArgs args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Add, item,
-                index);
-            OnCollectionChanging(args);
-            if (args.Cancel)
-                return -1;
-
-            Items.Insert(index, item);
-            EventsTracker.AddEvent(args.ChangedEventArgs);
-            shouldRaiseEvents = true;
+            items.Insert(index, item);
+            if (HasChangedFlag(notificationType))
+                OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
             return index;
         }
 
-        protected virtual int IndexOfInternal(T item)
+        protected virtual bool ClearItemsInternal(IList<T> items, NotificationType notificationType)
         {
-            return Items.IndexOf(item);
+            if (items.Count == 0)
+                return true;
+            if (HasChangingFlag(notificationType))
+            {
+                var args = GetCollectionChangeArgs();
+                OnCollectionChanging(args);
+                if (args.Cancel)
+                    return false;
+            }
+            items.Clear();
+            if (HasChangedFlag(notificationType))
+                OnCollectionChanged(Empty.ResetEventArgs);
+            return true;
         }
 
-        protected virtual bool ContainsInternal(T item)
+        protected virtual bool RemoveItemInternal(IList<T> items, int index, NotificationType notificationType)
         {
-            return Items.Contains(item);
+            var removedItem = items[index];
+            NotifyCollectionChangingEventArgs args = null;
+            if (HasChangingFlag(notificationType))
+            {
+                args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Remove, removedItem, index);
+                OnCollectionChanging(args);
+                if (args.Cancel)
+                    return false;
+            }
+            items.RemoveAt(index);
+            if (HasChangedFlag(notificationType))
+                OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItem, index));
+            return true;
         }
 
-        protected virtual IEnumerator<T> GetEnumeratorInternal()
+        protected virtual bool ContainsInternal(IList<T> items, T item)
         {
-            return Items.GetEnumerator();
+            return items.Contains(item);
         }
 
-        protected virtual void RaiseEvents()
+        protected virtual void CopyToInternal(IList<T> items, Array array, int index)
         {
-            if (!IsNotificationsSuspended)
-                ThreadManager.Invoke(ExecutionMode, _raiseEventsDelegate);
+            var genericArray = array as T[];
+            var count = GetCountInternal(items);
+            if (genericArray == null)
+            {
+                for (var i = index; i < count; i++)
+                {
+                    if (i >= array.Length)
+                        break;
+                    array.SetValue(GetItemInternal(items, i), i);
+                }
+            }
+            else
+            {
+                for (var i = index; i < count; i++)
+                {
+                    if (i >= genericArray.Length)
+                        break;
+                    genericArray[i] = GetItemInternal(items, i);
+                }
+            }
+        }
+
+        protected virtual int IndexOfInternal(IList<T> items, T item)
+        {
+            return items.IndexOf(item);
+        }
+
+        protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+        {
+            if (IsNotificationsSuspended)
+                _isNotificationsDirty = true;
+            else
+            {
+                switch (e.Action)
+                {
+                    case NotifyCollectionChangedAction.Add:
+                    case NotifyCollectionChangedAction.Remove:
+                    case NotifyCollectionChangedAction.Reset:
+                        OnPropertyChanged(Empty.CountChangedArgs);
+                        break;
+                }
+                OnPropertyChanged(Empty.IndexerPropertyChangedArgs);
+                if (_snapshot == null)
+                    CollectionChanged?.Invoke(this, e);
+                else
+                {
+                    var handler = CollectionChanged;
+                    if (handler != null)
+                    {
+                        var delegates = handler.GetInvocationList();
+                        for (int i = 0; i < delegates.Length; i++)
+                        {
+                            ((NotifyCollectionChangedEventHandler)delegates[i]).Invoke(this, e);
+                            if (_snapshot == null)
+                                return;
+                        }
+                    }
+                }
+                AfterCollectionChanged?.Invoke(this, e);
+            }
         }
 
         protected virtual void OnCollectionChanging(NotifyCollectionChangingEventArgs e)
@@ -574,14 +469,159 @@ namespace MugenMvvmToolkit.Collections
             CollectionChanging?.Invoke(this, e);
         }
 
-        protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
-        {
-            CollectionChanged?.Invoke(this, e);
-        }
-
         protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
         {
             PropertyChanged?.Invoke(this, e);
+        }
+
+        protected virtual void InitializePendingChanges()
+        {
+            if (_snapshot == null)
+                _snapshot = CreateSnapshotCollection(Items);
+            if (_pendingChanges == null)
+                _pendingChanges = new List<Action<SynchronizedNotifiableCollection<T>>>();
+        }
+
+        protected virtual void TryRaisePendingChanges()
+        {
+            if (_notifying || _pendingChanges == null || _pendingChanges.Count == 0 || IsNotificationsSuspended)
+                return;
+            try
+            {
+                _notifying = true;
+                for (var i = 0; i < _pendingChanges.Count; i++)
+                    _pendingChanges[i].Invoke(this);
+            }
+            finally
+            {
+                ClearPendingChanges();
+                _notifying = false;
+            }
+        }
+
+        protected virtual void ClearPendingChanges()
+        {
+            _snapshot = null;
+            if (_pendingChanges != null)
+                _pendingChanges.Clear();
+            _hasClearAction = false;
+        }
+
+        protected bool IsUiThread()
+        {
+            return ThreadManager.IsUiThread;
+        }
+
+        protected void EnsureSynchronized()
+        {
+            if (_snapshot != null)
+                RaiseResetInternal();
+        }
+
+        protected void AddPendingAction(Action<SynchronizedNotifiableCollection<T>> pendingAction, bool isClear)
+        {
+            if (_hasClearAction)
+                return;
+            InitializePendingChanges();
+            if (isClear || _pendingChanges.Count + 1 >= BatchSize)
+            {
+                _pendingChanges.Clear();
+                _hasClearAction = true;
+                pendingAction = c => c.RaiseResetInternal();
+            }
+            _pendingChanges.Add(pendingAction);
+            ThreadManager.InvokeOnUiThreadAsync(() =>
+            {
+                lock (Locker)
+                    TryRaisePendingChanges();
+            });
+        }
+
+        private int AddNoLock(T item)
+        {
+            if (IsUiThread())
+            {
+                EnsureSynchronized();
+                return InsertItemInternal(Items, GetCountInternal(Items), item, true, NotificationType.Both);
+            }
+
+            InitializePendingChanges();
+            var i = InsertItemInternal(Items, GetCountInternal(Items), item, true, NotificationType.Changing);
+            if (i >= 0)
+                AddPendingAction(c => InsertItemInternal(c._snapshot, c.GetCountInternal(c._snapshot), item, true, NotificationType.Changed), false);
+            return i;
+        }
+
+        private bool RemoveNoLock(T item)
+        {
+            int index;
+            if (IsUiThread())
+            {
+                EnsureSynchronized();
+                index = IndexOfInternal(Items, item);
+                return index >= 0 && RemoveItemInternal(Items, index, NotificationType.Both);
+            }
+            index = IndexOfInternal(Items, item);
+            var r = false;
+            if (index >= 0)
+            {
+                InitializePendingChanges();
+                r = RemoveItemInternal(Items, index, NotificationType.Changing);
+            }
+            if (r)
+            {
+                AddPendingAction(c =>
+                {
+                    var indexOf = c.IndexOfInternal(c._snapshot, item);
+                    if (indexOf >= 0)
+                        RemoveItemInternal(c._snapshot, indexOf, NotificationType.Changed);
+                }, false);
+            }
+            return r;
+        }
+
+        private void EndSuspendNotifications()
+        {
+            if (Interlocked.Decrement(ref _suspendCount) == 0)
+            {
+                ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, this, (@this, _) =>
+                {
+                    @this.OnPropertyChanged(Empty.IsNotificationsSuspendedChangedArgs);
+                    lock (@this.Locker)
+                    {
+                        if (@this._isNotificationsDirty)
+                        {
+                            @this._isNotificationsDirty = false;
+                            @this.RaiseResetInternal();
+                        }
+                        else
+                            @this.TryRaisePendingChanges();
+                    }
+                });
+            }
+        }
+
+        protected void RaiseResetInternal()
+        {
+            ClearPendingChanges();
+            OnCollectionChanged(Empty.ResetEventArgs);
+        }
+
+        protected IList<T> GetItems()
+        {
+            if (IsUiThread() && _snapshot != null)
+                return _snapshot;
+            return Items;
+        }
+
+        protected static bool HasChangingFlag(NotificationType type)
+        {
+            return (type & NotificationType.Changing) == NotificationType.Changing;
+        }
+
+        protected static bool HasChangedFlag(NotificationType type)
+        {
+            return (type & NotificationType.Changed) == NotificationType.Changed;
         }
 
         protected static NotifyCollectionChangingEventArgs GetCollectionChangeArgs(NotifyCollectionChangedAction action,
@@ -591,225 +631,36 @@ namespace MugenMvvmToolkit.Collections
         }
 
         protected static NotifyCollectionChangingEventArgs GetCollectionChangeArgs(NotifyCollectionChangedAction action,
-            object oldItem, object newItem,
-            int index)
+            object oldItem, object newItem, int index)
         {
             return new NotifyCollectionChangingEventArgs(new NotifyCollectionChangedEventArgs(action, newItem, oldItem, index));
         }
 
         protected static NotifyCollectionChangingEventArgs GetCollectionChangeArgs()
         {
-            return new NotifyCollectionChangingEventArgs(Empty.ResetEventArgs);
+            return new NotifyCollectionChangingEventArgs(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
         protected internal static bool IsCompatibleObject(object value)
         {
             if (value is T)
                 return true;
-            if (value == null)
-                // ReSharper disable once CompareNonConstrainedGenericWithNull
-                return default(T) == null;
-            return false;
-        }
-
-        private void Notify(NotifyCollectionChangedEventArgs args, int count)
-        {
-            if (BeforeCollectionChanged != null)
-                BeforeCollectionChanged(this, args);
-            switch (args.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    _notificationCount++;
-                    OnPropertyChanged(Empty.CountChangedArgs);
-                    OnPropertyChanged(Empty.NotificationCountChangedArgs);
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    _notificationCount--;
-                    OnPropertyChanged(Empty.CountChangedArgs);
-                    OnPropertyChanged(Empty.NotificationCountChangedArgs);
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    _notificationCount = count;
-                    OnPropertyChanged(Empty.CountChangedArgs);
-                    OnPropertyChanged(Empty.NotificationCountChangedArgs);
-                    break;
-            }
-            OnPropertyChanged(Empty.IndexerPropertyChangedArgs);
-            OnCollectionChanged(args);
-            if (AfterCollectionChanged != null)
-                AfterCollectionChanged(this, args);
-        }
-
-        private void EndSuspendNotifications()
-        {
-            if (Interlocked.Decrement(ref _suspendCount) != 0)
-                return;
-            if (ThreadManager.IsUiThread)
-                RaiseReset();
-            else
-                RaiseEvents();
-            OnPropertyChanged(Empty.IsNotificationsSuspendedChangedArgs);
-        }
-
-        private void CheckDeserialization()
-        {
-            if (_eventsTracker != null)
-                return;
-            _eventsTracker = new EventTracker(this);
-            if (Items is T[])
-                Items = new ObservableCollection<T>(Items);
-            if (_raiseEventsDelegate == null)
-                _raiseEventsDelegate = RaiseEventsInternal;
-            OnInitialized();
-        }
-
-        private void RaiseEventsInternal()
-        {
-            lock (Locker)
-            {
-                try
-                {
-                    int count = CountInternal;
-                    List<NotifyCollectionChangedEventArgs> sortedItems = null;
-                    _notificationCount = count - EventsTracker.AddedCount + EventsTracker.RemovedCount;
-
-                    foreach (var events in EventsTracker.Events)
-                    {
-                        for (int i = 0; i < events.Count; i++)
-                        {
-                            var args = events[i];
-                            if (args.OldStartingIndex != -1)
-                            {
-                                if (args.OldStartingIndex > _notificationCount)
-                                {
-                                    if (sortedItems == null)
-                                        sortedItems = new List<NotifyCollectionChangedEventArgs>();
-                                    sortedItems.Add(args);
-                                    continue;
-                                }
-                            }
-
-                            if (args.NewStartingIndex != -1)
-                            {
-                                if (args.NewStartingIndex > _notificationCount)
-                                {
-                                    if (sortedItems == null)
-                                        sortedItems = new List<NotifyCollectionChangedEventArgs>();
-                                    sortedItems.Add(args);
-                                    continue;
-                                }
-                            }
-                            Notify(args, count);
-                        }
-                    }
-                    if (sortedItems == null)
-                        return;
-                    sortedItems.Sort((args, eventArgs) =>
-                    {
-                        int x1 = args.OldStartingIndex != -1 ? args.OldStartingIndex : args.NewStartingIndex;
-                        int x2 = eventArgs.OldStartingIndex != -1
-                            ? eventArgs.OldStartingIndex
-                            : eventArgs.NewStartingIndex;
-                        return x1.CompareTo(x2);
-                    });
-                    for (int index = 0; index < sortedItems.Count; index++)
-                        Notify(sortedItems[index], count);
-                }
-                finally
-                {
-                    EventsTracker.Clear();
-                }
-            }
-        }
-
-        private bool UseNotificationMode(bool generic)
-        {
-            var flag = generic
-                ? NotificationCollectionMode.GenericCollectionInterfaceUseNotificationValue
-                : NotificationCollectionMode.CollectionIntefaceUseNotificationValue;
-            if (!NotificationMode.HasFlagEx(flag))
-                return false;
-            return !NotificationMode.HasFlagEx(NotificationCollectionMode.OnlyOnUiThread) || ThreadManager.IsUiThread;
+            return value == null && IsRefType;
         }
 
         #endregion
 
-        #region Implementation of ISuspendNotifications
-
-        public virtual bool IsNotificationsSuspended => _suspendCount != 0;
-
-        public virtual IDisposable SuspendNotifications()
-        {
-            if (Interlocked.Increment(ref _suspendCount) == 1)
-                OnPropertyChanged(Empty.IsNotificationsSuspendedChangedArgs);
-            return WeakActionToken.Create(this, collection => collection.EndSuspendNotifications());
-        }
-
-        #endregion
-
-        #region Implementation of notification events
-
-        [field: XmlIgnore, NonSerialized]
-        public virtual event NotifyCollectionChangingEventHandler CollectionChanging;
-
-        [field: XmlIgnore, NonSerialized]
-        public virtual event NotifyCollectionChangedEventHandler CollectionChanged;
-
-        [field: XmlIgnore, NonSerialized]
-        public virtual event PropertyChangedEventHandler PropertyChanged;
-
-        #endregion
-
-        #region Implementation of IEnumerable
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public IEnumerator<T> GetEnumerator()
-        {
-            lock (Locker)
-                return GetEnumeratorInternal();
-        }
-
-        #endregion
-
-        #region Implementation of ICollection
+        #region Implementation of interfaces
 
         void ICollection.CopyTo(Array array, int index)
         {
             lock (Locker)
-                CopyToInternal(array, index);
+                CopyToInternal(GetItems(), array, index);
         }
-
-        int ICollection.Count
-        {
-            get
-            {
-                if (UseNotificationMode(false))
-                    return NotificationCount;
-                return Count;
-            }
-        }
-
-        object ICollection.SyncRoot => Locker;
-
-        bool ICollection.IsSynchronized => true;
-
-        #endregion
-
-        #region Implementation of IList
 
         int IList.Add(object value)
         {
-            bool shouldRaiseEvents;
-            int count;
-            lock (Locker)
-                count = InsertItemInternal(CountInternal, (T)value, true, out shouldRaiseEvents);
-            if (shouldRaiseEvents)
-                RaiseEvents();
-            return count;
+            return Add((T)value);
         }
 
         bool IList.Contains(object value)
@@ -817,11 +668,6 @@ namespace MugenMvvmToolkit.Collections
             if (IsCompatibleObject(value))
                 return Contains((T)value);
             return false;
-        }
-
-        void IList.Clear()
-        {
-            Clear();
         }
 
         int IList.IndexOf(object value)
@@ -842,146 +688,166 @@ namespace MugenMvvmToolkit.Collections
                 Remove((T)value);
         }
 
-        void IList.RemoveAt(int index)
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            RemoveAt(index);
-        }
-
-        object IList.this[int index]
-        {
-            get
-            {
-                if (UseNotificationMode(false))
-                {
-                    lock (Locker)
-                    {
-                        if (index >= CountInternal)
-                            return null;
-                        return GetItemInternal(index);
-                    }
-                }
-                return this[index];
-            }
-            set { this[index] = (T)value; }
-        }
-
-        bool IList.IsReadOnly => IsReadOnly;
-
-        bool IList.IsFixedSize => false;
-
-        #endregion
-
-        #region Implementation of ICollection<T>
-
-        public void Add(T item)
-        {
-            bool shouldRaiseEvents;
-            lock (Locker)
-                InsertItemInternal(CountInternal, item, true, out shouldRaiseEvents);
-            if (shouldRaiseEvents)
-                RaiseEvents();
+            return GetEnumerator();
         }
 
         public void Clear()
         {
-            bool shouldRaiseEvents;
             lock (Locker)
-                ClearItemsInternal(out shouldRaiseEvents);
-            if (shouldRaiseEvents)
-                RaiseEvents();
+            {
+                if (IsUiThread())
+                {
+                    EnsureSynchronized();
+                    if (ClearItemsInternal(Items, NotificationType.Both))
+                        ClearPendingChanges();
+                }
+                else
+                {
+                    InitializePendingChanges();
+                    if (ClearItemsInternal(Items, NotificationType.Changing))
+                        AddPendingAction(c => c.RaiseResetInternal(), true);
+                }
+            }
+        }
+
+        public void RemoveAt(int index)
+        {
+            lock (Locker)
+            {
+                if (IsUiThread())
+                {
+                    EnsureSynchronized();
+                    RemoveItemInternal(Items, index, NotificationType.Both);
+                }
+                else
+                {
+                    InitializePendingChanges();
+                    if (RemoveItemInternal(Items, index, NotificationType.Changing))
+                        AddPendingAction(c => c.RemoveItemInternal(c._snapshot, index, NotificationType.Changed), false);
+                }
+            }
+        }
+
+        public virtual event NotifyCollectionChangedEventHandler CollectionChanged;
+
+        public virtual event PropertyChangedEventHandler PropertyChanged;
+
+        public virtual event NotifyCollectionChangingEventHandler CollectionChanging;
+
+        public virtual IDisposable SuspendNotifications()
+        {
+            Interlocked.Increment(ref _suspendCount);
+            return WeakActionToken.Create(this, collection => collection.EndSuspendNotifications());
+        }
+
+        public void RaiseReset()
+        {
+            ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, this, (@this, _) =>
+            {
+                lock (@this.Locker)
+                    @this.RaiseResetInternal();
+            });
+        }
+
+        void INotifiableCollection.AddRange(IEnumerable collection)
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            AddRange(collection.Cast<T>());
+        }
+
+        void INotifiableCollection.RemoveRange(IEnumerable collection)
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            RemoveRange(collection.Cast<T>());
+        }
+
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        void ICollection<T>.Add(T item)
+        {
+            Add(item);
         }
 
         public bool Contains(T item)
         {
             lock (Locker)
-                return ContainsInternal(item);
+                return ContainsInternal(GetItems(), item);
         }
 
         public void CopyTo(T[] array, int arrayIndex)
         {
             lock (Locker)
-                CopyToInternal(array, arrayIndex);
+                CopyToInternal(GetItems(), array, arrayIndex);
         }
 
         public bool Remove(T item)
         {
-            bool shouldRaiseEvents;
             lock (Locker)
-            {
-                int index = IndexOfInternal(item);
-                if (index < 0)
-                    return false;
-                RemoveItemInternal(index, out shouldRaiseEvents);
-            }
-            if (shouldRaiseEvents)
-                RaiseEvents();
-            return true;
+                return RemoveNoLock(item);
         }
-
-        int ICollection<T>.Count
-        {
-            get
-            {
-                if (UseNotificationMode(true))
-                    return NotificationCount;
-                return Count;
-            }
-        }
-
-        public virtual bool IsReadOnly => false;
-
-        #endregion
-
-        #region Implementation of IList<T>
 
         public int IndexOf(T item)
         {
             lock (Locker)
-                return IndexOfInternal(item);
+                return IndexOfInternal(GetItems(), item);
         }
 
-        public void Insert(int index, T item)
+        void IList<T>.Insert(int index, T item)
         {
-            bool shouldRaiseEvents;
-            lock (Locker)
-                InsertItemInternal(index, item, false, out shouldRaiseEvents);
-            if (shouldRaiseEvents)
-                RaiseEvents();
+            Insert(index, item);
         }
 
-        public void RemoveAt(int index)
+        public void AddRange(IEnumerable<T> collection)
         {
-            bool shouldRaiseEvents;
-            lock (Locker)
-                RemoveItemInternal(index, out shouldRaiseEvents);
-            if (shouldRaiseEvents)
-                RaiseEvents();
-        }
-
-        public T this[int index]
-        {
-            get
+            using (SuspendNotifications())
             {
                 lock (Locker)
                 {
-                    if (UseNotificationMode(true))
-                    {
-
-                        if (index >= CountInternal)
-                            return default(T);
-                        return GetItemInternal(index);
-
-                    }
-                    return GetItemInternal(index);
+                    foreach (var item in collection)
+                        AddNoLock(item);
                 }
             }
-            set
+        }
+
+        public void RemoveRange(IEnumerable<T> collection)
+        {
+            using (SuspendNotifications())
             {
-                bool shouldRaiseEvents;
                 lock (Locker)
-                    SetItemInternal(index, value, out shouldRaiseEvents);
-                if (shouldRaiseEvents)
-                    RaiseEvents();
+                {
+                    foreach (var item in collection)
+                        RemoveNoLock(item);
+                }
+            }
+        }
+
+        public void Update(IEnumerable<T> items)
+        {
+            Should.NotBeNull(items, nameof(items));
+            using (SuspendNotifications())
+            {
+                Clear();
+                AddRange(items);
+            }
+        }
+
+        public T[] ToArray()
+        {
+            lock (Locker)
+            {
+                var items = GetItems();
+                var count = GetCountInternal(items);
+                if (count == 0)
+                    return Empty.Array<T>();
+                var result = new T[count];
+                for (int i = 0; i < count; i++)
+                    result[i] = GetItemInternal(items, i);
+                return result;
             }
         }
 

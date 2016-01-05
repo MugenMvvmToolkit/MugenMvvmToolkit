@@ -22,7 +22,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
-using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models.EventArg;
@@ -70,7 +69,6 @@ namespace MugenMvvmToolkit
         internal static readonly NotifyCollectionChangedEventArgs ResetEventArgs;
         internal static readonly ManualResetEvent CompletedEvent;
         internal static readonly PropertyChangedEventArgs CountChangedArgs;
-        internal static readonly PropertyChangedEventArgs NotificationCountChangedArgs;
         internal static readonly PropertyChangedEventArgs IndexerPropertyChangedArgs;
         internal static readonly PropertyChangedEventArgs IsNotificationsSuspendedChangedArgs;
         internal static readonly PropertyChangedEventArgs HasChangesChangedArgs;
@@ -98,7 +96,6 @@ namespace MugenMvvmToolkit
             EmptyDataErrorsChangedArgs = new DataErrorsChangedEventArgs(string.Empty);
             EmptyPropertyChangedArgs = new PropertyChangedEventArgs(string.Empty);
             CountChangedArgs = new PropertyChangedEventArgs(nameof(ICollection.Count));
-            NotificationCountChangedArgs = new PropertyChangedEventArgs(nameof(SynchronizedNotifiableCollection<object>.NotificationCount));
             IndexerPropertyChangedArgs = new PropertyChangedEventArgs(ReflectionExtensions.IndexerName);
             IsNotificationsSuspendedChangedArgs = new PropertyChangedEventArgs(nameof(ISuspendNotifications.IsNotificationsSuspended));
             HasChangesChangedArgs = new PropertyChangedEventArgs(nameof(IEditableViewModel.HasChanges));

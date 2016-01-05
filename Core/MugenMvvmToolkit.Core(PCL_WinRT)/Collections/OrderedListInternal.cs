@@ -57,6 +57,14 @@ namespace MugenMvvmToolkit.Collections
             Comparer = Comparer<TKey>.Default;
         }
 
+        public OrderedListInternal(OrderedListInternal<TKey, TValue> list)
+        {
+            KeysInternal = list.KeysInternal.ToArrayEx();
+            ValuesInternal = list.ValuesInternal.ToArrayEx();
+            Size = list.Size;
+            Comparer = list.Comparer;
+        }
+
         #endregion
 
         #region Properties

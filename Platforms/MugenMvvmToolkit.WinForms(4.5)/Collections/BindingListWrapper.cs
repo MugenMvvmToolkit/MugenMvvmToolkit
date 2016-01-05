@@ -21,14 +21,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.WinForms.Collections
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class BindingListWrapper<T> : BindingList<T>, IBindingList, INotifiableCollection, INotifiableCollection<T>
     {
         #region Fields
@@ -68,25 +66,13 @@ namespace MugenMvvmToolkit.WinForms.Collections
         {
             get
             {
-                IList list = SourceCollection as IList ?? this;
+                var list = SourceCollection as IList ?? this;
                 return list[index];
             }
             set
             {
-                IList list = SourceCollection as IList ?? this;
+                var list = SourceCollection as IList ?? this;
                 list[index] = value;
-            }
-        }
-
-        private string DebuggerDisplay
-        {
-            get
-            {
-                int c = 0;
-                var collection = SourceCollection as SynchronizedNotifiableCollection<T>;
-                if (collection != null)
-                    c = collection.NotificationCount;
-                return $"Count = {SourceCollection.Count}, NotificationCount = {c}";
             }
         }
 
@@ -164,26 +150,6 @@ namespace MugenMvvmToolkit.WinForms.Collections
             ((INotifiableCollection)SourceCollection).RemoveRange(collection);
         }
 
-        public void AddRange(IEnumerable<T> collection)
-        {
-            SourceCollection.AddRange(collection);
-        }
-
-        public void RemoveRange(IEnumerable<T> collection)
-        {
-            SourceCollection.RemoveRange(collection);
-        }
-
-        public void Update(IEnumerable<T> items)
-        {
-            SourceCollection.Update(items);
-        }
-
-        public bool Replace(T oldValue, T newValue)
-        {
-            return SourceCollection.Replace(oldValue, newValue);
-        }
-
         public event NotifyCollectionChangedEventHandler CollectionChanged
         {
             add { SourceCollection.CollectionChanged += value; }
@@ -202,6 +168,26 @@ namespace MugenMvvmToolkit.WinForms.Collections
             remove { SourceCollection.CollectionChanging -= value; }
         }
 
-        #endregion        
+        public void AddRange(IEnumerable<T> collection)
+        {
+            SourceCollection.AddRange(collection);
+        }
+
+        public void RemoveRange(IEnumerable<T> collection)
+        {
+            SourceCollection.RemoveRange(collection);
+        }
+
+        public void Update(IEnumerable<T> items)
+        {
+            SourceCollection.Update(items);
+        }
+
+        public T[] ToArray()
+        {
+            return SourceCollection.ToArray();
+        }
+
+        #endregion
     }
 }

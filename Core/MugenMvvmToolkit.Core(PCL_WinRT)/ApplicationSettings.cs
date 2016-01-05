@@ -50,10 +50,6 @@ namespace MugenMvvmToolkit
         [CanBeNull]
         public static Action<RelayCommandBase, EventHandler> RemoveCanExecuteChangedEvent { get; set; }
 
-        public static ExecutionMode SynchronizedCollectionExecutionMode { get; set; }
-
-        public static NotificationCollectionMode NotificationCollectionMode { get; set; }
-
         public static ExecutionMode PropertyChangeExecutionMode { get; set; }
 
         public static ObservationMode ViewModelObservationMode { get; set; }
@@ -78,11 +74,7 @@ namespace MugenMvvmToolkit
         {
 #if !NONOTIFYDATAERROR
             GetAllErrorsIndexerProperty = "all";
-#endif
-            NotificationCollectionMode =
-                NotificationCollectionMode.CollectionIntefaceUseNotificationValue |
-                NotificationCollectionMode.OnlyOnUiThread;
-            SynchronizedCollectionExecutionMode = ExecutionMode.AsynchronousOnUiThread;
+#endif            
             PropertyChangeExecutionMode = ExecutionMode.AsynchronousOnUiThread;
             ViewModelObservationMode = ObservationMode.ParentObserveChild;
             HandleTaskExceptionBusyIndicator = true;
