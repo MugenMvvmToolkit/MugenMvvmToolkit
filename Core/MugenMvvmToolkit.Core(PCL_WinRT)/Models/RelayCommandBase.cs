@@ -38,6 +38,7 @@ namespace MugenMvvmToolkit.Models
         private PropertyChangedEventHandler _weakHandler;
         private List<KeyValuePair<WeakReference, Action<RelayCommandBase, object>>> _notifiers;
         private EventHandler _canExecuteChangedInternal;
+        private HashSet<string> _ignoreProperties;
 
         #endregion
 
@@ -80,6 +81,17 @@ namespace MugenMvvmToolkit.Models
         #endregion
 
         #region Properties
+
+        [NotNull]
+        public ICollection<string> IgnoreProperties
+        {
+            get
+            {
+                if (_ignoreProperties == null)
+                    _ignoreProperties = new HashSet<string>(StringComparer.Ordinal);
+                return _ignoreProperties;
+            }
+        }
 
         public bool ExecuteAsynchronously { get; set; }
 
@@ -328,7 +340,8 @@ namespace MugenMvvmToolkit.Models
 
         private static void OnPropertyChangedStatic(RelayCommandBase relayCommandBase, object o, PropertyChangedEventArgs arg3)
         {
-            relayCommandBase.RaiseCanExecuteChanged();
+            if (arg3.PropertyName == null || relayCommandBase._ignoreProperties == null || !relayCommandBase._ignoreProperties.Contains(arg3.PropertyName))
+                relayCommandBase.RaiseCanExecuteChanged();
         }
 
         #endregion
