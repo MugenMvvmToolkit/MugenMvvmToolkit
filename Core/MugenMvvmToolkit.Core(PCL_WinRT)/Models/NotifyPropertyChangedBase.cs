@@ -172,8 +172,7 @@ namespace MugenMvvmToolkit.Models
 
         public virtual IDisposable SuspendNotifications()
         {
-            if (Interlocked.Increment(ref _suspendCount) == 1)
-                OnPropertyChanged(Empty.IsNotificationsSuspendedChangedArgs);
+            Interlocked.Increment(ref _suspendCount);
             return WeakActionToken.Create(this, @base => @base.EndSuspendNotifications());
         }
 
