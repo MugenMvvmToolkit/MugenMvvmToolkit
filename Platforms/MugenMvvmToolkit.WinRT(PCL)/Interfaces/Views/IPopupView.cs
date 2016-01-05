@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IPopupView.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -15,6 +15,7 @@
 // ****************************************************************************
 
 #endregion
+
 using Windows.UI.Xaml.Controls.Primitives;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.WinRT.Models;

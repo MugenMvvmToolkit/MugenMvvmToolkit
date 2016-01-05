@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IBusyToken.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -15,6 +15,7 @@
 // ****************************************************************************
 
 #endregion
+
 using System;
 
 namespace MugenMvvmToolkit.Interfaces.Models

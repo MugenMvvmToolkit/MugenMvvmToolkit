@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IBindingContextManager.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
