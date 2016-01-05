@@ -7,6 +7,7 @@ using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestViewModels;
 using MugenMvvmToolkit.ViewModels;
 using Should;
@@ -50,6 +51,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
 
             vm.OperationResult = true;
             MultiViewModel viewModel = GetMultiViewModel();
+            ((SynchronizedNotifiableCollection<IViewModel>)viewModel.ItemsSource).ThreadManager = new ThreadManagerMock { IsUiThread = true };
             IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
                 OperationCallbackManager, (model, context, arg3) => true);
             var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
@@ -117,7 +119,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
         protected MultiViewModel GetMultiViewModel()
         {
             var vm = GetViewModel<MultiViewModel>();
-            ((SynchronizedNotifiableCollection<IViewModel>)vm.ItemsSource).ExecutionMode = ExecutionMode.None;
             return vm;
         }
 

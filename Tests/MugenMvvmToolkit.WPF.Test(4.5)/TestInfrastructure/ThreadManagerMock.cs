@@ -7,19 +7,74 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 {
     public class ThreadManagerMock : IThreadManager
     {
+        #region Fields
+
+        private Action _invokeAsync;
+        private Action _invokeOnUiThread;
+        private Action _invokeOnUiThreadAsync;
+
+        #endregion
+
         #region Properties
-
-        public Action InvokeOnUiThreadAsync { get; set; }
-
-        public Action InvokeOnUiThread { get; set; }
-
-        public Action InvokeAsync { get; set; }
 
         public bool ImmediateInvokeOnUiThread { get; set; }
 
         public bool ImmediateInvokeOnUiThreadAsync { get; set; }
 
         public bool ImmediateInvokeAsync { get; set; }
+
+        #endregion
+
+        #region Method
+
+        public void InvokeAsync()
+        {
+            var oldValue = IsUiThread;
+            try
+            {
+                IsUiThread = false;
+                var action = _invokeAsync;
+                _invokeAsync = null;
+                action?.Invoke();
+            }
+            finally
+            {
+                IsUiThread = oldValue;
+            }
+        }
+
+        public void InvokeOnUiThread()
+        {
+            var oldValue = IsUiThread;
+            try
+            {
+                IsUiThread = true;
+                var action = _invokeOnUiThread;
+                _invokeOnUiThread = null;
+                action?.Invoke();
+            }
+            finally
+            {
+                _invokeOnUiThread = null;
+                IsUiThread = oldValue;
+            }
+        }
+
+        public void InvokeOnUiThreadAsync()
+        {
+            var oldValue = IsUiThread;
+            try
+            {
+                IsUiThread = true;
+                var action = _invokeOnUiThreadAsync;
+                _invokeOnUiThreadAsync = null;
+                action?.Invoke();
+            }
+            finally
+            {
+                IsUiThread = oldValue;
+            }
+        }
 
         #endregion
 
@@ -30,22 +85,22 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         void IThreadManager.InvokeOnUiThreadAsync(Action action, OperationPriority priority,
             CancellationToken cancellationToken)
         {
-            InvokeOnUiThreadAsync = action;
+            _invokeOnUiThreadAsync += action;
             if (ImmediateInvokeOnUiThreadAsync)
-                action();
+                InvokeOnUiThreadAsync();
         }
 
         void IThreadManager.InvokeOnUiThread(Action action, OperationPriority priority,
             CancellationToken cancellationToken)
         {
-            InvokeOnUiThread = action;
+            _invokeOnUiThread += action;
             if (ImmediateInvokeOnUiThread)
-                action();
+                InvokeOnUiThread();
         }
 
         void IThreadManager.InvokeAsync(Action action, OperationPriority priority, CancellationToken cancellationToken)
         {
-            InvokeAsync = action;
+            _invokeAsync += action;
             if (ImmediateInvokeAsync)
                 InvokeAsync();
         }

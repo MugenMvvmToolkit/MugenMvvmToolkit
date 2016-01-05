@@ -25,10 +25,11 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Constructors
 
-        public NotifiableCollectionTracker(SynchronizedNotifiableCollection<T> collection)
+        public NotifiableCollectionTracker(SynchronizedNotifiableCollection<T> collection, bool listenChangingEvent = true)
         {
             _collection = collection;
-            collection.CollectionChanging += CollectionOnCollectionChanging;
+            if (listenChangingEvent)
+                collection.CollectionChanging += CollectionOnCollectionChanging;
             collection.CollectionChanged += CollectionOnCollectionChanged;
             collection.PropertyChanged += CollectionOnPropertyChanged;
 
@@ -65,7 +66,8 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         public void AssertChangedEquals()
         {
             _collection.Count.ShouldEqual(ChangedItems.Count, "Changed items not equals.");
-            _collection.SequenceEqual(ChangedItems).ShouldBeTrue("Changed items not equals.");
+            if (_collection.Count != 0)
+                _collection.SequenceEqual(ChangedItems).ShouldBeTrue("Changed items not equals.");
         }
 
         public void AssertChangingEquals()
@@ -166,7 +168,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            _changedItems.Count.ShouldEqual(_collection.NotificationCount);
+            _changedItems.Count.ShouldEqual(_collection.Count);
         }
 
         #endregion

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MugenMvvmToolkit.Test.TestInfrastructure;
@@ -13,14 +14,16 @@ namespace MugenMvvmToolkit.Test.Collections
     [DebuggerDisplay("Id = {Id}")]
     public sealed class Item
     {
+        private static int IdGenerator = -1;
+
         public Item()
         {
-            Id = Guid.NewGuid();
+            Id = Interlocked.Increment(ref IdGenerator);
         }
 
         public bool Hidden { get; set; }
 
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         public override string ToString()
         {

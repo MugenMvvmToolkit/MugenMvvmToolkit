@@ -356,7 +356,6 @@ namespace MugenMvvmToolkit.Test.Models
 
             cmd.Execute(null);
             isInvoked.ShouldBeFalse();
-            ThreadManager.InvokeAsync.ShouldNotBeNull();
             ThreadManager.InvokeAsync();
             isInvoked.ShouldBeTrue();
         }

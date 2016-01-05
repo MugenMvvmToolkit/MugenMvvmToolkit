@@ -1,8 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestViewModels;
 using MugenMvvmToolkit.ViewModels;
 using Should;
@@ -72,6 +74,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         {
             var viewModel = GetViewModel<NavigableViewModelMock>();
             var multiViewModel = GetMultiViewModel();
+            ((SynchronizedNotifiableCollection<IViewModel>)multiViewModel.ItemsSource).ThreadManager = new ThreadManagerMock { IsUiThread = true };
             multiViewModel.AddViewModel(viewModel);
             multiViewModel.ItemsSource.ShouldContain(viewModel);
 

@@ -1,12 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MugenMvvmToolkit.Collections;
-using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Test.TestViewModels;
 using MugenMvvmToolkit.ViewModels;
-using Should;
 
 namespace MugenMvvmToolkit.Test.ViewModels
 {
@@ -18,7 +13,6 @@ namespace MugenMvvmToolkit.Test.ViewModels
         protected override MultiViewModel GetMultiViewModelInternal()
         {
             var vm = new MultiViewModel();
-            ((SynchronizedNotifiableCollection<IViewModel>)vm.ItemsSource).ExecutionMode = ExecutionMode.None;
             return vm;
         }
 
