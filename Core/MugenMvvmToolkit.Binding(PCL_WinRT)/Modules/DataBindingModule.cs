@@ -45,27 +45,33 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             private object _attachedParent;
             private IBindingMemberInfo _parentMember;
+            private bool _isExplicit;
 
             #endregion
 
             #region Constructors
 
-            public ParentValue(object attachedParent, IBindingMemberInfo parentMember)
+            public ParentValue(object attachedParent, IBindingMemberInfo parentMember, bool isExplicit)
             {
                 _attachedParent = attachedParent;
                 _parentMember = parentMember;
+                _isExplicit = isExplicit;
             }
 
             #endregion
 
             #region Methods
 
-            public ParentValue UpdateAttachedParent(object source, object attachedParent, object[] args)
+            public ParentValue UpdateAttachedParent(object source, object[] args)
             {
-                if (_parentMember != null && _parentMember.CanWrite &&
-                    (attachedParent == null || _parentMember.Type.IsInstanceOfType(attachedParent)))
-                    _parentMember.SetValue(source, args);
-                return new ParentValue(attachedParent, _parentMember);
+                var attachedParent = args[0];
+                if (_isExplicit)
+                {
+                    if (_parentMember != null && _parentMember.CanWrite &&
+                       (attachedParent == null || _parentMember.Type.IsInstanceOfType(attachedParent)))
+                        _parentMember.SetValue(source, args);
+                }
+                return new ParentValue(attachedParent, _parentMember, _isExplicit);
             }
 
             public object GetParent(object source)
@@ -117,15 +123,20 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             public static bool SetParentValue(object o)
             {
-                var member = BindingServiceProvider
+                bool isExplicit = true;
+                IBindingMemberInfo member = BindingServiceProvider
                     .MemberProvider
-                    .GetBindingMember(o.GetType(), AttachedMemberConstants.ParentExplicit, false, false) ??
-                             BindingServiceProvider
-                                 .MemberProvider
-                                 .GetBindingMember(o.GetType(), AttachedMemberConstants.Parent, true, false);
+                    .GetBindingMember(o.GetType(), AttachedMemberConstants.ParentExplicit, false, false);
+                if (member == null)
+                {
+                    member = BindingServiceProvider
+                        .MemberProvider
+                        .GetBindingMember(o.GetType(), AttachedMemberConstants.Parent, true, false);
+                    isExplicit = false;
+                }
                 if (member == null)
                     return false;
-                AttachedParentMember.SetValue(o, new ParentValue(null, member));
+                AttachedParentMember.SetValue(o, new ParentValue(null, member, isExplicit));
                 member.TryObserve(o, Instance);
                 return true;
             }
@@ -348,7 +359,7 @@ namespace MugenMvvmToolkit.Binding.Modules
         private static object SetParent(IBindingMemberInfo bindingMemberInfo, object o, object[] arg3)
         {
             var value = AttachedParentMember.GetValue(o, null);
-            return AttachedParentMember.SetValue(o, value.UpdateAttachedParent(o, arg3[0], arg3));
+            return AttachedParentMember.SetValue(o, value.UpdateAttachedParent(o, arg3));
         }
 
         private static object GetParent(IBindingMemberInfo bindingMemberInfo, object o, object[] arg3)
