@@ -280,7 +280,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Modules
         {
             ToolStrip owner = menuItem.Owner;
             while (owner is ToolStripDropDownMenu)
-                owner = (owner as ToolStripDropDownMenu).OwnerItem.Owner;
+                owner = (owner as ToolStripDropDownMenu).OwnerItem?.Owner;
             return owner;
         }
 
