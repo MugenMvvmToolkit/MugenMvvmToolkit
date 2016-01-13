@@ -26,7 +26,7 @@ namespace MugenMvvmToolkit.Models
     {
         #region Fields
 
-        private static readonly Uri Empty;
+        internal static readonly Uri Empty;
 
         private readonly string _name;
         private readonly Uri _uri;

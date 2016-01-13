@@ -108,7 +108,16 @@ namespace MugenMvvmToolkit.Modules
         protected virtual BindingInfo<IViewMappingProvider> GetViewMappingProvider()
         {
             var assemblies = Context.Assemblies;
-            return BindingInfo<IViewMappingProvider>.FromMethod((adapter, list) => new ViewMappingProvider(assemblies), DependencyLifecycle.SingleInstance);
+            var platformType = Context.Platform.Platform;
+            var isSupportedUriNavigation = platformType == PlatformType.Silverlight || platformType == PlatformType.WinPhone ||
+                                                           platformType == PlatformType.WPF;
+            return BindingInfo<IViewMappingProvider>.FromMethod((adapter, list) =>
+            {
+                return new ViewMappingProvider(assemblies)
+                {
+                    IsSupportedUriNavigation = isSupportedUriNavigation
+                };
+            }, DependencyLifecycle.SingleInstance);
         }
 
         protected virtual BindingInfo<IViewManager> GetViewManager()

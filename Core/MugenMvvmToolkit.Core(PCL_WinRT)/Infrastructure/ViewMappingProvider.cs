@@ -60,11 +60,14 @@ namespace MugenMvvmToolkit.Infrastructure
             _viewModelPostfix = viewModelPostfix ?? new[] { "ViewModel", "Vm" };
             _viewTypeToMapping = new Dictionary<Type, List<IViewMappingItem>>();
             _viewModelToMapping = new Dictionary<Type, Dictionary<string, IViewMappingItem>>();
+            IsSupportedUriNavigation = true;
         }
 
         #endregion
 
         #region Properties
+
+        public bool IsSupportedUriNavigation { get; set; }
 
         protected IList<string> ViewPostfix => _viewPostfix;
 
@@ -237,6 +240,8 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (!string.IsNullOrEmpty(url))
                 return new Uri(url, uriKind);
+            if (!IsSupportedUriNavigation)
+                return ViewMappingItem.Empty;
             Assembly assembly = viewType.GetAssembly();
             string name = assembly.GetAssemblyName().Name;
             string uri = viewType.FullName.Replace(name, string.Empty).Replace(".", "/");

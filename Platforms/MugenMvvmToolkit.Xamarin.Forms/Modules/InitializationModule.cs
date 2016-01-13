@@ -72,7 +72,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Modules
         protected override BindingInfo<IViewMappingProvider> GetViewMappingProvider()
         {
             var assemblies = Context.Assemblies;
-            return BindingInfo<IViewMappingProvider>.FromMethod((adapter, list) => new ViewMappingProviderEx(assemblies), DependencyLifecycle.SingleInstance);
+            return BindingInfo<IViewMappingProvider>.FromMethod((adapter, list) => new ViewMappingProviderEx(assemblies) { IsSupportedUriNavigation = false }, DependencyLifecycle.SingleInstance);
         }
 
         protected override BindingInfo<IThreadManager> GetThreadManager()
