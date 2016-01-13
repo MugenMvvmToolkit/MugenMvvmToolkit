@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using MugenMvvmToolkit.Infrastructure;
@@ -47,7 +46,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         static ExpressionReflectionManagerEx()
         {
-            DelegatesCache = new Dictionary<MethodDelegateCacheKey, Func<object, Delegate>>(MethodDelegateCacheKeyComparer.Instance);
+            DelegatesCache = new Dictionary<MethodDelegateCacheKey, Func<object, Delegate>>(MemberCacheKeyComparer.Instance);
         }
 
         #endregion

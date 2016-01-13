@@ -30,22 +30,22 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Nested types
 
-        protected sealed class MethodDelegateCacheKeyComparer : IEqualityComparer<MethodDelegateCacheKey>
+        protected sealed class MemberCacheKeyComparer : IEqualityComparer<MethodDelegateCacheKey>, IEqualityComparer<MemberInfoDelegateCacheKey>
         {
             #region Fields
 
-            public static readonly MethodDelegateCacheKeyComparer Instance;
+            public static readonly MemberCacheKeyComparer Instance;
 
             #endregion
 
             #region Constructors
 
-            static MethodDelegateCacheKeyComparer()
+            static MemberCacheKeyComparer()
             {
-                Instance = new MethodDelegateCacheKeyComparer();
+                Instance = new MemberCacheKeyComparer();
             }
 
-            private MethodDelegateCacheKeyComparer()
+            private MemberCacheKeyComparer()
             {
             }
 
@@ -53,13 +53,31 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Implementation of IEqualityComparer<in MethodDelegateCacheKey>
 
-            public bool Equals(MethodDelegateCacheKey x, MethodDelegateCacheKey y)
+            bool IEqualityComparer<MemberInfoDelegateCacheKey>.Equals(MemberInfoDelegateCacheKey x, MemberInfoDelegateCacheKey y)
+            {
+                return x.DelegateType.Equals(y.DelegateType) &&
+                       (ReferenceEquals(x.Member, y.Member) || x.Member.Equals(y.Member));
+            }
+
+            int IEqualityComparer<MemberInfoDelegateCacheKey>.GetHashCode(MemberInfoDelegateCacheKey obj)
+            {
+                unchecked
+                {
+                    return (obj.DelegateType.GetHashCode() * 397) ^ obj.Member.GetHashCode();
+                }
+            }
+
+            #endregion
+
+            #region Implementation of IEqualityComparer<in MethodDelegateCacheKey>
+
+            bool IEqualityComparer<MethodDelegateCacheKey>.Equals(MethodDelegateCacheKey x, MethodDelegateCacheKey y)
             {
                 return x.DelegateType.Equals(y.DelegateType) &&
                        (ReferenceEquals(x.Method, y.Method) || x.Method.Equals(y.Method));
             }
 
-            public int GetHashCode(MethodDelegateCacheKey obj)
+            int IEqualityComparer<MethodDelegateCacheKey>.GetHashCode(MethodDelegateCacheKey obj)
             {
                 unchecked
                 {
@@ -91,6 +109,27 @@ namespace MugenMvvmToolkit.Infrastructure
             #endregion
         }
 
+        [StructLayout(LayoutKind.Auto)]
+        protected struct MemberInfoDelegateCacheKey
+        {
+            #region Fields
+
+            public MemberInfo Member;
+            public Type DelegateType;
+
+            #endregion
+
+            #region Constructors
+
+            public MemberInfoDelegateCacheKey(MemberInfo member, Type delegateType)
+            {
+                Member = member;
+                DelegateType = delegateType;
+            }
+
+            #endregion
+        }
+
         #endregion
 
         #region Fields
@@ -98,8 +137,8 @@ namespace MugenMvvmToolkit.Infrastructure
         private static readonly Dictionary<MethodDelegateCacheKey, MethodInfo> CachedDelegates;
         private static readonly Dictionary<ConstructorInfo, Func<object[], object>> ActivatorCache;
         private static readonly Dictionary<MethodInfo, Func<object, object[], object>> InvokeMethodCache;
-        private static readonly Dictionary<MemberInfo, Delegate> MemberAccessCache;
-        private static readonly Dictionary<MemberInfo, Delegate> MemberSetterCache;
+        private static readonly Dictionary<MemberInfoDelegateCacheKey, Delegate> MemberAccessCache;
+        private static readonly Dictionary<MemberInfoDelegateCacheKey, Delegate> MemberSetterCache;
         private static readonly Dictionary<MethodDelegateCacheKey, Delegate> InvokeMethodCacheDelegate;
         private static Func<Type, Expression, IEnumerable<ParameterExpression>, LambdaExpression> _createLambdaExpressionByType;
         private static Func<Expression, ParameterExpression[], LambdaExpression> _createLambdaExpression;
@@ -114,12 +153,12 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             _createLambdaExpression = Expression.Lambda;
             _createLambdaExpressionByType = Expression.Lambda;
-            CachedDelegates = new Dictionary<MethodDelegateCacheKey, MethodInfo>(MethodDelegateCacheKeyComparer.Instance);
+            CachedDelegates = new Dictionary<MethodDelegateCacheKey, MethodInfo>(MemberCacheKeyComparer.Instance);
             ActivatorCache = new Dictionary<ConstructorInfo, Func<object[], object>>();
             InvokeMethodCache = new Dictionary<MethodInfo, Func<object, object[], object>>();
-            MemberAccessCache = new Dictionary<MemberInfo, Delegate>();
-            MemberSetterCache = new Dictionary<MemberInfo, Delegate>();
-            InvokeMethodCacheDelegate = new Dictionary<MethodDelegateCacheKey, Delegate>(MethodDelegateCacheKeyComparer.Instance);
+            MemberAccessCache = new Dictionary<MemberInfoDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
+            MemberSetterCache = new Dictionary<MemberInfoDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
+            InvokeMethodCacheDelegate = new Dictionary<MethodDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
             EmptyParameterExpression = Expression.Parameter(typeof(object));
             NullConstantExpression = Expression.Constant(null, typeof(object));
         }
@@ -268,10 +307,11 @@ namespace MugenMvvmToolkit.Infrastructure
         public virtual Func<object, TType> GetMemberGetter<TType>(MemberInfo member)
         {
             Should.NotBeNull(member, nameof(member));
+            var key = new MemberInfoDelegateCacheKey(member, typeof(TType));
             lock (MemberAccessCache)
             {
                 Delegate value;
-                if (!MemberAccessCache.TryGetValue(member, out value) || !(value is Func<object, TType>))
+                if (!MemberAccessCache.TryGetValue(key, out value))
                 {
                     ParameterExpression target = Expression.Parameter(typeof(object), "instance");
                     MemberExpression accessExp;
@@ -285,7 +325,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     value = Expression
                         .Lambda<Func<object, TType>>(ConvertIfNeed(accessExp, typeof(TType), false), target)
                         .Compile();
-                    MemberAccessCache[member] = value;
+                    MemberAccessCache[key] = value;
                 }
                 return (Func<object, TType>)value;
             }
@@ -294,10 +334,11 @@ namespace MugenMvvmToolkit.Infrastructure
         public virtual Action<object, TType> GetMemberSetter<TType>(MemberInfo member)
         {
             Should.NotBeNull(member, nameof(member));
+            var key = new MemberInfoDelegateCacheKey(member, typeof(TType));
             lock (MemberSetterCache)
             {
                 Delegate action;
-                if (!MemberAccessCache.TryGetValue(member, out action) || !(action is Action<object, TType>))
+                if (!MemberSetterCache.TryGetValue(key, out action))
                 {
                     var declaringType = member.DeclaringType;
                     var fieldInfo = member as FieldInfo;
@@ -315,7 +356,7 @@ namespace MugenMvvmToolkit.Infrastructure
                         }
                         else
                             result = fieldInfo.SetValue<TType>;
-                        MemberAccessCache[member] = result;
+                        MemberSetterCache[key] = result;
                         return result;
                     }
 
@@ -344,7 +385,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     action = Expression
                         .Lambda<Action<object, TType>>(expression, targetParameter, valueParameter)
                         .Compile();
-                    MemberAccessCache[member] = action;
+                    MemberSetterCache[key] = action;
                 }
                 return (Action<object, TType>)action;
             }
