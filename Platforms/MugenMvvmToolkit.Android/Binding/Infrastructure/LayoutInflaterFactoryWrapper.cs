@@ -131,7 +131,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 {
                     var type = TypeCache<View>.Instance.GetTypeByName(name, true, false);
                     if (type != null && !type.IsInstanceOfType(view))
-                        view = (View)JavaCastMethod.MakeGenericMethod(type).InvokeEx(null, view);
+                        view = (View)JavaCastMethod.MakeGenericMethod(type).Invoke(null, new object[] { view });
                     viewResult = _viewFactory.Initialize(view, attrs);
                 }
             }

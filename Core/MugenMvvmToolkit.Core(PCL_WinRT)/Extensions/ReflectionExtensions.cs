@@ -374,11 +374,9 @@ namespace MugenMvvmToolkit
                     index--;
                     continue;
                 }
-
-                var module = (IModule)constructor.InvokeEx(Empty.Array<object>());
-                modules.Add(module);
+                modules.Add((IModule)constructor.Invoke(Empty.Array<object>()));
             }
-            modules.Sort((module, module1) => module1.Priority.CompareTo(module.Priority));
+            modules.Sort((m1, m2) => m2.Priority.CompareTo(m1.Priority));
             return modules;
         }
 
@@ -606,7 +604,7 @@ namespace MugenMvvmToolkit
                         if (@interface.GetGenericTypeDefinition() != typeof(IViewModelAwareView<>)) continue;
                         if (result != null)
                             throw ExceptionManager.DuplicateInterface("view", "IViewModelAwareView<>", viewType);
-                        result = ServiceProvider.ReflectionManager.GetMemberSetter<IViewModel>(@interface.GetPropertyEx(nameof(IViewModelAwareView<IViewModel>.ViewModel), MemberFlags.Public | MemberFlags.Instance));
+                        result = @interface.GetPropertyEx(nameof(IViewModelAwareView<IViewModel>.ViewModel), MemberFlags.Public | MemberFlags.Instance).SetValue;
                     }
                     ViewToViewModelInterface[viewType] = result;
                 }

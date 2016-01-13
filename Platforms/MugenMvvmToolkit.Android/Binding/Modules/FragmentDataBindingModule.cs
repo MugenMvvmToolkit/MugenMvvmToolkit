@@ -18,7 +18,6 @@
 
 using System;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
-using MugenMvvmToolkit.Android.Infrastructure;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Modules;
@@ -140,8 +139,6 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             TabHostItemsSourceGenerator.RemoveTabDelegate = (generator, info) => OnRemoveTab(removeTabDelegate, generator, info);
             TabHostItemsSourceGenerator.TabChangedDelegate = (generator, o, arg3, arg4, arg5) => OnTabChanged(tabChangedDelegate, generator, o, arg3, arg4, arg5);
-
-            TypeCache<Fragment>.Initialize(null);
             return true;
         }
 

@@ -42,8 +42,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 for (int index = 0; index < properties.Count; index++)
                 {
                     PropertyInfo propertyInfo = properties[index];
-                    var oldState = propertyInfo.GetValueEx<object>(entity);
-                    Add(propertyInfo.Name, new SavedState(propertyInfo, oldState));
+                    Add(propertyInfo.Name, new SavedState(propertyInfo, entity));
                 }
             }
 
@@ -72,8 +71,8 @@ namespace MugenMvvmToolkit.Infrastructure
                 Should.NotBeNull(entity, nameof(entity));
                 foreach (var state in this)
                 {
-                    if (!Equals(state.Value.PropertyInfo.GetValueEx<object>(entity), state.Value.Value))
-                        state.Value.PropertyInfo.SetValueEx(entity, state.Value.Value);
+                    if (!Equals(state.Value.GetValue(entity), state.Value.Value))
+                        state.Value.SetValue(entity, state.Value.Value);
                 }
                 if (Tracer.TraceInformation)
                     Tracer.Info("The state of entity {0} was restored", entity.GetType());
@@ -84,7 +83,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 Should.NotBeNull(entity, nameof(entity));
                 foreach (var savedState in this)
                 {
-                    if (!Equals(savedState.Value.PropertyInfo.GetValueEx<object>(entity), savedState.Value.Value))
+                    if (!Equals(savedState.Value.GetValue(entity), savedState.Value.Value))
                         return true;
                 }
                 return false;
@@ -96,7 +95,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 SavedState savedState;
                 if (!TryGetValue(propertyName, out savedState))
                     return false;
-                return !Equals(savedState.PropertyInfo.GetValueEx<object>(entity), savedState.Value);
+                return !Equals(savedState.GetValue(entity), savedState.Value);
             }
 
             public IDictionary<string, Tuple<object, object>> Dump(object entity)
@@ -105,7 +104,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 var dictionary = new Dictionary<string, Tuple<object, object>>();
                 foreach (var savedState in this)
                 {
-                    var newValue = savedState.Value.PropertyInfo.GetValueEx<object>(entity);
+                    var newValue = savedState.Value.GetValue(entity);
                     if (!Equals(newValue, savedState.Value.Value))
                         dictionary[savedState.Key] = Tuple.Create(savedState.Value.Value, newValue);
                 }
@@ -120,17 +119,19 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             #region Fields
 
-            public PropertyInfo PropertyInfo;
             public object Value;
+            public Func<object, object> GetValue;
+            public Action<object, object> SetValue;
 
             #endregion
 
             #region Constructors
 
-            public SavedState(PropertyInfo propertyInfo, object value)
+            public SavedState(PropertyInfo propertyInfo, object entity)
             {
-                PropertyInfo = propertyInfo;
-                Value = value;
+                GetValue = ServiceProvider.ReflectionManager.GetMemberGetter<object>(propertyInfo);
+                SetValue = ServiceProvider.ReflectionManager.GetMemberSetter<object>(propertyInfo);
+                Value = GetValue(entity);
             }
 
             #endregion

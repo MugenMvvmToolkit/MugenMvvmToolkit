@@ -126,7 +126,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
             var constructor = type.GetConstructor(Empty.Array<Type>());
             if (constructor == null || !constructor.IsPublic)
                 return;
-            var converter = (IValueConverter)constructor.InvokeEx();
+            var converter = (IValueConverter)constructor.Invoke(Empty.Array<object>());
             BindingServiceProvider.ResourceResolver.AddConverter(new ValueConverterWrapper(converter), type, true);
             if (Tracer.TraceInformation)
                 Tracer.Info("The {0} converter is registered.", type);

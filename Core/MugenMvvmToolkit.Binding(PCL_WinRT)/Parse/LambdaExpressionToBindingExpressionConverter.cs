@@ -294,7 +294,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 if (method != null)
                 {
                     _currentExpression = current;
-                    var exp = (Expression)method.InvokeEx(null, this);
+                    var exp = (Expression)method.Invoke(null, new object[] { this });
                     if (exp != null)
                     {
                         if (ReferenceEquals(current, exp))

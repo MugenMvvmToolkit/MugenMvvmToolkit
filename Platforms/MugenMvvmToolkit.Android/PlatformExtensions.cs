@@ -653,7 +653,7 @@ namespace MugenMvvmToolkit.Android
                 var c = t.GetConstructor(ViewContextArgs);
                 if (c == null)
                     return null;
-                return ServiceProvider.ReflectionManager.GetActivatorDelegate(c);
+                return c.Invoke;
             });
             if (func == null)
                 return (View)Activator.CreateInstance(type, ctx);
@@ -667,7 +667,7 @@ namespace MugenMvvmToolkit.Android
                 var c = t.GetConstructor(ViewContextWithAttrsArgs);
                 if (c == null)
                     return null;
-                return ServiceProvider.ReflectionManager.GetActivatorDelegate(c);
+                return c.Invoke;
             });
             if (func == null)
                 return type.CreateView(ctx);

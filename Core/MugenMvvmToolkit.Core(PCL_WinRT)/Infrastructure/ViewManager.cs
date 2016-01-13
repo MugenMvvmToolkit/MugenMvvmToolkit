@@ -234,7 +234,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (view != null && !viewProperty.PropertyType.IsInstanceOfType(view) &&
                 WrapperManager.CanWrap(view.GetType(), viewProperty.PropertyType, context))
                 view = WrapperManager.Wrap(view, viewProperty.PropertyType, context);
-            viewProperty.SetValueEx(viewModel, view);
+            viewProperty.SetValue(viewModel, view);
         }
 
         protected virtual void CleanupView([NotNull] IViewModel viewModel, [NotNull] object view,
@@ -244,7 +244,7 @@ namespace MugenMvvmToolkit.Infrastructure
             viewModel.Settings.Metadata.Remove(ViewModelConstants.View);
             PropertyInfo viewProperty = ReflectionExtensions.GetViewProperty(viewModel.GetType());
             if (viewProperty != null)
-                viewProperty.SetValueEx<object>(viewModel, null);
+                viewProperty.SetValue<object>(viewModel, null);
 
             viewModel.Unsubscribe(ToolkitExtensions.GetUnderlyingView<object>(view));
             if (DisposeView && ServiceProvider.AttachedValueProvider.Contains(view, ViewManagerCreatorPath))

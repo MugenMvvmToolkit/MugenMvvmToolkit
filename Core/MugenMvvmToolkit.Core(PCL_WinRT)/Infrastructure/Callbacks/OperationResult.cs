@@ -149,7 +149,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             Should.NotBeNull(resultType, nameof(resultType));
             return (IOperationResult)ConvertMethod
                 .MakeGenericMethod(resultType)
-                .InvokeEx(null, result);
+                .Invoke(null, new object[] { result });
         }
 
         public static IOperationResult<TType> CreateCancelResult<TType>(OperationType operation, object sender, IDataContext context = null)
@@ -162,7 +162,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             Should.NotBeNull(resultType, nameof(resultType));
             return (IOperationResult)CreateCancelResultMethod
                 .MakeGenericMethod(resultType)
-                .InvokeEx(null, operation, sender, context);
+                .Invoke(null, new[] { operation, sender, context });
         }
 
         public static IOperationResult<TType> CreateErrorResult<TType>(OperationType operation, object sender, Exception exception, IDataContext context = null)
@@ -175,7 +175,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             Should.NotBeNull(resultType, nameof(resultType));
             return (IOperationResult)CreateErrorResultMethod
                 .MakeGenericMethod(resultType)
-                .InvokeEx(null, operation, sender, exception, context);
+                .Invoke(null, new[] { operation, sender, exception, context });
         }
 
         public static IOperationResult<TType> CreateResult<TType>(OperationType operation, object sender, TType result, IDataContext context = null)
@@ -188,7 +188,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             Should.NotBeNull(resultType, nameof(resultType));
             return (IOperationResult)CreateResultMethod
                 .MakeGenericMethod(resultType)
-                .InvokeEx(null, operation, sender, result, context);
+                .Invoke(null, new[] { operation, sender, result, context });
         }
 
         #endregion

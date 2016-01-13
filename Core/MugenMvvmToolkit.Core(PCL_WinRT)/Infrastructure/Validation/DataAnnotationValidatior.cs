@@ -587,7 +587,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                         PropertyInfo property = attrType.GetPropertyEx(MetadataClassTypeProperty, InstancePublicFlags);
                         if (property == null || !property.PropertyType.Equals(typeof(Type)))
                             continue;
-                        var metaType = property.GetValueEx<Type>(attribute);
+                        var metaType = property.GetValue(attribute, null) as Type;
                         if (metaType != null)
                             result.Add(metaType);
                     }

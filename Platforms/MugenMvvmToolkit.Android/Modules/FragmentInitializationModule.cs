@@ -16,8 +16,6 @@
 
 #endregion
 
-using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Modules;
 #if APPCOMPAT
@@ -53,10 +51,7 @@ namespace MugenMvvmToolkit.Android.Modules
             if (!PlatformExtensions.IsApiGreaterThanOrEqualTo17 || !IocContainer.TryGet(out service))
                 return false;
 #endif
-            service.DynamicPresenters.Add(new DynamicViewModelWindowPresenter(IocContainer.Get<IViewMappingProvider>(),
-                IocContainer.Get<IViewManager>(),
-                IocContainer.Get<IWrapperManager>(), IocContainer.Get<IThreadManager>(),
-                IocContainer.Get<IOperationCallbackManager>()));
+            service.DynamicPresenters.Add(IocContainer.Get<DynamicViewModelWindowPresenter>());
             return true;
         }
 

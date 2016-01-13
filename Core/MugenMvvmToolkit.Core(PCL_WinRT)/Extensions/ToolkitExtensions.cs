@@ -1241,10 +1241,7 @@ namespace MugenMvvmToolkit
             var list = new List<IModule>();
             foreach (var module in modules.OrderByDescending(module => module.Priority))
             {
-                if (context.Context.GetData<object>(module.GetType().FullName) != null)
-                    continue;
-                var load = module.Load(context);
-                if (load)
+                if (module.Load(context))
                 {
                     list.Add(module);
                     module.TraceModule(true);

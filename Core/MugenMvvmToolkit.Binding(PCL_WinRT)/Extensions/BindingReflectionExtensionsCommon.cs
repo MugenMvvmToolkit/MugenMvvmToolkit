@@ -57,14 +57,14 @@ namespace MugenMvvmToolkit.Binding
 
         private sealed class MultiTypeConverter : TypeConverter
         {
-        #region Fields
+            #region Fields
 
             private readonly TypeConverter _first;
             private readonly TypeConverter _second;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             public MultiTypeConverter(TypeConverter first, TypeConverter second)
             {
@@ -72,9 +72,9 @@ namespace MugenMvvmToolkit.Binding
                 _second = second;
             }
 
-        #endregion
+            #endregion
 
-        #region Overrides of TypeConverter
+            #region Overrides of TypeConverter
 
             public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
             {
@@ -91,7 +91,7 @@ namespace MugenMvvmToolkit.Binding
                 return base.ConvertFrom(context, culture, value);
             }
 
-        #endregion
+            #endregion
         }
 
         #endregion
@@ -174,7 +174,7 @@ namespace MugenMvvmToolkit.Binding
                 .GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, Empty.Array<Type>(), null);
             if (constructor == null)
                 return null;
-            return constructor.InvokeEx() as TypeConverter;
+            return constructor.Invoke(Empty.Array<object>()) as TypeConverter;
         }
 #endif
         private static Type GetNonNullableType(this Type type)

@@ -310,7 +310,7 @@ namespace MugenMvvmToolkit.Infrastructure
             IDesignTimeManager maxManager = null;
             for (int i = 0; i < managers.Count; i++)
             {
-                var m = (IDesignTimeManager)managers[i].InvokeEx(Empty.Array<object>());
+                var m = (IDesignTimeManager)managers[i].Invoke(Empty.Array<object>());
                 if (maxManager == null || m.Priority > maxManager.Priority)
                 {
                     if (maxManager != null)

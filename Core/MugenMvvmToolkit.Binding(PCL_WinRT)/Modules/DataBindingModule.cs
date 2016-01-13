@@ -194,8 +194,8 @@ namespace MugenMvvmToolkit.Binding.Modules
             }
             if (!_isLoaded)
             {
-                RegisterDefaultMembers();
                 _isLoaded = true;
+                RegisterDefaultMembers();
             }
 
             OnLoaded(context);
@@ -243,7 +243,7 @@ namespace MugenMvvmToolkit.Binding.Modules
             if (constructor == null || !constructor.IsPublic)
                 return;
 
-            var value = constructor.InvokeEx();
+            var value = constructor.Invoke(Empty.Array<object>());
             if (isTemplate)
                 BindingServiceProvider.ResourceResolver.AddObject(type.Name, value, true);
             else
