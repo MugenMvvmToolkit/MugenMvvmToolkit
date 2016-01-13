@@ -45,7 +45,7 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             #region Fields
 
-            private const string IsAttachedHandlerInvokedMember = ".attached";
+            private const string IsAttachedHandlerInvokedMember = ".inv";
             private static readonly Func<TTarget, object, AttachedProperty<TTarget, TType>> AttachedPropertyFactoryDelegate;
             private static readonly Func<TType, object> GetValueConverter;
             private static readonly Func<IBindingMemberInfo, TTarget, IEventListener, IDisposable> ObserveAttachedDelegate;
@@ -372,7 +372,7 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             #region Fields
 
-            private const string ListenerMember = ".EventInvoker";
+            private const string ListenerMember = ".EvIn";
             private readonly Func<IBindingMemberInfo, TTarget, TType, bool> _setValue;
 
             #endregion
@@ -420,7 +420,7 @@ namespace MugenMvvmToolkit.Binding.Models
         #region Fields
 
         private static int _counter;
-        private const string MemberPrefix = "#@$Attached";
+        private const string MemberPrefix = "#@$at";
         private static readonly Func<bool, object> BooleanToObjectConverter;
         private static readonly Func<bool?, object> NullableBooleanToObjectConverter;
 
@@ -608,7 +608,8 @@ namespace MugenMvvmToolkit.Binding.Models
             var eventMember = BindingServiceProvider.MemberProvider.GetBindingMember(source.GetType(), eventName, false, false);
             if (eventMember == null)
             {
-                Tracer.Warn("The event member '{0}' on type '{1}' was not found", eventName, source.GetType());
+                if (Tracer.TraceWarning)
+                    Tracer.Warn("The event member '{0}' on type '{1}' was not found", eventName, source.GetType());
                 return null;
             }
             return (IDisposable)eventMember.SetSingleValue(source, arg3);
