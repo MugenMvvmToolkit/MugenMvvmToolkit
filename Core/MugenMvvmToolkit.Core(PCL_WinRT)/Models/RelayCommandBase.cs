@@ -244,33 +244,33 @@ namespace MugenMvvmToolkit.Models
 
         public static RelayCommandBase FromAsyncHandler(Func<Task> executeMethod, Func<bool> canExecuteMethod, bool allowMultipleExecution, [NotEmptyParams] params object[] notifiers)
         {
-            return new RelayCommand(executeMethod, canExecuteMethod, allowMultipleExecution, notifiers);
+            return new AsyncRelayCommand(executeMethod, canExecuteMethod, allowMultipleExecution, notifiers);
         }
 
         public static RelayCommandBase FromAsyncHandler(Func<Task> executeMethod, Func<bool> canExecuteMethod, [NotEmptyParams] params object[] notifiers)
         {
-            return new RelayCommand(executeMethod, canExecuteMethod, true, notifiers);
+            return new AsyncRelayCommand(executeMethod, canExecuteMethod, notifiers);
         }
 
         public static RelayCommandBase FromAsyncHandler(Func<Task> executeMethod, bool allowMultipleExecution = true)
         {
-            return new RelayCommand(executeMethod, null, allowMultipleExecution, null);
+            return new AsyncRelayCommand(executeMethod, allowMultipleExecution);
         }
 
 
         public static RelayCommandBase FromAsyncHandler<TArg>(Func<TArg, Task> executeMethod, Func<TArg, bool> canExecuteMethod, bool allowMultipleExecution, [NotEmptyParams] params object[] notifiers)
         {
-            return new RelayCommand<TArg>(executeMethod, canExecuteMethod, allowMultipleExecution, notifiers);
+            return new AsyncRelayCommand<TArg>(executeMethod, canExecuteMethod, allowMultipleExecution, notifiers);
         }
 
         public static RelayCommandBase FromAsyncHandler<TArg>(Func<TArg, Task> executeMethod, Func<TArg, bool> canExecuteMethod, [NotEmptyParams] params object[] notifiers)
         {
-            return new RelayCommand<TArg>(executeMethod, canExecuteMethod, true, notifiers);
+            return new AsyncRelayCommand<TArg>(executeMethod, canExecuteMethod, notifiers);
         }
 
         public static RelayCommandBase FromAsyncHandler<TArg>(Func<TArg, Task> executeMethod, bool allowMultipleExecution = true)
         {
-            return new RelayCommand<TArg>(executeMethod, null, allowMultipleExecution, null);
+            return new AsyncRelayCommand<TArg>(executeMethod, allowMultipleExecution);
         }
 
         protected abstract bool CanExecuteInternal(object parameter);

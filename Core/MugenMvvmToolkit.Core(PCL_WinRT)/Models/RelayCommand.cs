@@ -50,7 +50,7 @@ namespace MugenMvvmToolkit.Models
             _canExecute = canExecute;
         }
 
-        protected internal RelayCommand([NotNull] Func<TArg, Task> execute, [CanBeNull] Func<TArg, bool> canExecute, bool allowMultipleExecution,
+        protected RelayCommand([NotNull] Func<TArg, Task> execute, [CanBeNull] Func<TArg, bool> canExecute, bool allowMultipleExecution,
             [NotEmptyParams] params object[] notifiers)
             : base(canExecute != null, notifiers)
         {
@@ -162,7 +162,7 @@ namespace MugenMvvmToolkit.Models
             _canExecute = canExecute;
         }
 
-        protected internal RelayCommand([NotNull] Func<Task> execute, [CanBeNull] Func<bool> canExecute, bool allowMultipleExecution, [NotEmptyParams] params object[] notifiers)
+        protected RelayCommand([NotNull] Func<Task> execute, [CanBeNull] Func<bool> canExecute, bool allowMultipleExecution, [NotEmptyParams] params object[] notifiers)
             : base(canExecute != null, notifiers)
         {
             Should.NotBeNull(execute, nameof(execute));
