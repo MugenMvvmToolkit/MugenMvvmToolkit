@@ -325,7 +325,12 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
 
 
             //ViewPager
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.ViewPager.SelectedItem, ViewPagerSelectedItemChanged));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.ViewPager.SelectedItem, ViewPagerSelectedItemChanged,
+                (pager, args) =>
+                {
+                    //NOTE to activate listener
+                    pager.GetBindingMemberValue(AttachedMembersCompat.ViewPager.CurrentItem);
+                }));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.ViewPager.GetPageTitleDelegate));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.ViewPager.RestoreSelectedIndex));
             var itemMember = AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.ViewPager.CurrentItem,
