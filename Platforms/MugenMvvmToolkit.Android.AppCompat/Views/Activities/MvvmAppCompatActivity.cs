@@ -18,6 +18,7 @@
 
 using System;
 using Android.App;
+using Android.Content;
 using Android.Content.Res;
 using Android.OS;
 using Android.Runtime;
@@ -85,6 +86,11 @@ namespace MugenMvvmToolkit.Android.AppCompat.Views.Activities
         public override void Finish()
         {
             Mediator.Finish(base.Finish);
+        }
+
+        protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
+        {
+            Mediator.OnActivityResult(base.OnActivityResult, requestCode, resultCode, data);
         }
 
         public override void OnBackPressed()

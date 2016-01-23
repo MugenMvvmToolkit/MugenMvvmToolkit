@@ -139,6 +139,7 @@
     <Compile Include="Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs" />
     <Compile Include="Infrastructure\GlobalViewParentListener.cs" />
     <Compile Include="Binding\Modules\ActionBarModule.cs" />
+    <Compile Include="Models\EventArg\ActivityResultEventArgs.cs" />
     <Compile Include="Models\WeakReferenceWeakTable.cs" />
     <Compile Include="Modules\FragmentInitializationModule.cs" />
     <Compile Include="Modules\InitializationModule.cs" />

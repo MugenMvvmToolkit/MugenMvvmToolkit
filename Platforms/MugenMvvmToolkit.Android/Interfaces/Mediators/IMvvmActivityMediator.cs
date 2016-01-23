@@ -20,10 +20,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Android.App;
+using Android.Content;
 using Android.Content.Res;
 using Android.OS;
 using Android.Views;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Models.EventArg;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 
@@ -77,6 +79,8 @@ namespace MugenMvvmToolkit.Android.Interfaces.Mediators
 
         bool OnOptionsItemSelected(IMenuItem item, Func<IMenuItem, bool> baseOnOptionsItemSelected);
 
+        void OnActivityResult(Action<int, Result, Intent> baseOnActivityResult, int requestCode, Result resultCode, Intent data);
+
         void AddPreferencesFromResource(Action<int> baseAddPreferencesFromResource, int preferencesResId);
 
         Func<IMenuItem, bool> OptionsItemSelected { get; set; }
@@ -104,5 +108,7 @@ namespace MugenMvvmToolkit.Android.Interfaces.Mediators
         event EventHandler<Activity, EventArgs> Destroyed;
 
         event EventHandler<Activity, EventArgs> DataContextChanged;
+
+        event EventHandler<Activity, ActivityResultEventArgs> ActivityResult;
     }
 }

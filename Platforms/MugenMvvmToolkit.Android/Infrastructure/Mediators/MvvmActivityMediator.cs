@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
 using Android.App;
+using Android.Content;
 using Android.Content.Res;
 using Android.OS;
 using Android.Preferences;
@@ -31,6 +32,7 @@ using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Binding.Models;
 using MugenMvvmToolkit.Android.Interfaces.Mediators;
 using MugenMvvmToolkit.Android.Interfaces.Navigation;
+using MugenMvvmToolkit.Android.Models.EventArg;
 using MugenMvvmToolkit.Android.Views;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -351,6 +353,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             return optionsItemSelected(item) || baseOnOptionsItemSelected(item);
         }
 
+        public void OnActivityResult(Action<int, Result, Intent> baseOnActivityResult, int requestCode, Result resultCode, Intent data)
+        {
+            baseOnActivityResult(requestCode, resultCode, data);
+            ActivityResult?.Invoke(Target, new ActivityResultEventArgs(requestCode, resultCode, data));
+        }
+
         public virtual void AddPreferencesFromResource(Action<int> baseAddPreferencesFromResource, int preferencesResId)
         {
             var activity = Target as PreferenceActivity;
@@ -408,6 +416,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public virtual event EventHandler<Activity, EventArgs> Resume;
 
         public virtual event EventHandler<Activity, EventArgs> Destroyed;
+        public event EventHandler<Activity, ActivityResultEventArgs> ActivityResult;
 
         #endregion
     }
