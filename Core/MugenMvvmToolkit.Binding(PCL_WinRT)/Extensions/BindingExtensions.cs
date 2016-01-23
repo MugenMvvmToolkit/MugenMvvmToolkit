@@ -701,7 +701,7 @@ namespace MugenMvvmToolkit.Binding
                         context.GetData(BindingBuilderConstants.TargetPath, true).Path);
             return BindingServiceProvider
                 .ObserverProvider
-                .Observe(src, BindingServiceProvider.BindingPathFactory(path), false);
+                .Observe(src, BindingServiceProvider.BindingPathFactory(path), false, context);
         }
 
         public static BindingMemberDescriptor<TSource, IEventListener> ToChangedEvent<TSource, TValue>(this BindingMemberDescriptor<TSource, TValue> member) where TSource : class

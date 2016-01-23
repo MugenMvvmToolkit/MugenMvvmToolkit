@@ -18,12 +18,13 @@
 
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces
 {
     public interface IObserverProvider
     {
         [NotNull]
-        IObserver Observe([NotNull] object target, [NotNull] IBindingPath path, bool ignoreAttachedMembers);
+        IObserver Observe([NotNull] object target, [NotNull] IBindingPath path, bool ignoreAttachedMembers, [CanBeNull] IDataContext context);
     }
 }

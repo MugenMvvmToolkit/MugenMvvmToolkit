@@ -252,6 +252,20 @@ namespace MugenMvvmToolkit.Binding
 
         #region Parameters
 
+        public static IBindingInfoBehaviorSyntax<TSource> Observable<TSource>([NotNull] this IBindingInfoSyntax<TSource> syntax, bool value = true)
+        {
+            Should.NotBeNull(syntax, nameof(syntax));
+            syntax.Builder.AddOrUpdate(BindingBuilderConstants.Observable, value);
+            return syntax.GetOrAddSyntaxBuilder<IBindingInfoBehaviorSyntax<TSource>, object, TSource>();
+        }
+
+        public static IBindingInfoBehaviorSyntax<TSource> HasStablePath<TSource>([NotNull] this IBindingInfoSyntax<TSource> syntax, bool value = true)
+        {
+            Should.NotBeNull(syntax, nameof(syntax));
+            syntax.Builder.AddOrUpdate(BindingBuilderConstants.HasStablePath, value);
+            return syntax.GetOrAddSyntaxBuilder<IBindingInfoBehaviorSyntax<TSource>, object, TSource>();
+        }
+
         public static IBindingInfoBehaviorSyntax<TSource> DisableEqualityChecking<TSource>([NotNull] this IBindingInfoSyntax<TSource> syntax, bool targetValue = true, bool sourceValue = true)
         {
             Should.NotBeNull(syntax, nameof(syntax));

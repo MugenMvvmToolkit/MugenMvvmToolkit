@@ -256,7 +256,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             target = context.GetData(BindingBuilderConstants.Target, true);
             targetPath = context.GetData(BindingBuilderConstants.TargetPath, true);
             var src = context.GetData(BindingBuilderConstants.TargetSource);
-            return BindingServiceProvider.ObserverProvider.Observe(src ?? target, targetPath, false);
+            return BindingServiceProvider.ObserverProvider.Observe(src ?? target, targetPath, false, context);
         }
 
         protected virtual void AddBehaviors(IDataBinding binding, IDataContext context)

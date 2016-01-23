@@ -46,6 +46,8 @@ namespace MugenMvvmToolkit.Binding.DataConstants
         public static readonly DataConstant<Func<IDataContext, object>> Fallback;
         public static readonly DataConstant<object> TargetNullValue;
         public static readonly DataConstant<bool> ToggleEnabledState;
+        public static readonly DataConstant<bool> HasStablePath;
+        public static readonly DataConstant<bool> Observable;
         public static readonly DataConstant NoCache;
 
         #endregion
@@ -71,6 +73,8 @@ namespace MugenMvvmToolkit.Binding.DataConstants
             ToggleEnabledState = DataConstant.Create<bool>(type, nameof(ToggleEnabledState));
             Fallback = DataConstant.Create<Func<IDataContext, object>>(type, nameof(Fallback), true);
             TargetNullValue = DataConstant.Create<object>(type, nameof(TargetNullValue), false);
+            HasStablePath = DataConstant.Create<bool>(type, nameof(HasStablePath));
+            Observable = DataConstant.Create<bool>(type, nameof(Observable));
             NoCache = DataConstant.Create(type, nameof(NoCache));
         }
 

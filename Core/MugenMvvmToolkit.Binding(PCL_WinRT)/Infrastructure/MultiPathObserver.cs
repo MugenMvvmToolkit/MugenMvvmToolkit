@@ -63,10 +63,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (observer == null)
                 {
                     Reference = Empty.WeakReference;
-                    var subscriber = Observer;
+                    Observer?.Dispose();
                     Observer = null;
-                    if (subscriber != null)
-                        subscriber.Dispose();
                     return false;
                 }
                 observer.RaiseValueChanged(ValueChangedEventArgs.TrueEventArgs);
@@ -83,7 +81,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             private readonly IBindingMemberInfo _lastMember;
             private readonly IList<IBindingMemberInfo> _members;
             private readonly WeakReference _observerRef;
-            private readonly WeakReference _penultimateValueRef;
+            public WeakReference PenultimateValueRef;
 
             #endregion
 
@@ -91,8 +89,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public MultiBindingPathMembers(WeakReference observerReference, object penultimateValue, IList<IBindingMemberInfo> members)
             {
+                PenultimateValueRef = ToolkitExtensions.GetWeakReference(penultimateValue);
                 _observerRef = observerReference;
-                _penultimateValueRef = ToolkitExtensions.GetWeakReference(penultimateValue);
                 _members = members;
                 _lastMember = _members[_members.Count - 1];
             }
@@ -112,7 +110,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 }
             }
 
-            public bool AllMembersAvailable => _observerRef.Target != null && _penultimateValueRef.Target != null;
+            public bool AllMembersAvailable => _observerRef.Target != null && PenultimateValueRef.Target != null;
 
             public IList<IBindingMemberInfo> Members => _members;
 
@@ -129,7 +127,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 }
             }
 
-            public object PenultimateValue => _penultimateValueRef.Target;
+            public object PenultimateValue => PenultimateValueRef.Target;
 
             #endregion
         }
@@ -139,6 +137,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Fields
 
         private readonly bool _ignoreAttachedMembers;
+        private readonly bool _hasStablePath;
+        private readonly bool _observable;
         private readonly List<IDisposable> _listeners;
         private readonly LastMemberListener _lastMemberListener;
 
@@ -146,54 +146,78 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
-        public MultiPathObserver([NotNull] object source, [NotNull] IBindingPath path, bool ignoreAttachedMembers)
+        public MultiPathObserver([NotNull] object source, [NotNull] IBindingPath path, bool ignoreAttachedMembers, bool hasStablePath, bool observable)
             : base(source, path)
         {
             Should.BeSupported(!path.IsEmpty, "The MultiPathObserver doesn't support the empty path members.");
             _listeners = new List<IDisposable>(path.Parts.Count - 1);
             _ignoreAttachedMembers = ignoreAttachedMembers;
             _lastMemberListener = new LastMemberListener(ServiceProvider.WeakReferenceFactory(this));
+            _hasStablePath = hasStablePath;
+            _observable = observable;
         }
 
         #endregion
 
         #region Overrides of ObserverBase
 
-        protected override bool DependsOnSubscribers => false;
-
         protected override IBindingPathMembers UpdateInternal(IBindingPathMembers oldPath, bool hasSubscribers)
         {
             object source = GetActualSource();
             if (source == null || source.IsUnsetValue())
-            {
                 return UnsetBindingPathMembers.Instance;
+            ClearListeners();
+            int lastIndex;
+            if (_hasStablePath)
+            {
+                var pathMembers = oldPath as MultiBindingPathMembers;
+                if (pathMembers != null)
+                {
+                    var list = pathMembers.Members;
+                    lastIndex = list.Count - 1;
+                    for (int index = 0; index < list.Count; index++)
+                    {
+                        var pathMember = list[index];
+                        if (_observable)
+                        {
+                            var observer = TryObserveMember(source, pathMember, index == lastIndex);
+                            if (observer != null)
+                                _listeners.Add(observer);
+                        }
+                        if (index == lastIndex)
+                            break;
+                        source = pathMember.GetValue(source, null);
+                        if (source == null || source.IsUnsetValue())
+                            return UnsetBindingPathMembers.Instance;
+                    }
+                    pathMembers.PenultimateValueRef = ToolkitExtensions.GetWeakReference(source);
+                    return pathMembers;
+                }
             }
-            bool allMembersAvailable = true;
+
             IBindingMemberProvider memberProvider = BindingServiceProvider.MemberProvider;
             IList<string> items = Path.Parts;
-            int lastIndex = items.Count - 1;
+            lastIndex = items.Count - 1;
             var members = new List<IBindingMemberInfo>();
             for (int index = 0; index < items.Count; index++)
             {
                 string name = items[index];
                 IBindingMemberInfo pathMember = memberProvider.GetBindingMember(source.GetType(), name, _ignoreAttachedMembers, true);
                 members.Add(pathMember);
-                var observer = TryObserveMember(source, pathMember, index == lastIndex);
-                if (observer != null)
-                    _listeners.Add(observer);
+                if (_observable)
+                {
+                    var observer = TryObserveMember(source, pathMember, index == lastIndex);
+                    if (observer != null)
+                        _listeners.Add(observer);
+                }
                 if (index == lastIndex)
                     break;
                 source = pathMember.GetValue(source, null);
                 if (source == null || source.IsUnsetValue())
-                {
-                    allMembersAvailable = false;
-                    break;
-                }
+                    return UnsetBindingPathMembers.Instance;
             }
 
-            return allMembersAvailable
-                ? new MultiBindingPathMembers(_lastMemberListener.Reference, source, members)
-                : UnsetBindingPathMembers.Instance;
+            return new MultiBindingPathMembers(_lastMemberListener.Reference, source, members);
         }
 
         protected override IEventListener CreateSourceListener()
@@ -201,18 +225,19 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return this;
         }
 
-        protected override void ClearObserversInternal()
+        /*protected override void ClearObserversInternal()
         {
             for (int index = 0; index < _listeners.Count; index++)
                 _listeners[index].Dispose();
             _listeners.Clear();
-        }
+        }*/
 
         protected override void OnDispose()
         {
             try
             {
                 _lastMemberListener.Reference.Target = null;
+                ClearListeners();
             }
             catch
             {
@@ -224,6 +249,15 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #endregion
 
         #region Methods
+
+        private void ClearListeners()
+        {
+            if (_listeners.Count == 0)
+                return;
+            for (int index = 0; index < _listeners.Count; index++)
+                _listeners[index].Dispose();
+            _listeners.Clear();
+        }
 
         private IDisposable TryObserveMember(object source, IBindingMemberInfo pathMember, bool isLastInChain)
         {

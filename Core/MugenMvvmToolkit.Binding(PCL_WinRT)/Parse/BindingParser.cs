@@ -170,11 +170,13 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {"TargetNullValue", parser => parser.GetTargetNullValueSetter()},
                 {AttachedMemberConstants.CommandParameter, parser => parser.GetCommandParameterSetter()},
                 {"Behavior", parser => parser.GetCustomBehaviorSetter()},
-                {"ToggleEnabledState", parser => parser.GetToggleEnabledState()},
-                {"ToggleEnabled", parser => parser.GetToggleEnabledState()},
+                {nameof(BindingBuilderConstants.ToggleEnabledState), parser => parser.GetBoolValue(BindingBuilderConstants.ToggleEnabledState)},
+                {"ToggleEnabled", parser => parser.GetBoolValue(BindingBuilderConstants.ToggleEnabledState)},
                 {"DisableEqualityChecking", parser => parser.GetDisableEqualityChecking(null)},
                 {"TargetDisableEqualityChecking", parser => parser.GetDisableEqualityChecking(true)},
-                {"SourceDisableEqualityChecking", parser => parser.GetDisableEqualityChecking(false)}
+                {"SourceDisableEqualityChecking", parser => parser.GetDisableEqualityChecking(false)},
+                {nameof(BindingBuilderConstants.HasStablePath), parser => parser.GetBoolValue(BindingBuilderConstants.HasStablePath) },
+                {nameof(BindingBuilderConstants.Observable), parser => parser.GetBoolValue(BindingBuilderConstants.Observable) }
             };
 
             _binaryOperationAliases = new Dictionary<string, TokenType>(StringComparer.OrdinalIgnoreCase)
@@ -1114,12 +1116,12 @@ namespace MugenMvvmToolkit.Binding.Parse
             };
         }
 
-        private IList<Action<IDataContext>> GetToggleEnabledState()
+        private IList<Action<IDataContext>> GetBoolValue(DataConstant<bool> constant)
         {
             var value = ReadBoolValue();
             return new Action<IDataContext>[]
             {
-                context => context.Add(BindingBuilderConstants.ToggleEnabledState, value)
+                context => context.Add(constant, value)
             };
         }
 
@@ -1365,7 +1367,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 return context =>
                 {
                     var resourceObject = BindingServiceProvider.ResourceResolver.ResolveObject(resourceName, context, true);
-                    return BindingServiceProvider.ObserverProvider.Observe(resourceObject, path, false);
+                    return BindingServiceProvider.ObserverProvider.Observe(resourceObject, path, false, context);
                 };
             }
             if (node.IsRelativeSource)
@@ -1387,7 +1389,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                          BindingServiceProvider.ContextManager.GetBindingContext(
                              context.GetData(BindingBuilderConstants.Target, true),
                              context.GetData(BindingBuilderConstants.TargetPath, true).Path);
-            return BindingServiceProvider.ObserverProvider.Observe(src, path, false);
+            return BindingServiceProvider.ObserverProvider.Observe(src, path, false, context);
         }
 
         #endregion

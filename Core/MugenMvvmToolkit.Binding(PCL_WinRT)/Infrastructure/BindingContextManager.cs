@@ -171,7 +171,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 _member = member;
                 _observer = BindingServiceProvider
                     .ObserverProvider
-                    .Observe(source, BindingServiceProvider.BindingPathFactory(member.Path), true);
+                    .Observe(source, BindingServiceProvider.BindingPathFactory(member.Path), true, DataContext.Empty);
                 _observer.ValueChanged += ObserverOnValueChanged;
             }
 

@@ -72,6 +72,8 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
         private object _commandParameter;
         private bool? _toggleEnabledState;
         private uint _targetDelay;
+        private bool? _hasStablePath;
+        private bool? _observable;
 
         #endregion
 
@@ -268,6 +270,28 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             }
         }
 
+        public bool? Observable
+        {
+            get { return _observable; }
+            set
+            {
+                if (value.HasValue)
+                    HasValue = true;
+                _observable = value;
+            }
+        }
+
+        public bool? HasStablePath
+        {
+            get { return _hasStablePath; }
+            set
+            {
+                if (value.HasValue)
+                    HasValue = true;
+                _hasStablePath = value;
+            }
+        }
+
         protected bool HasValue { get; set; }
 
         protected bool HasConverter { get; set; }
@@ -347,6 +371,10 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
 
             if (ToggleEnabledState.HasValue)
                 syntaxBuilder.ToggleEnabledState(ToggleEnabledState.Value);
+            if (HasStablePath.HasValue)
+                syntaxBuilder.HasStablePath(HasStablePath.Value);
+            if (Observable.HasValue)
+                syntaxBuilder.Observable(Observable.Value);
             if (ValidatesOnExceptions)
                 syntaxBuilder.ValidatesOnExceptions();
             if (ValidatesOnNotifyDataErrors)
@@ -427,6 +455,5 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
         }
 
         #endregion
-
     }
 }

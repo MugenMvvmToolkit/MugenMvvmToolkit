@@ -85,7 +85,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 #if WINDOWS_PHONE
                 _observer = BindingServiceProvider
                     .ObserverProvider
-                    .Observe(element, BindingPath.DataContext, true);
+                    .Observe(element, BindingPath.DataContext, true, DataContext.Empty);
                 _observer.ValueChanged += RaiseDataContextChanged;
 #else
                 _sourceReference = ServiceProvider.WeakReferenceFactory(element);

@@ -16,8 +16,10 @@
 
 #endregion
 
+using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
@@ -25,15 +27,21 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
     {
         #region Implementation of IObserverProvider
 
-        public virtual IObserver Observe(object target, IBindingPath path, bool ignoreAttachedMembers)
+        public virtual IObserver Observe(object target, IBindingPath path, bool ignoreAttachedMembers, IDataContext context)
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(path, nameof(path));
+            bool hasStablePath;
+            bool observable;
+            if (context == null || !context.TryGetData(BindingBuilderConstants.HasStablePath, out hasStablePath))
+                hasStablePath = BindingServiceProvider.HasStablePathDefault;
+            if (context == null || !context.TryGetData(BindingBuilderConstants.Observable, out observable))
+                observable = BindingServiceProvider.ObservablePathDefault;
             if (path.IsSingle)
-                return new SinglePathObserver(target, path, ignoreAttachedMembers);
+                return new SinglePathObserver(target, path, ignoreAttachedMembers, hasStablePath, observable);
             if (path.IsEmpty)
                 return new EmptyPathObserver(target, path);
-            return new MultiPathObserver(target, path, ignoreAttachedMembers);
+            return new MultiPathObserver(target, path, ignoreAttachedMembers, hasStablePath, observable);
         }
 
         #endregion

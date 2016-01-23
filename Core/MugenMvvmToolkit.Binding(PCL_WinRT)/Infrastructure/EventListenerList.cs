@@ -17,8 +17,10 @@
 #endregion
 
 using System;
+using System.Reflection;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
@@ -66,6 +68,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Fields
 
+        internal static readonly EventListenerList EmptyListener;
+        internal static readonly MethodInfo RaiseMethod;
+
         //Use an array to reduce the cost of memory and do not lock during a call event.
         protected WeakEventListenerWrapper[] Listeners;
 
@@ -73,10 +78,26 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
+        static EventListenerList()
+        {
+            RaiseMethod = typeof(EventListenerList).GetMethodEx(nameof(Raise), MemberFlags.Public | MemberFlags.Instance);
+            EmptyListener = new EventListenerList(true);
+        }
+
+        private EventListenerList(bool _)
+        {
+        }
+
         public EventListenerList()
         {
             Listeners = Empty.Array<WeakEventListenerWrapper>();
         }
+
+        #endregion
+
+        #region Properties
+
+        internal bool IsEmpty => Listeners == null;
 
         #endregion
 

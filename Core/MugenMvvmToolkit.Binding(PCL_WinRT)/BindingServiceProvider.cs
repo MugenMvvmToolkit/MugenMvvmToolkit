@@ -103,6 +103,10 @@ namespace MugenMvvmToolkit.Binding
 
         public static bool DisableDataTemplateSelectorAutoRegistration { get; set; }
 
+        public static bool HasStablePathDefault { get; set; }
+
+        public static bool ObservablePathDefault { get; set; }
+
         public static Dictionary<string, IBindingBehavior> BindingModeToBehavior => BindingModeToBehaviorField;
 
         public static List<string> FakeMemberPrefixes => FakeMemberPrefixesField;
@@ -229,9 +233,6 @@ namespace MugenMvvmToolkit.Binding
         [CanBeNull]
         public static IBindingErrorProvider ErrorProvider { get; set; }
 
-        [CanBeNull]
-        public static Func<object, IBindingMemberInfo, string, bool> ShouldListenPropertyChanged { get; set; }
-
         public static Func<CultureInfo> BindingCultureInfo
         {
             get { return _bindingCultureInfo; }
@@ -264,6 +265,7 @@ namespace MugenMvvmToolkit.Binding
             _bindingProvider = new BindingProvider();
             _observerProvider = new ObserverProvider();
             _contextManager = new BindingContextManager();
+            ObservablePathDefault = true;
         }
 
         private static IBindingPath BindingPathFactoryImpl(string path)

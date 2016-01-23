@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             private readonly IBindingMemberInfo _lastMember;
             private readonly IBindingPath _path;
-            private readonly WeakReference _reference;
+            public WeakReference Reference;
 
             #endregion
 
@@ -44,7 +44,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public SingleBindingPathMembers(WeakReference source, IBindingPath path, IBindingMemberInfo lastMember)
             {
-                _reference = source;
+                Reference = source;
                 _lastMember = lastMember;
                 _path = path;
             }
@@ -55,16 +55,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public IBindingPath Path => _path;
 
-            public bool AllMembersAvailable => _reference.Target != null;
+            public bool AllMembersAvailable => Reference.Target != null;
 
             //NOTE it's better each time to create a new array than to keep it in memory, because this property is rarely used.
             public IList<IBindingMemberInfo> Members => new[] { _lastMember };
 
             public IBindingMemberInfo LastMember => _lastMember;
 
-            public object Source => _reference.Target;
+            public object Source => Reference.Target;
 
-            public object PenultimateValue => _reference.Target;
+            public object PenultimateValue => Reference.Target;
 
             #endregion
         }
@@ -74,6 +74,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #region Fields
 
         private readonly bool _ignoreAttachedMembers;
+        private readonly bool _hasStablePath;
+        private readonly bool _observable;
         private readonly WeakReference _ref;
         private IDisposable _weakEventListener;
 
@@ -81,50 +83,57 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
-        public SinglePathObserver([NotNull] object source, [NotNull] IBindingPath path, bool ignoreAttachedMembers)
+        public SinglePathObserver([NotNull] object source, [NotNull] IBindingPath path, bool ignoreAttachedMembers, bool hasStablePath, bool observable)
             : base(source, path)
         {
             Should.BeSupported(path.IsSingle, "The SinglePathObserver supports only single path members.");
             _ignoreAttachedMembers = ignoreAttachedMembers;
             _ref = ServiceProvider.WeakReferenceFactory(this);
+            _hasStablePath = hasStablePath;
+            _observable = observable;
         }
 
         #endregion
 
         #region Overrides of ObserverBase
 
-        protected override bool DependsOnSubscribers => OriginalSource is WeakReference;
+        protected override bool DependsOnSubscribers => true;
 
         protected override IBindingPathMembers UpdateInternal(IBindingPathMembers oldPath, bool hasSubscribers)
         {
             object source = GetActualSource();
             if (source == null || source.IsUnsetValue())
                 return UnsetBindingPathMembers.Instance;
+            var members = oldPath as SingleBindingPathMembers;
             var srcRef = OriginalSource as WeakReference;
-            if (oldPath != null && srcRef != null)
+            if (members != null)
             {
-                var members = oldPath as SingleBindingPathMembers;
-                if (members != null)
+                if (srcRef != null || ReferenceEquals(members.Source, source))
                 {
-                    if (hasSubscribers)
+                    if (hasSubscribers && _observable && _weakEventListener == null)
                         _weakEventListener = TryObserveMember(source, members.LastMember, this, Path.Path);
+                    return members;
+                }
+                if (_hasStablePath)
+                {
+                    members.Reference = ToolkitExtensions.GetWeakReference(source);
+                    if (hasSubscribers && _observable)
+                    {
+                        _weakEventListener?.Dispose();
+                        _weakEventListener = TryObserveMember(source, members.LastMember, this, Path.Path);
+                    }
                     return members;
                 }
             }
             IBindingMemberInfo lastMember = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(source.GetType(), Path.Path, _ignoreAttachedMembers, true);
-            if (hasSubscribers || srcRef == null)
+            if (_observable && hasSubscribers)
+            {
+                _weakEventListener?.Dispose();
                 _weakEventListener = TryObserveMember(source, lastMember, this, Path.Path);
+            }
             return new SingleBindingPathMembers(srcRef ?? ToolkitExtensions.GetWeakReference(source), Path, lastMember);
-        }
-
-        protected override void ClearObserversInternal()
-        {
-            var listener = _weakEventListener;
-            _weakEventListener = null;
-            if (listener != null)
-                listener.Dispose();
         }
 
         protected override void OnDispose()
@@ -132,6 +141,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             try
             {
                 _ref.Target = null;
+                _weakEventListener?.Dispose();
+                _weakEventListener = null;
             }
             catch
             {

@@ -96,15 +96,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Overrides of ObserverBase
 
-        protected override bool DependsOnSubscribers => true;
-
         protected override IBindingPathMembers UpdateInternal(IBindingPathMembers oldPath, bool hasSubscribers)
         {
             return _members;
-        }
-
-        protected override void ClearObserversInternal()
-        {
         }
 
         protected override IEventListener CreateSourceListener()

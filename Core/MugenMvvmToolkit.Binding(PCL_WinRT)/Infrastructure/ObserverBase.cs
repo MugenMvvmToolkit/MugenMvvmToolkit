@@ -129,15 +129,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         protected object OriginalSource => _source;
 
-        protected abstract bool DependsOnSubscribers { get; }
+        protected virtual bool DependsOnSubscribers => false;
 
         #endregion
 
         #region Methods
 
         protected abstract IBindingPathMembers UpdateInternal(IBindingPathMembers oldPath, bool hasSubscribers);
-
-        protected abstract void ClearObserversInternal();
 
         protected virtual IEventListener CreateSourceListener()
         {
@@ -173,8 +171,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     .WeakEventManager
                     .TrySubscribe(value, CollectionChangedEvent, eventListener);
 
-            if (BindingServiceProvider.ShouldListenPropertyChanged != null && !BindingServiceProvider.ShouldListenPropertyChanged(value, member, propertyName))
-                return null;
             var propertyChanged = value as INotifyPropertyChanged;
             if (propertyChanged == null)
                 return null;
@@ -203,7 +199,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             var ctx = _source as IBindingContext;
             if (ctx == null)
             {
-
                 if (_source is ISourceValue)
                     _sourceListener = BindingServiceProvider.WeakEventManager.TrySubscribe(_source, ValueChangedEvent, CreateSourceListener());
             }
@@ -224,11 +219,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             try
             {
                 if (_sourceListener == null)
-                {
-                    if (hasSubscribers || !DependsOnSubscribers)
-                        InitializeSourceListener();
-                }
-                ClearObserversInternal();
+                    InitializeSourceListener();
                 _pathMembers = UpdateInternal(_pathMembers, hasSubscribers);
             }
             catch (Exception exception)
@@ -241,7 +232,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (Interlocked.CompareExchange(ref _state, DefaultState, UpdatingState) == UpdatingState)
                 {
                     _observationException = ex;
-                    if (DependsOnSubscribers && !hasSubscribers && _valueChanged != null)
+                    if (!hasSubscribers && _valueChanged != null)
                         Update(true);
                     else if (notify)
                         RaiseValueChanged(ValueChangedEventArgs.FalseEventArgs);
@@ -309,8 +300,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             if (ReferenceEquals(_pathMembers, null))
             {
-                Interlocked.CompareExchange(ref _pathMembers, UnsetBindingPathMembers.Instance, null);
-                Update();
+                if (Interlocked.CompareExchange(ref _pathMembers, UnsetBindingPathMembers.Instance, null) == null)
+                    Update();
             }
             var exception = _observationException;
             if (exception == null)
@@ -326,8 +317,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 if (_state == DisposedState)
                     return;
+                var old = _valueChanged;
                 _valueChanged += value;
-                if (ReferenceEquals(_sourceListener, null))
+                if (ReferenceEquals(_sourceListener, null) || (DependsOnSubscribers && ReferenceEquals(old, null)))
                     Update(false);
             }
             remove { _valueChanged -= value; }
@@ -344,15 +336,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 _sourceListener.Dispose();
                 _sourceListener = null;
             }
-            ClearObserversInternal();
             _observationException = DisposedException;
             if (_source is WeakReference)
                 _source = Empty.WeakReference;
             else
             {
-                var disposable = _source as IDisposable;
-                if (disposable != null)
-                    disposable.Dispose();
+                (_source as IDisposable)?.Dispose();
                 _source = EmptySource;
             }
             OnDispose();
