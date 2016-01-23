@@ -347,6 +347,8 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
                             pager.Adapter = pagerAdapter;
                         }
                         pagerAdapter.ItemsSource = args.NewValue;
+                        if (pagerAdapter.Count > 0 && pager.GetBindingMemberValue(AttachedMembersCompat.ViewPager.SelectedItem) == null)
+                            pager.SetBindingMemberValue(AttachedMembersCompat.ViewPager.SelectedItem, pagerAdapter.GetRawItem(0));
                     }));
             return true;
         }
