@@ -83,7 +83,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             foreach (var replaceKeyword in ReplaceKeywords)
                 bindingExpression = bindingExpression.Replace(replaceKeyword.Key, replaceKeyword.Value);
 
-            if (!bindingExpression.Contains("$\"{") && !bindingExpression.Contains("$'{"))
+            if (!bindingExpression.Contains("$\"") && !bindingExpression.Contains("$'"))
                 return;
             Dictionary<string, string> dict = null;
             InterpolatedStringTokenizer.SetSource(bindingExpression);
