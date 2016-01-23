@@ -181,7 +181,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
             var providerMock = new ObserverProviderMock
             {
-                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3)
+                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true)
             };
             var treeManagerMock = new VisualTreeManagerMock
             {
@@ -235,7 +235,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
             var providerMock = new ObserverProviderMock
             {
-                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3)
+                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true)
             };
             var treeManagerMock = new VisualTreeManagerMock
             {
@@ -289,7 +289,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
             var providerMock = new ObserverProviderMock
             {
-                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3)
+                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true)
             };
             var treeManagerMock = new VisualTreeManagerMock
             {
@@ -343,7 +343,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
             var providerMock = new ObserverProviderMock
             {
-                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3)
+                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true)
             };
             var treeManagerMock = new VisualTreeManagerMock
             {
@@ -395,7 +395,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
             var providerMock = new ObserverProviderMock
             {
-                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3)
+                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true)
             };
             var treeManagerMock = new VisualTreeManagerMock
             {
@@ -447,7 +447,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
             var providerMock = new ObserverProviderMock
             {
-                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3)
+                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true)
             };
             var treeManagerMock = new VisualTreeManagerMock
             {
@@ -550,6 +550,33 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var dateTime = DateTime.Now;
             expression(context, new object[] { dateTime, 2 }).ShouldEqual(string.Format(format, dateTime, 2));
             expression(context, new object[] { dateTime, sourcePath2 }).ShouldEqual(string.Format(format, dateTime, sourcePath2));
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
+                sourcePath2);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings0()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string format = "Test {0} - {1}";
+            const string binding = "Text $'Test {SourceText1} - {SourceText2}'";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { 1, 2 }).ShouldEqual(string.Format(format, 1, 2));
+            expression(context, new object[] { sourcePath1, sourcePath2 })
+                .ShouldEqual(string.Format(format, sourcePath1, sourcePath2));
 
             var sources = context.GetData(BindingBuilderConstants.Sources);
             BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
@@ -1980,6 +2007,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
 
             var source = context.GetData(BindingBuilderConstants.Sources)[0].Invoke(context);
             source.GetPathMembers(true);
+            source.ValueChanged += (sender, args) => { };
             BindingSourceShouldBeValidDataContext(target, source, sourcePath);
 
             BindingServiceProvider.ContextManager.GetBindingContext(target).Value = dynamicObject;

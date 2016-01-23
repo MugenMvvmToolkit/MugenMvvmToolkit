@@ -17,7 +17,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         {
             var target = new BindingSourceModel();
             var observerProvider = Cretate();
-            observerProvider.Observe(target, BindingPath.Empty, false).ShouldBeType<EmptyPathObserver>();
+            observerProvider.Observe(target, BindingPath.Empty, false, EmptyContext).ShouldBeType<EmptyPathObserver>();
         }
 
         [TestMethod]
@@ -25,7 +25,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         {
             var target = new BindingSourceModel();
             var observerProvider = Cretate();
-            observerProvider.Observe(target, new BindingPath(GetMemberPath(target, model => model.NestedModel)), false).ShouldBeType<SinglePathObserver>();
+            observerProvider.Observe(target, new BindingPath(GetMemberPath(target, model => model.NestedModel)), false, EmptyContext).ShouldBeType<SinglePathObserver>();
         }
 
         [TestMethod]
@@ -33,7 +33,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         {
             var target = new BindingSourceModel();
             var observerProvider = Cretate();
-            observerProvider.Observe(target, new BindingPath(GetMemberPath(target, model => model.NestedModel.IntProperty)), false).ShouldBeType<MultiPathObserver>();
+            observerProvider.Observe(target, new BindingPath(GetMemberPath(target, model => model.NestedModel.IntProperty)), false, EmptyContext).ShouldBeType<MultiPathObserver>();
         }
 
         protected virtual ObserverProvider Cretate()

@@ -73,6 +73,24 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         }
 
         [TestMethod]
+        public void ObserverShouldNotRaiseValueChangedEventWhenPropertyChangedObservableFalse()
+        {
+            bool isInvoked = false;
+            var model = new BindingSourceModel();
+            var propertyName = GetMemberPath<BindingSourceModel>(sourceModel => sourceModel.StringProperty);
+            var observer = CreateObserver(model, propertyName, false, observable: false);
+            observer.ValueChanged += (sender, args) => isInvoked = true;
+
+            isInvoked = false;
+            model.StringProperty = "test";
+            isInvoked.ShouldBeFalse();
+            isInvoked = false;
+
+            model.IntProperty = 10;
+            isInvoked.ShouldBeFalse();
+        }
+
+        [TestMethod]
         public void ObserverShouldRaiseValueChangedEventWhenPropertyChangedUsingEvent()
         {
             bool isInvoked = false;
@@ -85,6 +103,25 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             model.ObjectProperty = "test";
             model.RaiseObjectPropertyChanged();
             isInvoked.ShouldBeTrue();
+            isInvoked = false;
+
+            model.ObjectProperty = "test1";
+            isInvoked.ShouldBeFalse();
+        }
+
+        [TestMethod]
+        public void ObserverShouldNotRaiseValueChangedEventWhenPropertyChangedUsingEventObservableFalse()
+        {
+            bool isInvoked = false;
+            var model = new BindingSourceEventNotifierModel();
+            var propertyName = GetMemberPath<BindingSourceEventNotifierModel>(sourceModel => sourceModel.ObjectProperty);
+            var observer = CreateObserver(model, propertyName, false, observable: false);
+            observer.ValueChanged += (sender, args) => isInvoked = true;
+
+            isInvoked = false;
+            model.ObjectProperty = "test";
+            model.RaiseObjectPropertyChanged();
+            isInvoked.ShouldBeFalse();
             isInvoked = false;
 
             model.ObjectProperty = "test1";
@@ -115,6 +152,29 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         }
 
         [TestMethod]
+        public void ObserverShouldNotRaiseValueChangedEventWhenPropertyChangedComplexPropertyObservableFalse()
+        {
+            bool isInvoked = false;
+            var model = new BindingSourceModel();
+            var propertyName = GetMemberPath(model, sourceModel => sourceModel.NestedModel.StringProperty);
+
+            var observer = CreateObserver(model, propertyName, false, observable: false);
+            observer.ValueChanged += (sender, args) => isInvoked = true;
+
+            isInvoked = false;
+            model.NestedModel = new BindingSourceNestedModel();
+            isInvoked.ShouldBeFalse();
+
+            isInvoked = false;
+            model.NestedModel.StringProperty = "test";
+            isInvoked.ShouldBeFalse();
+            isInvoked = false;
+
+            model.NestedModel.IntProperty = 10;
+            isInvoked.ShouldBeFalse();
+        }
+
+        [TestMethod]
         public void ObserverShouldRaiseValueChangedEventWhenPropertyChangedComplexPropertyUsingEvent()
         {
             bool isInvoked = false;
@@ -133,6 +193,31 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             model.NestedModel.ObjectProperty = "test";
             model.NestedModel.RaiseObjectPropertyChanged();
             isInvoked.ShouldBeTrue();
+            isInvoked = false;
+
+            model.NestedModel.ObjectProperty = 10;
+            isInvoked.ShouldBeFalse();
+        }
+
+        [TestMethod]
+        public void ObserverShouldNotRaiseValueChangedEventWhenPropertyChangedComplexPropertyUsingEventObservableFalse()
+        {
+            bool isInvoked = false;
+            var model = new BindingSourceEventNotifierModel();
+            var propertyName = GetMemberPath(model, sourceModel => sourceModel.NestedModel.ObjectProperty);
+
+            var observer = CreateObserver(model, propertyName, false, observable: false);
+            observer.ValueChanged += (sender, args) => isInvoked = true;
+
+            isInvoked = false;
+            model.NestedModel = new BindingSourceEventNotifierModel();
+            model.RaiseNestedModelChanged();
+            isInvoked.ShouldBeFalse();
+
+            isInvoked = false;
+            model.NestedModel.ObjectProperty = "test";
+            model.NestedModel.RaiseObjectPropertyChanged();
+            isInvoked.ShouldBeFalse();
             isInvoked = false;
 
             model.NestedModel.ObjectProperty = 10;
@@ -281,6 +366,46 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         }
 
         [TestMethod]
+        public void ObserverShouldUpdateInformationWhenContextChangedHasStablePathTrue()
+        {
+            var model = new BindingSourceModel { StringProperty = "st" };
+            var contextMock = new BindingContextMock { Value = model, Source = new object() };
+            var propertyName = GetMemberPath<BindingSourceModel>(sourceModel => sourceModel.StringProperty);
+            var observer = CreateObserver(contextMock, propertyName, false, hasStablePath: true);
+            var members = observer.GetPathMembers(true);
+            members.Members.Single().Type.ShouldEqual(typeof(string));
+            observer.Path.Path.ShouldEqual(propertyName);
+            members.LastMember.GetValue(members.PenultimateValue, null).ShouldEqual(model.StringProperty);
+
+            var model2 = new BindingSourceModel { StringProperty = "st1" };
+            contextMock.Value = model2;
+            members = observer.GetPathMembers(true);
+            members.Members.Single().Type.ShouldEqual(typeof(string));
+            observer.Path.Path.ShouldEqual(propertyName);
+            members.LastMember.GetValue(members.PenultimateValue, null).ShouldEqual(model2.StringProperty);
+        }
+
+        [TestMethod]
+        public void ObserverShouldUpdateInformationWhenContextChangedHasStablePathTrueComplexPath()
+        {
+            var model = new BindingSourceModel { NestedModel = new BindingSourceNestedModel { StringProperty = "st" } };
+            var contextMock = new BindingContextMock { Value = model, Source = new object() };
+            var propertyName = GetMemberPath<BindingSourceModel>(sourceModel => sourceModel.NestedModel.StringProperty);
+            var observer = CreateObserver(contextMock, propertyName, false, hasStablePath: true);
+            var members = observer.GetPathMembers(true);
+            members.Members.Last().Type.ShouldEqual(typeof(string));
+            observer.Path.Path.ShouldEqual(propertyName);
+            members.LastMember.GetValue(members.PenultimateValue, null).ShouldEqual(model.NestedModel.StringProperty);
+
+            var model2 = new BindingSourceModel { NestedModel = new BindingSourceNestedModel { StringProperty = "st1" } };
+            contextMock.Value = model2;
+            members = observer.GetPathMembers(true);
+            members.Members.Last().Type.ShouldEqual(typeof(string));
+            observer.Path.Path.ShouldEqual(propertyName);
+            members.LastMember.GetValue(members.PenultimateValue, null).ShouldEqual(model2.NestedModel.StringProperty);
+        }
+
+        [TestMethod]
         public void ObserverShouldUpdateInformationWhenContextChangedNotValidContext()
         {
             var model = new BindingSourceModel();
@@ -332,7 +457,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         }
 
         protected virtual IObserver CreateObserver(object source, string path, bool ignoreContext,
-            IBindingMemberProvider memberProvider = null, IBindingContextManager contextManager = null)
+            IBindingMemberProvider memberProvider = null, IBindingContextManager contextManager = null, bool hasStablePath = false, bool observable = true)
         {
             if (memberProvider != null)
                 BindingServiceProvider.MemberProvider = memberProvider;
@@ -342,8 +467,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             if (bindingPath.IsEmpty)
                 return new EmptyPathObserver(source, bindingPath);
             if (bindingPath.IsSingle)
-                return new SinglePathObserver(source, bindingPath, ignoreContext);
-            return new MultiPathObserver(source, bindingPath, ignoreContext);
+                return new SinglePathObserver(source, bindingPath, ignoreContext, hasStablePath, observable);
+            return new MultiPathObserver(source, bindingPath, ignoreContext, hasStablePath, observable);
         }
 
         #endregion
