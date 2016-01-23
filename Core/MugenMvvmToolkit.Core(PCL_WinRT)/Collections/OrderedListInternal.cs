@@ -126,7 +126,8 @@ namespace MugenMvvmToolkit.Collections
 
         public int IndexOfKey(TKey key)
         {
-            Should.NotBeNull(key, nameof(key));
+            if (key == null)
+                return -1;
             int num = Array.BinarySearch(KeysInternal, 0, Size, key, Comparer);
             if (num < 0)
                 return -1;
@@ -410,7 +411,7 @@ namespace MugenMvvmToolkit.Collections
 
         public bool Contains(T item)
         {
-            return IndexOfObject(item) != -1;
+            return IndexOfObject(item) >= 0;
         }
 
         public void CopyTo(T[] array, int arrayIndex)
@@ -434,7 +435,6 @@ namespace MugenMvvmToolkit.Collections
 
         public int IndexOf(T item)
         {
-            Should.NotBeNull(item, nameof(item));
             return IndexOfObject(item);
         }
 
