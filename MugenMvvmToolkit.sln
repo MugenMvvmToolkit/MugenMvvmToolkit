@@ -47,13 +47,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Silverligh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Binding(PCL_Silverlight)", "Core\MugenMvvmToolkit.Binding(PCL_Silverlight)\MugenMvvmToolkit.Binding(PCL_Silverlight).csproj", "{D51E91AC-5351-4DB6-8007-A85B7F9B0EAC}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{17CA0FC6-3ED9-42A8-B6A2-EBA8EBC5045E}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WPF.Test(4.5)", "Tests\MugenMvvmToolkit.WPF.Test(4.5)\MugenMvvmToolkit.WPF.Test(4.5).csproj", "{692023D7-F75C-4C56-948E-B87EBA88A6B2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinForms(4.0)", "Platforms\MugenMvvmToolkit.WinForms(4.0)\MugenMvvmToolkit.WinForms(4.0).csproj", "{6CC70590-B95D-4A10-9304-89C3BA27AB32}"
