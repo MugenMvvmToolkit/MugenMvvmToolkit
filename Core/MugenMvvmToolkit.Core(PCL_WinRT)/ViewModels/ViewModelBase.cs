@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.ViewModels
     {
         #region Nested types
 
-        private sealed class BusyToken : IBusyToken, IBusyTokenCallback
+        private sealed class BusyToken : IBusyToken, IBusyTokenCallback, IBusyInfo
         {
             #region Fields
 
@@ -98,6 +98,7 @@ namespace MugenMvvmToolkit.ViewModels
                     vm.OnPropertyChanged(Empty.BusyMessageChangedArgs);
                 if (oldBusy != vm.IsBusy)
                     vm.OnPropertyChanged(Empty.IsBusyChangedArgs);
+                vm.OnPropertyChanged(Empty.BusyInfoChangedArgs);
                 return true;
             }
 
@@ -118,13 +119,75 @@ namespace MugenMvvmToolkit.ViewModels
                 return tokens ?? Empty.Array<IBusyToken>();
             }
 
+            private static bool TryGetMessage<TType>(BusyToken token, Func<TType, bool> filter, out TType result)
+            {
+                if (token.Message is TType)
+                {
+                    result = (TType)token.Message;
+                    if (filter == null || filter(result))
+                        return true;
+                }
+                result = default(TType);
+                return false;
+            }
+
             #endregion
 
-            #region Implementation of IBusyToken
+            #region Implementation of interfaces
 
             public bool IsCompleted => ReferenceEquals(CompletedList, _listeners);
 
             public object Message => _message;
+
+            public bool TryGetMessage<TType>(out TType message, Func<TType, bool> filter = null)
+            {
+                lock (_ref)
+                {
+                    //Prev
+                    var token = _prev;
+                    while (token != null)
+                    {
+                        if (TryGetMessage(token, filter, out message))
+                            return true;
+                        token = token._prev;
+                    }
+                    if (TryGetMessage(this, filter, out message))
+                        return true;
+                    //Next
+                    token = _next;
+                    while (token != null)
+                    {
+                        if (TryGetMessage(token, filter, out message))
+                            return true;
+                        token = token._next;
+                    }
+                }
+                return false;
+            }
+
+            public IList<object> GetMessages()
+            {
+                var list = new List<object>();
+                lock (_ref)
+                {
+                    //Prev
+                    var token = _prev;
+                    while (token != null)
+                    {
+                        list.Insert(0, token.Message);
+                        token = token._prev;
+                    }
+                    list.Add(Message);
+                    //Next
+                    token = _next;
+                    while (token != null)
+                    {
+                        list.Add(token.Message);
+                        token = token._next;
+                    }
+                }
+                return list;
+            }
 
             public void Register(IBusyTokenCallback callback)
             {
@@ -275,6 +338,8 @@ namespace MugenMvvmToolkit.ViewModels
         public virtual bool IsBusy => _busyTail != null;
 
         public virtual object BusyMessage => _busyTail?.Message;
+
+        public virtual IBusyInfo BusyInfo => _busyTail;
 
         public IViewModelSettings Settings
         {

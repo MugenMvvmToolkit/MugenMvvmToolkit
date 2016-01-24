@@ -77,6 +77,7 @@ namespace MugenMvvmToolkit
         internal static readonly PropertyChangedEventArgs IsValidChangedArgs;
         internal static readonly PropertyChangedEventArgs IsBusyChangedArgs;
         internal static readonly PropertyChangedEventArgs BusyMessageChangedArgs;
+        internal static readonly PropertyChangedEventArgs BusyInfoChangedArgs;
         internal static readonly PropertyChangedEventArgs EmptyPropertyChangedArgs;
         internal static readonly DataErrorsChangedEventArgs EmptyDataErrorsChangedArgs;
 
@@ -104,6 +105,7 @@ namespace MugenMvvmToolkit
             IsValidChangedArgs = new PropertyChangedEventArgs(nameof(IValidatableViewModel.IsValid));
             IsBusyChangedArgs = new PropertyChangedEventArgs(nameof(IViewModel.IsBusy));
             BusyMessageChangedArgs = new PropertyChangedEventArgs(nameof(IViewModel.BusyMessage));
+            BusyInfoChangedArgs = new PropertyChangedEventArgs(nameof(IViewModel.BusyInfo));
             ResetEventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
         }
 

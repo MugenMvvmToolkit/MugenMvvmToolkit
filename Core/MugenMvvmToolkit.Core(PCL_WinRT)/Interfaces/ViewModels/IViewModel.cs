@@ -34,6 +34,9 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
         [CanBeNull]
         object BusyMessage { get; }
 
+        [CanBeNull]
+        IBusyInfo BusyInfo { get; }
+
         [NotNull]
         IViewModelSettings Settings { get; }
 
