@@ -157,7 +157,7 @@ namespace MugenMvvmToolkit.ViewModels
                 collectionChanging = _originalData as INotifyCollectionChanging;
                 if (collectionChanging != null)
                     collectionChanging.CollectionChanging -= RaiseCollectionChanging;
-                ((INotifyCollectionChanged)(_originalData)).CollectionChanged -= RaiseCollectionChanged;
+                ((INotifyCollectionChanged)_originalData).CollectionChanged -= RaiseCollectionChanged;
                 if (_originalData.Count != 0)
                     originalItemsSource.AddRange(_originalData);
             }
