@@ -247,6 +247,7 @@ namespace MugenMvvmToolkit.ViewModels
                         vm.OnPropertyChanged(Empty.IsBusyChangedArgs);
                     if (oldMessage != vm.BusyMessage)
                         vm.OnPropertyChanged(Empty.BusyMessageChangedArgs);
+                    vm.OnPropertyChanged(Empty.BusyInfoChangedArgs);
                 }
             }
 
