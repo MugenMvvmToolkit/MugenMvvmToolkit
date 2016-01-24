@@ -175,14 +175,20 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
             viewModel.IsBusy.ShouldBeTrue();
             viewModel.BusyMessage.ShouldEqual(secondBusyMessage);
+            var messages = viewModel.BusyInfo.GetMessages();
+            messages.Count.ShouldEqual(2);
+            messages[0].ShouldEqual(firstBusyMessage);
+            messages[1].ShouldEqual(secondBusyMessage);
             secondId.Dispose();
 
             viewModel.IsBusy.ShouldBeTrue();
             viewModel.BusyMessage.ShouldEqual(firstBusyMessage);
+            viewModel.BusyInfo.GetMessages().Single().ShouldEqual(firstBusyMessage);
             firstId.Dispose();
 
             viewModel.IsBusy.ShouldBeFalse();
             viewModel.BusyMessage.ShouldBeNull();
+            viewModel.BusyInfo.ShouldBeNull();
         }
 
         [TestMethod]
@@ -196,6 +202,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
             beginBusyHandler.Handle(this, busyMessage);
             viewModel.IsBusy.ShouldBeFalse();
+            viewModel.BusyInfo.ShouldBeNull();
             viewModel.BusyMessage.ShouldBeNull();
         }
 
@@ -210,9 +217,11 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
             beginBusyHandler.Handle(this, busyMessage);
             viewModel.IsBusy.ShouldBeTrue();
+            viewModel.BusyInfo.GetMessages().Single().ShouldEqual(busyMessageString);
             viewModel.BusyMessage.ShouldEqual(busyMessageString);
 
             busyMessage.Dispose();
+            viewModel.BusyInfo.ShouldBeNull();
             viewModel.IsBusy.ShouldBeFalse();
             viewModel.BusyMessage.ShouldBeNull();
         }
@@ -231,14 +240,18 @@ namespace MugenMvvmToolkit.Test.ViewModels
             beginBusyHandler.Handle(this, busyMessage);
             viewModel.IsBusy.ShouldBeTrue();
             viewModel.BusyMessage.ShouldEqual(busyMessageString);
+            viewModel.BusyInfo.GetMessages().Single().ShouldEqual(busyMessageString);
             childViewModel.IsBusy.ShouldBeTrue();
             childViewModel.BusyMessage.ShouldEqual(busyMessageString);
+            childViewModel.BusyInfo.GetMessages().Single().ShouldEqual(busyMessageString);
 
             busyMessage.Dispose();
             viewModel.IsBusy.ShouldBeFalse();
             viewModel.BusyMessage.ShouldBeNull();
+            viewModel.BusyInfo.ShouldBeNull();
             childViewModel.IsBusy.ShouldBeFalse();
             childViewModel.BusyMessage.ShouldBeNull();
+            childViewModel.BusyInfo.ShouldBeNull();
         }
 
         [TestMethod]
@@ -253,12 +266,16 @@ namespace MugenMvvmToolkit.Test.ViewModels
             var beginBusy = viewModel.BeginBusy(busyMessageString);
             viewModel.IsBusy.ShouldBeTrue();
             viewModel.BusyMessage.ShouldEqual(busyMessageString);
+            viewModel.BusyInfo.GetMessages().Single().ShouldEqual(busyMessageString);
             childViewModel.IsBusy.ShouldBeTrue();
             childViewModel.BusyMessage.ShouldEqual(busyMessageString);
+            childViewModel.BusyInfo.GetMessages().Single().ShouldEqual(busyMessageString);
 
             beginBusy.Dispose();
+            viewModel.BusyInfo.ShouldBeNull();
             viewModel.IsBusy.ShouldBeFalse();
             viewModel.BusyMessage.ShouldBeNull();
+            childViewModel.BusyInfo.ShouldBeNull();
             childViewModel.IsBusy.ShouldBeFalse();
             childViewModel.BusyMessage.ShouldBeNull();
         }
@@ -298,9 +315,11 @@ namespace MugenMvvmToolkit.Test.ViewModels
             viewModel.BeginBusy(secondBusyMessage);
 
             viewModel.IsBusy.ShouldBeTrue();
+            viewModel.BusyInfo.GetMessages().Count.ShouldEqual(2);
             viewModel.BusyMessage.ShouldEqual(secondBusyMessage);
             viewModel.ClearBusy();
 
+            viewModel.BusyInfo.ShouldBeNull();
             viewModel.IsBusy.ShouldBeFalse();
             viewModel.BusyMessage.ShouldBeNull();
         }
@@ -321,14 +340,18 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
             viewModel.IsBusy.ShouldBeTrue();
             viewModel.BusyMessage.ShouldEqual(secondBusyMessage);
+            viewModel.BusyInfo.GetMessages().Count.ShouldEqual(2);
             childViewModel.BusyMessage.ShouldEqual(secondBusyMessage);
             childViewModel.IsBusy.ShouldBeTrue();
+            childViewModel.BusyInfo.GetMessages().Count.ShouldEqual(2);
             viewModel.ClearBusy();
 
             viewModel.IsBusy.ShouldBeFalse();
             viewModel.BusyMessage.ShouldBeNull();
+            viewModel.BusyInfo.ShouldBeNull();
             childViewModel.IsBusy.ShouldBeFalse();
             childViewModel.BusyMessage.ShouldBeNull();
+            childViewModel.BusyInfo.ShouldBeNull();
         }
 
         [TestMethod]
@@ -343,12 +366,20 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
             viewModel.IsBusy.ShouldBeTrue();
             viewModel.BusyMessage.ShouldEqual(secondBusyMessage);
+            var messages = viewModel.BusyInfo.GetMessages();
+            messages.Count.ShouldEqual(2);
+            messages[0].ShouldEqual(firstBusyMessage);
+            messages[1].ShouldEqual(secondBusyMessage);
 
             var testViewModelBase = viewModel.GetViewModel<TestViewModelBase>(observationMode: ObservationMode.None);
             viewModel.Subscribe(testViewModelBase);
 
             testViewModelBase.IsBusy.ShouldBeTrue();
             testViewModelBase.BusyMessage.ShouldEqual(secondBusyMessage);
+            messages = testViewModelBase.BusyInfo.GetMessages();
+            messages.Count.ShouldEqual(2);
+            messages[0].ShouldEqual(firstBusyMessage);
+            messages[1].ShouldEqual(secondBusyMessage);
         }
 
         [TestMethod]
