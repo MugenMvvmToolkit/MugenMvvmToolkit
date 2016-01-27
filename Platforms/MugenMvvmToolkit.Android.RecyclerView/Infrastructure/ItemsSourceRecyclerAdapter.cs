@@ -57,7 +57,10 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
                 : base(itemView)
             {
                 if (viewType != global::Android.Resource.Layout.SimpleListItem1)
+                {
                     _bindingContext = BindingServiceProvider.ContextManager.GetBindingContext(itemView);
+                    _bindingContext.Value = null;
+                }
             }
 
             #endregion
@@ -287,7 +290,6 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
             {
                 view = _layoutInflater.Inflate(viewType, parent, false);
                 viewHolder = new ViewHolderImpl(view, viewType);
-                ((ViewHolderImpl)viewHolder).BindingContext.Value = null;
             }
             else
             {
