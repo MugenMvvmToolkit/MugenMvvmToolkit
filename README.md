@@ -32,19 +32,19 @@ The MVVM framework includes the following features that differs this project fro
 
 #Installation
 
-Under Visual Studio you can use NuGet Package Manager to get MugenMvvmToolkit.
+Under Visual Studio you can use [NuGet Package Manager](https://www.nuget.org/) to get MugenMvvmToolkit.
 
-To start developing with mobile platfrom or Silverlight
+To start developing under **iOS, Android, Windows Phone, WinRT, Silverlight** or **PCL** platforms use:
 ```
 PM> Install-Package MugenMvvmToolkit.StarterPack
 ```
 
-To start developing with WPF
+To start developing under **WPF**  use:
 ```
 PM> Install-Package MugenMvvmToolkit.StarterPack.WPF
 ```
 
-To start developing with Windows Forms
+To start developing under **Windows Forms**  use:
 ```
 PM> Install-Package MugenMvvmToolkit.StarterPack.WinForms
 ```
@@ -66,6 +66,7 @@ using (var editorVm = GetViewModel<ProductEditorViewModel>())
    //Code that will be called after the completion of navigation, and yes, this code will be executed even if the application had been tombstoned and then restored.
 }
 ```
+
 *For WinRT and WP you should install the [MugenMvvmToolkit.Fody](http://www.nuget.org/packages/MugenMvvmToolkit.Fody/) plugin to support async operation restore.*
  - Good design mode support, for xaml platforms supports the creation of design view model with any constructor parameters.
  - Supports bindings on all platforms, all of the native binding features available for WPF platform available on all platforms and even more.
