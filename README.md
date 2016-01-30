@@ -46,6 +46,8 @@ To start developing with Windows Forms
 PM> Install-Package MugenMvvmToolkit.StarterPack.WinForms
 ```
 
+#Navigation example
+
 An example of how the navigation looks in other frameworks:
 ```
 Navigate<DetailViewModel>(new DetailParameters() { Index = 2 });
